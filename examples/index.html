@@ -1,0 +1,15 @@
+{{ use "main", title }}
+    <h1 class="{{ isMain ? 'text-lg' : '' }}">Main title</h1>
+
+    <ul>
+        {{ for i, name := range names }}
+            <li>{{ name }}</li>
+        {{ end }}
+    </ul>
+{{ end }}
+
+{{ if isMain || true }}
+    <p>This is the main page</p>
+{{ else }}
+    <p>This is not the main page</p>
+{{ end }}
