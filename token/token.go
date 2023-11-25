@@ -6,6 +6,7 @@ const (
 	// Special types
 	ILLEGAL TokenType = iota // An illegal token
 	EOF                      // The end of the file
+	HTML                     // HTML code
 
 	// Identifiers + literals
 	IDENT // foo, bar
