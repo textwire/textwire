@@ -1,5 +1,7 @@
 # Templating language for Go
 
+[![Go](https://github.com/go-temp/go-temp/actions/workflows/go.yml/badge.svg)](https://github.com/go-temp/go-temp/actions/workflows/go.yml)
+
 ## Features
 
 This is a list of features that are implemented and planned to be implemented in the future.
