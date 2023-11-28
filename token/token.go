@@ -18,11 +18,13 @@ const (
 
 	// Keywords
 	IF
+
+	// Operators
+	PLUS // +
 )
 
 type Token struct {
 	Type    TokenType
 	Literal string
 	Line    uint
-	File    string
 }
