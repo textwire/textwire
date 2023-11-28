@@ -1,3 +1,3 @@
-module github.com/go-temp/go-temp
+module github.com/textwire/textwire
 
 go 1.21.0

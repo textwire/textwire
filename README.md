@@ -1,6 +1,6 @@
-# Templating language for Go
+# Textwire. A template language for Go.
 
-[![Go](https://github.com/go-temp/go-temp/actions/workflows/go.yml/badge.svg)](https://github.com/go-temp/go-temp/actions/workflows/go.yml)
+[![Go](https://github.com/textwire/textwire/actions/workflows/go.yml/badge.svg)](https://github.com/textwire/textwire/actions/workflows/go.yml)
 
 ## Features
 
@@ -25,5 +25,5 @@ This is a list of features that are implemented and planned to be implemented in
 ## Installation
 
 ```bash
-go get github.com/go-temp/go-temp
+go get github.com/textwire/textwire
 ```

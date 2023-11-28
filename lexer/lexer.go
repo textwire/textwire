@@ -1,7 +1,7 @@
 package lexer
 
 import (
-	"github.com/go-temp/go-temp/token"
+	"github.com/textwire/textwire/token"
 )
 
 type Lexer struct {

@@ -3,7 +3,7 @@ package lexer
 import (
 	"testing"
 
-	"github.com/go-temp/go-temp/token"
+	"github.com/textwire/textwire/token"
 )
 
 func TokenizeString(t *testing.T, input string, expectTokens []token.Token) {
