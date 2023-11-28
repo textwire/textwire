@@ -1,6 +1,8 @@
 package lexer
 
-import "github.com/go-temp/go-temp/token"
+import (
+	"github.com/go-temp/go-temp/token"
+)
 
 type Lexer struct {
 	input        string
@@ -47,9 +49,7 @@ func (l *Lexer) NextToken() token.Token {
 	}
 
 	if l.isHtml {
-		tok := l.newToken(token.HTML, l.readHtml())
-		l.advanceChar()
-		return tok
+		return l.newToken(token.HTML, l.readHtml())
 	}
 
 	return l.readEmbeddedCodeToken()
@@ -62,11 +62,13 @@ func (l *Lexer) readEmbeddedCodeToken() token.Token {
 	}
 
 	if isIdent(l.char) {
-		return l.readIdentifier()
+		ident := l.readIdentifier()
+		return l.newToken(token.LookupIdent(ident), ident)
 	}
 
 	if isNumber(l.char) {
-		return l.readNumber()
+		num := l.readNumber()
+		return l.newToken(token.INT, num)
 	}
 
 	return l.newToken(token.ILLEGAL, string(l.char))
@@ -80,42 +82,42 @@ func (l *Lexer) newToken(tokType token.TokenType, literal string) token.Token {
 	}
 }
 
-func (l *Lexer) readIdentifier() token.Token {
+func (l *Lexer) readIdentifier() string {
 	position := l.position
 
 	for isIdent(l.char) {
 		l.advanceChar()
 	}
 
-	return l.newToken(token.IDENT, l.input[position:l.position])
+	return l.input[position:l.position]
 }
 
-func (l *Lexer) readNumber() token.Token {
+func (l *Lexer) readNumber() string {
 	position := l.position
 
 	for isNumber(l.char) {
 		l.advanceChar()
 	}
 
-	return l.newToken(token.INT, l.input[position:l.position])
+	return l.input[position:l.position]
 }
 
-// todo: refactor readHtml to be more efficient
-// make it similar to a readIdentifier method
 func (l *Lexer) readHtml() string {
-	var result string
+	position := l.position
 
-	for l.char != 0 && l.isHtml && (l.char != '{' && l.peekChar() == '{') {
+	for l.isHtml && l.char != 0 && (l.char != '{' && l.peekChar() != '{') {
 		if l.char == '\n' {
 			l.line += 1
 		}
 
-		result += string(l.char)
-
 		l.advanceChar()
 	}
 
-	return result
+	if l.char != 0 {
+		l.advanceChar()
+	}
+
+	return l.input[position:l.position]
 }
 
 // advanceChar advances the lexer's position in the input string
