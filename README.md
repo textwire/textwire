@@ -1,7 +1,6 @@
 # Templating language for Go
 
 [![Go](https://github.com/go-temp/go-temp/actions/workflows/go.yml/badge.svg)](https://github.com/go-temp/go-temp/actions/workflows/go.yml)
-[![GitHub](https://img.shields.io/github/license/go-temp/go-temp)](https://github.com/go-temp/go-temp/blob/main/LICENSE)
 
 ## Features
 
