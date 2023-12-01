@@ -120,7 +120,6 @@ func (l *Lexer) readHtml() string {
 	return l.input[position:l.position]
 }
 
-// advanceChar advances the lexer's position in the input string
 func (l *Lexer) advanceChar() {
 	if l.nextPosition >= len(l.input) {
 		l.char = 0
