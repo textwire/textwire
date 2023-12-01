@@ -20,7 +20,11 @@ const (
 	IF
 
 	// Operators
-	PLUS // +
+	PLUS     // +
+	MINUS    // -
+	ASTERISK // *
+	SLASH    // /
+	PERCENT  // %
 )
 
 var keywords = map[string]TokenType{

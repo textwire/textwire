@@ -59,3 +59,24 @@ func TestIdentifiers(t *testing.T) {
 		{Type: token.EOF, Literal: ""},
 	})
 }
+
+func TestOperators(t *testing.T) {
+	inp := "{{ 1 + 2 - 3 * 4 / 5 % 6 }}"
+
+	TokenizeString(t, inp, []token.Token{
+		{Type: token.OPEN_BRACES, Literal: "{{"},
+		{Type: token.INT, Literal: "1"},
+		{Type: token.PLUS, Literal: "+"},
+		{Type: token.INT, Literal: "2"},
+		{Type: token.MINUS, Literal: "-"},
+		{Type: token.INT, Literal: "3"},
+		{Type: token.ASTERISK, Literal: "*"},
+		{Type: token.INT, Literal: "4"},
+		{Type: token.SLASH, Literal: "/"},
+		{Type: token.INT, Literal: "5"},
+		{Type: token.PERCENT, Literal: "%"},
+		{Type: token.INT, Literal: "6"},
+		{Type: token.CLOSE_BRACES, Literal: "}}"},
+		{Type: token.EOF, Literal: ""},
+	})
+}

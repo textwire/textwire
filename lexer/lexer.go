@@ -58,7 +58,15 @@ func (l *Lexer) NextToken() token.Token {
 func (l *Lexer) readEmbeddedCodeToken() token.Token {
 	switch l.char {
 	case '+':
-		return l.newToken(token.PLUS, "+")
+		return l.newTokenAndAdvance(token.PLUS, "+")
+	case '-':
+		return l.newTokenAndAdvance(token.MINUS, "-")
+	case '*':
+		return l.newTokenAndAdvance(token.ASTERISK, "*")
+	case '/':
+		return l.newTokenAndAdvance(token.SLASH, "/")
+	case '%':
+		return l.newTokenAndAdvance(token.PERCENT, "%")
 	}
 
 	if isIdent(l.char) {
@@ -80,6 +88,18 @@ func (l *Lexer) newToken(tokType token.TokenType, literal string) token.Token {
 		Literal: literal,
 		Line:    l.line,
 	}
+}
+
+func (l *Lexer) newTokenAndAdvance(tokType token.TokenType, literal string) token.Token {
+	tok := token.Token{
+		Type:    tokType,
+		Literal: literal,
+		Line:    l.line,
+	}
+
+	l.advanceChar()
+
+	return tok
 }
 
 func (l *Lexer) readIdentifier() string {
