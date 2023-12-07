@@ -38,14 +38,14 @@ func (l *Lexer) NextToken() token.Token {
 		l.isHtml = false
 		l.advanceChar()
 		l.advanceChar()
-		return l.newToken(token.OPEN_BRACES, "{{")
+		return l.newToken(token.LBRACES, "{{")
 	}
 
 	if l.char == '}' && l.peekChar() == '}' {
 		l.isHtml = true
 		l.advanceChar()
 		l.advanceChar()
-		return l.newToken(token.CLOSE_BRACES, "}}")
+		return l.newToken(token.RBRACES, "}}")
 	}
 
 	if l.isHtml {

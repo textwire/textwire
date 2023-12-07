@@ -29,7 +29,7 @@ func TestIntegers(t *testing.T) {
 
 	TokenizeString(t, inp, []token.Token{
 		{Type: token.HTML, Literal: "<div>"},
-		{Type: token.OPEN_BRACES, Literal: "{{"},
+		{Type: token.LBRACES, Literal: "{{"},
 		{Type: token.INT, Literal: "0"},
 		{Type: token.INT, Literal: "1"},
 		{Type: token.INT, Literal: "2"},
@@ -42,7 +42,7 @@ func TestIntegers(t *testing.T) {
 		{Type: token.INT, Literal: "9"},
 		{Type: token.INT, Literal: "234"},
 		{Type: token.INT, Literal: "41"},
-		{Type: token.CLOSE_BRACES, Literal: "}}"},
+		{Type: token.RBRACES, Literal: "}}"},
 		{Type: token.HTML, Literal: "</div>"},
 		{Type: token.EOF, Literal: ""},
 	})
@@ -52,10 +52,10 @@ func TestIdentifiers(t *testing.T) {
 	inp := "{{ testVar another_var }}"
 
 	TokenizeString(t, inp, []token.Token{
-		{Type: token.OPEN_BRACES, Literal: "{{"},
+		{Type: token.LBRACES, Literal: "{{"},
 		{Type: token.IDENT, Literal: "testVar"},
 		{Type: token.IDENT, Literal: "another_var"},
-		{Type: token.CLOSE_BRACES, Literal: "}}"},
+		{Type: token.RBRACES, Literal: "}}"},
 		{Type: token.EOF, Literal: ""},
 	})
 }
@@ -64,7 +64,7 @@ func TestOperators(t *testing.T) {
 	inp := "{{ 1 + 2 - 3 * 4 / 5 % 6 }}"
 
 	TokenizeString(t, inp, []token.Token{
-		{Type: token.OPEN_BRACES, Literal: "{{"},
+		{Type: token.LBRACES, Literal: "{{"},
 		{Type: token.INT, Literal: "1"},
 		{Type: token.PLUS, Literal: "+"},
 		{Type: token.INT, Literal: "2"},
@@ -76,7 +76,7 @@ func TestOperators(t *testing.T) {
 		{Type: token.INT, Literal: "5"},
 		{Type: token.PERCENT, Literal: "%"},
 		{Type: token.INT, Literal: "6"},
-		{Type: token.CLOSE_BRACES, Literal: "}}"},
+		{Type: token.RBRACES, Literal: "}}"},
 		{Type: token.EOF, Literal: ""},
 	})
 }

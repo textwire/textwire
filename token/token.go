@@ -13,8 +13,8 @@ const (
 	INT   // 4, 24
 
 	// Delimiters
-	OPEN_BRACES  // {{
-	CLOSE_BRACES // }}
+	LBRACES // {{
+	RBRACES // }}
 
 	// Keywords
 	IF
