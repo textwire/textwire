@@ -24,3 +24,7 @@ func New(lexer *lexer.Lexer) *Parser {
 func (p *Parser) ParseProgram() *ast.Program {
 	// todo: here
 }
+
+func (p *Parser) Errors() []string {
+	return p.errors
+}
