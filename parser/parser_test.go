@@ -7,7 +7,7 @@ import (
 )
 
 func TestParseIdentifier(t *testing.T) {
-	inp := "myName"
+	inp := "{{ myName }}"
 
 	l := lexer.New(inp)
 	p := New(l)
