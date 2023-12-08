@@ -12,6 +12,23 @@ type (
 	infixParseFn  func(ast.Expression) ast.Expression
 )
 
+const (
+	_ int = iota
+	LOWEST
+	TERNARY      // a ? b : c
+	EQ           // ==
+	LESS_GREATER // > or <
+	SUM          // +
+	PRODUCT      // *
+	PREFIX       // -X or !X
+	CALL         // myFunction(X)
+	INDEX        // array[index]
+)
+
+var precedences = map[token.TokenType]int{
+	token.EQ: EQUALS,
+}
+
 type Parser struct {
 	l      *lexer.Lexer
 	errors []string
