@@ -74,7 +74,7 @@ func TestOperators(t *testing.T) {
 		{Type: token.INT, Literal: "4"},
 		{Type: token.SLASH, Literal: "/"},
 		{Type: token.INT, Literal: "5"},
-		{Type: token.PERCENT, Literal: "%"},
+		{Type: token.MODULO, Literal: "%"},
 		{Type: token.INT, Literal: "6"},
 		{Type: token.RBRACES, Literal: "}}"},
 		{Type: token.EOF, Literal: ""},

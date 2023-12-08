@@ -66,7 +66,7 @@ func (l *Lexer) readEmbeddedCodeToken() token.Token {
 	case '/':
 		return l.newTokenAndAdvance(token.SLASH, "/")
 	case '%':
-		return l.newTokenAndAdvance(token.PERCENT, "%")
+		return l.newTokenAndAdvance(token.MODULO, "%")
 	}
 
 	if isIdent(l.char) {
