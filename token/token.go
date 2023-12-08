@@ -18,7 +18,7 @@ const (
 	MINUS    // -
 	ASTERISK // *
 	SLASH    // /
-	PERCENT  // %
+	MODULO   // %
 	PERIOD   // .
 	BANG     // !
 	ASSIGN   // =

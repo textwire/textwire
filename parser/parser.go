@@ -26,7 +26,17 @@ const (
 )
 
 var precedences = map[token.TokenType]int{
-	token.EQ: EQUALS,
+	token.QUESTION: TERNARY,
+	token.EQ:       EQ,
+	token.NOT_EQ:   EQ,
+	token.LTHAN:    LESS_GREATER,
+	token.GTHAN:    LESS_GREATER,
+	token.PERIOD:   SUM,
+	token.PLUS:     SUM,
+	token.MINUS:    SUM,
+	token.SLASH:    PRODUCT,
+	token.MODULO:   PRODUCT,
+	token.ASTERISK: PRODUCT,
 }
 
 type Parser struct {
@@ -46,6 +56,10 @@ func New(lexer *lexer.Lexer) *Parser {
 		errors: []string{},
 	}
 
+	p.nextToken()
+	p.nextToken()
+
+	// Prefix operators
 	p.prefixParseFns = make(map[token.TokenType]prefixParseFn)
 	p.registerPrefix(token.IDENT, p.parseIdentifier)
 
@@ -96,6 +110,16 @@ func (p *Parser) peekTokenIs(tok token.TokenType) bool {
 	return p.peekToken.Type == tok
 }
 
+func (p *Parser) peekPrecedence() int {
+	result, ok := precedences[p.peekToken.Type]
+
+	if !ok {
+		return LOWEST
+	}
+
+	return result
+}
+
 func (p *Parser) nextToken() {
 	p.curToken = p.peekToken
 	p.peekToken = p.l.NextToken()
@@ -127,4 +151,29 @@ func (p *Parser) parseExpressionStatement() ast.Statement {
 	}
 
 	return result
+}
+
+func (p *Parser) parseExpression(precedence int) ast.Expression {
+	prefix := p.prefixParseFns[p.curToken.Type]
+
+	if prefix == nil {
+		// TODO: Handle error
+		return nil
+	}
+
+	leftExp := prefix()
+
+	for !p.peekTokenIs(token.RBRACES) && precedence < p.peekPrecedence() {
+		infix := p.infixParseFns[p.peekToken.Type]
+
+		if infix == nil {
+			return leftExp
+		}
+
+		p.nextToken()
+
+		leftExp = infix(leftExp)
+	}
+
+	return leftExp
 }
