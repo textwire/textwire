@@ -6,18 +6,12 @@ const (
 	// Special types
 	ILLEGAL TokenType = iota // An illegal token
 	EOF                      // The end of the file
-	HTML                     // HTML code
+	IDENT                    // foo, bar
 
-	// Identifiers + literals
-	IDENT // foo, bar
-	INT   // 4, 24
-
-	// Delimiters
-	LBRACES // {{
-	RBRACES // }}
-
-	// Keywords
-	IF
+	// Literals
+	HTML // HTML code
+	INT  // Integer
+	STR  // String
 
 	// Operators
 	PLUS     // +
@@ -25,10 +19,43 @@ const (
 	ASTERISK // *
 	SLASH    // /
 	PERCENT  // %
+	PERIOD   // .
+	BANG     // !
+	ASSIGN   // =
+
+	// Comparison operators
+	EQ       // ==
+	NOT_EQ   // !=
+	LTHAN    // <
+	GTHAN    // >
+	LTHAN_EQ // <=
+	GTHAN_EQ // >=
+
+	// Delimiters
+	LBRACES  // {{
+	RBRACES  // }}
+	QUESTION // ?
+	COLON    // :
+	COMMA    // ,
+
+	// Keywords
+	IF
+	ELSE
+	ELSEIF
+	END
+	TRUE
+	FALSE
+	NIL
 )
 
 var keywords = map[string]TokenType{
-	"if": IF,
+	"if":     IF,
+	"else":   ELSE,
+	"elseif": ELSEIF, // else if
+	"end":    END,
+	"true":   TRUE,
+	"false":  FALSE,
+	"nil":    NIL,
 }
 
 type Token struct {
