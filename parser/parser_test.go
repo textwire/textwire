@@ -8,8 +8,20 @@ import (
 )
 
 func TestParseIdentifier(t *testing.T) {
-	inp := "{{ myName }}"
+	stmts := parseStatements(t, "{{ myName }}", 1)
 
+	stmt, ok := stmts[0].(*ast.ExpressionStatement)
+
+	if !ok {
+		t.Fatalf("program.Statements[0] is not an ExpressionStatement, got %T", stmts[0])
+	}
+
+	if !checkIdentifier(t, stmt.Expression, "myName") {
+		return
+	}
+}
+
+func parseStatements(t *testing.T, inp string, stmtCount int) []ast.Statement {
 	l := lexer.New(inp)
 	p := New(l)
 
@@ -17,19 +29,11 @@ func TestParseIdentifier(t *testing.T) {
 
 	checkParserErrors(t, p)
 
-	if len(program.Statements) != 1 {
-		t.Fatalf("program must have 1 statement, got %d", len(program.Statements))
+	if len(program.Statements) != stmtCount {
+		t.Fatalf("program must have %d statement, got %d", stmtCount, len(program.Statements))
 	}
 
-	stmt, ok := program.Statements[0].(*ast.ExpressionStatement)
-
-	if !ok {
-		t.Fatalf("program.Statements[0] is not an ExpressionStatement, got %T", program.Statements[0])
-	}
-
-	if !checkIdentifier(t, stmt.Expression, "myName") {
-		return
-	}
+	return program.Statements
 }
 
 func checkIdentifier(t *testing.T, exp ast.Expression, value string) bool {
