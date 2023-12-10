@@ -1,6 +1,8 @@
 package parser
 
 import (
+	"strconv"
+
 	"github.com/textwire/textwire/token"
 
 	"github.com/textwire/textwire/ast"
@@ -62,6 +64,7 @@ func New(lexer *lexer.Lexer) *Parser {
 	// Prefix operators
 	p.prefixParseFns = make(map[token.TokenType]prefixParseFn)
 	p.registerPrefix(token.IDENT, p.parseIdentifier)
+	p.registerPrefix(token.INT, p.parseIntegerLiteral)
 
 	return p
 }
@@ -132,6 +135,20 @@ func (p *Parser) parseIdentifier() ast.Expression {
 	}
 }
 
+func (p *Parser) parseIntegerLiteral() ast.Expression {
+	val, err := strconv.ParseInt(p.curToken.Literal, 10, 64)
+
+	if err != nil {
+		p.errors = append(p.errors, "could not parse "+p.curToken.Literal+" as integer")
+		return nil
+	}
+
+	return &ast.IntegerLiteral{
+		Token: p.curToken,
+		Value: val,
+	}
+}
+
 func (p *Parser) parseHTMLStatement() *ast.HTMLStatement {
 	return &ast.HTMLStatement{Token: p.curToken}
 }
@@ -157,7 +174,7 @@ func (p *Parser) parseExpression(precedence int) ast.Expression {
 	prefix := p.prefixParseFns[p.curToken.Type]
 
 	if prefix == nil {
-		// TODO: Handle error
+		p.errors = append(p.errors, "no prefix parse function for "+p.curToken.Literal)
 		return nil
 	}
 

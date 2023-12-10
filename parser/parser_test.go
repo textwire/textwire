@@ -1,6 +1,7 @@
 package parser
 
 import (
+	"strconv"
 	"testing"
 
 	"github.com/textwire/textwire/ast"
@@ -63,7 +64,7 @@ func checkIntegerLiteral(t *testing.T, exp ast.Expression, value int64) bool {
 		return false
 	}
 
-	if integer.TokenLiteral() != string(value) {
+	if integer.TokenLiteral() != strconv.FormatInt(value, 10) {
 		t.Errorf("integer.TokenLiteral() is not %d, got %s", value, integer.TokenLiteral())
 		return false
 	}

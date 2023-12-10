@@ -4,7 +4,7 @@ import "github.com/textwire/textwire/token"
 
 type IntegerLiteral struct {
 	Token token.Token
-	Value int
+	Value int64
 }
 
 func (i *IntegerLiteral) expressionNode() {
