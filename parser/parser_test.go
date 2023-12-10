@@ -21,6 +21,20 @@ func TestParseIdentifier(t *testing.T) {
 	}
 }
 
+func TestParseIntegerLiteral(t *testing.T) {
+	stmts := parseStatements(t, "{{ 234 }}", 1)
+
+	stmt, ok := stmts[0].(*ast.ExpressionStatement)
+
+	if !ok {
+		t.Fatalf("program.Statements[0] is not an ExpressionStatement, got %T", stmts[0])
+	}
+
+	if !checkIntegerLiteral(t, stmt.Expression, 234) {
+		return
+	}
+}
+
 func parseStatements(t *testing.T, inp string, stmtCount int) []ast.Statement {
 	l := lexer.New(inp)
 	p := New(l)
@@ -34,6 +48,27 @@ func parseStatements(t *testing.T, inp string, stmtCount int) []ast.Statement {
 	}
 
 	return program.Statements
+}
+
+func checkIntegerLiteral(t *testing.T, exp ast.Expression, value int64) bool {
+	integer, ok := exp.(*ast.IntegerLiteral)
+
+	if !ok {
+		t.Errorf("exp is not an IntegerLiteral, got %T", exp)
+		return false
+	}
+
+	if integer.Value != value {
+		t.Errorf("integer.Value is not %d, got %d", value, integer.Value)
+		return false
+	}
+
+	if integer.TokenLiteral() != string(value) {
+		t.Errorf("integer.TokenLiteral() is not %d, got %s", value, integer.TokenLiteral())
+		return false
+	}
+
+	return true
 }
 
 func checkIdentifier(t *testing.T, exp ast.Expression, value string) bool {
