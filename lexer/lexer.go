@@ -1,6 +1,8 @@
 package lexer
 
 import (
+	"strings"
+
 	"github.com/textwire/textwire/token"
 )
 
@@ -67,6 +69,9 @@ func (l *Lexer) readEmbeddedCodeToken() token.Token {
 		return l.newTokenAndAdvance(token.SLASH, "/")
 	case '%':
 		return l.newTokenAndAdvance(token.MODULO, "%")
+	case '"':
+		str := l.readString()
+		return l.newTokenAndAdvance(token.STR, str)
 	}
 
 	if isIdent(l.char) {
@@ -110,6 +115,30 @@ func (l *Lexer) readIdentifier() string {
 	}
 
 	return l.input[position:l.position]
+}
+
+func (l *Lexer) readString() string {
+	quote := l.char
+	result := ""
+
+	l.advanceChar() // skip the first quote
+
+	position := l.position
+
+	for {
+		prevChar := l.char
+
+		l.advanceChar()
+
+		if l.char == quote && prevChar != '\\' {
+			break
+		}
+	}
+
+	result = l.input[position:l.position]
+
+	// remove slashes before quotes
+	return strings.ReplaceAll(result, "\\"+string(quote), string(quote))
 }
 
 func (l *Lexer) readNumber() string {

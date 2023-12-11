@@ -13,7 +13,7 @@ func TokenizeString(t *testing.T, input string, expectTokens []token.Token) {
 		tok := l.NextToken()
 
 		if tok.Literal != expectTok.Literal {
-			t.Fatalf("tests[%d] - literal wrong. expected=%q, got=%q",
+			t.Fatalf("tests[%d] - literal wrong. expected=%s, got=%s",
 				i, expectTok.Literal, tok.Literal)
 		}
 
@@ -76,6 +76,17 @@ func TestOperators(t *testing.T) {
 		{Type: token.INT, Literal: "5"},
 		{Type: token.MODULO, Literal: "%"},
 		{Type: token.INT, Literal: "6"},
+		{Type: token.RBRACES, Literal: "}}"},
+		{Type: token.EOF, Literal: ""},
+	})
+}
+
+func TestStrings(t *testing.T) {
+	inp := `{{ "Anna \"and\" Serhii" }}`
+
+	TokenizeString(t, inp, []token.Token{
+		{Type: token.LBRACES, Literal: "{{"},
+		{Type: token.STR, Literal: `Anna "and" Serhii`},
 		{Type: token.RBRACES, Literal: "}}"},
 		{Type: token.EOF, Literal: ""},
 	})
