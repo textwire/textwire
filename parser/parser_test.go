@@ -36,6 +36,20 @@ func TestParseIntegerLiteral(t *testing.T) {
 	}
 }
 
+func TestParseStringLiteral(t *testing.T) {
+	stmts := parseStatements(t, `{{ "Hello world" }}`, 1)
+
+	stmt, ok := stmts[0].(*ast.ExpressionStatement)
+
+	if !ok {
+		t.Fatalf("program.Statements[0] is not an ExpressionStatement, got %T", stmts[0])
+	}
+
+	if !checkStringLiteral(t, stmt.Expression, "Hello World") {
+		return
+	}
+}
+
 func parseStatements(t *testing.T, inp string, stmtCount int) []ast.Statement {
 	l := lexer.New(inp)
 	p := New(l)
@@ -66,6 +80,27 @@ func checkIntegerLiteral(t *testing.T, exp ast.Expression, value int64) bool {
 
 	if integer.TokenLiteral() != strconv.FormatInt(value, 10) {
 		t.Errorf("integer.TokenLiteral() is not %d, got %s", value, integer.TokenLiteral())
+		return false
+	}
+
+	return true
+}
+
+func checkStringLiteral(t *testing.T, exp ast.Expression, value string) bool {
+	str, ok := exp.(*ast.StringLiteral)
+
+	if !ok {
+		t.Errorf("exp is not a StringLiteral, got %T", exp)
+		return false
+	}
+
+	if str.Value != value {
+		t.Errorf("str.Value is not %s, got %s", value, str.Value)
+		return false
+	}
+
+	if str.TokenLiteral() != value {
+		t.Errorf("str.TokenLiteral() is not %s, got %s", value, str.TokenLiteral())
 		return false
 	}
 
