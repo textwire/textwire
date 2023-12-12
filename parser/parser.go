@@ -150,7 +150,6 @@ func (p *Parser) parseIntegerLiteral() ast.Expression {
 	}
 }
 func (p *Parser) parseStringLiteral() ast.Expression {
-	// comment
 	return &ast.StringLiteral{
 		Token: p.curToken,
 		Value: p.curToken.Literal,
