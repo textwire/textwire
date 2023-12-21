@@ -149,6 +149,7 @@ func (p *Parser) parseIntegerLiteral() ast.Expression {
 		Value: val,
 	}
 }
+
 func (p *Parser) parseStringLiteral() ast.Expression {
 	return &ast.StringLiteral{
 		Token: p.curToken,
