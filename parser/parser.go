@@ -81,7 +81,7 @@ func (p *Parser) ParseProgram() *ast.Program {
 			prog.Statements = append(prog.Statements, stmt)
 		}
 
-		p.nextToken()
+		p.nextToken() // skip "}}"
 	}
 
 	return prog
