@@ -1,5 +1,14 @@
 package main
 
+import (
+	"fmt"
+	"os"
+
+	"github.com/textwire/textwire/repl"
+)
+
 func main() {
-	println("Hello, World!")
+	fmt.Printf("Interactive shell\n\n")
+
+	repl.Start(os.Stdin, os.Stdout)
 }

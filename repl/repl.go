@@ -11,7 +11,7 @@ import (
 	"github.com/textwire/textwire/parser"
 )
 
-const PROMPT = "$ "
+const PROMPT = "textwire > "
 
 func Start(in io.Reader, out io.Writer) {
 	scanner := bufio.NewScanner(in)
