@@ -16,8 +16,8 @@ This is a list of features that are implemented and planned to be implemented in
     - [ ] Prefix expressions `!x`
     - [ ] Infix expressions `x * y`
 - Literals
-    - [ ] String literals `"Hello, World!"`
-    - [ ] Integer literals `123`
+    - [x] String literals `"Hello, World!"`
+    - [x] Integer literals `123`
     - [ ] Float literals `123.456`
     - [ ] Boolean literals `true`
     - [ ] Slice literals `[]int{1, 2, 3}`
