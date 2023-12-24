@@ -37,7 +37,7 @@ func TestParseIntegerLiteral(t *testing.T) {
 }
 
 func TestParseStringLiteral(t *testing.T) {
-	stmts := parseStatements(t, `{{ "Hello world" }}`, 1)
+	stmts := parseStatements(t, `{{ "Hello World" }}`, 1)
 
 	stmt, ok := stmts[0].(*ast.ExpressionStatement)
 
