@@ -66,6 +66,7 @@ func New(lexer *lexer.Lexer) *Parser {
 	p.registerPrefix(token.IDENT, p.parseIdentifier)
 	p.registerPrefix(token.INT, p.parseIntegerLiteral)
 	p.registerPrefix(token.STR, p.parseStringLiteral)
+	p.registerPrefix(token.NIL, p.parseNilLiteral)
 
 	return p
 }
@@ -157,13 +158,16 @@ func (p *Parser) parseStringLiteral() ast.Expression {
 	}
 }
 
+func (p *Parser) parseNilLiteral() ast.Expression {
+	return &ast.NilLiteral{Token: p.curToken}
+}
+
 func (p *Parser) parseHTMLStatement() *ast.HTMLStatement {
 	return &ast.HTMLStatement{Token: p.curToken}
 }
 
 func (p *Parser) parseEmbeddedCode() ast.Statement {
 	p.nextToken()
-
 	return p.parseExpressionStatement()
 }
 

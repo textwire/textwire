@@ -36,6 +36,26 @@ func TestParseIntegerLiteral(t *testing.T) {
 	}
 }
 
+func TestParseNilLiteral(t *testing.T) {
+	stmts := parseStatements(t, "{{ nil }}", 1)
+
+	stmt, ok := stmts[0].(*ast.ExpressionStatement)
+
+	if !ok {
+		t.Fatalf("program.Statements[0] is not an ExpressionStatement, got %T", stmts[0])
+	}
+
+	nilLit, ok := stmt.Expression.(*ast.NilLiteral)
+
+	if !ok {
+		t.Fatalf("stmt.Expression is not a NilLiteral, got %T", stmt.Expression)
+	}
+
+	if nilLit.TokenLiteral() != "nil" {
+		t.Errorf("nilLit.TokenLiteral() is not 'nil', got %s", nilLit.TokenLiteral())
+	}
+}
+
 func TestParseStringLiteral(t *testing.T) {
 	stmts := parseStatements(t, `{{ "Hello World" }}`, 1)
 
