@@ -1,6 +1,7 @@
 package parser
 
 import (
+	"fmt"
 	"strconv"
 	"testing"
 
@@ -17,7 +18,7 @@ func TestParseIdentifier(t *testing.T) {
 		t.Fatalf("program.Statements[0] is not an ExpressionStatement, got %T", stmts[0])
 	}
 
-	if !checkIdentifier(t, stmt.Expression, "myName") {
+	if !testIdentifier(t, stmt.Expression, "myName") {
 		return
 	}
 }
@@ -31,7 +32,7 @@ func TestParseIntegerLiteral(t *testing.T) {
 		t.Fatalf("program.Statements[0] is not an ExpressionStatement, got %T", stmts[0])
 	}
 
-	if !checkIntegerLiteral(t, stmt.Expression, 234) {
+	if !testIntegerLiteral(t, stmt.Expression, 234) {
 		return
 	}
 }
@@ -45,15 +46,7 @@ func TestParseNilLiteral(t *testing.T) {
 		t.Fatalf("program.Statements[0] is not an ExpressionStatement, got %T", stmts[0])
 	}
 
-	nilLit, ok := stmt.Expression.(*ast.NilLiteral)
-
-	if !ok {
-		t.Fatalf("stmt.Expression is not a NilLiteral, got %T", stmt.Expression)
-	}
-
-	if nilLit.TokenLiteral() != "nil" {
-		t.Errorf("nilLit.TokenLiteral() is not 'nil', got %s", nilLit.TokenLiteral())
-	}
+	testNilLiteral(t, stmt.Expression)
 }
 
 func TestParseReturnStatement(t *testing.T) {
@@ -61,7 +54,8 @@ func TestParseReturnStatement(t *testing.T) {
 		input         string
 		expectedValue interface{}
 	}{
-		{"{{ return }}", 5},
+		{"{{ return }}", nil},
+		{"{{ return 5 }}", 5},
 	}
 
 	for _, tt := range tests {
@@ -77,8 +71,8 @@ func TestParseReturnStatement(t *testing.T) {
 			t.Errorf("returnStmt.TokenLiteral() is not 'return', got %s", returnStmt.TokenLiteral())
 		}
 
-		if returnStmt.Value != tt.expectedValue {
-			t.Errorf("returnStmt.Value is not %v, got %v", tt.expectedValue, returnStmt.Value)
+		if testLiteralExpression(t, returnStmt.Value, tt.expectedValue) {
+			return
 		}
 	}
 }
@@ -92,7 +86,7 @@ func TestParseStringLiteral(t *testing.T) {
 		t.Fatalf("program.Statements[0] is not an ExpressionStatement, got %T", stmts[0])
 	}
 
-	if !checkStringLiteral(t, stmt.Expression, "Hello World") {
+	if !testStringLiteral(t, stmt.Expression, "Hello World") {
 		return
 	}
 }
@@ -112,7 +106,7 @@ func parseStatements(t *testing.T, inp string, stmtCount int) []ast.Statement {
 	return program.Statements
 }
 
-func checkIntegerLiteral(t *testing.T, exp ast.Expression, value int64) bool {
+func testIntegerLiteral(t *testing.T, exp ast.Expression, value int64) bool {
 	integer, ok := exp.(*ast.IntegerLiteral)
 
 	if !ok {
@@ -133,7 +127,23 @@ func checkIntegerLiteral(t *testing.T, exp ast.Expression, value int64) bool {
 	return true
 }
 
-func checkStringLiteral(t *testing.T, exp ast.Expression, value string) bool {
+func testNilLiteral(t *testing.T, exp ast.Expression) bool {
+	nilLit, ok := exp.(*ast.NilLiteral)
+
+	if !ok {
+		t.Errorf("exp is not a NilLiteral, got %T", exp)
+		return false
+	}
+
+	if nilLit.TokenLiteral() != "nil" {
+		t.Errorf("nilLit.TokenLiteral() is not 'nil', got %s", nilLit.TokenLiteral())
+		return false
+	}
+
+	return true
+}
+
+func testStringLiteral(t *testing.T, exp ast.Expression, value string) bool {
 	str, ok := exp.(*ast.StringLiteral)
 
 	if !ok {
@@ -154,7 +164,28 @@ func checkStringLiteral(t *testing.T, exp ast.Expression, value string) bool {
 	return true
 }
 
-func checkIdentifier(t *testing.T, exp ast.Expression, value string) bool {
+func testBooleanLiteral(t *testing.T, exp ast.Expression, value bool) bool {
+	bo, ok := exp.(*ast.BooleanLiteral)
+
+	if !ok {
+		t.Errorf("exp not *ast.Boolean. got=%T", exp)
+		return false
+	}
+
+	if bo.Value != value {
+		t.Errorf("bo.Value not %t. got=%t", value, bo.Value)
+		return false
+	}
+
+	if bo.TokenLiteral() != fmt.Sprintf("%t", value) {
+		t.Errorf("bo.TokenLiteral not %t. got=%s", value, bo.TokenLiteral())
+		return false
+	}
+
+	return true
+}
+
+func testIdentifier(t *testing.T, exp ast.Expression, value string) bool {
 	ident, ok := exp.(*ast.Identifier)
 
 	if !ok {
@@ -189,4 +220,27 @@ func checkParserErrors(t *testing.T, p *Parser) {
 	}
 
 	t.FailNow()
+}
+
+func testLiteralExpression(
+	t *testing.T,
+	exp ast.Expression,
+	expected interface{},
+) bool {
+	switch v := expected.(type) {
+	case int:
+		return testIntegerLiteral(t, exp, int64(v))
+	case int64:
+		return testIntegerLiteral(t, exp, v)
+	case string:
+		return testIdentifier(t, exp, v)
+	case bool:
+		return testBooleanLiteral(t, exp, v)
+	case nil:
+		return testNilLiteral(t, exp)
+	}
+
+	t.Errorf("type of exp not handled. got=%T", exp)
+
+	return false
 }

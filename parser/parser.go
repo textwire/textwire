@@ -151,6 +151,29 @@ func (p *Parser) parseIntegerLiteral() ast.Expression {
 	}
 }
 
+func (p *Parser) parseReturnStatement() *ast.ReturnStatement {
+	stmt := &ast.ReturnStatement{Token: p.curToken}
+
+	p.nextToken() // skip "return"
+
+	if p.curTokenIs(token.RBRACES) {
+		stmt.Value = &ast.NilLiteral{
+			Token: token.Token{
+				Type:    token.NIL,
+				Literal: "nil",
+			},
+		}
+
+		return stmt
+	}
+
+	stmt.Value = p.parseExpression(LOWEST)
+
+	p.peekTokenIs(token.RBRACES)
+
+	return stmt
+}
+
 func (p *Parser) parseStringLiteral() ast.Expression {
 	return &ast.StringLiteral{
 		Token: p.curToken,
@@ -168,6 +191,12 @@ func (p *Parser) parseHTMLStatement() *ast.HTMLStatement {
 
 func (p *Parser) parseEmbeddedCode() ast.Statement {
 	p.nextToken()
+
+	switch p.curToken.Type {
+	case token.RETURN:
+		return p.parseReturnStatement()
+	}
+
 	return p.parseExpressionStatement()
 }
 
