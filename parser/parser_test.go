@@ -56,6 +56,7 @@ func TestParseReturnStatement(t *testing.T) {
 	}{
 		{"{{ return }}", nil},
 		{"{{ return 5 }}", 5},
+		{`{{ return "Anna" }}`, "Anna"},
 	}
 
 	for _, tt := range tests {
