@@ -9,11 +9,12 @@ const (
 	INTEGER_OBJ = "INTEGER"
 	BOOLEAN_OBJ = "BOOLEAN"
 	STRING_OBJ  = "STRING"
+	HTML_OBJ    = "HTML"
 
 	RETURN_VALUE_OBJ = "RETURN_VALUE"
 )
 
 type Object interface {
 	Type() ObjectType
-	Inspect() string
+	String() string
 }

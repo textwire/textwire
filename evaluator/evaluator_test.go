@@ -17,42 +17,25 @@ func testEval(input string) object.Object {
 	return Eval(program, env)
 }
 
-func testIntegerObject(t *testing.T, obj object.Object, expected int64) {
-	result, ok := obj.(*object.Integer)
+func evaluationExpected(t *testing.T, input, expect string) {
+	result := testEval(input).String()
 
-	if !ok {
-		t.Errorf("obj is not an Integer, got %T", obj)
-	}
-
-	if result.Value != expected {
-		t.Errorf("result.Value is not %d, got %d", expected, result.Value)
-	}
-}
-
-func testStringObject(t *testing.T, obj object.Object, expected string) {
-	result, ok := obj.(*object.String)
-
-	if !ok {
-		t.Errorf("obj is not a String, got %T", obj)
-	}
-
-	if result.Value != expected {
-		t.Errorf("result.Value is not %s, got %s", expected, result.Value)
+	if result != expect {
+		t.Errorf("result is not %s, got %s", expect, result)
 	}
 }
 
 func TestEvalIntegerExpression(t *testing.T) {
 	tests := []struct {
 		input    string
-		expected int64
+		expected string
 	}{
-		{"{{ 5 }}", 5},
-		{"{{ 10 }}", 10},
+		{"{{ 5 }}", "5"},
+		{"{{ 10 }}", "10"},
 	}
 
 	for _, tt := range tests {
-		evaluated := testEval(tt.input)
-		testIntegerObject(t, evaluated, tt.expected)
+		evaluationExpected(t, tt.input, tt.expected)
 	}
 }
 
@@ -62,11 +45,24 @@ func TestEvalStringLiteral(t *testing.T) {
 		expected string
 	}{
 		{`{{ "Hello World" }}`, "Hello World"},
-		{`{{ "She is pretty" }}`, "She is pretty"},
+		{`{{ "She \"is\" pretty" }}`, `She "is" pretty`},
 	}
 
 	for _, tt := range tests {
-		evaluated := testEval(tt.input)
-		testStringObject(t, evaluated, tt.expected)
+		evaluationExpected(t, tt.input, tt.expected)
+	}
+}
+
+func TestEvalReturnStatement(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected string
+	}{
+		{`{{ return }}`, ""},
+		{`{{ return 23 }}`, "23"},
+	}
+
+	for _, tt := range tests {
+		evaluationExpected(t, tt.input, tt.expected)
 	}
 }

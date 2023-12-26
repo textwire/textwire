@@ -8,6 +8,6 @@ func (s *String) Type() ObjectType {
 	return STRING_OBJ
 }
 
-func (s *String) Inspect() string {
+func (s *String) String() string {
 	return s.Value
 }

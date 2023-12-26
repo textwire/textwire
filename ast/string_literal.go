@@ -1,8 +1,6 @@
 package ast
 
 import (
-	"fmt"
-
 	"github.com/textwire/textwire/token"
 )
 
@@ -19,5 +17,5 @@ func (i *StringLiteral) TokenLiteral() string {
 }
 
 func (i *StringLiteral) String() string {
-	return fmt.Sprintf(`"%s"`, i.Value)
+	return i.Value
 }

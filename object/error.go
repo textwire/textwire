@@ -8,6 +8,6 @@ func (e *Error) Type() ObjectType {
 	return STRING_OBJ
 }
 
-func (e *Error) Inspect() string {
+func (e *Error) String() string {
 	return e.Message
 }

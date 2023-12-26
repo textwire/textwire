@@ -10,6 +10,6 @@ func (i *Integer) Type() ObjectType {
 	return INTEGER_OBJ
 }
 
-func (i *Integer) Inspect() string {
+func (i *Integer) String() string {
 	return fmt.Sprintf("%d", i.Value)
 }
