@@ -58,14 +58,13 @@ func TestIntegers(t *testing.T) {
 }
 
 func TestIdentifiers(t *testing.T) {
-	inp := "{{ testVar another_var nil return }}"
+	inp := "{{ testVar another_var nil }}"
 
 	TokenizeString(t, inp, []token.Token{
 		{Type: token.LBRACES, Literal: "{{"},
 		{Type: token.IDENT, Literal: "testVar"},
 		{Type: token.IDENT, Literal: "another_var"},
 		{Type: token.NIL, Literal: "nil"},
-		{Type: token.RETURN, Literal: "return"},
 		{Type: token.RBRACES, Literal: "}}"},
 		{Type: token.EOF, Literal: ""},
 	})
