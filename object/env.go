@@ -12,7 +12,7 @@ func NewEnv() *Env {
 }
 
 func EnvFromMap(m map[string]interface{}) (*Env, error) {
-	var env *Env
+	env := NewEnv()
 
 	for key, val := range m {
 		switch val.(type) {
