@@ -1,5 +1,7 @@
 # Release notes
 
-## v0.0.1 (2023-12-30) Coming soon
+## v0.0.1-alfa.0 (2023-12-26)
 
-- First working release fo the package
+- Added ability to embed variables in the template like `<h2>{{ title }}</h2>`
+- Added "string" type for embedded code `<h2>{{ "Some string" }}</h2>`
+- Added "int" type for embedded code `<h2>{{ 123 }}</h2>`
