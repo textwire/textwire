@@ -88,35 +88,6 @@ func TestParseNilLiteral(t *testing.T) {
 	testNilLiteral(t, stmt.Expression)
 }
 
-func TestParseReturnStatement(t *testing.T) {
-	tests := []struct {
-		input         string
-		expectedValue interface{}
-	}{
-		{"{{ return }}", nil},
-		{"{{ return 5 }}", 5},
-		{`{{ return "Anna" }}`, "Anna"},
-	}
-
-	for _, tt := range tests {
-		stmts := parseStatements(t, tt.input, 1)
-
-		returnStmt, ok := stmts[0].(*ast.ReturnStatement)
-
-		if !ok {
-			t.Fatalf("program.Statements[0] is not a ReturnStatement, got %T", stmts[0])
-		}
-
-		if returnStmt.TokenLiteral() != "return" {
-			t.Errorf("returnStmt.TokenLiteral() is not 'return', got %s", returnStmt.TokenLiteral())
-		}
-
-		if testLiteralExpression(t, returnStmt.Value, tt.expectedValue) {
-			return
-		}
-	}
-}
-
 func TestParseStringLiteral(t *testing.T) {
 	stmts := parseStatements(t, `{{ "Hello World" }}`, 1)
 

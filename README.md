@@ -11,7 +11,6 @@ This is a list of features that are implemented and planned to be implemented in
     - [ ] Else statements `{{ else }}`
     - [ ] Else-if statements `{{ else if x == 1 }}`
     - [ ] For statements `{{ for i, name := range names }}`
-    - [ ] Return statements `{{ return 3 }}`
 - Expressions
     - [ ] Ternary expressions `x ? y : z`
     - [ ] Prefix expressions `!x`

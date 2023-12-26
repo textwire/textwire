@@ -22,14 +22,6 @@ func Eval(node ast.Node, env *object.Env) object.Object {
 		return &object.Html{Value: node.String()}
 	case *ast.ExpressionStatement:
 		return Eval(node.Expression, env)
-	case *ast.ReturnStatement:
-		val := Eval(node.Value, env)
-
-		if isError(val) {
-			return val
-		}
-
-		return &object.ReturnValue{Value: val}
 
 	// Expressions
 	case *ast.Identifier:

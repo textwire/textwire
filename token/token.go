@@ -46,7 +46,6 @@ const (
 	TRUE
 	FALSE
 	NIL
-	RETURN
 )
 
 var keywords = map[string]TokenType{
@@ -57,7 +56,6 @@ var keywords = map[string]TokenType{
 	"true":   TRUE,
 	"false":  FALSE,
 	"nil":    NIL,
-	"return": RETURN,
 }
 
 type Token struct {

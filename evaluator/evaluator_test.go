@@ -52,17 +52,3 @@ func TestEvalStringLiteral(t *testing.T) {
 		evaluationExpected(t, tt.input, tt.expected)
 	}
 }
-
-func TestEvalReturnStatement(t *testing.T) {
-	tests := []struct {
-		input    string
-		expected string
-	}{
-		{`{{ return }}`, ""},
-		{`{{ return 23 }}`, "23"},
-	}
-
-	for _, tt := range tests {
-		evaluationExpected(t, tt.input, tt.expected)
-	}
-}
