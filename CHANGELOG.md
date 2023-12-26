@@ -1,6 +1,5 @@
 # Release notes
 
-## v0.0.1-alfa.0 (2023-12-26)
+## v0.0.1 (2023-12-30) Coming soon
 
-- Added basic support for parsing strings like `{{ "foo" }}` in text
-- Added basic support for parsing integers like `{{ 42 }}` in text
+- First working release fo the package
