@@ -20,7 +20,7 @@ This is a list of features that are implemented and planned to be implemented in
     - [x] Integer literals `123`
     - [ ] Float literals `123.456`
     - [ ] Boolean literals `true`
-    - [ ] Nil literal `nil`
+    - [x] Nil literal `nil`
     - [ ] Slice literals `[]int{1, 2, 3}`
 
 ## Installation
