@@ -1,6 +1,7 @@
 package parser
 
 import (
+	"errors"
 	"strconv"
 
 	"github.com/textwire/textwire/token"
@@ -43,7 +44,7 @@ var precedences = map[token.TokenType]int{
 
 type Parser struct {
 	l      *lexer.Lexer
-	errors []string
+	errors []error
 
 	curToken  token.Token
 	peekToken token.Token
@@ -55,7 +56,7 @@ type Parser struct {
 func New(lexer *lexer.Lexer) *Parser {
 	p := &Parser{
 		l:      lexer,
-		errors: []string{},
+		errors: []error{},
 	}
 
 	p.nextToken()
@@ -88,7 +89,7 @@ func (p *Parser) ParseProgram() *ast.Program {
 	return prog
 }
 
-func (p *Parser) Errors() []string {
+func (p *Parser) Errors() []error {
 	return p.errors
 }
 
@@ -141,7 +142,7 @@ func (p *Parser) parseIntegerLiteral() ast.Expression {
 	val, err := strconv.ParseInt(p.curToken.Literal, 10, 64)
 
 	if err != nil {
-		p.errors = append(p.errors, "could not parse "+p.curToken.Literal+" as integer")
+		p.errors = append(p.errors, errors.New("could not parse "+p.curToken.Literal+" as integer"))
 		return nil
 	}
 
@@ -186,7 +187,7 @@ func (p *Parser) parseExpression(precedence int) ast.Expression {
 	prefix := p.prefixParseFns[p.curToken.Type]
 
 	if prefix == nil {
-		p.errors = append(p.errors, "no prefix parse function for "+p.curToken.Literal)
+		p.errors = append(p.errors, errors.New("no prefix parse function for "+p.curToken.Literal))
 		return nil
 	}
 
