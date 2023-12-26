@@ -6,6 +6,24 @@ import (
 	"github.com/textwire/textwire/token"
 )
 
+func TokenizeString(t *testing.T, input string, expectTokens []token.Token) {
+	l := New(input)
+
+	for i, expectTok := range expectTokens {
+		tok := l.NextToken()
+
+		if tok.Literal != expectTok.Literal {
+			t.Fatalf("tests[%d] - literal wrong. expected=%s, got=%s",
+				i, expectTok.Literal, tok.Literal)
+		}
+
+		if tok.Type != expectTok.Type {
+			t.Fatalf("tests[%d] - tokentype wrong. expected=%d, got=%d",
+				i, expectTok.Type, tok.Type)
+		}
+	}
+}
+
 func TestHtml(t *testing.T) {
 	inp := `<h2 class="container">The winter is good!</h2>`
 
@@ -83,22 +101,4 @@ func TestStrings(t *testing.T) {
 		{Type: token.RBRACES, Literal: "}}"},
 		{Type: token.EOF, Literal: ""},
 	})
-}
-
-func TokenizeString(t *testing.T, input string, expectTokens []token.Token) {
-	l := New(input)
-
-	for i, expectTok := range expectTokens {
-		tok := l.NextToken()
-
-		if tok.Literal != expectTok.Literal {
-			t.Fatalf("tests[%d] - literal wrong. expected=%s, got=%s",
-				i, expectTok.Literal, tok.Literal)
-		}
-
-		if tok.Type != expectTok.Type {
-			t.Fatalf("tests[%d] - tokentype wrong. expected=%d, got=%d",
-				i, expectTok.Type, tok.Type)
-		}
-	}
 }

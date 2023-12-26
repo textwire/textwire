@@ -8,36 +8,6 @@ import (
 	"github.com/textwire/textwire/parser"
 )
 
-func TestEvalIntegerExpression(t *testing.T) {
-	tests := []struct {
-		input    string
-		expected int64
-	}{
-		{"{{ 5 }}", 5},
-		{"{{ 10 }}", 10},
-	}
-
-	for _, tt := range tests {
-		evaluated := testEval(tt.input)
-		testIntegerObject(t, evaluated, tt.expected)
-	}
-}
-
-func TestEvalStringLiteral(t *testing.T) {
-	tests := []struct {
-		input    string
-		expected string
-	}{
-		{`{{ "Hello World" }}`, "Hello World"},
-		{`{{ "She is pretty" }}`, "She is pretty"},
-	}
-
-	for _, tt := range tests {
-		evaluated := testEval(tt.input)
-		testStringObject(t, evaluated, tt.expected)
-	}
-}
-
 func testEval(input string) object.Object {
 	l := lexer.New(input)
 	p := parser.New(l)
@@ -68,5 +38,35 @@ func testStringObject(t *testing.T, obj object.Object, expected string) {
 
 	if result.Value != expected {
 		t.Errorf("result.Value is not %s, got %s", expected, result.Value)
+	}
+}
+
+func TestEvalIntegerExpression(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected int64
+	}{
+		{"{{ 5 }}", 5},
+		{"{{ 10 }}", 10},
+	}
+
+	for _, tt := range tests {
+		evaluated := testEval(tt.input)
+		testIntegerObject(t, evaluated, tt.expected)
+	}
+}
+
+func TestEvalStringLiteral(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected string
+	}{
+		{`{{ "Hello World" }}`, "Hello World"},
+		{`{{ "She is pretty" }}`, "She is pretty"},
+	}
+
+	for _, tt := range tests {
+		evaluated := testEval(tt.input)
+		testStringObject(t, evaluated, tt.expected)
 	}
 }
