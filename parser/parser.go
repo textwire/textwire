@@ -59,8 +59,8 @@ func New(lexer *lexer.Lexer) *Parser {
 		errors: []error{},
 	}
 
-	p.nextToken()
-	p.nextToken()
+	p.nextToken() // fill curToken
+	p.nextToken() // fill peekToken
 
 	// Prefix operators
 	p.prefixParseFns = make(map[token.TokenType]prefixParseFn)
@@ -168,7 +168,7 @@ func (p *Parser) parseHTMLStatement() *ast.HTMLStatement {
 }
 
 func (p *Parser) parseEmbeddedCode() ast.Statement {
-	p.nextToken()
+	p.nextToken() // skip "{{"
 	return p.parseExpressionStatement()
 }
 
@@ -177,7 +177,7 @@ func (p *Parser) parseExpressionStatement() ast.Statement {
 	result := &ast.ExpressionStatement{Token: p.curToken, Expression: expr}
 
 	if p.peekTokenIs(token.RBRACES) {
-		p.nextToken()
+		p.nextToken() // skip "}}"
 	}
 
 	return result
@@ -200,7 +200,7 @@ func (p *Parser) parseExpression(precedence int) ast.Expression {
 			return leftExp
 		}
 
-		p.nextToken()
+		p.nextToken() // skip operator
 
 		leftExp = infix(leftExp)
 	}
