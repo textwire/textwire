@@ -59,7 +59,7 @@ func TestEnvFromMap(t *testing.T) {
 				t.Fatalf("Env.Get returned a non-Integer object for key %s", key)
 			}
 
-			if integer.Value != int64(val.(int)) {
+			if integer.Value != val {
 				t.Fatalf("Env.Get returned an Integer object with an incorrect value for key %s", key)
 			}
 		}

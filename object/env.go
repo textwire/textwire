@@ -1,6 +1,8 @@
 package object
 
-import "errors"
+import (
+	"errors"
+)
 
 type Env struct {
 	store map[string]Object
@@ -15,11 +17,35 @@ func EnvFromMap(m map[string]interface{}) (*Env, error) {
 	env := NewEnv()
 
 	for key, val := range m {
-		switch val.(type) {
+		switch v := val.(type) {
 		case string:
-			env.Set(key, &String{Value: val.(string)})
+			env.Set(key, &String{Value: v})
+		case bool:
+			env.Set(key, &Boolean{Value: v})
+		case float32:
+			env.Set(key, &Float{Value: float64(v)})
+		case float64:
+			env.Set(key, &Float{Value: v})
 		case int:
-			env.Set(key, &Integer{Value: int64(val.(int))})
+			env.Set(key, &Integer{Value: int64(v)})
+		case int8:
+			env.Set(key, &Integer{Value: int64(v)})
+		case int16:
+			env.Set(key, &Integer{Value: int64(v)})
+		case int32:
+			env.Set(key, &Integer{Value: int64(v)})
+		case int64:
+			env.Set(key, &Integer{Value: int64(v)})
+		case uint:
+			env.Set(key, &UnsignedInteger{Value: uint64(v)})
+		case uint8:
+			env.Set(key, &UnsignedInteger{Value: uint64(v)})
+		case uint16:
+			env.Set(key, &UnsignedInteger{Value: uint64(v)})
+		case uint32:
+			env.Set(key, &UnsignedInteger{Value: uint64(v)})
+		case uint64:
+			env.Set(key, &UnsignedInteger{Value: v})
 		default:
 			return nil, errors.New("Unsupported type for Textwire parser")
 		}
