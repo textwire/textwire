@@ -7,7 +7,7 @@ type UnsignedInteger struct {
 }
 
 func (i *UnsignedInteger) Type() ObjectType {
-	return UNSIGNED_INTEGER_OBJ
+	return UINT_OBJ
 }
 
 func (i *UnsignedInteger) String() string {
