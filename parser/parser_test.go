@@ -102,6 +102,41 @@ func TestParseStringLiteral(t *testing.T) {
 	}
 }
 
+func TestPrefixExpression(t *testing.T) {
+	tests := []struct {
+		input    string
+		operator string
+		value    interface{}
+	}{
+		{"{{ -5 }}", "-", 5},
+		{"{{ -10 }}", "-", 10},
+	}
+
+	for _, tt := range tests {
+		stmts := parseStatements(t, tt.input, 1)
+
+		stmt, ok := stmts[0].(*ast.ExpressionStatement)
+
+		if !ok {
+			t.Fatalf("program.Statements[0] is not an ExpressionStatement, got %T", stmts[0])
+		}
+
+		exp, ok := stmt.Expression.(*ast.PrefixExpression)
+
+		if !ok {
+			t.Fatalf("stmt is not a PrefixExpression, got %T", stmt.Expression)
+		}
+
+		if exp.Operator != tt.operator {
+			t.Fatalf("exp.Operator is not %s, got %s", tt.operator, exp.Operator)
+		}
+
+		if !testLiteralExpression(t, exp.Right, tt.value) {
+			return
+		}
+	}
+}
+
 func parseStatements(t *testing.T, inp string, stmtCount int) []ast.Statement {
 	l := lexer.New(inp)
 	p := New(l)
