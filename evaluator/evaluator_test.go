@@ -18,7 +18,15 @@ func testEval(input string) object.Object {
 }
 
 func evaluationExpected(t *testing.T, input, expect string) {
-	result := testEval(input).String()
+	evaluated := testEval(input)
+
+	errObj, ok := evaluated.(*object.Error)
+
+	if ok {
+		t.Errorf("evaluation failed: %s", errObj.Message)
+	}
+
+	result := evaluated.String()
 
 	if result != expect {
 		t.Errorf("result is not %s, got %s", expect, result)
@@ -32,6 +40,7 @@ func TestEvalIntegerExpression(t *testing.T) {
 	}{
 		{"{{ 5 }}", "5"},
 		{"{{ 10 }}", "10"},
+		{"{{ -123 }}", "-123"},
 	}
 
 	for _, tt := range tests {

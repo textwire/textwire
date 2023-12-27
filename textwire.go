@@ -1,6 +1,8 @@
 package textwire
 
 import (
+	"errors"
+
 	"github.com/textwire/textwire/evaluator"
 	"github.com/textwire/textwire/lexer"
 	"github.com/textwire/textwire/object"
@@ -25,8 +27,8 @@ func ParseStr(text string, vars map[string]interface{}) (string, error) {
 
 	evaluated := evaluator.Eval(program, env)
 
-	if evaluated == nil {
-		return "", nil
+	if evaluated.Type() == object.ERROR_OBJ {
+		return "", errors.New(evaluated.String())
 	}
 
 	return evaluated.String(), nil

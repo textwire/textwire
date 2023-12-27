@@ -30,11 +30,13 @@ func Eval(node ast.Node, env *object.Env) object.Object {
 		return &object.Int64{Value: node.Value}
 	case *ast.StringLiteral:
 		return &object.String{Value: node.Value}
+	case *ast.PrefixExpression:
+		return evalPrefixExpression(node, env)
 	case *ast.NilLiteral:
 		return NIL
 	}
 
-	return nil
+	return newError("Unknown node type: %T", node)
 }
 
 func evalProgram(program *ast.Program, env *object.Env) object.Object {
@@ -59,6 +61,34 @@ func evalIdentifier(node *ast.Identifier, env *object.Env) object.Object {
 	}
 
 	return newError("Identifier not found: " + node.Value)
+}
+
+func evalPrefixExpression(node *ast.PrefixExpression, env *object.Env) object.Object {
+	right := Eval(node.Right, env)
+
+	if isError(right) {
+		return right
+	}
+
+	switch node.Operator {
+	case "-":
+		return evalMinusPrefixOperatorExpression(right)
+	}
+
+	return newError("Unknown operator: %s%s", node.Operator, right.Type())
+}
+
+func evalMinusPrefixOperatorExpression(right object.Object) object.Object {
+	switch right.Type() {
+	case object.INT64_OBJ:
+		value := right.(*object.Int64).Value
+		return &object.Int64{Value: -value}
+	case object.FLOAT64_OBJ:
+		value := right.(*object.Float64).Value
+		return &object.Float64{Value: -value}
+	}
+
+	return newError("Unknown operator: -%s", right.Type())
 }
 
 func newError(format string, a ...interface{}) *object.Error {

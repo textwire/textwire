@@ -38,7 +38,7 @@ This is a list of features that are implemented and planned to be implemented in
     - [ ] Infix expressions `x * y`
 - Literals
     - [x] String literals `"Hello, World!"`
-    - [x] Integer literals `123`
+    - [x] Integer literals `123` or `-234`
     - [ ] Float literals `123.456`
     - [ ] Boolean literals `true`
     - [x] Nil literal `nil`
