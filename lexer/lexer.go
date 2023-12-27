@@ -22,6 +22,7 @@ func New(input string) *Lexer {
 		isHtml: true,
 	}
 
+	// set l.char to the first character
 	l.advanceChar()
 
 	return l
@@ -38,15 +39,15 @@ func (l *Lexer) NextToken() token.Token {
 
 	if l.char == '{' && l.peekChar() == '{' {
 		l.isHtml = false
-		l.advanceChar()
-		l.advanceChar()
+		l.advanceChar() // skip "{"
+		l.advanceChar() // skip "{"
 		return l.newToken(token.LBRACES, "{{")
 	}
 
 	if l.char == '}' && l.peekChar() == '}' {
 		l.isHtml = true
-		l.advanceChar()
-		l.advanceChar()
+		l.advanceChar() // skip "}"
+		l.advanceChar() // skip "}"
 		return l.newToken(token.RBRACES, "}}")
 	}
 
