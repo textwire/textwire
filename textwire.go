@@ -7,7 +7,7 @@ import (
 	"github.com/textwire/textwire/parser"
 )
 
-func ParseText(text string, vars map[string]interface{}) (string, error) {
+func ParseStr(text string, vars map[string]interface{}) (string, error) {
 	lex := lexer.New(text)
 	pars := parser.New(lex)
 
