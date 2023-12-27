@@ -34,7 +34,7 @@ func TestHtml(t *testing.T) {
 }
 
 func TestIntegers(t *testing.T) {
-	inp := "<div>{{ 0 1 2 3 4 5 6 7 8 9 234 41 }}</div>"
+	inp := "<div>{{ 0 1 2 3 4 5 6 7 8 9 234 -41 }}</div>"
 
 	TokenizeString(t, inp, []token.Token{
 		{Type: token.HTML, Literal: "<div>"},
@@ -50,6 +50,7 @@ func TestIntegers(t *testing.T) {
 		{Type: token.INT, Literal: "8"},
 		{Type: token.INT, Literal: "9"},
 		{Type: token.INT, Literal: "234"},
+		{Type: token.MINUS, Literal: "-"},
 		{Type: token.INT, Literal: "41"},
 		{Type: token.RBRACES, Literal: "}}"},
 		{Type: token.HTML, Literal: "</div>"},
