@@ -97,7 +97,6 @@ The "use" keyword is used to specify which layout to use. Assuming that our layo
 
 ```go
 textwire.SetAliases(map[string]string{
-    "@": "src/views/templates",
     "@layouts": "src/views/templates/layouts",
 })
 ```
