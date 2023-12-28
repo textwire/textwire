@@ -2,6 +2,7 @@ package textwire
 
 import (
 	"errors"
+	"os"
 
 	"github.com/textwire/textwire/evaluator"
 	"github.com/textwire/textwire/lexer"
@@ -9,6 +10,7 @@ import (
 	"github.com/textwire/textwire/parser"
 )
 
+// ParseStr parses a Textwire string and returns the result as a string
 func ParseStr(text string, vars map[string]interface{}) (string, error) {
 	lex := lexer.New(text)
 	pars := parser.New(lex)
@@ -32,4 +34,17 @@ func ParseStr(text string, vars map[string]interface{}) (string, error) {
 	}
 
 	return evaluated.String(), nil
+}
+
+// ParseFile parses a Textwire file and returns the result as a string
+func ParseFile(filePath string, vars map[string]interface{}) (string, error) {
+	content, err := os.ReadFile(filePath)
+
+	if err != nil {
+		return "", err
+	}
+
+	strContent := string(content)
+
+	return ParseStr(strContent, vars)
 }
