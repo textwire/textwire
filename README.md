@@ -23,6 +23,45 @@ fmt.Println(parsed) // would print: Hello, my name is John and I am 21 years old
 
 [![Go](https://github.com/textwire/textwire/actions/workflows/go.yml/badge.svg)](https://github.com/textwire/textwire/actions/workflows/go.yml)
 
+## Get started
+
+Before we start using Textwire as a templating language, we need to tell it where to look for the template files. We can do that by using the `textwire.SetConfig` function only once in our `main.go` file. Here is an example of setting the configurations:
+
+```go
+func main() {
+    textwire.SetConfig(textwire.Config{
+        TemplateDir: "src/views/templates",
+    })
+}
+```
+
+With this configuration in place, Textwire will scan the content of the `src/views/templates` folder and all of its subfolders for template files. It will then cache them so that it doesn't scan the folder every time you want to parse a file.
+
+To print the content of the template file, we can use the `textwire.ParseFile` function. Here is an example of parsing a template file:
+
+```go
+func main() {
+	http.HandleFunc("/", homeView)
+	fmt.Println("Listening on http://localhost:8080")
+	http.ListenAndServe(":8080", nil)
+}
+
+func homeView(w http.ResponseWriter, r *http.Request) {
+	vars := map[string]interface{}{
+		"title": "Hello, World!",
+		"age":   23,
+	}
+
+	err := textwire.PrintFile(w, "home", vars)
+
+	if err != nil {
+		fmt.Println(err)
+	}
+}
+```
+
+In this example, for our home page, we tell Textwire to use the "home.textwire.html" file and pass the variables that we want to inject into the template. The `textwire.PrintFile` function will then parse the file and print the result to the `http.ResponseWriter` object.
+
 ## Features
 
 This is a list of features that are implemented and planned to be implemented in the future.
