@@ -44,6 +44,70 @@ This is a list of features that are implemented and planned to be implemented in
     - [x] Nil literal `nil`
     - [ ] Slice literals `[]int{1, 2, 3}`
 
+## Usage with templates
+
+### Layouts
+
+You can define a layout for your template by creating a `[name].textwire.html`. Here is an example of a layout:
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ reserve "title" }}</title>
+</head>
+<body>
+    {{ reserve "content" }}
+</body>
+</html>
+```
+
+#### The "reserve" keyword
+The "reserve" keyword is used to reserve a place for dynamic content that you can insert later. For example, you can reserve a place for the title of the page and then insert it later. Here is an example of inserting a title:
+
+```html
+{{ use "layouts/main" }}
+
+{{ insert "title", "Home page" }}
+```
+
+First, we use the layout "layouts/main" so that parser knows which layout to use. Then we insert the title into the reserved place. The first argument is the name of the reserved place and the second argument is the value that we want to insert.
+
+As an alternative, we can insert the title like this:
+
+```html
+{{ use "layouts/main" }}
+
+{{ insert "title" }}
+    Home page
+{{ end }}
+```
+
+### The "use" keyword
+
+The "use" keyword is used to specify which layout to use. Assuming that our layout is placed in the "layouts" folder and called "main.textwire.html", we can use it like this:
+
+```html
+{{ use "layouts/main" }}
+```
+
+`"layouts/main"` is the relative path to the layout file. If you have deeply nested files and don't want to always specify the relative path, you can use the set the aliases in your `main.go` file like this:
+
+```go
+textwire.SetAliases(map[string]string{
+    "@": "src/views/templates",
+    "@layouts": "src/views/templates/layouts",
+})
+```
+
+Then you can use the layout like this:
+
+```html
+{{ use "@layouts/main" }}
+````
+
 ## Installation
 
 ```bash
