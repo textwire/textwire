@@ -16,8 +16,10 @@ func (p *Program) TokenLiteral() string {
 
 func (p *Program) String() string {
 	var result bytes.Buffer
+
 	for _, stmt := range p.Statements {
 		result.WriteString(stmt.String())
 	}
+
 	return result.String()
 }
