@@ -89,16 +89,25 @@ func TestParseNilLiteral(t *testing.T) {
 }
 
 func TestParseStringLiteral(t *testing.T) {
-	stmts := parseStatements(t, `{{ "Hello World" }}`, 1)
-
-	stmt, ok := stmts[0].(*ast.ExpressionStatement)
-
-	if !ok {
-		t.Fatalf("program.Statements[0] is not an ExpressionStatement, got %T", stmts[0])
+	tests := []struct {
+		input  string
+		expect string
+	}{
+		{`{{ "Hello World" }}`, "Hello World"},
 	}
 
-	if !testStringLiteral(t, stmt.Expression, "Hello World") {
-		return
+	for _, tt := range tests {
+		stmts := parseStatements(t, tt.input, 1)
+
+		stmt, ok := stmts[0].(*ast.ExpressionStatement)
+
+		if !ok {
+			t.Fatalf("program.Statements[0] is not an ExpressionStatement, got %T", stmts[0])
+		}
+
+		if !testStringLiteral(t, stmt.Expression, tt.expect) {
+			return
+		}
 	}
 }
 
