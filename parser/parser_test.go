@@ -94,6 +94,7 @@ func TestParseStringLiteral(t *testing.T) {
 		expect string
 	}{
 		{`{{ "Hello World" }}`, "Hello World"},
+		{`{{ "Serhii \"Cho\"" }}`, `Serhii "Cho"`},
 	}
 
 	for _, tt := range tests {
