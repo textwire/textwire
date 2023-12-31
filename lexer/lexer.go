@@ -68,6 +68,8 @@ func (l *Lexer) readEmbeddedCodeToken() token.Token {
 		return l.newTokenAndAdvance(token.ASTERISK, "*")
 	case '/':
 		return l.newTokenAndAdvance(token.SLASH, "/")
+	case '.':
+		return l.newTokenAndAdvance(token.DOT, ".")
 	case '%':
 		return l.newTokenAndAdvance(token.MODULO, "%")
 	case '"':

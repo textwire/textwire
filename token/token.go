@@ -37,6 +37,7 @@ const (
 	QUESTION // ?
 	COLON    // :
 	COMMA    // ,
+	DOT      // .
 
 	// Keywords
 	IF
