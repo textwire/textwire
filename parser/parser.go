@@ -70,6 +70,10 @@ func New(lexer *lexer.Lexer) *Parser {
 	p.registerPrefix(token.NIL, p.parseNilLiteral)
 	p.registerPrefix(token.MINUS, p.parsePrefixExpression)
 
+	// Infix operators
+	p.infixParseFns = make(map[token.TokenType]infixParseFn)
+	p.registerInfix(token.PLUS, p.parseInfixExpression)
+
 	return p
 }
 
@@ -107,6 +111,10 @@ func (p *Parser) parseStatement() ast.Statement {
 
 func (p *Parser) registerPrefix(tokenType token.TokenType, fn prefixParseFn) {
 	p.prefixParseFns[tokenType] = fn
+}
+
+func (p *Parser) registerInfix(tokenType token.TokenType, fn infixParseFn) {
+	p.infixParseFns[tokenType] = fn
 }
 
 func (p *Parser) curTokenIs(tok token.TokenType) bool {
@@ -166,6 +174,20 @@ func (p *Parser) parseNilLiteral() ast.Expression {
 
 func (p *Parser) parseHTMLStatement() *ast.HTMLStatement {
 	return &ast.HTMLStatement{Token: p.curToken}
+}
+
+func (p *Parser) parseInfixExpression(left ast.Expression) ast.Expression {
+	exp := &ast.InfixExpression{
+		Token:    p.curToken,
+		Operator: p.curToken.Literal,
+		Left:     left,
+	}
+
+	p.nextToken() // skip operator
+
+	exp.Right = p.parseExpression(SUM)
+
+	return exp
 }
 
 func (p *Parser) parseEmbeddedCode() ast.Statement {

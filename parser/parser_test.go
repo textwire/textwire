@@ -112,6 +112,36 @@ func TestParseStringLiteral(t *testing.T) {
 	}
 }
 
+func TestStringConcatenation(t *testing.T) {
+	input := `{{ "Serhii" + " Anna" }}`
+
+	stmts := parseStatements(t, input, 1)
+
+	stmt, ok := stmts[0].(*ast.ExpressionStatement)
+
+	if !ok {
+		t.Fatalf("program.Statements[0] is not an ExpressionStatement, got %T", stmts[0])
+	}
+
+	exp, ok := stmt.Expression.(*ast.InfixExpression)
+
+	if !ok {
+		t.Fatalf("stmt is not an InfixExpression, got %T", stmt.Expression)
+	}
+
+	if exp.Left.String() != "Serhii" {
+		t.Fatalf("exp.Left is not %s, got %s", "Serhii", exp.Left.String())
+	}
+
+	if exp.Operator != "+" {
+		t.Fatalf("exp.Operator is not %s, got %s", "+", exp.Operator)
+	}
+
+	if exp.Right.String() != " Anna" {
+		t.Fatalf("exp.Right is not %s, got %s", " Anna", exp.Right.String())
+	}
+}
+
 func TestPrefixExpression(t *testing.T) {
 	tests := []struct {
 		input    string
