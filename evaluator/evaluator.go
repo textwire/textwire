@@ -32,6 +32,8 @@ func Eval(node ast.Node, env *object.Env) object.Object {
 		return &object.String{Value: node.Value}
 	case *ast.PrefixExpression:
 		return evalPrefixExpression(node, env)
+	case *ast.InfixExpression:
+		return evalInfixExpression(node.Operator, node.Left, node.Right, env)
 	case *ast.NilLiteral:
 		return NIL
 	}
@@ -76,6 +78,38 @@ func evalPrefixExpression(node *ast.PrefixExpression, env *object.Env) object.Ob
 	}
 
 	return newError("Unknown operator: %s%s", node.Operator, right.Type())
+}
+
+func evalInfixExpression(operator string, left, right ast.Expression, env *object.Env) object.Object {
+	leftObj := Eval(left, env)
+
+	if isError(leftObj) {
+		return leftObj
+	}
+
+	rightObj := Eval(right, env)
+
+	if isError(rightObj) {
+		return rightObj
+	}
+
+	switch operator {
+	case "+":
+		return evalPlusInfixOperatorExpression(leftObj, rightObj)
+	}
+
+	return newError("Unknown operator: %s %s %s", leftObj.Type(), operator, rightObj.Type())
+}
+
+func evalPlusInfixOperatorExpression(left, right object.Object) object.Object {
+	// If both sides are strings
+	if left.Type() == object.STRING_OBJ && right.Type() == object.STRING_OBJ {
+		leftValue := left.(*object.String).Value
+		rightValue := right.(*object.String).Value
+		return &object.String{Value: leftValue + rightValue}
+	}
+
+	return newError("Unknown operator: %s + %s", left.Type(), right.Type())
 }
 
 func evalMinusPrefixOperatorExpression(right object.Object) object.Object {

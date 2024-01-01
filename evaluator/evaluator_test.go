@@ -60,6 +60,8 @@ func TestEvalStringLiteral(t *testing.T) {
 	}{
 		{`{{ "Hello World" }}`, "Hello World"},
 		{`{{ "She \"is\" pretty" }}`, `She "is" pretty`},
+		{`{{ "Korotchaeva" + " " + "Anna" }}`, "Korotchaeva Anna"},
+		{`{{ "She" + " " + "is" + " " + "smart" }}`, "She is smart"},
 	}
 
 	for _, tt := range tests {
