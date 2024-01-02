@@ -3,6 +3,8 @@ package object
 import "testing"
 
 func TestEnvFromMap(t *testing.T) {
+	var double float32 = 5.7
+
 	vars := map[string]interface{}{
 		"title":  "Hello, World!",
 		"n":      -1,
@@ -18,7 +20,7 @@ func TestEnvFromMap(t *testing.T) {
 		"bool1":  true,
 		"bool2":  false,
 		"height": 5.7,
-		"weight": float32(62.2),
+		"weight": double,
 	}
 
 	expect := map[string]Object{
@@ -36,7 +38,7 @@ func TestEnvFromMap(t *testing.T) {
 		"bool1":  &Boolean{Value: true},
 		"bool2":  &Boolean{Value: false},
 		"height": &Float{Value: 5.7},
-		"weight": &Float{Value: 62.2},
+		"weight": &Float{Value: float64(double)},
 	}
 
 	env, err := EnvFromMap(vars)
