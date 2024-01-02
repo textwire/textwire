@@ -154,6 +154,10 @@ func TestInfixExpression(t *testing.T) {
 		{"{{ 2 * 2 }}", 2, "*", 2},
 		{"{{ 44 / 4 }}", 44, "/", 4},
 		{"{{ 5 % 4 }}", 5, "%", 4},
+		{"{{ myAge + herAge }}", "myAge", "+", "herAge"},
+		{"{{ myAge - herAge }}", "myAge", "-", "herAge"},
+		{"{{ myAge * herAge }}", "myAge", "*", "herAge"},
+		{"{{ myAge / herAge }}", "myAge", "/", "herAge"},
 	}
 
 	for _, tt := range tests {
