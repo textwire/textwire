@@ -102,14 +102,20 @@ func evalInfixExpression(operator string, left, right ast.Expression, env *objec
 }
 
 func evalPlusInfixOperatorExpression(left, right object.Object) object.Object {
-	// If both sides are strings
-	if left.Type() == object.STRING_OBJ && right.Type() == object.STRING_OBJ {
-		leftValue := left.(*object.String).Value
-		rightValue := right.(*object.String).Value
-		return &object.String{Value: leftValue + rightValue}
+	if left.Type() != right.Type() {
+		return newError("Type mismatch: %s + %s", left.Type(), right.Type())
 	}
 
-	return newError("Unknown operator: %s + %s", left.Type(), right.Type())
+	if left.Type() == object.STRING_OBJ {
+		leftVal := left.(*object.String).Value
+		rightVal := right.(*object.String).Value
+		return &object.String{Value: leftVal + rightVal}
+	}
+
+	leftVal := left.(*object.Int64).Value
+	rightVal := right.(*object.Int64).Value
+
+	return &object.Int64{Value: leftVal + rightVal}
 }
 
 func evalMinusPrefixOperatorExpression(right object.Object) object.Object {
