@@ -73,6 +73,10 @@ func New(lexer *lexer.Lexer) *Parser {
 	// Infix operators
 	p.infixParseFns = make(map[token.TokenType]infixParseFn)
 	p.registerInfix(token.PLUS, p.parseInfixExpression)
+	p.registerInfix(token.MINUS, p.parseInfixExpression)
+	p.registerInfix(token.ASTERISK, p.parseInfixExpression)
+	p.registerInfix(token.SLASH, p.parseInfixExpression)
+	p.registerInfix(token.MODULO, p.parseInfixExpression)
 
 	return p
 }

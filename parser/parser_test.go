@@ -142,6 +142,49 @@ func TestStringConcatenation(t *testing.T) {
 	}
 }
 
+func TestInfixExpression(t *testing.T) {
+	tests := []struct {
+		input    string
+		left     interface{}
+		operator string
+		right    interface{}
+	}{
+		{"{{ 5 + 8 }}", 5, "+", 8},
+		{"{{ 10 - 2 }}", 10, "-", 2},
+		{"{{ 2 * 2 }}", 2, "*", 2},
+		{"{{ 44 / 4 }}", 44, "/", 4},
+		{"{{ 5 % 4 }}", 5, "%", 4},
+	}
+
+	for _, tt := range tests {
+		stmts := parseStatements(t, tt.input, 1)
+
+		stmt, ok := stmts[0].(*ast.ExpressionStatement)
+
+		if !ok {
+			t.Fatalf("program.Statements[0] is not an ExpressionStatement, got %T", stmts[0])
+		}
+
+		exp, ok := stmt.Expression.(*ast.InfixExpression)
+
+		if !ok {
+			t.Fatalf("stmt is not an InfixExpression, got %T", stmt.Expression)
+		}
+
+		if !testLiteralExpression(t, exp.Left, tt.left) {
+			return
+		}
+
+		if exp.Operator != tt.operator {
+			t.Fatalf("exp.Operator is not %s, got %s", tt.operator, exp.Operator)
+		}
+
+		if !testLiteralExpression(t, exp.Right, tt.right) {
+			return
+		}
+	}
+}
+
 func TestPrefixExpression(t *testing.T) {
 	tests := []struct {
 		input    string
