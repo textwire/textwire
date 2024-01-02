@@ -27,7 +27,7 @@ func Eval(node ast.Node, env *object.Env) object.Object {
 	case *ast.Identifier:
 		return evalIdentifier(node, env)
 	case *ast.IntegerLiteral:
-		return &object.Int64{Value: node.Value}
+		return &object.Int{Value: node.Value}
 	case *ast.StringLiteral:
 		return &object.String{Value: node.Value}
 	case *ast.PrefixExpression:
@@ -106,26 +106,28 @@ func evalPlusInfixOperatorExpression(left, right object.Object) object.Object {
 		return newError("Type mismatch: %s + %s", left.Type(), right.Type())
 	}
 
-	if left.Type() == object.STRING_OBJ {
+	switch left.Type() {
+	case object.STRING_OBJ:
 		leftVal := left.(*object.String).Value
 		rightVal := right.(*object.String).Value
 		return &object.String{Value: leftVal + rightVal}
+	case object.INT_OBJ:
+		leftVal := left.(*object.Int).Value
+		right := right.(*object.Int)
+		return &object.Int{Value: leftVal + right.Value}
 	}
 
-	leftVal := left.(*object.Int64).Value
-	rightVal := right.(*object.Int64).Value
-
-	return &object.Int64{Value: leftVal + rightVal}
+	return newError("Unknown type for + operator: %s", left.Type())
 }
 
 func evalMinusPrefixOperatorExpression(right object.Object) object.Object {
 	switch right.Type() {
-	case object.INT64_OBJ:
-		value := right.(*object.Int64).Value
-		return &object.Int64{Value: -value}
-	case object.FLOAT64_OBJ:
-		value := right.(*object.Float64).Value
-		return &object.Float64{Value: -value}
+	case object.INT_OBJ:
+		value := right.(*object.Int).Value
+		return &object.Int{Value: -value}
+	case object.FLOAT_OBJ:
+		value := right.(*object.Float).Value
+		return &object.Float{Value: -value}
 	}
 
 	return newError("Unknown operator: -%s", right.Type())

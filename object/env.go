@@ -23,29 +23,29 @@ func EnvFromMap(m map[string]interface{}) (*Env, error) {
 		case bool:
 			env.Set(key, &Boolean{Value: v})
 		case float32:
-			env.Set(key, &Float32{Value: v})
+			env.Set(key, &Float{Value: float64(v)})
 		case float64:
-			env.Set(key, &Float64{Value: v})
-		case int:
-			env.Set(key, &Int{Value: v})
-		case int8:
-			env.Set(key, &Int8{Value: v})
-		case int16:
-			env.Set(key, &Int16{Value: v})
-		case int32:
-			env.Set(key, &Int32{Value: v})
+			env.Set(key, &Float{Value: v})
 		case int64:
-			env.Set(key, &Int64{Value: v})
+			env.Set(key, &Int{Value: v})
+		case int:
+			env.Set(key, &Int{Value: int64(v)})
+		case int8:
+			env.Set(key, &Int{Value: int64(v)})
+		case int16:
+			env.Set(key, &Int{Value: int64(v)})
+		case int32:
+			env.Set(key, &Int{Value: int64(v)})
 		case uint:
-			env.Set(key, &Uint{Value: v})
+			env.Set(key, &Int{Value: int64(v)})
 		case uint8:
-			env.Set(key, &Uint8{Value: v})
+			env.Set(key, &Int{Value: int64(v)})
 		case uint16:
-			env.Set(key, &Uint16{Value: v})
+			env.Set(key, &Int{Value: int64(v)})
 		case uint32:
-			env.Set(key, &Uint32{Value: v})
+			env.Set(key, &Int{Value: int64(v)})
 		case uint64:
-			env.Set(key, &Uint64{Value: v})
+			env.Set(key, &Int{Value: int64(v)})
 		default:
 			return nil, errors.New("Unsupported type for Textwire parser")
 		}

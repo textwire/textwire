@@ -3,7 +3,7 @@ package object
 import "fmt"
 
 type Int struct {
-	Value int
+	Value int64
 }
 
 func (i *Int) Type() ObjectType {
