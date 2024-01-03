@@ -1,6 +1,8 @@
 package ast
 
-import "bytes"
+import (
+	"bytes"
+)
 
 type Program struct {
 	Statements []Statement
@@ -18,7 +20,13 @@ func (p *Program) String() string {
 	var result bytes.Buffer
 
 	for _, stmt := range p.Statements {
-		result.WriteString(stmt.String())
+		_, isHtmlStmt := stmt.(*HTMLStatement)
+
+		if isHtmlStmt {
+			result.WriteString(stmt.String())
+		} else {
+			result.WriteString("{{ " + stmt.String() + " }}")
+		}
 	}
 
 	return result.String()
