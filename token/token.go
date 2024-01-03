@@ -39,7 +39,6 @@ const (
 	QUESTION // ?
 	COLON    // :
 	COMMA    // ,
-	DOT      // .
 
 	// Keywords
 	IF
@@ -65,6 +64,81 @@ type Token struct {
 	Type    TokenType
 	Literal string
 	Line    uint
+}
+
+func (t *Token) String() string {
+	switch t.Type {
+	case ILLEGAL:
+		return "ILLEGAL"
+	case EOF:
+		return "EOF"
+	case IDENT:
+		return "IDENT"
+	case HTML:
+		return "HTML"
+	case INT:
+		return "INT"
+	case STR:
+		return "STR"
+	case PLUS:
+		return "PLUS"
+	case MINUS:
+		return "MINUS"
+	case ASTERISK:
+		return "ASTERISK"
+	case SLASH:
+		return "SLASH"
+	case MODULO:
+		return "MODULO"
+	case PERIOD:
+		return "PERIOD"
+	case BANG:
+		return "BANG"
+	case ASSIGN:
+		return "ASSIGN"
+	case EQ:
+		return "EQ"
+	case NOT_EQ:
+		return "NOT_EQ"
+	case LTHAN:
+		return "LTHAN"
+	case GTHAN:
+		return "GTHAN"
+	case LTHAN_EQ:
+		return "LTHAN_EQ"
+	case GTHAN_EQ:
+		return "GTHAN_EQ"
+	case LBRACES:
+		return "LBRACES"
+	case RBRACES:
+		return "RBRACES"
+	case LPAREN:
+		return "LPAREN"
+	case RPAREN:
+		return "RPAREN"
+	case QUESTION:
+		return "QUESTION"
+	case COLON:
+		return "COLON"
+	case COMMA:
+		return "COMMA"
+	case IF:
+		return "IF"
+	case ELSE:
+		return "ELSE"
+	case ELSEIF:
+		return "ELSEIF"
+	case END:
+		return "END"
+	case TRUE:
+		return "TRUE"
+	case FALSE:
+		return "FALSE"
+	case NIL:
+		return "NIL"
+	default:
+		return "UNKNOWN"
+	}
 }
 
 func LookupIdent(ident string) TokenType {
