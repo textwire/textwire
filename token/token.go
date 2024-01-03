@@ -34,6 +34,8 @@ const (
 	// Delimiters
 	LBRACES  // {{
 	RBRACES  // }}
+	LPAREN   // (
+	RPAREN   // )
 	QUESTION // ?
 	COLON    // :
 	COMMA    // ,
