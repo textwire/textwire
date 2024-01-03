@@ -2,6 +2,7 @@ package parser
 
 import (
 	"errors"
+	"fmt"
 	"strconv"
 
 	"github.com/textwire/textwire/token"
@@ -69,6 +70,7 @@ func New(lexer *lexer.Lexer) *Parser {
 	p.registerPrefix(token.STR, p.parseStringLiteral)
 	p.registerPrefix(token.NIL, p.parseNilLiteral)
 	p.registerPrefix(token.MINUS, p.parsePrefixExpression)
+	p.registerPrefix(token.LPAREN, p.parseGroupedExpression)
 
 	// Infix operators
 	p.infixParseFns = make(map[token.TokenType]infixParseFn)
@@ -137,6 +139,19 @@ func (p *Parser) peekPrecedence() int {
 	}
 
 	return result
+}
+
+func (p *Parser) expectPeek(tok token.TokenType) bool {
+	if p.peekTokenIs(tok) {
+		p.nextToken()
+		return true
+	}
+
+	msg := fmt.Sprintf("expected next token to be %d, got %d instead", tok, p.peekToken.Type)
+
+	p.errors = append(p.errors, errors.New(msg))
+
+	return false
 }
 
 func (p *Parser) nextToken() {
@@ -244,6 +259,18 @@ func (p *Parser) parsePrefixExpression() ast.Expression {
 	p.nextToken() // skip operator
 
 	exp.Right = p.parseExpression(PREFIX)
+
+	return exp
+}
+
+func (p *Parser) parseGroupedExpression() ast.Expression {
+	p.nextToken() // skip "("
+
+	exp := p.parseExpression(LOWEST)
+
+	if !p.expectPeek(token.RPAREN) { // move to ")"
+		return nil
+	}
 
 	return exp
 }
