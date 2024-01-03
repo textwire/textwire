@@ -93,31 +93,66 @@ func evalInfixExpression(operator string, left, right ast.Expression, env *objec
 		return rightObj
 	}
 
-	switch operator {
-	case "+":
-		return evalPlusInfixOperatorExpression(leftObj, rightObj)
-	}
-
-	return newError("Unknown operator: %s %s %s", leftObj.Type(), operator, rightObj.Type())
+	return evalInfixOperatorExpression(operator, leftObj, rightObj)
 }
 
-func evalPlusInfixOperatorExpression(left, right object.Object) object.Object {
+func evalInfixOperatorExpression(operator string, left, right object.Object) object.Object {
 	if left.Type() != right.Type() {
 		return newError("Type mismatch: %s + %s", left.Type(), right.Type())
 	}
 
-	switch left.Type() {
-	case object.STRING_OBJ:
+	if operator == "+" && left.Type() == object.STRING_OBJ {
 		leftVal := left.(*object.String).Value
 		rightVal := right.(*object.String).Value
 		return &object.String{Value: leftVal + rightVal}
-	case object.INT_OBJ:
-		leftVal := left.(*object.Int).Value
-		right := right.(*object.Int)
-		return &object.Int{Value: leftVal + right.Value}
 	}
 
-	return newError("Unknown type for + operator: %s", left.Type())
+	switch left.Type() {
+	case object.INT_OBJ:
+		return evalIntegerInfixExpression(operator, right, left)
+	case object.FLOAT_OBJ:
+		return evalFloatInfixExpression(operator, right, left)
+	}
+
+	return newError("Unknown type for %s operator: %s", operator, left.Type())
+}
+
+func evalIntegerInfixExpression(operator string, right, left object.Object) object.Object {
+	leftVal := left.(*object.Int).Value
+	rightVal := right.(*object.Int).Value
+
+	switch operator {
+	case "+":
+		return &object.Int{Value: leftVal + rightVal}
+	case "-":
+		return &object.Int{Value: leftVal - rightVal}
+	case "*":
+		return &object.Int{Value: leftVal * rightVal}
+	case "/":
+		return &object.Int{Value: leftVal / rightVal}
+	case "%":
+		return &object.Int{Value: leftVal % rightVal}
+	}
+
+	return newError("Unknown type for %s operator: %s", operator, left.Type())
+}
+
+func evalFloatInfixExpression(operator string, right, left object.Object) object.Object {
+	leftVal := left.(*object.Float).Value
+	rightVal := right.(*object.Float).Value
+
+	switch operator {
+	case "+":
+		return &object.Float{Value: leftVal + rightVal}
+	case "-":
+		return &object.Float{Value: leftVal - rightVal}
+	case "*":
+		return &object.Float{Value: leftVal * rightVal}
+	case "/":
+		return &object.Float{Value: leftVal / rightVal}
+	}
+
+	return newError("Unknown type for %s operator: %s", operator, left.Type())
 }
 
 func evalMinusPrefixOperatorExpression(right object.Object) object.Object {

@@ -68,3 +68,18 @@ func TestEvalStringLiteral(t *testing.T) {
 		evaluationExpected(t, tt.input, tt.expected)
 	}
 }
+
+func TestEvalInfixExpression(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected string
+	}{
+		{`{{ 5 + 5 }}`, "10"},
+		{`{{ 11 + 13 - 1 }}`, "23"},
+		{`{{ 3 * 3 * 3 + 10 }}`, "37"},
+	}
+
+	for _, tt := range tests {
+		evaluationExpected(t, tt.input, tt.expected)
+	}
+}
