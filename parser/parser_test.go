@@ -142,6 +142,50 @@ func TestStringConcatenation(t *testing.T) {
 	}
 }
 
+func TestGroupedExpression(t *testing.T) {
+	test := "{{ (5 + 5) * 2 }}"
+
+	stmts := parseStatements(t, test, 1)
+
+	stmt, ok := stmts[0].(*ast.ExpressionStatement)
+
+	if !ok {
+		t.Fatalf("program.Statements[0] is not an ExpressionStatement, got %T", stmts[0])
+	}
+
+	exp, ok := stmt.Expression.(*ast.InfixExpression)
+
+	if !ok {
+		t.Fatalf("stmt is not an InfixExpression, got %T", stmt.Expression)
+	}
+
+	if !testLiteralExpression(t, exp.Right, 2) {
+		return
+	}
+
+	if exp.Operator != "*" {
+		t.Fatalf("exp.Operator is not %s, got %s", "*", exp.Operator)
+	}
+
+	infix, ok := exp.Left.(*ast.InfixExpression)
+
+	if !ok {
+		t.Fatalf("exp.Left is not an InfixExpression, got %T", exp.Left)
+	}
+
+	if !testLiteralExpression(t, infix.Left, 5) {
+		return
+	}
+
+	if infix.Operator != "+" {
+		t.Fatalf("infix.Operator is not %s, got %s", "+", infix.Operator)
+	}
+
+	if !testLiteralExpression(t, infix.Right, 5) {
+		return
+	}
+}
+
 func TestInfixExpression(t *testing.T) {
 	tests := []struct {
 		input    string
