@@ -233,6 +233,30 @@ func TestInfixExpression(t *testing.T) {
 	}
 }
 
+func TestBooleanExpression(t *testing.T) {
+	tests := []struct {
+		input         string
+		expectBoolean bool
+	}{
+		{"{{ true }}", true},
+		{"{{ false }}", false},
+	}
+
+	for _, tt := range tests {
+		stmts := parseStatements(t, tt.input, 1)
+
+		stmt, ok := stmts[0].(*ast.ExpressionStatement)
+
+		if !ok {
+			t.Fatalf("program.Statements[0] is not an ExpressionStatement, got %T", stmts[0])
+		}
+
+		if !testBooleanLiteral(t, stmt.Expression, tt.expectBoolean) {
+			return
+		}
+	}
+}
+
 func TestPrefixExpression(t *testing.T) {
 	tests := []struct {
 		input    string
