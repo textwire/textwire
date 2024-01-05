@@ -53,6 +53,32 @@ func TestEvalIntegerExpression(t *testing.T) {
 	}
 }
 
+func TestEvalBooleanExpression(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected string
+	}{
+		{"{{ true }}", "1"},
+		{"{{ false }}", "0"},
+	}
+
+	for _, tt := range tests {
+		evaluated := testEval(tt.input)
+
+		errObj, ok := evaluated.(*object.Error)
+
+		if ok {
+			t.Errorf("evaluation failed: %s", errObj.Message)
+		}
+
+		result := evaluated.String()
+
+		if result != tt.expected {
+			t.Errorf("result is not %s, got %s", tt.expected, result)
+		}
+	}
+}
+
 func TestEvalNilExpression(t *testing.T) {
 	input := "<h1>{{ nil }}</h1>"
 	evaluationExpected(t, input, "<h1></h1>")
