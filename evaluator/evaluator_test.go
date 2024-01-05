@@ -41,6 +41,10 @@ func TestEvalIntegerExpression(t *testing.T) {
 		{"{{ 5 }}", "5"},
 		{"{{ 10 }}", "10"},
 		{"{{ -123 }}", "-123"},
+		{`{{ 5 + 5 }}`, "10"},
+		{`{{ 11 + 13 - 1 }}`, "23"},
+		{`{{ 3 * 3 * 3 + 10 }}`, "37"},
+		{`{{ (5 + 10 * 2 + 15 / 3) * 2 + -10 }}`, "50"},
 	}
 
 	for _, tt := range tests {
@@ -62,22 +66,6 @@ func TestEvalStringLiteral(t *testing.T) {
 		{`{{ "She \"is\" pretty" }}`, `She "is" pretty`},
 		{`{{ "Korotchaeva" + " " + "Anna" }}`, "Korotchaeva Anna"},
 		{`{{ "She" + " " + "is" + " " + "smart" }}`, "She is smart"},
-	}
-
-	for _, tt := range tests {
-		evaluationExpected(t, tt.input, tt.expected)
-	}
-}
-
-func TestEvalInfixExpression(t *testing.T) {
-	tests := []struct {
-		input    string
-		expected string
-	}{
-		{`{{ 5 + 5 }}`, "10"},
-		{`{{ 11 + 13 - 1 }}`, "23"},
-		{`{{ 3 * 3 * 3 + 10 }}`, "37"},
-		{`{{ (5 + 10 * 2 + 15 / 3) * 2 + -10 }}`, "50"},
 	}
 
 	for _, tt := range tests {
