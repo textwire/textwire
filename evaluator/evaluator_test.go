@@ -53,12 +53,12 @@ func TestEvalIntegerExpression(t *testing.T) {
 	}
 }
 
-func TestEvalNilLiteral(t *testing.T) {
+func TestEvalNilExpression(t *testing.T) {
 	input := "<h1>{{ nil }}</h1>"
 	evaluationExpected(t, input, "<h1></h1>")
 }
 
-func TestEvalStringLiteral(t *testing.T) {
+func TestEvalStringExpression(t *testing.T) {
 	tests := []struct {
 		input    string
 		expected string
