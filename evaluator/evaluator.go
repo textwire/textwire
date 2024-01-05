@@ -30,6 +30,8 @@ func Eval(node ast.Node, env *object.Env) object.Object {
 		return &object.Int{Value: node.Value}
 	case *ast.StringLiteral:
 		return &object.String{Value: node.Value}
+	case *ast.BooleanLiteral:
+		return &object.Boolean{Value: node.Value}
 	case *ast.PrefixExpression:
 		return evalPrefixExpression(node, env)
 	case *ast.InfixExpression:
