@@ -92,7 +92,7 @@ func TestEvalStringExpression(t *testing.T) {
 		{`{{ "Hello World" }}`, "Hello World"},
 		{`{{ "She \"is\" pretty" }}`, `She "is" pretty`},
 		{`{{ "Korotchaeva" + " " + "Anna" }}`, "Korotchaeva Anna"},
-		{`{{ "She" + " " + "is" + " " + "smart" }}`, "She is smart"},
+		{`{{ "She" + " " + "is" + " " + "nice" }}`, "She is nice"},
 	}
 
 	for _, tt := range tests {
