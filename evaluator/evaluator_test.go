@@ -96,6 +96,8 @@ func TestEvalStringExpression(t *testing.T) {
 	}
 
 	for _, tt := range tests {
+
 		evaluationExpected(t, tt.input, tt.expected)
+
 	}
 }
