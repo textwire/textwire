@@ -9,7 +9,9 @@ import (
 )
 
 var (
-	NIL = &object.Nil{}
+	NIL   = &object.Nil{}
+	TRUE  = &object.Boolean{Value: true}
+	FALSE = &object.Boolean{Value: false}
 )
 
 func Eval(node ast.Node, env *object.Env) object.Object {
@@ -31,7 +33,7 @@ func Eval(node ast.Node, env *object.Env) object.Object {
 	case *ast.StringLiteral:
 		return &object.String{Value: node.Value}
 	case *ast.BooleanLiteral:
-		return &object.Boolean{Value: node.Value}
+		return nativeBoolToBooleanObject(node.Value)
 	case *ast.PrefixExpression:
 		return evalPrefixExpression(node, env)
 	case *ast.InfixExpression:
@@ -77,6 +79,8 @@ func evalPrefixExpression(node *ast.PrefixExpression, env *object.Env) object.Ob
 	switch node.Operator {
 	case "-":
 		return evalMinusPrefixOperatorExpression(right)
+	case "!":
+		return evalBangOperatorExpression(right)
 	}
 
 	return newError("Unknown operator: %s%s", node.Operator, right.Type())
@@ -170,10 +174,31 @@ func evalMinusPrefixOperatorExpression(right object.Object) object.Object {
 	return newError("Unknown operator: -%s", right.Type())
 }
 
+func evalBangOperatorExpression(right object.Object) object.Object {
+	switch right {
+	case FALSE:
+		return TRUE
+	case TRUE:
+		return FALSE
+	case NIL:
+		return TRUE
+	}
+
+	return newError("Unknown operator: !%s", right.Type())
+}
+
 func newError(format string, a ...interface{}) *object.Error {
 	return &object.Error{Message: fmt.Sprintf(format, a...)}
 }
 
 func isError(obj object.Object) bool {
 	return obj.Type() == object.ERROR_OBJ
+}
+
+func nativeBoolToBooleanObject(input bool) object.Object {
+	if input {
+		return TRUE
+	}
+
+	return FALSE
 }

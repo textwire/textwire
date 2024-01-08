@@ -60,6 +60,9 @@ func TestEvalBooleanExpression(t *testing.T) {
 	}{
 		{"{{ true }}", "1"},
 		{"{{ false }}", "0"},
+		{"{{ !true }}", "0"},
+		{"{{ !false }}", "1"},
+		{"{{ !nil }}", "1"},
 	}
 
 	for _, tt := range tests {
@@ -69,6 +72,7 @@ func TestEvalBooleanExpression(t *testing.T) {
 
 		if ok {
 			t.Errorf("evaluation failed: %s", errObj.Message)
+			return
 		}
 
 		result := evaluated.String()
