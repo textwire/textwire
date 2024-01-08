@@ -152,9 +152,13 @@ func (p *Parser) expectPeek(tok token.TokenType) bool {
 
 	msg := fmt.Sprintf("expected next token to be %d, got %d instead", tok, p.peekToken.Type)
 
-	p.errors = append(p.errors, errors.New(msg))
+	p.newError(msg)
 
 	return false
+}
+
+func (p *Parser) newError(msg string) {
+	p.errors = append(p.errors, errors.New(msg))
 }
 
 func (p *Parser) nextToken() {
@@ -173,7 +177,7 @@ func (p *Parser) parseIntegerLiteral() ast.Expression {
 	val, err := strconv.ParseInt(p.curToken.Literal, 10, 64)
 
 	if err != nil {
-		p.errors = append(p.errors, errors.New("could not parse "+p.curToken.Literal+" as integer"))
+		p.newError("could not parse " + p.curToken.Literal + " as integer")
 		return nil
 	}
 
@@ -214,6 +218,11 @@ func (p *Parser) parseInfixExpression(left ast.Expression) ast.Expression {
 
 	p.nextToken() // skip operator
 
+	if p.curTokenIs(token.RBRACES) {
+		p.newError("expected expression, got '}}'")
+		return nil
+	}
+
 	exp.Right = p.parseExpression(SUM)
 
 	return exp
@@ -239,7 +248,7 @@ func (p *Parser) parseExpression(precedence int) ast.Expression {
 	prefix := p.prefixParseFns[p.curToken.Type]
 
 	if prefix == nil {
-		p.errors = append(p.errors, errors.New("no prefix parse function for "+p.curToken.Literal))
+		p.newError("no prefix parse function for " + p.curToken.Literal)
 		return nil
 	}
 
