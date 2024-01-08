@@ -9,9 +9,10 @@ const (
 	IDENT                    // foo, bar
 
 	// Literals
-	HTML // HTML code
-	INT  // Integer
-	STR  // String
+	HTML  // HTML code
+	INT   // Integer
+	FLOAT // Float
+	STR   // String
 
 	// Operators
 	PLUS     // +
@@ -78,6 +79,8 @@ func (t *Token) String() string {
 		return "HTML"
 	case INT:
 		return "INT"
+	case FLOAT:
+		return "FLOAT"
 	case STR:
 		return "STR"
 	case PLUS:

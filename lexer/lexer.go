@@ -87,8 +87,13 @@ func (l *Lexer) readEmbeddedCodeToken() token.Token {
 	}
 
 	if isNumber(l.char) {
-		num := l.readNumber()
-		return l.newToken(token.INT, num)
+		num, isInt := l.readNumber()
+
+		if isInt {
+			return l.newToken(token.INT, num)
+		}
+
+		return l.newToken(token.FLOAT, num)
 	}
 
 	return l.newToken(token.ILLEGAL, string(l.char))
@@ -148,14 +153,19 @@ func (l *Lexer) readString() string {
 	return strings.ReplaceAll(result, "\\"+string(quote), string(quote))
 }
 
-func (l *Lexer) readNumber() string {
+func (l *Lexer) readNumber() (string, bool) {
 	position := l.position
+	isInt := true
 
-	for isNumber(l.char) {
+	for isNumber(l.char) || l.char == '.' {
+		if l.char == '.' {
+			isInt = false
+		}
+
 		l.advanceChar()
 	}
 
-	return l.input[position:l.position]
+	return l.input[position:l.position], isInt
 }
 
 func (l *Lexer) readHtml() string {

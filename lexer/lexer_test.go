@@ -58,6 +58,19 @@ func TestIntegers(t *testing.T) {
 	})
 }
 
+func TestFloats(t *testing.T) {
+	inp := "{{ 0.12 1.1111 9. }}"
+
+	TokenizeString(t, inp, []token.Token{
+		{Type: token.LBRACES, Literal: "{{"},
+		{Type: token.FLOAT, Literal: "0.12"},
+		{Type: token.FLOAT, Literal: "1.1111"},
+		{Type: token.FLOAT, Literal: "9."},
+		{Type: token.RBRACES, Literal: "}}"},
+		{Type: token.EOF, Literal: ""},
+	})
+}
+
 func TestIdentifiers(t *testing.T) {
 	inp := "{{ testVar another_var nil true false !true }}"
 
