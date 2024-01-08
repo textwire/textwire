@@ -447,3 +447,29 @@ func TestOperatorPrecedenceParsing(t *testing.T) {
 		}
 	}
 }
+
+func TestErrorHandling(t *testing.T) {
+	tests := []struct {
+		input      string
+		errMessage string
+	}{
+		{"{{ 5 + }}", "expected expression, got '}}'"},
+	}
+
+	for _, tt := range tests {
+		l := lexer.New(tt.input)
+		p := New(l)
+
+		p.ParseProgram()
+
+		if len(p.Errors()) == 0 {
+			t.Errorf("no errors found in input %q", tt.input)
+		}
+
+		err := p.Errors()[0]
+
+		if err.Error() != tt.errMessage {
+			t.Errorf("expected error message %q, got %q", tt.errMessage, err.Error())
+		}
+	}
+}
