@@ -59,7 +59,7 @@ func TestIntegers(t *testing.T) {
 }
 
 func TestIdentifiers(t *testing.T) {
-	inp := "{{ testVar another_var nil true false }}"
+	inp := "{{ testVar another_var nil true false !true }}"
 
 	TokenizeString(t, inp, []token.Token{
 		{Type: token.LBRACES, Literal: "{{"},
@@ -68,6 +68,8 @@ func TestIdentifiers(t *testing.T) {
 		{Type: token.NIL, Literal: "nil"},
 		{Type: token.TRUE, Literal: "true"},
 		{Type: token.FALSE, Literal: "false"},
+		{Type: token.BANG, Literal: "!"},
+		{Type: token.TRUE, Literal: "true"},
 		{Type: token.RBRACES, Literal: "}}"},
 		{Type: token.EOF, Literal: ""},
 	})
