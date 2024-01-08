@@ -380,6 +380,8 @@ func TestPrefixExpression(t *testing.T) {
 	}{
 		{"{{ -5 }}", "-", 5},
 		{"{{ -10 }}", "-", 10},
+		{"{{ !true }}", "!", true},
+		{"{{ !false }}", "!", false},
 	}
 
 	for _, tt := range tests {
