@@ -11,5 +11,5 @@ func (f *Float) Type() ObjectType {
 }
 
 func (f *Float) String() string {
-	return fmt.Sprintf("%f", f.Value)
+	return fmt.Sprintf("%g", f.Value)
 }

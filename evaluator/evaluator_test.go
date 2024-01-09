@@ -19,7 +19,6 @@ func testEval(input string) object.Object {
 
 func evaluationExpected(t *testing.T, input, expect string) {
 	evaluated := testEval(input)
-
 	errObj, ok := evaluated.(*object.Error)
 
 	if ok {
@@ -46,6 +45,22 @@ func TestEvalIntegerExpression(t *testing.T) {
 		{"{{ 2 * (5 + 10) }}", "30"},
 		{`{{ 3 * 3 * 3 + 10 }}`, "37"},
 		{`{{ (5 + 10 * 2 + 15 / 3) * 2 + -10 }}`, "50"},
+	}
+
+	for _, tt := range tests {
+		evaluationExpected(t, tt.input, tt.expected)
+	}
+}
+
+func TestEvalFloatExpression(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected string
+	}{
+		{"{{ 5.11 }}", "5.11"},
+		{"{{ -12.3 }}", "-12.3"},
+		{`{{ 2.123 + 1.111 }}`, "3.234"},
+		{`{{ 2. + 1.2 }}`, "3.2"},
 	}
 
 	for _, tt := range tests {

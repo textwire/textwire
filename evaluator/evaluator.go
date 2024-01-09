@@ -30,6 +30,8 @@ func Eval(node ast.Node, env *object.Env) object.Object {
 		return evalIdentifier(node, env)
 	case *ast.IntegerLiteral:
 		return &object.Int{Value: node.Value}
+	case *ast.FloatLiteral:
+		return &object.Float{Value: node.Value}
 	case *ast.StringLiteral:
 		return &object.String{Value: node.Value}
 	case *ast.BooleanLiteral:
