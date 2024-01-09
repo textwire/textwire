@@ -61,6 +61,27 @@ func testIntegerLiteral(t *testing.T, exp ast.Expression, value int64) bool {
 	return true
 }
 
+func testFloatLiteral(t *testing.T, exp ast.Expression, value float64) bool {
+	float, ok := exp.(*ast.FloatLiteral)
+
+	if !ok {
+		t.Errorf("exp is not a FloatLiteral, got %T", exp)
+		return false
+	}
+
+	if float.Value != value {
+		t.Errorf("float.Value is not %f, got %f", value, float.Value)
+		return false
+	}
+
+	if float.TokenLiteral() != strconv.FormatFloat(value, 'f', -1, 64) {
+		t.Errorf("float.TokenLiteral() is not %f, got %s", value, float.TokenLiteral())
+		return false
+	}
+
+	return true
+}
+
 func testNilLiteral(t *testing.T, exp ast.Expression) bool {
 	nilLit, ok := exp.(*ast.NilLiteral)
 
@@ -187,6 +208,20 @@ func TestParseIntegerLiteral(t *testing.T) {
 	}
 
 	if !testIntegerLiteral(t, stmt.Expression, 234) {
+		return
+	}
+}
+
+func TestParseFloatLiteral(t *testing.T) {
+	stmts := parseStatements(t, "{{ 2.34149 }}", 1)
+
+	stmt, ok := stmts[0].(*ast.ExpressionStatement)
+
+	if !ok {
+		t.Fatalf("program.Statements[0] is not an ExpressionStatement, got %T", stmts[0])
+	}
+
+	if !testFloatLiteral(t, stmt.Expression, 2.34149) {
 		return
 	}
 }

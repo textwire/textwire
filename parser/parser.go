@@ -67,6 +67,7 @@ func New(lexer *lexer.Lexer) *Parser {
 	p.prefixParseFns = make(map[token.TokenType]prefixParseFn)
 	p.registerPrefix(token.IDENT, p.parseIdentifier)
 	p.registerPrefix(token.INT, p.parseIntegerLiteral)
+	p.registerPrefix(token.FLOAT, p.parseFloatLiteral)
 	p.registerPrefix(token.STR, p.parseStringLiteral)
 	p.registerPrefix(token.NIL, p.parseNilLiteral)
 	p.registerPrefix(token.TRUE, p.parseBooleanLiteral)
@@ -182,6 +183,20 @@ func (p *Parser) parseIntegerLiteral() ast.Expression {
 	}
 
 	return &ast.IntegerLiteral{
+		Token: p.curToken,
+		Value: val,
+	}
+}
+
+func (p *Parser) parseFloatLiteral() ast.Expression {
+	val, err := strconv.ParseFloat(p.curToken.Literal, 10)
+
+	if err != nil {
+		p.newError("could not parse " + p.curToken.Literal + " as float")
+		return nil
+	}
+
+	return &ast.FloatLiteral{
 		Token: p.curToken,
 		Value: val,
 	}
