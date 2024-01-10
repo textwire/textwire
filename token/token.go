@@ -67,8 +67,8 @@ type Token struct {
 	Line    uint
 }
 
-func (t *Token) String() string {
-	switch t.Type {
+func TypeName(tokType TokenType) string {
+	switch tokType {
 	case ILLEGAL:
 		return "ILLEGAL"
 	case EOF:
