@@ -29,10 +29,11 @@ const (
 	INDEX        // array[index]
 
 	// Error messages
-	ERR_EMPTY_BRACKETS      = "bracket statement must contain an expression '{{ <expression> }}'"
-	ERR_WRONG_NEXT_TOKEN    = "expected next token to be %s, got %s instead"
-	ERR_EXPECTED_EXPRESSION = "expected expression, got '}}'"
-	ERR_COULD_NOT_PARSE_AS  = "could not parse %s as %s"
+	ERR_EMPTY_BRACKETS       = "bracket statement must contain an expression '{{ <expression> }}'"
+	ERR_WRONG_NEXT_TOKEN     = "expected next token to be %s, got %s instead"
+	ERR_EXPECTED_EXPRESSION  = "expected expression, got '}}'"
+	ERR_COULD_NOT_PARSE_AS   = "could not parse %s as %s"
+	ERR_NO_PREFIX_PARSE_FUNC = "no prefix parse function for "
 )
 
 var precedences = map[token.TokenType]int{
@@ -301,7 +302,7 @@ func (p *Parser) parseExpression(precedence int) ast.Expression {
 	prefix := p.prefixParseFns[p.curToken.Type]
 
 	if prefix == nil {
-		p.newError("no prefix parse function for " + p.curToken.Literal)
+		p.newError(ERR_NO_PREFIX_PARSE_FUNC + token.TypeName(p.curToken.Type))
 		return nil
 	}
 
