@@ -7,10 +7,10 @@ import (
 )
 
 type TernaryExpression struct {
-	Token     token.Token
-	Condition Expression
-	TrueExp   Expression
-	FalseExp  Expression
+	Token       token.Token
+	Condition   Expression
+	Consequence Expression
+	Alternative Expression
 }
 
 func (te *TernaryExpression) expressionNode() {
@@ -21,5 +21,5 @@ func (te *TernaryExpression) TokenLiteral() string {
 }
 
 func (te *TernaryExpression) String() string {
-	return fmt.Sprintf("(%s ? %s : %s)", te.Condition, te.TrueExp, te.FalseExp)
+	return fmt.Sprintf("(%s ? %s : %s)", te.Condition, te.Condition, te.Alternative)
 }
