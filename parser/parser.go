@@ -32,6 +32,7 @@ const (
 	ERR_EMPTY_BRACKETS      = "bracket statement must contain an expression '{{ <expression> }}'"
 	ERR_WRONG_NEXT_TOKEN    = "expected next token to be %s, got %s instead"
 	ERR_EXPECTED_EXPRESSION = "expected expression, got '}}'"
+	ERR_COULD_NOT_PARSE_AS  = "could not parse %s as %s"
 )
 
 var precedences = map[token.TokenType]int{
@@ -188,7 +189,7 @@ func (p *Parser) parseIntegerLiteral() ast.Expression {
 	val, err := strconv.ParseInt(p.curToken.Literal, 10, 64)
 
 	if err != nil {
-		p.newError("could not parse " + p.curToken.Literal + " as integer")
+		p.newError(fmt.Sprintf(ERR_COULD_NOT_PARSE_AS, p.curToken.Literal, "INT"))
 		return nil
 	}
 
@@ -202,7 +203,7 @@ func (p *Parser) parseFloatLiteral() ast.Expression {
 	val, err := strconv.ParseFloat(p.curToken.Literal, 10)
 
 	if err != nil {
-		p.newError("could not parse " + p.curToken.Literal + " as float")
+		p.newError(fmt.Sprintf(ERR_COULD_NOT_PARSE_AS, p.curToken.Literal, "FLOAT"))
 		return nil
 	}
 
