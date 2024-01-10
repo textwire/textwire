@@ -16,6 +16,8 @@ func isTruthy(obj object.Object) bool {
 		return obj.Value != 0.0
 	case *object.String:
 		return obj.Value != ""
+	case *object.Nil:
+		return false
 	}
 
 	return true
