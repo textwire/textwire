@@ -1,6 +1,7 @@
 package lexer
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/textwire/textwire/token"
@@ -112,7 +113,7 @@ func TestOperators(t *testing.T) {
 }
 
 func TestStrings(t *testing.T) {
-	inp := `{{ "Anna \"and\" Serhii" + "" }}`
+	inp := fmt.Sprintf(`{{ "Anna \"and\" Serhii" + %s }}`, "``")
 
 	TokenizeString(t, inp, []token.Token{
 		{Type: token.LBRACES, Literal: "{{"},
