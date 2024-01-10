@@ -508,3 +508,33 @@ func TestErrorHandling(t *testing.T) {
 		}
 	}
 }
+
+func TestTernaryExpression(t *testing.T) {
+	input := "{{ true ? 100 : 200 }}"
+
+	stmts := parseStatements(t, input, 1)
+
+	stmt, ok := stmts[0].(*ast.ExpressionStatement)
+
+	if !ok {
+		t.Fatalf("program.Statements[0] is not an ExpressionStatement, got %T", stmts[0])
+	}
+
+	exp, ok := stmt.Expression.(*ast.TernaryExpression)
+
+	if !ok {
+		t.Fatalf("stmt is not a TernaryExpression, got %T", stmt.Expression)
+	}
+
+	if !testBooleanLiteral(t, exp.Condition, true) {
+		return
+	}
+
+	if !testIntegerLiteral(t, exp.Consequence, 100) {
+		return
+	}
+
+	if !testIntegerLiteral(t, exp.Alternative, 200) {
+		return
+	}
+}
