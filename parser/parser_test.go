@@ -7,6 +7,7 @@ import (
 
 	"github.com/textwire/textwire/ast"
 	"github.com/textwire/textwire/lexer"
+	"github.com/textwire/textwire/token"
 )
 
 func checkParserErrors(t *testing.T, p *Parser) {
@@ -490,6 +491,7 @@ func TestErrorHandling(t *testing.T) {
 	}{
 		{"{{ 5 + }}", "expected expression, got '}}'"},
 		{"{{ }}", ERR_EMPTY_BRACKETS},
+		{"{{ true ? 100 }}", fmt.Sprintf(ERR_WRONG_NEXT_TOKEN, token.TypeName(token.COLON), token.TypeName(token.RBRACES))},
 	}
 
 	for _, tt := range tests {
