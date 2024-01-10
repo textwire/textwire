@@ -38,6 +38,8 @@ func Eval(node ast.Node, env *object.Env) object.Object {
 		return nativeBoolToBooleanObject(node.Value)
 	case *ast.PrefixExpression:
 		return evalPrefixExpression(node, env)
+	case *ast.TernaryExpression:
+		return evalTernaryExpression(node, env)
 	case *ast.InfixExpression:
 		return evalInfixExpression(node.Operator, node.Left, node.Right, env)
 	case *ast.NilLiteral:
@@ -86,6 +88,20 @@ func evalPrefixExpression(node *ast.PrefixExpression, env *object.Env) object.Ob
 	}
 
 	return newError("Unknown operator: %s%s", node.Operator, right.Type())
+}
+
+func evalTernaryExpression(node *ast.TernaryExpression, env *object.Env) object.Object {
+	condition := Eval(node.Condition, env)
+
+	if isError(condition) {
+		return condition
+	}
+
+	if isTruthy(condition) {
+		return Eval(node.Consequence, env)
+	}
+
+	return Eval(node.Alternative, env)
 }
 
 func evalInfixExpression(operator string, left, right ast.Expression, env *object.Env) object.Object {

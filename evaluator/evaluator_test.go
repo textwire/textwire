@@ -118,3 +118,16 @@ func TestEvalStringExpression(t *testing.T) {
 		evaluationExpected(t, tt.input, tt.expected)
 	}
 }
+
+func TestTernaryExpression(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected string
+	}{
+		{`{{ true ? "Yes" : "No" }}`, "Yes"},
+	}
+
+	for _, tt := range tests {
+		evaluationExpected(t, tt.input, tt.expected)
+	}
+}
