@@ -29,8 +29,9 @@ const (
 	INDEX        // array[index]
 
 	// Error messages
-	ERR_EMPTY_BRACKETS   = "bracket statement must contain an expression '{{ <expression> }}'"
-	ERR_WRONG_NEXT_TOKEN = "expected next token to be %s, got %s instead"
+	ERR_EMPTY_BRACKETS      = "bracket statement must contain an expression '{{ <expression> }}'"
+	ERR_WRONG_NEXT_TOKEN    = "expected next token to be %s, got %s instead"
+	ERR_EXPECTED_EXPRESSION = "expected expression, got '}}'"
 )
 
 var precedences = map[token.TokenType]int{
@@ -243,7 +244,7 @@ func (p *Parser) parseInfixExpression(left ast.Expression) ast.Expression {
 	p.nextToken() // skip operator
 
 	if p.curTokenIs(token.RBRACES) {
-		p.newError("expected expression, got '}}'")
+		p.newError(ERR_EXPECTED_EXPRESSION)
 		return nil
 	}
 
