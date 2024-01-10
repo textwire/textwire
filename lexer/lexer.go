@@ -139,6 +139,11 @@ func (l *Lexer) readString() string {
 
 	l.advanceChar() // skip the first quote
 
+	if l.char == quote {
+		l.advanceChar()
+		return result
+	}
+
 	position := l.position
 
 	for {

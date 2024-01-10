@@ -112,11 +112,13 @@ func TestOperators(t *testing.T) {
 }
 
 func TestStrings(t *testing.T) {
-	inp := `{{ "Anna \"and\" Serhii" }}`
+	inp := `{{ "Anna \"and\" Serhii" + "" }}`
 
 	TokenizeString(t, inp, []token.Token{
 		{Type: token.LBRACES, Literal: "{{"},
 		{Type: token.STR, Literal: `Anna "and" Serhii`},
+		{Type: token.PLUS, Literal: "+"},
+		{Type: token.STR, Literal: ""},
 		{Type: token.RBRACES, Literal: "}}"},
 		{Type: token.EOF, Literal: ""},
 	})
