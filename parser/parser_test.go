@@ -510,7 +510,7 @@ func TestErrorHandling(t *testing.T) {
 }
 
 func TestTernaryExpression(t *testing.T) {
-	input := "{{ true ? 100 : 200 }}"
+	input := `{{ true ? 100 : "Some string" }}`
 
 	stmts := parseStatements(t, input, 1)
 
@@ -534,7 +534,7 @@ func TestTernaryExpression(t *testing.T) {
 		return
 	}
 
-	if !testIntegerLiteral(t, exp.Alternative, 200) {
+	if !testStringLiteral(t, exp.Alternative, "Some string") {
 		return
 	}
 }

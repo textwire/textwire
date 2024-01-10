@@ -78,6 +78,7 @@ func New(lexer *lexer.Lexer) *Parser {
 
 	// Infix operators
 	p.infixParseFns = make(map[token.TokenType]infixParseFn)
+	p.registerInfix(token.QUESTION, p.parseTernaryExpression)
 	p.registerInfix(token.PLUS, p.parseInfixExpression)
 	p.registerInfix(token.MINUS, p.parseInfixExpression)
 	p.registerInfix(token.ASTERISK, p.parseInfixExpression)
@@ -151,7 +152,8 @@ func (p *Parser) expectPeek(tok token.TokenType) bool {
 		return true
 	}
 
-	msg := fmt.Sprintf("expected next token to be %d, got %d instead", tok, p.peekToken.Type)
+	msg := fmt.Sprintf("expected next token to be %s, got %s instead",
+		token.TypeName(tok), token.TypeName(p.peekToken.Type))
 
 	p.newError(msg)
 
@@ -239,6 +241,27 @@ func (p *Parser) parseInfixExpression(left ast.Expression) ast.Expression {
 	}
 
 	exp.Right = p.parseExpression(SUM)
+
+	return exp
+}
+
+func (p *Parser) parseTernaryExpression(left ast.Expression) ast.Expression {
+	exp := &ast.TernaryExpression{
+		Token:     p.curToken,
+		Condition: left,
+	}
+
+	p.nextToken() // skip "?"
+
+	exp.Consequence = p.parseExpression(TERNARY)
+
+	if !p.expectPeek(token.COLON) { // move to ":"
+		return nil
+	}
+
+	p.nextToken() // skip ":"
+
+	exp.Alternative = p.parseExpression(LOWEST)
 
 	return exp
 }
