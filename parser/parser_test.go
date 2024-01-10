@@ -489,6 +489,7 @@ func TestErrorHandling(t *testing.T) {
 		errMessage string
 	}{
 		{"{{ 5 + }}", "expected expression, got '}}'"},
+		{"{{ }}", ERR_EMPTY_BRACKETS},
 	}
 
 	for _, tt := range tests {

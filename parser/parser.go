@@ -27,6 +27,9 @@ const (
 	PREFIX       // -X or !X
 	CALL         // myFunction(X)
 	INDEX        // array[index]
+
+	// Error messages
+	ERR_EMPTY_BRACKETS = "bracket statement must contain an expression '{{ <expression> }}'"
 )
 
 var precedences = map[token.TokenType]int{
@@ -268,6 +271,12 @@ func (p *Parser) parseTernaryExpression(left ast.Expression) ast.Expression {
 
 func (p *Parser) parseEmbeddedCode() ast.Statement {
 	p.nextToken() // skip "{{"
+
+	if p.curTokenIs(token.RBRACES) {
+		p.newError(ERR_EMPTY_BRACKETS)
+		return nil
+	}
+
 	return p.parseExpressionStatement()
 }
 
