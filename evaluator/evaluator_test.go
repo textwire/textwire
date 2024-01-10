@@ -131,6 +131,10 @@ func TestTernaryExpression(t *testing.T) {
 		{`{{ 1 ? "Yes" : "No" }}`, "Yes"},
 		{`{{ 0 ? "Yes" : "No" }}`, "No"},
 		{`{{ "" ? "Yes" : "No" }}`, "No"},
+		{`{{ !true ? "Yes" : "No" }}`, "No"},
+		{`{{ !false ? "Yes" : "No" }}`, "Yes"},
+		{`{{ !!true ? "Yes" : "No" }}`, "Yes"},
+		{`{{ !!false ? "Yes" : "No" }}`, "No"},
 	}
 
 	for _, tt := range tests {
