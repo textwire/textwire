@@ -14,12 +14,12 @@ func TokenizeString(t *testing.T, input string, expectTokens []token.Token) {
 
 		if tok.Literal != expectTok.Literal {
 			t.Fatalf("tests[%d] - literal wrong. expected=%s, got=%s",
-				i, expectTok.Literal, tok.Literal)
+				i, expectTok.String(), tok.String())
 		}
 
 		if tok.Type != expectTok.Type {
-			t.Fatalf("tests[%d] - tokentype wrong. expected=%d, got=%d",
-				i, expectTok.Type, tok.Type)
+			t.Fatalf("tests[%d] - tokentype wrong. expected=%s, got=%s",
+				i, expectTok.String(), tok.String())
 		}
 	}
 }
@@ -118,6 +118,23 @@ func TestStrings(t *testing.T) {
 		{Type: token.LBRACES, Literal: "{{"},
 		{Type: token.STR, Literal: `Anna "and" Serhii`},
 		{Type: token.RBRACES, Literal: "}}"},
+		{Type: token.EOF, Literal: ""},
+	})
+}
+
+func TestTernary(t *testing.T) {
+	inp := `<small>{{ true ? "Yes!" : "No!" }}</small>`
+
+	TokenizeString(t, inp, []token.Token{
+		{Type: token.HTML, Literal: "<small>"},
+		{Type: token.LBRACES, Literal: "{{"},
+		{Type: token.TRUE, Literal: "true"},
+		{Type: token.QUESTION, Literal: "?"},
+		{Type: token.STR, Literal: "Yes!"},
+		{Type: token.COLON, Literal: ":"},
+		{Type: token.STR, Literal: "No!"},
+		{Type: token.RBRACES, Literal: "}}"},
+		{Type: token.HTML, Literal: "</small>"},
 		{Type: token.EOF, Literal: ""},
 	})
 }
