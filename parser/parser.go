@@ -29,7 +29,8 @@ const (
 	INDEX        // array[index]
 
 	// Error messages
-	ERR_EMPTY_BRACKETS = "bracket statement must contain an expression '{{ <expression> }}'"
+	ERR_EMPTY_BRACKETS   = "bracket statement must contain an expression '{{ <expression> }}'"
+	ERR_WRONG_NEXT_TOKEN = "expected next token to be %s, got %s instead"
 )
 
 var precedences = map[token.TokenType]int{
@@ -155,8 +156,11 @@ func (p *Parser) expectPeek(tok token.TokenType) bool {
 		return true
 	}
 
-	msg := fmt.Sprintf("expected next token to be %s, got %s instead",
-		token.TypeName(tok), token.TypeName(p.peekToken.Type))
+	msg := fmt.Sprintf(
+		ERR_WRONG_NEXT_TOKEN,
+		token.TypeName(tok),
+		token.TypeName(p.peekToken.Type),
+	)
 
 	p.newError(msg)
 
