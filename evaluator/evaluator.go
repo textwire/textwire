@@ -2,7 +2,6 @@ package evaluator
 
 import (
 	"bytes"
-	"fmt"
 
 	"github.com/textwire/textwire/ast"
 	"github.com/textwire/textwire/object"
@@ -203,20 +202,4 @@ func evalBangOperatorExpression(right object.Object) object.Object {
 	}
 
 	return newError("Unknown operator: !%s", right.Type())
-}
-
-func newError(format string, a ...interface{}) *object.Error {
-	return &object.Error{Message: fmt.Sprintf(format, a...)}
-}
-
-func isError(obj object.Object) bool {
-	return obj.Type() == object.ERROR_OBJ
-}
-
-func nativeBoolToBooleanObject(input bool) object.Object {
-	if input {
-		return TRUE
-	}
-
-	return FALSE
 }
