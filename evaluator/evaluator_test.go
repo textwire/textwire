@@ -112,6 +112,7 @@ func TestEvalStringExpression(t *testing.T) {
 		{`{{ "She \"is\" pretty" }}`, `She "is" pretty`},
 		{`{{ "Korotchaeva" + " " + "Anna" }}`, "Korotchaeva Anna"},
 		{`{{ "She" + " " + "is" + " " + "nice" }}`, "She is nice"},
+		{"{{ `` }}", ""},
 	}
 
 	for _, tt := range tests {
@@ -125,6 +126,11 @@ func TestTernaryExpression(t *testing.T) {
 		expected string
 	}{
 		{`{{ true ? "Yes" : "No" }}`, "Yes"},
+		{`{{ false ? "Yes" : "No" }}`, "No"},
+		{`{{ nil ? "Yes" : "No" }}`, "No"},
+		{`{{ 1 ? "Yes" : "No" }}`, "Yes"},
+		{`{{ 0 ? "Yes" : "No" }}`, "No"},
+		{`{{ "" ? "Yes" : "No" }}`, "No"},
 	}
 
 	for _, tt := range tests {
