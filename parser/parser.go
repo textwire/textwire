@@ -1,7 +1,6 @@
 package parser
 
 import (
-	"errors"
 	"fmt"
 	"strconv"
 
@@ -33,7 +32,7 @@ const (
 	ERR_WRONG_NEXT_TOKEN     = "expected next token to be %s, got %s instead"
 	ERR_EXPECTED_EXPRESSION  = "expected expression, got '}}'"
 	ERR_COULD_NOT_PARSE_AS   = "could not parse %s as %s"
-	ERR_NO_PREFIX_PARSE_FUNC = "no prefix parse function for "
+	ERR_NO_PREFIX_PARSE_FUNC = "no prefix parse function for %s"
 )
 
 var precedences = map[token.TokenType]int{
@@ -170,8 +169,8 @@ func (p *Parser) expectPeek(tok token.TokenType) bool {
 	return false
 }
 
-func (p *Parser) newError(msg string) {
-	p.errors = append(p.errors, errors.New(msg))
+func (p *Parser) newError(msg string, args ...interface{}) {
+	p.errors = append(p.errors, fmt.Errorf(msg, args...))
 }
 
 func (p *Parser) nextToken() {
@@ -190,7 +189,7 @@ func (p *Parser) parseIntegerLiteral() ast.Expression {
 	val, err := strconv.ParseInt(p.curToken.Literal, 10, 64)
 
 	if err != nil {
-		p.newError(fmt.Sprintf(ERR_COULD_NOT_PARSE_AS, p.curToken.Literal, "INT"))
+		p.newError(ERR_COULD_NOT_PARSE_AS, p.curToken.Literal, "INT")
 		return nil
 	}
 
@@ -204,7 +203,7 @@ func (p *Parser) parseFloatLiteral() ast.Expression {
 	val, err := strconv.ParseFloat(p.curToken.Literal, 10)
 
 	if err != nil {
-		p.newError(fmt.Sprintf(ERR_COULD_NOT_PARSE_AS, p.curToken.Literal, "FLOAT"))
+		p.newError(ERR_COULD_NOT_PARSE_AS, p.curToken.Literal, "FLOAT")
 		return nil
 	}
 
@@ -302,7 +301,7 @@ func (p *Parser) parseExpression(precedence int) ast.Expression {
 	prefix := p.prefixParseFns[p.curToken.Type]
 
 	if prefix == nil {
-		p.newError(ERR_NO_PREFIX_PARSE_FUNC + token.TypeName(p.curToken.Type))
+		p.newError(ERR_NO_PREFIX_PARSE_FUNC, token.TypeName(p.curToken.Type))
 		return nil
 	}
 
