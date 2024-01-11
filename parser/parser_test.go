@@ -542,3 +542,30 @@ func TestTernaryExpression(t *testing.T) {
 		return
 	}
 }
+
+func TestIfStatementIsPrintedCorrectly(t *testing.T) {
+	input := `
+	{{ if true }}
+		Is true
+	{{ else if false }}
+		Is false
+	{{ else if true }}
+		Is true again
+	{{ else }}
+		Else is here
+	{{ end }}
+	`
+
+	l := lexer.New(input)
+	p := New(l)
+
+	program := p.ParseProgram()
+
+	checkParserErrors(t, p)
+
+	expected := input + "\n"
+
+	if program.String() != expected {
+		t.Errorf("expected=%q, got=%q", expected, program.String())
+	}
+}
