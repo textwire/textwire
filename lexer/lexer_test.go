@@ -73,18 +73,41 @@ func TestFloats(t *testing.T) {
 }
 
 func TestIdentifiers(t *testing.T) {
-	inp := "{{ testVar another_var nil if true false !true }}"
+	inp := "{{ testVar another_var12 nil false !true }}"
 
 	TokenizeString(t, inp, []token.Token{
 		{Type: token.LBRACES, Literal: "{{"},
 		{Type: token.IDENT, Literal: "testVar"},
-		{Type: token.IDENT, Literal: "another_var"},
+		{Type: token.IDENT, Literal: "another_var12"},
 		{Type: token.NIL, Literal: "nil"},
-		{Type: token.IF, Literal: "if"},
-		{Type: token.TRUE, Literal: "true"},
 		{Type: token.FALSE, Literal: "false"},
 		{Type: token.BANG, Literal: "!"},
 		{Type: token.TRUE, Literal: "true"},
+		{Type: token.RBRACES, Literal: "}}"},
+		{Type: token.EOF, Literal: ""},
+	})
+}
+
+func TestIfStatement(t *testing.T) {
+	inp := "{{ if true }}1{{ else if false }}2{{ else }}3{{ end }}"
+
+	TokenizeString(t, inp, []token.Token{
+		{Type: token.LBRACES, Literal: "{{"},
+		{Type: token.IF, Literal: "if"},
+		{Type: token.TRUE, Literal: "true"},
+		{Type: token.RBRACES, Literal: "}}"},
+		{Type: token.HTML, Literal: "1"},
+		{Type: token.LBRACES, Literal: "{{"},
+		{Type: token.ELSEIF, Literal: "else if"},
+		{Type: token.FALSE, Literal: "false"},
+		{Type: token.RBRACES, Literal: "}}"},
+		{Type: token.HTML, Literal: "2"},
+		{Type: token.LBRACES, Literal: "{{"},
+		{Type: token.ELSE, Literal: "else"},
+		{Type: token.RBRACES, Literal: "}}"},
+		{Type: token.HTML, Literal: "3"},
+		{Type: token.LBRACES, Literal: "{{"},
+		{Type: token.END, Literal: "end"},
 		{Type: token.RBRACES, Literal: "}}"},
 		{Type: token.EOF, Literal: ""},
 	})

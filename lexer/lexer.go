@@ -126,11 +126,21 @@ func (l *Lexer) newTokenAndAdvance(tokType token.TokenType, literal string) toke
 func (l *Lexer) readIdentifier() string {
 	position := l.position
 
-	for isIdent(l.char) {
+	for isIdent(l.char) || isNumber(l.char) {
 		l.advanceChar()
 	}
 
-	return l.input[position:l.position]
+	result := l.input[position:l.position]
+
+	if result == "else" && l.peekChar() == 'i' {
+		l.advanceChar() // skip " "
+		l.advanceChar() // skip "i"
+		l.advanceChar() // skip "f"
+
+		return "else if"
+	}
+
+	return result
 }
 
 func (l *Lexer) readString() string {

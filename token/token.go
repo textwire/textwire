@@ -52,13 +52,13 @@ const (
 )
 
 var keywords = map[string]TokenType{
-	"if":     IF,
-	"else":   ELSE,
-	"elseif": ELSEIF, // else if
-	"end":    END,
-	"true":   TRUE,
-	"false":  FALSE,
-	"nil":    NIL,
+	"if":      IF,
+	"else":    ELSE,
+	"else if": ELSEIF,
+	"end":     END,
+	"true":    TRUE,
+	"false":   FALSE,
+	"nil":     NIL,
 }
 
 type Token struct {
