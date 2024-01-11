@@ -19,5 +19,5 @@ func (e *ExpressionStatement) String() string {
 		return ""
 	}
 
-	return e.Expression.String()
+	return "{{ " + e.Expression.String() + " }}"
 }
