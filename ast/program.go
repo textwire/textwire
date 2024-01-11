@@ -20,13 +20,7 @@ func (p *Program) String() string {
 	var result bytes.Buffer
 
 	for _, stmt := range p.Statements {
-		_, isHtmlStmt := stmt.(*HTMLStatement)
-
-		if isHtmlStmt {
-			result.WriteString(stmt.String())
-		} else {
-			result.WriteString("{{ " + stmt.String() + " }}")
-		}
+		result.WriteString(stmt.String())
 	}
 
 	return result.String()

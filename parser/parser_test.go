@@ -543,29 +543,168 @@ func TestTernaryExpression(t *testing.T) {
 	}
 }
 
-func TestIfStatementIsPrintedCorrectly(t *testing.T) {
-	input := `
-	{{ if true }}
-		Is true
-	{{ else if false }}
-		Is false
-	{{ else if true }}
-		Is true again
-	{{ else }}
-		Else is here
-	{{ end }}
-	`
+func TestIfStatement(t *testing.T) {
+	inp := `{{ if true }}1{{ end }}`
 
-	l := lexer.New(input)
-	p := New(l)
+	stmts := parseStatements(t, inp, 1)
 
-	program := p.ParseProgram()
+	ifStmt, ok := stmts[0].(*ast.IfStatement)
 
-	checkParserErrors(t, p)
+	if !ok {
+		t.Fatalf("program.Statements[0] is not an IfStatement, got %T", stmts[0])
+	}
 
-	expected := input + "\n"
+	if !testBooleanLiteral(t, ifStmt.Condition, true) {
+		return
+	}
 
-	if program.String() != expected {
-		t.Errorf("expected=%q, got=%q", expected, program.String())
+	if len(ifStmt.Consequence.Statements) != 1 {
+		t.Errorf("ifStmt.Consequence.Statements does not contain 1 statement, got %d", len(ifStmt.Consequence.Statements))
+	}
+
+	consequence, ok := ifStmt.Consequence.Statements[0].(*ast.HTMLStatement)
+
+	if !ok {
+		t.Fatalf("ifStmt.Consequence.Statements[0] is not an HTMLStatement, got %T", ifStmt.Consequence.Statements[0])
+	}
+
+	if consequence.String() != "1" {
+		t.Errorf("consequence.String() is not %s, got %s", "1", consequence.String())
+	}
+
+	if ifStmt.Alternative != nil {
+		t.Errorf("ifStmt.Alternative is not nil, got %T", ifStmt.Alternative)
+	}
+
+	if len(ifStmt.Alternatives) != 0 {
+		t.Errorf("ifStmt.Alternatives is not empty, got %d", len(ifStmt.Alternatives))
+	}
+}
+
+func TestIfElseStatement(t *testing.T) {
+	inp := `{{ if true }}1{{ else }}2{{ end }}`
+
+	stmts := parseStatements(t, inp, 1)
+
+	ifStmt, ok := stmts[0].(*ast.IfStatement)
+
+	if !ok {
+		t.Fatalf("program.Statements[0] is not an IfStatement, got %T", stmts[0])
+	}
+
+	if ifStmt.Alternative == nil {
+		t.Errorf("ifStmt.Alternative is nil")
+	}
+
+	if len(ifStmt.Alternative.Statements) != 1 {
+		t.Errorf("ifStmt.Alternative.Statements does not contain 1 statement, got %d", len(ifStmt.Alternative.Statements))
+	}
+
+	alternative, ok := ifStmt.Alternative.Statements[0].(*ast.HTMLStatement)
+
+	if !ok {
+		t.Fatalf("ifStmt.Alternative.Statements[0] is not an HTMLStatement, got %T", ifStmt.Alternative.Statements[0])
+	}
+
+	if alternative.String() != "2" {
+		t.Errorf("alternative.String() is not %s, got %s", "2", alternative.String())
+	}
+
+	if len(ifStmt.Alternatives) != 0 {
+		t.Errorf("ifStmt.Alternatives is not empty, got %d", len(ifStmt.Alternatives))
+	}
+}
+
+func TestIfElseIfStatement(t *testing.T) {
+	inp := `{{ if true }}1{{ else if false }}2{{ end }}`
+
+	stmts := parseStatements(t, inp, 1)
+
+	ifStmt, ok := stmts[0].(*ast.IfStatement)
+
+	if !ok {
+		t.Fatalf("program.Statements[0] is not an IfStatement, got %T", stmts[0])
+	}
+
+	if ifStmt.Alternative != nil {
+		t.Errorf("ifStmt.Alternative is not nil, got %T", ifStmt.Alternative)
+	}
+
+	if len(ifStmt.Alternatives) != 1 {
+		t.Errorf("ifStmt.Alternatives does not contain 1 statement, got %d", len(ifStmt.Alternatives))
+	}
+
+	alternative := ifStmt.Alternatives[0]
+
+	if !testBooleanLiteral(t, alternative.Condition, false) {
+		return
+	}
+
+	if len(alternative.Consequence.Statements) != 1 {
+		t.Errorf("alternative.Consequence.Statements does not contain 1 statement, got %d", len(alternative.Consequence.Statements))
+	}
+
+	consequence, ok := alternative.Consequence.Statements[0].(*ast.HTMLStatement)
+
+	if !ok {
+		t.Fatalf("alternative.Consequence.Statements[0] is not an HTMLStatement, got %T", alternative.Consequence.Statements[0])
+	}
+
+	if consequence.String() != "2" {
+		t.Errorf("consequence.String() is not %s, got %s", "2", consequence.String())
+	}
+}
+
+func TestIfElseIfElseStatement(t *testing.T) {
+	inp := `{{ if true }}1{{ else if false }}2{{ else }}3{{ end }}`
+
+	stmts := parseStatements(t, inp, 1)
+
+	ifStmt, ok := stmts[0].(*ast.IfStatement)
+
+	if !ok {
+		t.Fatalf("program.Statements[0] is not an IfStatement, got %T", stmts[0])
+	}
+
+	if ifStmt.Alternative == nil {
+		t.Errorf("ifStmt.Alternative is nil")
+	}
+
+	if len(ifStmt.Alternative.Statements) != 1 {
+		t.Errorf("ifStmt.Alternative.Statements does not contain 1 statement, got %d", len(ifStmt.Alternative.Statements))
+	}
+
+	alternative, ok := ifStmt.Alternative.Statements[0].(*ast.HTMLStatement)
+
+	if !ok {
+		t.Fatalf("ifStmt.Alternative.Statements[0] is not an HTMLStatement, got %T", ifStmt.Alternative.Statements[0])
+	}
+
+	if alternative.String() != "3" {
+		t.Errorf("alternative.String() is not %s, got %s", "3", alternative.String())
+	}
+
+	if len(ifStmt.Alternatives) != 1 {
+		t.Errorf("ifStmt.Alternatives does not contain 1 statement, got %d", len(ifStmt.Alternatives))
+	}
+
+	elseIfAlternative := ifStmt.Alternatives[0]
+
+	if !testBooleanLiteral(t, elseIfAlternative.Condition, false) {
+		return
+	}
+
+	if len(elseIfAlternative.Consequence.Statements) != 1 {
+		t.Errorf("alternative.Consequence.Statements does not contain 1 statement, got %d", len(elseIfAlternative.Consequence.Statements))
+	}
+
+	consequence, ok := elseIfAlternative.Consequence.Statements[0].(*ast.HTMLStatement)
+
+	if !ok {
+		t.Fatalf("alternative.Consequence.Statements[0] is not an HTMLStatement, got %T", elseIfAlternative.Consequence.Statements[0])
+	}
+
+	if consequence.String() != "2" {
+		t.Errorf("consequence.String() is not %s, got %s", "2", consequence.String())
 	}
 }

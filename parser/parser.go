@@ -283,7 +283,75 @@ func (p *Parser) parseEmbeddedCode() ast.Statement {
 		return nil
 	}
 
+	switch p.curToken.Type {
+	case token.IF:
+		return p.parseIfStatement()
+	}
+
 	return p.parseExpressionStatement()
+}
+
+func (p *Parser) parseIfStatement() *ast.IfStatement {
+	stmt := &ast.IfStatement{Token: p.curToken}
+
+	p.nextToken() // skip "if" or "else if"
+
+	stmt.Condition = p.parseExpression(LOWEST)
+
+	p.nextToken() // skip "}}"
+
+	stmt.Consequence = p.parseBlockStatement()
+
+	for p.peekTokenIs(token.ELSEIF) {
+		p.nextToken() // skip "{{"
+		p.nextToken() // skip "else if"
+
+		stmt.Alternatives = append(stmt.Alternatives, &ast.ElseIfStatement{
+			Token:       p.curToken,
+			Condition:   p.parseExpression(LOWEST),
+			Consequence: p.parseBlockStatement(),
+		})
+	}
+
+	if p.peekTokenIs(token.ELSE) {
+		p.nextToken() // skip "{{"
+		p.nextToken() // skip "else"
+		p.nextToken() // skip "}}"
+
+		stmt.Alternative = p.parseBlockStatement()
+
+		if p.peekTokenIs(token.ELSEIF) {
+			p.newError("ELSEIF statement cannot follow ELSE statement")
+			return nil
+		}
+	}
+
+	return stmt
+}
+
+func (p *Parser) parseBlockStatement() *ast.BlockStatement {
+	stmt := &ast.BlockStatement{Token: p.curToken}
+
+	for {
+		isOpening := p.curTokenIs(token.LBRACES)
+		isPeekEnd := p.peekTokenIs(token.END)
+		isPeekElse := p.peekTokenIs(token.ELSE)
+		isPeekElseIf := p.peekTokenIs(token.ELSEIF)
+
+		if isOpening && (isPeekEnd || isPeekElse || isPeekElseIf) {
+			break
+		}
+
+		block := p.parseStatement()
+
+		if block != nil {
+			stmt.Statements = append(stmt.Statements, block)
+		}
+
+		p.nextToken() // skip "}}"
+	}
+
+	return stmt
 }
 
 func (p *Parser) parseExpressionStatement() ast.Statement {
