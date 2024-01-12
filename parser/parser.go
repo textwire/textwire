@@ -125,8 +125,6 @@ func (p *Parser) parseStatement() ast.Statement {
 	switch p.curToken.Type {
 	case token.HTML:
 		return p.parseHTMLStatement()
-	case token.VAR:
-		return p.parseVarStatement()
 	case token.LBRACES:
 		return p.parseEmbeddedCode()
 	default:
@@ -317,6 +315,8 @@ func (p *Parser) parseEmbeddedCode() ast.Statement {
 	switch p.curToken.Type {
 	case token.IF:
 		return p.parseIfStatement()
+	case token.VAR:
+		return p.parseVarStatement()
 	}
 
 	return p.parseExpressionStatement()
