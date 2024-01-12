@@ -1,6 +1,7 @@
 package evaluator
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/textwire/textwire/lexer"
@@ -144,8 +145,8 @@ func TestTernaryExpression(t *testing.T) {
 
 func TestIfStatement(t *testing.T) {
 	tests := []struct {
-		input    string
-		expected string
+		input  string
+		expect string
 	}{
 		{`{{ if true }}Hello{{ end }}`, "Hello"},
 		{`{{ if false }}Hello{{ end }}`, ""},
@@ -156,9 +157,37 @@ func TestIfStatement(t *testing.T) {
 		{`{{ if false }}Anna{{ else if true }}Serhii{{ else if true }}Great{{ end }}`, "Serhii"},
 		{`<h2>{{ if true }}Hello{{ end }}</h2>`, "<h2>Hello</h2>"},
 		{`<h2>{{ if false }}Hello{{ end }}</h2>`, "<h2></h2>"},
+		{`{{if true}}Hello{{end}}`, "Hello"},
+		{
+			`
+				{{ if true }}
+					{{ if false }}
+					    James
+					{{ else if false }}
+						John
+					{{ else }}
+						{{ if true }}{{ "Serhii" }}{{ end }}
+					{{ end }}
+				{{ else }}
+					{{ if true }}Anna{{ end }}
+				{{ end }}
+			`,
+			"Serhii",
+		},
 	}
 
 	for _, tt := range tests {
-		evaluationExpected(t, tt.input, tt.expected)
+		evaluated := testEval(tt.input)
+		errObj, ok := evaluated.(*object.Error)
+
+		if ok {
+			t.Errorf("evaluation failed: %s", errObj.Message)
+		}
+
+		result := strings.TrimSpace(evaluated.String())
+
+		if result != tt.expect {
+			t.Errorf("result is not %q, got %q", tt.expect, result)
+		}
 	}
 }
