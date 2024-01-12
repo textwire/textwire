@@ -33,6 +33,7 @@ const (
 	ERR_EXPECTED_EXPRESSION  = "expected expression, got '}}'"
 	ERR_COULD_NOT_PARSE_AS   = "could not parse %s as %s"
 	ERR_NO_PREFIX_PARSE_FUNC = "no prefix parse function for %s"
+	ERR_ILLEGAL_TOKEN        = "illegal token '%s' found"
 )
 
 var precedences = map[token.TokenType]int{
@@ -103,6 +104,11 @@ func (p *Parser) ParseProgram() *ast.Program {
 
 		if stmt != nil {
 			prog.Statements = append(prog.Statements, stmt)
+		}
+
+		if p.curTokenIs(token.ILLEGAL) {
+			p.newError(ERR_ILLEGAL_TOKEN, p.curToken.Literal)
+			return nil
 		}
 
 		p.nextToken() // skip "}}"

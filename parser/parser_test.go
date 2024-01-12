@@ -493,6 +493,7 @@ func TestErrorHandling(t *testing.T) {
 		{"{{ }}", ERR_EMPTY_BRACKETS},
 		{"{{ true ? 100 }}", fmt.Sprintf(ERR_WRONG_NEXT_TOKEN, token.TypeName(token.COLON), token.TypeName(token.RBRACES))},
 		{"{{ ) }}", fmt.Sprintf(ERR_NO_PREFIX_PARSE_FUNC, token.TypeName(token.RPAREN))},
+		{"{{ 5 }", fmt.Sprintf(ERR_ILLEGAL_TOKEN, "}")},
 	}
 
 	for _, tt := range tests {
