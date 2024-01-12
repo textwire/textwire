@@ -280,7 +280,7 @@ func TestStringConcatenation(t *testing.T) {
 		t.Fatalf("stmt is not an InfixExpression, got %T", stmt.Expression)
 	}
 
-	if exp.Left.String() != "Serhii" {
+	if exp.Left.TokenLiteral() != "Serhii" {
 		t.Fatalf("exp.Left is not %s, got %s", "Serhii", exp.Left.String())
 	}
 
@@ -288,7 +288,7 @@ func TestStringConcatenation(t *testing.T) {
 		t.Fatalf("exp.Operator is not %s, got %s", "+", exp.Operator)
 	}
 
-	if exp.Right.String() != " Anna" {
+	if exp.Right.TokenLiteral() != " Anna" {
 		t.Fatalf("exp.Right is not %s, got %s", " Anna", exp.Right.String())
 	}
 }
