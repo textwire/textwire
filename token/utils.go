@@ -72,6 +72,10 @@ func TypeName(tokType TokenType) string {
 		return "FALSE"
 	case NIL:
 		return "NIL"
+	case ASSIGN_DECL:
+		return "ASSIGN_DECL"
+	case VAR:
+		return "VAR"
 	default:
 		return "UNKNOWN"
 	}

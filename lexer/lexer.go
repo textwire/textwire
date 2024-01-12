@@ -71,6 +71,11 @@ func (l *Lexer) readEmbeddedCodeToken() token.Token {
 	case '?':
 		return l.newTokenAndAdvance(token.QUESTION, "?")
 	case ':':
+		if l.peekChar() == '=' {
+			l.advanceChar() // skip "="
+			return l.newTokenAndAdvance(token.ASSIGN_DECL, ":=")
+		}
+
 		return l.newTokenAndAdvance(token.COLON, ":")
 	case '/':
 		return l.newTokenAndAdvance(token.SLASH, "/")
@@ -80,6 +85,13 @@ func (l *Lexer) readEmbeddedCodeToken() token.Token {
 		return l.newTokenAndAdvance(token.LPAREN, "(")
 	case ')':
 		return l.newTokenAndAdvance(token.RPAREN, ")")
+	case '=':
+		if l.peekChar() == '=' {
+			l.advanceChar() // skip "="
+			return l.newTokenAndAdvance(token.EQ, "==")
+		}
+
+		return l.newTokenAndAdvance(token.ASSIGN, "=")
 	case '"', '`':
 		str := l.readString()
 		return l.newTokenAndAdvance(token.STR, str)

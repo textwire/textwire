@@ -15,14 +15,15 @@ const (
 	STR   // String
 
 	// Operators
-	PLUS     // +
-	MINUS    // -
-	ASTERISK // *
-	SLASH    // /
-	MODULO   // %
-	PERIOD   // .
-	BANG     // !
-	ASSIGN   // =
+	PLUS        // +
+	MINUS       // -
+	ASTERISK    // *
+	SLASH       // /
+	MODULO      // %
+	PERIOD      // .
+	BANG        // !
+	ASSIGN      // =
+	ASSIGN_DECL // :=
 
 	// Comparison operators
 	EQ       // ==
@@ -49,6 +50,7 @@ const (
 	TRUE
 	FALSE
 	NIL
+	VAR
 )
 
 var keywords = map[string]TokenType{
@@ -59,6 +61,7 @@ var keywords = map[string]TokenType{
 	"true":    TRUE,
 	"false":   FALSE,
 	"nil":     NIL,
+	"var":     VAR,
 }
 
 type Token struct {

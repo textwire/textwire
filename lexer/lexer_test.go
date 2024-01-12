@@ -166,12 +166,41 @@ func TestTernary(t *testing.T) {
 	})
 }
 
-func TestIllegalTokens(t *testing.T) {
+func TestIllegalToken(t *testing.T) {
 	inp := `{{ 4 }`
 
 	TokenizeString(t, inp, []token.Token{
 		{Type: token.LBRACES, Literal: "{{"},
 		{Type: token.INT, Literal: "4"},
 		{Type: token.ILLEGAL, Literal: "}"},
+	})
+}
+
+func TestVariableDeclaration(t *testing.T) {
+	t.Run("Without var", func(tt *testing.T) {
+		inp := `{{ a := 1 }}`
+
+		TokenizeString(tt, inp, []token.Token{
+			{Type: token.LBRACES, Literal: "{{"},
+			{Type: token.IDENT, Literal: "a"},
+			{Type: token.ASSIGN_DECL, Literal: ":="},
+			{Type: token.INT, Literal: "1"},
+			{Type: token.RBRACES, Literal: "}}"},
+			{Type: token.EOF, Literal: ""},
+		})
+	})
+
+	t.Run("With var", func(tt *testing.T) {
+		inp := `{{ var b = "hello" }}`
+
+		TokenizeString(tt, inp, []token.Token{
+			{Type: token.LBRACES, Literal: "{{"},
+			{Type: token.VAR, Literal: "var"},
+			{Type: token.IDENT, Literal: "b"},
+			{Type: token.ASSIGN, Literal: "="},
+			{Type: token.STR, Literal: "hello"},
+			{Type: token.RBRACES, Literal: "}}"},
+			{Type: token.EOF, Literal: ""},
+		})
 	})
 }
