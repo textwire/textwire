@@ -365,9 +365,9 @@ func (p *Parser) parseBlockStatement() *ast.BlockStatement {
 
 	for {
 		isOpening := p.curTokenIs(token.LBRACES)    // "{{"
-		isPeekEnd := p.peekTokenIs(token.END)       // "{{ end }}
-		isPeekElse := p.peekTokenIs(token.ELSE)     // "{{ else }}"
-		isPeekElseIf := p.peekTokenIs(token.ELSEIF) // "{{ else if <exp> }}"
+		isPeekEnd := p.peekTokenIs(token.END)       // "end
+		isPeekElse := p.peekTokenIs(token.ELSE)     // "else"
+		isPeekElseIf := p.peekTokenIs(token.ELSEIF) // "else if"
 
 		if isOpening && (isPeekEnd || isPeekElse || isPeekElseIf) {
 			break
