@@ -43,11 +43,11 @@ var precedences = map[token.TokenType]int{
 	token.LTHAN:    LESS_GREATER,
 	token.GTHAN:    LESS_GREATER,
 	token.PERIOD:   SUM,
-	token.PLUS:     SUM,
-	token.MINUS:    SUM,
-	token.SLASH:    PRODUCT,
-	token.MODULO:   PRODUCT,
-	token.ASTERISK: PRODUCT,
+	token.ADD:      SUM,
+	token.SUB:      SUM,
+	token.DIV:      PRODUCT,
+	token.MOD:      PRODUCT,
+	token.MUL:      PRODUCT,
 }
 
 type Parser struct {
@@ -79,18 +79,18 @@ func New(lexer *lexer.Lexer) *Parser {
 	p.registerPrefix(token.NIL, p.parseNilLiteral)
 	p.registerPrefix(token.TRUE, p.parseBooleanLiteral)
 	p.registerPrefix(token.FALSE, p.parseBooleanLiteral)
-	p.registerPrefix(token.MINUS, p.parsePrefixExpression)
-	p.registerPrefix(token.BANG, p.parsePrefixExpression)
+	p.registerPrefix(token.SUB, p.parsePrefixExpression)
+	p.registerPrefix(token.NOT, p.parsePrefixExpression)
 	p.registerPrefix(token.LPAREN, p.parseGroupedExpression)
 
 	// Infix operators
 	p.infixParseFns = make(map[token.TokenType]infixParseFn)
 	p.registerInfix(token.QUESTION, p.parseTernaryExpression)
-	p.registerInfix(token.PLUS, p.parseInfixExpression)
-	p.registerInfix(token.MINUS, p.parseInfixExpression)
-	p.registerInfix(token.ASTERISK, p.parseInfixExpression)
-	p.registerInfix(token.SLASH, p.parseInfixExpression)
-	p.registerInfix(token.MODULO, p.parseInfixExpression)
+	p.registerInfix(token.ADD, p.parseInfixExpression)
+	p.registerInfix(token.SUB, p.parseInfixExpression)
+	p.registerInfix(token.MUL, p.parseInfixExpression)
+	p.registerInfix(token.DIV, p.parseInfixExpression)
+	p.registerInfix(token.MOD, p.parseInfixExpression)
 
 	return p
 }
@@ -125,6 +125,8 @@ func (p *Parser) parseStatement() ast.Statement {
 	switch p.curToken.Type {
 	case token.HTML:
 		return p.parseHTMLStatement()
+	case token.VAR:
+		return p.parseVarStatement()
 	case token.LBRACES:
 		return p.parseEmbeddedCode()
 	default:
@@ -166,8 +168,8 @@ func (p *Parser) expectPeek(tok token.TokenType) bool {
 
 	msg := fmt.Sprintf(
 		ERR_WRONG_NEXT_TOKEN,
-		token.TypeName(tok),
-		token.TypeName(p.peekToken.Type),
+		token.TokenString(tok),
+		token.TokenString(p.peekToken.Type),
 	)
 
 	p.newError(msg)
@@ -281,6 +283,29 @@ func (p *Parser) parseTernaryExpression(left ast.Expression) ast.Expression {
 	return exp
 }
 
+func (p *Parser) parseVarStatement() ast.Statement {
+	stmt := &ast.VarStatement{Token: p.curToken}
+
+	if !p.expectPeek(token.IDENT) { // move to identifier
+		return nil
+	}
+
+	stmt.Name = &ast.Identifier{
+		Token: p.curToken,
+		Value: p.curToken.Literal,
+	}
+
+	if !p.expectPeek(token.ASSIGN) { // move to "="
+		return nil
+	}
+
+	p.nextToken() // skip "="
+
+	stmt.Value = p.parseExpression(LOWEST)
+
+	return stmt
+}
+
 func (p *Parser) parseEmbeddedCode() ast.Statement {
 	p.nextToken() // skip "{{"
 
@@ -375,7 +400,7 @@ func (p *Parser) parseExpression(precedence int) ast.Expression {
 	prefix := p.prefixParseFns[p.curToken.Type]
 
 	if prefix == nil {
-		p.newError(ERR_NO_PREFIX_PARSE_FUNC, token.TypeName(p.curToken.Type))
+		p.newError(ERR_NO_PREFIX_PARSE_FUNC, token.TokenString(p.curToken.Type))
 		return nil
 	}
 

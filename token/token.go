@@ -15,15 +15,15 @@ const (
 	STR   // String
 
 	// Operators
-	PLUS        // +
-	MINUS       // -
-	ASTERISK    // *
-	SLASH       // /
-	MODULO      // %
-	PERIOD      // .
-	BANG        // !
-	ASSIGN      // =
-	ASSIGN_DECL // :=
+	ADD    // +
+	SUB    // -
+	MUL    // *
+	DIV    // /
+	MOD    // %
+	PERIOD // .
+	NOT    // !
+	ASSIGN // =
+	DEFINE // :=
 
 	// Comparison operators
 	EQ       // ==

@@ -1,82 +1,52 @@
 package token
 
-func TypeName(tokType TokenType) string {
-	switch tokType {
-	case ILLEGAL:
-		return "ILLEGAL"
-	case EOF:
-		return "EOF"
-	case IDENT:
-		return "IDENT"
-	case HTML:
-		return "HTML"
-	case INT:
-		return "INT"
-	case FLOAT:
-		return "FLOAT"
-	case STR:
-		return "STR"
-	case PLUS:
-		return "PLUS"
-	case MINUS:
-		return "MINUS"
-	case ASTERISK:
-		return "ASTERISK"
-	case SLASH:
-		return "SLASH"
-	case MODULO:
-		return "MODULO"
-	case PERIOD:
-		return "PERIOD"
-	case BANG:
-		return "BANG"
-	case ASSIGN:
-		return "ASSIGN"
-	case EQ:
-		return "EQ"
-	case NOT_EQ:
-		return "NOT_EQ"
-	case LTHAN:
-		return "LTHAN"
-	case GTHAN:
-		return "GTHAN"
-	case LTHAN_EQ:
-		return "LTHAN_EQ"
-	case GTHAN_EQ:
-		return "GTHAN_EQ"
-	case LBRACES:
-		return "LBRACES"
-	case RBRACES:
-		return "RBRACES"
-	case LPAREN:
-		return "LPAREN"
-	case RPAREN:
-		return "RPAREN"
-	case QUESTION:
-		return "QUESTION"
-	case COLON:
-		return "COLON"
-	case COMMA:
-		return "COMMA"
-	case IF:
-		return "IF"
-	case ELSE:
-		return "ELSE"
-	case ELSEIF:
-		return "ELSEIF"
-	case END:
-		return "END"
-	case TRUE:
-		return "TRUE"
-	case FALSE:
-		return "FALSE"
-	case NIL:
-		return "NIL"
-	case ASSIGN_DECL:
-		return "ASSIGN_DECL"
-	case VAR:
-		return "VAR"
-	default:
-		return "UNKNOWN"
-	}
+var tokens = [...]string{
+	ILLEGAL: "ILLEGAL",
+	EOF:     "EOF",
+
+	IDENT: "IDENT",
+	HTML:  "HTML",
+	INT:   "INT",
+	FLOAT: "FLOAT",
+	STR:   "STR",
+
+	ADD: "+",
+	SUB: "-",
+	MUL: "*",
+	DIV: "/",
+	MOD: "%",
+
+	NOT:    "!",
+	ASSIGN: "=",
+	DEFINE: ":=",
+	EQ:     "==",
+	NOT_EQ: "!=",
+
+	LTHAN:    "<",
+	GTHAN:    ">",
+	LTHAN_EQ: "<=",
+	GTHAN_EQ: ">=",
+
+	LBRACES: "{{",
+	RBRACES: "}}",
+	LPAREN:  "(",
+	RPAREN:  ")",
+	PERIOD:  ".",
+
+	QUESTION: "?",
+	COLON:    ":",
+	COMMA:    ",",
+
+	IF:     "if",
+	ELSE:   "else",
+	ELSEIF: "else if",
+	END:    "end",
+	TRUE:   "true",
+	FALSE:  "false",
+	NIL:    "nil",
+	VAR:    "var",
+}
+
+func TokenString(t TokenType) string {
+	return tokens[t]
 }

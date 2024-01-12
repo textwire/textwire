@@ -61,26 +61,26 @@ func (l *Lexer) NextToken() token.Token {
 func (l *Lexer) readEmbeddedCodeToken() token.Token {
 	switch l.char {
 	case '+':
-		return l.newTokenAndAdvance(token.PLUS, "+")
+		return l.newTokenAndAdvance(token.ADD, "+")
 	case '-':
-		return l.newTokenAndAdvance(token.MINUS, "-")
+		return l.newTokenAndAdvance(token.SUB, "-")
 	case '*':
-		return l.newTokenAndAdvance(token.ASTERISK, "*")
+		return l.newTokenAndAdvance(token.MUL, "*")
 	case '!':
-		return l.newTokenAndAdvance(token.BANG, "!")
+		return l.newTokenAndAdvance(token.NOT, "!")
 	case '?':
 		return l.newTokenAndAdvance(token.QUESTION, "?")
 	case ':':
 		if l.peekChar() == '=' {
 			l.advanceChar() // skip "="
-			return l.newTokenAndAdvance(token.ASSIGN_DECL, ":=")
+			return l.newTokenAndAdvance(token.DEFINE, ":=")
 		}
 
 		return l.newTokenAndAdvance(token.COLON, ":")
 	case '/':
-		return l.newTokenAndAdvance(token.SLASH, "/")
+		return l.newTokenAndAdvance(token.DIV, "/")
 	case '%':
-		return l.newTokenAndAdvance(token.MODULO, "%")
+		return l.newTokenAndAdvance(token.MOD, "%")
 	case '(':
 		return l.newTokenAndAdvance(token.LPAREN, "(")
 	case ')':
