@@ -17,5 +17,5 @@ func (i *StringLiteral) TokenLiteral() string {
 }
 
 func (i *StringLiteral) String() string {
-	return i.Value
+	return `"` + i.Token.Literal + `"`
 }

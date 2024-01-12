@@ -735,5 +735,9 @@ func TestVarStatement(t *testing.T) {
 		if !testStringLiteral(t, stmt.Value, "Anna") {
 			return
 		}
+
+		if stmt.String() != tt.input {
+			t.Errorf("stmt.String() is not %s, got %s", tt.input, stmt.String())
+		}
 	}
 }
