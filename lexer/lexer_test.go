@@ -165,3 +165,13 @@ func TestTernary(t *testing.T) {
 		{Type: token.EOF, Literal: ""},
 	})
 }
+
+func TestIllegalTokens(t *testing.T) {
+	inp := `{{ 4 }`
+
+	TokenizeString(t, inp, []token.Token{
+		{Type: token.LBRACES, Literal: "{{"},
+		{Type: token.INT, Literal: "4"},
+		{Type: token.ILLEGAL, Literal: "}"},
+	})
+}
