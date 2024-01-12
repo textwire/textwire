@@ -15,12 +15,12 @@ const (
 	STR   // String
 
 	// Operators
-	ADD    // +
-	SUB    // -
-	MUL    // *
-	DIV    // /
-	MOD    // %
-	PERIOD // .
+	ADD // +
+	SUB // -
+	MUL // *
+	DIV // /
+	MOD // %
+
 	NOT    // !
 	ASSIGN // =
 	DEFINE // :=
@@ -41,6 +41,7 @@ const (
 	QUESTION // ?
 	COLON    // :
 	COMMA    // ,
+	PERIOD   // .
 
 	// Keywords
 	IF
