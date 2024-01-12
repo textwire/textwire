@@ -264,9 +264,9 @@ func TestParseStringLiteral(t *testing.T) {
 }
 
 func TestStringConcatenation(t *testing.T) {
-	input := `{{ "Serhii" + " Anna" }}`
+	inp := `{{ "Serhii" + " Anna" }}`
 
-	stmts := parseStatements(t, input, 1)
+	stmts := parseStatements(t, inp, 1)
 
 	stmt, ok := stmts[0].(*ast.ExpressionStatement)
 
@@ -514,9 +514,9 @@ func TestErrorHandling(t *testing.T) {
 }
 
 func TestTernaryExpression(t *testing.T) {
-	input := `{{ true ? 100 : "Some string" }}`
+	inp := `{{ true ? 100 : "Some string" }}`
 
-	stmts := parseStatements(t, input, 1)
+	stmts := parseStatements(t, inp, 1)
 
 	stmt, ok := stmts[0].(*ast.ExpressionStatement)
 

@@ -99,8 +99,8 @@ func TestEvalBooleanExpression(t *testing.T) {
 }
 
 func TestEvalNilExpression(t *testing.T) {
-	input := "<h1>{{ nil }}</h1>"
-	evaluationExpected(t, input, "<h1></h1>")
+	inp := "<h1>{{ nil }}</h1>"
+	evaluationExpected(t, inp, "<h1></h1>")
 }
 
 func TestEvalStringExpression(t *testing.T) {
