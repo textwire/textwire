@@ -491,8 +491,8 @@ func TestErrorHandling(t *testing.T) {
 	}{
 		{"{{ 5 + }}", ERR_EXPECTED_EXPRESSION},
 		{"{{ }}", ERR_EMPTY_BRACKETS},
-		{"{{ true ? 100 }}", fmt.Sprintf(ERR_WRONG_NEXT_TOKEN, token.TypeName(token.COLON), token.TypeName(token.RBRACES))},
-		{"{{ ) }}", fmt.Sprintf(ERR_NO_PREFIX_PARSE_FUNC, token.TypeName(token.RPAREN))},
+		{"{{ true ? 100 }}", fmt.Sprintf(ERR_WRONG_NEXT_TOKEN, token.TokenString(token.COLON), token.TokenString(token.RBRACES))},
+		{"{{ ) }}", fmt.Sprintf(ERR_NO_PREFIX_PARSE_FUNC, token.TokenString(token.RPAREN))},
 		{"{{ 5 }", fmt.Sprintf(ERR_ILLEGAL_TOKEN, "}")},
 	}
 
@@ -707,5 +707,33 @@ func TestIfElseIfElseStatement(t *testing.T) {
 
 	if consequence.String() != "2" {
 		t.Errorf("consequence.String() is not %s, got %s", "2", consequence.String())
+	}
+}
+
+func TestVarStatement(t *testing.T) {
+	tests := []struct {
+		input    string
+		varName  string
+		varValue interface{}
+	}{
+		{`{{ var name = "Anna" }}`, "name", "Anna"},
+	}
+
+	for _, tt := range tests {
+		stmts := parseStatements(t, tt.input, 1)
+
+		stmt, ok := stmts[0].(*ast.VarStatement)
+
+		if !ok {
+			t.Fatalf("program.Statements[0] is not a VarStatement, got %T", stmts[0])
+		}
+
+		if stmt.Name.Value != tt.varName {
+			t.Errorf("stmt.Name.Value is not %s, got %s", tt.varName, stmt.Name.Value)
+		}
+
+		if !testLiteralExpression(t, stmt.Value, tt.varValue) {
+			return
+		}
 	}
 }
