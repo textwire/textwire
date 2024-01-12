@@ -28,7 +28,7 @@ func evaluationExpected(t *testing.T, input, expect string) {
 	result := evaluated.String()
 
 	if result != expect {
-		t.Errorf("result is not %s, got %s", expect, result)
+		t.Errorf("result is not %q, got %q", expect, result)
 	}
 }
 
@@ -135,6 +135,27 @@ func TestTernaryExpression(t *testing.T) {
 		{`{{ !false ? "Yes" : "No" }}`, "Yes"},
 		{`{{ !!true ? 1 : 0 }}`, "1"},
 		{`{{ !!false ? 1 : 0 }}`, "0"},
+	}
+
+	for _, tt := range tests {
+		evaluationExpected(t, tt.input, tt.expected)
+	}
+}
+
+func TestIfStatement(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected string
+	}{
+		{`{{ if true }}Hello{{ end }}`, "Hello"},
+		{`{{ if false }}Hello{{ end }}`, ""},
+		{`{{ if true }}Anna{{ else if true }}Serhii{{ end }}`, "Anna"},
+		{`{{ if false }}Anna{{ else if true }}Serhii{{ end }}`, "Serhii"},
+		{`{{ if false }}Anna{{ else if false }}Serhii{{ else }}Great{{ end }}`, "Great"},
+		{`{{ if false }}Anna{{ else if false }}Serhii{{ else if true }}Great{{ end }}`, "Great"},
+		{`{{ if false }}Anna{{ else if true }}Serhii{{ else if true }}Great{{ end }}`, "Serhii"},
+		{`<h2>{{ if true }}Hello{{ end }}</h2>`, "<h2>Hello</h2>"},
+		{`<h2>{{ if false }}Hello{{ end }}</h2>`, "<h2></h2>"},
 	}
 
 	for _, tt := range tests {

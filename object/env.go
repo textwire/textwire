@@ -6,11 +6,18 @@ import (
 
 type Env struct {
 	store map[string]Object
+	outer *Env
 }
 
 func NewEnv() *Env {
 	s := make(map[string]Object)
 	return &Env{store: s}
+}
+
+func NewEnclosedEnv(outer *Env) *Env {
+	env := NewEnv()
+	env.outer = outer
+	return env
 }
 
 func EnvFromMap(m map[string]interface{}) (*Env, error) {

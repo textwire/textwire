@@ -23,6 +23,10 @@ func Eval(node ast.Node, env *object.Env) object.Object {
 		return &object.Html{Value: node.String()}
 	case *ast.ExpressionStatement:
 		return Eval(node.Expression, env)
+	case *ast.IfStatement:
+		return evalIfStatement(node, env)
+	case *ast.BlockStatement:
+		return evalBlockStatement(node, env)
 
 	// Expressions
 	case *ast.Identifier:
@@ -62,6 +66,45 @@ func evalProgram(program *ast.Program, env *object.Env) object.Object {
 	}
 
 	return &object.Html{Value: result.String()}
+}
+
+func evalIfStatement(node *ast.IfStatement, env *object.Env) object.Object {
+	condition := Eval(node.Condition, env)
+	newEnv := object.NewEnclosedEnv(env)
+
+	if isTruthy(condition) {
+		return Eval(node.Consequence, newEnv)
+	}
+
+	for _, alt := range node.Alternatives {
+		condition = Eval(alt.Condition, env)
+
+		if isTruthy(condition) {
+			return Eval(alt.Consequence, newEnv)
+		}
+	}
+
+	if node.Alternative != nil {
+		return Eval(node.Alternative, newEnv)
+	}
+
+	return NIL
+}
+
+func evalBlockStatement(block *ast.BlockStatement, env *object.Env) object.Object {
+	var elems []object.Object
+
+	for _, statement := range block.Statements {
+		stmtObj := Eval(statement, env)
+
+		if err, ok := stmtObj.(*object.Error); ok {
+			return err
+		}
+
+		elems = append(elems, stmtObj)
+	}
+
+	return &object.Block{Elements: elems}
 }
 
 func evalIdentifier(node *ast.Identifier, env *object.Env) object.Object {
