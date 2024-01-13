@@ -1,6 +1,10 @@
 package ast
 
-import "github.com/textwire/textwire/token"
+import (
+	"fmt"
+
+	"github.com/textwire/textwire/token"
+)
 
 type FloatLiteral struct {
 	Token token.Token
@@ -15,5 +19,5 @@ func (f *FloatLiteral) TokenLiteral() string {
 }
 
 func (f *FloatLiteral) String() string {
-	return f.Token.Literal
+	return fmt.Sprintf("%g", f.Value)
 }

@@ -75,8 +75,8 @@ func testFloatLiteral(t *testing.T, exp ast.Expression, value float64) bool {
 		return false
 	}
 
-	if float.TokenLiteral() != strconv.FormatFloat(value, 'f', -1, 64) {
-		t.Errorf("float.TokenLiteral() is not %f, got %s", value, float.TokenLiteral())
+	if float.String() != fmt.Sprintf("%g", value) {
+		t.Errorf("float.String() is not %f, got %s", value, float.String())
 		return false
 	}
 
@@ -172,8 +172,10 @@ func testLiteralExpression(
 		return testIntegerLiteral(t, exp, int64(v))
 	case int64:
 		return testIntegerLiteral(t, exp, v)
+	case float64:
+		return testFloatLiteral(t, exp, v)
 	case string:
-		return testIdentifier(t, exp, v)
+		return testStringLiteral(t, exp, v)
 	case bool:
 		return testBooleanLiteral(t, exp, v)
 	case nil:
@@ -310,7 +312,7 @@ func TestGroupedExpression(t *testing.T) {
 		t.Fatalf("stmt is not an InfixExpression, got %T", stmt.Expression)
 	}
 
-	if !testLiteralExpression(t, exp.Right, 2) {
+	if !testIntegerLiteral(t, exp.Right, 2) {
 		return
 	}
 
@@ -324,7 +326,7 @@ func TestGroupedExpression(t *testing.T) {
 		t.Fatalf("exp.Left is not an InfixExpression, got %T", exp.Left)
 	}
 
-	if !testLiteralExpression(t, infix.Left, 5) {
+	if !testIntegerLiteral(t, infix.Left, 5) {
 		return
 	}
 
@@ -349,10 +351,7 @@ func TestInfixExpression(t *testing.T) {
 		{"{{ 2 * 2 }}", 2, "*", 2},
 		{"{{ 44 / 4 }}", 44, "/", 4},
 		{"{{ 5 % 4 }}", 5, "%", 4},
-		{"{{ myAge + herAge }}", "myAge", "+", "herAge"},
-		{"{{ myAge - herAge }}", "myAge", "-", "herAge"},
-		{"{{ myAge * herAge }}", "myAge", "*", "herAge"},
-		{"{{ myAge / herAge }}", "myAge", "/", "herAge"},
+		{`{{ "me" + "her" }}`, "me", "+", "her"},
 	}
 
 	for _, tt := range tests {
@@ -418,6 +417,11 @@ func TestPrefixExpression(t *testing.T) {
 		{"{{ -10 }}", "-", 10},
 		{"{{ !true }}", "!", true},
 		{"{{ !false }}", "!", false},
+		{`{{ !"" }}`, "!", ""},
+		{`{{ !0 }}`, "!", 0},
+		{`{{ -0 }}`, "-", 0},
+		{`{{ -0.0 }}`, "-", 0.0},
+		{`{{ !0.0 }}`, "!", 0.0},
 	}
 
 	for _, tt := range tests {
@@ -717,6 +721,7 @@ func TestVarStatement(t *testing.T) {
 		varValue interface{}
 	}{
 		{`{{ var name = "Anna" }}`, "name", "Anna"},
+		{`{{ var myAge = 34 }}`, "myAge", 34},
 	}
 
 	for _, tt := range tests {
@@ -732,7 +737,7 @@ func TestVarStatement(t *testing.T) {
 			t.Errorf("stmt.Name.Value is not %s, got %s", tt.varName, stmt.Name.Value)
 		}
 
-		if !testStringLiteral(t, stmt.Value, "Anna") {
+		if !testLiteralExpression(t, stmt.Value, tt.varValue) {
 			return
 		}
 
