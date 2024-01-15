@@ -197,10 +197,16 @@ func TestVariableDeclaration(t *testing.T) {
 		input    string
 		expected string
 	}{
+		// With "var" keyword
 		{`{{ var age = 18 }}{{ age }}`, "18"},
 		{`{{ var age = 18 }}{{ age + 2 }}`, "20"},
 		{`{{ var age = 18 }}{{ age + age }}`, "36"},
 		{`{{ var herName = "Anna" }}{{ herName }}`, "Anna"},
+		{`{{ age := 18 }}{{ age }}`, "18"},
+		{`{{ age := 18 }}{{ age + 2 }}`, "20"},
+		{`{{ age := 18 }}{{ age + age }}`, "36"},
+		{`{{ herName := "Anna" }}{{ herName }}`, "Anna"},
+		{`{{ she := "Anna" }}{{ var me = "Serhii" }}{{ she + " " + me }}`, "Anna Serhii"},
 	}
 
 	for _, tt := range tests {

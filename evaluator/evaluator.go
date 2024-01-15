@@ -27,7 +27,7 @@ func Eval(node ast.Node, env *object.Env) object.Object {
 		return evalIfStatement(node, env)
 	case *ast.BlockStatement:
 		return evalBlockStatement(node, env)
-	case *ast.VarStatement:
+	case *ast.DefineStatement:
 		return evalDeclStatement(node, env)
 
 	// Expressions
@@ -109,7 +109,7 @@ func evalBlockStatement(block *ast.BlockStatement, env *object.Env) object.Objec
 	return &object.Block{Elements: elems}
 }
 
-func evalDeclStatement(node *ast.VarStatement, env *object.Env) object.Object {
+func evalDeclStatement(node *ast.DefineStatement, env *object.Env) object.Object {
 	val := Eval(node.Value, env)
 
 	if isError(val) {
