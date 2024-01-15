@@ -241,6 +241,33 @@ func (p *Parser) parseHTMLStatement() *ast.HTMLStatement {
 	return &ast.HTMLStatement{Token: p.curToken}
 }
 
+func (p *Parser) parseDefineStatement() ast.Statement {
+	ident := &ast.Identifier{
+		Token: p.curToken,
+		Value: p.curToken.Literal,
+	}
+
+	stmt := &ast.DefineStatement{
+		Token: p.curToken,
+		Name:  ident,
+	}
+
+	if !p.expectPeek(token.DEFINE) { // move to ":="
+		return nil
+	}
+
+	p.nextToken() // skip ":="
+
+	if p.curTokenIs(token.RBRACES) {
+		p.newError(ERR_EXPECTED_EXPRESSION)
+		return nil
+	}
+
+	stmt.Value = p.parseExpression(SUM)
+
+	return stmt
+}
+
 func (p *Parser) parseInfixExpression(left ast.Expression) ast.Expression {
 	exp := &ast.InfixExpression{
 		Token:    p.curToken,
@@ -282,7 +309,7 @@ func (p *Parser) parseTernaryExpression(left ast.Expression) ast.Expression {
 }
 
 func (p *Parser) parseVarStatement() ast.Statement {
-	stmt := &ast.VarStatement{Token: p.curToken}
+	stmt := &ast.DefineStatement{Token: p.curToken}
 
 	if !p.expectPeek(token.IDENT) { // move to identifier
 		return nil
@@ -317,6 +344,10 @@ func (p *Parser) parseEmbeddedCode() ast.Statement {
 		return p.parseIfStatement()
 	case token.VAR:
 		return p.parseVarStatement()
+	case token.IDENT:
+		if p.peekTokenIs(token.DEFINE) {
+			return p.parseDefineStatement()
+		}
 	}
 
 	return p.parseExpressionStatement()

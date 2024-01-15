@@ -714,7 +714,7 @@ func TestIfElseIfElseStatement(t *testing.T) {
 	}
 }
 
-func TestVariableDeclaration(t *testing.T) {
+func TestDefineStatement(t *testing.T) {
 	tests := []struct {
 		input    string
 		varName  string
@@ -722,16 +722,17 @@ func TestVariableDeclaration(t *testing.T) {
 	}{
 		{`{{ var name = "Anna" }}`, "name", "Anna"},
 		{`{{ var myAge = 34 }}`, "myAge", 34},
-		{`{{ isCool := true }}`, "isCool", true},
+		{`{{ name := "Anna" }}`, "name", "Anna"},
+		{`{{ myAge := 34 }}`, "myAge", 34},
 	}
 
 	for _, tt := range tests {
 		stmts := parseStatements(t, tt.input, 1)
 
-		stmt, ok := stmts[0].(*ast.VarStatement)
+		stmt, ok := stmts[0].(*ast.DefineStatement)
 
 		if !ok {
-			t.Fatalf("program.Statements[0] is not a VarStatement, got %T", stmts[0])
+			t.Fatalf("program.Statements[0] is not a DeclStatement, got %T", stmts[0])
 		}
 
 		if stmt.Name.Value != tt.varName {
