@@ -2,6 +2,8 @@
 
 [![Go](https://github.com/textwire/textwire/actions/workflows/go.yml/badge.svg)](https://github.com/textwire/textwire/actions/workflows/go.yml)
 
+> Textwire is currently in the development phase. It's only for testing purposes and not ready for production.
+
 
 Textwire is a simple yet powerful template language for Go. It is designed to easily inject variables from Go code into a template file or just a regular string. It is inspired by Go's syntax and has a similar syntax to make it easier for Go developers to learn and use it.
 
