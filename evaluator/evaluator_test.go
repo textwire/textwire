@@ -192,7 +192,7 @@ func TestIfStatement(t *testing.T) {
 	}
 }
 
-func TestIdentifier(t *testing.T) {
+func TestVariableDeclaration(t *testing.T) {
 	tests := []struct {
 		input    string
 		expected string

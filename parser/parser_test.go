@@ -714,7 +714,7 @@ func TestIfElseIfElseStatement(t *testing.T) {
 	}
 }
 
-func TestVarStatement(t *testing.T) {
+func TestVariableDeclaration(t *testing.T) {
 	tests := []struct {
 		input    string
 		varName  string
@@ -722,6 +722,7 @@ func TestVarStatement(t *testing.T) {
 	}{
 		{`{{ var name = "Anna" }}`, "name", "Anna"},
 		{`{{ var myAge = 34 }}`, "myAge", 34},
+		{`{{ isCool := true }}`, "isCool", true},
 	}
 
 	for _, tt := range tests {
