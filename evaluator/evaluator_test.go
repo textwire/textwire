@@ -191,3 +191,19 @@ func TestIfStatement(t *testing.T) {
 		}
 	}
 }
+
+func TestIdentifier(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected string
+	}{
+		{`{{ var age = 18 }}{{ age }}`, "18"},
+		{`{{ var age = 18 }}{{ age + 2 }}`, "20"},
+		{`{{ var age = 18 }}{{ age + age }}`, "36"},
+		{`{{ var herName = "Anna" }}{{ herName }}`, "Anna"},
+	}
+
+	for _, tt := range tests {
+		evaluationExpected(t, tt.input, tt.expected)
+	}
+}

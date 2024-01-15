@@ -27,6 +27,8 @@ func Eval(node ast.Node, env *object.Env) object.Object {
 		return evalIfStatement(node, env)
 	case *ast.BlockStatement:
 		return evalBlockStatement(node, env)
+	case *ast.VarStatement:
+		return evalVarStatement(node, env)
 
 	// Expressions
 	case *ast.Identifier:
@@ -105,6 +107,18 @@ func evalBlockStatement(block *ast.BlockStatement, env *object.Env) object.Objec
 	}
 
 	return &object.Block{Elements: elems}
+}
+
+func evalVarStatement(node *ast.VarStatement, env *object.Env) object.Object {
+	val := Eval(node.Value, env)
+
+	if isError(val) {
+		return val
+	}
+
+	env.Set(node.Name.Value, val)
+
+	return NIL
 }
 
 func evalIdentifier(node *ast.Identifier, env *object.Env) object.Object {
