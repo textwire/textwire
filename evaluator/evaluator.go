@@ -2,6 +2,7 @@ package evaluator
 
 import (
 	"bytes"
+	"html"
 
 	"github.com/textwire/textwire/ast"
 	"github.com/textwire/textwire/object"
@@ -38,7 +39,7 @@ func Eval(node ast.Node, env *object.Env) object.Object {
 	case *ast.FloatLiteral:
 		return &object.Float{Value: node.Value}
 	case *ast.StringLiteral:
-		return &object.String{Value: node.Value}
+		return &object.String{Value: html.EscapeString(node.Value)}
 	case *ast.BooleanLiteral:
 		return nativeBoolToBooleanObject(node.Value)
 	case *ast.PrefixExpression:
