@@ -142,7 +142,7 @@ func evalLayoutStatement(node *ast.LayoutStatement, env *object.Env) object.Obje
 	}
 
 	return &object.Layout{
-		Name:    name,
+		Path:    name,
 		Content: Eval(node.Program, env),
 	}
 }
