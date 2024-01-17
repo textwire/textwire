@@ -762,7 +762,27 @@ func TestParseLayoutStatement(t *testing.T) {
 	}
 
 	if stmt.Path.Value != "main" {
-		t.Errorf("stmt.Path.Value is not %s, got %s", "main", stmt.Path.Value)
+		t.Errorf("stmt.Path.Value is not 'main', got %s", stmt.Path.Value)
+	}
+
+	if stmt.Program != nil {
+		t.Errorf("stmt.Program is not nil, got %T", stmt.Program)
+	}
+}
+
+func TestParseReserveStatement(t *testing.T) {
+	inp := `{{ reserve "content" }}`
+
+	stmts := parseStatements(t, inp, 1)
+
+	stmt, ok := stmts[0].(*ast.ReserveStatement)
+
+	if !ok {
+		t.Fatalf("program.Statements[0] is not a ReserveStatement, got %T", stmts[0])
+	}
+
+	if stmt.Name.Value != "content" {
+		t.Errorf("stmt.Name.Value is not 'content', got %s", stmt.Name.Value)
 	}
 
 	if stmt.Program != nil {
