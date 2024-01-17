@@ -5,7 +5,7 @@ type Error struct {
 }
 
 func (e *Error) Type() ObjectType {
-	return STRING_OBJ
+	return ERROR_OBJ
 }
 
 func (e *Error) String() string {
