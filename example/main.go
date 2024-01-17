@@ -8,24 +8,32 @@ import (
 )
 
 func main() {
-	textwire.SetConfig(&textwire.Config{
+	textwire.NewConfig(&textwire.Config{
 		TemplateDir: "templates",
 	})
 
-	http.HandleFunc("/", homeView)
+	http.HandleFunc("/", homeView())
 	fmt.Println("Listening on http://localhost:8080")
 	http.ListenAndServe(":8080", nil)
 }
 
-func homeView(w http.ResponseWriter, r *http.Request) {
-	vars := map[string]interface{}{
-		"title": "Hello, World!",
-		"age":   23,
-	}
-
-	err := textwire.View(w, "home", vars)
+func homeView() http.HandlerFunc {
+	view, err := textwire.ParseFile("home")
 
 	if err != nil {
 		fmt.Println(err)
+	}
+
+	return func(w http.ResponseWriter, r *http.Request) {
+		vars := map[string]interface{}{
+			"title": "Hello, World!",
+			"age":   23,
+		}
+
+		err := view.Evaluate(w, vars)
+
+		if err != nil {
+			fmt.Println(err)
+		}
 	}
 }
