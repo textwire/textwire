@@ -748,3 +748,19 @@ func TestDefineStatement(t *testing.T) {
 		}
 	}
 }
+
+func TestParseLayoutStatement(t *testing.T) {
+	inp := `{{ layout "main" }}`
+
+	stmts := parseStatements(t, inp, 1)
+
+	stmt, ok := stmts[0].(*ast.LayoutStatement)
+
+	if !ok {
+		t.Fatalf("program.Statements[0] is not a LayoutStatement, got %T", stmts[0])
+	}
+
+	if stmt.Name.Value != "main" {
+		t.Errorf("stmt.Name.Value is not %s, got %s", "main", stmt.Name.Value)
+	}
+}

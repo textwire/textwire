@@ -268,6 +268,21 @@ func (p *Parser) parseDefineStatement() ast.Statement {
 	return stmt
 }
 
+func (p *Parser) parseLayoutStatement() ast.Statement {
+	stmt := &ast.LayoutStatement{Token: p.curToken}
+
+	if !p.expectPeek(token.STR) { // move to string
+		return nil
+	}
+
+	stmt.Name = &ast.StringLiteral{
+		Token: p.curToken,
+		Value: p.curToken.Literal,
+	}
+
+	return stmt
+}
+
 func (p *Parser) parseInfixExpression(left ast.Expression) ast.Expression {
 	exp := &ast.InfixExpression{
 		Token:    p.curToken,
@@ -348,6 +363,8 @@ func (p *Parser) parseEmbeddedCode() ast.Statement {
 		if p.peekTokenIs(token.DEFINE) {
 			return p.parseDefineStatement()
 		}
+	case token.LAYOUT:
+		return p.parseLayoutStatement()
 	}
 
 	return p.parseExpressionStatement()
