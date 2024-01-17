@@ -34,7 +34,13 @@ func ParseStr(text string) (*ast.Program, error) {
 
 // ParseFile parses a Textwire file and caches the result
 func ParseFile(filePath string) (*View, error) {
-	content, err := os.ReadFile(filePath)
+	fullPath, err := getFullPath(filePath)
+
+	if err != nil {
+		return nil, err
+	}
+
+	content, err := os.ReadFile(fullPath)
 
 	if err != nil {
 		return nil, err

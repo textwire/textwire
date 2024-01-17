@@ -4,9 +4,8 @@ test:
 	@go test -v ./...
 	@echo "✅ Tests passed!"
 
-.PHONY: cli
-cli:
-	@echo "🚀 Running CLI..."
-	@go run cli/cli.go
+.PHONE: run
+run:
+	@cd example && go run main.go
 
 .DEFAULT_GOAL := test
