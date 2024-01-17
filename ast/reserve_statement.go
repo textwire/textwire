@@ -1,13 +1,14 @@
 package ast
 
 import (
+	"fmt"
+
 	"github.com/textwire/textwire/token"
 )
 
 type ReserveStatement struct {
-	Token   token.Token
-	Name    *StringLiteral
-	Program *Program
+	Token token.Token
+	Name  *StringLiteral
 }
 
 func (rs *ReserveStatement) statementNode() {
@@ -18,5 +19,5 @@ func (rs *ReserveStatement) TokenLiteral() string {
 }
 
 func (rs *ReserveStatement) String() string {
-	return rs.Program.String()
+	return fmt.Sprintf(`{{ reserve "%s" }}`, rs.Name.String())
 }

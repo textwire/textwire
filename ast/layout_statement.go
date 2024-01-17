@@ -1,6 +1,8 @@
 package ast
 
 import (
+	"fmt"
+
 	"github.com/textwire/textwire/token"
 )
 
@@ -18,5 +20,5 @@ func (ls *LayoutStatement) TokenLiteral() string {
 }
 
 func (ls *LayoutStatement) String() string {
-	return ls.Program.String()
+	return fmt.Sprintf(`{{ layout "%s" }}`, ls.Path.String())
 }
