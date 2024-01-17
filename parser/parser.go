@@ -132,6 +132,32 @@ func (p *Parser) parseStatement() ast.Statement {
 	}
 }
 
+func (p *Parser) parseEmbeddedCode() ast.Statement {
+	p.nextToken() // skip "{{"
+
+	if p.curTokenIs(token.RBRACES) {
+		p.newError(ERR_EMPTY_BRACKETS)
+		return nil
+	}
+
+	switch p.curToken.Type {
+	case token.IF:
+		return p.parseIfStatement()
+	case token.VAR:
+		return p.parseVarStatement()
+	case token.LAYOUT:
+		return p.parseLayoutStatement()
+	case token.RESERVE:
+		return p.parseReserveStatement()
+	case token.IDENT:
+		if p.peekTokenIs(token.DEFINE) {
+			return p.parseDefineStatement()
+		}
+	}
+
+	return p.parseExpressionStatement()
+}
+
 func (p *Parser) registerPrefix(tokenType token.TokenType, fn prefixParseFn) {
 	p.prefixParseFns[tokenType] = fn
 }
@@ -359,32 +385,6 @@ func (p *Parser) parseVarStatement() ast.Statement {
 	stmt.Value = p.parseExpression(LOWEST)
 
 	return stmt
-}
-
-func (p *Parser) parseEmbeddedCode() ast.Statement {
-	p.nextToken() // skip "{{"
-
-	if p.curTokenIs(token.RBRACES) {
-		p.newError(ERR_EMPTY_BRACKETS)
-		return nil
-	}
-
-	switch p.curToken.Type {
-	case token.IF:
-		return p.parseIfStatement()
-	case token.VAR:
-		return p.parseVarStatement()
-	case token.LAYOUT:
-		return p.parseLayoutStatement()
-	case token.RESERVE:
-		return p.parseReserveStatement()
-	case token.IDENT:
-		if p.peekTokenIs(token.DEFINE) {
-			return p.parseDefineStatement()
-		}
-	}
-
-	return p.parseExpressionStatement()
 }
 
 func (p *Parser) parseIfStatement() *ast.IfStatement {
