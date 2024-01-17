@@ -53,6 +53,8 @@ const (
 	NIL
 	VAR
 	LAYOUT
+	RESERVE
+	INSERT
 )
 
 var keywords = map[string]TokenType{
@@ -65,6 +67,8 @@ var keywords = map[string]TokenType{
 	"nil":     NIL,
 	"var":     VAR,
 	"layout":  LAYOUT,
+	"reserve": RESERVE,
+	"insert":  INSERT,
 }
 
 type Token struct {
