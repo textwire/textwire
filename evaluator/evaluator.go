@@ -125,6 +125,10 @@ func evalDeclStatement(node *ast.DefineStatement, env *object.Env) object.Object
 }
 
 func evalLayoutStatement(node *ast.LayoutStatement, env *object.Env) object.Object {
+	if node.Program == nil {
+		return newError("The layout statement must have a program attached")
+	}
+
 	nameObj := Eval(node.Path, env)
 
 	if isError(nameObj) {
@@ -137,7 +141,10 @@ func evalLayoutStatement(node *ast.LayoutStatement, env *object.Env) object.Obje
 		return newError("The layout name must be a string")
 	}
 
-	return &object.Layout{Name: name}
+	return &object.Layout{
+		Name:    name,
+		Content: Eval(node.Program, env),
+	}
 }
 
 func evalIdentifier(node *ast.Identifier, env *object.Env) object.Object {

@@ -1,10 +1,8 @@
 package object
 
-import "github.com/textwire/textwire/ast"
-
 type Layout struct {
 	Name    *String
-	Program *ast.Program
+	Content Object
 }
 
 func (l *Layout) Type() ObjectType {
@@ -12,5 +10,5 @@ func (l *Layout) Type() ObjectType {
 }
 
 func (l *Layout) String() string {
-	return l.Program.String()
+	return l.Content.String()
 }
