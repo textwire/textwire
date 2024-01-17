@@ -19,11 +19,6 @@ func main() {
 	log.Fatalln(http.ListenAndServe(":8080", nil))
 }
 
-type HomeVars struct {
-	Title string
-	Age   int
-}
-
 func homeHandler() http.HandlerFunc {
 	template, err := textwire.ParseTemplate("home")
 
@@ -37,7 +32,7 @@ func homeHandler() http.HandlerFunc {
 			"age":   23,
 		}
 
-		err := template.Evaluate(w, vars)
+		err := template.EvaluateResponse(w, vars)
 
 		if err != nil {
 			fmt.Println(err)

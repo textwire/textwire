@@ -34,6 +34,7 @@ const (
 	ERR_COULD_NOT_PARSE_AS   = "could not parse %s as %s"
 	ERR_NO_PREFIX_PARSE_FUNC = "no prefix parse function for %s"
 	ERR_ILLEGAL_TOKEN        = "illegal token '%s' found"
+	ERR_ONLY_ONE_LAYOUT      = "only one layout statement is allowed per template"
 )
 
 var precedences = map[token.TokenType]int{
@@ -102,13 +103,13 @@ func (p *Parser) ParseProgram() *ast.Program {
 	for !p.curTokenIs(token.EOF) {
 		stmt := p.parseStatement()
 
-		if stmt != nil {
-			prog.Statements = append(prog.Statements, stmt)
-		}
-
 		if p.curTokenIs(token.ILLEGAL) {
 			p.newError(ERR_ILLEGAL_TOKEN, p.curToken.Literal)
 			return nil
+		}
+
+		if stmt != nil {
+			prog.Statements = append(prog.Statements, stmt)
 		}
 
 		p.nextToken() // skip "}}"
@@ -275,7 +276,7 @@ func (p *Parser) parseLayoutStatement() ast.Statement {
 		return nil
 	}
 
-	stmt.Name = &ast.StringLiteral{
+	stmt.Path = &ast.StringLiteral{
 		Token: p.curToken,
 		Value: p.curToken.Literal,
 	}

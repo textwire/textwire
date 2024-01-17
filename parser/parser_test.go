@@ -498,6 +498,7 @@ func TestErrorHandling(t *testing.T) {
 		{"{{ true ? 100 }}", fmt.Sprintf(ERR_WRONG_NEXT_TOKEN, token.TokenString(token.COLON), token.TokenString(token.RBRACES))},
 		{"{{ ) }}", fmt.Sprintf(ERR_NO_PREFIX_PARSE_FUNC, token.TokenString(token.RPAREN))},
 		{"{{ 5 }", fmt.Sprintf(ERR_ILLEGAL_TOKEN, "}")},
+		{`{{ layout "first" }}{{ layout "second" }}`, ERR_ONLY_ONE_LAYOUT},
 	}
 
 	for _, tt := range tests {
@@ -508,6 +509,7 @@ func TestErrorHandling(t *testing.T) {
 
 		if len(p.Errors()) == 0 {
 			t.Errorf("no errors found in input %q", tt.input)
+			return
 		}
 
 		err := p.Errors()[0]
@@ -760,7 +762,7 @@ func TestParseLayoutStatement(t *testing.T) {
 		t.Fatalf("program.Statements[0] is not a LayoutStatement, got %T", stmts[0])
 	}
 
-	if stmt.Name.Value != "main" {
-		t.Errorf("stmt.Name.Value is not %s, got %s", "main", stmt.Name.Value)
+	if stmt.Path.Value != "main" {
+		t.Errorf("stmt.Name.Value is not %s, got %s", "main", stmt.Path.Value)
 	}
 }

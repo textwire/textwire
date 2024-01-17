@@ -14,7 +14,7 @@ type Template struct {
 	program *ast.Program
 }
 
-func (t *Template) Evaluate(w http.ResponseWriter, vars map[string]interface{}) error {
+func (t *Template) EvaluateResponse(w http.ResponseWriter, vars map[string]interface{}) error {
 	env, err := object.EnvFromMap(vars)
 
 	if err != nil {

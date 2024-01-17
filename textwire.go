@@ -34,22 +34,22 @@ func ParseStr(text string) (*ast.Program, error) {
 
 // ParseFile parses a Textwire file and caches the result
 func ParseTemplate(filePath string) (*Template, error) {
-	fullPath, err := getFullPath(filePath)
+	program, err := parseProgram(filePath)
 
 	if err != nil {
 		return nil, err
 	}
 
-	content, err := os.ReadFile(fullPath)
+	layout, isLayout := program.Statements[0].(*ast.LayoutStatement)
 
-	if err != nil {
-		return nil, err
-	}
+	if isLayout {
+		layoutProgram, err := parseProgram(layout.Path.Value)
 
-	program, err := ParseStr(string(content))
+		if err != nil {
+			return nil, err
+		}
 
-	if err != nil {
-		return nil, err
+		program.Statements[0].(*ast.LayoutStatement).Program = layoutProgram
 	}
 
 	return &Template{program: program}, nil
@@ -58,4 +58,39 @@ func ParseTemplate(filePath string) (*Template, error) {
 func NewConfig(c *Config) {
 	c.TemplateDir = strings.Trim(c.TemplateDir, "/")
 	config = c
+}
+
+func parseProgram(filePath string) (*ast.Program, error) {
+	content, err := fileContent(filePath)
+
+	if err != nil {
+		return nil, err
+	}
+
+	lex := lexer.New(content)
+	pars := parser.New(lex)
+
+	program := pars.ParseProgram()
+
+	if len(pars.Errors()) != 0 {
+		return nil, pars.Errors()[0]
+	}
+
+	return program, nil
+}
+
+func fileContent(filePath string) (string, error) {
+	fullPath, err := getFullPath(filePath)
+
+	if err != nil {
+		return "", err
+	}
+
+	content, err := os.ReadFile(fullPath)
+
+	if err != nil {
+		return "", err
+	}
+
+	return string(content), nil
 }

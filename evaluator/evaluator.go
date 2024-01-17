@@ -30,6 +30,8 @@ func Eval(node ast.Node, env *object.Env) object.Object {
 		return evalBlockStatement(node, env)
 	case *ast.DefineStatement:
 		return evalDeclStatement(node, env)
+	case *ast.LayoutStatement:
+		return evalLayoutStatement(node, env)
 
 	// Expressions
 	case *ast.Identifier:
@@ -120,6 +122,22 @@ func evalDeclStatement(node *ast.DefineStatement, env *object.Env) object.Object
 	env.Set(node.Name.Value, val)
 
 	return NIL
+}
+
+func evalLayoutStatement(node *ast.LayoutStatement, env *object.Env) object.Object {
+	nameObj := Eval(node.Path, env)
+
+	if isError(nameObj) {
+		return nameObj
+	}
+
+	name, ok := nameObj.(*object.String)
+
+	if !ok {
+		return newError("The layout name must be a string")
+	}
+
+	return &object.Layout{Name: name}
 }
 
 func evalIdentifier(node *ast.Identifier, env *object.Env) object.Object {
