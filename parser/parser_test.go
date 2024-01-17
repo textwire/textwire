@@ -784,8 +784,20 @@ func TestParseReserveStatement(t *testing.T) {
 	if stmt.Name.Value != "content" {
 		t.Errorf("stmt.Name.Value is not 'content', got %s", stmt.Name.Value)
 	}
+}
 
-	if stmt.Program != nil {
-		t.Errorf("stmt.Program is not nil, got %T", stmt.Program)
+func TestInsertStatement(t *testing.T) {
+	inp := `{{ insert "content" }}`
+
+	stmts := parseStatements(t, inp, 1)
+
+	stmt, ok := stmts[0].(*ast.InsertStatement)
+
+	if !ok {
+		t.Fatalf("program.Statements[0] is not a InsertStatement, got %T", stmts[0])
+	}
+
+	if stmt.Name.Value != "content" {
+		t.Errorf("stmt.Name.Value is not 'content', got %s", stmt.Name.Value)
 	}
 }
