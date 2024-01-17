@@ -24,7 +24,8 @@ func isTruthy(obj object.Object) bool {
 }
 
 func newError(format string, a ...interface{}) *object.Error {
-	return &object.Error{Message: fmt.Sprintf(format, a...)}
+	message := fmt.Sprintf("TEXTWIRE ERROR: "+format, a...)
+	return &object.Error{Message: message}
 }
 
 func isError(obj object.Object) bool {

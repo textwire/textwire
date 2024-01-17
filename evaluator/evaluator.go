@@ -127,7 +127,7 @@ func evalIdentifier(node *ast.Identifier, env *object.Env) object.Object {
 		return val
 	}
 
-	return newError("Identifier not found: " + node.Value)
+	return newError(`Identifier "` + node.Value + `" not found`)
 }
 
 func evalPrefixExpression(node *ast.PrefixExpression, env *object.Env) object.Object {
