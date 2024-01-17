@@ -52,6 +52,7 @@ const (
 	FALSE
 	NIL
 	VAR
+	LAYOUT
 )
 
 var keywords = map[string]TokenType{
@@ -63,6 +64,7 @@ var keywords = map[string]TokenType{
 	"false":   FALSE,
 	"nil":     NIL,
 	"var":     VAR,
+	"layout":  LAYOUT,
 }
 
 type Token struct {

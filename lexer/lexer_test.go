@@ -73,7 +73,7 @@ func TestFloats(t *testing.T) {
 }
 
 func TestIdentifiers(t *testing.T) {
-	inp := "{{ testVar another_var12 nil false !true }}"
+	inp := "{{ testVar another_var12 nil false !true layout }}"
 
 	TokenizeString(t, inp, []token.Token{
 		{Type: token.LBRACES, Literal: "{{"},
@@ -83,6 +83,7 @@ func TestIdentifiers(t *testing.T) {
 		{Type: token.FALSE, Literal: "false"},
 		{Type: token.NOT, Literal: "!"},
 		{Type: token.TRUE, Literal: "true"},
+		{Type: token.LAYOUT, Literal: "layout"},
 		{Type: token.RBRACES, Literal: "}}"},
 		{Type: token.EOF, Literal: ""},
 	})

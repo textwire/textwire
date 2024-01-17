@@ -45,6 +45,7 @@ var tokens = [...]string{
 	FALSE:  "false",
 	NIL:    "nil",
 	VAR:    "var",
+	LAYOUT: "layout",
 }
 
 func TokenString(t TokenType) string {
