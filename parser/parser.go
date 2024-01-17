@@ -34,7 +34,6 @@ const (
 	ERR_COULD_NOT_PARSE_AS   = "could not parse %s as %s"
 	ERR_NO_PREFIX_PARSE_FUNC = "no prefix parse function for %s"
 	ERR_ILLEGAL_TOKEN        = "illegal token '%s' found"
-	ERR_ONLY_ONE_LAYOUT      = "only one layout statement is allowed per template"
 )
 
 var precedences = map[token.TokenType]int{
