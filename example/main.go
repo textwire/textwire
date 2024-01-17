@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/textwire/textwire"
@@ -12,13 +13,19 @@ func main() {
 		TemplateDir: "templates",
 	})
 
-	http.HandleFunc("/", homeView())
+	http.HandleFunc("/", homeHandler())
+
 	fmt.Println("Listening on http://localhost:8080")
-	http.ListenAndServe(":8080", nil)
+	log.Fatalln(http.ListenAndServe(":8080", nil))
 }
 
-func homeView() http.HandlerFunc {
-	view, err := textwire.ParseFile("home")
+type HomeVars struct {
+	Title string
+	Age   int
+}
+
+func homeHandler() http.HandlerFunc {
+	template, err := textwire.ParseTemplate("home")
 
 	if err != nil {
 		fmt.Println(err)
@@ -30,7 +37,7 @@ func homeView() http.HandlerFunc {
 			"age":   23,
 		}
 
-		err := view.Evaluate(w, vars)
+		err := template.Evaluate(w, vars)
 
 		if err != nil {
 			fmt.Println(err)

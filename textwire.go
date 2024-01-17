@@ -33,7 +33,7 @@ func ParseStr(text string) (*ast.Program, error) {
 }
 
 // ParseFile parses a Textwire file and caches the result
-func ParseFile(filePath string) (*View, error) {
+func ParseTemplate(filePath string) (*Template, error) {
 	fullPath, err := getFullPath(filePath)
 
 	if err != nil {
@@ -52,7 +52,7 @@ func ParseFile(filePath string) (*View, error) {
 		return nil, err
 	}
 
-	return &View{program: program}, nil
+	return &Template{program: program}, nil
 }
 
 func NewConfig(c *Config) {
