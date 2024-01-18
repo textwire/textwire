@@ -14,7 +14,7 @@ func main() {
 	})
 
 	http.HandleFunc("/", homeHandler())
-	// http.HandleFunc("/about", aboutHandler())
+	http.HandleFunc("/about", aboutHandler())
 
 	fmt.Println("Listening on http://localhost:8080")
 

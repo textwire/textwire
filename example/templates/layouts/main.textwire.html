@@ -5,9 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Main Layout</title>
 </head>
-<body>
-    <h1>Main layout</h1>
+<body style="margin: 0;">
+    <nav style="background-color: #eee; padding: 1em; display: flex; gap: 10px;">
+        <b style="font-size: 1.1rem; margin-right: 10px;">Main Layout</b>
 
-    {{ reserve "content" }}
+        <a href="/">Home</a>
+        <a href="/about">About</a>
+    </nav>
+
+    <main style="padding: 0 10px; margin: 0 auto; max-width: 900px;">
+        {{ reserve "content" }}
+    </main>
 </body>
 </html>
