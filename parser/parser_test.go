@@ -26,9 +26,9 @@ func checkParserErrors(t *testing.T, p *Parser) {
 	t.FailNow()
 }
 
-func parseStatements(t *testing.T, inp string, stmtCount int) []ast.Statement {
+func parseStatements(t *testing.T, inp string, stmtCount int, inserts map[string]*ast.InsertStatement) []ast.Statement {
 	l := lexer.New(inp)
-	p := New(l)
+	p := New(l, inserts)
 
 	program := p.ParseProgram()
 
@@ -188,7 +188,7 @@ func testLiteralExpression(
 }
 
 func TestParseIdentifier(t *testing.T) {
-	stmts := parseStatements(t, "{{ myName }}", 1)
+	stmts := parseStatements(t, "{{ myName }}", 1, nil)
 
 	stmt, ok := stmts[0].(*ast.ExpressionStatement)
 
@@ -202,7 +202,7 @@ func TestParseIdentifier(t *testing.T) {
 }
 
 func TestParseIntegerLiteral(t *testing.T) {
-	stmts := parseStatements(t, "{{ 234 }}", 1)
+	stmts := parseStatements(t, "{{ 234 }}", 1, nil)
 
 	stmt, ok := stmts[0].(*ast.ExpressionStatement)
 
@@ -216,7 +216,7 @@ func TestParseIntegerLiteral(t *testing.T) {
 }
 
 func TestParseFloatLiteral(t *testing.T) {
-	stmts := parseStatements(t, "{{ 2.34149 }}", 1)
+	stmts := parseStatements(t, "{{ 2.34149 }}", 1, nil)
 
 	stmt, ok := stmts[0].(*ast.ExpressionStatement)
 
@@ -230,7 +230,7 @@ func TestParseFloatLiteral(t *testing.T) {
 }
 
 func TestParseNilLiteral(t *testing.T) {
-	stmts := parseStatements(t, "{{ nil }}", 1)
+	stmts := parseStatements(t, "{{ nil }}", 1, nil)
 
 	stmt, ok := stmts[0].(*ast.ExpressionStatement)
 
@@ -251,7 +251,7 @@ func TestParseStringLiteral(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		stmts := parseStatements(t, tt.input, 1)
+		stmts := parseStatements(t, tt.input, 1, nil)
 
 		stmt, ok := stmts[0].(*ast.ExpressionStatement)
 
@@ -268,7 +268,7 @@ func TestParseStringLiteral(t *testing.T) {
 func TestStringConcatenation(t *testing.T) {
 	inp := `{{ "Serhii" + " Anna" }}`
 
-	stmts := parseStatements(t, inp, 1)
+	stmts := parseStatements(t, inp, 1, nil)
 
 	stmt, ok := stmts[0].(*ast.ExpressionStatement)
 
@@ -298,7 +298,7 @@ func TestStringConcatenation(t *testing.T) {
 func TestGroupedExpression(t *testing.T) {
 	test := "{{ (5 + 5) * 2 }}"
 
-	stmts := parseStatements(t, test, 1)
+	stmts := parseStatements(t, test, 1, nil)
 
 	stmt, ok := stmts[0].(*ast.ExpressionStatement)
 
@@ -355,7 +355,7 @@ func TestInfixExpression(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		stmts := parseStatements(t, tt.input, 1)
+		stmts := parseStatements(t, tt.input, 1, nil)
 
 		stmt, ok := stmts[0].(*ast.ExpressionStatement)
 
@@ -393,7 +393,7 @@ func TestBooleanExpression(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		stmts := parseStatements(t, tt.input, 1)
+		stmts := parseStatements(t, tt.input, 1, nil)
 
 		stmt, ok := stmts[0].(*ast.ExpressionStatement)
 
@@ -425,7 +425,7 @@ func TestPrefixExpression(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		stmts := parseStatements(t, tt.input, 1)
+		stmts := parseStatements(t, tt.input, 1, nil)
 
 		stmt, ok := stmts[0].(*ast.ExpressionStatement)
 
@@ -474,7 +474,7 @@ func TestOperatorPrecedenceParsing(t *testing.T) {
 
 	for _, tt := range tests {
 		l := lexer.New(tt.input)
-		p := New(l)
+		p := New(l, nil)
 
 		program := p.ParseProgram()
 
@@ -502,7 +502,7 @@ func TestErrorHandling(t *testing.T) {
 
 	for _, tt := range tests {
 		l := lexer.New(tt.input)
-		p := New(l)
+		p := New(l, nil)
 
 		p.ParseProgram()
 
@@ -522,7 +522,7 @@ func TestErrorHandling(t *testing.T) {
 func TestTernaryExpression(t *testing.T) {
 	inp := `{{ true ? 100 : "Some string" }}`
 
-	stmts := parseStatements(t, inp, 1)
+	stmts := parseStatements(t, inp, 1, nil)
 
 	stmt, ok := stmts[0].(*ast.ExpressionStatement)
 
@@ -552,7 +552,7 @@ func TestTernaryExpression(t *testing.T) {
 func TestIfStatement(t *testing.T) {
 	inp := `{{ if true }}1{{ end }}`
 
-	stmts := parseStatements(t, inp, 1)
+	stmts := parseStatements(t, inp, 1, nil)
 
 	ifStmt, ok := stmts[0].(*ast.IfStatement)
 
@@ -590,7 +590,7 @@ func TestIfStatement(t *testing.T) {
 func TestIfElseStatement(t *testing.T) {
 	inp := `{{ if true }}1{{ else }}2{{ end }}`
 
-	stmts := parseStatements(t, inp, 1)
+	stmts := parseStatements(t, inp, 1, nil)
 
 	ifStmt, ok := stmts[0].(*ast.IfStatement)
 
@@ -624,7 +624,7 @@ func TestIfElseStatement(t *testing.T) {
 func TestIfElseIfStatement(t *testing.T) {
 	inp := `{{ if true }}1{{ else if false }}2{{ end }}`
 
-	stmts := parseStatements(t, inp, 1)
+	stmts := parseStatements(t, inp, 1, nil)
 
 	ifStmt, ok := stmts[0].(*ast.IfStatement)
 
@@ -664,7 +664,7 @@ func TestIfElseIfStatement(t *testing.T) {
 func TestIfElseIfElseStatement(t *testing.T) {
 	inp := `{{ if true }}1{{ else if false }}2{{ else }}3{{ end }}`
 
-	stmts := parseStatements(t, inp, 1)
+	stmts := parseStatements(t, inp, 1, nil)
 
 	ifStmt, ok := stmts[0].(*ast.IfStatement)
 
@@ -728,7 +728,7 @@ func TestDefineStatement(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		stmts := parseStatements(t, tt.input, 1)
+		stmts := parseStatements(t, tt.input, 1, nil)
 
 		stmt, ok := stmts[0].(*ast.DefineStatement)
 
@@ -753,7 +753,7 @@ func TestDefineStatement(t *testing.T) {
 func TestParseLayoutStatement(t *testing.T) {
 	inp := `{{ layout "main" }}`
 
-	stmts := parseStatements(t, inp, 1)
+	stmts := parseStatements(t, inp, 1, nil)
 
 	stmt, ok := stmts[0].(*ast.LayoutStatement)
 
@@ -773,7 +773,18 @@ func TestParseLayoutStatement(t *testing.T) {
 func TestParseReserveStatement(t *testing.T) {
 	inp := `{{ reserve "content" }}`
 
-	stmts := parseStatements(t, inp, 1)
+	stmts := parseStatements(t, inp, 1, map[string]*ast.InsertStatement{
+		"content": {
+			Name: &ast.StringLiteral{Value: "content"},
+			Block: &ast.BlockStatement{
+				Statements: []ast.Statement{
+					&ast.HTMLStatement{
+						Token: token.Token{Type: token.HTML, Literal: "<h1>Some content</h1>"},
+					},
+				},
+			},
+		},
+	})
 
 	stmt, ok := stmts[0].(*ast.ReserveStatement)
 
@@ -789,7 +800,7 @@ func TestParseReserveStatement(t *testing.T) {
 func TestInsertStatement(t *testing.T) {
 	inp := `{{ insert "content" }}<h1>Some content</h1>{{ end }}`
 
-	stmts := parseStatements(t, inp, 1)
+	stmts := parseStatements(t, inp, 1, nil)
 
 	stmt, ok := stmts[0].(*ast.InsertStatement)
 

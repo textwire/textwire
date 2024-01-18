@@ -2,7 +2,6 @@ package evaluator
 
 import (
 	"bytes"
-	"fmt"
 	"html"
 
 	"github.com/textwire/textwire/ast"
@@ -13,8 +12,6 @@ var (
 	NIL   = &object.Nil{}
 	TRUE  = &object.Boolean{Value: true}
 	FALSE = &object.Boolean{Value: false}
-
-	insertStatements = make(map[string]*object.Insert)
 )
 
 func Eval(node ast.Node, env *object.Env) object.Object {
@@ -64,10 +61,10 @@ func Eval(node ast.Node, env *object.Env) object.Object {
 	return newError("Unknown node type: %T", node)
 }
 
-func evalProgram(program *ast.Program, env *object.Env) object.Object {
+func evalProgram(prog *ast.Program, env *object.Env) object.Object {
 	var result bytes.Buffer
 
-	for _, statement := range program.Statements {
+	for _, statement := range prog.Statements {
 		stmtObj := Eval(statement, env)
 
 		if err, ok := stmtObj.(*object.Error); ok {
@@ -143,26 +140,18 @@ func evalLayoutStatement(node *ast.LayoutStatement, env *object.Env) object.Obje
 }
 
 func evalInsertStatement(node *ast.InsertStatement, env *object.Env) object.Object {
-	insertStmt := &object.Insert{
+	return &object.Insert{
 		Name:    node.Name.Value,
 		Content: Eval(node.Block, env),
 	}
-
-	fmt.Printf("-------> %#v\n", "INSERT")
-	insertStatements[node.Name.Value] = insertStmt
-
-	return NIL
 }
 
 func evalReserveStatement(node *ast.ReserveStatement, env *object.Env) object.Object {
-	stmt, hasInsert := insertStatements[node.Name.Value]
-
-	fmt.Printf("-------> %#v\n", "RECEIVE")
-	if !hasInsert {
-		return newError("The insert statement named '%s' is not defined", node.Name.Value)
+	return NIL
+	return &object.Reserve{
+		Name:    node.Name.Value,
+		Content: Eval(node.Insert, env),
 	}
-
-	return &object.Html{Value: stmt.Content.String()}
 }
 
 func evalIdentifier(node *ast.Identifier, env *object.Env) object.Object {

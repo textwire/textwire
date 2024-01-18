@@ -51,8 +51,9 @@ var precedences = map[token.TokenType]int{
 }
 
 type Parser struct {
-	l      *lexer.Lexer
-	errors []error
+	l       *lexer.Lexer
+	errors  []error
+	inserts map[string]*ast.InsertStatement
 
 	curToken  token.Token
 	peekToken token.Token
@@ -61,10 +62,11 @@ type Parser struct {
 	infixParseFns  map[token.TokenType]infixParseFn
 }
 
-func New(lexer *lexer.Lexer) *Parser {
+func New(lexer *lexer.Lexer, inserts map[string]*ast.InsertStatement) *Parser {
 	p := &Parser{
-		l:      lexer,
-		errors: []error{},
+		l:       lexer,
+		errors:  []error{},
+		inserts: inserts,
 	}
 
 	p.nextToken() // fill curToken
@@ -107,9 +109,12 @@ func (p *Parser) ParseProgram() *ast.Program {
 			return nil
 		}
 
-		if stmt != nil {
-			prog.Statements = append(prog.Statements, stmt)
+		if stmt == nil {
+			p.nextToken()
+			continue
 		}
+
+		prog.Statements = append(prog.Statements, stmt)
 
 		p.nextToken() // skip "}}"
 	}
@@ -322,6 +327,15 @@ func (p *Parser) parseReserveStatement() ast.Statement {
 		Token: p.curToken,
 		Value: p.curToken.Literal,
 	}
+
+	insert, hasInsert := p.inserts[stmt.Name.Value]
+
+	if !hasInsert {
+		p.newError("The insert statement named '%s' is not defined", stmt.Name.Value)
+		return nil
+	}
+
+	stmt.Insert = insert
 
 	return stmt
 }

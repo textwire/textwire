@@ -25,3 +25,15 @@ func (p *Program) String() string {
 
 	return result.String()
 }
+
+func (p *Program) Inserts() map[string]*InsertStatement {
+	inserts := make(map[string]*InsertStatement)
+
+	for _, stmt := range p.Statements {
+		if insertStmt, ok := stmt.(*InsertStatement); ok {
+			inserts[insertStmt.Name.Value] = insertStmt
+		}
+	}
+
+	return inserts
+}

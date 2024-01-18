@@ -7,8 +7,9 @@ import (
 )
 
 type ReserveStatement struct {
-	Token token.Token
-	Name  *StringLiteral
+	Token  token.Token
+	Name   *StringLiteral
+	Insert *InsertStatement
 }
 
 func (rs *ReserveStatement) statementNode() {

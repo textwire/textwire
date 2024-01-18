@@ -1,7 +1,8 @@
 package object
 
 type Reserve struct {
-	Name string
+	Name    string
+	Content Object
 }
 
 func (r *Reserve) Type() ObjectType {
@@ -9,5 +10,5 @@ func (r *Reserve) Type() ObjectType {
 }
 
 func (r *Reserve) String() string {
-	return ""
+	return r.Content.String()
 }

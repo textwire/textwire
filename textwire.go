@@ -21,7 +21,7 @@ type Config struct {
 // ParseStr parses a Textwire string and returns the result as a string
 func ParseStr(text string) (*ast.Program, error) {
 	lex := lexer.New(text)
-	pars := parser.New(lex)
+	pars := parser.New(lex, nil)
 
 	program := pars.ParseProgram()
 
@@ -34,26 +34,28 @@ func ParseStr(text string) (*ast.Program, error) {
 
 // ParseFile parses a Textwire file and caches the result
 func ParseTemplate(filePath string) (*Template, error) {
-	program, err := parseProgram(filePath)
+	prog, err := parseProgram(filePath, nil)
 
 	if err != nil {
 		return nil, err
 	}
 
-	// get last statement
-	layout, isLayout := program.Statements[len(program.Statements)-1].(*ast.LayoutStatement)
+	layout, isLayout := prog.Statements[0].(*ast.LayoutStatement)
 
-	if isLayout {
-		layoutProgram, err := parseProgram(layout.Path.Value)
-
-		if err != nil {
-			return nil, err
-		}
-
-		program.Statements[len(program.Statements)-1].(*ast.LayoutStatement).Program = layoutProgram
+	if !isLayout {
+		return &Template{program: prog}, nil
 	}
 
-	return &Template{program: program}, nil
+	// Parse the layout program
+	layoutProg, err := parseProgram(layout.Path.Value, prog.Inserts())
+
+	if err != nil {
+		return nil, err
+	}
+
+	prog.Statements[0].(*ast.LayoutStatement).Program = layoutProg
+
+	return &Template{program: prog}, nil
 }
 
 func NewConfig(c *Config) {
@@ -61,7 +63,7 @@ func NewConfig(c *Config) {
 	config = c
 }
 
-func parseProgram(filePath string) (*ast.Program, error) {
+func parseProgram(filePath string, inserts map[string]*ast.InsertStatement) (*ast.Program, error) {
 	content, err := fileContent(filePath)
 
 	if err != nil {
@@ -69,7 +71,7 @@ func parseProgram(filePath string) (*ast.Program, error) {
 	}
 
 	lex := lexer.New(content)
-	pars := parser.New(lex)
+	pars := parser.New(lex, inserts)
 
 	program := pars.ParseProgram()
 
