@@ -29,6 +29,11 @@ func homeHandler() http.HandlerFunc {
 	}
 
 	return func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path != "/" {
+			http.NotFound(w, r)
+			return
+		}
+
 		vars := map[string]interface{}{
 			"title": "Hello, World!",
 			"age":   23,
@@ -50,6 +55,11 @@ func aboutHandler() http.HandlerFunc {
 	}
 
 	return func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path != "/about" {
+			http.NotFound(w, r)
+			return
+		}
+
 		vars := map[string]interface{}{
 			"title": "Hello, World!",
 			"age":   23,
