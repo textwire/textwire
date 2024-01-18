@@ -1,8 +1,9 @@
 package object
 
 type Reserve struct {
-	Name    string
-	Content Object
+	Name     string
+	Content  Object
+	Argument Object
 }
 
 func (r *Reserve) Type() ObjectType {
@@ -10,5 +11,9 @@ func (r *Reserve) Type() ObjectType {
 }
 
 func (r *Reserve) String() string {
+	if r.Argument != nil {
+		return r.Argument.String()
+	}
+
 	return r.Content.String()
 }

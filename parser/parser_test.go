@@ -838,8 +838,8 @@ func TestInsertStatement(t *testing.T) {
 			t.Errorf("stmt.Block is not nil, got %T", stmt.Block)
 		}
 
-		if stmt.Arguments[0].String() != `"Some content"` {
-			t.Errorf("stmt.Arguments[0].String() is not 'Some content', got %s", stmt.Arguments[0].String())
+		if stmt.Argument.String() != `"Some content"` {
+			t.Errorf("stmt.Argument.String() is not 'Some content', got %s", stmt.Argument.String())
 		}
 	})
 }

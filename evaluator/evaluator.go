@@ -35,10 +35,7 @@ func Eval(node ast.Node, env *object.Env) object.Object {
 	case *ast.InsertStatement:
 		return NIL
 	case *ast.ReserveStatement:
-		return &object.Reserve{
-			Name:    node.Name.Value,
-			Content: Eval(node.Insert.Block, env),
-		}
+		return evalReserveStatement(node, env)
 
 	// Expressions
 	case *ast.Identifier:
@@ -140,6 +137,29 @@ func evalLayoutStatement(node *ast.LayoutStatement, env *object.Env) object.Obje
 		Path:    node.Path.Value,
 		Content: Eval(node.Program, env),
 	}
+}
+
+func evalReserveStatement(node *ast.ReserveStatement, env *object.Env) object.Object {
+	stmt := &object.Reserve{Name: node.Name.Value}
+
+	if node.Insert.Block != nil {
+		stmt.Content = Eval(node.Insert.Block, env)
+		return stmt
+	}
+
+	if node.Insert.Argument == nil {
+		return newError("The 'insert' statement must have a content or a text argument")
+	}
+
+	firstArg := Eval(node.Insert.Argument, env)
+
+	if isError(firstArg) {
+		return firstArg
+	}
+
+	stmt.Argument = firstArg
+
+	return stmt
 }
 
 func evalIdentifier(node *ast.Identifier, env *object.Env) object.Object {

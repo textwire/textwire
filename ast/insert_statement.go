@@ -8,10 +8,10 @@ import (
 )
 
 type InsertStatement struct {
-	Token     token.Token
-	Name      *StringLiteral
-	Arguments []Expression
-	Block     *BlockStatement
+	Token    token.Token
+	Name     *StringLiteral
+	Argument Expression
+	Block    *BlockStatement
 }
 
 func (is *InsertStatement) statementNode() {
@@ -23,6 +23,11 @@ func (is *InsertStatement) TokenLiteral() string {
 
 func (is *InsertStatement) String() string {
 	var result bytes.Buffer
+
+	if is.Argument != nil {
+		result.WriteString(fmt.Sprintf(`{{ insert "%s", %s }}`, is.Name.String(), is.Argument.String()))
+		return result.String()
+	}
 
 	result.WriteString(fmt.Sprintf(`{{ insert "%s" }}`, is.Name.String()))
 	result.WriteString(is.Block.String())

@@ -354,8 +354,9 @@ func (p *Parser) parseInsertStatement() ast.Statement {
 	}
 
 	if p.peekTokenIs(token.COMMA) {
+		p.nextToken() // skip insert name
 		p.nextToken() // skip ","
-		stmt.Arguments = p.parseExpressionList(token.RBRACES)
+		stmt.Argument = p.parseExpression(LOWEST)
 		return stmt
 	}
 
@@ -555,29 +556,4 @@ func (p *Parser) parseGroupedExpression() ast.Expression {
 	}
 
 	return exp
-}
-
-func (p *Parser) parseExpressionList(endTok token.TokenType) []ast.Expression {
-	var result []ast.Expression
-
-	if p.peekTokenIs(endTok) {
-		p.nextToken() // skip endTok token
-		return result
-	}
-
-	p.nextToken() // skip ","
-
-	result = append(result, p.parseExpression(LOWEST))
-
-	for p.peekTokenIs(token.COMMA) {
-		p.nextToken() // skip ","
-		p.nextToken() // skip expression
-		result = append(result, p.parseExpression(LOWEST))
-	}
-
-	if !p.expectPeek(endTok) { // move to endTok
-		return nil
-	}
-
-	return result
 }
