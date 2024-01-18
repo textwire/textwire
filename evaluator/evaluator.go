@@ -33,9 +33,12 @@ func Eval(node ast.Node, env *object.Env) object.Object {
 	case *ast.LayoutStatement:
 		return evalLayoutStatement(node, env)
 	case *ast.InsertStatement:
-		return evalInsertStatement(node, env)
+		return NIL
 	case *ast.ReserveStatement:
-		return evalReserveStatement(node, env)
+		return &object.Reserve{
+			Name:    node.Name.Value,
+			Content: Eval(node.Insert.Block, env),
+		}
 
 	// Expressions
 	case *ast.Identifier:
@@ -136,20 +139,6 @@ func evalLayoutStatement(node *ast.LayoutStatement, env *object.Env) object.Obje
 	return &object.Layout{
 		Path:    node.Path.Value,
 		Content: Eval(node.Program, env),
-	}
-}
-
-func evalInsertStatement(node *ast.InsertStatement, env *object.Env) object.Object {
-	return &object.Insert{
-		Name:    node.Name.Value,
-		Content: Eval(node.Block, env),
-	}
-}
-
-func evalReserveStatement(node *ast.ReserveStatement, env *object.Env) object.Object {
-	return &object.Reserve{
-		Name:    node.Name.Value,
-		Content: Eval(node.Insert, env),
 	}
 }
 
