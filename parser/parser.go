@@ -34,6 +34,7 @@ const (
 	ERR_COULD_NOT_PARSE_AS   = "could not parse %s as %s"
 	ERR_NO_PREFIX_PARSE_FUNC = "no prefix parse function for %s"
 	ERR_ILLEGAL_TOKEN        = "illegal token '%s' found"
+	ERR_INSERT_NOT_DEFINED   = "The insert statement named '%s' is not defined"
 )
 
 var precedences = map[token.TokenType]int{
@@ -331,7 +332,7 @@ func (p *Parser) parseReserveStatement() ast.Statement {
 	insert, hasInsert := p.inserts[stmt.Name.Value]
 
 	if !hasInsert {
-		p.newError("The insert statement named '%s' is not defined", stmt.Name.Value)
+		p.newError(ERR_INSERT_NOT_DEFINED, stmt.Name.Value)
 		return nil
 	}
 

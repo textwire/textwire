@@ -498,6 +498,7 @@ func TestErrorHandling(t *testing.T) {
 		{"{{ true ? 100 }}", fmt.Sprintf(ERR_WRONG_NEXT_TOKEN, token.TokenString(token.COLON), token.TokenString(token.RBRACES))},
 		{"{{ ) }}", fmt.Sprintf(ERR_NO_PREFIX_PARSE_FUNC, token.TokenString(token.RPAREN))},
 		{"{{ 5 }", fmt.Sprintf(ERR_ILLEGAL_TOKEN, "}")},
+		{`{{ reserve "title" }}`, fmt.Sprintf(ERR_INSERT_NOT_DEFINED, "title")},
 	}
 
 	for _, tt := range tests {
