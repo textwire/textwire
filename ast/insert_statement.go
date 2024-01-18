@@ -8,9 +8,10 @@ import (
 )
 
 type InsertStatement struct {
-	Token token.Token
-	Name  *StringLiteral
-	Block *BlockStatement
+	Token     token.Token
+	Name      *StringLiteral
+	Arguments []Expression
+	Block     *BlockStatement
 }
 
 func (is *InsertStatement) statementNode() {

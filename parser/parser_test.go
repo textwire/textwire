@@ -799,21 +799,47 @@ func TestParseReserveStatement(t *testing.T) {
 }
 
 func TestInsertStatement(t *testing.T) {
-	inp := `{{ insert "content" }}<h1>Some content</h1>{{ end }}`
+	t.Run("Insert with block", func(tt *testing.T) {
+		inp := `{{ insert "content" }}<h1>Some content</h1>{{ end }}`
 
-	stmts := parseStatements(t, inp, 1, nil)
+		stmts := parseStatements(t, inp, 1, nil)
 
-	stmt, ok := stmts[0].(*ast.InsertStatement)
+		stmt, ok := stmts[0].(*ast.InsertStatement)
 
-	if !ok {
-		t.Fatalf("program.Statements[0] is not a InsertStatement, got %T", stmts[0])
-	}
+		if !ok {
+			t.Fatalf("program.Statements[0] is not a InsertStatement, got %T", stmts[0])
+		}
 
-	if stmt.Name.Value != "content" {
-		t.Errorf("stmt.Name.Value is not 'content', got %s", stmt.Name.Value)
-	}
+		if stmt.Name.Value != "content" {
+			t.Errorf("stmt.Name.Value is not 'content', got %s", stmt.Name.Value)
+		}
 
-	if stmt.Block.String() != "<h1>Some content</h1>" {
-		t.Errorf("stmt.Block.String() is not '<h1>Some content</h1>', got %s", stmt.Block.String())
-	}
+		if stmt.Block.String() != "<h1>Some content</h1>" {
+			t.Errorf("stmt.Block.String() is not '<h1>Some content</h1>', got %s", stmt.Block.String())
+		}
+	})
+
+	t.Run("Insert with argument", func(tt *testing.T) {
+		inp := `{{ insert "content", "Some content" }}`
+
+		stmts := parseStatements(t, inp, 1, nil)
+
+		stmt, ok := stmts[0].(*ast.InsertStatement)
+
+		if !ok {
+			t.Fatalf("program.Statements[0] is not a InsertStatement, got %T", stmts[0])
+		}
+
+		if stmt.Name.Value != "content" {
+			t.Errorf("stmt.Name.Value is not 'content', got %s", stmt.Name.Value)
+		}
+
+		if stmt.Block != nil {
+			t.Errorf("stmt.Block is not nil, got %T", stmt.Block)
+		}
+
+		if stmt.Arguments[0].String() != `"Some content"` {
+			t.Errorf("stmt.Arguments[0].String() is not 'Some content', got %s", stmt.Arguments[0].String())
+		}
+	})
 }
