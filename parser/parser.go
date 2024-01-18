@@ -338,6 +338,14 @@ func (p *Parser) parseInsertStatement() ast.Statement {
 		Value: p.curToken.Literal,
 	}
 
+	if !p.expectPeek(token.RBRACES) { // move to "}}"
+		return nil
+	}
+
+	p.nextToken() // skip "}}"
+
+	stmt.Block = p.parseBlockStatement()
+
 	return stmt
 }
 

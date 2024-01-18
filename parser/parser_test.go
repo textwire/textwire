@@ -787,7 +787,7 @@ func TestParseReserveStatement(t *testing.T) {
 }
 
 func TestInsertStatement(t *testing.T) {
-	inp := `{{ insert "content" }}`
+	inp := `{{ insert "content" }}<h1>Some content</h1>{{ end }}`
 
 	stmts := parseStatements(t, inp, 1)
 
@@ -799,5 +799,9 @@ func TestInsertStatement(t *testing.T) {
 
 	if stmt.Name.Value != "content" {
 		t.Errorf("stmt.Name.Value is not 'content', got %s", stmt.Name.Value)
+	}
+
+	if stmt.Block.String() != "<h1>Some content</h1>" {
+		t.Errorf("stmt.Block.String() is not '<h1>Some content</h1>', got %s", stmt.Block.String())
 	}
 }
