@@ -32,6 +32,10 @@ func Eval(node ast.Node, env *object.Env) object.Object {
 		return evalDeclStatement(node, env)
 	case *ast.LayoutStatement:
 		return evalLayoutStatement(node, env)
+	case *ast.InsertStatement:
+		return evalInsertStatement(node, env)
+	case *ast.ReserveStatement:
+		return evalReserveStatement(node, env)
 
 	// Expressions
 	case *ast.Identifier:
@@ -145,6 +149,14 @@ func evalLayoutStatement(node *ast.LayoutStatement, env *object.Env) object.Obje
 		Path:    name,
 		Content: Eval(node.Program, env),
 	}
+}
+
+func evalInsertStatement(node *ast.InsertStatement, env *object.Env) object.Object {
+	return NIL
+}
+
+func evalReserveStatement(node *ast.ReserveStatement, env *object.Env) object.Object {
+	return NIL
 }
 
 func evalIdentifier(node *ast.Identifier, env *object.Env) object.Object {
