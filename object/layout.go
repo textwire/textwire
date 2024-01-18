@@ -1,7 +1,7 @@
 package object
 
 type Layout struct {
-	Path    *String
+	Path    string
 	Content Object
 }
 

@@ -40,7 +40,8 @@ func ParseTemplate(filePath string) (*Template, error) {
 		return nil, err
 	}
 
-	layout, isLayout := program.Statements[0].(*ast.LayoutStatement)
+	// get last statement
+	layout, isLayout := program.Statements[len(program.Statements)-1].(*ast.LayoutStatement)
 
 	if isLayout {
 		layoutProgram, err := parseProgram(layout.Path.Value)
@@ -49,7 +50,7 @@ func ParseTemplate(filePath string) (*Template, error) {
 			return nil, err
 		}
 
-		program.Statements[0].(*ast.LayoutStatement).Program = layoutProgram
+		program.Statements[len(program.Statements)-1].(*ast.LayoutStatement).Program = layoutProgram
 	}
 
 	return &Template{program: program}, nil

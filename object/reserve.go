@@ -1,7 +1,7 @@
 package object
 
 type Reserve struct {
-	Name *String
+	Name string
 }
 
 func (r *Reserve) Type() ObjectType {

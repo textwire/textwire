@@ -2,6 +2,7 @@ package evaluator
 
 import (
 	"bytes"
+	"fmt"
 	"html"
 
 	"github.com/textwire/textwire/ast"
@@ -12,6 +13,8 @@ var (
 	NIL   = &object.Nil{}
 	TRUE  = &object.Boolean{Value: true}
 	FALSE = &object.Boolean{Value: false}
+
+	insertStatements = make(map[string]*object.Insert)
 )
 
 func Eval(node ast.Node, env *object.Env) object.Object {
@@ -133,30 +136,33 @@ func evalLayoutStatement(node *ast.LayoutStatement, env *object.Env) object.Obje
 		return newError("The layout statement must have a program attached")
 	}
 
-	nameObj := Eval(node.Path, env)
-
-	if isError(nameObj) {
-		return nameObj
-	}
-
-	name, ok := nameObj.(*object.String)
-
-	if !ok {
-		return newError("The layout name must be a string")
-	}
-
 	return &object.Layout{
-		Path:    name,
+		Path:    node.Path.Value,
 		Content: Eval(node.Program, env),
 	}
 }
 
 func evalInsertStatement(node *ast.InsertStatement, env *object.Env) object.Object {
+	insertStmt := &object.Insert{
+		Name:    node.Name.Value,
+		Content: Eval(node.Block, env),
+	}
+
+	fmt.Printf("-------> %#v\n", "INSERT")
+	insertStatements[node.Name.Value] = insertStmt
+
 	return NIL
 }
 
 func evalReserveStatement(node *ast.ReserveStatement, env *object.Env) object.Object {
-	return NIL
+	stmt, hasInsert := insertStatements[node.Name.Value]
+
+	fmt.Printf("-------> %#v\n", "RECEIVE")
+	if !hasInsert {
+		return newError("The insert statement named '%s' is not defined", node.Name.Value)
+	}
+
+	return &object.Html{Value: stmt.Content.String()}
 }
 
 func evalIdentifier(node *ast.Identifier, env *object.Env) object.Object {
