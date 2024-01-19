@@ -9,13 +9,20 @@ import (
 	"github.com/textwire/textwire/parser"
 )
 
-var config *Config
+var config = &Config{
+	TemplateDir: "templates",
+	TemplateExt: ".textwire.html",
+}
 
 // Config is the main configuration for Textwire
 type Config struct {
 	// TemplateDir is the directory where the Textwire
 	// templates are located
 	TemplateDir string
+
+	// TemplateExt is the extension of the Textwire
+	// template files
+	TemplateExt string
 }
 
 // ParseStr parses a Textwire string and returns the result as a string
@@ -59,8 +66,13 @@ func ParseTemplate(filePath string) (*Template, error) {
 }
 
 func NewConfig(c *Config) {
-	c.TemplateDir = strings.Trim(c.TemplateDir, "/")
-	config = c
+	if c.TemplateDir != "" {
+		config.TemplateDir = strings.Trim(c.TemplateDir, "/")
+	}
+
+	if c.TemplateExt != "" {
+		config.TemplateExt = c.TemplateExt
+	}
 }
 
 func parseProgram(filePath string, inserts map[string]*ast.InsertStatement) (*ast.Program, error) {

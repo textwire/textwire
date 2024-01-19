@@ -6,7 +6,7 @@ import (
 )
 
 func getFullPath(fileName string) (string, error) {
-	path := fmt.Sprintf("%s/%s.textwire.html", config.TemplateDir, fileName)
+	path := fmt.Sprintf("%s/%s%s", config.TemplateDir, fileName, config.TemplateExt)
 	absPath, err := filepath.Abs(path)
 
 	if err != nil {
