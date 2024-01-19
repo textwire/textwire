@@ -22,7 +22,7 @@ func main() {
 }
 
 func homeHandler() http.HandlerFunc {
-	template, err := textwire.ParseTemplate("home")
+	tpl, err := textwire.ParseTemplate("home")
 
 	if err != nil {
 		fmt.Println(err)
@@ -39,7 +39,7 @@ func homeHandler() http.HandlerFunc {
 			"age":   23,
 		}
 
-		err := template.EvaluateResponse(w, vars)
+		err := tpl.EvaluateResponse(w, vars)
 
 		if err != nil {
 			fmt.Println(err)
@@ -48,7 +48,7 @@ func homeHandler() http.HandlerFunc {
 }
 
 func aboutHandler() http.HandlerFunc {
-	template, err := textwire.ParseTemplate("about")
+	tpl, err := textwire.ParseTemplate("about")
 
 	if err != nil {
 		fmt.Println(err)
@@ -65,7 +65,7 @@ func aboutHandler() http.HandlerFunc {
 			"age":   23,
 		}
 
-		err := template.EvaluateResponse(w, vars)
+		err := tpl.EvaluateResponse(w, vars)
 
 		if err != nil {
 			fmt.Println(err)
