@@ -123,7 +123,7 @@ func TestEvalStringExpression(t *testing.T) {
 	}
 }
 
-func TestTernaryExpression(t *testing.T) {
+func TestEvalTernaryExpression(t *testing.T) {
 	tests := []struct {
 		input    string
 		expected string
@@ -145,7 +145,7 @@ func TestTernaryExpression(t *testing.T) {
 	}
 }
 
-func TestIfStatement(t *testing.T) {
+func TestEvalIfStatement(t *testing.T) {
 	tests := []struct {
 		input  string
 		expect string
@@ -194,7 +194,7 @@ func TestIfStatement(t *testing.T) {
 	}
 }
 
-func TestVariableDeclaration(t *testing.T) {
+func TestEvalVariableDeclaration(t *testing.T) {
 	tests := []struct {
 		input    string
 		expected string
