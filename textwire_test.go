@@ -1,26 +1,23 @@
 package textwire
 
 import (
+	"io"
+	"os"
 	"testing"
 )
 
 func TestEvalLayoutStatement(t *testing.T) {
-	tests := []struct {
-		inputFile string
-		expected  string
-	}{
-		{
-			"with-layout-stmt",
-			"<div>This is a layout</div>",
-		},
+	tests := []string{
+		"1.no-stmts",
+		"2.with-inserts",
 	}
 
 	NewConfig(&Config{
-		TemplateDir: "testdata",
+		TemplateDir: "testdata/before",
 	})
 
-	for _, tt := range tests {
-		tpl, err := ParseTemplate(tt.inputFile)
+	for _, fileName := range tests {
+		tpl, err := ParseTemplate(fileName)
 
 		if err != nil {
 			t.Errorf("error parsing template: %s", err)
@@ -34,8 +31,33 @@ func TestEvalLayoutStatement(t *testing.T) {
 			t.Errorf("error evaluating template: %s", err)
 		}
 
-		if actual != tt.expected {
-			t.Errorf("wrong result. expected=%q, got=%q", tt.expected, actual)
+		expected, err := readFile("testdata/expected/" + fileName + ".html")
+
+		if err != nil {
+			t.Errorf("error reading expected file: %s", err)
+			return
+		}
+
+		if actual != expected {
+			t.Errorf("wrong result. EXPECTED:\n%q\n-------GOT:--------\n%q", expected, actual)
 		}
 	}
+}
+
+func readFile(fileName string) (string, error) {
+	file, err := os.Open(fileName)
+
+	if err != nil {
+		return "", err
+	}
+
+	defer file.Close()
+
+	bytes, err := io.ReadAll(file)
+
+	if err != nil {
+		return "", err
+	}
+
+	return string(bytes), nil
 }
