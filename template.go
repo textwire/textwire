@@ -14,17 +14,27 @@ type Template struct {
 	program *ast.Program
 }
 
-func (t *Template) EvaluateResponse(w http.ResponseWriter, vars map[string]interface{}) error {
+func (t *Template) Evaluate(vars map[string]interface{}) (object.Object, error) {
 	env, err := object.EnvFromMap(vars)
 
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	evaluated := evaluator.Eval(t.program, env)
 
 	if evaluated.Type() == object.ERROR_OBJ {
-		return errors.New(evaluated.String())
+		return nil, errors.New(evaluated.String())
+	}
+
+	return evaluated, nil
+}
+
+func (t *Template) EvaluateResponse(w http.ResponseWriter, vars map[string]interface{}) error {
+	evaluated, err := t.Evaluate(vars)
+
+	if err != nil {
+		return err
 	}
 
 	fmt.Fprint(w, evaluated.String())
