@@ -39,7 +39,7 @@ func TestEvalLayoutStatement(t *testing.T) {
 		}
 
 		if actual != expected {
-			t.Errorf("wrong result. EXPECTED:\n%q\n-------GOT:--------\n%q", expected, actual)
+			t.Errorf("wrong result. EXPECTED:\n\"%s\"\n-------GOT:--------\n\"%s\"", expected, actual)
 		}
 	}
 }
