@@ -60,6 +60,9 @@ func ParseTemplate(filePath string) (*Template, error) {
 		return nil, err
 	}
 
+	// Remove all the statements except the first one, which is the layout statement
+	// When we use layout, we do not print the file itself
+	prog.Statements = []ast.Statement{prog.Statements[0]}
 	prog.Statements[0].(*ast.LayoutStatement).Program = layoutProg
 
 	return &Template{program: prog}, nil
