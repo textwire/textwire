@@ -7,23 +7,26 @@ import (
 )
 
 func TestEvalLayoutStatement(t *testing.T) {
-	tests := []string{
-		"1.no-stmts",
-		"2.with-inserts",
+	tests := []struct {
+		fileName string
+		vars     map[string]interface{}
+	}{
+		{"1.no-stmts", nil},
+		{"2.with-inserts", nil},
 	}
 
 	NewConfig(&Config{
 		TemplateDir: "testdata/before",
 	})
 
-	for _, fileName := range tests {
-		tpl, err := ParseTemplate(fileName)
+	for _, tt := range tests {
+		tpl, err := ParseTemplate(tt.fileName)
 
 		if err != nil {
 			t.Errorf("error parsing template: %s", err)
 		}
 
-		evaluated, err := tpl.Evaluate(nil)
+		evaluated, err := tpl.Evaluate(tt.vars)
 
 		actual := evaluated.String()
 
@@ -31,7 +34,7 @@ func TestEvalLayoutStatement(t *testing.T) {
 			t.Errorf("error evaluating template: %s", err)
 		}
 
-		expected, err := readFile("testdata/expected/" + fileName + ".html")
+		expected, err := readFile("testdata/expected/" + tt.fileName + ".html")
 
 		if err != nil {
 			t.Errorf("error reading expected file: %s", err)
