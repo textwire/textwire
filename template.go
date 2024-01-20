@@ -11,7 +11,7 @@ import (
 )
 
 type Template struct {
-	program *ast.Program
+	prog *ast.Program
 }
 
 func (t *Template) Evaluate(vars map[string]interface{}) (object.Object, error) {
@@ -21,7 +21,7 @@ func (t *Template) Evaluate(vars map[string]interface{}) (object.Object, error) 
 		return nil, err
 	}
 
-	evaluated := evaluator.Eval(t.program, env)
+	evaluated := evaluator.Eval(t.prog, env)
 
 	if evaluated.Type() == object.ERROR_OBJ {
 		return nil, errors.New(evaluated.String())

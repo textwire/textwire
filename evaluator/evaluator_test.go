@@ -12,10 +12,10 @@ import (
 func testEval(input string) object.Object {
 	l := lexer.New(input)
 	p := parser.New(l, nil)
-	program := p.ParseProgram()
+	prog := p.ParseProgram()
 	env := object.NewEnv()
 
-	return Eval(program, env)
+	return Eval(prog, env)
 }
 
 func evaluationExpected(t *testing.T, input, expect string) {
