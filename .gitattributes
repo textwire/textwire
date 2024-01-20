@@ -1,2 +1,3 @@
 Makefile linguist-vendored
 example/ linguist-vendored
+testfiles/ linguist-vendored
