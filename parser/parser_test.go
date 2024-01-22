@@ -843,3 +843,37 @@ func TestInsertStatement(t *testing.T) {
 		}
 	})
 }
+
+func TestParseArray(t *testing.T) {
+	inp := `{{ [11, 234] }}`
+
+	stmts := parseStatements(t, inp, 1, nil)
+
+	stmt, ok := stmts[0].(*ast.ExpressionStatement)
+
+	if !ok {
+		t.Fatalf("stmts[0] is not a ExpressionStatement, got %T", stmts[0])
+	}
+
+	arr, ok := stmt.Expression.(*ast.ArrayLiteral)
+
+	if !ok {
+		t.Fatalf("stmt.Expression is not a ArrayLiteral, got %T", stmt.Expression)
+	}
+
+	if len(arr.Elements) != 2 {
+		t.Fatalf("len(arr.Elements) is not 2, got %d", len(arr.Elements))
+	}
+
+	if !testIntegerLiteral(t, arr.Elements[0], 11) {
+		return
+	}
+
+	if !testIntegerLiteral(t, arr.Elements[1], 234) {
+		return
+	}
+
+	if arr.String() != "[11, 234]" {
+		t.Errorf("arr.String() is not '[11, 234]', got %s", arr.String())
+	}
+}

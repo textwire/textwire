@@ -85,6 +85,7 @@ func New(lexer *lexer.Lexer, inserts map[string]*ast.InsertStatement) *Parser {
 	p.registerPrefix(token.SUB, p.parsePrefixExpression)
 	p.registerPrefix(token.NOT, p.parsePrefixExpression)
 	p.registerPrefix(token.LPAREN, p.parseGroupedExpression)
+	p.registerPrefix(token.LBRAKET, p.parseArrayLiteral)
 
 	// Infix operators
 	p.infixParseFns = make(map[token.TokenType]infixParseFn)
@@ -269,6 +270,12 @@ func (p *Parser) parseBooleanLiteral() ast.Expression {
 		Token: p.curToken,
 		Value: p.curTokenIs(token.TRUE),
 	}
+}
+
+func (p *Parser) parseArrayLiteral() ast.Expression {
+	arr := &ast.ArrayLiteral{Token: p.curToken}
+	arr.Elements = p.parseExpressionList(token.RBRAKET)
+	return arr
 }
 
 func (p *Parser) parseHTMLStatement() *ast.HTMLStatement {
@@ -556,4 +563,29 @@ func (p *Parser) parseGroupedExpression() ast.Expression {
 	}
 
 	return exp
+}
+
+func (p *Parser) parseExpressionList(endTok token.TokenType) []ast.Expression {
+	var result []ast.Expression
+
+	if p.peekTokenIs(endTok) {
+		p.nextToken() // skip endTok token
+		return result
+	}
+
+	p.nextToken() // skip ","
+
+	result = append(result, p.parseExpression(LOWEST))
+
+	for p.peekTokenIs(token.COMMA) {
+		p.nextToken() // skip ","
+		p.nextToken() // skip expression
+		result = append(result, p.parseExpression(LOWEST))
+	}
+
+	if !p.expectPeek(endTok) { // move to endTok
+		return nil
+	}
+
+	return result
 }
