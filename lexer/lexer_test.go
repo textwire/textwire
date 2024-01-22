@@ -220,17 +220,20 @@ func TestSeparator(t *testing.T) {
 }
 
 func TestArray(t *testing.T) {
-	inp := `{{ ["one", "two", "three"] }}`
+	inp := `{{ ["one", "two", "three"][1] }}`
 
 	TokenizeString(t, inp, []token.Token{
 		{Type: token.LBRACES, Literal: "{{"},
-		{Type: token.LBRAKET, Literal: "["},
+		{Type: token.LBRACKET, Literal: "["},
 		{Type: token.STR, Literal: "one"},
 		{Type: token.COMMA, Literal: ","},
 		{Type: token.STR, Literal: "two"},
 		{Type: token.COMMA, Literal: ","},
 		{Type: token.STR, Literal: "three"},
-		{Type: token.RBRAKET, Literal: "]"},
+		{Type: token.RBRACKET, Literal: "]"},
+		{Type: token.LBRACKET, Literal: "["},
+		{Type: token.INT, Literal: "1"},
+		{Type: token.RBRACKET, Literal: "]"},
 		{Type: token.RBRACES, Literal: "}}"},
 		{Type: token.EOF, Literal: ""},
 	})

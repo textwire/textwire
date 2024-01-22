@@ -81,9 +81,9 @@ func (l *Lexer) readEmbeddedCodeToken() token.Token {
 	case ')':
 		return l.newTokenAndAdvance(token.RPAREN, ")")
 	case '[':
-		return l.newTokenAndAdvance(token.LBRAKET, "[")
+		return l.newTokenAndAdvance(token.LBRACKET, "[")
 	case ']':
-		return l.newTokenAndAdvance(token.RBRAKET, "]")
+		return l.newTokenAndAdvance(token.RBRACKET, "]")
 	case '"', '`':
 		str := l.readString()
 		return l.newTokenAndAdvance(token.STR, str)

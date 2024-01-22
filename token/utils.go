@@ -27,11 +27,13 @@ var tokens = [...]string{
 	LTHAN_EQ: "<=",
 	GTHAN_EQ: ">=",
 
-	LBRACES: "{{",
-	RBRACES: "}}",
-	LPAREN:  "(",
-	RPAREN:  ")",
-	PERIOD:  ".",
+	LBRACES:  "{{",
+	RBRACES:  "}}",
+	LPAREN:   "(",
+	RPAREN:   ")",
+	LBRACKET: "[",
+	RBRACKET: "]",
+	PERIOD:   ".",
 
 	QUESTION: "?",
 	COLON:    ":",

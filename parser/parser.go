@@ -85,11 +85,12 @@ func New(lexer *lexer.Lexer, inserts map[string]*ast.InsertStatement) *Parser {
 	p.registerPrefix(token.SUB, p.parsePrefixExpression)
 	p.registerPrefix(token.NOT, p.parsePrefixExpression)
 	p.registerPrefix(token.LPAREN, p.parseGroupedExpression)
-	p.registerPrefix(token.LBRAKET, p.parseArrayLiteral)
+	p.registerPrefix(token.LBRACKET, p.parseArrayLiteral)
 
 	// Infix operators
 	p.infixParseFns = make(map[token.TokenType]infixParseFn)
 	p.registerInfix(token.QUESTION, p.parseTernaryExpression)
+	p.registerInfix(token.LBRACKET, p.parseTernaryExpression)
 	p.registerInfix(token.ADD, p.parseInfixExpression)
 	p.registerInfix(token.SUB, p.parseInfixExpression)
 	p.registerInfix(token.MUL, p.parseInfixExpression)
@@ -274,7 +275,7 @@ func (p *Parser) parseBooleanLiteral() ast.Expression {
 
 func (p *Parser) parseArrayLiteral() ast.Expression {
 	arr := &ast.ArrayLiteral{Token: p.curToken}
-	arr.Elements = p.parseExpressionList(token.RBRAKET)
+	arr.Elements = p.parseExpressionList(token.RBRACKET)
 	return arr
 }
 
