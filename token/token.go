@@ -38,6 +38,8 @@ const (
 	RBRACES  // }}
 	LPAREN   // (
 	RPAREN   // )
+	LBRAKET  // [
+	RBRAKET  // ]
 	QUESTION // ?
 	COLON    // :
 	COMMA    // ,

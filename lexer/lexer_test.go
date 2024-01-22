@@ -224,7 +224,13 @@ func TestArray(t *testing.T) {
 
 	TokenizeString(t, inp, []token.Token{
 		{Type: token.LBRACES, Literal: "{{"},
+		{Type: token.LBRAKET, Literal: "["},
+		{Type: token.STR, Literal: "one"},
 		{Type: token.COMMA, Literal: ","},
+		{Type: token.STR, Literal: "two"},
+		{Type: token.COMMA, Literal: ","},
+		{Type: token.STR, Literal: "three"},
+		{Type: token.RBRAKET, Literal: "]"},
 		{Type: token.RBRACES, Literal: "}}"},
 		{Type: token.EOF, Literal: ""},
 	})

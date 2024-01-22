@@ -70,13 +70,6 @@ func (l *Lexer) readEmbeddedCodeToken() token.Token {
 		return l.newTokenAndAdvance(token.NOT, "!")
 	case '?':
 		return l.newTokenAndAdvance(token.QUESTION, "?")
-	case ':':
-		if l.peekChar() == '=' {
-			l.advanceChar() // skip "="
-			return l.newTokenAndAdvance(token.DEFINE, ":=")
-		}
-
-		return l.newTokenAndAdvance(token.COLON, ":")
 	case '/':
 		return l.newTokenAndAdvance(token.DIV, "/")
 	case '%':
@@ -87,6 +80,13 @@ func (l *Lexer) readEmbeddedCodeToken() token.Token {
 		return l.newTokenAndAdvance(token.LPAREN, "(")
 	case ')':
 		return l.newTokenAndAdvance(token.RPAREN, ")")
+	case '[':
+		return l.newTokenAndAdvance(token.LBRAKET, "[")
+	case ']':
+		return l.newTokenAndAdvance(token.RBRAKET, "]")
+	case '"', '`':
+		str := l.readString()
+		return l.newTokenAndAdvance(token.STR, str)
 	case '=':
 		if l.peekChar() == '=' {
 			l.advanceChar() // skip "="
@@ -94,9 +94,13 @@ func (l *Lexer) readEmbeddedCodeToken() token.Token {
 		}
 
 		return l.newTokenAndAdvance(token.ASSIGN, "=")
-	case '"', '`':
-		str := l.readString()
-		return l.newTokenAndAdvance(token.STR, str)
+	case ':':
+		if l.peekChar() == '=' {
+			l.advanceChar() // skip "="
+			return l.newTokenAndAdvance(token.DEFINE, ":=")
+		}
+
+		return l.newTokenAndAdvance(token.COLON, ":")
 	}
 
 	if isIdent(l.char) {
