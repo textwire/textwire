@@ -208,8 +208,19 @@ func TestVariableDeclaration(t *testing.T) {
 	})
 }
 
-func TestSeparators(t *testing.T) {
+func TestSeparator(t *testing.T) {
 	inp := "{{ , }}"
+
+	TokenizeString(t, inp, []token.Token{
+		{Type: token.LBRACES, Literal: "{{"},
+		{Type: token.COMMA, Literal: ","},
+		{Type: token.RBRACES, Literal: "}}"},
+		{Type: token.EOF, Literal: ""},
+	})
+}
+
+func TestArray(t *testing.T) {
+	inp := `{{ ["one", "two", "three"] }}`
 
 	TokenizeString(t, inp, []token.Token{
 		{Type: token.LBRACES, Literal: "{{"},

@@ -24,7 +24,7 @@ func EnvFromMap(m map[string]interface{}) (*Env, error) {
 	env := NewEnv()
 
 	for key, val := range m {
-		obj := goValueToObj(val)
+		obj := nativeToObject(val)
 
 		if obj == nil {
 			return nil, errors.New("Unsupported type for Textwire language")
@@ -34,41 +34,6 @@ func EnvFromMap(m map[string]interface{}) (*Env, error) {
 	}
 
 	return env, nil
-}
-
-func goValueToObj(val interface{}) Object {
-	switch v := val.(type) {
-	case string:
-		return &String{Value: v}
-	case bool:
-		return &Boolean{Value: v}
-	case float32:
-		return &Float{Value: float64(v)}
-	case float64:
-		return &Float{Value: v}
-	case int64:
-		return &Int{Value: v}
-	case int:
-		return &Int{Value: int64(v)}
-	case int8:
-		return &Int{Value: int64(v)}
-	case int16:
-		return &Int{Value: int64(v)}
-	case int32:
-		return &Int{Value: int64(v)}
-	case uint:
-		return &Int{Value: int64(v)}
-	case uint8:
-		return &Int{Value: int64(v)}
-	case uint16:
-		return &Int{Value: int64(v)}
-	case uint32:
-		return &Int{Value: int64(v)}
-	case uint64:
-		return &Int{Value: int64(v)}
-	default:
-		return nil
-	}
 }
 
 func (e *Env) Get(name string) (Object, bool) {

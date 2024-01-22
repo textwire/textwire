@@ -36,6 +36,8 @@ func homeHandler() http.HandlerFunc {
 
 		vars := map[string]interface{}{
 			"title": "Home page",
+			"names": []string{"John", "Jane", "Jack", "Jill"},
+			"ages":  []int{20, 30, 40, 50},
 		}
 
 		err := tpl.EvaluateResponse(w, vars)
