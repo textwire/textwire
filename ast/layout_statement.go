@@ -20,5 +20,5 @@ func (ls *LayoutStatement) TokenLiteral() string {
 }
 
 func (ls *LayoutStatement) String() string {
-	return fmt.Sprintf(`{{ layout "%s" }}`, ls.Path.String())
+	return fmt.Sprintf(`{{ layout %s }}`, ls.Path.String())
 }

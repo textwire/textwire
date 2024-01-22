@@ -769,6 +769,10 @@ func TestParseLayoutStatement(t *testing.T) {
 	if stmt.Program != nil {
 		t.Errorf("stmt.Program is not nil, got %T", stmt.Program)
 	}
+
+	if stmt.String() != inp {
+		t.Errorf("stmt.String() is not %s, got %s", inp, stmt.String())
+	}
 }
 
 func TestParseReserveStatement(t *testing.T) {
@@ -795,6 +799,10 @@ func TestParseReserveStatement(t *testing.T) {
 
 	if stmt.Name.Value != "content" {
 		t.Errorf("stmt.Name.Value is not 'content', got %s", stmt.Name.Value)
+	}
+
+	if stmt.String() == inp {
+		t.Errorf("stmt.String() is not %s, got %s", inp, stmt.String())
 	}
 }
 
