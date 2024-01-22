@@ -48,6 +48,8 @@ func Eval(node ast.Node, env *object.Env) object.Object {
 		return &object.Str{Value: html.EscapeString(node.Value)}
 	case *ast.BooleanLiteral:
 		return nativeBoolToBooleanObject(node.Value)
+	case *ast.ArrayLiteral:
+		return evalArrayLiteral(node, env)
 	case *ast.PrefixExpression:
 		return evalPrefixExpression(node, env)
 	case *ast.TernaryExpression:
@@ -199,6 +201,32 @@ func evalTernaryExpression(node *ast.TernaryExpression, env *object.Env) object.
 	}
 
 	return Eval(node.Alternative, env)
+}
+
+func evalArrayLiteral(node *ast.ArrayLiteral, env *object.Env) object.Object {
+	elems := evalExpressions(node.Elements, env)
+
+	if len(elems) == 1 && isError(elems[0]) {
+		return elems[0]
+	}
+
+	return &object.Array{Elements: elems}
+}
+
+func evalExpressions(exps []ast.Expression, env *object.Env) []object.Object {
+	var result []object.Object
+
+	for _, e := range exps {
+		evaluated := Eval(e, env)
+
+		if isError(evaluated) {
+			return []object.Object{evaluated}
+		}
+
+		result = append(result, evaluated)
+	}
+
+	return result
 }
 
 func evalInfixExpression(operator string, left, right ast.Expression, env *object.Env) object.Object {

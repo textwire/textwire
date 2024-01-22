@@ -27,7 +27,10 @@ func (al *ArrayLiteral) String() string {
 		result.WriteString(el.String() + ", ")
 	}
 
-	result.Truncate(result.Len() - 2)
+	if result.Len() > 1 {
+		result.Truncate(result.Len() - 2)
+	}
+
 	result.WriteString("]")
 
 	return result.String()

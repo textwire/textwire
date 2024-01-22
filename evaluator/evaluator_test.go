@@ -215,3 +215,21 @@ func TestEvalVariableDeclaration(t *testing.T) {
 		evaluationExpected(t, tt.input, tt.expected)
 	}
 }
+
+func TestEvalArray(t *testing.T) {
+	tests := []struct {
+		inp      string
+		expected string
+	}{
+		{`{{ [] }}`, ""},
+		{`{{ [[[[[]]]]] }}`, ""},
+		{`{{ [1, 2, 3] }}`, "1, 2, 3"},
+		{`{{ ["Anna", "Serhii" ] }}`, "Anna, Serhii"},
+		{`{{ [true, false] }}`, "1, 0"},
+		{`{{ [[1, [2]], 3] }}`, "1, 2, 3"},
+	}
+
+	for _, tt := range tests {
+		evaluationExpected(t, tt.inp, tt.expected)
+	}
+}

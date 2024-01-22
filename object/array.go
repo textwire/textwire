@@ -17,7 +17,9 @@ func (a *Array) String() string {
 		result.WriteString(elem.String() + ", ")
 	}
 
-	result.Truncate(result.Len() - 2)
+	if result.Len() > 1 {
+		result.Truncate(result.Len() - 2)
+	}
 
 	return result.String()
 }
