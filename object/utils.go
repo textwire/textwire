@@ -3,9 +3,9 @@ package object
 func nativeToObject(val interface{}) Object {
 	switch v := val.(type) {
 	case string:
-		return &String{Value: v}
+		return &Str{Value: v}
 	case bool:
-		return &Boolean{Value: v}
+		return &Bool{Value: v}
 	case float32:
 		return &Float{Value: float64(v)}
 	case float64:
@@ -30,14 +30,16 @@ func nativeToObject(val interface{}) Object {
 		return &Int{Value: int64(v)}
 	case uint64:
 		return &Int{Value: int64(v)}
+	case nil:
+		return &Nil{}
 	case []string, []int64, []int, []int8, []int16, []int32, []uint, []uint8, []uint16, []uint32, []uint64, []float32, []float64, []bool:
-		return convertSlice(v)
+		return nativeSliceToArrayObject(v)
 	}
 
 	return nil
 }
 
-func convertSlice(slice interface{}) *Array {
+func nativeSliceToArrayObject(slice interface{}) *Array {
 	arr := &Array{}
 
 	switch v := slice.(type) {
