@@ -217,7 +217,6 @@ func TestEvalVariableDeclaration(t *testing.T) {
 		input    string
 		expected string
 	}{
-		// With "var" keyword
 		{`{{ var age = 18 }}`, ""},
 		{`{{ age := 18 }}`, ""},
 		{`{{ var age = 18 }}{{ age }}`, "18"},
