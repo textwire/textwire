@@ -35,8 +35,7 @@ func homeHandler() http.HandlerFunc {
 		}
 
 		vars := map[string]interface{}{
-			"title": "Hello, World!",
-			"age":   23,
+			"title": "Home page",
 		}
 
 		err := tpl.EvaluateResponse(w, vars)
@@ -61,8 +60,7 @@ func aboutHandler() http.HandlerFunc {
 		}
 
 		vars := map[string]interface{}{
-			"title": "Hello, World!",
-			"age":   23,
+			"title": "About page",
 		}
 
 		err := tpl.EvaluateResponse(w, vars)
