@@ -41,6 +41,30 @@ func parseStatements(t *testing.T, inp string, stmtCount int, inserts map[string
 	return prog.Statements
 }
 
+func testInfixExpression(t *testing.T, exp ast.Expression, left interface{}, operator string, right interface{}) bool {
+	infix, ok := exp.(*ast.InfixExpression)
+
+	if !ok {
+		t.Errorf("exp is not an InfixExpression, got %T", exp)
+		return false
+	}
+
+	if !testLiteralExpression(t, infix.Left, left) {
+		return false
+	}
+
+	if infix.Operator != operator {
+		t.Errorf("infix.Operator is not %s, got %s", operator, infix.Operator)
+		return false
+	}
+
+	if !testLiteralExpression(t, infix.Right, right) {
+		return false
+	}
+
+	return true
+}
+
 func testIntegerLiteral(t *testing.T, exp ast.Expression, value int64) bool {
 	integer, ok := exp.(*ast.IntegerLiteral)
 
@@ -363,23 +387,7 @@ func TestInfixExpression(t *testing.T) {
 			t.Fatalf("stmts[0] is not an ExpressionStatement, got %T", stmts[0])
 		}
 
-		exp, ok := stmt.Expression.(*ast.InfixExpression)
-
-		if !ok {
-			t.Fatalf("stmt is not an InfixExpression, got %T", stmt.Expression)
-		}
-
-		if !testLiteralExpression(t, exp.Left, tt.left) {
-			return
-		}
-
-		if exp.Operator != tt.operator {
-			t.Fatalf("exp.Operator is not %s, got %s", tt.operator, exp.Operator)
-		}
-
-		if !testLiteralExpression(t, exp.Right, tt.right) {
-			return
-		}
+		testInfixExpression(t, stmt.Expression, tt.left, tt.operator, tt.right)
 	}
 }
 
