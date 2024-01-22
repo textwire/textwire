@@ -243,7 +243,7 @@ func TestParseNilLiteral(t *testing.T) {
 
 func TestParseStringLiteral(t *testing.T) {
 	tests := []struct {
-		input  string
+		inp    string
 		expect string
 	}{
 		{`{{ "Hello World" }}`, "Hello World"},
@@ -251,7 +251,7 @@ func TestParseStringLiteral(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		stmts := parseStatements(t, tt.input, 1, nil)
+		stmts := parseStatements(t, tt.inp, 1, nil)
 
 		stmt, ok := stmts[0].(*ast.ExpressionStatement)
 
@@ -341,7 +341,7 @@ func TestGroupedExpression(t *testing.T) {
 
 func TestInfixExpression(t *testing.T) {
 	tests := []struct {
-		input    string
+		inp      string
 		left     interface{}
 		operator string
 		right    interface{}
@@ -355,7 +355,7 @@ func TestInfixExpression(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		stmts := parseStatements(t, tt.input, 1, nil)
+		stmts := parseStatements(t, tt.inp, 1, nil)
 
 		stmt, ok := stmts[0].(*ast.ExpressionStatement)
 
@@ -385,7 +385,7 @@ func TestInfixExpression(t *testing.T) {
 
 func TestBooleanExpression(t *testing.T) {
 	tests := []struct {
-		input         string
+		inp           string
 		expectBoolean bool
 	}{
 		{"{{ true }}", true},
@@ -393,7 +393,7 @@ func TestBooleanExpression(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		stmts := parseStatements(t, tt.input, 1, nil)
+		stmts := parseStatements(t, tt.inp, 1, nil)
 
 		stmt, ok := stmts[0].(*ast.ExpressionStatement)
 
@@ -409,7 +409,7 @@ func TestBooleanExpression(t *testing.T) {
 
 func TestPrefixExpression(t *testing.T) {
 	tests := []struct {
-		input    string
+		inp      string
 		operator string
 		value    interface{}
 	}{
@@ -425,7 +425,7 @@ func TestPrefixExpression(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		stmts := parseStatements(t, tt.input, 1, nil)
+		stmts := parseStatements(t, tt.inp, 1, nil)
 
 		stmt, ok := stmts[0].(*ast.ExpressionStatement)
 
@@ -451,7 +451,7 @@ func TestPrefixExpression(t *testing.T) {
 
 func TestOperatorPrecedenceParsing(t *testing.T) {
 	tests := []struct {
-		input    string
+		inp      string
 		expected string
 	}{
 		{
@@ -473,7 +473,7 @@ func TestOperatorPrecedenceParsing(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		l := lexer.New(tt.input)
+		l := lexer.New(tt.inp)
 		p := New(l, nil)
 
 		prog := p.ParseProgram()
@@ -490,7 +490,7 @@ func TestOperatorPrecedenceParsing(t *testing.T) {
 
 func TestErrorHandling(t *testing.T) {
 	tests := []struct {
-		input      string
+		inp        string
 		errMessage string
 	}{
 		{"{{ 5 + }}", ERR_EXPECTED_EXPRESSION},
@@ -502,13 +502,13 @@ func TestErrorHandling(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		l := lexer.New(tt.input)
+		l := lexer.New(tt.inp)
 		p := New(l, nil)
 
 		p.ParseProgram()
 
 		if len(p.Errors()) == 0 {
-			t.Errorf("no errors found in input %q", tt.input)
+			t.Errorf("no errors found in input %q", tt.inp)
 			return
 		}
 
@@ -718,7 +718,7 @@ func TestIfElseIfElseStatement(t *testing.T) {
 
 func TestDefineStatement(t *testing.T) {
 	tests := []struct {
-		input    string
+		inp      string
 		varName  string
 		varValue interface{}
 	}{
@@ -729,7 +729,7 @@ func TestDefineStatement(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		stmts := parseStatements(t, tt.input, 1, nil)
+		stmts := parseStatements(t, tt.inp, 1, nil)
 
 		stmt, ok := stmts[0].(*ast.DefineStatement)
 
@@ -745,8 +745,8 @@ func TestDefineStatement(t *testing.T) {
 			return
 		}
 
-		if stmt.String() != tt.input {
-			t.Errorf("stmt.String() is not %s, got %s", tt.input, stmt.String())
+		if stmt.String() != tt.inp {
+			t.Errorf("stmt.String() is not %s, got %s", tt.inp, stmt.String())
 		}
 	}
 }
