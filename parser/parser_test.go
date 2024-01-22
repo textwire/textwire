@@ -893,3 +893,33 @@ func TestParseArray(t *testing.T) {
 		t.Errorf("arr.String() is not '[11, 234]', got %s", arr.String())
 	}
 }
+
+func TestParseIndexExpression(t *testing.T) {
+	inp := `{{ arr[1 + 2] }}`
+
+	stmts := parseStatements(t, inp, 1, nil)
+
+	stmt, ok := stmts[0].(*ast.ExpressionStatement)
+
+	if !ok {
+		t.Fatalf("stmts[0] is not a ExpressionStatement, got %T", stmts[0])
+	}
+
+	indexExp, ok := stmt.Expression.(*ast.IndexExpression)
+
+	if !ok {
+		t.Fatalf("stmt.Expression is not a IndexExpression, got %T", stmt.Expression)
+	}
+
+	if !testIdentifier(t, indexExp.Left, "arr") {
+		return
+	}
+
+	if !testInfixExpression(t, indexExp.Index, 1, "+", 2) {
+		return
+	}
+
+	if indexExp.String() != "(arr[(1 + 2)])" {
+		t.Errorf("indexExp.String() is not '(arr[(1 + 2)])', got %s", indexExp.String())
+	}
+}

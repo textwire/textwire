@@ -49,6 +49,7 @@ var precedences = map[token.TokenType]int{
 	token.DIV:      PRODUCT,
 	token.MOD:      PRODUCT,
 	token.MUL:      PRODUCT,
+	token.LBRACKET: INDEX,
 }
 
 type Parser struct {
@@ -90,7 +91,7 @@ func New(lexer *lexer.Lexer, inserts map[string]*ast.InsertStatement) *Parser {
 	// Infix operators
 	p.infixParseFns = make(map[token.TokenType]infixParseFn)
 	p.registerInfix(token.QUESTION, p.parseTernaryExpression)
-	p.registerInfix(token.LBRACKET, p.parseTernaryExpression)
+	p.registerInfix(token.LBRACKET, p.parseIndexExpression)
 	p.registerInfix(token.ADD, p.parseInfixExpression)
 	p.registerInfix(token.SUB, p.parseInfixExpression)
 	p.registerInfix(token.MUL, p.parseInfixExpression)
@@ -377,6 +378,23 @@ func (p *Parser) parseInsertStatement() ast.Statement {
 	stmt.Block = p.parseBlockStatement()
 
 	return stmt
+}
+
+func (p *Parser) parseIndexExpression(left ast.Expression) ast.Expression {
+	exp := &ast.IndexExpression{
+		Token: p.curToken,
+		Left:  left,
+	}
+
+	p.nextToken() // skip "["
+
+	exp.Index = p.parseExpression(LOWEST)
+
+	if !p.expectPeek(token.RBRACKET) { // move to "]"
+		return nil
+	}
+
+	return exp
 }
 
 func (p *Parser) parseInfixExpression(left ast.Expression) ast.Expression {
