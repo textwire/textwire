@@ -9,8 +9,8 @@ import (
 	"github.com/textwire/textwire/parser"
 )
 
-func testEval(input string) object.Object {
-	l := lexer.New(input)
+func testEval(inp string) object.Object {
+	l := lexer.New(inp)
 	p := parser.New(l, nil)
 	prog := p.ParseProgram()
 	env := object.NewEnv()
@@ -18,8 +18,8 @@ func testEval(input string) object.Object {
 	return Eval(prog, env)
 }
 
-func evaluationExpected(t *testing.T, input, expect string) {
-	evaluated := testEval(input)
+func evaluationExpected(t *testing.T, inp, expect string) {
+	evaluated := testEval(inp)
 	errObj, ok := evaluated.(*object.Error)
 
 	if ok {
@@ -35,7 +35,7 @@ func evaluationExpected(t *testing.T, input, expect string) {
 
 func TestEvalIntegerExpression(t *testing.T) {
 	tests := []struct {
-		input    string
+		inp      string
 		expected string
 	}{
 		{"{{ 5 }}", "5"},
@@ -50,13 +50,13 @@ func TestEvalIntegerExpression(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		evaluationExpected(t, tt.input, tt.expected)
+		evaluationExpected(t, tt.inp, tt.expected)
 	}
 }
 
 func TestEvalFloatExpression(t *testing.T) {
 	tests := []struct {
-		input    string
+		inp      string
 		expected string
 	}{
 		{"{{ 5.11 }}", "5.11"},
@@ -66,13 +66,13 @@ func TestEvalFloatExpression(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		evaluationExpected(t, tt.input, tt.expected)
+		evaluationExpected(t, tt.inp, tt.expected)
 	}
 }
 
 func TestEvalBooleanExpression(t *testing.T) {
 	tests := []struct {
-		input    string
+		inp      string
 		expected string
 	}{
 		{"{{ true }}", "1"},
@@ -83,7 +83,7 @@ func TestEvalBooleanExpression(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		evaluated := testEval(tt.input)
+		evaluated := testEval(tt.inp)
 
 		errObj, ok := evaluated.(*object.Error)
 
@@ -107,7 +107,7 @@ func TestEvalNilExpression(t *testing.T) {
 
 func TestEvalStringExpression(t *testing.T) {
 	tests := []struct {
-		input    string
+		inp      string
 		expected string
 	}{
 		{`{{ "Hello World" }}`, "Hello World"},
@@ -119,13 +119,13 @@ func TestEvalStringExpression(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		evaluationExpected(t, tt.input, tt.expected)
+		evaluationExpected(t, tt.inp, tt.expected)
 	}
 }
 
 func TestEvalTernaryExpression(t *testing.T) {
 	tests := []struct {
-		input    string
+		inp      string
 		expected string
 	}{
 		{`{{ true ? "Yes" : "No" }}`, "Yes"},
@@ -141,13 +141,13 @@ func TestEvalTernaryExpression(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		evaluationExpected(t, tt.input, tt.expected)
+		evaluationExpected(t, tt.inp, tt.expected)
 	}
 }
 
 func TestEvalIfStatement(t *testing.T) {
 	tests := []struct {
-		input  string
+		inp    string
 		expect string
 	}{
 		{`{{ if true }}Hello{{ end }}`, "Hello"},
@@ -179,7 +179,7 @@ func TestEvalIfStatement(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		evaluated := testEval(tt.input)
+		evaluated := testEval(tt.inp)
 		errObj, ok := evaluated.(*object.Error)
 
 		if ok {
@@ -214,7 +214,7 @@ func TestEvalArray(t *testing.T) {
 
 func TestEvalVariableDeclaration(t *testing.T) {
 	tests := []struct {
-		input    string
+		inp      string
 		expected string
 	}{
 		{`{{ var age = 18 }}`, ""},
@@ -233,6 +233,6 @@ func TestEvalVariableDeclaration(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		evaluationExpected(t, tt.input, tt.expected)
+		evaluationExpected(t, tt.inp, tt.expected)
 	}
 }
