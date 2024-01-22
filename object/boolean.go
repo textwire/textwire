@@ -1,14 +1,14 @@
 package object
 
-type Boolean struct {
+type Bool struct {
 	Value bool
 }
 
-func (b *Boolean) Type() ObjectType {
+func (b *Bool) Type() ObjectType {
 	return BOOLEAN_OBJ
 }
 
-func (b *Boolean) String() string {
+func (b *Bool) String() string {
 	if b.Value {
 		return "1"
 	}

@@ -1,13 +1,13 @@
 package object
 
-type String struct {
+type Str struct {
 	Value string
 }
 
-func (s *String) Type() ObjectType {
+func (s *Str) Type() ObjectType {
 	return STRING_OBJ
 }
 
-func (s *String) String() string {
+func (s *Str) String() string {
 	return s.Value
 }

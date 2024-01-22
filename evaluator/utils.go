@@ -8,13 +8,13 @@ import (
 
 func isTruthy(obj object.Object) bool {
 	switch obj := obj.(type) {
-	case *object.Boolean:
+	case *object.Bool:
 		return obj.Value
 	case *object.Int:
 		return obj.Value != 0
 	case *object.Float:
 		return obj.Value != 0.0
-	case *object.String:
+	case *object.Str:
 		return obj.Value != ""
 	case *object.Nil:
 		return false

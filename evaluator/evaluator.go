@@ -10,8 +10,8 @@ import (
 
 var (
 	NIL   = &object.Nil{}
-	TRUE  = &object.Boolean{Value: true}
-	FALSE = &object.Boolean{Value: false}
+	TRUE  = &object.Bool{Value: true}
+	FALSE = &object.Bool{Value: false}
 )
 
 func Eval(node ast.Node, env *object.Env) object.Object {
@@ -45,7 +45,7 @@ func Eval(node ast.Node, env *object.Env) object.Object {
 	case *ast.FloatLiteral:
 		return &object.Float{Value: node.Value}
 	case *ast.StringLiteral:
-		return &object.String{Value: html.EscapeString(node.Value)}
+		return &object.Str{Value: html.EscapeString(node.Value)}
 	case *ast.BooleanLiteral:
 		return nativeBoolToBooleanObject(node.Value)
 	case *ast.PrefixExpression:
@@ -223,9 +223,9 @@ func evalInfixOperatorExpression(operator string, left, right object.Object) obj
 	}
 
 	if operator == "+" && left.Type() == object.STRING_OBJ {
-		leftVal := left.(*object.String).Value
-		rightVal := right.(*object.String).Value
-		return &object.String{Value: leftVal + rightVal}
+		leftVal := left.(*object.Str).Value
+		rightVal := right.(*object.Str).Value
+		return &object.Str{Value: leftVal + rightVal}
 	}
 
 	switch left.Type() {
