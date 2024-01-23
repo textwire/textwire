@@ -97,7 +97,6 @@ func New(lexer *lexer.Lexer, inserts map[string]*ast.InsertStatement) *Parser {
 	p.registerInfix(token.LBRACKET, p.parseIndexExpression)
 	p.registerInfix(token.INC, p.parsePostfixExpression)
 	p.registerInfix(token.SUB, p.parsePostfixExpression)
-
 	p.registerInfix(token.ADD, p.parseInfixExpression)
 	p.registerInfix(token.SUB, p.parseInfixExpression)
 	p.registerInfix(token.MUL, p.parseInfixExpression)
