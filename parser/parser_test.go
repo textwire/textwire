@@ -145,20 +145,20 @@ func testStringLiteral(t *testing.T, exp ast.Expression, value string) bool {
 }
 
 func testBooleanLiteral(t *testing.T, exp ast.Expression, value bool) bool {
-	bo, ok := exp.(*ast.BooleanLiteral)
+	boolean, ok := exp.(*ast.BooleanLiteral)
 
 	if !ok {
 		t.Errorf("exp not *ast.Boolean. got=%T", exp)
 		return false
 	}
 
-	if bo.Value != value {
-		t.Errorf("bo.Value not %t. got=%t", value, bo.Value)
+	if boolean.Value != value {
+		t.Errorf("bo.Value not %t. got=%t", value, boolean.Value)
 		return false
 	}
 
-	if bo.TokenLiteral() != fmt.Sprintf("%t", value) {
-		t.Errorf("bo.TokenLiteral not %t. got=%s", value, bo.TokenLiteral())
+	if boolean.TokenLiteral() != fmt.Sprintf("%t", value) {
+		t.Errorf("bo.TokenLiteral not %t. got=%s", value, boolean.TokenLiteral())
 		return false
 	}
 
@@ -213,7 +213,6 @@ func testLiteralExpression(
 
 func TestParseIdentifier(t *testing.T) {
 	stmts := parseStatements(t, "{{ myName }}", 1, nil)
-
 	stmt, ok := stmts[0].(*ast.ExpressionStatement)
 
 	if !ok {
@@ -227,7 +226,6 @@ func TestParseIdentifier(t *testing.T) {
 
 func TestParseIntegerLiteral(t *testing.T) {
 	stmts := parseStatements(t, "{{ 234 }}", 1, nil)
-
 	stmt, ok := stmts[0].(*ast.ExpressionStatement)
 
 	if !ok {
@@ -241,7 +239,6 @@ func TestParseIntegerLiteral(t *testing.T) {
 
 func TestParseFloatLiteral(t *testing.T) {
 	stmts := parseStatements(t, "{{ 2.34149 }}", 1, nil)
-
 	stmt, ok := stmts[0].(*ast.ExpressionStatement)
 
 	if !ok {
@@ -255,7 +252,6 @@ func TestParseFloatLiteral(t *testing.T) {
 
 func TestParseNilLiteral(t *testing.T) {
 	stmts := parseStatements(t, "{{ nil }}", 1, nil)
-
 	stmt, ok := stmts[0].(*ast.ExpressionStatement)
 
 	if !ok {
@@ -276,7 +272,6 @@ func TestParseStringLiteral(t *testing.T) {
 
 	for _, tt := range tests {
 		stmts := parseStatements(t, tt.inp, 1, nil)
-
 		stmt, ok := stmts[0].(*ast.ExpressionStatement)
 
 		if !ok {
@@ -293,7 +288,6 @@ func TestStringConcatenation(t *testing.T) {
 	inp := `{{ "Serhii" + " Anna" }}`
 
 	stmts := parseStatements(t, inp, 1, nil)
-
 	stmt, ok := stmts[0].(*ast.ExpressionStatement)
 
 	if !ok {
@@ -323,7 +317,6 @@ func TestGroupedExpression(t *testing.T) {
 	test := "{{ (5 + 5) * 2 }}"
 
 	stmts := parseStatements(t, test, 1, nil)
-
 	stmt, ok := stmts[0].(*ast.ExpressionStatement)
 
 	if !ok {
@@ -380,7 +373,6 @@ func TestInfixExpression(t *testing.T) {
 
 	for _, tt := range tests {
 		stmts := parseStatements(t, tt.inp, 1, nil)
-
 		stmt, ok := stmts[0].(*ast.ExpressionStatement)
 
 		if !ok {
@@ -402,7 +394,6 @@ func TestBooleanExpression(t *testing.T) {
 
 	for _, tt := range tests {
 		stmts := parseStatements(t, tt.inp, 1, nil)
-
 		stmt, ok := stmts[0].(*ast.ExpressionStatement)
 
 		if !ok {
@@ -434,7 +425,6 @@ func TestPrefixExpression(t *testing.T) {
 
 	for _, tt := range tests {
 		stmts := parseStatements(t, tt.inp, 1, nil)
-
 		stmt, ok := stmts[0].(*ast.ExpressionStatement)
 
 		if !ok {
@@ -532,7 +522,6 @@ func TestTernaryExpression(t *testing.T) {
 	inp := `{{ true ? 100 : "Some string" }}`
 
 	stmts := parseStatements(t, inp, 1, nil)
-
 	stmt, ok := stmts[0].(*ast.ExpressionStatement)
 
 	if !ok {
@@ -562,37 +551,36 @@ func TestIfStatement(t *testing.T) {
 	inp := `{{ if true }}1{{ end }}`
 
 	stmts := parseStatements(t, inp, 1, nil)
-
-	ifStmt, ok := stmts[0].(*ast.IfStatement)
+	stmt, ok := stmts[0].(*ast.IfStatement)
 
 	if !ok {
 		t.Fatalf("stmts[0] is not an IfStatement, got %T", stmts[0])
 	}
 
-	if !testBooleanLiteral(t, ifStmt.Condition, true) {
+	if !testBooleanLiteral(t, stmt.Condition, true) {
 		return
 	}
 
-	if len(ifStmt.Consequence.Statements) != 1 {
-		t.Errorf("ifStmt.Consequence.Statements does not contain 1 statement, got %d", len(ifStmt.Consequence.Statements))
+	if len(stmt.Consequence.Statements) != 1 {
+		t.Errorf("ifStmt.Consequence.Statements does not contain 1 statement, got %d", len(stmt.Consequence.Statements))
 	}
 
-	consequence, ok := ifStmt.Consequence.Statements[0].(*ast.HTMLStatement)
+	consequence, ok := stmt.Consequence.Statements[0].(*ast.HTMLStatement)
 
 	if !ok {
-		t.Fatalf("ifStmt.Consequence.Statements[0] is not an HTMLStatement, got %T", ifStmt.Consequence.Statements[0])
+		t.Fatalf("ifStmt.Consequence.Statements[0] is not an HTMLStatement, got %T", stmt.Consequence.Statements[0])
 	}
 
 	if consequence.String() != "1" {
 		t.Errorf("consequence.String() is not %s, got %s", "1", consequence.String())
 	}
 
-	if ifStmt.Alternative != nil {
-		t.Errorf("ifStmt.Alternative is not nil, got %T", ifStmt.Alternative)
+	if stmt.Alternative != nil {
+		t.Errorf("ifStmt.Alternative is not nil, got %T", stmt.Alternative)
 	}
 
-	if len(ifStmt.Alternatives) != 0 {
-		t.Errorf("ifStmt.Alternatives is not empty, got %d", len(ifStmt.Alternatives))
+	if len(stmt.Alternatives) != 0 {
+		t.Errorf("ifStmt.Alternatives is not empty, got %d", len(stmt.Alternatives))
 	}
 }
 
@@ -600,33 +588,32 @@ func TestIfElseStatement(t *testing.T) {
 	inp := `{{ if true }}1{{ else }}2{{ end }}`
 
 	stmts := parseStatements(t, inp, 1, nil)
-
-	ifStmt, ok := stmts[0].(*ast.IfStatement)
+	stmt, ok := stmts[0].(*ast.IfStatement)
 
 	if !ok {
 		t.Fatalf("stmts[0] is not an IfStatement, got %T", stmts[0])
 	}
 
-	if ifStmt.Alternative == nil {
+	if stmt.Alternative == nil {
 		t.Errorf("ifStmt.Alternative is nil")
 	}
 
-	if len(ifStmt.Alternative.Statements) != 1 {
-		t.Errorf("ifStmt.Alternative.Statements does not contain 1 statement, got %d", len(ifStmt.Alternative.Statements))
+	if len(stmt.Alternative.Statements) != 1 {
+		t.Errorf("ifStmt.Alternative.Statements does not contain 1 statement, got %d", len(stmt.Alternative.Statements))
 	}
 
-	alternative, ok := ifStmt.Alternative.Statements[0].(*ast.HTMLStatement)
+	alternative, ok := stmt.Alternative.Statements[0].(*ast.HTMLStatement)
 
 	if !ok {
-		t.Fatalf("ifStmt.Alternative.Statements[0] is not an HTMLStatement, got %T", ifStmt.Alternative.Statements[0])
+		t.Fatalf("ifStmt.Alternative.Statements[0] is not an HTMLStatement, got %T", stmt.Alternative.Statements[0])
 	}
 
 	if alternative.String() != "2" {
 		t.Errorf("alternative.String() is not %s, got %s", "2", alternative.String())
 	}
 
-	if len(ifStmt.Alternatives) != 0 {
-		t.Errorf("ifStmt.Alternatives is not empty, got %d", len(ifStmt.Alternatives))
+	if len(stmt.Alternatives) != 0 {
+		t.Errorf("ifStmt.Alternatives is not empty, got %d", len(stmt.Alternatives))
 	}
 }
 
@@ -634,22 +621,21 @@ func TestIfElseIfStatement(t *testing.T) {
 	inp := `{{ if true }}1{{ else if false }}2{{ end }}`
 
 	stmts := parseStatements(t, inp, 1, nil)
-
-	ifStmt, ok := stmts[0].(*ast.IfStatement)
+	stmt, ok := stmts[0].(*ast.IfStatement)
 
 	if !ok {
 		t.Fatalf("stmts[0] is not an IfStatement, got %T", stmts[0])
 	}
 
-	if ifStmt.Alternative != nil {
-		t.Errorf("ifStmt.Alternative is not nil, got %T", ifStmt.Alternative)
+	if stmt.Alternative != nil {
+		t.Errorf("ifStmt.Alternative is not nil, got %T", stmt.Alternative)
 	}
 
-	if len(ifStmt.Alternatives) != 1 {
-		t.Errorf("ifStmt.Alternatives does not contain 1 statement, got %d", len(ifStmt.Alternatives))
+	if len(stmt.Alternatives) != 1 {
+		t.Errorf("ifStmt.Alternatives does not contain 1 statement, got %d", len(stmt.Alternatives))
 	}
 
-	alternative := ifStmt.Alternatives[0]
+	alternative := stmt.Alternatives[0]
 
 	if !testBooleanLiteral(t, alternative.Condition, false) {
 		return
@@ -674,36 +660,35 @@ func TestIfElseIfElseStatement(t *testing.T) {
 	inp := `{{ if true }}1{{ else if false }}2{{ else }}3{{ end }}`
 
 	stmts := parseStatements(t, inp, 1, nil)
-
-	ifStmt, ok := stmts[0].(*ast.IfStatement)
+	stmt, ok := stmts[0].(*ast.IfStatement)
 
 	if !ok {
 		t.Fatalf("stmts[0] is not an IfStatement, got %T", stmts[0])
 	}
 
-	if ifStmt.Alternative == nil {
+	if stmt.Alternative == nil {
 		t.Errorf("ifStmt.Alternative is nil")
 	}
 
-	if len(ifStmt.Alternative.Statements) != 1 {
-		t.Errorf("ifStmt.Alternative.Statements does not contain 1 statement, got %d", len(ifStmt.Alternative.Statements))
+	if len(stmt.Alternative.Statements) != 1 {
+		t.Errorf("ifStmt.Alternative.Statements does not contain 1 statement, got %d", len(stmt.Alternative.Statements))
 	}
 
-	alternative, ok := ifStmt.Alternative.Statements[0].(*ast.HTMLStatement)
+	alternative, ok := stmt.Alternative.Statements[0].(*ast.HTMLStatement)
 
 	if !ok {
-		t.Fatalf("ifStmt.Alternative.Statements[0] is not an HTMLStatement, got %T", ifStmt.Alternative.Statements[0])
+		t.Fatalf("ifStmt.Alternative.Statements[0] is not an HTMLStatement, got %T", stmt.Alternative.Statements[0])
 	}
 
 	if alternative.String() != "3" {
 		t.Errorf("alternative.String() is not %s, got %s", "3", alternative.String())
 	}
 
-	if len(ifStmt.Alternatives) != 1 {
-		t.Errorf("ifStmt.Alternatives does not contain 1 statement, got %d", len(ifStmt.Alternatives))
+	if len(stmt.Alternatives) != 1 {
+		t.Errorf("ifStmt.Alternatives does not contain 1 statement, got %d", len(stmt.Alternatives))
 	}
 
-	elseIfAlternative := ifStmt.Alternatives[0]
+	elseIfAlternative := stmt.Alternatives[0]
 
 	if !testBooleanLiteral(t, elseIfAlternative.Condition, false) {
 		return
@@ -738,7 +723,6 @@ func TestDefineStatement(t *testing.T) {
 
 	for _, tt := range tests {
 		stmts := parseStatements(t, tt.inp, 1, nil)
-
 		stmt, ok := stmts[0].(*ast.DefineStatement)
 
 		if !ok {
@@ -763,7 +747,6 @@ func TestParseLayoutStatement(t *testing.T) {
 	inp := `{{ layout "main" }}`
 
 	stmts := parseStatements(t, inp, 1, nil)
-
 	stmt, ok := stmts[0].(*ast.LayoutStatement)
 
 	if !ok {
@@ -819,7 +802,6 @@ func TestInsertStatement(t *testing.T) {
 		inp := `{{ insert "content" }}<h1>Some content</h1>{{ end }}`
 
 		stmts := parseStatements(t, inp, 1, nil)
-
 		stmt, ok := stmts[0].(*ast.InsertStatement)
 
 		if !ok {
@@ -839,7 +821,6 @@ func TestInsertStatement(t *testing.T) {
 		inp := `{{ insert "content", "Some content" }}`
 
 		stmts := parseStatements(t, inp, 1, nil)
-
 		stmt, ok := stmts[0].(*ast.InsertStatement)
 
 		if !ok {
@@ -864,7 +845,6 @@ func TestParseArray(t *testing.T) {
 	inp := `{{ [11, 234] }}`
 
 	stmts := parseStatements(t, inp, 1, nil)
-
 	stmt, ok := stmts[0].(*ast.ExpressionStatement)
 
 	if !ok {
@@ -898,7 +878,6 @@ func TestParseIndexExpression(t *testing.T) {
 	inp := `{{ arr[1 + 2] }}`
 
 	stmts := parseStatements(t, inp, 1, nil)
-
 	stmt, ok := stmts[0].(*ast.ExpressionStatement)
 
 	if !ok {
