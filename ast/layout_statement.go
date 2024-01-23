@@ -7,8 +7,8 @@ import (
 )
 
 type LayoutStatement struct {
-	Token   token.Token // The 'layout' token
-	Path    *StringLiteral
+	Token   token.Token    // The 'layout' token
+	Path    *StringLiteral // The relative path to the layout
 	Program *Program
 }
 

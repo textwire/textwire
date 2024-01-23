@@ -7,7 +7,7 @@ import (
 )
 
 type TernaryExpression struct {
-	Token       token.Token
+	Token       token.Token // The '?' token
 	Condition   Expression
 	Consequence Expression
 	Alternative Expression

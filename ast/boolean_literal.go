@@ -3,7 +3,7 @@ package ast
 import "github.com/textwire/textwire/token"
 
 type BooleanLiteral struct {
-	Token token.Token
+	Token token.Token // The 'true' or 'false' token
 	Value bool
 }
 

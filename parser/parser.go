@@ -269,13 +269,13 @@ func (p *Parser) parseNilLiteral() ast.Expression {
 
 func (p *Parser) parseBooleanLiteral() ast.Expression {
 	return &ast.BooleanLiteral{
-		Token: p.curToken,
+		Token: p.curToken, // "true" or "false"
 		Value: p.curTokenIs(token.TRUE),
 	}
 }
 
 func (p *Parser) parseArrayLiteral() ast.Expression {
-	arr := &ast.ArrayLiteral{Token: p.curToken}
+	arr := &ast.ArrayLiteral{Token: p.curToken} // "["
 	arr.Elements = p.parseExpressionList(token.RBRACKET)
 	return arr
 }
@@ -286,12 +286,12 @@ func (p *Parser) parseHTMLStatement() *ast.HTMLStatement {
 
 func (p *Parser) parseDefineStatement() ast.Statement {
 	ident := &ast.Identifier{
-		Token: p.curToken,
+		Token: p.curToken, // identifier
 		Value: p.curToken.Literal,
 	}
 
 	stmt := &ast.DefineStatement{
-		Token: p.curToken,
+		Token: p.curToken, // identifier
 		Name:  ident,
 	}
 
@@ -312,7 +312,9 @@ func (p *Parser) parseDefineStatement() ast.Statement {
 }
 
 func (p *Parser) parseLayoutStatement() ast.Statement {
-	stmt := &ast.LayoutStatement{Token: p.curToken}
+	stmt := &ast.LayoutStatement{
+		Token: p.curToken, // "layout"
+	}
 
 	if !p.expectPeek(token.STR) { // move to string
 		return nil
@@ -327,7 +329,9 @@ func (p *Parser) parseLayoutStatement() ast.Statement {
 }
 
 func (p *Parser) parseReserveStatement() ast.Statement {
-	stmt := &ast.ReserveStatement{Token: p.curToken}
+	stmt := &ast.ReserveStatement{
+		Token: p.curToken, // "reserve"
+	}
 
 	if !p.expectPeek(token.STR) { // move to string
 		return nil
@@ -351,14 +355,16 @@ func (p *Parser) parseReserveStatement() ast.Statement {
 }
 
 func (p *Parser) parseInsertStatement() ast.Statement {
-	stmt := &ast.InsertStatement{Token: p.curToken}
+	stmt := &ast.InsertStatement{
+		Token: p.curToken, // "insert"
+	}
 
 	if !p.expectPeek(token.STR) { // move to string
 		return nil
 	}
 
 	stmt.Name = &ast.StringLiteral{
-		Token: p.curToken,
+		Token: p.curToken, // The name of the insert statement
 		Value: p.curToken.Literal,
 	}
 
@@ -382,7 +388,7 @@ func (p *Parser) parseInsertStatement() ast.Statement {
 
 func (p *Parser) parseIndexExpression(left ast.Expression) ast.Expression {
 	exp := &ast.IndexExpression{
-		Token: p.curToken,
+		Token: p.curToken, // "["
 		Left:  left,
 	}
 
@@ -399,7 +405,7 @@ func (p *Parser) parseIndexExpression(left ast.Expression) ast.Expression {
 
 func (p *Parser) parseInfixExpression(left ast.Expression) ast.Expression {
 	exp := &ast.InfixExpression{
-		Token:    p.curToken,
+		Token:    p.curToken, // operator
 		Operator: p.curToken.Literal,
 		Left:     left,
 	}
@@ -418,7 +424,7 @@ func (p *Parser) parseInfixExpression(left ast.Expression) ast.Expression {
 
 func (p *Parser) parseTernaryExpression(left ast.Expression) ast.Expression {
 	exp := &ast.TernaryExpression{
-		Token:     p.curToken,
+		Token:     p.curToken, // "?"
 		Condition: left,
 	}
 
@@ -438,14 +444,16 @@ func (p *Parser) parseTernaryExpression(left ast.Expression) ast.Expression {
 }
 
 func (p *Parser) parseVarStatement() ast.Statement {
-	stmt := &ast.DefineStatement{Token: p.curToken}
+	stmt := &ast.DefineStatement{
+		Token: p.curToken, // "var"
+	}
 
 	if !p.expectPeek(token.IDENT) { // move to identifier
 		return nil
 	}
 
 	stmt.Name = &ast.Identifier{
-		Token: p.curToken,
+		Token: p.curToken, // identifier
 		Value: p.curToken.Literal,
 	}
 
@@ -461,7 +469,9 @@ func (p *Parser) parseVarStatement() ast.Statement {
 }
 
 func (p *Parser) parseIfStatement() *ast.IfStatement {
-	stmt := &ast.IfStatement{Token: p.curToken}
+	stmt := &ast.IfStatement{
+		Token: p.curToken, // "if"
+	}
 
 	p.nextToken() // skip "if" or "else if"
 
@@ -561,11 +571,11 @@ func (p *Parser) parseExpression(precedence int) ast.Expression {
 
 func (p *Parser) parsePrefixExpression() ast.Expression {
 	exp := &ast.PrefixExpression{
-		Token:    p.curToken,
+		Token:    p.curToken, // prefix operator
 		Operator: p.curToken.Literal,
 	}
 
-	p.nextToken() // skip operator
+	p.nextToken() // skip prefix operator
 
 	exp.Right = p.parseExpression(PREFIX)
 

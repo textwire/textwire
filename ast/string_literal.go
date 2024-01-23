@@ -5,7 +5,7 @@ import (
 )
 
 type StringLiteral struct {
-	Token token.Token
+	Token token.Token // The content of the string
 	Value string
 }
 

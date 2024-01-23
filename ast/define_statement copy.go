@@ -5,7 +5,7 @@ import (
 )
 
 type DefineStatement struct {
-	Token token.Token
+	Token token.Token // The 'var' or identifier token
 	Name  *Identifier
 	Value Expression
 }

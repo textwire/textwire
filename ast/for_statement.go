@@ -7,10 +7,10 @@ import (
 )
 
 type ForStatement struct {
-	Token     token.Token
-	Init      Statement  // initialization statement; or nil
-	Condition Expression // condition or nil
-	Post      Statement  // post statement after the loop; or nil
+	Token     token.Token // The 'for' token
+	Init      Statement   // initialization statement; or nil
+	Condition Expression  // condition; or nil
+	Post      Statement   // post statement after the loop; or nil
 	Body      *BlockStatement
 }
 
