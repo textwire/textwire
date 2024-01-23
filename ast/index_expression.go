@@ -7,7 +7,7 @@ import (
 )
 
 type IndexExpression struct {
-	Token token.Token
+	Token token.Token // The '[' token
 	Left  Expression
 	Index Expression
 }

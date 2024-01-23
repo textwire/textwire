@@ -8,7 +8,7 @@ import (
 )
 
 type InsertStatement struct {
-	Token    token.Token
+	Token    token.Token // The 'insert' token
 	Name     *StringLiteral
 	Argument Expression
 	Block    *BlockStatement

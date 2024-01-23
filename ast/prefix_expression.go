@@ -7,7 +7,7 @@ import (
 )
 
 type PrefixExpression struct {
-	Token    token.Token
+	Token    token.Token // The '!' or '-' token
 	Operator string
 	Right    Expression
 }

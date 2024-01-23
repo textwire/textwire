@@ -3,7 +3,7 @@ package ast
 import "github.com/textwire/textwire/token"
 
 type NilLiteral struct {
-	Token token.Token
+	Token token.Token // The 'nil' token
 }
 
 func (i *NilLiteral) expressionNode() {
