@@ -58,21 +58,25 @@ const (
 	LAYOUT
 	RESERVE
 	INSERT
+	BREAK
+	CONTINUE
 )
 
 var keywords = map[string]TokenType{
-	"if":      IF,
-	"else":    ELSE,
-	"else if": ELSEIF,
-	"end":     END,
-	"true":    TRUE,
-	"false":   FALSE,
-	"nil":     NIL,
-	"var":     VAR,
-	"layout":  LAYOUT,
-	"reserve": RESERVE,
-	"insert":  INSERT,
-	"for":     FOR,
+	"if":       IF,
+	"else":     ELSE,
+	"else if":  ELSEIF,
+	"end":      END,
+	"true":     TRUE,
+	"false":    FALSE,
+	"nil":      NIL,
+	"var":      VAR,
+	"layout":   LAYOUT,
+	"reserve":  RESERVE,
+	"insert":   INSERT,
+	"for":      FOR,
+	"break":    BREAK,
+	"continue": CONTINUE,
 }
 
 type Token struct {

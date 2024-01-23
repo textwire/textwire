@@ -240,7 +240,7 @@ func TestArray(t *testing.T) {
 }
 
 func TestForLoopStatement(t *testing.T) {
-	inp := `{{ for _, val := [1, 2] }}`
+	inp := `{{ for _, val := [1, 2] break continue }}{{ end }}`
 
 	TokenizeString(t, inp, []token.Token{
 		{Type: token.LBRACES, Literal: "{{"},
@@ -254,6 +254,11 @@ func TestForLoopStatement(t *testing.T) {
 		{Type: token.COMMA, Literal: ","},
 		{Type: token.INT, Literal: "2"},
 		{Type: token.RBRACKET, Literal: "]"},
+		{Type: token.BREAK, Literal: "break"},
+		{Type: token.CONTINUE, Literal: "continue"},
+		{Type: token.RBRACES, Literal: "}}"},
+		{Type: token.LBRACES, Literal: "{{"},
+		{Type: token.END, Literal: "end"},
 		{Type: token.RBRACES, Literal: "}}"},
 		{Type: token.EOF, Literal: ""},
 	})
