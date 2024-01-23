@@ -21,6 +21,9 @@ const (
 	DIV // /
 	MOD // %
 
+	INC // ++
+	DEC // --
+
 	NOT    // !
 	ASSIGN // =
 	DEFINE // :=
@@ -44,6 +47,7 @@ const (
 	COLON    // :
 	COMMA    // ,
 	PERIOD   // .
+	SEMI     // ;
 
 	// Keywords
 	IF

@@ -117,7 +117,7 @@ func TestIfStatement(t *testing.T) {
 }
 
 func TestOperators(t *testing.T) {
-	inp := "{{ 1 + 2 - 3 * 4 / 5 % (6) }}"
+	inp := "{{ 1 + 2 - 3 * 4 / 5 % (6) ++ -- }}"
 
 	TokenizeString(t, inp, []token.Token{
 		{Type: token.LBRACES, Literal: "{{"},
@@ -134,6 +134,8 @@ func TestOperators(t *testing.T) {
 		{Type: token.LPAREN, Literal: "("},
 		{Type: token.INT, Literal: "6"},
 		{Type: token.RPAREN, Literal: ")"},
+		{Type: token.INC, Literal: "++"},
+		{Type: token.DEC, Literal: "--"},
 		{Type: token.RBRACES, Literal: "}}"},
 		{Type: token.EOF, Literal: ""},
 	})

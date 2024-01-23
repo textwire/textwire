@@ -16,6 +16,9 @@ var tokens = [...]string{
 	DIV: "/",
 	MOD: "%",
 
+	INC: "++",
+	DEC: "--",
+
 	NOT:    "!",
 	ASSIGN: "=",
 	DEFINE: ":=",
@@ -34,6 +37,7 @@ var tokens = [...]string{
 	LBRACKET: "[",
 	RBRACKET: "]",
 	PERIOD:   ".",
+	SEMI:     ";",
 
 	QUESTION: "?",
 	COLON:    ":",
