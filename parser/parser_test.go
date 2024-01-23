@@ -902,3 +902,32 @@ func TestParseIndexExpression(t *testing.T) {
 		t.Errorf("indexExp.String() is not '(arr[(1 + 2)])', got %s", indexExp.String())
 	}
 }
+
+func TestParsePostfixExpression(t *testing.T) {
+	inp := `{{ i++ }}`
+
+	stmts := parseStatements(t, inp, 1, nil)
+	stmt, ok := stmts[0].(*ast.ExpressionStatement)
+
+	if !ok {
+		t.Fatalf("stmts[0] is not a ExpressionStatement, got %T", stmts[0])
+	}
+
+	postfix, ok := stmt.Expression.(*ast.PostfixExpression)
+
+	if !ok {
+		t.Fatalf("stmt.Expression is not a PostfixExpression, got %T", stmt.Expression)
+	}
+
+	if !testIdentifier(t, postfix.Left, "i") {
+		return
+	}
+
+	if postfix.Operator != "++" {
+		t.Errorf("postfix.Operator is not '++', got %s", postfix.Operator)
+	}
+
+	if postfix.String() != "(i++)" {
+		t.Errorf("postfix.String() is not '(i++)', got %s", postfix.String())
+	}
+}

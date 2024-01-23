@@ -26,6 +26,7 @@ const (
 	PREFIX       // -X or !X
 	CALL         // myFunction(X)
 	INDEX        // array[index]
+	POSTFIX      // X++
 
 	// Error messages
 	ERR_EMPTY_BRACKETS       = "bracket statement must contain an expression '{{ <expression> }}'"
@@ -50,6 +51,8 @@ var precedences = map[token.TokenType]int{
 	token.MOD:      PRODUCT,
 	token.MUL:      PRODUCT,
 	token.LBRACKET: INDEX,
+	token.INC:      POSTFIX,
+	token.DEC:      POSTFIX,
 }
 
 type Parser struct {
@@ -92,6 +95,9 @@ func New(lexer *lexer.Lexer, inserts map[string]*ast.InsertStatement) *Parser {
 	p.infixParseFns = make(map[token.TokenType]infixParseFn)
 	p.registerInfix(token.QUESTION, p.parseTernaryExpression)
 	p.registerInfix(token.LBRACKET, p.parseIndexExpression)
+	p.registerInfix(token.INC, p.parsePostfixExpression)
+	p.registerInfix(token.SUB, p.parsePostfixExpression)
+
 	p.registerInfix(token.ADD, p.parseInfixExpression)
 	p.registerInfix(token.SUB, p.parseInfixExpression)
 	p.registerInfix(token.MUL, p.parseInfixExpression)
@@ -399,6 +405,18 @@ func (p *Parser) parseIndexExpression(left ast.Expression) ast.Expression {
 	if !p.expectPeek(token.RBRACKET) { // move to "]"
 		return nil
 	}
+
+	return exp
+}
+
+func (p *Parser) parsePostfixExpression(left ast.Expression) ast.Expression {
+	exp := &ast.PostfixExpression{
+		Token:    p.curToken,         // identifier
+		Operator: p.curToken.Literal, // "++" or "--"
+		Left:     left,
+	}
+
+	p.nextToken() // skip identifier
 
 	return exp
 }
