@@ -40,6 +40,8 @@ func Eval(node ast.Node, env *object.Env) object.Object {
 	// Expressions
 	case *ast.Identifier:
 		return evalIdentifier(node, env)
+	case *ast.IndexExpression:
+		return evalIndexExpression(node, env)
 	case *ast.IntegerLiteral:
 		return &object.Int{Value: node.Value}
 	case *ast.FloatLiteral:
@@ -170,6 +172,39 @@ func evalIdentifier(node *ast.Identifier, env *object.Env) object.Object {
 	}
 
 	return newError(`Identifier "` + node.Value + `" not found`)
+}
+
+func evalIndexExpression(node *ast.IndexExpression, env *object.Env) object.Object {
+	left := Eval(node.Left, env)
+
+	if isError(left) {
+		return left
+	}
+
+	idx := Eval(node.Index, env)
+
+	if isError(idx) {
+		return idx
+	}
+
+	switch {
+	case left.Type() == object.ARRAY_OBJ && idx.Type() == object.INT_OBJ:
+		return evalArrayIndexExpression(left, idx)
+	}
+
+	return newError("The index operator is not supported: %s", left.Type())
+}
+
+func evalArrayIndexExpression(arr, idx object.Object) object.Object {
+	arrObj := arr.(*object.Array)
+	index := idx.(*object.Int).Value
+	max := int64(len(arrObj.Elements) - 1)
+
+	if index < 0 || index > max {
+		return NIL
+	}
+
+	return arrObj.Elements[index]
 }
 
 func evalPrefixExpression(node *ast.PrefixExpression, env *object.Env) object.Object {
