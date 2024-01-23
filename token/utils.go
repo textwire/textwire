@@ -39,18 +39,18 @@ var tokens = [...]string{
 	COLON:    ":",
 	COMMA:    ",",
 
-	IF:     "if",
-	ELSE:   "else",
-	ELSEIF: "else if",
-	END:    "end",
-	TRUE:   "true",
-	FALSE:  "false",
-	NIL:    "nil",
-	VAR:    "var",
-
+	IF:      "if",
+	ELSE:    "else",
+	ELSEIF:  "else if",
+	END:     "end",
+	TRUE:    "true",
+	FALSE:   "false",
+	NIL:     "nil",
+	VAR:     "var",
 	LAYOUT:  "layout",
 	RESERVE: "reserve",
 	INSERT:  "insert",
+	FOR:     "for",
 }
 
 func TokenString(t TokenType) string {

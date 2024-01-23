@@ -52,6 +52,7 @@ const (
 	END
 	TRUE
 	FALSE
+	FOR
 	NIL
 	VAR
 	LAYOUT
@@ -71,6 +72,7 @@ var keywords = map[string]TokenType{
 	"layout":  LAYOUT,
 	"reserve": RESERVE,
 	"insert":  INSERT,
+	"for":     FOR,
 }
 
 type Token struct {

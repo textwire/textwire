@@ -238,3 +238,23 @@ func TestArray(t *testing.T) {
 		{Type: token.EOF, Literal: ""},
 	})
 }
+
+func TestForLoopStatement(t *testing.T) {
+	inp := `{{ for _, val := [1, 2] }}`
+
+	TokenizeString(t, inp, []token.Token{
+		{Type: token.LBRACES, Literal: "{{"},
+		{Type: token.FOR, Literal: "for"},
+		{Type: token.IDENT, Literal: "_"},
+		{Type: token.COMMA, Literal: ","},
+		{Type: token.IDENT, Literal: "val"},
+		{Type: token.DEFINE, Literal: ":="},
+		{Type: token.LBRACKET, Literal: "["},
+		{Type: token.INT, Literal: "1"},
+		{Type: token.COMMA, Literal: ","},
+		{Type: token.INT, Literal: "2"},
+		{Type: token.RBRACKET, Literal: "]"},
+		{Type: token.RBRACES, Literal: "}}"},
+		{Type: token.EOF, Literal: ""},
+	})
+}
