@@ -44,6 +44,8 @@ var precedences = map[token.TokenType]int{
 	token.NOT_EQ:   EQ,
 	token.LTHAN:    LESS_GREATER,
 	token.GTHAN:    LESS_GREATER,
+	token.LTHAN_EQ: LESS_GREATER,
+	token.GTHAN_EQ: LESS_GREATER,
 	token.PERIOD:   SUM,
 	token.ADD:      SUM,
 	token.SUB:      SUM,
@@ -94,15 +96,23 @@ func New(lexer *lexer.Lexer, inserts map[string]*ast.InsertStatement) *Parser {
 
 	// Infix operators
 	p.infixParseFns = make(map[token.TokenType]infixParseFn)
-	p.registerInfix(token.QUESTION, p.parseTernaryExpression)
-	p.registerInfix(token.LBRACKET, p.parseIndexExpression)
-	p.registerInfix(token.INC, p.parsePostfixExpression)
-	p.registerInfix(token.DEC, p.parsePostfixExpression)
 	p.registerInfix(token.ADD, p.parseInfixExpression)
 	p.registerInfix(token.SUB, p.parseInfixExpression)
 	p.registerInfix(token.MUL, p.parseInfixExpression)
 	p.registerInfix(token.DIV, p.parseInfixExpression)
 	p.registerInfix(token.MOD, p.parseInfixExpression)
+
+	p.registerInfix(token.EQ, p.parseInfixExpression)
+	p.registerInfix(token.NOT_EQ, p.parseInfixExpression)
+	p.registerInfix(token.LTHAN, p.parseInfixExpression)
+	p.registerInfix(token.GTHAN, p.parseInfixExpression)
+	p.registerInfix(token.LTHAN_EQ, p.parseInfixExpression)
+	p.registerInfix(token.GTHAN_EQ, p.parseInfixExpression)
+
+	p.registerInfix(token.QUESTION, p.parseTernaryExpression)
+	p.registerInfix(token.LBRACKET, p.parseIndexExpression)
+	p.registerInfix(token.INC, p.parsePostfixExpression)
+	p.registerInfix(token.DEC, p.parsePostfixExpression)
 
 	return p
 }
