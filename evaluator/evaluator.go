@@ -358,6 +358,18 @@ func evalIntegerInfixExpression(operator string, right, left object.Object) obje
 		return &object.Int{Value: leftVal / rightVal}
 	case "%":
 		return &object.Int{Value: leftVal % rightVal}
+	case "==":
+		return nativeBoolToBooleanObject(leftVal == rightVal)
+	case "!=":
+		return nativeBoolToBooleanObject(leftVal != rightVal)
+	case ">":
+		return nativeBoolToBooleanObject(leftVal > rightVal)
+	case "<":
+		return nativeBoolToBooleanObject(leftVal < rightVal)
+	case ">=":
+		return nativeBoolToBooleanObject(leftVal >= rightVal)
+	case "<=":
+		return nativeBoolToBooleanObject(leftVal <= rightVal)
 	}
 
 	return newError("Unknown type for %s operator: %s", operator, left.Type())
@@ -376,6 +388,18 @@ func evalFloatInfixExpression(operator string, right, left object.Object) object
 		return &object.Float{Value: leftVal * rightVal}
 	case "/":
 		return &object.Float{Value: leftVal / rightVal}
+	case "==":
+		return nativeBoolToBooleanObject(leftVal == rightVal)
+	case "!=":
+		return nativeBoolToBooleanObject(leftVal != rightVal)
+	case ">":
+		return nativeBoolToBooleanObject(leftVal > rightVal)
+	case "<":
+		return nativeBoolToBooleanObject(leftVal < rightVal)
+	case ">=":
+		return nativeBoolToBooleanObject(leftVal >= rightVal)
+	case "<=":
+		return nativeBoolToBooleanObject(leftVal <= rightVal)
 	}
 
 	return newError("Unknown type for %s operator: %s", operator, left.Type())
