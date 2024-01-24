@@ -551,8 +551,9 @@ func (p *Parser) parseBlockStatement() *ast.BlockStatement {
 }
 
 func (p *Parser) parseExpressionStatement() ast.Statement {
-	expr := p.parseExpression(LOWEST)
-	result := &ast.ExpressionStatement{Token: p.curToken, Expression: expr}
+	exp := p.parseExpression(LOWEST)
+
+	result := &ast.ExpressionStatement{Token: p.curToken, Expression: exp}
 
 	if p.peekTokenIs(token.RBRACES) {
 		p.nextToken() // skip "}}"
