@@ -50,6 +50,7 @@ var precedences = map[token.TokenType]int{
 	token.DIV:      PRODUCT,
 	token.MOD:      PRODUCT,
 	token.MUL:      PRODUCT,
+	token.LPAREN:   CALL,
 	token.LBRACKET: INDEX,
 	token.INC:      POSTFIX,
 	token.DEC:      POSTFIX,
