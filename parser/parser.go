@@ -410,15 +410,11 @@ func (p *Parser) parseIndexExpression(left ast.Expression) ast.Expression {
 }
 
 func (p *Parser) parsePostfixExpression(left ast.Expression) ast.Expression {
-	exp := &ast.PostfixExpression{
+	return &ast.PostfixExpression{
 		Token:    p.curToken,         // identifier
 		Operator: p.curToken.Literal, // "++" or "--"
 		Left:     left,
 	}
-
-	p.nextToken() // skip identifier
-
-	return exp
 }
 
 func (p *Parser) parseInfixExpression(left ast.Expression) ast.Expression {
@@ -580,7 +576,7 @@ func (p *Parser) parseExpression(precedence int) ast.Expression {
 			return leftExp
 		}
 
-		p.nextToken() // skip operator
+		p.nextToken()
 
 		leftExp = infix(leftExp)
 	}
