@@ -904,30 +904,40 @@ func TestParseIndexExpression(t *testing.T) {
 }
 
 func TestParsePostfixExpression(t *testing.T) {
-	inp := `{{ i++ }}`
-
-	stmts := parseStatements(t, inp, 1, nil)
-	stmt, ok := stmts[0].(*ast.ExpressionStatement)
-
-	if !ok {
-		t.Fatalf("stmts[0] is not a ExpressionStatement, got %T", stmts[0])
+	tests := []struct {
+		inp      string
+		ident    string
+		operator string
+		str      string
+	}{
+		{`{{ i++ }}`, "i", "++", "(i++)"},
+		{`{{ num-- }}`, "num", "--", "(num--)"},
 	}
 
-	postfix, ok := stmt.Expression.(*ast.PostfixExpression)
+	for _, tt := range tests {
+		stmts := parseStatements(t, tt.inp, 1, nil)
+		stmt, ok := stmts[0].(*ast.ExpressionStatement)
 
-	if !ok {
-		t.Fatalf("stmt.Expression is not a PostfixExpression, got %T", stmt.Expression)
-	}
+		if !ok {
+			t.Fatalf("stmts[0] is not a ExpressionStatement, got %T", stmts[0])
+		}
 
-	if !testIdentifier(t, postfix.Left, "i") {
-		return
-	}
+		postfix, ok := stmt.Expression.(*ast.PostfixExpression)
 
-	if postfix.Operator != "++" {
-		t.Errorf("postfix.Operator is not '++', got %s", postfix.Operator)
-	}
+		if !ok {
+			t.Fatalf("stmt.Expression is not a PostfixExpression, got %T", stmt.Expression)
+		}
 
-	if postfix.String() != "(i++)" {
-		t.Errorf("postfix.String() is not '(i++)', got %s", postfix.String())
+		if !testIdentifier(t, postfix.Left, tt.ident) {
+			return
+		}
+
+		if postfix.Operator != tt.operator {
+			t.Errorf("postfix.Operator is not '%s', got %s", tt.operator, postfix.Operator)
+		}
+
+		if postfix.String() != tt.str {
+			t.Errorf("postfix.String() is not '%s', got %s", tt.str, postfix.String())
+		}
 	}
 }

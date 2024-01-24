@@ -26,7 +26,7 @@ const (
 	PREFIX       // -X or !X
 	CALL         // myFunction(X)
 	INDEX        // array[index]
-	POSTFIX      // X++
+	POSTFIX      // X++ or X--
 
 	// Error messages
 	ERR_EMPTY_BRACKETS       = "bracket statement must contain an expression '{{ <expression> }}'"
@@ -96,7 +96,7 @@ func New(lexer *lexer.Lexer, inserts map[string]*ast.InsertStatement) *Parser {
 	p.registerInfix(token.QUESTION, p.parseTernaryExpression)
 	p.registerInfix(token.LBRACKET, p.parseIndexExpression)
 	p.registerInfix(token.INC, p.parsePostfixExpression)
-	p.registerInfix(token.SUB, p.parsePostfixExpression)
+	p.registerInfix(token.DEC, p.parsePostfixExpression)
 	p.registerInfix(token.ADD, p.parseInfixExpression)
 	p.registerInfix(token.SUB, p.parseInfixExpression)
 	p.registerInfix(token.MUL, p.parseInfixExpression)
