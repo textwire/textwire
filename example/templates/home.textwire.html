@@ -4,5 +4,15 @@
 
 {{ insert "content" }}
     <h2>{{ title }}</h2>
-    <p>This is a home page.</p>
+
+    <p>Here are names:</p>
+
+    {{ if showNames }}
+        <ul>
+            <li>{{ names[0] }}</li>
+            <li>{{ names[1] }}</li>
+            <li>{{ names[2] }}</li>
+            <li>{{ names[3] }}</li>
+        </ul>
+    {{ end }}
 {{ end }}
