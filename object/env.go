@@ -38,6 +38,11 @@ func EnvFromMap(m map[string]interface{}) (*Env, error) {
 
 func (e *Env) Get(name string) (Object, bool) {
 	obj, ok := e.store[name]
+
+	if !ok && e.outer != nil {
+		obj, ok = e.outer.Get(name)
+	}
+
 	return obj, ok
 }
 

@@ -73,8 +73,8 @@ func evalProgram(prog *ast.Program, env *object.Env) object.Object {
 	for _, statement := range prog.Statements {
 		stmtObj := Eval(statement, env)
 
-		if err, ok := stmtObj.(*object.Error); ok {
-			return err
+		if isError(stmtObj) {
+			return stmtObj
 		}
 
 		result.WriteString(stmtObj.String())
@@ -85,6 +85,11 @@ func evalProgram(prog *ast.Program, env *object.Env) object.Object {
 
 func evalIfStatement(node *ast.IfStatement, env *object.Env) object.Object {
 	condition := Eval(node.Condition, env)
+
+	if isError(condition) {
+		return condition
+	}
+
 	newEnv := object.NewEnclosedEnv(env)
 
 	if isTruthy(condition) {
@@ -93,6 +98,10 @@ func evalIfStatement(node *ast.IfStatement, env *object.Env) object.Object {
 
 	for _, alt := range node.Alternatives {
 		condition = Eval(alt.Condition, env)
+
+		if isError(condition) {
+			return condition
+		}
 
 		if isTruthy(condition) {
 			return Eval(alt.Consequence, newEnv)
@@ -112,8 +121,8 @@ func evalBlockStatement(block *ast.BlockStatement, env *object.Env) object.Objec
 	for _, statement := range block.Statements {
 		stmtObj := Eval(statement, env)
 
-		if err, ok := stmtObj.(*object.Error); ok {
-			return err
+		if isError(stmtObj) {
+			return stmtObj
 		}
 
 		elems = append(elems, stmtObj)
