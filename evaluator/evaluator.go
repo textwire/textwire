@@ -148,9 +148,15 @@ func evalLayoutStatement(node *ast.LayoutStatement, env *object.Env) object.Obje
 		return newError("The layout statement must have a program attached")
 	}
 
+	layoutContent := Eval(node.Program, env)
+
+	if isError(layoutContent) {
+		return layoutContent
+	}
+
 	return &object.Layout{
 		Path:    node.Path.Value,
-		Content: Eval(node.Program, env),
+		Content: layoutContent,
 	}
 }
 
@@ -158,7 +164,14 @@ func evalReserveStatement(node *ast.ReserveStatement, env *object.Env) object.Ob
 	stmt := &object.Reserve{Name: node.Name.Value}
 
 	if node.Insert.Block != nil {
-		stmt.Content = Eval(node.Insert.Block, env)
+		result := Eval(node.Insert.Block, env)
+
+		if isError(result) {
+			return result
+		}
+
+		stmt.Content = result
+
 		return stmt
 	}
 
