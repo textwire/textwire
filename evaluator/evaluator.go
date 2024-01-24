@@ -58,6 +58,8 @@ func Eval(node ast.Node, env *object.Env) object.Object {
 		return evalTernaryExpression(node, env)
 	case *ast.InfixExpression:
 		return evalInfixExpression(node.Operator, node.Left, node.Right, env)
+	case *ast.PostfixExpression:
+		return evalPostfixExpression(node, env)
 	case *ast.NilLiteral:
 		return NIL
 	}
@@ -278,6 +280,46 @@ func evalInfixExpression(operator string, left, right ast.Expression, env *objec
 	}
 
 	return evalInfixOperatorExpression(operator, leftObj, rightObj)
+}
+
+func evalPostfixExpression(node *ast.PostfixExpression, env *object.Env) object.Object {
+	leftObj := Eval(node.Left, env)
+
+	if isError(leftObj) {
+		return leftObj
+	}
+
+	return evalPostfixOperatorExpression(leftObj, node.Operator)
+}
+
+func evalPostfixOperatorExpression(left object.Object, operator string) object.Object {
+	if operator == "++" {
+		if left.Type() == object.INT_OBJ {
+			value := left.(*object.Int).Value
+			return &object.Int{Value: value + 1}
+		}
+
+		if left.Type() == object.FLOAT_OBJ {
+			value := left.(*object.Float).Value
+			return &object.Float{Value: value + 1}
+		}
+	}
+
+	if operator == "--" {
+		if left.Type() == object.INT_OBJ {
+			value := left.(*object.Int).Value
+			return &object.Int{Value: value - 1}
+		}
+
+		if left.Type() == object.FLOAT_OBJ {
+			value := left.(*object.Float).Value
+			float := &object.Float{Value: value}
+			float.SubtractFromFloat(1)
+			return float
+		}
+	}
+
+	return newError("Unknown operator: %s%s", left.Type(), operator)
 }
 
 func evalInfixOperatorExpression(operator string, left, right object.Object) object.Object {
