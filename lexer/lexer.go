@@ -62,8 +62,6 @@ func (l *Lexer) readEmbeddedCodeToken() token.Token {
 	switch l.char {
 	case '*':
 		return l.newTokenAndAdvance(token.MUL, "*")
-	case '!':
-		return l.newTokenAndAdvance(token.NOT, "!")
 	case '?':
 		return l.newTokenAndAdvance(token.QUESTION, "?")
 	case '/':
@@ -85,6 +83,27 @@ func (l *Lexer) readEmbeddedCodeToken() token.Token {
 	case '"', '`':
 		str := l.readString()
 		return l.newTokenAndAdvance(token.STR, str)
+	case '<':
+		if l.peekChar() == '=' {
+			l.advanceChar() // skip "="
+			return l.newTokenAndAdvance(token.LTHAN_EQ, "<=")
+		}
+
+		return l.newTokenAndAdvance(token.LTHAN, "<")
+	case '>':
+		if l.peekChar() == '=' {
+			l.advanceChar() // skip "="
+			return l.newTokenAndAdvance(token.GTHAN_EQ, ">=")
+		}
+
+		return l.newTokenAndAdvance(token.GTHAN, ">")
+	case '!':
+		if l.peekChar() == '=' {
+			l.advanceChar() // skip "="
+			return l.newTokenAndAdvance(token.NOT_EQ, "!=")
+		}
+
+		return l.newTokenAndAdvance(token.NOT, "!")
 	case '-':
 		if l.peekChar() == '-' {
 			l.advanceChar() // skip "-"

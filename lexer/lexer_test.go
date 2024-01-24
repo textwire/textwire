@@ -213,12 +213,18 @@ func TestVariableDeclaration(t *testing.T) {
 	})
 }
 
-func TestSeparator(t *testing.T) {
-	inp := "{{ , }}"
+func TestOther(t *testing.T) {
+	inp := "{{ , == != <= >= > < }}"
 
 	TokenizeString(t, inp, []token.Token{
 		{Type: token.LBRACES, Literal: "{{"},
 		{Type: token.COMMA, Literal: ","},
+		{Type: token.EQ, Literal: "=="},
+		{Type: token.NOT_EQ, Literal: "!="},
+		{Type: token.LTHAN_EQ, Literal: "<="},
+		{Type: token.GTHAN_EQ, Literal: ">="},
+		{Type: token.GTHAN, Literal: ">"},
+		{Type: token.LTHAN, Literal: "<"},
 		{Type: token.RBRACES, Literal: "}}"},
 		{Type: token.EOF, Literal: ""},
 	})
