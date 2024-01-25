@@ -14,6 +14,8 @@ var config = &Config{
 	TemplateExt: ".textwire.html",
 }
 
+var cachedPrograms = make(map[string]*ast.Program)
+
 // Config is the main configuration for Textwire
 type Config struct {
 	// TemplateDir is the directory where the Textwire
@@ -79,6 +81,10 @@ func NewConfig(c *Config) {
 }
 
 func parseProgram(filePath string, inserts map[string]*ast.InsertStatement) (*ast.Program, error) {
+	if cachedPrograms[filePath] != nil {
+		return cachedPrograms[filePath], nil
+	}
+
 	content, err := fileContent(filePath)
 
 	if err != nil {
@@ -93,6 +99,8 @@ func parseProgram(filePath string, inserts map[string]*ast.InsertStatement) (*as
 	if len(pars.Errors()) != 0 {
 		return nil, pars.Errors()[0]
 	}
+
+	cachedPrograms[filePath] = prog
 
 	return prog, nil
 }
