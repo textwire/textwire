@@ -6,6 +6,7 @@ test:
 
 .PHONE: run
 run:
+	clear
 	@cd example && go run main.go
 
 .PHONE: push
