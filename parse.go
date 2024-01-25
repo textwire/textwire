@@ -39,13 +39,15 @@ func parsePrograms(paths map[string]string) (map[string]*ast.Program, error) {
 
 		if hasLayout, layout := prog.HasLayout(); hasLayout {
 			err = applyLayoutToProgram(layout.Name.Value, prog)
-
-			if err != nil {
-				return nil, err
-			}
 		}
 
-		result[name] = prog
+		if err != nil {
+			return nil, err
+		}
+
+		if !prog.IsLayout() {
+			result[name] = prog
+		}
 	}
 
 	return result, nil
