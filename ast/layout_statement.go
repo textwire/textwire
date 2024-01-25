@@ -8,7 +8,7 @@ import (
 
 type LayoutStatement struct {
 	Token   token.Token    // The 'layout' token
-	Path    *StringLiteral // The relative path to the layout
+	Name    *StringLiteral // The relative path to the layout
 	Program *Program
 }
 
@@ -20,5 +20,5 @@ func (ls *LayoutStatement) TokenLiteral() string {
 }
 
 func (ls *LayoutStatement) String() string {
-	return fmt.Sprintf(`{{ layout %s }}`, ls.Path.String())
+	return fmt.Sprintf(`{{ layout %s }}`, ls.Name.String())
 }

@@ -763,8 +763,8 @@ func TestParseLayoutStatement(t *testing.T) {
 		t.Fatalf("stmts[0] is not a LayoutStatement, got %T", stmts[0])
 	}
 
-	if stmt.Path.Value != "main" {
-		t.Errorf("stmt.Path.Value is not 'main', got %s", stmt.Path.Value)
+	if stmt.Name.Value != "main" {
+		t.Errorf("stmt.Path.Value is not 'main', got %s", stmt.Name.Value)
 	}
 
 	if stmt.Program != nil {

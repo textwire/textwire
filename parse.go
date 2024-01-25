@@ -37,13 +37,21 @@ func parsePrograms(paths map[string]string) (map[string]*ast.Program, error) {
 			return nil, err
 		}
 
+		if hasLayout, layout := prog.HasLayout(); hasLayout {
+			err = applyLayoutToProgram(layout.Name.Value, prog)
+
+			if err != nil {
+				return nil, err
+			}
+		}
+
 		result[name] = prog
 	}
 
 	return result, nil
 }
 
-func applyLayoutToTemplate(layoutName string, prog *ast.Program) error {
+func applyLayoutToProgram(layoutName string, prog *ast.Program) error {
 	layoutAbsAPath, err := getFullPath(layoutName)
 
 	if err != nil {

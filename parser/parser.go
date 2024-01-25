@@ -333,7 +333,7 @@ func (p *Parser) parseLayoutStatement() ast.Statement {
 		return nil
 	}
 
-	stmt.Path = &ast.StringLiteral{
+	stmt.Name = &ast.StringLiteral{
 		Token: p.curToken,
 		Value: p.curToken.Literal,
 	}
