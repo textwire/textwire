@@ -14,8 +14,6 @@ var config = &Config{
 	TemplateExt: ".textwire.html",
 }
 
-var cachedPrograms = make(map[string]*ast.Program)
-
 // Config is the main configuration for Textwire
 type Config struct {
 	// TemplateDir is the directory where the Textwire
@@ -30,7 +28,7 @@ type Config struct {
 // ParseStr parses a Textwire string and returns the result as a string
 func ParseStr(text string) (*ast.Program, error) {
 	lex := lexer.New(text)
-	pars := parser.New(lex, nil)
+	pars := parser.New(lex)
 
 	prog := pars.ParseProgram()
 
@@ -43,7 +41,7 @@ func ParseStr(text string) (*ast.Program, error) {
 
 // ParseFile parses a Textwire file and caches the result
 func ParseTemplate(filePath string) (*Template, error) {
-	prog, err := parseProgram(filePath, nil)
+	prog, err := parseProgram(filePath)
 
 	if err != nil {
 		return nil, err
@@ -56,16 +54,19 @@ func ParseTemplate(filePath string) (*Template, error) {
 	}
 
 	// Parse the layout program
-	layoutProg, err := parseProgram(layout.Path.Value, prog.Inserts())
+	layoutProg, err := parseProgram(layout.Path.Value)
 
 	if err != nil {
 		return nil, err
 	}
 
-	// Remove all the statements except the first one, which is the layout statement
-	// When we use layout, we do not print the file itself
-	prog.Statements = []ast.Statement{prog.Statements[0]}
-	prog.Statements[0].(*ast.LayoutStatement).Program = layoutProg
+	err = layoutProg.ApplyInserts(prog.Inserts())
+
+	if err != nil {
+		return nil, err
+	}
+
+	prog.ApplyLayout(layoutProg)
 
 	return &Template{prog: prog}, nil
 }
@@ -80,11 +81,7 @@ func NewConfig(c *Config) {
 	}
 }
 
-func parseProgram(filePath string, inserts map[string]*ast.InsertStatement) (*ast.Program, error) {
-	if cachedPrograms[filePath] != nil {
-		return cachedPrograms[filePath], nil
-	}
-
+func parseProgram(filePath string) (*ast.Program, error) {
 	content, err := fileContent(filePath)
 
 	if err != nil {
@@ -92,15 +89,13 @@ func parseProgram(filePath string, inserts map[string]*ast.InsertStatement) (*as
 	}
 
 	lex := lexer.New(content)
-	pars := parser.New(lex, inserts)
+	pars := parser.New(lex)
 
 	prog := pars.ParseProgram()
 
 	if len(pars.Errors()) != 0 {
 		return nil, pars.Errors()[0]
 	}
-
-	cachedPrograms[filePath] = prog
 
 	return prog, nil
 }

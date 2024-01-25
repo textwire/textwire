@@ -28,9 +28,14 @@ func checkParserErrors(t *testing.T, p *Parser) {
 
 func parseStatements(t *testing.T, inp string, stmtCount int, inserts map[string]*ast.InsertStatement) []ast.Statement {
 	l := lexer.New(inp)
-	p := New(l, inserts)
+	p := New(l)
 
 	prog := p.ParseProgram()
+	err := prog.ApplyInserts(inserts)
+
+	if err != nil {
+		t.Fatalf("error applying inserts: %s", err)
+	}
 
 	checkParserErrors(t, p)
 
@@ -478,7 +483,7 @@ func TestOperatorPrecedenceParsing(t *testing.T) {
 
 	for _, tt := range tests {
 		l := lexer.New(tt.inp)
-		p := New(l, nil)
+		p := New(l)
 
 		prog := p.ParseProgram()
 
@@ -502,12 +507,11 @@ func TestErrorHandling(t *testing.T) {
 		{"{{ true ? 100 }}", fmt.Sprintf(ERR_WRONG_NEXT_TOKEN, token.TokenString(token.COLON), token.TokenString(token.RBRACES))},
 		{"{{ ) }}", fmt.Sprintf(ERR_NO_PREFIX_PARSE_FUNC, token.TokenString(token.RPAREN))},
 		{"{{ 5 }", fmt.Sprintf(ERR_ILLEGAL_TOKEN, "}")},
-		{`{{ reserve "title" }}`, fmt.Sprintf(ERR_INSERT_NOT_DEFINED, "title")},
 	}
 
 	for _, tt := range tests {
 		l := lexer.New(tt.inp)
-		p := New(l, nil)
+		p := New(l)
 
 		p.ParseProgram()
 

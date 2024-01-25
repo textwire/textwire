@@ -35,7 +35,6 @@ const (
 	ERR_COULD_NOT_PARSE_AS   = "could not parse %s as %s"
 	ERR_NO_PREFIX_PARSE_FUNC = "no prefix parse function for %s"
 	ERR_ILLEGAL_TOKEN        = "illegal token '%s' found"
-	ERR_INSERT_NOT_DEFINED   = "The insert statement named '%s' is not defined"
 )
 
 var precedences = map[token.TokenType]int{
@@ -59,9 +58,8 @@ var precedences = map[token.TokenType]int{
 }
 
 type Parser struct {
-	l       *lexer.Lexer
-	errors  []error
-	inserts map[string]*ast.InsertStatement
+	l      *lexer.Lexer
+	errors []error
 
 	curToken  token.Token
 	peekToken token.Token
@@ -70,11 +68,10 @@ type Parser struct {
 	infixParseFns  map[token.TokenType]infixParseFn
 }
 
-func New(lexer *lexer.Lexer, inserts map[string]*ast.InsertStatement) *Parser {
+func New(lexer *lexer.Lexer) *Parser {
 	p := &Parser{
-		l:       lexer,
-		errors:  []error{},
-		inserts: inserts,
+		l:      lexer,
+		errors: []error{},
 	}
 
 	p.nextToken() // fill curToken
@@ -357,15 +354,6 @@ func (p *Parser) parseReserveStatement() ast.Statement {
 		Token: p.curToken,
 		Value: p.curToken.Literal,
 	}
-
-	insert, hasInsert := p.inserts[stmt.Name.Value]
-
-	if !hasInsert {
-		p.newError(ERR_INSERT_NOT_DEFINED, stmt.Name.Value)
-		return nil
-	}
-
-	stmt.Insert = insert
 
 	return stmt
 }
