@@ -951,3 +951,43 @@ func TestParsePostfixExpression(t *testing.T) {
 		}
 	}
 }
+
+func TestParseTwoStatements(t *testing.T) {
+	inp := `{{ name := "Anna"; name }}`
+
+	stmts := parseStatements(t, inp, 2, nil)
+
+	if !testIdentifier(t, stmts[0].(*ast.DefineStatement).Name, "name") {
+		return
+	}
+
+	if !testStringLiteral(t, stmts[0].(*ast.DefineStatement).Value, "Anna") {
+		return
+	}
+
+	if !testIdentifier(t, stmts[1].(*ast.ExpressionStatement).Expression, "name") {
+		return
+	}
+
+	if stmts[0].String() != `{{ name := "Anna" }}` {
+		t.Errorf("stmts[0].String() is not '{{ name := \"Anna\" }}', got %s", stmts[0].String())
+	}
+
+	if stmts[1].String() != `{{ name }}` {
+		t.Errorf("stmts[1].String() is not '{{ name }}', got %s", stmts[1].String())
+	}
+}
+
+func TestParseTwoExpressions(t *testing.T) {
+	inp := `{{ 1; 2 }}`
+
+	stmts := parseStatements(t, inp, 2, nil)
+
+	if !testIntegerLiteral(t, stmts[0].(*ast.ExpressionStatement).Expression, 1) {
+		return
+	}
+
+	if !testIntegerLiteral(t, stmts[1].(*ast.ExpressionStatement).Expression, 2) {
+		return
+	}
+}

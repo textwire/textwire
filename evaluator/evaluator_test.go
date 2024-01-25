@@ -33,11 +33,12 @@ func evaluationExpected(t *testing.T, inp, expect string) {
 	}
 }
 
-func TestEvalIntegerExpression(t *testing.T) {
+func TestEvalNumericExpression(t *testing.T) {
 	tests := []struct {
 		inp      string
 		expected string
 	}{
+		{"{{ 5; 5 }}", "55"},
 		{"{{ 5 }}", "5"},
 		{"{{ 10 }}", "10"},
 		{"{{ -123 }}", "-123"},
@@ -50,23 +51,12 @@ func TestEvalIntegerExpression(t *testing.T) {
 		{`{{ ((5 + 10) * ((2 + 15) / 3) + 2) }}`, "77"},
 		{`{{ 10++ }}`, "11"},
 		{`{{ 10-- }}`, "9"},
+		{`{{ 3++ + 2-- }}`, "5"},
+		{`{{ 3-- + 2-- * 3++ + (4--) }}`, "9"},
+		// Float
 		{`{{ 4.4++ }}`, "5.4"},
 		{`{{ 4.4-- }}`, "3.4"},
 		{`{{ 4.-- }}`, "3"},
-		{`{{ 3++ + 2-- }}`, "5"},
-		{`{{ 3-- + 2-- * 3++ + (4--) }}`, "9"},
-	}
-
-	for _, tt := range tests {
-		evaluationExpected(t, tt.inp, tt.expected)
-	}
-}
-
-func TestEvalFloatExpression(t *testing.T) {
-	tests := []struct {
-		inp      string
-		expected string
-	}{
 		{"{{ 5.11 }}", "5.11"},
 		{"{{ -12.3 }}", "-12.3"},
 		{`{{ 2.123 + 1.111 }}`, "3.234"},
@@ -265,17 +255,17 @@ func TestEvalVariableDeclaration(t *testing.T) {
 	}{
 		{`{{ var age = 18 }}`, ""},
 		{`{{ age := 18 }}`, ""},
-		{`{{ var age = 18 }}{{ age }}`, "18"},
-		{`{{ var age = 18 }}{{ age + 2 }}`, "20"},
-		{`{{ var age = 18 }}{{ age + age }}`, "36"},
-		{`{{ var herName = "Anna" }}{{ herName }}`, "Anna"},
-		{`{{ age := 18 }}{{ age }}`, "18"},
-		{`{{ age := 18 }}{{ age + 2 }}`, "20"},
-		{`{{ age := 18 }}{{ age + age }}`, "36"},
-		{`{{ herName := "Anna" }}{{ herName }}`, "Anna"},
-		{`{{ she := "Anna" }}{{ var me = "Serhii" }}{{ she + " " + me }}`, "Anna Serhii"},
+		{`{{ var age = 18; age }}`, "18"},
+		{`{{ var myAge = 33; var herAge = 25; myAge + herAge }}`, "58"},
+		{`{{ var age = 18; age + age }}`, "36"},
+		{`{{ var herName = "Anna"; herName }}`, "Anna"},
+		{`{{ age := 18; age }}`, "18"},
+		{`{{ age := 18; age + 2 }}`, "20"},
+		{`{{ age := 18; age + age }}`, "36"},
+		{`{{ herName := "Anna"; herName }}`, "Anna"},
+		{`{{ she := "Anna"; var me = "Serhii"; she + " " + me }}`, "Anna Serhii"},
 		{`{{ var names = ["Anna", "Serhii"] }}`, ""},
-		{`{{ var names = ["Anna", "Serhii"] }}{{ names }}`, "Anna, Serhii"},
+		{`{{ var names = ["Anna", "Serhii"]; names }}`, "Anna, Serhii"},
 	}
 
 	for _, tt := range tests {

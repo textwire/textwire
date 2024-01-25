@@ -149,13 +149,15 @@ func (p *Parser) parseStatement() ast.Statement {
 		return p.parseHTMLStatement()
 	case token.LBRACES:
 		return p.parseEmbeddedCode()
+	case token.SEMI:
+		return p.parseEmbeddedCode()
 	default:
 		return nil
 	}
 }
 
 func (p *Parser) parseEmbeddedCode() ast.Statement {
-	p.nextToken() // skip "{{"
+	p.nextToken() // skip "{{" or ";"
 
 	if p.curTokenIs(token.RBRACES) {
 		p.newError(ERR_EMPTY_BRACKETS)
@@ -194,8 +196,14 @@ func (p *Parser) curTokenIs(tok token.TokenType) bool {
 	return p.curToken.Type == tok
 }
 
-func (p *Parser) peekTokenIs(tok token.TokenType) bool {
-	return p.peekToken.Type == tok
+func (p *Parser) peekTokenIs(tokens ...token.TokenType) bool {
+	for _, tok := range tokens {
+		if p.peekToken.Type == tok {
+			return true
+		}
+	}
+
+	return false
 }
 
 func (p *Parser) peekPrecedence() int {
@@ -489,7 +497,9 @@ func (p *Parser) parseIfStatement() *ast.IfStatement {
 
 	stmt.Condition = p.parseExpression(LOWEST)
 
-	p.nextToken() // skip "}}"
+	if !p.expectPeek(token.RBRACES) { // move to "}}"
+		return nil
+	}
 
 	stmt.Consequence = p.parseBlockStatement()
 
@@ -567,7 +577,7 @@ func (p *Parser) parseExpression(precedence int) ast.Expression {
 
 	leftExp := prefix()
 
-	for !p.peekTokenIs(token.RBRACES) && precedence < p.peekPrecedence() {
+	for !p.peekTokenIs(token.RBRACES, token.SEMI) && precedence < p.peekPrecedence() {
 		infix := p.infixParseFns[p.peekToken.Type]
 
 		if infix == nil {
