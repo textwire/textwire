@@ -20,18 +20,16 @@ func TestEvalLayoutStatement(t *testing.T) {
 		}},
 	}
 
-	NewConfig(&Config{
+	tpl, err := New(&Config{
 		TemplateDir: "testdata/before",
 	})
 
+	if err != nil {
+		t.Errorf("error creating template: %s", err)
+	}
+
 	for _, tt := range tests {
-		tpl, err := ParseTemplate(tt.fileName)
-
-		if err != nil {
-			t.Errorf("error parsing template: %s", err)
-		}
-
-		evaluated, err := tpl.Evaluate(tt.vars)
+		evaluated, err := tpl.Evaluate(tt.fileName, tt.vars)
 
 		actual := evaluated.String()
 

@@ -71,3 +71,25 @@ func (p *Program) ApplyLayout(layoutProg *Program) error {
 
 	return nil
 }
+
+func (p *Program) IsLayout() bool {
+	for _, stmt := range p.Statements {
+		if stmt.TokenLiteral() == "reserve" {
+			return true
+		}
+	}
+
+	return false
+}
+
+func (p *Program) HasLayout() (bool, *LayoutStatement) {
+	for _, stmt := range p.Statements {
+		if stmt.TokenLiteral() != "layout" {
+			continue
+		}
+
+		return true, stmt.(*LayoutStatement)
+	}
+
+	return false, nil
+}
