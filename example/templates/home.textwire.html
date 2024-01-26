@@ -1,18 +1,18 @@
-{{ use "layouts/main" }}
+@use("layouts/main")
 
-{{ insert "title", title }}
+@insert("title", title)
 
-{{ insert "content" }}
+@insert("content")
     <h2>{{ title }}</h2>
 
     <p>Here are names:</p>
 
-    {{ if showNames }}
+    @if(showNames)
         <ul>
             <li>{{ names[0] }}</li>
             <li>{{ names[1] }}</li>
             <li>{{ names[2] }}</li>
             <li>{{ names[3] }}</li>
         </ul>
-    {{ end }}
-{{ end }}
+    @end
+@end
