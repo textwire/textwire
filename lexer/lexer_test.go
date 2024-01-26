@@ -249,3 +249,48 @@ func TestArray(t *testing.T) {
 		{Type: token.EOF, Literal: ""},
 	})
 }
+
+func TestLineNumber(t *testing.T) {
+	tests := []struct {
+		inp  string
+		line uint
+	}{
+		{"", 0},
+		{" ", 1},
+		{"\n", 2},
+		{"1\n2\n3\n4", 4},
+		{"{{ age := 3 }}", 1},
+		{`{{ age := 3; age }}`, 1},
+		{
+			`<h1>Title</h1>
+			<p>Test</p>`, 2,
+		},
+		{
+			`<h1>Title</h1>
+			<p>Test</p>
+			{{ age := 3 }}
+			{{ age }}`, 4,
+		},
+		{
+			`{{
+				age := 3;
+				age
+			}}`, 4,
+		},
+	}
+
+	for _, tt := range tests {
+		l := New(tt.inp)
+		var lastTok token.Token
+
+		for tok := l.NextToken(); tok.Type != token.EOF; tok = l.NextToken() {
+			lastTok = tok
+		}
+
+		fmt.Printf("-------> %#v\n", lastTok.Line)
+
+		if lastTok.Line != tt.line {
+			t.Errorf("Expected line number %d, got %d", tt.line, lastTok.Line)
+		}
+	}
+}
