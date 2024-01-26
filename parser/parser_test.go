@@ -6,20 +6,19 @@ import (
 	"testing"
 
 	"github.com/textwire/textwire/ast"
+	"github.com/textwire/textwire/fail"
 	"github.com/textwire/textwire/lexer"
 	"github.com/textwire/textwire/token"
 )
 
 func checkParserErrors(t *testing.T, p *Parser) {
-	errors := p.Errors()
-
-	if len(errors) == 0 {
+	if !p.HasErrors() {
 		return
 	}
 
-	t.Errorf("parser has %d errors", len(errors))
+	t.Errorf("parser has %d errors", len(p.Errors()))
 
-	for _, msg := range errors {
+	for _, msg := range p.Errors() {
 		t.Errorf("parser error: %q", msg)
 	}
 
@@ -499,14 +498,32 @@ func TestOperatorPrecedenceParsing(t *testing.T) {
 
 func TestErrorHandling(t *testing.T) {
 	tests := []struct {
-		inp        string
-		errMessage string
+		inp string
+		err *fail.Error
 	}{
-		{"{{ 5 + }}", ERR_EXPECTED_EXPRESSION},
-		{"{{ }}", ERR_EMPTY_BRACKETS},
-		{"{{ true ? 100 }}", fmt.Sprintf(ERR_WRONG_NEXT_TOKEN, token.TokenString(token.COLON), token.TokenString(token.RBRACES))},
-		{"{{ ) }}", fmt.Sprintf(ERR_NO_PREFIX_PARSE_FUNC, token.TokenString(token.RPAREN))},
-		{"{{ 5 }", fmt.Sprintf(ERR_ILLEGAL_TOKEN, "}")},
+		{
+			"{{ 5 + }}",
+			fail.New(1, "parser", fail.ERR_EXPECTED_EXPRESSION),
+		},
+		{
+			"{{ }}",
+			fail.New(1, "parser", fail.ERR_EMPTY_BRACKETS),
+		},
+		{
+			"{{ true ? 100 }}",
+			fail.New(1, "parser", fail.ERR_WRONG_NEXT_TOKEN,
+				token.TokenString(token.COLON),
+				token.TokenString(token.RBRACES)),
+		},
+		{
+			"{{ ) }}",
+			fail.New(1, "parser", fail.ERR_NO_PREFIX_PARSE_FUNC,
+				token.TokenString(token.RPAREN)),
+		},
+		{
+			"{{ 5 }",
+			fail.New(1, "parser", fail.ERR_ILLEGAL_TOKEN, "}"),
+		},
 	}
 
 	for _, tt := range tests {
@@ -522,8 +539,8 @@ func TestErrorHandling(t *testing.T) {
 
 		err := p.Errors()[0]
 
-		if err.Error() != tt.errMessage {
-			t.Errorf("expected error message %q, got %q", tt.errMessage, err.Error())
+		if err.String() != tt.err.String() {
+			t.Errorf("expected error message %q, got %q", tt.err, err.String())
 		}
 	}
 }

@@ -28,8 +28,8 @@ func ParseStr(text string) (*ast.Program, error) {
 
 	prog := pars.ParseProgram()
 
-	if len(pars.Errors()) != 0 {
-		return nil, pars.Errors()[0]
+	if pars.HasErrors() {
+		return nil, pars.CombinedErrors()
 	}
 
 	return prog, nil

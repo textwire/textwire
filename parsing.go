@@ -21,7 +21,7 @@ func parseProgram(absPath string) (*ast.Program, error) {
 	prog := pars.ParseProgram()
 
 	if len(pars.Errors()) != 0 {
-		return nil, pars.Errors()[0]
+		return nil, pars.CombinedErrors()
 	}
 
 	return prog, nil
