@@ -169,7 +169,7 @@ func (p *Parser) parseEmbeddedCode() ast.Statement {
 		return p.parseIfStatement()
 	case token.VAR:
 		return p.parseVarStatement()
-	case token.LAYOUT:
+	case token.USE:
 		return p.parseLayoutStatement()
 	case token.RESERVE:
 		return p.parseReserveStatement()
@@ -333,7 +333,7 @@ func (p *Parser) parseDefineStatement() ast.Statement {
 }
 
 func (p *Parser) parseLayoutStatement() ast.Statement {
-	stmt := &ast.LayoutStatement{
+	stmt := &ast.UseStatement{
 		Token: p.curToken, // "layout"
 	}
 

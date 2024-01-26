@@ -754,10 +754,10 @@ func TestDefineStatement(t *testing.T) {
 }
 
 func TestParseLayoutStatement(t *testing.T) {
-	inp := `{{ layout "main" }}`
+	inp := `{{ use "main" }}`
 
 	stmts := parseStatements(t, inp, 1, nil)
-	stmt, ok := stmts[0].(*ast.LayoutStatement)
+	stmt, ok := stmts[0].(*ast.UseStatement)
 
 	if !ok {
 		t.Fatalf("stmts[0] is not a LayoutStatement, got %T", stmts[0])

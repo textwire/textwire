@@ -51,7 +51,7 @@ var tokens = [...]string{
 	FALSE:    "false",
 	NIL:      "nil",
 	VAR:      "var",
-	LAYOUT:   "layout",
+	USE:      "use",
 	RESERVE:  "reserve",
 	INSERT:   "insert",
 	FOR:      "for",

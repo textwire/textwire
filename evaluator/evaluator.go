@@ -30,8 +30,8 @@ func Eval(node ast.Node, env *object.Env) object.Object {
 		return evalBlockStatement(node, env)
 	case *ast.DefineStatement:
 		return evalDeclStatement(node, env)
-	case *ast.LayoutStatement:
-		return evalLayoutStatement(node, env)
+	case *ast.UseStatement:
+		return evalUseStatement(node, env)
 	case *ast.InsertStatement:
 		return NIL
 	case *ast.ReserveStatement:
@@ -143,9 +143,9 @@ func evalDeclStatement(node *ast.DefineStatement, env *object.Env) object.Object
 	return NIL
 }
 
-func evalLayoutStatement(node *ast.LayoutStatement, env *object.Env) object.Object {
+func evalUseStatement(node *ast.UseStatement, env *object.Env) object.Object {
 	if node.Program == nil {
-		return newError("The layout statement must have a program attached")
+		return newError("The 'use' statement must have a program attached")
 	}
 
 	layoutContent := Eval(node.Program, env)
@@ -154,7 +154,7 @@ func evalLayoutStatement(node *ast.LayoutStatement, env *object.Env) object.Obje
 		return layoutContent
 	}
 
-	return &object.Layout{
+	return &object.Use{
 		Path:    node.Name.Value,
 		Content: layoutContent,
 	}

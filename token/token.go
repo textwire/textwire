@@ -59,7 +59,7 @@ const (
 	FOR
 	NIL
 	VAR
-	LAYOUT
+	USE
 	RESERVE
 	INSERT
 	BREAK
@@ -75,7 +75,7 @@ var keywords = map[string]TokenType{
 	"false":    FALSE,
 	"nil":      NIL,
 	"var":      VAR,
-	"layout":   LAYOUT,
+	"use":      USE,
 	"reserve":  RESERVE,
 	"insert":   INSERT,
 	"for":      FOR,
