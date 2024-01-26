@@ -14,8 +14,8 @@ type Template struct {
 	programs map[string]*ast.Program
 }
 
-func (t *Template) Evaluate(fileName string, vars map[string]interface{}) (object.Object, error) {
-	env, err := object.EnvFromMap(vars)
+func (t *Template) Evaluate(fileName string, data map[string]interface{}) (object.Object, error) {
+	env, err := object.EnvFromMap(data)
 
 	if err != nil {
 		return nil, err
@@ -36,8 +36,8 @@ func (t *Template) Evaluate(fileName string, vars map[string]interface{}) (objec
 	return evaluated, nil
 }
 
-func (t *Template) EvaluateResponse(w http.ResponseWriter, fileName string, vars map[string]interface{}) error {
-	evaluated, err := t.Evaluate(fileName, vars)
+func (t *Template) View(w http.ResponseWriter, fileName string, data map[string]interface{}) error {
+	evaluated, err := t.Evaluate(fileName, data)
 
 	if err != nil {
 		return err

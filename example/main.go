@@ -35,13 +35,13 @@ func homeHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	vars := map[string]interface{}{
+	data := map[string]interface{}{
 		"title":     "Home page",
 		"names":     []string{"John", "Jane", "Jack", "Jill"},
 		"showNames": true,
 	}
 
-	err := tpl.EvaluateResponse(w, "home", vars)
+	err := tpl.View(w, "home", data)
 
 	if err != nil {
 		fmt.Println(err)
@@ -54,11 +54,11 @@ func aboutHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	vars := map[string]interface{}{
+	data := map[string]interface{}{
 		"title": "About page",
 	}
 
-	err := tpl.EvaluateResponse(w, "about", vars)
+	err := tpl.View(w, "about", data)
 
 	if err != nil {
 		fmt.Println(err)

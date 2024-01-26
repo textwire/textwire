@@ -20,10 +20,10 @@ func NewEnclosedEnv(outer *Env) *Env {
 	return env
 }
 
-func EnvFromMap(m map[string]interface{}) (*Env, error) {
+func EnvFromMap(data map[string]interface{}) (*Env, error) {
 	env := NewEnv()
 
-	for key, val := range m {
+	for key, val := range data {
 		obj := nativeToObject(val)
 
 		if obj == nil {
