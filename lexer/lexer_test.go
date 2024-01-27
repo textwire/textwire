@@ -14,13 +14,13 @@ func TokenizeString(t *testing.T, input string, expectTokens []token.Token) {
 		tok := l.NextToken()
 
 		if tok.Literal != expectTok.Literal {
-			t.Fatalf("tests[%d] - literal wrong. expected=%s, got=%s",
+			t.Fatalf("tests[%d] - literal wrong. expected='%s', got='%s'",
 				i, expectTok.Literal, tok.Literal)
 		}
 
 		if tok.Type != expectTok.Type {
-			t.Fatalf("tests[%d] - tokentype wrong. expected=%s, got=%s",
-				i, expectTok.Literal, tok.Literal)
+			t.Fatalf("tests[%d] - tokentype wrong. expected='%s', got='%s'",
+				i, token.TokenString(expectTok.Type), token.TokenString(tok.Type))
 		}
 	}
 }
@@ -92,21 +92,25 @@ func TestIdentifiers(t *testing.T) {
 }
 
 func TestIfStatement(t *testing.T) {
-	inp := "@if(true)1@elseif(false)2@else3@end"
+	inp := "@if(true(()))1@elseif(false)2@else3@end"
 
 	TokenizeString(t, inp, []token.Token{
 		{Type: token.IF, Literal: "@if"},
 		{Type: token.LPAREN, Literal: "("},
 		{Type: token.TRUE, Literal: "true"},
+		{Type: token.LPAREN, Literal: "("},
+		{Type: token.LPAREN, Literal: "("},
 		{Type: token.RPAREN, Literal: ")"},
-		{Type: token.INT, Literal: "1"},
+		{Type: token.RPAREN, Literal: ")"},
+		{Type: token.RPAREN, Literal: ")"},
+		{Type: token.HTML, Literal: "1"},
 		{Type: token.ELSEIF, Literal: "@elseif"},
 		{Type: token.LPAREN, Literal: "("},
 		{Type: token.FALSE, Literal: "false"},
 		{Type: token.RPAREN, Literal: ")"},
-		{Type: token.INT, Literal: "2"},
+		{Type: token.HTML, Literal: "2"},
 		{Type: token.ELSE, Literal: "@else"},
-		{Type: token.INT, Literal: "3"},
+		{Type: token.HTML, Literal: "3"},
 		{Type: token.END, Literal: "@end"},
 	})
 }

@@ -7,19 +7,23 @@ import (
 )
 
 type Lexer struct {
-	input        string
-	position     int
-	nextPosition int
-	char         byte
-	line         uint
-	isHtml       bool
+	input                     string
+	position                  int
+	nextPosition              int
+	char                      byte
+	line                      uint
+	isHtml                    bool
+	isDirective               bool
+	countDirectiveParentheses int
 }
 
 func New(input string) *Lexer {
 	l := &Lexer{
-		input:  input,
-		line:   1,
-		isHtml: true,
+		input:                     input,
+		line:                      1,
+		isHtml:                    true,
+		isDirective:               false,
+		countDirectiveParentheses: 0,
 	}
 
 	// set l.char to the first character
@@ -52,20 +56,42 @@ func (l *Lexer) NextToken() token.Token {
 	}
 
 	if l.isHtml {
-		if l.char == '@' {
-			dir := l.readDirective()
-			tok := token.LookupDirective(dir)
-
-			if tok != token.ILLEGAL {
-				l.isHtml = false
-				return l.newToken(tok, dir)
-			}
-		}
-
-		return l.newToken(token.HTML, l.readHtml())
+		return l.readHtmlToken()
 	}
 
 	return l.readEmbeddedCodeToken()
+}
+
+func (l *Lexer) readHtmlToken() token.Token {
+	if tok, isDirective := l.directiveToken(); isDirective {
+		return tok
+	}
+
+	return l.newToken(token.HTML, l.readHtml())
+}
+
+func (l *Lexer) directiveToken() (token.Token, bool) {
+	if l.char != '@' {
+		return l.newToken(token.ILLEGAL, string(l.char)), false
+	}
+
+	dir := l.readDirective()
+	tok := token.LookupDirective(dir)
+
+	if tok == token.ILLEGAL {
+		return l.newToken(tok, string(l.char)), false
+	}
+
+	// ELSE and END tokens don't have parentheses
+	if tok == token.ELSE || tok == token.END {
+		l.isDirective = false
+		l.isHtml = true
+	} else {
+		l.isDirective = true
+		l.isHtml = false
+	}
+
+	return l.newToken(tok, dir), true
 }
 
 func (l *Lexer) readEmbeddedCodeToken() token.Token {
@@ -81,8 +107,21 @@ func (l *Lexer) readEmbeddedCodeToken() token.Token {
 	case ',':
 		return l.newTokenAndAdvance(token.COMMA, ",")
 	case '(':
+		if l.isDirective {
+			l.countDirectiveParentheses += 1
+		}
+
 		return l.newTokenAndAdvance(token.LPAREN, "(")
 	case ')':
+		if l.isDirective {
+			l.countDirectiveParentheses -= 1
+		}
+
+		if l.countDirectiveParentheses == 0 {
+			l.isDirective = false
+			l.isHtml = true
+		}
+
 		return l.newTokenAndAdvance(token.RPAREN, ")")
 	case '[':
 		return l.newTokenAndAdvance(token.LBRACKET, "[")
@@ -257,7 +296,7 @@ func (l *Lexer) readHtml() string {
 		l.advanceChar()
 	}
 
-	if l.char != 0 {
+	if l.char != 0 && l.char != '@' {
 		l.advanceChar()
 	}
 
