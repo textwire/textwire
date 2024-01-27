@@ -20,5 +20,5 @@ func (rs *ReserveStatement) TokenLiteral() string {
 }
 
 func (rs *ReserveStatement) String() string {
-	return fmt.Sprintf(`{{ reserve "%s" }}`, rs.Name.String())
+	return fmt.Sprintf(`@reserve("%s")`, rs.Name.String())
 }

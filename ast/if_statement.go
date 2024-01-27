@@ -24,7 +24,7 @@ func (is *IfStatement) TokenLiteral() string {
 func (is *IfStatement) String() string {
 	var result bytes.Buffer
 
-	result.WriteString("{{ if " + is.Condition.String() + " }}\n")
+	result.WriteString("@if(" + is.Condition.String() + ")\n")
 
 	result.WriteString(is.Consequence.String())
 
@@ -33,11 +33,11 @@ func (is *IfStatement) String() string {
 	}
 
 	if is.Alternative != nil {
-		result.WriteString("{{ else }}\n")
+		result.WriteString("@else\n")
 		result.WriteString(is.Alternative.String() + "\n")
 	}
 
-	result.WriteString("{{ end }}\n")
+	result.WriteString("@end\n")
 
 	return result.String()
 }

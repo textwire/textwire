@@ -25,13 +25,13 @@ func (is *InsertStatement) String() string {
 	var result bytes.Buffer
 
 	if is.Argument != nil {
-		result.WriteString(fmt.Sprintf(`{{ insert "%s", %s }}`, is.Name.String(), is.Argument.String()))
+		result.WriteString(fmt.Sprintf(`@insert("%s", %s)`, is.Name.String(), is.Argument.String()))
 		return result.String()
 	}
 
-	result.WriteString(fmt.Sprintf(`{{ insert "%s" }}`, is.Name.String()))
+	result.WriteString(fmt.Sprintf(`@insert("%s")`, is.Name.String()))
 	result.WriteString(is.Block.String())
-	result.WriteString(`{{ end }}`)
+	result.WriteString(`@end`)
 
 	return result.String()
 }

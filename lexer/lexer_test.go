@@ -92,27 +92,22 @@ func TestIdentifiers(t *testing.T) {
 }
 
 func TestIfStatement(t *testing.T) {
-	inp := "{{ if true }}1{{ else if false }}2{{ else }}3{{ end }}"
+	inp := "@if(true)1@elseif(false)2@else3@end"
 
 	TokenizeString(t, inp, []token.Token{
-		{Type: token.LBRACES, Literal: "{{"},
-		{Type: token.IF, Literal: "if"},
+		{Type: token.IF, Literal: "@if"},
+		{Type: token.LPAREN, Literal: "("},
 		{Type: token.TRUE, Literal: "true"},
-		{Type: token.RBRACES, Literal: "}}"},
-		{Type: token.HTML, Literal: "1"},
-		{Type: token.LBRACES, Literal: "{{"},
-		{Type: token.ELSEIF, Literal: "else if"},
+		{Type: token.RPAREN, Literal: ")"},
+		{Type: token.INT, Literal: "1"},
+		{Type: token.ELSEIF, Literal: "@elseif"},
+		{Type: token.LPAREN, Literal: "("},
 		{Type: token.FALSE, Literal: "false"},
-		{Type: token.RBRACES, Literal: "}}"},
-		{Type: token.HTML, Literal: "2"},
-		{Type: token.LBRACES, Literal: "{{"},
-		{Type: token.ELSE, Literal: "else"},
-		{Type: token.RBRACES, Literal: "}}"},
-		{Type: token.HTML, Literal: "3"},
-		{Type: token.LBRACES, Literal: "{{"},
-		{Type: token.END, Literal: "end"},
-		{Type: token.RBRACES, Literal: "}}"},
-		{Type: token.EOF, Literal: ""},
+		{Type: token.RPAREN, Literal: ")"},
+		{Type: token.INT, Literal: "2"},
+		{Type: token.ELSE, Literal: "@else"},
+		{Type: token.INT, Literal: "3"},
+		{Type: token.END, Literal: "@end"},
 	})
 }
 

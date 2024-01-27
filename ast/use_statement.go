@@ -20,5 +20,5 @@ func (us *UseStatement) TokenLiteral() string {
 }
 
 func (us *UseStatement) String() string {
-	return fmt.Sprintf(`{{ use %s }}`, us.Name.String())
+	return fmt.Sprintf(`@use(%s)`, us.Name.String())
 }

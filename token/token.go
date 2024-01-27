@@ -67,20 +67,24 @@ const (
 )
 
 var keywords = map[string]TokenType{
-	"if":       IF,
-	"else":     ELSE,
-	"else if":  ELSEIF,
-	"end":      END,
-	"true":     TRUE,
-	"false":    FALSE,
-	"nil":      NIL,
-	"var":      VAR,
-	"use":      USE,
-	"reserve":  RESERVE,
-	"insert":   INSERT,
-	"for":      FOR,
-	"break":    BREAK,
-	"continue": CONTINUE,
+	// Code keywords
+	"true":  TRUE,
+	"false": FALSE,
+	"nil":   NIL,
+	"var":   VAR,
+}
+
+var directives = map[string]TokenType{
+	"@if":       IF,
+	"@else":     ELSE,
+	"@elseif":   ELSEIF,
+	"@end":      END,
+	"@use":      USE,
+	"@reserve":  RESERVE,
+	"@insert":   INSERT,
+	"@for":      FOR,
+	"@break":    BREAK,
+	"@continue": CONTINUE,
 }
 
 type Token struct {
@@ -95,4 +99,12 @@ func LookupIdent(ident string) TokenType {
 	}
 
 	return IDENT
+}
+
+func LookupDirective(dir string) TokenType {
+	if tok, ok := directives[dir]; ok {
+		return tok
+	}
+
+	return ILLEGAL
 }

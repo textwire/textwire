@@ -52,6 +52,16 @@ func (l *Lexer) NextToken() token.Token {
 	}
 
 	if l.isHtml {
+		if l.char == '@' {
+			dir := l.readDirective()
+			tok := token.LookupDirective(dir)
+
+			if tok != token.ILLEGAL {
+				l.isHtml = false
+				return l.newToken(tok, dir)
+			}
+		}
+
 		return l.newToken(token.HTML, l.readHtml())
 	}
 
@@ -179,17 +189,17 @@ func (l *Lexer) readIdentifier() string {
 		l.advanceChar()
 	}
 
-	result := l.input[position:l.position]
+	return l.input[position:l.position]
+}
 
-	if result == "else" && l.peekChar() == 'i' {
-		l.advanceChar() // skip " "
-		l.advanceChar() // skip "i"
-		l.advanceChar() // skip "f"
+func (l *Lexer) readDirective() string {
+	position := l.position
 
-		return "else if"
+	for isDirective(l.char) {
+		l.advanceChar()
 	}
 
-	return result
+	return l.input[position:l.position]
 }
 
 func (l *Lexer) readString() string {
@@ -239,7 +249,7 @@ func (l *Lexer) readNumber() (string, bool) {
 func (l *Lexer) readHtml() string {
 	position := l.position
 
-	for l.isHtml && l.char != 0 && (l.char != '{' && l.peekChar() != '{') {
+	for l.isHtml && l.char != 0 && l.char != '@' && (l.char != '{' && l.peekChar() != '{') {
 		if l.char == '\n' {
 			l.line += 1
 		}

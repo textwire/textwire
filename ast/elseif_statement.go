@@ -22,9 +22,8 @@ func (eis *ElseIfStatement) TokenLiteral() string {
 func (eis *ElseIfStatement) String() string {
 	var result bytes.Buffer
 
-	result.WriteString("{{ else if " + eis.Condition.String() + " }}\n")
+	result.WriteString("@elseif(" + eis.Condition.String() + ")\n")
 	result.WriteString(eis.Consequence.String())
-	result.WriteString("\n{{ end }}\n")
 
 	return result.String()
 }
