@@ -73,7 +73,7 @@ func TestFloats(t *testing.T) {
 }
 
 func TestIdentifiers(t *testing.T) {
-	inp := "{{ testVar another_var12 nil false !true use reserve insert }}"
+	inp := "{{ testVar another_var12 nil false !true}}"
 
 	TokenizeString(t, inp, []token.Token{
 		{Type: token.LBRACES, Literal: "{{"},
@@ -83,9 +83,6 @@ func TestIdentifiers(t *testing.T) {
 		{Type: token.FALSE, Literal: "false"},
 		{Type: token.NOT, Literal: "!"},
 		{Type: token.TRUE, Literal: "true"},
-		{Type: token.USE, Literal: "use"},
-		{Type: token.RESERVE, Literal: "reserve"},
-		{Type: token.INSERT, Literal: "insert"},
 		{Type: token.RBRACES, Literal: "}}"},
 		{Type: token.EOF, Literal: ""},
 	})
@@ -112,6 +109,48 @@ func TestIfStatement(t *testing.T) {
 		{Type: token.ELSE, Literal: "@else"},
 		{Type: token.HTML, Literal: "3"},
 		{Type: token.END, Literal: "@end"},
+	})
+}
+
+func TestUseDirective(t *testing.T) {
+	inp := `<div>@use("layouts/main")</div>`
+
+	TokenizeString(t, inp, []token.Token{
+		{Type: token.HTML, Literal: "<div>"},
+		{Type: token.USE, Literal: "@use"},
+		{Type: token.LPAREN, Literal: "("},
+		{Type: token.STR, Literal: "layouts/main"},
+		{Type: token.RPAREN, Literal: ")"},
+		{Type: token.HTML, Literal: "</div>"},
+		{Type: token.EOF, Literal: ""},
+	})
+}
+
+func TestReserveDirective(t *testing.T) {
+	inp := `<div>@reserve("title")</div>`
+
+	TokenizeString(t, inp, []token.Token{
+		{Type: token.HTML, Literal: "<div>"},
+		{Type: token.RESERVE, Literal: "@reserve"},
+		{Type: token.LPAREN, Literal: "("},
+		{Type: token.STR, Literal: "title"},
+		{Type: token.RPAREN, Literal: ")"},
+		{Type: token.HTML, Literal: "</div>"},
+		{Type: token.EOF, Literal: ""},
+	})
+}
+
+func TestInsertDirective(t *testing.T) {
+	inp := `@insert("title")<div>Nice one</div>@end`
+
+	TokenizeString(t, inp, []token.Token{
+		{Type: token.INSERT, Literal: "@insert"},
+		{Type: token.LPAREN, Literal: "("},
+		{Type: token.STR, Literal: "title"},
+		{Type: token.RPAREN, Literal: ")"},
+		{Type: token.HTML, Literal: "<div>Nice one</div>"},
+		{Type: token.END, Literal: "@end"},
+		{Type: token.EOF, Literal: ""},
 	})
 }
 
