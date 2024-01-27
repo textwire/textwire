@@ -107,22 +107,9 @@ func (l *Lexer) readEmbeddedCodeToken() token.Token {
 	case ',':
 		return l.newTokenAndAdvance(token.COMMA, ",")
 	case '(':
-		if l.isDirective {
-			l.countDirectiveParentheses += 1
-		}
-
-		return l.newTokenAndAdvance(token.LPAREN, "(")
+		return l.leftParenthesesToken()
 	case ')':
-		if l.isDirective {
-			l.countDirectiveParentheses -= 1
-		}
-
-		if l.countDirectiveParentheses == 0 {
-			l.isDirective = false
-			l.isHtml = true
-		}
-
-		return l.newTokenAndAdvance(token.RPAREN, ")")
+		return l.rightParenthesesToken()
 	case '[':
 		return l.newTokenAndAdvance(token.LBRACKET, "[")
 	case ']':
@@ -199,6 +186,27 @@ func (l *Lexer) readEmbeddedCodeToken() token.Token {
 	}
 
 	return l.newToken(token.ILLEGAL, string(l.char))
+}
+
+func (l *Lexer) leftParenthesesToken() token.Token {
+	if l.isDirective {
+		l.countDirectiveParentheses += 1
+	}
+
+	return l.newTokenAndAdvance(token.LPAREN, "(")
+}
+
+func (l *Lexer) rightParenthesesToken() token.Token {
+	if l.isDirective {
+		l.countDirectiveParentheses -= 1
+	}
+
+	if l.isDirective && l.countDirectiveParentheses == 0 {
+		l.isDirective = false
+		l.isHtml = true
+	}
+
+	return l.newTokenAndAdvance(token.RPAREN, ")")
 }
 
 func (l *Lexer) newToken(tokType token.TokenType, literal string) token.Token {
