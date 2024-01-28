@@ -1,7 +1,6 @@
 package parser
 
 import (
-	"fmt"
 	"strconv"
 
 	"github.com/textwire/textwire/token"
@@ -519,7 +518,6 @@ func (p *Parser) parseIfStatement() *ast.IfStatement {
 	stmt.Consequence = p.parseBlockStatement()
 
 	for p.peekTokenIs(token.ELSEIF) {
-		fmt.Printf("-------> %#v\n", p.curToken)
 		if !p.expectPeek(token.ELSEIF) { // move to "@elseif"
 			return nil
 		}
