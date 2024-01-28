@@ -354,12 +354,14 @@ func (p *Parser) parseUseStatement() ast.Statement {
 
 func (p *Parser) parseReserveStatement() ast.Statement {
 	stmt := &ast.ReserveStatement{
-		Token: p.curToken, // "reserve"
+		Token: p.curToken, // "@reserve"
 	}
 
-	if !p.expectPeek(token.STR) { // move to string
+	if !p.expectPeek(token.LPAREN) { // move to "("
 		return nil
 	}
+
+	p.nextToken() // skip "("
 
 	stmt.Name = &ast.StringLiteral{
 		Token: p.curToken,
