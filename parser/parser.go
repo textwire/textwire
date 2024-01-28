@@ -1,6 +1,7 @@
 package parser
 
 import (
+	"fmt"
 	"strconv"
 
 	"github.com/textwire/textwire/token"
@@ -370,12 +371,14 @@ func (p *Parser) parseReserveStatement() ast.Statement {
 
 func (p *Parser) parseInsertStatement() ast.Statement {
 	stmt := &ast.InsertStatement{
-		Token: p.curToken, // "insert"
+		Token: p.curToken, // "@insert"
 	}
 
-	if !p.expectPeek(token.STR) { // move to string
+	if !p.expectPeek(token.LPAREN) { // move to "("
 		return nil
 	}
+
+	p.nextToken() // skip "("
 
 	stmt.Name = &ast.StringLiteral{
 		Token: p.curToken, // The name of the insert statement
@@ -389,11 +392,11 @@ func (p *Parser) parseInsertStatement() ast.Statement {
 		return stmt
 	}
 
-	if !p.expectPeek(token.RBRACES) { // move to "}}"
+	if !p.expectPeek(token.RPAREN) { // move to ")"
 		return nil
 	}
 
-	p.nextToken() // skip "}}"
+	p.nextToken() // skip ")"
 
 	stmt.Block = p.parseBlockStatement()
 
@@ -495,7 +498,10 @@ func (p *Parser) parseIfStatement() *ast.IfStatement {
 		Token: p.curToken, // "@if"
 	}
 
-	p.nextToken() // skip "@if" or "@elseif"
+	if !p.expectPeek(token.LPAREN) { // move to "("
+		return nil
+	}
+
 	p.nextToken() // skip "("
 
 	stmt.Condition = p.parseExpression(LOWEST)
@@ -509,8 +515,12 @@ func (p *Parser) parseIfStatement() *ast.IfStatement {
 	stmt.Consequence = p.parseBlockStatement()
 
 	for p.peekTokenIs(token.ELSEIF) {
+		fmt.Printf("-------> %#v\n", p.curToken)
+		if !p.expectPeek(token.ELSEIF) { // move to "@elseif"
+			return nil
+		}
+
 		p.nextToken() // skip "@elseif"
-		p.nextToken() // skip "("
 
 		stmt.Alternatives = append(stmt.Alternatives, &ast.ElseIfStatement{
 			Token:       p.curToken,
