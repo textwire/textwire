@@ -574,8 +574,8 @@ func TestTernaryExpression(t *testing.T) {
 	}
 }
 
-func TestIfStatement(t *testing.T) {
-	inp := `{{ if true }}1{{ end }}`
+func TestParseIfStatement(t *testing.T) {
+	inp := `@if(true)1@end`
 
 	stmts := parseStatements(t, inp, 1, nil)
 	stmt, ok := stmts[0].(*ast.IfStatement)
@@ -611,8 +611,8 @@ func TestIfStatement(t *testing.T) {
 	}
 }
 
-func TestIfElseStatement(t *testing.T) {
-	inp := `{{ if true }}1{{ else }}2{{ end }}`
+func TestParseIfElseStatement(t *testing.T) {
+	inp := `@if(true)1@else2@end`
 
 	stmts := parseStatements(t, inp, 1, nil)
 	stmt, ok := stmts[0].(*ast.IfStatement)
@@ -644,8 +644,8 @@ func TestIfElseStatement(t *testing.T) {
 	}
 }
 
-func TestIfElseIfStatement(t *testing.T) {
-	inp := `{{ if true }}1{{ else if false }}2{{ end }}`
+func TestParseIfElseIfStatement(t *testing.T) {
+	inp := `@if(true)1@elseif(false)2@end`
 
 	stmts := parseStatements(t, inp, 1, nil)
 	stmt, ok := stmts[0].(*ast.IfStatement)
@@ -683,8 +683,8 @@ func TestIfElseIfStatement(t *testing.T) {
 	}
 }
 
-func TestIfElseIfElseStatement(t *testing.T) {
-	inp := `{{ if true }}1{{ else if false }}2{{ else }}3{{ end }}`
+func TestParseIfElseIfElseStatement(t *testing.T) {
+	inp := `@if(true)1@elseif(false)2@else3@end`
 
 	stmts := parseStatements(t, inp, 1, nil)
 	stmt, ok := stmts[0].(*ast.IfStatement)
@@ -736,7 +736,7 @@ func TestIfElseIfElseStatement(t *testing.T) {
 	}
 }
 
-func TestDefineStatement(t *testing.T) {
+func TestParseDefineStatement(t *testing.T) {
 	tests := []struct {
 		inp      string
 		varName  string
@@ -770,14 +770,14 @@ func TestDefineStatement(t *testing.T) {
 	}
 }
 
-func TestParseLayoutStatement(t *testing.T) {
-	inp := `{{ use "main" }}`
+func TestParseUseStatement(t *testing.T) {
+	inp := `@use("main")`
 
 	stmts := parseStatements(t, inp, 1, nil)
 	stmt, ok := stmts[0].(*ast.UseStatement)
 
 	if !ok {
-		t.Fatalf("stmts[0] is not a LayoutStatement, got %T", stmts[0])
+		t.Fatalf("stmts[0] is not a UseStatement, got %T", stmts[0])
 	}
 
 	if stmt.Name.Value != "main" {
@@ -794,7 +794,7 @@ func TestParseLayoutStatement(t *testing.T) {
 }
 
 func TestParseReserveStatement(t *testing.T) {
-	inp := `{{ reserve "content" }}`
+	inp := `@reserve("content")`
 
 	stmts := parseStatements(t, inp, 1, map[string]*ast.InsertStatement{
 		"content": {
@@ -826,7 +826,7 @@ func TestParseReserveStatement(t *testing.T) {
 
 func TestInsertStatement(t *testing.T) {
 	t.Run("Insert with block", func(tt *testing.T) {
-		inp := `{{ insert "content" }}<h1>Some content</h1>{{ end }}`
+		inp := `@insert("content")<h1>Some content</h1>@end`
 
 		stmts := parseStatements(t, inp, 1, nil)
 		stmt, ok := stmts[0].(*ast.InsertStatement)
@@ -845,7 +845,7 @@ func TestInsertStatement(t *testing.T) {
 	})
 
 	t.Run("Insert with argument", func(tt *testing.T) {
-		inp := `{{ insert "content", "Some content" }}`
+		inp := `@insert("content", "Some content")`
 
 		stmts := parseStatements(t, inp, 1, nil)
 		stmt, ok := stmts[0].(*ast.InsertStatement)

@@ -89,7 +89,7 @@ func TestIdentifiers(t *testing.T) {
 }
 
 func TestIfStatement(t *testing.T) {
-	inp := "@if(true(()))1@elseif(false)2@else3@end"
+	inp := "@if(true(()))one@elseif(false)two@elsethree@endfour"
 
 	TokenizeString(t, inp, []token.Token{
 		{Type: token.IF, Literal: "@if"},
@@ -100,15 +100,16 @@ func TestIfStatement(t *testing.T) {
 		{Type: token.RPAREN, Literal: ")"},
 		{Type: token.RPAREN, Literal: ")"},
 		{Type: token.RPAREN, Literal: ")"},
-		{Type: token.HTML, Literal: "1"},
+		{Type: token.HTML, Literal: "one"},
 		{Type: token.ELSEIF, Literal: "@elseif"},
 		{Type: token.LPAREN, Literal: "("},
 		{Type: token.FALSE, Literal: "false"},
 		{Type: token.RPAREN, Literal: ")"},
-		{Type: token.HTML, Literal: "2"},
+		{Type: token.HTML, Literal: "two"},
 		{Type: token.ELSE, Literal: "@else"},
-		{Type: token.HTML, Literal: "3"},
+		{Type: token.HTML, Literal: "three"},
 		{Type: token.END, Literal: "@end"},
+		{Type: token.HTML, Literal: "four"},
 	})
 }
 

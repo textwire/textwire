@@ -508,11 +508,9 @@ func (p *Parser) parseIfStatement() *ast.IfStatement {
 
 	stmt.Consequence = p.parseBlockStatement()
 
-	p.nextToken() // skip block
-
 	for p.peekTokenIs(token.ELSEIF) {
-		p.nextToken() // skip "{{"
-		p.nextToken() // skip "else if"
+		p.nextToken() // skip "@elseif"
+		p.nextToken() // skip "("
 
 		stmt.Alternatives = append(stmt.Alternatives, &ast.ElseIfStatement{
 			Token:       p.curToken,
@@ -522,9 +520,7 @@ func (p *Parser) parseIfStatement() *ast.IfStatement {
 	}
 
 	if p.peekTokenIs(token.ELSE) {
-		p.nextToken() // skip "{{"
-		p.nextToken() // skip "else"
-		p.nextToken() // skip "}}"
+		p.nextToken() // skip "@else"
 
 		stmt.Alternative = p.parseBlockStatement()
 

@@ -240,13 +240,25 @@ func (l *Lexer) readIdentifier() string {
 }
 
 func (l *Lexer) readDirective() string {
-	position := l.position
+	var keyword string
 
 	for isDirective(l.char) {
+		keyword += string(l.char)
+
+		tok := token.LookupDirective(keyword)
+
 		l.advanceChar()
+
+		if !l.isPotentialElseif(tok) && tok != token.ILLEGAL {
+			break
+		}
 	}
 
-	return l.input[position:l.position]
+	return keyword
+}
+
+func (l *Lexer) isPotentialElseif(tok token.TokenType) bool {
+	return tok == token.ELSE && l.char == 'i' && l.peekChar() == 'f'
 }
 
 func (l *Lexer) readString() string {
