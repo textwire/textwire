@@ -143,6 +143,14 @@ func (p *Parser) parseStatement() ast.Statement {
 		return p.parseEmbeddedCode()
 	case token.SEMI:
 		return p.parseEmbeddedCode()
+	case token.IF:
+		return p.parseIfStatement()
+	case token.USE:
+		return p.parseUseStatement()
+	case token.RESERVE:
+		return p.parseReserveStatement()
+	case token.INSERT:
+		return p.parseInsertStatement()
 	default:
 		return nil
 	}
@@ -157,16 +165,8 @@ func (p *Parser) parseEmbeddedCode() ast.Statement {
 	}
 
 	switch p.curToken.Type {
-	case token.IF:
-		return p.parseIfStatement()
 	case token.VAR:
 		return p.parseVarStatement()
-	case token.USE:
-		return p.parseLayoutStatement()
-	case token.RESERVE:
-		return p.parseReserveStatement()
-	case token.INSERT:
-		return p.parseInsertStatement()
 	case token.IDENT:
 		if p.peekTokenIs(token.DEFINE) {
 			return p.parseDefineStatement()
@@ -334,9 +334,9 @@ func (p *Parser) parseDefineStatement() ast.Statement {
 	return stmt
 }
 
-func (p *Parser) parseLayoutStatement() ast.Statement {
+func (p *Parser) parseUseStatement() ast.Statement {
 	stmt := &ast.UseStatement{
-		Token: p.curToken, // "layout"
+		Token: p.curToken, // "use"
 	}
 
 	if !p.expectPeek(token.STR) { // move to string
@@ -492,18 +492,23 @@ func (p *Parser) parseVarStatement() ast.Statement {
 
 func (p *Parser) parseIfStatement() *ast.IfStatement {
 	stmt := &ast.IfStatement{
-		Token: p.curToken, // "if"
+		Token: p.curToken, // "@if"
 	}
 
-	p.nextToken() // skip "if" or "else if"
+	p.nextToken() // skip "@if" or "@elseif"
+	p.nextToken() // skip "("
 
 	stmt.Condition = p.parseExpression(LOWEST)
 
-	if !p.expectPeek(token.RBRACES) { // move to "}}"
+	if !p.expectPeek(token.RPAREN) { // move to ")"
 		return nil
 	}
 
+	p.nextToken() // skip ")"
+
 	stmt.Consequence = p.parseBlockStatement()
+
+	p.nextToken() // skip block
 
 	for p.peekTokenIs(token.ELSEIF) {
 		p.nextToken() // skip "{{"
@@ -536,14 +541,9 @@ func (p *Parser) parseBlockStatement() *ast.BlockStatement {
 	stmt := &ast.BlockStatement{Token: p.curToken}
 
 	for {
-		isOpening := p.curTokenIs(token.LBRACES)    // "{{"
-		isPeekEnd := p.peekTokenIs(token.END)       // "end
-		isPeekElse := p.peekTokenIs(token.ELSE)     // "else"
-		isPeekElseIf := p.peekTokenIs(token.ELSEIF) // "else if"
-
-		if isOpening && (isPeekEnd || isPeekElse || isPeekElseIf) {
-			break
-		}
+		isPeekEnd := p.peekTokenIs(token.END)       // "@end
+		isPeekElse := p.peekTokenIs(token.ELSE)     // "@else"
+		isPeekElseIf := p.peekTokenIs(token.ELSEIF) // "@elseif"
 
 		block := p.parseStatement()
 
@@ -551,7 +551,11 @@ func (p *Parser) parseBlockStatement() *ast.BlockStatement {
 			stmt.Statements = append(stmt.Statements, block)
 		}
 
-		p.nextToken() // skip "}}"
+		if isPeekEnd || isPeekElse || isPeekElseIf {
+			break
+		}
+
+		p.nextToken() // skip statement
 	}
 
 	return stmt
@@ -583,7 +587,7 @@ func (p *Parser) parseExpression(precedence int) ast.Expression {
 
 	leftExp := prefix()
 
-	for !p.peekTokenIs(token.RBRACES, token.SEMI) && precedence < p.peekPrecedence() {
+	for !p.peekTokenIs(token.RBRACES, token.SEMI, token.RPAREN) && precedence < p.peekPrecedence() {
 		infix := p.infixParseFns[p.peekToken.Type]
 
 		if infix == nil {
