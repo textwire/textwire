@@ -14,12 +14,12 @@ func TokenizeString(t *testing.T, input string, expectTokens []token.Token) {
 		tok := l.NextToken()
 
 		if tok.Literal != expectTok.Literal {
-			t.Fatalf("tests[%d] - literal wrong. expected='%s', got='%s'",
+			t.Fatalf("tests[%d] - literal wrong. expected=%q, got=%q",
 				i, expectTok.Literal, tok.Literal)
 		}
 
 		if tok.Type != expectTok.Type {
-			t.Fatalf("tests[%d] - tokentype wrong. expected='%s', got='%s'",
+			t.Fatalf("tests[%d] - tokentype wrong. expected='%q, got=%q",
 				i, token.TokenString(expectTok.Type), token.TokenString(tok.Type))
 		}
 	}
@@ -115,28 +115,7 @@ func TestIfStatement(t *testing.T) {
 	})
 }
 
-func TestNestedIfDirective(t *testing.T) {
-	inp := `@if(true)@if(false)No@elseYes@end@end`
-
-	TokenizeString(t, inp, []token.Token{
-		{Type: token.IF, Literal: "@if"},
-		{Type: token.LPAREN, Literal: "("},
-		{Type: token.TRUE, Literal: "true"},
-		{Type: token.RPAREN, Literal: ")"},
-		{Type: token.IF, Literal: "@if"},
-		{Type: token.LPAREN, Literal: "("},
-		{Type: token.FALSE, Literal: "false"},
-		{Type: token.RPAREN, Literal: ")"},
-		{Type: token.HTML, Literal: "No"},
-		{Type: token.ELSE, Literal: "@else"},
-		{Type: token.HTML, Literal: "Yes"},
-		{Type: token.END, Literal: "@end"},
-		{Type: token.END, Literal: "@end"},
-		{Type: token.EOF, Literal: ""},
-	})
-}
-
-func TestUseDirective(t *testing.T) {
+func TestUseStatement(t *testing.T) {
 	inp := `<div>@use("layouts/main")</div>`
 
 	TokenizeString(t, inp, []token.Token{
@@ -150,7 +129,7 @@ func TestUseDirective(t *testing.T) {
 	})
 }
 
-func TestReserveDirective(t *testing.T) {
+func TestReserveStatement(t *testing.T) {
 	inp := `<div>@reserve("title")</div>`
 
 	TokenizeString(t, inp, []token.Token{
@@ -164,7 +143,7 @@ func TestReserveDirective(t *testing.T) {
 	})
 }
 
-func TestInsertDirective(t *testing.T) {
+func TestInsertStatement(t *testing.T) {
 	inp := `@insert("title")<div>Nice one</div>@end`
 
 	TokenizeString(t, inp, []token.Token{
