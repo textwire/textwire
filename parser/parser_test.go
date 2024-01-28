@@ -215,6 +215,45 @@ func testLiteralExpression(
 	return false
 }
 
+func testConsequence(t *testing.T, stmt ast.Statement, condition interface{}, consequence string) bool {
+	ifStmt, ok := stmt.(*ast.IfStatement)
+
+	if !ok {
+		t.Errorf("stmt is not an IfStatement, got %T", stmt)
+		return false
+	}
+
+	if !testLiteralExpression(t, ifStmt.Condition, condition) {
+		return false
+	}
+
+	if ifStmt.Consequence.String() != consequence {
+		t.Errorf("ifStmt.Consequence.String() is not %s, got %s", consequence, ifStmt.Consequence.String())
+		return false
+	}
+
+	return true
+}
+
+func testAlternative(t *testing.T, alt *ast.BlockStatement, altValue string) bool {
+	if alt == nil {
+		t.Errorf("alternative is nil")
+		return false
+	}
+
+	if len(alt.Statements) != 1 {
+		t.Errorf("alternative.Statements does not contain 1 statement, got %d", len(alt.Statements))
+		return false
+	}
+
+	if alt.String() != altValue {
+		t.Errorf("alternative.String() is not %s, got %s", alt.String(), altValue)
+		return false
+	}
+
+	return true
+}
+
 func TestParseIdentifier(t *testing.T) {
 	stmts := parseStatements(t, "{{ myName }}", 1, nil)
 	stmt, ok := stmts[0].(*ast.ExpressionStatement)
@@ -584,22 +623,8 @@ func TestParseIfStatement(t *testing.T) {
 		t.Fatalf("stmts[0] is not an IfStatement, got %T", stmts[0])
 	}
 
-	if !testBooleanLiteral(t, stmt.Condition, true) {
+	if !testConsequence(t, stmt, true, "1") {
 		return
-	}
-
-	if len(stmt.Consequence.Statements) != 1 {
-		t.Errorf("ifStmt.Consequence.Statements does not contain 1 statement, got %d", len(stmt.Consequence.Statements))
-	}
-
-	consequence, ok := stmt.Consequence.Statements[0].(*ast.HTMLStatement)
-
-	if !ok {
-		t.Fatalf("ifStmt.Consequence.Statements[0] is not an HTMLStatement, got %T", stmt.Consequence.Statements[0])
-	}
-
-	if consequence.String() != "1" {
-		t.Errorf("consequence.String() is not %s, got %s", "1", consequence.String())
 	}
 
 	if stmt.Alternative != nil {
@@ -621,29 +646,14 @@ func TestParseIfElseStatement(t *testing.T) {
 		t.Fatalf("stmts[0] is not an IfStatement, got %T", stmts[0])
 	}
 
-	if stmt.Alternative == nil {
-		t.Errorf("ifStmt.Alternative is nil")
+	if !testConsequence(t, stmt, true, "1") {
+		return
 	}
 
-	if len(stmt.Alternative.Statements) != 1 {
-		t.Errorf("ifStmt.Alternative.Statements does not contain 1 statement, got %d", len(stmt.Alternative.Statements))
-	}
-
-	alternative, ok := stmt.Alternative.Statements[0].(*ast.HTMLStatement)
-
-	if !ok {
-		t.Fatalf("ifStmt.Alternative.Statements[0] is not an HTMLStatement, got %T", stmt.Alternative.Statements[0])
-	}
-
-	if alternative.String() != "2" {
-		t.Errorf("alternative.String() is not %s, got %s", "2", alternative.String())
-	}
-
-	if len(stmt.Alternatives) != 0 {
-		t.Errorf("ifStmt.Alternatives is not empty, got %d", len(stmt.Alternatives))
+	if !testAlternative(t, stmt.Alternative, "2") {
+		return
 	}
 }
-
 func TestParseIfElseIfStatement(t *testing.T) {
 	inp := `@if(true)1@elseif(false)2@end`
 
@@ -652,6 +662,10 @@ func TestParseIfElseIfStatement(t *testing.T) {
 
 	if !ok {
 		t.Fatalf("stmts[0] is not an IfStatement, got %T", stmts[0])
+	}
+
+	if !testConsequence(t, stmt, true, "1") {
+		return
 	}
 
 	if stmt.Alternative != nil {
@@ -693,22 +707,12 @@ func TestParseIfElseIfElseStatement(t *testing.T) {
 		t.Fatalf("stmts[0] is not an IfStatement, got %T", stmts[0])
 	}
 
-	if stmt.Alternative == nil {
-		t.Errorf("ifStmt.Alternative is nil")
+	if !testConsequence(t, stmt, true, "1") {
+		return
 	}
 
-	if len(stmt.Alternative.Statements) != 1 {
-		t.Errorf("ifStmt.Alternative.Statements does not contain 1 statement, got %d", len(stmt.Alternative.Statements))
-	}
-
-	alternative, ok := stmt.Alternative.Statements[0].(*ast.HTMLStatement)
-
-	if !ok {
-		t.Fatalf("ifStmt.Alternative.Statements[0] is not an HTMLStatement, got %T", stmt.Alternative.Statements[0])
-	}
-
-	if alternative.String() != "3" {
-		t.Errorf("alternative.String() is not %s, got %s", "3", alternative.String())
+	if !testAlternative(t, stmt.Alternative, "3") {
+		return
 	}
 
 	if len(stmt.Alternatives) != 1 {
