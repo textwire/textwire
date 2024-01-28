@@ -337,12 +337,14 @@ func (p *Parser) parseDefineStatement() ast.Statement {
 
 func (p *Parser) parseUseStatement() ast.Statement {
 	stmt := &ast.UseStatement{
-		Token: p.curToken, // "use"
+		Token: p.curToken, // "@use"
 	}
 
-	if !p.expectPeek(token.STR) { // move to string
+	if !p.expectPeek(token.LPAREN) { // move to "("
 		return nil
 	}
+
+	p.nextToken() // skip "("
 
 	stmt.Name = &ast.StringLiteral{
 		Token: p.curToken,
