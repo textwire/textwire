@@ -89,7 +89,7 @@ func TestIdentifiers(t *testing.T) {
 }
 
 func TestIfStatement(t *testing.T) {
-	inp := "@if(true(()))one@elseif(false)two@elsethree@endfour"
+	inp := `@if(true(()))one@elseif(false){{ "nice" }}@elsethree@endfour`
 
 	TokenizeString(t, inp, []token.Token{
 		{Type: token.IF, Literal: "@if"},
@@ -105,11 +105,34 @@ func TestIfStatement(t *testing.T) {
 		{Type: token.LPAREN, Literal: "("},
 		{Type: token.FALSE, Literal: "false"},
 		{Type: token.RPAREN, Literal: ")"},
-		{Type: token.HTML, Literal: "two"},
+		{Type: token.LBRACES, Literal: "{{"},
+		{Type: token.STR, Literal: "nice"},
+		{Type: token.RBRACES, Literal: "}}"},
 		{Type: token.ELSE, Literal: "@else"},
 		{Type: token.HTML, Literal: "three"},
 		{Type: token.END, Literal: "@end"},
 		{Type: token.HTML, Literal: "four"},
+	})
+}
+
+func TestNestedIfDirective(t *testing.T) {
+	inp := `@if(true)@if(false)No@elseYes@end@end`
+
+	TokenizeString(t, inp, []token.Token{
+		{Type: token.IF, Literal: "@if"},
+		{Type: token.LPAREN, Literal: "("},
+		{Type: token.TRUE, Literal: "true"},
+		{Type: token.RPAREN, Literal: ")"},
+		{Type: token.IF, Literal: "@if"},
+		{Type: token.LPAREN, Literal: "("},
+		{Type: token.FALSE, Literal: "false"},
+		{Type: token.RPAREN, Literal: ")"},
+		{Type: token.HTML, Literal: "No"},
+		{Type: token.ELSE, Literal: "@else"},
+		{Type: token.HTML, Literal: "Yes"},
+		{Type: token.END, Literal: "@end"},
+		{Type: token.END, Literal: "@end"},
+		{Type: token.EOF, Literal: ""},
 	})
 }
 
