@@ -31,11 +31,11 @@ func TestEvalUseStatement(t *testing.T) {
 	for _, tt := range tests {
 		evaluated, err := tpl.Evaluate(tt.fileName, tt.vars)
 
-		actual := evaluated.String()
-
 		if err != nil {
 			t.Errorf("error evaluating template: %s", err)
 		}
+
+		actual := evaluated.String()
 
 		expected, err := readFile("testdata/expected/" + tt.fileName + ".html")
 
