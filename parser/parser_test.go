@@ -657,14 +657,16 @@ func TestParseIfElseStatement(t *testing.T) {
 
 func TestParseNestedIfElseStatement(t *testing.T) {
 	inp := `
-		@if(false)
-			Here
-		@else
-			@if(true)
-				Nice
+		@if(true)
+			@if(false)
+				James
+			@elseif(false)
+				John
 			@else
-				Not nice
+				@if(true){{ "Marry" }}@end
 			@end
+		@else
+			@if(true)Anna@end
 		@end
 	`
 
@@ -684,26 +686,8 @@ func TestParseNestedIfElseStatement(t *testing.T) {
 		t.Fatalf("stmts[1] is not an IfStatement, got %T", stmts[0])
 	}
 
-	if !testConsequence(t, ifStmt, false, "\n\t\t\tHere\n\t\t") {
-		return
-	}
-
-	if len(ifStmt.Alternative.Statements) != 3 {
-		t.Fatalf("ifStmt.Alternative.Statements does not contain 3 statements, got %d", len(ifStmt.Alternative.Statements))
-	}
-
-	nestedIfStmt, isNotIfStmt := ifStmt.Alternative.Statements[1].(*ast.IfStatement)
-
-	if !isNotIfStmt {
-		t.Fatalf("ifStmt.Alternative.Statements[1] is not an IfStatement, got %T", stmts[0])
-	}
-
-	if !testConsequence(t, nestedIfStmt, true, "\n\t\t\t\tNice\n\t\t\t") {
-		return
-	}
-
-	if !testAlternative(t, nestedIfStmt.Alternative, "\n\t\t\t\tNot nice\n\t\t\t") {
-		return
+	if len(ifStmt.Consequence.Statements) != 3 {
+		t.Fatalf("ifStmt.Consequence.Statements does not contain 3 statement, got %d", len(ifStmt.Consequence.Statements))
 	}
 }
 

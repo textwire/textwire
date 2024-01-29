@@ -523,15 +523,25 @@ func (p *Parser) parseIfStatement() *ast.IfStatement {
 		}
 
 		p.nextToken() // skip "@elseif"
+		p.nextToken() // skip "("
+
+		condition := p.parseExpression(LOWEST)
+
+		if !p.expectPeek(token.RPAREN) { // move to ")"
+			return nil
+		}
+
+		p.nextToken() // skip ")"
 
 		stmt.Alternatives = append(stmt.Alternatives, &ast.ElseIfStatement{
 			Token:       p.curToken,
-			Condition:   p.parseExpression(LOWEST),
+			Condition:   condition,
 			Consequence: p.parseBlockStatement(),
 		})
 	}
 
 	if p.peekTokenIs(token.ELSE) {
+		p.nextToken() // move to "@else"
 		p.nextToken() // skip "@else"
 
 		stmt.Alternative = p.parseBlockStatement()
@@ -542,6 +552,10 @@ func (p *Parser) parseIfStatement() *ast.IfStatement {
 		}
 	}
 
+	if !p.expectPeek(token.END) { // move to "@end"
+		return nil
+	}
+
 	return stmt
 }
 
@@ -549,17 +563,13 @@ func (p *Parser) parseBlockStatement() *ast.BlockStatement {
 	stmt := &ast.BlockStatement{Token: p.curToken}
 
 	for {
-		isPeekEnd := p.peekTokenIs(token.END)       // "@end
-		isPeekElse := p.peekTokenIs(token.ELSE)     // "@else"
-		isPeekElseIf := p.peekTokenIs(token.ELSEIF) // "@elseif"
-
 		block := p.parseStatement()
 
 		if block != nil {
 			stmt.Statements = append(stmt.Statements, block)
 		}
 
-		if isPeekEnd || isPeekElse || isPeekElseIf {
+		if p.peekTokenIs(token.ELSE, token.ELSEIF, token.END) {
 			break
 		}
 
