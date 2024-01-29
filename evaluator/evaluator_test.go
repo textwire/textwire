@@ -169,31 +169,31 @@ func TestEvalIfStatement(t *testing.T) {
 		inp    string
 		expect string
 	}{
-		{`{{ if true }}Hello{{ end }}`, "Hello"},
-		{`{{ if false }}Hello{{ end }}`, ""},
-		{`{{ if true }}Anna{{ else if true }}Serhii{{ end }}`, "Anna"},
-		{`{{ if false }}Anna{{ else if true }}Serhii{{ end }}`, "Serhii"},
-		{`{{ if false }}Anna{{ else if false }}Serhii{{ else }}Great{{ end }}`, "Great"},
-		{`{{ if false }}Anna{{ else if false }}Serhii{{ else if true }}Great{{ end }}`, "Great"},
-		{`{{ if false }}Anna{{ else if true }}Serhii{{ else if true }}Great{{ end }}`, "Serhii"},
-		{`<h2>{{ if true }}Hello{{ end }}</h2>`, "<h2>Hello</h2>"},
-		{`<h2>{{ if false }}Hello{{ end }}</h2>`, "<h2></h2>"},
-		{`{{if true}}Hello{{end}}`, "Hello"},
+		{`@if(true)Hello@end`, "Hello"},
+		{`@if(false)Hello@end`, ""},
+		{`@if(true)Anna@elseif(true)Lili@end`, "Anna"},
+		{`@if(false)Alan@elseif(true)Serhii@end`, "Serhii"},
+		{`@if(false)Ana De Armaz@elseif(false)David@elseVladimir@end`, "Vladimir"},
+		{`@if(false)Will@elseif(false)Daria@elseif(true)Poll@end`, "Poll"},
+		{`@if(false)Lara@elseif(true)Susan@elseif(true)Smith@end`, "Susan"},
+		{`<h2>@if(true)Hello@end</h2>`, "<h2>Hello</h2>"},
+		{`<h2>@if(false)Hello@end</h2>`, "<h2></h2>"},
+		{`@if(true)Hello@end`, "Hello"},
 		{
 			`
-				{{ if true }}
-					{{ if false }}
+				@if(true)
+					@if(false)
 					    James
-					{{ else if false }}
+					@elseif(false)
 						John
-					{{ else }}
-						{{ if true }}{{ "Serhii" }}{{ end }}
-					{{ end }}
-				{{ else }}
-					{{ if true }}Anna{{ end }}
-				{{ end }}
+					@else
+						@if(true){{ "Marry" }}@end
+					@end
+				@else
+					@if(true)Anna@end
+				@end
 			`,
-			"Serhii",
+			"Marry",
 		},
 	}
 
