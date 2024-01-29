@@ -551,13 +551,13 @@ func TestErrorHandling(t *testing.T) {
 		{
 			"{{ true ? 100 }}",
 			fail.New(1, "parser", fail.ERR_WRONG_NEXT_TOKEN,
-				token.TokenString(token.COLON),
-				token.TokenString(token.RBRACES)),
+				token.String(token.COLON),
+				token.String(token.RBRACES)),
 		},
 		{
 			"{{ ) }}",
 			fail.New(1, "parser", fail.ERR_NO_PREFIX_PARSE_FUNC,
-				token.TokenString(token.RPAREN)),
+				token.String(token.RPAREN)),
 		},
 		{
 			"{{ 5 }",

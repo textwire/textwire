@@ -60,6 +60,6 @@ var tokens = [...]string{
 	END:      "@end",
 }
 
-func TokenString(t TokenType) string {
+func String(t TokenType) string {
 	return tokens[t]
 }

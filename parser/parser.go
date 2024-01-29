@@ -217,8 +217,8 @@ func (p *Parser) expectPeek(tok token.TokenType) bool {
 	p.newError(
 		p.peekToken.Line,
 		fail.ERR_WRONG_NEXT_TOKEN,
-		token.TokenString(tok),
-		token.TokenString(p.peekToken.Type),
+		token.String(tok),
+		token.String(p.peekToken.Type),
 	)
 
 	return false
@@ -598,7 +598,7 @@ func (p *Parser) parseExpression(precedence int) ast.Expression {
 		p.newError(
 			p.curToken.Line,
 			fail.ERR_NO_PREFIX_PARSE_FUNC,
-			token.TokenString(p.curToken.Type),
+			token.String(p.curToken.Type),
 		)
 		return nil
 	}

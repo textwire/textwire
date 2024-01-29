@@ -20,7 +20,7 @@ func TokenizeString(t *testing.T, input string, expectTokens []token.Token) {
 
 		if tok.Type != expectTok.Type {
 			t.Fatalf("tests[%d] - tokentype wrong. expected='%q, got=%q",
-				i, token.TokenString(expectTok.Type), token.TokenString(tok.Type))
+				i, token.String(expectTok.Type), token.String(tok.Type))
 		}
 	}
 }

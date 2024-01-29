@@ -43,7 +43,7 @@ func (p *Program) Inserts() map[string]*InsertStatement {
 
 func (p *Program) ApplyInserts(inserts map[string]*InsertStatement) error {
 	for _, stmt := range p.Statements {
-		if stmt.TokenLiteral() != token.TokenString(token.RESERVE) {
+		if stmt.TokenLiteral() != token.String(token.RESERVE) {
 			continue
 		}
 
@@ -76,7 +76,7 @@ func (p *Program) ApplyLayout(layoutProg *Program) error {
 
 func (p *Program) IsLayout() bool {
 	for _, stmt := range p.Statements {
-		if stmt.TokenLiteral() == token.TokenString(token.RESERVE) {
+		if stmt.TokenLiteral() == token.String(token.RESERVE) {
 			return true
 		}
 	}
@@ -86,7 +86,7 @@ func (p *Program) IsLayout() bool {
 
 func (p *Program) HasLayout() (bool, *UseStatement) {
 	for _, stmt := range p.Statements {
-		if stmt.TokenLiteral() != token.TokenString(token.USE) {
+		if stmt.TokenLiteral() != token.String(token.USE) {
 			continue
 		}
 
