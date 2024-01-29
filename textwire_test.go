@@ -6,7 +6,7 @@ import (
 	"testing"
 )
 
-func TestEvalLayoutStatement(t *testing.T) {
+func TestEvalUseStatement(t *testing.T) {
 	tests := []struct {
 		fileName string
 		vars     map[string]interface{}
