@@ -228,7 +228,7 @@ func testConsequence(t *testing.T, stmt ast.Statement, condition interface{}, co
 	}
 
 	if ifStmt.Consequence.String() != consequence {
-		t.Errorf("ifStmt.Consequence.String() is not %s, got %s", consequence, ifStmt.Consequence.String())
+		t.Errorf("ifStmt.Consequence.String() is not %q, got %q", consequence, ifStmt.Consequence.String())
 		return false
 	}
 
@@ -247,7 +247,7 @@ func testAlternative(t *testing.T, alt *ast.BlockStatement, altValue string) boo
 	}
 
 	if alt.String() != altValue {
-		t.Errorf("alternative.String() is not %s, got %s", alt.String(), altValue)
+		t.Errorf("alternative.String() is not %q, got %q", alt.String(), altValue)
 		return false
 	}
 
@@ -654,6 +654,59 @@ func TestParseIfElseStatement(t *testing.T) {
 		return
 	}
 }
+
+func TestParseNestedIfElseStatement(t *testing.T) {
+	inp := `
+		@if(false)
+			Here
+		@else
+			@if(true)
+				Nice
+			@else
+				Not nice
+			@end
+		@end
+	`
+
+	stmts := parseStatements(t, inp, 3, nil)
+
+	if _, ok := stmts[0].(*ast.HTMLStatement); !ok {
+		t.Fatalf("stmts[0] is not an HTMLStatement, got %T", stmts[0])
+	}
+
+	if _, ok := stmts[2].(*ast.HTMLStatement); !ok {
+		t.Fatalf("stmts[2] is not an HTMLStatement, got %T", stmts[0])
+	}
+
+	ifStmt, isNotIfStmt := stmts[1].(*ast.IfStatement)
+
+	if !isNotIfStmt {
+		t.Fatalf("stmts[1] is not an IfStatement, got %T", stmts[0])
+	}
+
+	if !testConsequence(t, ifStmt, false, "\n\t\t\tHere\n\t\t") {
+		return
+	}
+
+	if len(ifStmt.Alternative.Statements) != 3 {
+		t.Fatalf("ifStmt.Alternative.Statements does not contain 3 statements, got %d", len(ifStmt.Alternative.Statements))
+	}
+
+	nestedIfStmt, isNotIfStmt := ifStmt.Alternative.Statements[1].(*ast.IfStatement)
+
+	if !isNotIfStmt {
+		t.Fatalf("ifStmt.Alternative.Statements[1] is not an IfStatement, got %T", stmts[0])
+	}
+
+	if !testConsequence(t, nestedIfStmt, true, "\n\t\t\t\tNice\n\t\t\t") {
+		return
+	}
+
+	if !testAlternative(t, nestedIfStmt.Alternative, "\n\t\t\t\tNot nice\n\t\t\t") {
+		return
+	}
+}
+
 func TestParseIfElseIfStatement(t *testing.T) {
 	inp := `@if(true)1@elseif(false)2@end`
 
