@@ -75,8 +75,7 @@ func (l *Lexer) directiveToken() (token.Token, bool) {
 		return l.newToken(token.ILLEGAL, string(l.char)), false
 	}
 
-	dir := l.readDirective()
-	tok := token.LookupDirective(dir)
+	tok, dir := l.readDirective()
 
 	if tok == token.ILLEGAL {
 		return l.newToken(tok, string(l.char)), false
@@ -239,13 +238,14 @@ func (l *Lexer) readIdentifier() string {
 	return l.input[position:l.position]
 }
 
-func (l *Lexer) readDirective() string {
+func (l *Lexer) readDirective() (token.TokenType, string) {
 	var keyword string
+	var tok token.TokenType
 
 	for isDirective(l.char) {
 		keyword += string(l.char)
 
-		tok := token.LookupDirective(keyword)
+		tok = token.LookupDirective(keyword)
 
 		l.advanceChar()
 
@@ -254,7 +254,7 @@ func (l *Lexer) readDirective() string {
 		}
 	}
 
-	return keyword
+	return tok, keyword
 }
 
 func (l *Lexer) isPotentialElseif(tok token.TokenType) bool {
