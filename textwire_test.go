@@ -6,6 +6,24 @@ import (
 	"testing"
 )
 
+func readFile(fileName string) (string, error) {
+	file, err := os.Open(fileName)
+
+	if err != nil {
+		return "", err
+	}
+
+	defer file.Close()
+
+	bytes, err := io.ReadAll(file)
+
+	if err != nil {
+		return "", err
+	}
+
+	return string(bytes), nil
+}
+
 func TestEvalUseStatement(t *testing.T) {
 	tests := []struct {
 		fileName string
@@ -48,22 +66,4 @@ func TestEvalUseStatement(t *testing.T) {
 			t.Errorf("wrong result. EXPECTED:\n\"%s\"\n-------GOT:--------\n\"%s\"", expected, actual)
 		}
 	}
-}
-
-func readFile(fileName string) (string, error) {
-	file, err := os.Open(fileName)
-
-	if err != nil {
-		return "", err
-	}
-
-	defer file.Close()
-
-	bytes, err := io.ReadAll(file)
-
-	if err != nil {
-		return "", err
-	}
-
-	return string(bytes), nil
 }
