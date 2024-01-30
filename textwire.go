@@ -1,11 +1,5 @@
 package textwire
 
-import (
-	"github.com/textwire/textwire/ast"
-	"github.com/textwire/textwire/lexer"
-	"github.com/textwire/textwire/parser"
-)
-
 var config = &Config{
 	TemplateDir: "templates",
 	TemplateExt: ".textwire.html",
@@ -20,19 +14,6 @@ type Config struct {
 	// TemplateExt is the extension of the Textwire
 	// template files
 	TemplateExt string
-}
-
-func ParseStr(text string) (*ast.Program, error) {
-	lex := lexer.New(text)
-	pars := parser.New(lex)
-
-	prog := pars.ParseProgram()
-
-	if pars.HasErrors() {
-		return nil, pars.CombinedErrors()
-	}
-
-	return prog, nil
 }
 
 func New(c *Config) (*Template, error) {

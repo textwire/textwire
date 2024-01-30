@@ -8,6 +8,19 @@ import (
 	"github.com/textwire/textwire/parser"
 )
 
+func parseStr(text string) (*ast.Program, error) {
+	lex := lexer.New(text)
+	pars := parser.New(lex)
+
+	prog := pars.ParseProgram()
+
+	if pars.HasErrors() {
+		return nil, pars.CombinedErrors()
+	}
+
+	return prog, nil
+}
+
 func parseProgram(absPath string) (*ast.Program, error) {
 	content, err := fileContent(absPath)
 
