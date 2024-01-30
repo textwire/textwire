@@ -1,6 +1,7 @@
 package lexer
 
 import (
+	"bytes"
 	"strings"
 
 	"github.com/textwire/textwire/token"
@@ -55,30 +56,26 @@ func (l *Lexer) NextToken() token.Token {
 		return l.newToken(token.RBRACES, "}}")
 	}
 
-	if l.isHtml {
-		return l.readHtmlToken()
+	if !l.isHtml {
+		return l.embeddedCodeToken()
 	}
 
-	return l.readEmbeddedCodeToken()
-}
-
-func (l *Lexer) readHtmlToken() token.Token {
-	if tok, isDirective := l.directiveToken(); isDirective {
-		return tok
+	if l.char == '@' && l.isDirectoryStart() {
+		return l.directiveToken()
 	}
 
 	return l.newToken(token.HTML, l.readHtml())
 }
 
-func (l *Lexer) directiveToken() (token.Token, bool) {
+func (l *Lexer) directiveToken() token.Token {
 	if l.char != '@' {
-		return l.newToken(token.ILLEGAL, string(l.char)), false
+		return l.newToken(token.ILLEGAL, string(l.char))
 	}
 
-	tok, dir := l.readDirective()
+	tok, keyword := l.readDirective()
 
 	if tok == token.ILLEGAL {
-		return l.newToken(tok, string(l.char)), false
+		return l.newToken(tok, string(l.char))
 	}
 
 	// ELSE and END tokens don't have parentheses
@@ -90,10 +87,10 @@ func (l *Lexer) directiveToken() (token.Token, bool) {
 		l.isHtml = false
 	}
 
-	return l.newToken(tok, dir), true
+	return l.newToken(tok, keyword)
 }
 
-func (l *Lexer) readEmbeddedCodeToken() token.Token {
+func (l *Lexer) embeddedCodeToken() token.Token {
 	switch l.char {
 	case '*':
 		return l.newTokenAndAdvance(token.MUL, "*")
@@ -242,7 +239,7 @@ func (l *Lexer) readDirective() (token.TokenType, string) {
 	var keyword string
 	var tok token.TokenType
 
-	for isDirective(l.char) {
+	for isLetterWord(l.char) {
 		keyword += string(l.char)
 
 		tok = token.LookupDirective(keyword)
@@ -255,6 +252,22 @@ func (l *Lexer) readDirective() (token.TokenType, string) {
 	}
 
 	return tok, keyword
+}
+
+func (l *Lexer) isDirectoryStart() bool {
+	longestDir := token.LongestDirective()
+
+	for i := 1; i <= longestDir; i++ {
+		keyword := l.input[l.position : l.position+i]
+
+		tok := token.LookupDirective(keyword)
+
+		if tok != token.ILLEGAL {
+			return true
+		}
+	}
+
+	return false
 }
 
 func (l *Lexer) isPotentialElseif(tok token.TokenType) bool {
@@ -306,21 +319,28 @@ func (l *Lexer) readNumber() (string, bool) {
 }
 
 func (l *Lexer) readHtml() string {
-	position := l.position
+	var out bytes.Buffer
 
-	for l.isHtml && l.char != 0 && l.char != '@' && (l.char != '{' && l.peekChar() != '{') {
+	for l.isHtml && l.char != 0 && (l.char != '{' && l.peekChar() != '{') {
 		if l.char == '\n' {
 			l.line += 1
 		}
+
+		if l.char == '@' && l.isDirectoryStart() {
+			break
+		}
+
+		out.WriteByte(l.char)
 
 		l.advanceChar()
 	}
 
 	if l.char != 0 && l.char != '@' {
+		out.WriteByte(l.char)
 		l.advanceChar()
 	}
 
-	return l.input[position:l.position]
+	return out.String()
 }
 
 func (l *Lexer) advanceChar() {

@@ -4,7 +4,7 @@ func isIdent(ch byte) bool {
 	return ('a' <= ch && ch <= 'z') || ('A' <= ch && ch <= 'Z') || ch == '_'
 }
 
-func isDirective(ch byte) bool {
+func isLetterWord(ch byte) bool {
 	return ('a' <= ch && ch <= 'z') || ch == '@'
 }
 

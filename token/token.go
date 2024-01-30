@@ -101,6 +101,18 @@ func LookupIdent(ident string) TokenType {
 	return IDENT
 }
 
+func LongestDirective() int {
+	var longest int
+
+	for dir := range directives {
+		if len(dir) > longest {
+			longest = len(dir)
+		}
+	}
+
+	return longest
+}
+
 func LookupDirective(dir string) TokenType {
 	if tok, ok := directives[dir]; ok {
 		return tok
