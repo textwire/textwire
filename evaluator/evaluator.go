@@ -366,9 +366,19 @@ func evalInfixOperatorExpression(operator string, left, right object.Object) obj
 }
 
 func evalStringInfixExpression(operator string, right, left object.Object) object.Object {
-	leftVal := left.(*object.Str).Value
-	rightVal := right.(*object.Str).Value
-	return &object.Str{Value: leftVal + rightVal}
+	leftStr, leftOk := left.(*object.Str)
+
+	if !leftOk {
+		return newError("Wrong type for %s operator: %s", operator, left.Type())
+	}
+
+	rightStr, rightOk := right.(*object.Str)
+
+	if !rightOk {
+		return newError("Wrong type for %s operator: %s", operator, right.Type())
+	}
+
+	return &object.Str{Value: leftStr.Value + rightStr.Value}
 }
 
 func evalIntegerInfixExpression(operator string, right, left object.Object) object.Object {

@@ -4,6 +4,8 @@ import (
 	"io"
 	"os"
 	"testing"
+
+	"github.com/textwire/textwire/fail"
 )
 
 func readFile(fileName string) (string, error) {
@@ -63,7 +65,33 @@ func TestEvalUseStatement(t *testing.T) {
 		}
 
 		if actual != expected {
-			t.Errorf("wrong result. EXPECTED:\n\"%s\"\n-------GOT:--------\n\"%s\"", expected, actual)
+			t.Errorf("wrong result. EXPECTED:\n\"%s\"\n-------GOT:--------\n\"%s\"",
+				expected, actual)
+		}
+	}
+}
+
+func TestErrorHandling(t *testing.T) {
+	tests := []struct {
+		inp  string
+		err  *fail.Error
+		data map[string]interface{}
+	}{
+		{`{{ 1 }`, fail.New(1, "parser", fail.ERR_ILLEGAL_TOKEN, "}"), nil},
+		// todo: here
+		// {`{{ 1 + "a" }}`, fail.New(1, "parser", fail.ERR_ILLEGAL_TOKEN, "}"), nil},
+	}
+
+	for _, tt := range tests {
+		_, err := EvaluateString(tt.inp, tt.data)
+
+		if err == nil {
+			t.Errorf("expected error but got none")
+		}
+
+		if err.Error() != tt.err.String() {
+			t.Errorf("wrong error message. EXPECTED:\n\"%s\"\n-------GOT:--------\n\"%s\"",
+				tt.err.String(), err.Error())
 		}
 	}
 }
