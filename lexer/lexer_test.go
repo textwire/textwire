@@ -338,7 +338,7 @@ func TestIsDirectoryStart(t *testing.T) {
 	t.Run("Not a directive", func(tt *testing.T) {
 		l := New(`test@email.com`)
 
-		if ok := l.isDirectoryStmt(); ok {
+		if ok := l.isDirectiveStmt(); ok {
 			tt.Errorf("Expected not a directive")
 		}
 	})
@@ -346,7 +346,7 @@ func TestIsDirectoryStart(t *testing.T) {
 	t.Run("Directive", func(tt *testing.T) {
 		l := New(`@if(true)@end`)
 
-		if ok := l.isDirectoryStmt(); !ok {
+		if ok := l.isDirectiveStmt(); !ok {
 			t.Errorf("Expected a directive")
 		}
 	})

@@ -60,7 +60,7 @@ func (l *Lexer) NextToken() token.Token {
 		return l.embeddedCodeToken()
 	}
 
-	if l.isDirectoryStmt() {
+	if l.isDirectiveStmt() {
 		return l.directiveToken()
 	}
 
@@ -254,7 +254,7 @@ func (l *Lexer) readDirective() (token.TokenType, string) {
 	return tok, keyword
 }
 
-func (l *Lexer) isDirectoryStmt() bool {
+func (l *Lexer) isDirectiveStmt() bool {
 	if l.char != '@' {
 		return false
 	}
@@ -342,7 +342,7 @@ func (l *Lexer) readHtml() string {
 			out.WriteByte('@')
 		}
 
-		if l.isDirectoryStmt() {
+		if l.isDirectiveStmt() {
 			break
 		}
 
