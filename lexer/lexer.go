@@ -336,10 +336,10 @@ func (l *Lexer) readHtml() string {
 			l.line += 1
 		}
 
-		if l.char == '\\' && l.peekChar() == '@' {
-			l.advanceChar() // skip "\"
-			l.advanceChar() // skip "@"
-			out.WriteByte('@')
+		esc := l.escapeDirective()
+
+		if esc != 0 {
+			out.WriteByte(esc)
 		}
 
 		if l.isDirectiveStmt() {
@@ -357,6 +357,21 @@ func (l *Lexer) readHtml() string {
 	}
 
 	return out.String()
+}
+
+func (l *Lexer) escapeDirective() byte {
+	if l.char != '\\' || l.peekChar() != '@' {
+		return 0
+	}
+
+	l.advanceChar() // skip "\"
+
+	if l.isDirectiveStmt() {
+		l.advanceChar() // skip "@"
+		return '@'
+	}
+
+	return '\\'
 }
 
 func (l *Lexer) advanceChar() {
