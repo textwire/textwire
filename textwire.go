@@ -1,5 +1,10 @@
 package textwire
 
+import (
+	"github.com/textwire/textwire/evaluator"
+	"github.com/textwire/textwire/object"
+)
+
 var config = &Config{
 	TemplateDir: "templates",
 	TemplateExt: ".textwire.html",
@@ -28,4 +33,26 @@ func New(c *Config) (*Template, error) {
 	programs, err := parsePrograms(paths)
 
 	return &Template{programs: programs}, err
+}
+
+func EvaluateString(inp string, data map[string]interface{}) (string, error) {
+	prog, err := parseStr(inp)
+
+	if err != nil {
+		return "", err
+	}
+
+	env, err := object.EnvFromMap(data)
+
+	if err != nil {
+		return "", err
+	}
+
+	evaluated := evaluator.Eval(prog, env)
+
+	if evaluated.Type() == object.ERROR_OBJ {
+		return "", err
+	}
+
+	return evaluated.String(), nil
 }
