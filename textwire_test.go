@@ -27,7 +27,7 @@ func readFile(fileName string) (string, error) {
 func TestEvalUseStatement(t *testing.T) {
 	tests := []struct {
 		fileName string
-		vars     map[string]interface{}
+		data     map[string]interface{}
 	}{
 		{"1.no-stmts", nil},
 		{"2.with-inserts", nil},
@@ -47,7 +47,7 @@ func TestEvalUseStatement(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		evaluated, err := tpl.Evaluate(tt.fileName, tt.vars)
+		evaluated, err := tpl.Evaluate(tt.fileName, tt.data)
 
 		if err != nil {
 			t.Errorf("error evaluating template: %s", err)
