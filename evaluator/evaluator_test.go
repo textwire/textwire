@@ -43,7 +43,8 @@ func TestEvalHTML(t *testing.T) {
 			"<ul><li><span>Email: anna@protonmail.com</span></li></ul>",
 			"<ul><li><span>Email: anna@protonmail.com</span></li></ul>",
 		},
-		{`<h1>@@continue</h1>`, "<h1>@continue</h1>"},
+		{"<h1>@@continue</h1>", "<h1>@continue</h1>"},
+		{"<b>Nice</b>@cool", "<b>Nice</b>@cool"},
 	}
 
 	for _, tt := range tests {

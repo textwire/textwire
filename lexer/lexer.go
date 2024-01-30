@@ -267,6 +267,10 @@ func (l *Lexer) isDirectoryStart() bool {
 	longestDir := token.LongestDirective()
 
 	for i := 1; i <= longestDir; i++ {
+		if l.position+i > len(l.input) {
+			return false
+		}
+
 		keyword := l.input[l.position : l.position+i]
 
 		tok := token.LookupDirective(keyword)
