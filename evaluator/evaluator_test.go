@@ -33,6 +33,24 @@ func evaluationExpected(t *testing.T, inp, expect string) {
 	}
 }
 
+func TestEvalHTML(t *testing.T) {
+	tests := []struct {
+		inp      string
+		expected string
+	}{
+		{"<h1>Hello World</h1>", "<h1>Hello World</h1>"},
+		{
+			"<ul><li><span>Email: anna@protonmail.com</span></li></ul>",
+			"<ul><li><span>Email: anna@protonmail.com</span></li></ul>",
+		},
+		{`<h1>@@continue</h1>`, "<h1>@continue</h1>"},
+	}
+
+	for _, tt := range tests {
+		evaluationExpected(t, tt.inp, tt.expected)
+	}
+}
+
 func TestEvalNumericExpression(t *testing.T) {
 	tests := []struct {
 		inp      string

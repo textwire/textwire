@@ -60,7 +60,7 @@ func (l *Lexer) NextToken() token.Token {
 		return l.embeddedCodeToken()
 	}
 
-	if l.char == '@' && l.isDirectoryStart() {
+	if l.isDirectoryStart() {
 		return l.directiveToken()
 	}
 
@@ -255,6 +255,15 @@ func (l *Lexer) readDirective() (token.TokenType, string) {
 }
 
 func (l *Lexer) isDirectoryStart() bool {
+	if l.char != '@' {
+		return false
+	}
+
+	if l.peekChar() == '@' {
+		l.advanceChar() // skip "@"
+		return false
+	}
+
 	longestDir := token.LongestDirective()
 
 	for i := 1; i <= longestDir; i++ {
@@ -326,7 +335,7 @@ func (l *Lexer) readHtml() string {
 			l.line += 1
 		}
 
-		if l.char == '@' && l.isDirectoryStart() {
+		if l.isDirectoryStart() {
 			break
 		}
 
