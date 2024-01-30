@@ -26,10 +26,10 @@ func TokenizeString(t *testing.T, input string, expectTokens []token.Token) {
 }
 
 func TestHtml(t *testing.T) {
-	inp := `<h2 class="container">The winter is good!</h2>`
+	inp := `<h2 class="container">The winter is good@mail.com!</h2>`
 
 	TokenizeString(t, inp, []token.Token{
-		{Type: token.HTML, Literal: `<h2 class="container">The winter is good!</h2>`},
+		{Type: token.HTML, Literal: `<h2 class="container">The winter is good@mail.com!</h2>`},
 		{Type: token.EOF, Literal: ""},
 	})
 }
