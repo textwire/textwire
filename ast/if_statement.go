@@ -22,22 +22,22 @@ func (is *IfStatement) TokenLiteral() string {
 }
 
 func (is *IfStatement) String() string {
-	var result bytes.Buffer
+	var out bytes.Buffer
 
-	result.WriteString("@if(" + is.Condition.String() + ")\n")
+	out.WriteString("@if(" + is.Condition.String() + ")\n")
 
-	result.WriteString(is.Consequence.String())
+	out.WriteString(is.Consequence.String())
 
 	for _, e := range is.Alternatives {
-		result.WriteString(e.String())
+		out.WriteString(e.String())
 	}
 
 	if is.Alternative != nil {
-		result.WriteString("@else\n")
-		result.WriteString(is.Alternative.String() + "\n")
+		out.WriteString("@else\n")
+		out.WriteString(is.Alternative.String() + "\n")
 	}
 
-	result.WriteString("@end\n")
+	out.WriteString("@end\n")
 
-	return result.String()
+	return out.String()
 }

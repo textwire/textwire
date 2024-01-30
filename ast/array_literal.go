@@ -19,19 +19,19 @@ func (al *ArrayLiteral) TokenLiteral() string {
 }
 
 func (al *ArrayLiteral) String() string {
-	var result bytes.Buffer
+	var out bytes.Buffer
 
-	result.WriteString("[")
+	out.WriteString("[")
 
 	for _, el := range al.Elements {
-		result.WriteString(el.String() + ", ")
+		out.WriteString(el.String() + ", ")
 	}
 
-	if result.Len() > 1 {
-		result.Truncate(result.Len() - 2)
+	if out.Len() > 1 {
+		out.Truncate(out.Len() - 2)
 	}
 
-	result.WriteString("]")
+	out.WriteString("]")
 
-	return result.String()
+	return out.String()
 }

@@ -11,15 +11,15 @@ func (a *Array) Type() ObjectType {
 }
 
 func (a *Array) String() string {
-	var result bytes.Buffer
+	var out bytes.Buffer
 
 	for _, elem := range a.Elements {
-		result.WriteString(elem.String() + ", ")
+		out.WriteString(elem.String() + ", ")
 	}
 
-	if result.Len() > 1 {
-		result.Truncate(result.Len() - 2)
+	if out.Len() > 1 {
+		out.Truncate(out.Len() - 2)
 	}
 
-	return result.String()
+	return out.String()
 }

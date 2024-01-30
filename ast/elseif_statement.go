@@ -20,10 +20,10 @@ func (eis *ElseIfStatement) TokenLiteral() string {
 }
 
 func (eis *ElseIfStatement) String() string {
-	var result bytes.Buffer
+	var out bytes.Buffer
 
-	result.WriteString("@elseif(" + eis.Condition.String() + ")\n")
-	result.WriteString(eis.Consequence.String())
+	out.WriteString("@elseif(" + eis.Condition.String() + ")\n")
+	out.WriteString(eis.Consequence.String())
 
-	return result.String()
+	return out.String()
 }

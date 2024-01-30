@@ -22,16 +22,16 @@ func (is *InsertStatement) TokenLiteral() string {
 }
 
 func (is *InsertStatement) String() string {
-	var result bytes.Buffer
+	var out bytes.Buffer
 
 	if is.Argument != nil {
-		result.WriteString(fmt.Sprintf(`@insert("%s", %s)`, is.Name.String(), is.Argument.String()))
-		return result.String()
+		out.WriteString(fmt.Sprintf(`@insert("%s", %s)`, is.Name.String(), is.Argument.String()))
+		return out.String()
 	}
 
-	result.WriteString(fmt.Sprintf(`@insert("%s")`, is.Name.String()))
-	result.WriteString(is.Block.String())
-	result.WriteString(`@end`)
+	out.WriteString(fmt.Sprintf(`@insert("%s")`, is.Name.String()))
+	out.WriteString(is.Block.String())
+	out.WriteString(`@end`)
 
-	return result.String()
+	return out.String()
 }

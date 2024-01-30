@@ -22,13 +22,13 @@ func (fs *ForStatement) TokenLiteral() string {
 }
 
 func (fs *ForStatement) String() string {
-	var result bytes.Buffer
+	var out bytes.Buffer
 
-	result.WriteString("{{ for ")
+	out.WriteString("{{ for ")
 
 	// todo: finish it here
 
-	result.WriteString("{{ end }}\n")
+	out.WriteString("{{ end }}\n")
 
-	return result.String()
+	return out.String()
 }

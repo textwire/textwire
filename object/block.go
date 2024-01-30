@@ -11,11 +11,11 @@ func (b *Block) Type() ObjectType {
 }
 
 func (b *Block) String() string {
-	var result bytes.Buffer
+	var out bytes.Buffer
 
 	for _, e := range b.Elements {
-		result.WriteString(e.String())
+		out.WriteString(e.String())
 	}
 
-	return result.String()
+	return out.String()
 }

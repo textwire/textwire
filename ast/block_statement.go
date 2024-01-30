@@ -19,17 +19,17 @@ func (bs *BlockStatement) TokenLiteral() string {
 }
 
 func (bs *BlockStatement) String() string {
-	var result bytes.Buffer
+	var out bytes.Buffer
 
 	for _, s := range bs.Statements {
 		_, isHtml := s.(*HTMLStatement)
 
 		if isHtml {
-			result.WriteString(s.String())
+			out.WriteString(s.String())
 		} else {
-			result.WriteString("{{ " + s.String() + " }}")
+			out.WriteString("{{ " + s.String() + " }}")
 		}
 	}
 
-	return result.String()
+	return out.String()
 }

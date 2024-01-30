@@ -20,13 +20,13 @@ func (p *Program) TokenLiteral() string {
 }
 
 func (p *Program) String() string {
-	var result bytes.Buffer
+	var out bytes.Buffer
 
 	for _, stmt := range p.Statements {
-		result.WriteString(stmt.String())
+		out.WriteString(stmt.String())
 	}
 
-	return result.String()
+	return out.String()
 }
 
 func (p *Program) Inserts() map[string]*InsertStatement {

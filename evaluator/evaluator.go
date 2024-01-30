@@ -68,7 +68,7 @@ func Eval(node ast.Node, env *object.Env) object.Object {
 }
 
 func evalProgram(prog *ast.Program, env *object.Env) object.Object {
-	var result bytes.Buffer
+	var out bytes.Buffer
 
 	for _, statement := range prog.Statements {
 		stmtObj := Eval(statement, env)
@@ -77,10 +77,10 @@ func evalProgram(prog *ast.Program, env *object.Env) object.Object {
 			return stmtObj
 		}
 
-		result.WriteString(stmtObj.String())
+		out.WriteString(stmtObj.String())
 	}
 
-	return &object.Html{Value: result.String()}
+	return &object.Html{Value: out.String()}
 }
 
 func evalIfStatement(node *ast.IfStatement, env *object.Env) object.Object {
