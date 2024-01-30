@@ -60,7 +60,7 @@ func (l *Lexer) NextToken() token.Token {
 		return l.embeddedCodeToken()
 	}
 
-	if l.isDirectoryStart() {
+	if l.isDirectoryStmt() {
 		return l.directiveToken()
 	}
 
@@ -254,13 +254,8 @@ func (l *Lexer) readDirective() (token.TokenType, string) {
 	return tok, keyword
 }
 
-func (l *Lexer) isDirectoryStart() bool {
+func (l *Lexer) isDirectoryStmt() bool {
 	if l.char != '@' {
-		return false
-	}
-
-	if l.peekChar() == '@' {
-		l.advanceChar() // skip "@"
 		return false
 	}
 
@@ -275,9 +270,11 @@ func (l *Lexer) isDirectoryStart() bool {
 
 		tok := token.LookupDirective(keyword)
 
-		if tok != token.ILLEGAL {
-			return true
+		if tok == token.ILLEGAL {
+			continue
 		}
+
+		return true
 	}
 
 	return false
@@ -339,7 +336,13 @@ func (l *Lexer) readHtml() string {
 			l.line += 1
 		}
 
-		if l.isDirectoryStart() {
+		if l.char == '\\' && l.peekChar() == '@' {
+			l.advanceChar() // skip "\"
+			l.advanceChar() // skip "@"
+			out.WriteByte('@')
+		}
+
+		if l.isDirectoryStmt() {
 			break
 		}
 
