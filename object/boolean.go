@@ -15,3 +15,7 @@ func (b *Bool) String() string {
 
 	return "0"
 }
+
+func (b *Bool) Is(t ObjectType) bool {
+	return t == b.Type()
+}

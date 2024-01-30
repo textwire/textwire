@@ -12,3 +12,7 @@ func (u *Use) Type() ObjectType {
 func (u *Use) String() string {
 	return u.Content.String()
 }
+
+func (u *Use) Is(t ObjectType) bool {
+	return t == u.Type()
+}

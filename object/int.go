@@ -13,3 +13,7 @@ func (i *Int) Type() ObjectType {
 func (i *Int) String() string {
 	return fmt.Sprintf("%d", i.Value)
 }
+
+func (i *Int) Is(t ObjectType) bool {
+	return t == i.Type()
+}

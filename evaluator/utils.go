@@ -29,7 +29,7 @@ func newError(format string, a ...interface{}) *object.Error {
 }
 
 func isError(obj object.Object) bool {
-	return obj.Type() == object.ERROR_OBJ
+	return obj.Is(object.ERROR_OBJ)
 }
 
 func nativeBoolToBooleanObject(input bool) object.Object {

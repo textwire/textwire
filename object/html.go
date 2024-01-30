@@ -11,3 +11,7 @@ func (h *Html) Type() ObjectType {
 func (h *Html) String() string {
 	return h.Value
 }
+
+func (h *Html) Is(t ObjectType) bool {
+	return t == h.Type()
+}

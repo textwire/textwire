@@ -17,3 +17,7 @@ func (r *Reserve) String() string {
 
 	return r.Content.String()
 }
+
+func (r *Reserve) Is(t ObjectType) bool {
+	return t == r.Type()
+}

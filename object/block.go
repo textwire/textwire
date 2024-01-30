@@ -19,3 +19,7 @@ func (b *Block) String() string {
 
 	return out.String()
 }
+
+func (b *Block) Is(t ObjectType) bool {
+	return t == b.Type()
+}

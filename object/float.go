@@ -53,3 +53,7 @@ func (f *Float) SubtractFromFloat(num uint) error {
 
 	return nil
 }
+
+func (f *Float) Is(t ObjectType) bool {
+	return t == f.Type()
+}

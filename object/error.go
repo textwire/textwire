@@ -11,3 +11,7 @@ func (e *Error) Type() ObjectType {
 func (e *Error) String() string {
 	return e.Message
 }
+
+func (e *Error) Is(t ObjectType) bool {
+	return t == e.Type()
+}

@@ -23,3 +23,7 @@ func (a *Array) String() string {
 
 	return out.String()
 }
+
+func (a *Array) Is(t ObjectType) bool {
+	return t == a.Type()
+}

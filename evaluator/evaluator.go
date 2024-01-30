@@ -212,7 +212,7 @@ func evalIndexExpression(node *ast.IndexExpression, env *object.Env) object.Obje
 	}
 
 	switch {
-	case left.Type() == object.ARRAY_OBJ && idx.Type() == object.INT_OBJ:
+	case left.Is(object.ARRAY_OBJ) && idx.Is(object.INT_OBJ):
 		return evalArrayIndexExpression(left, idx)
 	}
 
@@ -316,24 +316,24 @@ func evalPostfixExpression(node *ast.PostfixExpression, env *object.Env) object.
 
 func evalPostfixOperatorExpression(left object.Object, operator string) object.Object {
 	if operator == "++" {
-		if left.Type() == object.INT_OBJ {
+		if left.Is(object.INT_OBJ) {
 			value := left.(*object.Int).Value
 			return &object.Int{Value: value + 1}
 		}
 
-		if left.Type() == object.FLOAT_OBJ {
+		if left.Is(object.FLOAT_OBJ) {
 			value := left.(*object.Float).Value
 			return &object.Float{Value: value + 1}
 		}
 	}
 
 	if operator == "--" {
-		if left.Type() == object.INT_OBJ {
+		if left.Is(object.INT_OBJ) {
 			value := left.(*object.Int).Value
 			return &object.Int{Value: value - 1}
 		}
 
-		if left.Type() == object.FLOAT_OBJ {
+		if left.Is(object.FLOAT_OBJ) {
 			value := left.(*object.Float).Value
 			float := &object.Float{Value: value}
 			float.SubtractFromFloat(1)
@@ -349,10 +349,10 @@ func evalInfixOperatorExpression(operator string, left, right object.Object) obj
 		return newError("Type mismatch: %s + %s", left.Type(), right.Type())
 	}
 
-	if operator == "+" && left.Type() == object.STRING_OBJ {
-		leftVal := left.(*object.Str).Value
-		rightVal := right.(*object.Str).Value
-		return &object.Str{Value: leftVal + rightVal}
+	hasStrSide := left.Is(object.STRING_OBJ) || right.Is(object.STRING_OBJ)
+
+	if operator == "+" && hasStrSide {
+		return evalStringInfixExpression(operator, right, left)
 	}
 
 	switch left.Type() {
@@ -363,6 +363,12 @@ func evalInfixOperatorExpression(operator string, left, right object.Object) obj
 	}
 
 	return newError("Unknown type for %s operator: %s", operator, left.Type())
+}
+
+func evalStringInfixExpression(operator string, right, left object.Object) object.Object {
+	leftVal := left.(*object.Str).Value
+	rightVal := right.(*object.Str).Value
+	return &object.Str{Value: leftVal + rightVal}
 }
 
 func evalIntegerInfixExpression(operator string, right, left object.Object) object.Object {

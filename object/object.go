@@ -23,4 +23,5 @@ const (
 type Object interface {
 	Type() ObjectType
 	String() string
+	Is(ObjectType) bool
 }
