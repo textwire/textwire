@@ -10,7 +10,7 @@ import (
 
 func parseStr(text string) (*ast.Program, error) {
 	lex := lexer.New(text)
-	pars := parser.New(lex)
+	pars := parser.New(lex, "")
 
 	prog := pars.ParseProgram()
 
@@ -29,7 +29,7 @@ func parseProgram(absPath string) (*ast.Program, error) {
 	}
 
 	lex := lexer.New(content)
-	pars := parser.New(lex)
+	pars := parser.New(lex, absPath)
 
 	prog := pars.ParseProgram()
 

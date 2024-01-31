@@ -11,7 +11,7 @@ import (
 
 func testEval(inp string) object.Object {
 	l := lexer.New(inp)
-	p := parser.New(l)
+	p := parser.New(l, "")
 	prog := p.ParseProgram()
 	env := object.NewEnv()
 

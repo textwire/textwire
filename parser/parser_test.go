@@ -27,7 +27,7 @@ func checkParserErrors(t *testing.T, p *Parser) {
 
 func parseStatements(t *testing.T, inp string, stmtCount int, inserts map[string]*ast.InsertStatement) []ast.Statement {
 	l := lexer.New(inp)
-	p := New(l)
+	p := New(l, "")
 
 	prog := p.ParseProgram()
 	err := prog.ApplyInserts(inserts)
@@ -521,7 +521,7 @@ func TestOperatorPrecedenceParsing(t *testing.T) {
 
 	for _, tt := range tests {
 		l := lexer.New(tt.inp)
-		p := New(l)
+		p := New(l, "")
 
 		prog := p.ParseProgram()
 
@@ -567,7 +567,7 @@ func TestErrorHandling(t *testing.T) {
 
 	for _, tt := range tests {
 		l := lexer.New(tt.inp)
-		p := New(l)
+		p := New(l, "")
 
 		p.ParseProgram()
 

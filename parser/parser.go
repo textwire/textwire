@@ -50,8 +50,9 @@ var precedences = map[token.TokenType]int{
 }
 
 type Parser struct {
-	l      *lexer.Lexer
-	errors []*fail.Error
+	l        *lexer.Lexer
+	errors   []*fail.Error
+	filepath string
 
 	curToken  token.Token
 	peekToken token.Token
@@ -60,10 +61,11 @@ type Parser struct {
 	infixParseFns  map[token.TokenType]infixParseFn
 }
 
-func New(lexer *lexer.Lexer) *Parser {
+func New(lexer *lexer.Lexer, filepath string) *Parser {
 	p := &Parser{
-		l:      lexer,
-		errors: []*fail.Error{},
+		l:        lexer,
+		errors:   []*fail.Error{},
+		filepath: filepath,
 	}
 
 	p.nextToken() // fill curToken
