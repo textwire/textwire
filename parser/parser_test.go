@@ -542,26 +542,26 @@ func TestErrorHandling(t *testing.T) {
 	}{
 		{
 			"{{ 5 + }}",
-			fail.New(1, "parser", fail.ErrExpectedExpression),
+			fail.New(1, "", "parser", fail.ErrExpectedExpression),
 		},
 		{
 			"{{ }}",
-			fail.New(1, "parser", fail.ErrEmptyBrackets),
+			fail.New(1, "", "parser", fail.ErrEmptyBrackets),
 		},
 		{
 			"{{ true ? 100 }}",
-			fail.New(1, "parser", fail.ErrWrongNextToken,
+			fail.New(1, "", "parser", fail.ErrWrongNextToken,
 				token.String(token.COLON),
 				token.String(token.RBRACES)),
 		},
 		{
 			"{{ ) }}",
-			fail.New(1, "parser", fail.ErrNoPrefixParseFunc,
+			fail.New(1, "", "parser", fail.ErrNoPrefixParseFunc,
 				token.String(token.RPAREN)),
 		},
 		{
 			"{{ 5 }",
-			fail.New(1, "parser", fail.ErrIllegalToken, "}"),
+			fail.New(1, "", "parser", fail.ErrIllegalToken, "}"),
 		},
 	}
 

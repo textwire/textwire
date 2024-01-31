@@ -24,7 +24,8 @@ func isTruthy(obj object.Object) bool {
 }
 
 func newError(node ast.Node, format string, a ...interface{}) *object.Error {
-	err := fail.New(node.Line(), "interpreter", format, a...)
+	// todo: add filepath
+	err := fail.New(node.Line(), "", "interpreter", format, a...)
 	return &object.Error{Err: err}
 }
 

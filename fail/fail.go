@@ -30,11 +30,12 @@ type Error struct {
 	origin   string // "lexer", "parser", "interpreter"
 }
 
-func New(line uint, origin string, msg string, args ...interface{}) *Error {
+func New(line uint, filepath, origin, msg string, args ...interface{}) *Error {
 	return &Error{
-		line:    line,
-		origin:  origin,
-		message: fmt.Sprintf(msg, args...),
+		line:     line,
+		origin:   origin,
+		filepath: filepath,
+		message:  fmt.Sprintf(msg, args...),
 	}
 }
 
