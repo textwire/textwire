@@ -24,9 +24,10 @@ const (
 )
 
 type Error struct {
-	message string
-	line    uint
-	origin  string // "lexer", "parser", "interpreter"
+	message  string
+	line     uint
+	filepath string
+	origin   string // "lexer", "parser", "interpreter"
 }
 
 func New(line uint, origin string, msg string, args ...interface{}) *Error {
@@ -38,5 +39,12 @@ func New(line uint, origin string, msg string, args ...interface{}) *Error {
 }
 
 func (e *Error) String() string {
-	return fmt.Sprintf("[Textwire error in %s on line %d]: %s", e.origin, e.line, e.message)
+	suffix := ""
+
+	if e.filepath != "" {
+		suffix = fmt.Sprintf(" in %s", e.filepath)
+	}
+
+	return fmt.Sprintf("[Textwire error in %s on line %d]: %s%s",
+		e.origin, e.line, e.message, suffix)
 }
