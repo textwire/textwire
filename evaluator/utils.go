@@ -29,7 +29,7 @@ func newError(node ast.Node, format string, a ...interface{}) *object.Error {
 }
 
 func isError(obj object.Object) bool {
-	return obj.Is(object.ERROR_OBJ)
+	return obj.Is(object.ERR_OBJ)
 }
 
 func nativeBoolToBooleanObject(input bool) object.Object {

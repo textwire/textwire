@@ -212,7 +212,7 @@ func evalIndexExpression(node *ast.IndexExpression, env *object.Env) object.Obje
 	}
 
 	switch {
-	case left.Is(object.ARRAY_OBJ) && idx.Is(object.INT_OBJ):
+	case left.Is(object.ARR_OBJ) && idx.Is(object.INT_OBJ):
 		return evalArrayIndexExpression(left, idx)
 	}
 
@@ -352,7 +352,7 @@ func evalInfixOperatorExpression(operator string, left, right object.Object, lef
 			left.Type(), operator, right.Type())
 	}
 
-	if operator == "+" && left.Is(object.STRING_OBJ) {
+	if operator == "+" && left.Is(object.STR_OBJ) {
 		return evalStringInfixExpression(operator, right, left)
 	}
 

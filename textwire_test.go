@@ -79,7 +79,7 @@ func TestErrorHandling(t *testing.T) {
 		data map[string]interface{}
 	}{
 		{`{{ 1 }`, fail.New(1, "parser", fail.ErrIllegalToken, "}"), nil},
-		{`{{ 1 + "a" }}`, fail.New(1, "interpreter", fail.ErrTypeMismatch, object.INT_OBJ, "+", object.STRING_OBJ), nil},
+		{`{{ 1 + "a" }}`, fail.New(1, "interpreter", fail.ErrTypeMismatch, object.INT_OBJ, "+", object.STR_OBJ), nil},
 	}
 
 	for _, tt := range tests {

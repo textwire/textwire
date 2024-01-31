@@ -52,7 +52,7 @@ func EvaluateString(inp string, data map[string]interface{}) (string, error) {
 
 	evaluated := evaluator.Eval(prog, env)
 
-	if evaluated.Is(object.ERROR_OBJ) {
+	if evaluated.Is(object.ERR_OBJ) {
 		errMsg := evaluated.(*object.Error).Err.String()
 		return "", errors.New(errMsg)
 	}

@@ -5,7 +5,7 @@ type Str struct {
 }
 
 func (s *Str) Type() ObjectType {
-	return STRING_OBJ
+	return STR_OBJ
 }
 
 func (s *Str) String() string {

@@ -5,7 +5,7 @@ type Bool struct {
 }
 
 func (b *Bool) Type() ObjectType {
-	return BOOLEAN_OBJ
+	return BOOL_OBJ
 }
 
 func (b *Bool) String() string {

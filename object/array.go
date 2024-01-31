@@ -7,7 +7,7 @@ type Array struct {
 }
 
 func (a *Array) Type() ObjectType {
-	return ARRAY_OBJ
+	return ARR_OBJ
 }
 
 func (a *Array) String() string {
