@@ -77,7 +77,7 @@ func TestErrorHandling(t *testing.T) {
 		err  *fail.Error
 		data map[string]interface{}
 	}{
-		{`{{ 1 }`, fail.New(1, "parser", fail.ERR_ILLEGAL_TOKEN, "}"), nil},
+		{`{{ 1 }`, fail.New(1, "parser", fail.ErrIllegalToken, "}"), nil},
 		// todo: here
 		// {`{{ 1 + "a" }}`, fail.New(1, "parser", fail.ERR_ILLEGAL_TOKEN, "}"), nil},
 	}

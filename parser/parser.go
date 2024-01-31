@@ -107,7 +107,7 @@ func New(lexer *lexer.Lexer) *Parser {
 }
 
 func (p *Parser) ParseProgram() *ast.Program {
-	prog := &ast.Program{}
+	prog := &ast.Program{Token: p.curToken}
 	prog.Statements = []ast.Statement{}
 
 	for !p.curTokenIs(token.EOF) {
@@ -116,7 +116,7 @@ func (p *Parser) ParseProgram() *ast.Program {
 		if p.curTokenIs(token.ILLEGAL) {
 			p.newError(
 				p.curToken.Line,
-				fail.ERR_ILLEGAL_TOKEN,
+				fail.ErrIllegalToken,
 				p.curToken.Literal,
 			)
 			return nil
@@ -160,7 +160,7 @@ func (p *Parser) parseEmbeddedCode() ast.Statement {
 	p.nextToken() // skip "{{" or ";"
 
 	if p.curTokenIs(token.RBRACES) {
-		p.newError(p.curToken.Line, fail.ERR_EMPTY_BRACKETS)
+		p.newError(p.curToken.Line, fail.ErrEmptyBrackets)
 		return nil
 	}
 
@@ -216,7 +216,7 @@ func (p *Parser) expectPeek(tok token.TokenType) bool {
 
 	p.newError(
 		p.peekToken.Line,
-		fail.ERR_WRONG_NEXT_TOKEN,
+		fail.ErrWrongNextToken,
 		token.String(tok),
 		token.String(p.peekToken.Type),
 	)
@@ -247,7 +247,7 @@ func (p *Parser) parseIntegerLiteral() ast.Expression {
 	if err != nil {
 		p.newError(
 			p.curToken.Line,
-			fail.ERR_COULD_NOT_PARSE_AS,
+			fail.ErrCouldNotParseAs,
 			p.curToken.Literal,
 			"INT",
 		)
@@ -266,7 +266,7 @@ func (p *Parser) parseFloatLiteral() ast.Expression {
 	if err != nil {
 		p.newError(
 			p.curToken.Line,
-			fail.ERR_COULD_NOT_PARSE_AS,
+			fail.ErrCouldNotParseAs,
 			p.curToken.Literal,
 			"FLOAT",
 		)
@@ -325,7 +325,7 @@ func (p *Parser) parseDefineStatement() ast.Statement {
 	p.nextToken() // skip ":="
 
 	if p.curTokenIs(token.RBRACES) {
-		p.newError(p.curToken.Line, fail.ERR_EXPECTED_EXPRESSION)
+		p.newError(p.curToken.Line, fail.ErrExpectedExpression)
 		return nil
 	}
 
@@ -441,7 +441,7 @@ func (p *Parser) parseInfixExpression(left ast.Expression) ast.Expression {
 	p.nextToken() // skip operator
 
 	if p.curTokenIs(token.RBRACES) {
-		p.newError(p.curToken.Line, fail.ERR_EXPECTED_EXPRESSION)
+		p.newError(p.curToken.Line, fail.ErrExpectedExpression)
 		return nil
 	}
 
@@ -547,7 +547,7 @@ func (p *Parser) parseIfStatement() *ast.IfStatement {
 		stmt.Alternative = p.parseBlockStatement()
 
 		if p.peekTokenIs(token.ELSEIF) {
-			p.newError(p.peekToken.Line, fail.ERR_ELSEIF_CANNOT_FOLLOW_ELSE)
+			p.newError(p.peekToken.Line, fail.ErrElseifCannotFollowElse)
 			return nil
 		}
 	}
@@ -597,7 +597,7 @@ func (p *Parser) parseExpression(precedence int) ast.Expression {
 	if prefix == nil {
 		p.newError(
 			p.curToken.Line,
-			fail.ERR_NO_PREFIX_PARSE_FUNC,
+			fail.ErrNoPrefixParseFunc,
 			token.String(p.curToken.Type),
 		)
 		return nil

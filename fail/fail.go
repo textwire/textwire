@@ -4,13 +4,24 @@ import "fmt"
 
 const (
 	// Parser errors
-	ERR_EMPTY_BRACKETS            = "bracket statement must contain an expression '{{ <expression> }}'"
-	ERR_WRONG_NEXT_TOKEN          = "expected next token to be '%s', got '%s' instead"
-	ERR_EXPECTED_EXPRESSION       = "expected expression, got '}}'"
-	ERR_COULD_NOT_PARSE_AS        = "could not parse '%s' as '%s'"
-	ERR_NO_PREFIX_PARSE_FUNC      = "no prefix parse function for '%s'"
-	ERR_ILLEGAL_TOKEN             = "illegal token '%s' found"
-	ERR_ELSEIF_CANNOT_FOLLOW_ELSE = "ELSEIF statement cannot follow ELSE statement"
+	ErrEmptyBrackets          = "bracket statement must contain an expression '{{ <expression> }}'"
+	ErrWrongNextToken         = "expected next token to be '%s', got '%s' instead"
+	ErrExpectedExpression     = "expected expression, got '}}'"
+	ErrCouldNotParseAs        = "could not parse '%s' as '%s'"
+	ErrNoPrefixParseFunc      = "no prefix parse function for '%s'"
+	ErrIllegalToken           = "illegal token '%s' found"
+	ErrElseifCannotFollowElse = "'@elseif' directive cannot follow '@else'"
+
+	// Interpreter (evaluator) errors
+	ErrUnknownNodeType        = "unknown node type '%T'"
+	ErrInsertMustHaveContent  = "the INSERT statement must have a content or a text argument"
+	ErrIdentifierNotFound     = "identifier '%s' not found"
+	ErrIndexNotSupported      = "the index operator '%s' is not supported"
+	ErrUnknownOperator        = "unknown operator '%s%s'"
+	ErrTypeMismatch           = "type mismatch '%s %s %s'"
+	ErrUnknownTypeForOperator = "unknown type '%s' for '%s' operator"
+	ErrWrongTypeForOperator   = "wrong type '%s' for operator '%s'"
+	ErrPrefixOperatorIsWrong  = "prefix operator '%s' cannot be applied to '%s'"
 )
 
 type Error struct {

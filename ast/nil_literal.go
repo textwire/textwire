@@ -6,13 +6,17 @@ type NilLiteral struct {
 	Token token.Token // The 'nil' token
 }
 
-func (i *NilLiteral) expressionNode() {
+func (nl *NilLiteral) expressionNode() {
 }
 
-func (n *NilLiteral) TokenLiteral() string {
-	return n.Token.Literal
+func (nl *NilLiteral) TokenLiteral() string {
+	return nl.Token.Literal
 }
 
-func (n *NilLiteral) String() string {
-	return n.Token.Literal
+func (nl *NilLiteral) String() string {
+	return nl.Token.Literal
+}
+
+func (nl *NilLiteral) LineNum() uint {
+	return nl.Token.Line
 }

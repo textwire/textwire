@@ -22,3 +22,7 @@ func (pe *PrefixExpression) TokenLiteral() string {
 func (pe *PrefixExpression) String() string {
 	return fmt.Sprintf("(%s%s)", pe.Operator, pe.Right)
 }
+
+func (pe *PrefixExpression) LineNum() uint {
+	return pe.Token.Line
+}

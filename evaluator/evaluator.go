@@ -5,6 +5,7 @@ import (
 	"html"
 
 	"github.com/textwire/textwire/ast"
+	"github.com/textwire/textwire/fail"
 	"github.com/textwire/textwire/object"
 )
 
@@ -64,7 +65,7 @@ func Eval(node ast.Node, env *object.Env) object.Object {
 		return NIL
 	}
 
-	return newError("Unknown node type: %T", node)
+	return newError(node, fail.ErrUnknownNodeType, node)
 }
 
 func evalProgram(prog *ast.Program, env *object.Env) object.Object {
@@ -145,7 +146,7 @@ func evalDeclStatement(node *ast.DefineStatement, env *object.Env) object.Object
 
 func evalUseStatement(node *ast.UseStatement, env *object.Env) object.Object {
 	if node.Program == nil {
-		return newError("The 'use' statement must have a program attached")
+		return newError(node, "The 'use' statement must have a program attached")
 	}
 
 	layoutContent := Eval(node.Program, env)
@@ -176,7 +177,7 @@ func evalReserveStatement(node *ast.ReserveStatement, env *object.Env) object.Ob
 	}
 
 	if node.Insert.Argument == nil {
-		return newError("The 'insert' statement must have a content or a text argument")
+		return newError(node.Insert, fail.ErrInsertMustHaveContent)
 	}
 
 	firstArg := Eval(node.Insert.Argument, env)
@@ -195,7 +196,7 @@ func evalIdentifier(node *ast.Identifier, env *object.Env) object.Object {
 		return val
 	}
 
-	return newError(`Identifier "` + node.Value + `" not found`)
+	return newError(node, fail.ErrIdentifierNotFound, node.Value)
 }
 
 func evalIndexExpression(node *ast.IndexExpression, env *object.Env) object.Object {
@@ -216,7 +217,7 @@ func evalIndexExpression(node *ast.IndexExpression, env *object.Env) object.Obje
 		return evalArrayIndexExpression(left, idx)
 	}
 
-	return newError("The index operator is not supported: %s", left.Type())
+	return newError(node, fail.ErrIndexNotSupported, left.Type())
 }
 
 func evalArrayIndexExpression(arr, idx object.Object) object.Object {
@@ -240,12 +241,13 @@ func evalPrefixExpression(node *ast.PrefixExpression, env *object.Env) object.Ob
 
 	switch node.Operator {
 	case "-":
-		return evalMinusPrefixOperatorExpression(right)
+		return evalMinusPrefixOperatorExpression(right, node)
 	case "!":
-		return evalBangOperatorExpression(right)
+		return evalBangOperatorExpression(right, node)
 	}
 
-	return newError("Unknown operator: %s%s", node.Operator, right.Type())
+	return newError(node, fail.ErrUnknownOperator,
+		node.Operator, right.Type())
 }
 
 func evalTernaryExpression(node *ast.TernaryExpression, env *object.Env) object.Object {
@@ -301,7 +303,7 @@ func evalInfixExpression(operator string, left, right ast.Expression, env *objec
 		return rightObj
 	}
 
-	return evalInfixOperatorExpression(operator, leftObj, rightObj)
+	return evalInfixOperatorExpression(operator, leftObj, rightObj, left)
 }
 
 func evalPostfixExpression(node *ast.PostfixExpression, env *object.Env) object.Object {
@@ -311,10 +313,10 @@ func evalPostfixExpression(node *ast.PostfixExpression, env *object.Env) object.
 		return leftObj
 	}
 
-	return evalPostfixOperatorExpression(leftObj, node.Operator)
+	return evalPostfixOperatorExpression(leftObj, node.Operator, node)
 }
 
-func evalPostfixOperatorExpression(left object.Object, operator string) object.Object {
+func evalPostfixOperatorExpression(left object.Object, operator string, node ast.Node) object.Object {
 	if operator == "++" {
 		if left.Is(object.INT_OBJ) {
 			value := left.(*object.Int).Value
@@ -341,47 +343,52 @@ func evalPostfixOperatorExpression(left object.Object, operator string) object.O
 		}
 	}
 
-	return newError("Unknown operator: %s%s", left.Type(), operator)
+	return newError(node, fail.ErrUnknownOperator,
+		left.Type(), operator)
 }
 
-func evalInfixOperatorExpression(operator string, left, right object.Object) object.Object {
+func evalInfixOperatorExpression(operator string, left, right object.Object, leftNode ast.Node) object.Object {
 	if left.Type() != right.Type() {
-		return newError("Type mismatch: %s + %s", left.Type(), right.Type())
+		return newError(leftNode, fail.ErrTypeMismatch,
+			left.Type(), operator, right.Type())
 	}
 
 	hasStrSide := left.Is(object.STRING_OBJ) || right.Is(object.STRING_OBJ)
 
 	if operator == "+" && hasStrSide {
-		return evalStringInfixExpression(operator, right, left)
+		return evalStringInfixExpression(operator, right, left, leftNode)
 	}
 
 	switch left.Type() {
 	case object.INT_OBJ:
-		return evalIntegerInfixExpression(operator, right, left)
+		return evalIntegerInfixExpression(operator, right, left, leftNode)
 	case object.FLOAT_OBJ:
-		return evalFloatInfixExpression(operator, right, left)
+		return evalFloatInfixExpression(operator, right, left, leftNode)
 	}
 
-	return newError("Unknown type for %s operator: %s", operator, left.Type())
+	return newError(leftNode, fail.ErrUnknownTypeForOperator,
+		left.Type(), operator)
 }
 
-func evalStringInfixExpression(operator string, right, left object.Object) object.Object {
+func evalStringInfixExpression(operator string, right, left object.Object, leftNode ast.Node) object.Object {
 	leftStr, leftOk := left.(*object.Str)
 
 	if !leftOk {
-		return newError("Wrong type for %s operator: %s", operator, left.Type())
+		return newError(leftNode, fail.ErrWrongTypeForOperator,
+			left.Type(), operator)
 	}
 
 	rightStr, rightOk := right.(*object.Str)
 
 	if !rightOk {
-		return newError("Wrong type for %s operator: %s", operator, right.Type())
+		return newError(leftNode, fail.ErrWrongTypeForOperator,
+			right.Type(), operator)
 	}
 
 	return &object.Str{Value: leftStr.Value + rightStr.Value}
 }
 
-func evalIntegerInfixExpression(operator string, right, left object.Object) object.Object {
+func evalIntegerInfixExpression(operator string, right, left object.Object, leftNode ast.Node) object.Object {
 	leftVal := left.(*object.Int).Value
 	rightVal := right.(*object.Int).Value
 
@@ -410,10 +417,11 @@ func evalIntegerInfixExpression(operator string, right, left object.Object) obje
 		return nativeBoolToBooleanObject(leftVal <= rightVal)
 	}
 
-	return newError("Unknown type for %s operator: %s", operator, left.Type())
+	return newError(leftNode, fail.ErrUnknownTypeForOperator,
+		left.Type(), operator)
 }
 
-func evalFloatInfixExpression(operator string, right, left object.Object) object.Object {
+func evalFloatInfixExpression(operator string, right, left object.Object, leftNode ast.Node) object.Object {
 	leftVal := left.(*object.Float).Value
 	rightVal := right.(*object.Float).Value
 
@@ -440,10 +448,11 @@ func evalFloatInfixExpression(operator string, right, left object.Object) object
 		return nativeBoolToBooleanObject(leftVal <= rightVal)
 	}
 
-	return newError("Unknown type for %s operator: %s", operator, left.Type())
+	return newError(leftNode, fail.ErrUnknownTypeForOperator,
+		left.Type(), operator)
 }
 
-func evalMinusPrefixOperatorExpression(right object.Object) object.Object {
+func evalMinusPrefixOperatorExpression(right object.Object, node ast.Node) object.Object {
 	switch right.Type() {
 	case object.INT_OBJ:
 		value := right.(*object.Int).Value
@@ -453,10 +462,11 @@ func evalMinusPrefixOperatorExpression(right object.Object) object.Object {
 		return &object.Float{Value: -value}
 	}
 
-	return newError("Unknown operator: -%s", right.Type())
+	return newError(node, fail.ErrPrefixOperatorIsWrong,
+		"-", right.Type())
 }
 
-func evalBangOperatorExpression(right object.Object) object.Object {
+func evalBangOperatorExpression(right object.Object, node ast.Node) object.Object {
 	switch right {
 	case FALSE:
 		return TRUE
@@ -466,5 +476,6 @@ func evalBangOperatorExpression(right object.Object) object.Object {
 		return TRUE
 	}
 
-	return newError("Unknown operator: !%s", right.Type())
+	return newError(node, fail.ErrPrefixOperatorIsWrong,
+		"!", right.Type())
 }

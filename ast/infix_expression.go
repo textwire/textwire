@@ -22,3 +22,7 @@ func (ie *InfixExpression) TokenLiteral() string {
 func (ie *InfixExpression) String() string {
 	return fmt.Sprintf("(%s %s %s)", ie.Left, ie.Operator, ie.Right)
 }
+
+func (ie *InfixExpression) LineNum() uint {
+	return ie.Token.Line
+}

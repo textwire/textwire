@@ -9,13 +9,17 @@ type StringLiteral struct {
 	Value string
 }
 
-func (i *StringLiteral) expressionNode() {
+func (sl *StringLiteral) expressionNode() {
 }
 
-func (i *StringLiteral) TokenLiteral() string {
-	return i.Token.Literal
+func (sl *StringLiteral) TokenLiteral() string {
+	return sl.Token.Literal
 }
 
-func (i *StringLiteral) String() string {
-	return `"` + i.Token.Literal + `"`
+func (sl *StringLiteral) String() string {
+	return `"` + sl.Token.Literal + `"`
+}
+
+func (sl *StringLiteral) LineNum() uint {
+	return sl.Token.Line
 }

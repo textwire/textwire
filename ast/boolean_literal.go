@@ -17,3 +17,7 @@ func (bl *BooleanLiteral) TokenLiteral() string {
 func (bl *BooleanLiteral) String() string {
 	return bl.Token.Literal
 }
+
+func (bl *BooleanLiteral) LineNum() uint {
+	return bl.Token.Line
+}

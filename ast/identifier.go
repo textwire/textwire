@@ -17,3 +17,7 @@ func (i *Identifier) TokenLiteral() string {
 func (i *Identifier) String() string {
 	return i.Value
 }
+
+func (i *Identifier) LineNum() uint {
+	return i.Token.Line
+}

@@ -1,7 +1,9 @@
 package object
 
+import "github.com/textwire/textwire/fail"
+
 type Error struct {
-	Message string
+	Err *fail.Error
 }
 
 func (e *Error) Type() ObjectType {
@@ -9,7 +11,7 @@ func (e *Error) Type() ObjectType {
 }
 
 func (e *Error) String() string {
-	return e.Message
+	return e.Err.String()
 }
 
 func (e *Error) Is(t ObjectType) bool {

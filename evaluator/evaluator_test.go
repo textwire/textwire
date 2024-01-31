@@ -23,7 +23,7 @@ func evaluationExpected(t *testing.T, inp, expect string) {
 	errObj, ok := evaluated.(*object.Error)
 
 	if ok {
-		t.Errorf("evaluation failed: %s", errObj.Message)
+		t.Errorf("evaluation failed: %s", errObj.String())
 	}
 
 	result := evaluated.String()
@@ -130,7 +130,7 @@ func TestEvalBooleanExpression(t *testing.T) {
 		errObj, ok := evaluated.(*object.Error)
 
 		if ok {
-			t.Errorf("evaluation failed: %s", errObj.Message)
+			t.Errorf("evaluation failed: %s", errObj.String())
 			return
 		}
 
@@ -225,7 +225,7 @@ func TestEvalIfStatement(t *testing.T) {
 		errObj, ok := evaluated.(*object.Error)
 
 		if ok {
-			t.Errorf("evaluation failed: %s", errObj.Message)
+			t.Errorf("evaluation failed: %s", errObj.String())
 		}
 
 		result := strings.TrimSpace(evaluated.String())

@@ -33,3 +33,7 @@ func (bs *BlockStatement) String() string {
 
 	return out.String()
 }
+
+func (bs *BlockStatement) LineNum() uint {
+	return bs.Token.Line
+}

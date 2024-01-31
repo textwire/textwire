@@ -22,3 +22,7 @@ func (rs *ReserveStatement) TokenLiteral() string {
 func (rs *ReserveStatement) String() string {
 	return fmt.Sprintf(`@reserve("%s")`, rs.Name.String())
 }
+
+func (rs *ReserveStatement) LineNum() uint {
+	return rs.Token.Line
+}

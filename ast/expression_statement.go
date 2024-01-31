@@ -7,17 +7,21 @@ type ExpressionStatement struct {
 	Expression Expression
 }
 
-func (e *ExpressionStatement) statementNode() {
+func (es *ExpressionStatement) statementNode() {
 }
 
-func (e *ExpressionStatement) TokenLiteral() string {
-	return e.Token.Literal
+func (es *ExpressionStatement) TokenLiteral() string {
+	return es.Token.Literal
 }
 
-func (e *ExpressionStatement) String() string {
-	if e.Expression == nil {
+func (es *ExpressionStatement) String() string {
+	if es.Expression == nil {
 		return ""
 	}
 
-	return "{{ " + e.Expression.String() + " }}"
+	return "{{ " + es.Expression.String() + " }}"
+}
+
+func (es *ExpressionStatement) LineNum() uint {
+	return es.Token.Line
 }

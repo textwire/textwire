@@ -8,6 +8,7 @@ import (
 )
 
 type Program struct {
+	Token      token.Token // The 'program' token
 	Statements []Statement
 }
 
@@ -27,6 +28,10 @@ func (p *Program) String() string {
 	}
 
 	return out.String()
+}
+
+func (p *Program) LineNum() uint {
+	return p.Token.Line
 }
 
 func (p *Program) Inserts() map[string]*InsertStatement {

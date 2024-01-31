@@ -1,8 +1,8 @@
 package evaluator
 
 import (
-	"fmt"
-
+	"github.com/textwire/textwire/ast"
+	"github.com/textwire/textwire/fail"
 	"github.com/textwire/textwire/object"
 )
 
@@ -23,9 +23,9 @@ func isTruthy(obj object.Object) bool {
 	return true
 }
 
-func newError(format string, a ...interface{}) *object.Error {
-	message := fmt.Sprintf("TEXTWIRE ERROR: "+format, a...)
-	return &object.Error{Message: message}
+func newError(node ast.Node, format string, a ...interface{}) *object.Error {
+	err := fail.New(node.LineNum(), "interpreter", format, a...)
+	return &object.Error{Err: err}
 }
 
 func isError(obj object.Object) bool {

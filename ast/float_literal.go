@@ -11,13 +11,17 @@ type FloatLiteral struct {
 	Value float64
 }
 
-func (f *FloatLiteral) expressionNode() {
+func (fl *FloatLiteral) expressionNode() {
 }
 
-func (f *FloatLiteral) TokenLiteral() string {
-	return f.Token.Literal
+func (fl *FloatLiteral) TokenLiteral() string {
+	return fl.Token.Literal
 }
 
-func (f *FloatLiteral) String() string {
-	return fmt.Sprintf("%g", f.Value)
+func (fl *FloatLiteral) String() string {
+	return fmt.Sprintf("%g", fl.Value)
+}
+
+func (fl *FloatLiteral) LineNum() uint {
+	return fl.Token.Line
 }

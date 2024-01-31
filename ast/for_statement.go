@@ -32,3 +32,7 @@ func (fs *ForStatement) String() string {
 
 	return out.String()
 }
+
+func (fs *ForStatement) LineNum() uint {
+	return fs.Token.Line
+}

@@ -27,3 +27,7 @@ func (eis *ElseIfStatement) String() string {
 
 	return out.String()
 }
+
+func (eis *ElseIfStatement) LineNum() uint {
+	return eis.Token.Line
+}

@@ -22,3 +22,7 @@ func (pe *PostfixExpression) TokenLiteral() string {
 func (pe *PostfixExpression) String() string {
 	return fmt.Sprintf("(%s%s)", pe.Left, pe.Operator)
 }
+
+func (pe *PostfixExpression) LineNum() uint {
+	return pe.Token.Line
+}

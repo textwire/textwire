@@ -22,3 +22,7 @@ func (ie *IndexExpression) TokenLiteral() string {
 func (ie *IndexExpression) String() string {
 	return fmt.Sprintf("(%s[%s])", ie.Left, ie.Index.String())
 }
+
+func (ie *IndexExpression) LineNum() uint {
+	return ie.Token.Line
+}
