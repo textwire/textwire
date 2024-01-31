@@ -20,7 +20,6 @@ const (
 	ErrUnknownOperator        = "unknown operator '%s%s'"
 	ErrTypeMismatch           = "type mismatch '%s %s %s'"
 	ErrUnknownTypeForOperator = "unknown type '%s' for '%s' operator"
-	ErrWrongTypeForOperator   = "wrong type '%s' for operator '%s'"
 	ErrPrefixOperatorIsWrong  = "prefix operator '%s' cannot be applied to '%s'"
 )
 

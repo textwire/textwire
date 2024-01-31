@@ -17,7 +17,6 @@ var (
 
 func Eval(node ast.Node, env *object.Env) object.Object {
 	switch node := node.(type) {
-
 	// Statements
 	case *ast.Program:
 		return evalProgram(node, env)
@@ -353,10 +352,8 @@ func evalInfixOperatorExpression(operator string, left, right object.Object, lef
 			left.Type(), operator, right.Type())
 	}
 
-	hasStrSide := left.Is(object.STRING_OBJ) || right.Is(object.STRING_OBJ)
-
-	if operator == "+" && hasStrSide {
-		return evalStringInfixExpression(operator, right, left, leftNode)
+	if operator == "+" && left.Is(object.STRING_OBJ) {
+		return evalStringInfixExpression(operator, right, left)
 	}
 
 	switch left.Type() {
@@ -370,22 +367,11 @@ func evalInfixOperatorExpression(operator string, left, right object.Object, lef
 		left.Type(), operator)
 }
 
-func evalStringInfixExpression(operator string, right, left object.Object, leftNode ast.Node) object.Object {
-	leftStr, leftOk := left.(*object.Str)
+func evalStringInfixExpression(operator string, right, left object.Object) object.Object {
+	leftVal := left.(*object.Str).Value
+	rightVal := right.(*object.Str).Value
 
-	if !leftOk {
-		return newError(leftNode, fail.ErrWrongTypeForOperator,
-			left.Type(), operator)
-	}
-
-	rightStr, rightOk := right.(*object.Str)
-
-	if !rightOk {
-		return newError(leftNode, fail.ErrWrongTypeForOperator,
-			right.Type(), operator)
-	}
-
-	return &object.Str{Value: leftStr.Value + rightStr.Value}
+	return &object.Str{Value: leftVal + rightVal}
 }
 
 func evalIntegerInfixExpression(operator string, right, left object.Object, leftNode ast.Node) object.Object {

@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/textwire/textwire/fail"
+	"github.com/textwire/textwire/object"
 )
 
 func readFile(fileName string) (string, error) {
@@ -78,8 +79,7 @@ func TestErrorHandling(t *testing.T) {
 		data map[string]interface{}
 	}{
 		{`{{ 1 }`, fail.New(1, "parser", fail.ErrIllegalToken, "}"), nil},
-		// todo: here
-		// {`{{ 1 + "a" }}`, fail.New(1, "parser", fail.ERR_ILLEGAL_TOKEN, "}"), nil},
+		{`{{ 1 + "a" }}`, fail.New(1, "interpreter", fail.ErrTypeMismatch, object.INT_OBJ, "+", object.STRING_OBJ), nil},
 	}
 
 	for _, tt := range tests {

@@ -1,6 +1,8 @@
 package textwire
 
 import (
+	"errors"
+
 	"github.com/textwire/textwire/evaluator"
 	"github.com/textwire/textwire/object"
 )
@@ -51,7 +53,8 @@ func EvaluateString(inp string, data map[string]interface{}) (string, error) {
 	evaluated := evaluator.Eval(prog, env)
 
 	if evaluated.Is(object.ERROR_OBJ) {
-		return "", err
+		errMsg := evaluated.(*object.Error).Err.String()
+		return "", errors.New(errMsg)
 	}
 
 	return evaluated.String(), nil
