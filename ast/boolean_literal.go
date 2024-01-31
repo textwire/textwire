@@ -18,6 +18,6 @@ func (bl *BooleanLiteral) String() string {
 	return bl.Token.Literal
 }
 
-func (bl *BooleanLiteral) LineNum() uint {
+func (bl *BooleanLiteral) Line() uint {
 	return bl.Token.Line
 }

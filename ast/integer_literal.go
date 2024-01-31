@@ -18,6 +18,6 @@ func (il *IntegerLiteral) String() string {
 	return il.Token.Literal
 }
 
-func (il *IntegerLiteral) LineNum() uint {
+func (il *IntegerLiteral) Line() uint {
 	return il.Token.Line
 }

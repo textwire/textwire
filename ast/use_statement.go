@@ -23,6 +23,6 @@ func (us *UseStatement) String() string {
 	return fmt.Sprintf(`@use(%s)`, us.Name.String())
 }
 
-func (us *UseStatement) LineNum() uint {
+func (us *UseStatement) Line() uint {
 	return us.Token.Line
 }

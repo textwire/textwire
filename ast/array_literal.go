@@ -36,6 +36,6 @@ func (al *ArrayLiteral) String() string {
 	return out.String()
 }
 
-func (al *ArrayLiteral) LineNum() uint {
+func (al *ArrayLiteral) Line() uint {
 	return al.Token.Line
 }

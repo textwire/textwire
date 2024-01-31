@@ -23,6 +23,6 @@ func (pe *PostfixExpression) String() string {
 	return fmt.Sprintf("(%s%s)", pe.Left, pe.Operator)
 }
 
-func (pe *PostfixExpression) LineNum() uint {
+func (pe *PostfixExpression) Line() uint {
 	return pe.Token.Line
 }

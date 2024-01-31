@@ -22,6 +22,6 @@ func (es *ExpressionStatement) String() string {
 	return "{{ " + es.Expression.String() + " }}"
 }
 
-func (es *ExpressionStatement) LineNum() uint {
+func (es *ExpressionStatement) Line() uint {
 	return es.Token.Line
 }

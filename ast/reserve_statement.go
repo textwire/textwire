@@ -23,6 +23,6 @@ func (rs *ReserveStatement) String() string {
 	return fmt.Sprintf(`@reserve("%s")`, rs.Name.String())
 }
 
-func (rs *ReserveStatement) LineNum() uint {
+func (rs *ReserveStatement) Line() uint {
 	return rs.Token.Line
 }

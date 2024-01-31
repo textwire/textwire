@@ -23,6 +23,6 @@ func (ie *InfixExpression) String() string {
 	return fmt.Sprintf("(%s %s %s)", ie.Left, ie.Operator, ie.Right)
 }
 
-func (ie *InfixExpression) LineNum() uint {
+func (ie *InfixExpression) Line() uint {
 	return ie.Token.Line
 }

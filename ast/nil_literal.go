@@ -17,6 +17,6 @@ func (nl *NilLiteral) String() string {
 	return nl.Token.Literal
 }
 
-func (nl *NilLiteral) LineNum() uint {
+func (nl *NilLiteral) Line() uint {
 	return nl.Token.Line
 }

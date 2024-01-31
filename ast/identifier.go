@@ -18,6 +18,6 @@ func (i *Identifier) String() string {
 	return i.Value
 }
 
-func (i *Identifier) LineNum() uint {
+func (i *Identifier) Line() uint {
 	return i.Token.Line
 }

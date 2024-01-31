@@ -17,6 +17,6 @@ func (hs *HTMLStatement) String() string {
 	return hs.Token.Literal
 }
 
-func (hs *HTMLStatement) LineNum() uint {
+func (hs *HTMLStatement) Line() uint {
 	return hs.Token.Line
 }

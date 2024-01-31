@@ -20,6 +20,6 @@ func (sl *StringLiteral) String() string {
 	return `"` + sl.Token.Literal + `"`
 }
 
-func (sl *StringLiteral) LineNum() uint {
+func (sl *StringLiteral) Line() uint {
 	return sl.Token.Line
 }

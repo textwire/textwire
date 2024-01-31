@@ -25,6 +25,6 @@ func (ds *DefineStatement) String() string {
 	return "{{ " + ds.Name.String() + " := " + ds.Value.String() + " }}"
 }
 
-func (df *DefineStatement) LineNum() uint {
+func (df *DefineStatement) Line() uint {
 	return df.Token.Line
 }

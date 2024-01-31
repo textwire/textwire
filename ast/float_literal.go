@@ -22,6 +22,6 @@ func (fl *FloatLiteral) String() string {
 	return fmt.Sprintf("%g", fl.Value)
 }
 
-func (fl *FloatLiteral) LineNum() uint {
+func (fl *FloatLiteral) Line() uint {
 	return fl.Token.Line
 }

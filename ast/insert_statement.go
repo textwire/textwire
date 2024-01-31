@@ -36,6 +36,6 @@ func (is *InsertStatement) String() string {
 	return out.String()
 }
 
-func (is *InsertStatement) LineNum() uint {
+func (is *InsertStatement) Line() uint {
 	return is.Token.Line
 }

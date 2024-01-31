@@ -23,6 +23,6 @@ func (pe *PrefixExpression) String() string {
 	return fmt.Sprintf("(%s%s)", pe.Operator, pe.Right)
 }
 
-func (pe *PrefixExpression) LineNum() uint {
+func (pe *PrefixExpression) Line() uint {
 	return pe.Token.Line
 }

@@ -24,6 +24,6 @@ func (te *TernaryExpression) String() string {
 	return fmt.Sprintf("(%s ? %s : %s)", te.Condition, te.Condition, te.Alternative)
 }
 
-func (te *TernaryExpression) LineNum() uint {
+func (te *TernaryExpression) Line() uint {
 	return te.Token.Line
 }

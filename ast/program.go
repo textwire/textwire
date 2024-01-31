@@ -30,7 +30,7 @@ func (p *Program) String() string {
 	return out.String()
 }
 
-func (p *Program) LineNum() uint {
+func (p *Program) Line() uint {
 	return p.Token.Line
 }
 

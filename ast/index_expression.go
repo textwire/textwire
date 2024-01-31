@@ -23,6 +23,6 @@ func (ie *IndexExpression) String() string {
 	return fmt.Sprintf("(%s[%s])", ie.Left, ie.Index.String())
 }
 
-func (ie *IndexExpression) LineNum() uint {
+func (ie *IndexExpression) Line() uint {
 	return ie.Token.Line
 }

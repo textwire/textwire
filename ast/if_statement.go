@@ -42,6 +42,6 @@ func (is *IfStatement) String() string {
 	return out.String()
 }
 
-func (is *IfStatement) LineNum() uint {
+func (is *IfStatement) Line() uint {
 	return is.Token.Line
 }
