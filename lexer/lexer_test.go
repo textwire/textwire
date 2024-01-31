@@ -25,7 +25,7 @@ func TokenizeString(t *testing.T, input string, expectTokens []token.Token) {
 	}
 }
 
-func TestHtml(t *testing.T) {
+func TestHTML(t *testing.T) {
 	inp := `<h2 class="container">The winter is test@mail.com</h2>`
 
 	TokenizeString(t, inp, []token.Token{

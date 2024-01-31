@@ -22,7 +22,7 @@ func Eval(node ast.Node, env *object.Env) object.Object {
 	case *ast.Program:
 		return evalProgram(node, env)
 	case *ast.HTMLStatement:
-		return &object.Html{Value: node.String()}
+		return &object.HTML{Value: node.String()}
 	case *ast.ExpressionStatement:
 		return Eval(node.Expression, env)
 	case *ast.IfStatement:
@@ -81,7 +81,7 @@ func evalProgram(prog *ast.Program, env *object.Env) object.Object {
 		out.WriteString(stmtObj.String())
 	}
 
-	return &object.Html{Value: out.String()}
+	return &object.HTML{Value: out.String()}
 }
 
 func evalIfStatement(node *ast.IfStatement, env *object.Env) object.Object {

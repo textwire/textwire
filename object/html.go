@@ -1,17 +1,17 @@
 package object
 
-type Html struct {
+type HTML struct {
 	Value string
 }
 
-func (h *Html) Type() ObjectType {
+func (h *HTML) Type() ObjectType {
 	return HTML_OBJ
 }
 
-func (h *Html) String() string {
+func (h *HTML) String() string {
 	return h.Value
 }
 
-func (h *Html) Is(t ObjectType) bool {
+func (h *HTML) Is(t ObjectType) bool {
 	return t == h.Type()
 }

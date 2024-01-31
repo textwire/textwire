@@ -22,9 +22,9 @@ func (bs *BlockStatement) String() string {
 	var out bytes.Buffer
 
 	for _, s := range bs.Statements {
-		_, isHtml := s.(*HTMLStatement)
+		_, isHTML := s.(*HTMLStatement)
 
-		if isHtml {
+		if isHTML {
 			out.WriteString(s.String())
 		} else {
 			out.WriteString("{{ " + s.String() + " }}")

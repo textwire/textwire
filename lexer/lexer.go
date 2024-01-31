@@ -13,7 +13,7 @@ type Lexer struct {
 	nextPosition              int
 	char                      byte
 	line                      uint
-	isHtml                    bool
+	isHTML                    bool
 	isDirective               bool
 	countDirectiveParentheses int
 }
@@ -22,7 +22,7 @@ func New(input string) *Lexer {
 	l := &Lexer{
 		input:                     input,
 		line:                      1,
-		isHtml:                    true,
+		isHTML:                    true,
 		isDirective:               false,
 		countDirectiveParentheses: 0,
 	}
@@ -34,7 +34,7 @@ func New(input string) *Lexer {
 }
 
 func (l *Lexer) NextToken() token.Token {
-	if !l.isHtml {
+	if !l.isHTML {
 		l.skipWhitespace()
 	}
 
@@ -43,20 +43,20 @@ func (l *Lexer) NextToken() token.Token {
 	}
 
 	if l.char == '{' && l.peekChar() == '{' {
-		l.isHtml = false
+		l.isHTML = false
 		l.advanceChar() // skip "{"
 		l.advanceChar() // skip "{"
 		return l.newToken(token.LBRACES, "{{")
 	}
 
 	if l.char == '}' && l.peekChar() == '}' {
-		l.isHtml = true
+		l.isHTML = true
 		l.advanceChar() // skip "}"
 		l.advanceChar() // skip "}"
 		return l.newToken(token.RBRACES, "}}")
 	}
 
-	if !l.isHtml {
+	if !l.isHTML {
 		return l.embeddedCodeToken()
 	}
 
@@ -64,7 +64,7 @@ func (l *Lexer) NextToken() token.Token {
 		return l.directiveToken()
 	}
 
-	return l.newToken(token.HTML, l.readHtml())
+	return l.newToken(token.HTML, l.readHTML())
 }
 
 func (l *Lexer) directiveToken() token.Token {
@@ -81,10 +81,10 @@ func (l *Lexer) directiveToken() token.Token {
 	// ELSE and END tokens don't have parentheses
 	if tok == token.ELSE || tok == token.END {
 		l.isDirective = false
-		l.isHtml = true
+		l.isHTML = true
 	} else {
 		l.isDirective = true
-		l.isHtml = false
+		l.isHTML = false
 	}
 
 	return l.newToken(tok, keyword)
@@ -199,7 +199,7 @@ func (l *Lexer) rightParenthesesToken() token.Token {
 
 	if l.isDirective && l.countDirectiveParentheses == 0 {
 		l.isDirective = false
-		l.isHtml = true
+		l.isHTML = true
 	}
 
 	return l.newTokenAndAdvance(token.RPAREN, ")")
@@ -328,10 +328,10 @@ func (l *Lexer) readNumber() (string, bool) {
 	return l.input[position:l.position], isInt
 }
 
-func (l *Lexer) readHtml() string {
+func (l *Lexer) readHTML() string {
 	var out bytes.Buffer
 
-	for l.isHtml && l.char != 0 && (l.char != '{' && l.peekChar() != '{') {
+	for l.isHTML && l.char != 0 && (l.char != '{' && l.peekChar() != '{') {
 		if l.char == '\n' {
 			l.line += 1
 		}
