@@ -41,19 +41,19 @@ func TestEvalUseStatement(t *testing.T) {
 		}},
 	}
 
-	tpl, err := New(&Config{
+	tpl := New(&Config{
 		TemplateDir: "testdata/before",
 	})
 
-	if err != nil {
-		t.Errorf("error creating template: %s", err)
+	if tpl.HasErrors() {
+		t.Errorf("error creating template: %s", tpl.FirstError())
 	}
 
 	for _, tt := range tests {
-		evaluated, err := tpl.Evaluate(tt.fileName, tt.data)
+		evaluated, evalErr := tpl.Evaluate(tt.fileName, tt.data)
 
-		if err != nil {
-			t.Errorf("error evaluating template: %s", err)
+		if evalErr != nil {
+			t.Errorf("error evaluating template: %s", evalErr)
 		}
 
 		actual := evaluated.String()
@@ -83,15 +83,15 @@ func TestErrorHandling(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		_, err := EvaluateString(tt.inp, tt.data)
+		_, errs := EvaluateString(tt.inp, tt.data)
 
-		if err == nil {
+		if len(errs) == 0 {
 			t.Errorf("expected error but got none")
 		}
 
-		if err.Error() != tt.err.String() {
+		if errs[0].String() != tt.err.String() {
 			t.Errorf("wrong error message. EXPECTED:\n\"%s\"\n-------GOT:--------\n\"%s\"",
-				tt.err.String(), err.Error())
+				tt.err.String(), errs[0].String())
 		}
 	}
 }

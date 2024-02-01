@@ -11,7 +11,7 @@ import (
 var tpl *textwire.Template
 
 func main() {
-	tpl = textwire.TemplateEngine(&textwire.Config{
+	tpl = textwire.New(&textwire.Config{
 		TemplateDir: "templates",
 	})
 
