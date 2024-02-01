@@ -11,15 +11,13 @@ import (
 var tpl *textwire.Template
 
 func main() {
-	template, err := textwire.New(&textwire.Config{
+	tpl = textwire.TemplateEngine(&textwire.Config{
 		TemplateDir: "templates",
 	})
 
-	if err != nil {
-		log.Fatalln(err)
+	if tpl.HasErrors() {
+		tpl.FirstError().Fatal()
 	}
-
-	tpl = template
 
 	http.HandleFunc("/", homeHandler)
 	http.HandleFunc("/about", aboutHandler)
@@ -30,11 +28,6 @@ func main() {
 }
 
 func homeHandler(w http.ResponseWriter, r *http.Request) {
-	if r.URL.Path != "/" {
-		http.NotFound(w, r)
-		return
-	}
-
 	data := map[string]interface{}{
 		"title":     "Home page",
 		"names":     []string{"John", "Jane", "Jack", "Jill"},
@@ -49,11 +42,6 @@ func homeHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func aboutHandler(w http.ResponseWriter, r *http.Request) {
-	if r.URL.Path != "/about" {
-		http.NotFound(w, r)
-		return
-	}
-
 	data := map[string]interface{}{
 		"title": "About page",
 	}

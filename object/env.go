@@ -1,7 +1,7 @@
 package object
 
 import (
-	"errors"
+	"github.com/textwire/textwire/fail"
 )
 
 type Env struct {
@@ -20,14 +20,14 @@ func NewEnclosedEnv(outer *Env) *Env {
 	return env
 }
 
-func EnvFromMap(data map[string]interface{}) (*Env, error) {
+func EnvFromMap(data map[string]interface{}) (*Env, *fail.Error) {
 	env := NewEnv()
 
 	for key, val := range data {
 		obj := nativeToObject(val)
 
 		if obj == nil {
-			return nil, errors.New("Unsupported type for Textwire language")
+			return nil, fail.New(0, "", "template", fail.ErrUnsupportedType, val)
 		}
 
 		env.Set(key, obj)

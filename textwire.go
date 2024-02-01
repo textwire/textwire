@@ -1,9 +1,8 @@
 package textwire
 
 import (
-	"errors"
-
 	"github.com/textwire/textwire/evaluator"
+	"github.com/textwire/textwire/fail"
 	"github.com/textwire/textwire/object"
 )
 
@@ -23,38 +22,50 @@ type Config struct {
 	TemplateExt string
 }
 
-func New(c *Config) (*Template, error) {
+func TemplateEngine(c *Config) *Template {
 	applyConfig(c)
 
 	paths, err := findTextwireFiles()
 
 	if err != nil {
-		return nil, err
+		return &Template{
+			errors: []*fail.Error{
+				fail.New(0, "", "template", err.Error()),
+			},
+		}
 	}
 
-	programs, err := parsePrograms(paths)
+	programs, errs := parsePrograms(paths)
 
-	return &Template{programs: programs}, err
+	return &Template{
+		programs: programs,
+		errors:   errs,
+	}
 }
 
-func EvaluateString(inp string, data map[string]interface{}) (string, error) {
-	prog, err := parseStr(inp)
+func Configure(c *Config) {
+	applyConfig(c)
+}
 
-	if err != nil {
-		return "", err
+func EvaluateString(inp string, data map[string]interface{}) (string, []*fail.Error) {
+	prog, errs := parseStr(inp)
+
+	if len(errs) != 0 {
+		return "", errs
 	}
 
 	env, err := object.EnvFromMap(data)
 
 	if err != nil {
-		return "", err
+		return "", []*fail.Error{err}
 	}
 
 	evaluated := evaluator.Eval(prog, env)
 
 	if evaluated.Is(object.ERR_OBJ) {
-		errMsg := evaluated.(*object.Error).Err.String()
-		return "", errors.New(errMsg)
+		return "", []*fail.Error{
+			evaluated.(*object.Error).Err,
+		}
 	}
 
 	return evaluated.String(), nil

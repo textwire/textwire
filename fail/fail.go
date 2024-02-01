@@ -1,6 +1,9 @@
 package fail
 
-import "fmt"
+import (
+	"fmt"
+	"log"
+)
 
 const (
 	// Parser errors
@@ -21,13 +24,19 @@ const (
 	ErrTypeMismatch           = "type mismatch '%s %s %s'"
 	ErrUnknownTypeForOperator = "unknown type '%s' for '%s' operator"
 	ErrPrefixOperatorIsWrong  = "prefix operator '%s' cannot be applied to '%s'"
+
+	// Template errors
+	ErrUnsupportedType  = "unsupported type '%T'"
+	ErrTemplateNotFound = "template not found"
+
+	NoErrors = "there are no Textwire errors"
 )
 
 type Error struct {
 	message  string
 	line     uint
 	filepath string
-	origin   string // "lexer", "parser", "interpreter"
+	origin   string // "parser" | "interpreter" | "template"
 }
 
 func New(line uint, filepath, origin, msg string, args ...interface{}) *Error {
@@ -48,4 +57,14 @@ func (e *Error) String() string {
 
 	return fmt.Sprintf("[Textwire error in %s on line %d]: %s%s",
 		e.origin, e.line, e.message, suffix)
+}
+
+func (e *Error) Fatal() {
+	err := e.String()
+
+	if err == "" {
+		log.Fatal(NoErrors)
+	}
+
+	log.Fatal(err)
 }
