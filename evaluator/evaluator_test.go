@@ -14,8 +14,11 @@ func testEval(inp string) object.Object {
 	p := parser.New(l, "")
 	prog := p.ParseProgram()
 	env := object.NewEnv()
+	eval := New(&EvalContext{
+		absPath: "/path/to/file",
+	})
 
-	return Eval(prog, env)
+	return eval.Eval(prog, env)
 }
 
 func evaluationExpected(t *testing.T, inp, expect string) {

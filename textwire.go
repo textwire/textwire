@@ -60,7 +60,8 @@ func EvaluateString(inp string, data map[string]interface{}) (string, []*fail.Er
 		return "", []*fail.Error{err}
 	}
 
-	evaluated := evaluator.Eval(prog, env)
+	eval := evaluator.New(nil)
+	evaluated := eval.Eval(prog, env)
 
 	if evaluated.Is(object.ERR_OBJ) {
 		return "", []*fail.Error{

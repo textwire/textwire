@@ -15,33 +15,41 @@ var (
 	FALSE = &object.Bool{Value: false}
 )
 
-func Eval(node ast.Node, env *object.Env) object.Object {
+type Evaluator struct {
+	ctx *EvalContext
+}
+
+func New(ctx *EvalContext) *Evaluator {
+	return &Evaluator{ctx: ctx}
+}
+
+func (e *Evaluator) Eval(node ast.Node, env *object.Env) object.Object {
 	switch node := node.(type) {
 	// Statements
 	case *ast.Program:
-		return evalProgram(node, env)
+		return e.evalProgram(node, env)
 	case *ast.HTMLStatement:
 		return &object.HTML{Value: node.String()}
 	case *ast.ExpressionStatement:
-		return Eval(node.Expression, env)
+		return e.Eval(node.Expression, env)
 	case *ast.IfStatement:
-		return evalIfStatement(node, env)
+		return e.evalIfStatement(node, env)
 	case *ast.BlockStatement:
-		return evalBlockStatement(node, env)
+		return e.evalBlockStatement(node, env)
 	case *ast.DefineStatement:
-		return evalDeclStatement(node, env)
+		return e.evalDeclStatement(node, env)
 	case *ast.UseStatement:
-		return evalUseStatement(node, env)
+		return e.evalUseStatement(node, env)
 	case *ast.InsertStatement:
 		return NIL
 	case *ast.ReserveStatement:
-		return evalReserveStatement(node, env)
+		return e.evalReserveStatement(node, env)
 
 	// Expressions
 	case *ast.Identifier:
-		return evalIdentifier(node, env)
+		return e.evalIdentifier(node, env)
 	case *ast.IndexExpression:
-		return evalIndexExpression(node, env)
+		return e.evalIndexExpression(node, env)
 	case *ast.IntegerLiteral:
 		return &object.Int{Value: node.Value}
 	case *ast.FloatLiteral:
@@ -51,27 +59,27 @@ func Eval(node ast.Node, env *object.Env) object.Object {
 	case *ast.BooleanLiteral:
 		return nativeBoolToBooleanObject(node.Value)
 	case *ast.ArrayLiteral:
-		return evalArrayLiteral(node, env)
+		return e.evalArrayLiteral(node, env)
 	case *ast.PrefixExpression:
-		return evalPrefixExpression(node, env)
+		return e.evalPrefixExpression(node, env)
 	case *ast.TernaryExpression:
-		return evalTernaryExpression(node, env)
+		return e.evalTernaryExpression(node, env)
 	case *ast.InfixExpression:
-		return evalInfixExpression(node.Operator, node.Left, node.Right, env)
+		return e.evalInfixExpression(node.Operator, node.Left, node.Right, env)
 	case *ast.PostfixExpression:
-		return evalPostfixExpression(node, env)
+		return e.evalPostfixExpression(node, env)
 	case *ast.NilLiteral:
 		return NIL
 	}
 
-	return newError(node, fail.ErrUnknownNodeType, node)
+	return e.newError(node, fail.ErrUnknownNodeType, node)
 }
 
-func evalProgram(prog *ast.Program, env *object.Env) object.Object {
+func (e *Evaluator) evalProgram(prog *ast.Program, env *object.Env) object.Object {
 	var out bytes.Buffer
 
 	for _, statement := range prog.Statements {
-		stmtObj := Eval(statement, env)
+		stmtObj := e.Eval(statement, env)
 
 		if isError(stmtObj) {
 			return stmtObj
@@ -83,8 +91,8 @@ func evalProgram(prog *ast.Program, env *object.Env) object.Object {
 	return &object.HTML{Value: out.String()}
 }
 
-func evalIfStatement(node *ast.IfStatement, env *object.Env) object.Object {
-	condition := Eval(node.Condition, env)
+func (e *Evaluator) evalIfStatement(node *ast.IfStatement, env *object.Env) object.Object {
+	condition := e.Eval(node.Condition, env)
 
 	if isError(condition) {
 		return condition
@@ -93,33 +101,33 @@ func evalIfStatement(node *ast.IfStatement, env *object.Env) object.Object {
 	newEnv := object.NewEnclosedEnv(env)
 
 	if isTruthy(condition) {
-		return Eval(node.Consequence, newEnv)
+		return e.Eval(node.Consequence, newEnv)
 	}
 
 	for _, alt := range node.Alternatives {
-		condition = Eval(alt.Condition, env)
+		condition = e.Eval(alt.Condition, env)
 
 		if isError(condition) {
 			return condition
 		}
 
 		if isTruthy(condition) {
-			return Eval(alt.Consequence, newEnv)
+			return e.Eval(alt.Consequence, newEnv)
 		}
 	}
 
 	if node.Alternative != nil {
-		return Eval(node.Alternative, newEnv)
+		return e.Eval(node.Alternative, newEnv)
 	}
 
 	return NIL
 }
 
-func evalBlockStatement(block *ast.BlockStatement, env *object.Env) object.Object {
+func (e *Evaluator) evalBlockStatement(block *ast.BlockStatement, env *object.Env) object.Object {
 	var elems []object.Object
 
 	for _, statement := range block.Statements {
-		stmtObj := Eval(statement, env)
+		stmtObj := e.Eval(statement, env)
 
 		if isError(stmtObj) {
 			return stmtObj
@@ -131,8 +139,8 @@ func evalBlockStatement(block *ast.BlockStatement, env *object.Env) object.Objec
 	return &object.Block{Elements: elems}
 }
 
-func evalDeclStatement(node *ast.DefineStatement, env *object.Env) object.Object {
-	val := Eval(node.Value, env)
+func (e *Evaluator) evalDeclStatement(node *ast.DefineStatement, env *object.Env) object.Object {
+	val := e.Eval(node.Value, env)
 
 	if isError(val) {
 		return val
@@ -143,12 +151,12 @@ func evalDeclStatement(node *ast.DefineStatement, env *object.Env) object.Object
 	return NIL
 }
 
-func evalUseStatement(node *ast.UseStatement, env *object.Env) object.Object {
+func (e *Evaluator) evalUseStatement(node *ast.UseStatement, env *object.Env) object.Object {
 	if node.Program == nil {
-		return newError(node, fail.ErrUseStmtMustHaveProgram)
+		return e.newError(node, fail.ErrUseStmtMustHaveProgram)
 	}
 
-	layoutContent := Eval(node.Program, env)
+	layoutContent := e.Eval(node.Program, env)
 
 	if isError(layoutContent) {
 		return layoutContent
@@ -160,11 +168,11 @@ func evalUseStatement(node *ast.UseStatement, env *object.Env) object.Object {
 	}
 }
 
-func evalReserveStatement(node *ast.ReserveStatement, env *object.Env) object.Object {
+func (e *Evaluator) evalReserveStatement(node *ast.ReserveStatement, env *object.Env) object.Object {
 	stmt := &object.Reserve{Name: node.Name.Value}
 
 	if node.Insert.Block != nil {
-		result := Eval(node.Insert.Block, env)
+		result := e.Eval(node.Insert.Block, env)
 
 		if isError(result) {
 			return result
@@ -176,10 +184,10 @@ func evalReserveStatement(node *ast.ReserveStatement, env *object.Env) object.Ob
 	}
 
 	if node.Insert.Argument == nil {
-		return newError(node.Insert, fail.ErrInsertMustHaveContent)
+		return e.newError(node.Insert, fail.ErrInsertMustHaveContent)
 	}
 
-	firstArg := Eval(node.Insert.Argument, env)
+	firstArg := e.Eval(node.Insert.Argument, env)
 
 	if isError(firstArg) {
 		return firstArg
@@ -190,22 +198,22 @@ func evalReserveStatement(node *ast.ReserveStatement, env *object.Env) object.Ob
 	return stmt
 }
 
-func evalIdentifier(node *ast.Identifier, env *object.Env) object.Object {
+func (e *Evaluator) evalIdentifier(node *ast.Identifier, env *object.Env) object.Object {
 	if val, ok := env.Get(node.Value); ok {
 		return val
 	}
 
-	return newError(node, fail.ErrIdentifierNotFound, node.Value)
+	return e.newError(node, fail.ErrIdentifierNotFound, node.Value)
 }
 
-func evalIndexExpression(node *ast.IndexExpression, env *object.Env) object.Object {
-	left := Eval(node.Left, env)
+func (e *Evaluator) evalIndexExpression(node *ast.IndexExpression, env *object.Env) object.Object {
+	left := e.Eval(node.Left, env)
 
 	if isError(left) {
 		return left
 	}
 
-	idx := Eval(node.Index, env)
+	idx := e.Eval(node.Index, env)
 
 	if isError(idx) {
 		return idx
@@ -213,13 +221,13 @@ func evalIndexExpression(node *ast.IndexExpression, env *object.Env) object.Obje
 
 	switch {
 	case left.Is(object.ARR_OBJ) && idx.Is(object.INT_OBJ):
-		return evalArrayIndexExpression(left, idx)
+		return e.evalArrayIndexExpression(left, idx)
 	}
 
-	return newError(node, fail.ErrIndexNotSupported, left.Type())
+	return e.newError(node, fail.ErrIndexNotSupported, left.Type())
 }
 
-func evalArrayIndexExpression(arr, idx object.Object) object.Object {
+func (e *Evaluator) evalArrayIndexExpression(arr, idx object.Object) object.Object {
 	arrObj := arr.(*object.Array)
 	index := idx.(*object.Int).Value
 	max := int64(len(arrObj.Elements) - 1)
@@ -231,8 +239,8 @@ func evalArrayIndexExpression(arr, idx object.Object) object.Object {
 	return arrObj.Elements[index]
 }
 
-func evalPrefixExpression(node *ast.PrefixExpression, env *object.Env) object.Object {
-	right := Eval(node.Right, env)
+func (e *Evaluator) evalPrefixExpression(node *ast.PrefixExpression, env *object.Env) object.Object {
+	right := e.Eval(node.Right, env)
 
 	if isError(right) {
 		return right
@@ -240,31 +248,31 @@ func evalPrefixExpression(node *ast.PrefixExpression, env *object.Env) object.Ob
 
 	switch node.Operator {
 	case "-":
-		return evalMinusPrefixOperatorExpression(right, node)
+		return e.evalMinusPrefixOperatorExpression(right, node)
 	case "!":
-		return evalBangOperatorExpression(right, node)
+		return e.evalBangOperatorExpression(right, node)
 	}
 
-	return newError(node, fail.ErrUnknownOperator,
+	return e.newError(node, fail.ErrUnknownOperator,
 		node.Operator, right.Type())
 }
 
-func evalTernaryExpression(node *ast.TernaryExpression, env *object.Env) object.Object {
-	condition := Eval(node.Condition, env)
+func (e *Evaluator) evalTernaryExpression(node *ast.TernaryExpression, env *object.Env) object.Object {
+	condition := e.Eval(node.Condition, env)
 
 	if isError(condition) {
 		return condition
 	}
 
 	if isTruthy(condition) {
-		return Eval(node.Consequence, env)
+		return e.Eval(node.Consequence, env)
 	}
 
-	return Eval(node.Alternative, env)
+	return e.Eval(node.Alternative, env)
 }
 
-func evalArrayLiteral(node *ast.ArrayLiteral, env *object.Env) object.Object {
-	elems := evalExpressions(node.Elements, env)
+func (e *Evaluator) evalArrayLiteral(node *ast.ArrayLiteral, env *object.Env) object.Object {
+	elems := e.evalExpressions(node.Elements, env)
 
 	if len(elems) == 1 && isError(elems[0]) {
 		return elems[0]
@@ -273,11 +281,11 @@ func evalArrayLiteral(node *ast.ArrayLiteral, env *object.Env) object.Object {
 	return &object.Array{Elements: elems}
 }
 
-func evalExpressions(exps []ast.Expression, env *object.Env) []object.Object {
+func (e *Evaluator) evalExpressions(exps []ast.Expression, env *object.Env) []object.Object {
 	var result []object.Object
 
-	for _, e := range exps {
-		evaluated := Eval(e, env)
+	for _, expr := range exps {
+		evaluated := e.Eval(expr, env)
 
 		if isError(evaluated) {
 			return []object.Object{evaluated}
@@ -289,33 +297,33 @@ func evalExpressions(exps []ast.Expression, env *object.Env) []object.Object {
 	return result
 }
 
-func evalInfixExpression(operator string, left, right ast.Expression, env *object.Env) object.Object {
-	leftObj := Eval(left, env)
+func (e *Evaluator) evalInfixExpression(operator string, left, right ast.Expression, env *object.Env) object.Object {
+	leftObj := e.Eval(left, env)
 
 	if isError(leftObj) {
 		return leftObj
 	}
 
-	rightObj := Eval(right, env)
+	rightObj := e.Eval(right, env)
 
 	if isError(rightObj) {
 		return rightObj
 	}
 
-	return evalInfixOperatorExpression(operator, leftObj, rightObj, left)
+	return e.evalInfixOperatorExpression(operator, leftObj, rightObj, left)
 }
 
-func evalPostfixExpression(node *ast.PostfixExpression, env *object.Env) object.Object {
-	leftObj := Eval(node.Left, env)
+func (e *Evaluator) evalPostfixExpression(node *ast.PostfixExpression, env *object.Env) object.Object {
+	leftObj := e.Eval(node.Left, env)
 
 	if isError(leftObj) {
 		return leftObj
 	}
 
-	return evalPostfixOperatorExpression(leftObj, node.Operator, node)
+	return e.evalPostfixOperatorExpression(leftObj, node.Operator, node)
 }
 
-func evalPostfixOperatorExpression(left object.Object, operator string, node ast.Node) object.Object {
+func (e *Evaluator) evalPostfixOperatorExpression(left object.Object, operator string, node ast.Node) object.Object {
 	if operator == "++" {
 		if left.Is(object.INT_OBJ) {
 			value := left.(*object.Int).Value
@@ -342,39 +350,39 @@ func evalPostfixOperatorExpression(left object.Object, operator string, node ast
 		}
 	}
 
-	return newError(node, fail.ErrUnknownOperator,
+	return e.newError(node, fail.ErrUnknownOperator,
 		left.Type(), operator)
 }
 
-func evalInfixOperatorExpression(operator string, left, right object.Object, leftNode ast.Node) object.Object {
+func (e *Evaluator) evalInfixOperatorExpression(operator string, left, right object.Object, leftNode ast.Node) object.Object {
 	if left.Type() != right.Type() {
-		return newError(leftNode, fail.ErrTypeMismatch,
+		return e.newError(leftNode, fail.ErrTypeMismatch,
 			left.Type(), operator, right.Type())
 	}
 
 	if operator == "+" && left.Is(object.STR_OBJ) {
-		return evalStringInfixExpression(operator, right, left)
+		return e.evalStringInfixExpression(operator, right, left)
 	}
 
 	switch left.Type() {
 	case object.INT_OBJ:
-		return evalIntegerInfixExpression(operator, right, left, leftNode)
+		return e.evalIntegerInfixExpression(operator, right, left, leftNode)
 	case object.FLOAT_OBJ:
-		return evalFloatInfixExpression(operator, right, left, leftNode)
+		return e.evalFloatInfixExpression(operator, right, left, leftNode)
 	}
 
-	return newError(leftNode, fail.ErrUnknownTypeForOperator,
+	return e.newError(leftNode, fail.ErrUnknownTypeForOperator,
 		left.Type(), operator)
 }
 
-func evalStringInfixExpression(operator string, right, left object.Object) object.Object {
+func (e *Evaluator) evalStringInfixExpression(operator string, right, left object.Object) object.Object {
 	leftVal := left.(*object.Str).Value
 	rightVal := right.(*object.Str).Value
 
 	return &object.Str{Value: leftVal + rightVal}
 }
 
-func evalIntegerInfixExpression(operator string, right, left object.Object, leftNode ast.Node) object.Object {
+func (e *Evaluator) evalIntegerInfixExpression(operator string, right, left object.Object, leftNode ast.Node) object.Object {
 	leftVal := left.(*object.Int).Value
 	rightVal := right.(*object.Int).Value
 
@@ -403,11 +411,11 @@ func evalIntegerInfixExpression(operator string, right, left object.Object, left
 		return nativeBoolToBooleanObject(leftVal <= rightVal)
 	}
 
-	return newError(leftNode, fail.ErrUnknownTypeForOperator,
+	return e.newError(leftNode, fail.ErrUnknownTypeForOperator,
 		left.Type(), operator)
 }
 
-func evalFloatInfixExpression(operator string, right, left object.Object, leftNode ast.Node) object.Object {
+func (e *Evaluator) evalFloatInfixExpression(operator string, right, left object.Object, leftNode ast.Node) object.Object {
 	leftVal := left.(*object.Float).Value
 	rightVal := right.(*object.Float).Value
 
@@ -434,11 +442,11 @@ func evalFloatInfixExpression(operator string, right, left object.Object, leftNo
 		return nativeBoolToBooleanObject(leftVal <= rightVal)
 	}
 
-	return newError(leftNode, fail.ErrUnknownTypeForOperator,
+	return e.newError(leftNode, fail.ErrUnknownTypeForOperator,
 		left.Type(), operator)
 }
 
-func evalMinusPrefixOperatorExpression(right object.Object, node ast.Node) object.Object {
+func (e *Evaluator) evalMinusPrefixOperatorExpression(right object.Object, node ast.Node) object.Object {
 	switch right.Type() {
 	case object.INT_OBJ:
 		value := right.(*object.Int).Value
@@ -448,11 +456,11 @@ func evalMinusPrefixOperatorExpression(right object.Object, node ast.Node) objec
 		return &object.Float{Value: -value}
 	}
 
-	return newError(node, fail.ErrPrefixOperatorIsWrong,
+	return e.newError(node, fail.ErrPrefixOperatorIsWrong,
 		"-", right.Type())
 }
 
-func evalBangOperatorExpression(right object.Object, node ast.Node) object.Object {
+func (e *Evaluator) evalBangOperatorExpression(right object.Object, node ast.Node) object.Object {
 	switch right {
 	case FALSE:
 		return TRUE
@@ -462,6 +470,11 @@ func evalBangOperatorExpression(right object.Object, node ast.Node) object.Objec
 		return TRUE
 	}
 
-	return newError(node, fail.ErrPrefixOperatorIsWrong,
+	return e.newError(node, fail.ErrPrefixOperatorIsWrong,
 		"!", right.Type())
+}
+
+func (e *Evaluator) newError(node ast.Node, format string, a ...interface{}) *object.Error {
+	err := fail.New(node.Line(), e.ctx.absPath, "interpreter", format, a...)
+	return &object.Error{Err: err}
 }

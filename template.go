@@ -28,7 +28,10 @@ func (t *Template) Evaluate(absPath string, data map[string]interface{}) (object
 		return nil, fail.New(0, absPath, "template", fail.ErrTemplateNotFound)
 	}
 
-	evaluated := evaluator.Eval(prog, env)
+	ctx := evaluator.NewContext(absPath)
+	eval := evaluator.New(ctx)
+
+	evaluated := eval.Eval(prog, env)
 
 	if evaluated.Is(object.ERR_OBJ) {
 		return nil, evaluated.(*object.Error).Err
