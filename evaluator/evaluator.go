@@ -145,7 +145,7 @@ func evalDeclStatement(node *ast.DefineStatement, env *object.Env) object.Object
 
 func evalUseStatement(node *ast.UseStatement, env *object.Env) object.Object {
 	if node.Program == nil {
-		return newError(node, "The 'use' statement must have a program attached")
+		return newError(node, fail.ErrUseStmtMustHaveProgram)
 	}
 
 	layoutContent := Eval(node.Program, env)

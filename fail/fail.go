@@ -23,6 +23,7 @@ const (
 	ErrTypeMismatch           = "type mismatch '%s %s %s'"
 	ErrUnknownTypeForOperator = "unknown type '%s' for '%s' operator"
 	ErrPrefixOperatorIsWrong  = "prefix operator '%s' cannot be applied to '%s'"
+	ErrUseStmtMustHaveProgram = "The 'use' statement must have a program attached"
 
 	// Template errors
 	ErrUnsupportedType  = "unsupported type '%T'"
