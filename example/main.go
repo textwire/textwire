@@ -16,7 +16,7 @@ func main() {
 	})
 
 	if tpl.HasErrors() {
-		tpl.FirstError().Fatal()
+		log.Fatal(tpl.FirstError())
 	}
 
 	http.HandleFunc("/", homeHandler)
