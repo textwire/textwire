@@ -72,7 +72,7 @@ func TestEvalUseStatement(t *testing.T) {
 	}
 }
 
-func TestErrorHandling(t *testing.T) {
+func TestStringParsingErrorHandling(t *testing.T) {
 	tests := []struct {
 		inp  string
 		err  *fail.Error
