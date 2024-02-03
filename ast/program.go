@@ -10,6 +10,7 @@ import (
 type Program struct {
 	Token      token.Token // The 'program' token
 	Statements []Statement
+	IsLayout   bool
 }
 
 func (p *Program) TokenLiteral() string {

@@ -156,6 +156,12 @@ func (e *Evaluator) evalUseStatement(node *ast.UseStatement, env *object.Env) ob
 		return e.newError(node, fail.ErrUseStmtMustHaveProgram)
 	}
 
+	if node.Program.IsLayout {
+		if hasUseStmt, stmt := node.Program.HasUseStmt(); hasUseStmt {
+			return e.newError(node, fail.ErrUseStmtNotAllowed, stmt.Name.Value)
+		}
+	}
+
 	layoutContent := e.Eval(node.Program, env)
 
 	if isError(layoutContent) {

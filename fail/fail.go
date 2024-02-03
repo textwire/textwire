@@ -26,8 +26,9 @@ const (
 	ErrUseStmtMustHaveProgram = "The 'use' statement must have a program attached"
 
 	// Template errors
-	ErrUnsupportedType  = "unsupported type '%T'"
-	ErrTemplateNotFound = "template not found"
+	ErrUnsupportedType   = "unsupported type '%T'"
+	ErrTemplateNotFound  = "template not found"
+	ErrUseStmtNotAllowed = "'use' statement pointing to '%s' is not allowed in a layout file to prevent infinite recursion"
 
 	NoErrors = "there are no Textwire errors"
 )

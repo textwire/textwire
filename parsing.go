@@ -53,8 +53,8 @@ func parsePrograms(paths map[string]string) (map[string]*ast.Program, []*fail.Er
 			return nil, errs
 		}
 
-		if hasLayout, layout := prog.HasUseStmt(); hasLayout {
-			errs = applyLayoutToProgram(layout.Name.Value, prog)
+		if hasLayout, useStmt := prog.HasUseStmt(); hasLayout {
+			errs = applyLayoutToProgram(useStmt.Name.Value, prog)
 		}
 
 		if len(errs) != 0 {
@@ -79,6 +79,7 @@ func applyLayoutToProgram(layoutName string, prog *ast.Program) []*fail.Error {
 	}
 
 	layoutProg, errs := parseProgram(layoutAbsAPath)
+	layoutProg.IsLayout = true
 
 	if len(errs) != 0 {
 		return errs
