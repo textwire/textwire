@@ -8,7 +8,7 @@ import (
 
 var config = &Config{
 	TemplateDir: "templates",
-	TemplateExt: ".textwire.html",
+	TemplateExt: ".tw.html",
 }
 
 // Config is the main configuration for Textwire
