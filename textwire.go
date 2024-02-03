@@ -14,7 +14,7 @@ var config = &Config{
 // Config is the main configuration for Textwire
 type Config struct {
 	// TemplateDir is the directory where the Textwire
-	// templates are located
+	// templates are located. Default is "templates"
 	TemplateDir string
 
 	// TemplateExt is the extension of the Textwire
