@@ -18,29 +18,26 @@ type Config struct {
 	TemplateDir string
 
 	// TemplateExt is the extension of the Textwire
-	// template files
+	// template files. Default is ".tw.html"
 	TemplateExt string
 }
 
-func New(c *Config) *Template {
+func New(c *Config) (*Template, error) {
 	applyConfig(c)
 
 	paths, err := findTextwireFiles()
 
 	if err != nil {
-		return &Template{
-			errors: []*fail.Error{
-				fail.New(0, "", "template", err.Error()),
-			},
-		}
+		return nil, err
 	}
 
 	programs, errs := parsePrograms(paths)
 
-	return &Template{
-		programs: programs,
-		errors:   errs,
+	if len(errs) != 0 {
+		return nil, errs[0].Error()
 	}
+
+	return &Template{programs: programs}, nil
 }
 
 func Configure(c *Config) {

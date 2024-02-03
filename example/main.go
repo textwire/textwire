@@ -11,12 +11,14 @@ import (
 var tpl *textwire.Template
 
 func main() {
-	tpl = textwire.New(&textwire.Config{
+	var err error
+
+	tpl, err = textwire.New(&textwire.Config{
 		TemplateDir: "templates",
 	})
 
-	if tpl.HasErrors() {
-		log.Fatal(tpl.FirstError())
+	if err != nil {
+		log.Fatal(err)
 	}
 
 	http.HandleFunc("/", homeHandler)

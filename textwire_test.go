@@ -41,12 +41,12 @@ func TestEvalUseStatement(t *testing.T) {
 		}},
 	}
 
-	tpl := New(&Config{
+	tpl, err := New(&Config{
 		TemplateDir: "testdata/before",
 	})
 
-	if tpl.HasErrors() {
-		t.Errorf("error creating template: %s", tpl.FirstError())
+	if err != nil {
+		t.Errorf("error creating template: %s", err)
 	}
 
 	for _, tt := range tests {

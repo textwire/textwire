@@ -12,7 +12,6 @@ import (
 
 type Template struct {
 	programs map[string]*ast.Program
-	errors   []*fail.Error
 }
 
 func (t *Template) Evaluate(absPath string, data map[string]interface{}) (object.Object, *fail.Error) {
@@ -50,16 +49,4 @@ func (t *Template) View(w http.ResponseWriter, fileName string, data map[string]
 	fmt.Fprint(w, evaluated.String())
 
 	return nil
-}
-
-func (t *Template) HasErrors() bool {
-	return len(t.errors) != 0
-}
-
-func (t *Template) FirstError() *fail.Error {
-	if len(t.errors) == 0 {
-		return nil
-	}
-
-	return t.errors[0]
 }

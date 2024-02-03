@@ -59,3 +59,7 @@ func (e *Error) String() string {
 	return fmt.Sprintf("[Textwire error in %s on line %d]: %s%s",
 		e.origin, e.line, e.message, suffix)
 }
+
+func (e *Error) Error() error {
+	return fmt.Errorf(e.String())
+}
