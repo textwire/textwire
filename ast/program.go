@@ -79,7 +79,7 @@ func (p *Program) ApplyLayout(layoutProg *Program) error {
 	return nil
 }
 
-func (p *Program) IsLayout() bool {
+func (p *Program) HasReserveStmt() bool {
 	for _, stmt := range p.Statements {
 		if stmt.TokenLiteral() == token.String(token.RESERVE) {
 			return true
@@ -89,7 +89,7 @@ func (p *Program) IsLayout() bool {
 	return false
 }
 
-func (p *Program) HasLayout() (bool, *UseStatement) {
+func (p *Program) HasUseStmt() (bool, *UseStatement) {
 	for _, stmt := range p.Statements {
 		if stmt.TokenLiteral() != token.String(token.USE) {
 			continue
