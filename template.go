@@ -14,14 +14,20 @@ type Template struct {
 	programs map[string]*ast.Program
 }
 
-func (t *Template) Evaluate(absPath string, data map[string]interface{}) (object.Object, *fail.Error) {
-	env, err := object.EnvFromMap(data)
+func (t *Template) Evaluate(fileName string, data map[string]interface{}) (object.Object, *fail.Error) {
+	env, envErr := object.EnvFromMap(data)
 
-	if err != nil {
-		return nil, err
+	if envErr != nil {
+		return nil, envErr
 	}
 
-	prog, ok := t.programs[absPath]
+	absPath, err := getFullPath(fileName)
+
+	if err != nil {
+		return nil, fail.New(0, fileName, "template", err.Error())
+	}
+
+	prog, ok := t.programs[fileName]
 
 	if !ok {
 		return nil, fail.New(0, absPath, "template", fail.ErrTemplateNotFound)
