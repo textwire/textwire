@@ -66,7 +66,7 @@ func TestEvalUseStatement(t *testing.T) {
 	}
 
 	tpl, err := TemplateEngine(&Config{
-		TemplateDir: "testdata/before",
+		TemplateDir: "testdata/good/before",
 	})
 
 	if err != nil {
@@ -74,15 +74,13 @@ func TestEvalUseStatement(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		evaluated, evalErr := tpl.Evaluate(tt.fileName, tt.data)
+		actual, evalErr := tpl.String(tt.fileName, tt.data)
 
 		if evalErr != nil {
 			t.Errorf("error evaluating template: %s", evalErr)
 		}
 
-		actual := evaluated.String()
-
-		expected, err := readFile("testdata/expected/" + tt.fileName + ".html")
+		expected, err := readFile("testdata/good/expected/" + tt.fileName + ".html")
 
 		if err != nil {
 			t.Errorf("error reading expected file: %s", err)
@@ -96,15 +94,15 @@ func TestEvalUseStatement(t *testing.T) {
 	}
 }
 
-func TestErrorHandling(t *testing.T) {
+func TestErrorHandlingEvaluatingString(t *testing.T) {
 	tests := []struct {
 		inp  string
 		err  *fail.Error
 		data map[string]interface{}
 	}{
 		{`{{ 1 }`, fail.New(1, "", "parser", fail.ErrIllegalToken, "}"), nil},
-		{`{{ 1 + "a" }}`, fail.New(1, "", "interpreter", fail.ErrTypeMismatch, object.INT_OBJ, "+", object.STR_OBJ), nil},
-		{`@use("sometemplate")`, fail.New(1, "", "interpreter", fail.ErrUseStmtMustHaveProgram), nil},
+		{`{{ 1 + "a" }}`, fail.New(1, "", "evaluator", fail.ErrTypeMismatch, object.INT_OBJ, "+", object.STR_OBJ), nil},
+		{`@use("sometemplate")`, fail.New(1, "", "evaluator", fail.ErrUseStmtMustHaveProgram), nil},
 	}
 
 	for _, tt := range tests {
@@ -116,7 +114,7 @@ func TestErrorHandling(t *testing.T) {
 
 		if errs[0].String() != tt.err.String() {
 			t.Errorf("wrong error message. EXPECTED:\n\"%s\"\n-------GOT:--------\n\"%s\"",
-				tt.err.String(), errs[0].String())
+				tt.err, errs[0])
 		}
 	}
 }

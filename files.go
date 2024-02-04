@@ -6,8 +6,8 @@ import (
 	"strings"
 )
 
-func getFullPath(fileName string) (string, error) {
-	path := config.TemplateDir + "/" + fileName + config.TemplateExt
+func getFullPath(filename string) (string, error) {
+	path := config.TemplateDir + "/" + filename + config.TemplateExt
 	absPath, err := filepath.Abs(path)
 
 	if err != nil {

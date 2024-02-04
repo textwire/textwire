@@ -29,7 +29,7 @@ func main() {
 }
 
 func homeHandler(w http.ResponseWriter, r *http.Request) {
-	err := tpl.View(w, "home", map[string]interface{}{
+	err := tpl.Response(w, "home", map[string]interface{}{
 		"title":     "Home page",
 		"names":     []string{"John", "Jane", "Jack", "Jill"},
 		"showNames": true,
@@ -39,7 +39,7 @@ func homeHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func aboutHandler(w http.ResponseWriter, r *http.Request) {
-	err := tpl.View(w, "about", map[string]interface{}{
+	err := tpl.Response(w, "about", map[string]interface{}{
 		"title": "About page",
 	})
 

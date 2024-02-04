@@ -2,6 +2,7 @@ package evaluator
 
 import (
 	"bytes"
+	"fmt"
 	"html"
 
 	"github.com/textwire/textwire/ast"
@@ -152,13 +153,15 @@ func (e *Evaluator) evalDeclStatement(node *ast.DefineStatement, env *object.Env
 }
 
 func (e *Evaluator) evalUseStatement(node *ast.UseStatement, env *object.Env) object.Object {
+	fmt.Printf("-------> %#v\n", "HERE")
+
 	if node.Program == nil {
 		return e.newError(node, fail.ErrUseStmtMustHaveProgram)
 	}
 
 	if node.Program.IsLayout {
-		if hasUseStmt, stmt := node.Program.HasUseStmt(); hasUseStmt {
-			return e.newError(node, fail.ErrUseStmtNotAllowed, stmt.Name.Value)
+		if hasUseStmt, _ := node.Program.HasUseStmt(); hasUseStmt {
+			return e.newError(node, fail.ErrUseStmtNotAllowed)
 		}
 	}
 
@@ -481,6 +484,6 @@ func (e *Evaluator) evalBangOperatorExpression(right object.Object, node ast.Nod
 }
 
 func (e *Evaluator) newError(node ast.Node, format string, a ...interface{}) *object.Error {
-	err := fail.New(node.Line(), e.ctx.absPath, "interpreter", format, a...)
+	err := fail.New(node.Line(), e.ctx.absPath, "evaluator", format, a...)
 	return &object.Error{Err: err}
 }

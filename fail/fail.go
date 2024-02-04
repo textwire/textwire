@@ -29,7 +29,7 @@ const (
 	// Template errors
 	ErrUnsupportedType   = "unsupported type '%T'"
 	ErrTemplateNotFound  = "template not found"
-	ErrUseStmtNotAllowed = "'use' statement pointing to '%s' is not allowed in a layout file to prevent infinite recursion"
+	ErrUseStmtNotAllowed = "'use' statement is not allowed in a layout file. It will cause infinite recursion"
 
 	NoErrorsFound = "there are no Textwire errors"
 )
@@ -38,7 +38,7 @@ type Error struct {
 	message  string
 	line     uint
 	filepath string
-	origin   string // "parser" | "interpreter" | "template"
+	origin   string // "parser" | "evaluator" | "template"
 }
 
 func New(line uint, filepath, origin, msg string, args ...interface{}) *Error {

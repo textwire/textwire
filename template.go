@@ -14,23 +14,23 @@ type Template struct {
 	programs map[string]*ast.Program
 }
 
-func (t *Template) Evaluate(fileName string, data map[string]interface{}) (object.Object, *fail.Error) {
+func (t *Template) String(filename string, data map[string]interface{}) (string, *fail.Error) {
 	env, envErr := object.EnvFromMap(data)
 
 	if envErr != nil {
-		return nil, envErr
+		return "", envErr
 	}
 
-	absPath, err := getFullPath(fileName)
+	absPath, err := getFullPath(filename)
 
 	if err != nil {
-		return nil, fail.New(0, fileName, "template", err.Error())
+		return "", fail.New(0, filename, "template", err.Error())
 	}
 
-	prog, ok := t.programs[fileName]
+	prog, ok := t.programs[filename]
 
 	if !ok {
-		return nil, fail.New(0, absPath, "template", fail.ErrTemplateNotFound)
+		return "", fail.New(0, absPath, "template", fail.ErrTemplateNotFound)
 	}
 
 	ctx := evaluator.NewContext(absPath)
@@ -39,20 +39,20 @@ func (t *Template) Evaluate(fileName string, data map[string]interface{}) (objec
 	evaluated := eval.Eval(prog, env)
 
 	if evaluated.Is(object.ERR_OBJ) {
-		return nil, evaluated.(*object.Error).Err
+		return "", evaluated.(*object.Error).Err
 	}
 
-	return evaluated, nil
+	return evaluated.String(), nil
 }
 
-func (t *Template) View(w http.ResponseWriter, fileName string, data map[string]interface{}) *fail.Error {
-	evaluated, err := t.Evaluate(fileName, data)
+func (t *Template) Response(w http.ResponseWriter, filename string, data map[string]interface{}) *fail.Error {
+	evaluated, err := t.String(filename, data)
 
 	if err != nil {
 		return err
 	}
 
-	fmt.Fprint(w, evaluated.String())
+	fmt.Fprint(w, evaluated)
 
 	return nil
 }
