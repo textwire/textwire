@@ -92,6 +92,8 @@ func applyLayoutToProgram(layoutName string, prog *ast.Program) []*fail.Error {
 }
 
 func applyConfig(c *Config) {
+	config.configApplied = true
+
 	if c.TemplateDir != "" {
 		config.TemplateDir = strings.Trim(c.TemplateDir, "/")
 	}

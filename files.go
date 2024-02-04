@@ -7,13 +7,15 @@ import (
 )
 
 func getFullPath(filename string, appendExt bool) (string, error) {
-	path := config.TemplateDir + "/" + filename
-
-	if appendExt {
-		path += config.TemplateExt
+	if config.configApplied {
+		filename = config.TemplateDir + "/" + filename
 	}
 
-	absPath, err := filepath.Abs(path)
+	if appendExt {
+		filename += config.TemplateExt
+	}
+
+	absPath, err := filepath.Abs(filename)
 
 	if err != nil {
 		return "", err

@@ -2,7 +2,6 @@ package evaluator
 
 import (
 	"bytes"
-	"fmt"
 	"html"
 
 	"github.com/textwire/textwire/ast"
@@ -153,8 +152,6 @@ func (e *Evaluator) evalDeclStatement(node *ast.DefineStatement, env *object.Env
 }
 
 func (e *Evaluator) evalUseStatement(node *ast.UseStatement, env *object.Env) object.Object {
-	fmt.Printf("-------> %#v\n", "HERE")
-
 	if node.Program == nil {
 		return e.newError(node, fail.ErrUseStmtMustHaveProgram)
 	}

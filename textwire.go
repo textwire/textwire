@@ -20,6 +20,10 @@ type Config struct {
 	// TemplateExt is the extension of the Textwire
 	// template files. Default is ".tw.html"
 	TemplateExt string
+
+	// configApplied is a flag to check if the configuration
+	// are set or not
+	configApplied bool
 }
 
 func NewTemplate(c *Config) (*Template, *fail.Error) {
@@ -41,6 +45,8 @@ func NewTemplate(c *Config) (*Template, *fail.Error) {
 }
 
 func EvaluateString(inp string, data map[string]interface{}) (string, []*fail.Error) {
+	config.configApplied = false
+
 	prog, errs := parseStr(inp)
 
 	if len(errs) != 0 {
@@ -63,4 +69,22 @@ func EvaluateString(inp string, data map[string]interface{}) (string, []*fail.Er
 	}
 
 	return evaluated.String(), nil
+}
+
+func EvaluateFile(absPath string, data map[string]interface{}) (string, []*fail.Error) {
+	config.configApplied = false
+
+	_, err := fileContent(absPath)
+
+	if err != nil {
+		return "", fail.FromError(err, 0, absPath, "template").ToSlice()
+	}
+
+	result, errs := EvaluateString(absPath, data)
+
+	if len(errs) != 0 {
+		return "", errs
+	}
+
+	return result, nil
 }

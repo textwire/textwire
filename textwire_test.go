@@ -71,6 +71,7 @@ func TestEvalUseStatement(t *testing.T) {
 
 	if err != nil {
 		t.Errorf("error creating template: %s", err)
+		return
 	}
 
 	for _, tt := range tests {
@@ -78,6 +79,7 @@ func TestEvalUseStatement(t *testing.T) {
 
 		if evalErr != nil {
 			t.Errorf("error evaluating template: %s", evalErr)
+			return
 		}
 
 		expected, err := readFile("testdata/good/expected/" + tt.fileName + ".html")
