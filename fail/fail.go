@@ -34,6 +34,8 @@ const (
 	NoErrorsFound = "there are no Textwire errors"
 )
 
+// Error is the main error type for Textwire that contains all the necessary
+// information about the error like the line number, file path, etc.
 type Error struct {
 	message  string
 	line     uint
@@ -41,6 +43,7 @@ type Error struct {
 	origin   string // "parser" | "evaluator" | "template"
 }
 
+// New creates a new Error instance of Error
 func New(line uint, filepath, origin, msg string, args ...interface{}) *Error {
 	return &Error{
 		line:     line,
@@ -50,6 +53,7 @@ func New(line uint, filepath, origin, msg string, args ...interface{}) *Error {
 	}
 }
 
+// String returns the full error message with all the details
 func (e *Error) String() string {
 	path := ""
 
@@ -61,7 +65,8 @@ func (e *Error) String() string {
 		path, e.line, e.message)
 }
 
-func (e *Error) IfErrorFatal() {
+// FatalOnError calls log.Fatal if the error message is not empty
+func (e *Error) FatalOnError() {
 	if e.message == "" {
 		return
 	}
@@ -69,7 +74,8 @@ func (e *Error) IfErrorFatal() {
 	log.Fatal(e.String())
 }
 
-func (e *Error) IfErrorPanic() {
+// PanicOnError panics if the error message is not empty
+func (e *Error) PanicOnError() {
 	if e.message == "" {
 		return
 	}
@@ -77,7 +83,9 @@ func (e *Error) IfErrorPanic() {
 	panic(e.String())
 }
 
-func (e *Error) IfErrorPrintln() {
+// PrintOnError prints the error message to the standard output
+// when the error message is not empty
+func (e *Error) PrintOnError() {
 	if e.message == "" {
 		return
 	}

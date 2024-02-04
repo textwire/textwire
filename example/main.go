@@ -18,7 +18,7 @@ func main() {
 		TemplateDir: "templates",
 	})
 
-	err.IfErrorFatal()
+	err.FatalOnError()
 
 	http.HandleFunc("/", homeHandler)
 	http.HandleFunc("/about", aboutHandler)
@@ -35,7 +35,7 @@ func homeHandler(w http.ResponseWriter, r *http.Request) {
 		"showNames": true,
 	})
 
-	err.IfErrorFatal()
+	err.FatalOnError()
 }
 
 func aboutHandler(w http.ResponseWriter, r *http.Request) {
@@ -43,5 +43,5 @@ func aboutHandler(w http.ResponseWriter, r *http.Request) {
 		"title": "About page",
 	})
 
-	err.IfErrorFatal()
+	err.FatalOnError()
 }
