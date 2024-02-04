@@ -45,7 +45,7 @@ func TestEvaluateString(t *testing.T) {
 		}
 
 		if actual != tt.expect {
-			t.Errorf("wrong result. EXPECTED:\n\"%s\"\n-------GOT:--------\n\"%s\"",
+			t.Errorf("wrong result. EXPECTED:\n\"%s\"\nGOT:\n\"%s\"",
 				tt.expect, actual)
 		}
 	}
@@ -88,7 +88,7 @@ func TestEvalUseStatement(t *testing.T) {
 		}
 
 		if actual != expected {
-			t.Errorf("wrong result. EXPECTED:\n\"%s\"\n-------GOT:--------\n\"%s\"",
+			t.Errorf("wrong result. EXPECTED:\n\"%s\"\nGOT:\n\"%s\"",
 				expected, actual)
 		}
 	}
@@ -113,8 +113,23 @@ func TestErrorHandlingEvaluatingString(t *testing.T) {
 		}
 
 		if errs[0].String() != tt.err.String() {
-			t.Errorf("wrong error message. EXPECTED:\n\"%s\"\n-------GOT:--------\n\"%s\"",
+			t.Errorf("wrong error message. EXPECTED:\n\"%s\"\nGOT:\n\"%s\"",
 				tt.err, errs[0])
 		}
+	}
+}
+
+func TestEvaluateFile(t *testing.T) {
+	absPath, fileErr := getFullPath("testdata/good/before/2.with-inserts", true)
+
+	if fileErr != nil {
+		t.Errorf("error getting full path: %s", fileErr)
+		return
+	}
+
+	_, err := EvaluateFile(absPath, nil)
+
+	if err != nil {
+		t.Errorf("error evaluating file:\n%s", err[0])
 	}
 }

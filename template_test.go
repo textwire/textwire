@@ -40,8 +40,7 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 		}
 
 		if err.String() != tt.err.String() {
-			t.Errorf("wrong error message. EXPECTED:\n\"%s\"\n-------GOT:--------\n\"%s\"",
-				tt.err, err)
+			t.Errorf("wrong error message. EXPECTED:\n\"%s\"\nGOT:\n\"%s\"", tt.err, err)
 		}
 	}
 }
