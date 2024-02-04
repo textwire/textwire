@@ -27,6 +27,30 @@ func readFile(fileName string) (string, error) {
 	return string(bytes), nil
 }
 
+func TestEvaluateString(t *testing.T) {
+	tests := []struct {
+		inp    string
+		expect string
+		data   map[string]interface{}
+	}{
+		{"{{ 1 + 2 }}", "3", nil},
+		{"{{ n1 * n2 }}", "2", map[string]interface{}{"n1": 1, "n2": 2}},
+	}
+
+	for _, tt := range tests {
+		actual, errs := EvaluateString(tt.inp, tt.data)
+
+		if len(errs) != 0 {
+			t.Errorf("error evaluating template: %s", errs[0])
+		}
+
+		if actual != tt.expect {
+			t.Errorf("wrong result. EXPECTED:\n\"%s\"\n-------GOT:--------\n\"%s\"",
+				tt.expect, actual)
+		}
+	}
+}
+
 func TestEvalUseStatement(t *testing.T) {
 	tests := []struct {
 		fileName string
