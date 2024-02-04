@@ -22,26 +22,22 @@ type Config struct {
 	TemplateExt string
 }
 
-func New(c *Config) (*Template, error) {
+func TemplateEngine(c *Config) (*Template, *fail.Error) {
 	applyConfig(c)
 
 	paths, err := findTextwireFiles()
 
 	if err != nil {
-		return nil, err
+		return nil, fail.New(0, "", "template", err.Error())
 	}
 
 	programs, errs := parsePrograms(paths)
 
 	if len(errs) != 0 {
-		return nil, errs[0].Error()
+		return nil, errs[0]
 	}
 
 	return &Template{programs: programs}, nil
-}
-
-func Configure(c *Config) {
-	applyConfig(c)
 }
 
 func EvaluateString(inp string, data map[string]interface{}) (string, []*fail.Error) {

@@ -2,6 +2,7 @@ package fail
 
 import (
 	"fmt"
+	"log"
 )
 
 const (
@@ -30,7 +31,7 @@ const (
 	ErrTemplateNotFound  = "template not found"
 	ErrUseStmtNotAllowed = "'use' statement pointing to '%s' is not allowed in a layout file to prevent infinite recursion"
 
-	NoErrors = "there are no Textwire errors"
+	NoErrorsFound = "there are no Textwire errors"
 )
 
 type Error struct {
@@ -60,6 +61,26 @@ func (e *Error) String() string {
 		e.origin, e.line, e.message, suffix)
 }
 
-func (e *Error) Error() error {
-	return fmt.Errorf(e.String())
+func (e *Error) IfErrorFatal() {
+	if e.message == "" {
+		return
+	}
+
+	log.Fatal(e.String())
+}
+
+func (e *Error) IfErrorPanic() {
+	if e.message == "" {
+		return
+	}
+
+	panic(e.String())
+}
+
+func (e *Error) IfErrorPrintln() {
+	if e.message == "" {
+		return
+	}
+
+	log.Println(e.String())
 }

@@ -41,7 +41,7 @@ func TestEvalUseStatement(t *testing.T) {
 		}},
 	}
 
-	tpl, err := New(&Config{
+	tpl, err := TemplateEngine(&Config{
 		TemplateDir: "testdata/before",
 	})
 
@@ -72,7 +72,7 @@ func TestEvalUseStatement(t *testing.T) {
 	}
 }
 
-func TestStringParsingErrorHandling(t *testing.T) {
+func TestErrorHandling(t *testing.T) {
 	tests := []struct {
 		inp  string
 		err  *fail.Error
