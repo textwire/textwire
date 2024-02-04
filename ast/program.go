@@ -2,8 +2,8 @@ package ast
 
 import (
 	"bytes"
-	"fmt"
 
+	"github.com/textwire/textwire/fail"
 	"github.com/textwire/textwire/token"
 )
 
@@ -47,7 +47,7 @@ func (p *Program) Inserts() map[string]*InsertStatement {
 	return inserts
 }
 
-func (p *Program) ApplyInserts(inserts map[string]*InsertStatement) error {
+func (p *Program) ApplyInserts(inserts map[string]*InsertStatement, absPath string) *fail.Error {
 	for _, stmt := range p.Statements {
 		if stmt.TokenLiteral() != token.String(token.RESERVE) {
 			continue
@@ -56,13 +56,15 @@ func (p *Program) ApplyInserts(inserts map[string]*InsertStatement) error {
 		reserve, ok := stmt.(*ReserveStatement)
 
 		if !ok {
-			return fmt.Errorf("expected *ReserveStatement, got %T", stmt)
+			return fail.New(stmt.Line(), absPath, "parser",
+				fail.ErrExceptedReserveStmt, stmt)
 		}
 
 		insert, hasInsert := inserts[reserve.Name.Value]
 
 		if !hasInsert {
-			return fmt.Errorf("The insert statement named '%s' is not defined", reserve.Name.Value)
+			return fail.New(stmt.Line(), absPath, "parser",
+				fail.ErrInsertStmtNotDefined, reserve.Name.Value)
 		}
 
 		reserve.Insert = insert

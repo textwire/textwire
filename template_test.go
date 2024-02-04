@@ -1,7 +1,6 @@
 package textwire
 
 import (
-	"strings"
 	"testing"
 
 	"github.com/textwire/textwire/fail"
@@ -12,14 +11,13 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 		TemplateDir: "testdata/bad",
 	})
 
-	path, err := getFullPath("")
+	path, err := getFullPath("", false)
+	path += "/"
 
 	if err != nil {
 		t.Errorf("unexpected error: %s", err)
 		return
 	}
-
-	path = strings.Replace(path, ".tw.html", "", 1)
 
 	tests := []struct {
 		fileName string

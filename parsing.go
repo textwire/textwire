@@ -26,14 +26,11 @@ func parseProgram(absPath string) (*ast.Program, []*fail.Error) {
 	content, err := fileContent(absPath)
 
 	if err != nil {
-		return nil, []*fail.Error{
-			fail.New(0, absPath, "template", err.Error()),
-		}
+		return nil, fail.FromError(err, 0, absPath, "template").ToSlice()
 	}
 
 	lex := lexer.New(content)
 	pars := parser.New(lex, absPath)
-
 	prog := pars.ParseProgram()
 
 	if len(pars.Errors()) != 0 {
@@ -70,12 +67,10 @@ func parsePrograms(paths map[string]string) (map[string]*ast.Program, []*fail.Er
 }
 
 func applyLayoutToProgram(layoutName string, prog *ast.Program) []*fail.Error {
-	layoutAbsAPath, err := getFullPath(layoutName)
+	layoutAbsAPath, err := getFullPath(layoutName, true)
 
 	if err != nil {
-		return []*fail.Error{
-			fail.New(0, layoutAbsAPath, "template", err.Error()),
-		}
+		return fail.FromError(err, 0, "", "template").ToSlice()
 	}
 
 	layoutProg, errs := parseProgram(layoutAbsAPath)
@@ -85,12 +80,10 @@ func applyLayoutToProgram(layoutName string, prog *ast.Program) []*fail.Error {
 		return errs
 	}
 
-	err = layoutProg.ApplyInserts(prog.Inserts())
+	layoutErr := layoutProg.ApplyInserts(prog.Inserts(), layoutAbsAPath)
 
-	if err != nil {
-		return []*fail.Error{
-			fail.New(0, layoutAbsAPath, "template", err.Error()),
-		}
+	if layoutErr != nil {
+		return layoutErr.ToSlice()
 	}
 
 	prog.ApplyLayout(layoutProg)

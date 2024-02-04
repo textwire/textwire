@@ -28,7 +28,7 @@ func NewTemplate(c *Config) (*Template, *fail.Error) {
 	paths, err := findTextwireFiles()
 
 	if err != nil {
-		return nil, fail.New(0, "", "template", err.Error())
+		return nil, fail.FromError(err, 0, "", "template")
 	}
 
 	programs, errs := parsePrograms(paths)
@@ -50,7 +50,7 @@ func EvaluateString(inp string, data map[string]interface{}) (string, []*fail.Er
 	env, err := object.EnvFromMap(data)
 
 	if err != nil {
-		return "", []*fail.Error{err}
+		return "", err.ToSlice()
 	}
 
 	ctx := evaluator.NewContext("")
@@ -59,9 +59,7 @@ func EvaluateString(inp string, data map[string]interface{}) (string, []*fail.Er
 	evaluated := eval.Eval(prog, env)
 
 	if evaluated.Is(object.ERR_OBJ) {
-		return "", []*fail.Error{
-			evaluated.(*object.Error).Err,
-		}
+		return "", evaluated.(*object.Error).Err.ToSlice()
 	}
 
 	return evaluated.String(), nil

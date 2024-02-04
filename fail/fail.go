@@ -7,31 +7,33 @@ import (
 
 const (
 	// Parser errors
-	ErrEmptyBrackets          = "bracket statement must contain an expression '{{ <expression> }}'"
-	ErrWrongNextToken         = "expected next token to be '%s', got '%s' instead"
-	ErrExpectedExpression     = "expected expression, got '}}'"
-	ErrCouldNotParseAs        = "could not parse '%s' as '%s'"
-	ErrNoPrefixParseFunc      = "no prefix parse function for '%s'"
-	ErrIllegalToken           = "illegal token '%s' found"
+	ErrEmptyBrackets          = "Bracket statement must contain an expression '{{ <expression> }}'"
+	ErrWrongNextToken         = "Expected next token to be '%s', got '%s' instead"
+	ErrExpectedExpression     = "Expected expression, got '}}'"
+	ErrCouldNotParseAs        = "Could not parse '%s' as '%s'"
+	ErrNoPrefixParseFunc      = "No prefix parse function for '%s'"
+	ErrIllegalToken           = "Illegal token '%s' found"
 	ErrElseifCannotFollowElse = "'@elseif' directive cannot follow '@else'"
+	ErrExceptedReserveStmt    = "Expected *ReserveStatement, got %T"
+	ErrInsertStmtNotDefined   = "The insert statement named '%s' is not defined"
 
 	// Interpreter (evaluator) errors
-	ErrUnknownNodeType        = "unknown node type '%T'"
-	ErrInsertMustHaveContent  = "the INSERT statement must have a content or a text argument"
-	ErrIdentifierNotFound     = "identifier '%s' not found"
-	ErrIndexNotSupported      = "the index operator '%s' is not supported"
-	ErrUnknownOperator        = "unknown operator '%s%s'"
-	ErrTypeMismatch           = "type mismatch '%s %s %s'"
-	ErrUnknownTypeForOperator = "unknown type '%s' for '%s' operator"
-	ErrPrefixOperatorIsWrong  = "prefix operator '%s' cannot be applied to '%s'"
+	ErrUnknownNodeType        = "Unknown node type '%T'"
+	ErrInsertMustHaveContent  = "The INSERT statement must have a content or a text argument"
+	ErrIdentifierNotFound     = "Identifier '%s' not found"
+	ErrIndexNotSupported      = "The index operator '%s' is not supported"
+	ErrUnknownOperator        = "Unknown operator '%s%s'"
+	ErrTypeMismatch           = "Type mismatch '%s %s %s'"
+	ErrUnknownTypeForOperator = "Unknown type '%s' for '%s' operator"
+	ErrPrefixOperatorIsWrong  = "Prefix operator '%s' cannot be applied to '%s'"
 	ErrUseStmtMustHaveProgram = "The 'use' statement must have a program attached"
 
 	// Template errors
-	ErrUnsupportedType   = "unsupported type '%T'"
-	ErrTemplateNotFound  = "template not found"
-	ErrUseStmtNotAllowed = "'use' statement is not allowed in a layout file. It will cause infinite recursion"
+	ErrUnsupportedType   = "Unsupported type '%T'"
+	ErrTemplateNotFound  = "Template not found"
+	ErrUseStmtNotAllowed = "The 'use' statement is not allowed in a layout file. It will cause infinite recursion"
 
-	NoErrorsFound = "there are no Textwire errors"
+	NoErrorsFound = "There are no Textwire errors"
 )
 
 // Error is the main error type for Textwire that contains all the necessary
@@ -91,4 +93,16 @@ func (e *Error) PrintOnError() {
 	}
 
 	log.Println(e.String())
+}
+
+func (e *Error) ToSlice() []*Error {
+	return []*Error{e}
+}
+
+func FromError(err error, line uint, absPath, origin string, args ...interface{}) *Error {
+	if err == nil {
+		return nil
+	}
+
+	return New(line, absPath, origin, err.Error(), args...)
 }

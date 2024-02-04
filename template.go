@@ -21,7 +21,7 @@ func (t *Template) String(filename string, data map[string]interface{}) (string,
 		return "", envErr
 	}
 
-	absPath, err := getFullPath(filename)
+	absPath, err := getFullPath(filename, true)
 
 	if err != nil {
 		return "", fail.New(0, filename, "template", err.Error())

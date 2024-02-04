@@ -28,9 +28,8 @@ func checkParserErrors(t *testing.T, p *Parser) {
 func parseStatements(t *testing.T, inp string, stmtCount int, inserts map[string]*ast.InsertStatement) []ast.Statement {
 	l := lexer.New(inp)
 	p := New(l, "")
-
 	prog := p.ParseProgram()
-	err := prog.ApplyInserts(inserts)
+	err := prog.ApplyInserts(inserts, "")
 
 	if err != nil {
 		t.Fatalf("error applying inserts: %s", err)
