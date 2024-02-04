@@ -14,7 +14,7 @@ var tpl *textwire.Template
 func main() {
 	var err *fail.Error
 
-	tpl, err = textwire.TemplateEngine(&textwire.Config{
+	tpl, err = textwire.NewTemplate(&textwire.Config{
 		TemplateDir: "templates",
 	})
 

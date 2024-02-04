@@ -8,7 +8,7 @@ import (
 )
 
 func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
-	tpl, _ := TemplateEngine(&Config{
+	tpl, _ := NewTemplate(&Config{
 		TemplateDir: "testdata/bad",
 	})
 

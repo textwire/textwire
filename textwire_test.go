@@ -65,7 +65,7 @@ func TestEvalUseStatement(t *testing.T) {
 		}},
 	}
 
-	tpl, err := TemplateEngine(&Config{
+	tpl, err := NewTemplate(&Config{
 		TemplateDir: "testdata/good/before",
 	})
 

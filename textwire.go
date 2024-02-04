@@ -22,7 +22,7 @@ type Config struct {
 	TemplateExt string
 }
 
-func TemplateEngine(c *Config) (*Template, *fail.Error) {
+func NewTemplate(c *Config) (*Template, *fail.Error) {
 	applyConfig(c)
 
 	paths, err := findTextwireFiles()
