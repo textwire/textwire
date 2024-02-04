@@ -51,14 +51,14 @@ func New(line uint, filepath, origin, msg string, args ...interface{}) *Error {
 }
 
 func (e *Error) String() string {
-	suffix := ""
+	path := ""
 
 	if e.filepath != "" {
-		suffix = fmt.Sprintf(" in %s", e.filepath)
+		path = fmt.Sprintf(" in %s", e.filepath)
 	}
 
-	return fmt.Sprintf("[Textwire error in %s on line %d]: %s%s",
-		e.origin, e.line, e.message, suffix)
+	return fmt.Sprintf("[Textwire ERROR%s:%d]: %s",
+		path, e.line, e.message)
 }
 
 func (e *Error) IfErrorFatal() {

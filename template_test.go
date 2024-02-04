@@ -1,26 +1,39 @@
 package textwire
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/textwire/textwire/fail"
 )
 
 func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
-	t.Skip()
+	tpl, _ := TemplateEngine(&Config{
+		TemplateDir: "testdata/bad",
+	})
+
+	path, err := getFullPath("")
+
+	if err != nil {
+		t.Errorf("unexpected error: %s", err)
+		return
+	}
+
+	path = strings.Replace(path, ".tw.html", "", 1)
+
 	tests := []struct {
 		fileName string
 		err      *fail.Error
 		data     map[string]interface{}
 	}{
-		{"1.use-inside-tpl", fail.New(1, "", "evaluator", fail.ErrUseStmtNotAllowed), nil},
+		{
+			"1.use-inside-tpl",
+			fail.New(1, path+"1.use-inside-tpl.tw.html", "evaluator", fail.ErrUseStmtNotAllowed),
+			nil,
+		},
 	}
 
 	for _, tt := range tests {
-		tpl, _ := TemplateEngine(&Config{
-			TemplateDir: "testdata/bad",
-		})
-
 		_, err := tpl.String(tt.fileName, tt.data)
 
 		if err == nil {
