@@ -53,6 +53,8 @@ func TestEvalHTML(t *testing.T) {
 		{`\@if(true)`, `@if(true)`},
 		{`\\@if(true)`, `\@if(true)`},
 		{`\{{ 5 }}`, `{{ 5 }}`},
+		{`\\{{ "nice" }}`, `\{{ "nice" }}`},
+		{`\\\{{ x }}`, `\\{{ x }}`},
 	}
 
 	for _, tt := range tests {
