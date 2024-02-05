@@ -32,7 +32,7 @@ func evaluationExpected(t *testing.T, inp, expect string) {
 	result := evaluated.String()
 
 	if result != expect {
-		t.Errorf("result is not %q, got %q", expect, result)
+		t.Errorf("result is not '%s', got '%s'", expect, result)
 	}
 }
 
@@ -52,7 +52,7 @@ func TestEvalHTML(t *testing.T) {
 		{`\\@`, `\\@`},
 		{`\@if(true)`, `@if(true)`},
 		{`\\@if(true)`, `\@if(true)`},
-		// {`\{{ 5 }}`, `{{ 5 }}`},
+		{`\{{ 5 }}`, `{{ 5 }}`},
 	}
 
 	for _, tt := range tests {

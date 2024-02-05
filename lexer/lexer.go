@@ -332,13 +332,21 @@ func (l *Lexer) readNumber() (string, bool) {
 func (l *Lexer) readHTML() string {
 	var out bytes.Buffer
 
-	for l.isHTML && l.char != 0 && (l.char != '{' && l.peekChar() != '{') {
+	for l.isHTML && l.char != 0 {
+		if l.peekChar() == '{' && l.char != '\\' {
+			break
+		}
+
 		if l.char == '\n' {
 			l.line += 1
 		}
 
 		if esc := l.escapeDirective(); esc != 0 {
 			out.WriteByte(esc)
+		}
+
+		if esc := l.escapeStatementStart(); esc != "" {
+			out.WriteString(esc)
 		}
 
 		if l.isDirectiveStmt() {
@@ -350,7 +358,7 @@ func (l *Lexer) readHTML() string {
 		l.advanceChar()
 	}
 
-	if l.char != 0 && l.char != '@' {
+	if l.char != 0 && l.char != '@' && l.char != '{' {
 		out.WriteByte(l.char)
 		l.advanceChar()
 	}
@@ -371,6 +379,23 @@ func (l *Lexer) escapeDirective() byte {
 	}
 
 	return '\\'
+}
+
+func (l *Lexer) escapeStatementStart() string {
+	if l.char != '\\' || l.peekChar() != '{' {
+		return ""
+	}
+
+	l.advanceChar() // skip "\"
+
+	if l.peekChar() != '{' {
+		return "\\"
+	}
+
+	l.advanceChar() // skip "{"
+	l.advanceChar() // skip "{"
+
+	return "{{"
 }
 
 func (l *Lexer) advanceChar() {
