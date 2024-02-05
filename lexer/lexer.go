@@ -112,7 +112,7 @@ func (l *Lexer) embeddedCodeToken() token.Token {
 		return l.newTokenAndAdvance(token.RBRACKET, "]")
 	case ';':
 		return l.newTokenAndAdvance(token.SEMI, ";")
-	case '"', '`':
+	case '"', '\'':
 		str := l.readString()
 		return l.newTokenAndAdvance(token.STR, str)
 	case '<':

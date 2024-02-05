@@ -310,6 +310,7 @@ func TestParseStringLiteral(t *testing.T) {
 	}{
 		{`{{ "Hello World" }}`, "Hello World"},
 		{`{{ "Serhii \"Cho\"" }}`, `Serhii "Cho"`},
+		{`{{ 'Hello World' }}`, "Hello World"},
 	}
 
 	for _, tt := range tests {

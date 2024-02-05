@@ -159,7 +159,7 @@ func TestEvalStringExpression(t *testing.T) {
 		{`{{ "She \"is\" pretty" }}`, `She &#34;is&#34; pretty`},
 		{`{{ "Korotchaeva" + " " + "Anna" }}`, "Korotchaeva Anna"},
 		{`{{ "She" + " " + "is" + " " + "nice" }}`, "She is nice"},
-		{"{{ `` }}", ""},
+		{"{{ '' }}", ""},
 		{`{{ "<h1>Test</h1>" }}`, "&lt;h1&gt;Test&lt;/h1&gt;"},
 	}
 
