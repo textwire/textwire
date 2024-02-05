@@ -337,9 +337,7 @@ func (l *Lexer) readHTML() string {
 			l.line += 1
 		}
 
-		esc := l.escapeDirective()
-
-		if esc != 0 {
+		if esc := l.escapeDirective(); esc != 0 {
 			out.WriteByte(esc)
 		}
 
