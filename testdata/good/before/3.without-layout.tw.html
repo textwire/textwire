@@ -9,8 +9,8 @@
     <h2>This@if(true) is @endnice</h2>
     <h2>This\@if(true) is \@endnice</h2>
     <ul>
-        <li>{{ NAME_1 }}</li>
-        <li>{{ name_2 }}</li>
+        <li>{{ true ? NAME_1 : "" }}</li>
+        <li>{{ false ? "" : name_2 }}</li>
     </ul>
 </body>
 </html>
