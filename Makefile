@@ -9,6 +9,10 @@ run:
 	clear
 	@cd example && go run main.go
 
+.PHONE: shell
+shell:
+	go run repl/repl.go
+
 .PHONE: push
 push:
 	echo "🚀 Pushing to GitHub..."
