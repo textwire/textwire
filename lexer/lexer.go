@@ -43,17 +43,11 @@ func (l *Lexer) NextToken() token.Token {
 	}
 
 	if l.char == '{' && l.peekChar() == '{' {
-		l.isHTML = false
-		l.advanceChar() // skip "{"
-		l.advanceChar() // skip "{"
-		return l.newToken(token.LBRACES, "{{")
+		return l.bracesToken(token.LBRACES, "{{")
 	}
 
 	if l.char == '}' && l.peekChar() == '}' {
-		l.isHTML = true
-		l.advanceChar() // skip "}"
-		l.advanceChar() // skip "}"
-		return l.newToken(token.RBRACES, "}}")
+		return l.bracesToken(token.RBRACES, "}}")
 	}
 
 	if !l.isHTML {
@@ -65,6 +59,13 @@ func (l *Lexer) NextToken() token.Token {
 	}
 
 	return l.newToken(token.HTML, l.readHTML())
+}
+
+func (l *Lexer) bracesToken(tok token.TokenType, literal string) token.Token {
+	l.isHTML = tok != token.LBRACES
+	l.advanceChar() // skip "{" or "}"
+	l.advanceChar() // skip "{" or "}"
+	return l.newToken(tok, literal)
 }
 
 func (l *Lexer) directiveToken() token.Token {
