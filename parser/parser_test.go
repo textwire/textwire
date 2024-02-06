@@ -1036,7 +1036,7 @@ func TestParseTwoStatements(t *testing.T) {
 	}
 }
 
-func TestParseTwoExpressions(t *testing.T) {
+func TestParseTwoExpression(t *testing.T) {
 	inp := `{{ 1; 2 }}`
 
 	stmts := parseStatements(t, inp, 2, nil)
@@ -1046,6 +1046,31 @@ func TestParseTwoExpressions(t *testing.T) {
 	}
 
 	if !testIntegerLiteral(t, stmts[1].(*ast.ExpressionStatement).Expression, 2) {
+		return
+	}
+}
+
+func TestParseCallExpression(t *testing.T) {
+	inp := `{{ "Serhii Cho".split(" ") }}`
+
+	stmts := parseStatements(t, inp, 1, nil)
+	stmt, ok := stmts[0].(*ast.ExpressionStatement)
+
+	if !ok {
+		t.Fatalf("stmts[0] is not a ExpressionStatement, got %T", stmts[0])
+	}
+
+	callExpr, ok := stmt.Expression.(*ast.CallExpression)
+
+	if !ok {
+		t.Fatalf("stmt.Expression is not a CallExpression, got %T", stmt.Expression)
+	}
+
+	if !testStringLiteral(t, callExpr.Receiver, "Serhii Cho") {
+		return
+	}
+
+	if !testIdentifier(t, callExpr.Function, "split") {
 		return
 	}
 }

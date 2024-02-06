@@ -10,7 +10,7 @@ import (
 type CallExpression struct {
 	Token     token.Token // The receiver token
 	Receiver  Expression  // The receiver of the call
-	Function  Expression  // The function being called
+	Function  *Identifier // The function being called
 	Arguments []Expression
 }
 
