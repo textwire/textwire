@@ -351,17 +351,34 @@ func TestIsDirectoryStart(t *testing.T) {
 	})
 }
 
-func TestFunctions(t *testing.T) {
-	inp := `{{ "test".upper() }}`
+func TestFunctionCall(t *testing.T) {
+	t.Run("On string", func(tt *testing.T) {
+		inp := `{{ "test".upper() }}`
 
-	TokenizeString(t, inp, []token.Token{
-		{Type: token.LBRACES, Literal: "{{"},
-		{Type: token.STR, Literal: "test"},
-		{Type: token.DOT, Literal: "."},
-		{Type: token.IDENT, Literal: "upper"},
-		{Type: token.LPAREN, Literal: "("},
-		{Type: token.RPAREN, Literal: ")"},
-		{Type: token.RBRACES, Literal: "}}"},
-		{Type: token.EOF, Literal: ""},
+		TokenizeString(t, inp, []token.Token{
+			{Type: token.LBRACES, Literal: "{{"},
+			{Type: token.STR, Literal: "test"},
+			{Type: token.DOT, Literal: "."},
+			{Type: token.IDENT, Literal: "upper"},
+			{Type: token.LPAREN, Literal: "("},
+			{Type: token.RPAREN, Literal: ")"},
+			{Type: token.RBRACES, Literal: "}}"},
+			{Type: token.EOF, Literal: ""},
+		})
+	})
+
+	t.Run("On float", func(tt *testing.T) {
+		inp := `{{ 3.14.round() }}`
+
+		TokenizeString(t, inp, []token.Token{
+			{Type: token.LBRACES, Literal: "{{"},
+			{Type: token.FLOAT, Literal: "3.14"},
+			{Type: token.DOT, Literal: "."},
+			{Type: token.IDENT, Literal: "round"},
+			{Type: token.LPAREN, Literal: "("},
+			{Type: token.RPAREN, Literal: ")"},
+			{Type: token.RBRACES, Literal: "}}"},
+			{Type: token.EOF, Literal: ""},
+		})
 	})
 }
