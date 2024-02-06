@@ -16,6 +16,7 @@ const (
 	ErrElseifCannotFollowElse = "'@elseif' directive cannot follow '@else'"
 	ErrExceptedReserveStmt    = "Expected *ReserveStatement, got %T"
 	ErrInsertStmtNotDefined   = "The insert statement named '%s' is not defined"
+	ErrExpectedIdentifier     = "Expected identifier, got '%s' instead"
 
 	// Interpreter (evaluator) errors
 	ErrUnknownNodeType        = "Unknown node type '%T'"

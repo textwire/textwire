@@ -1073,4 +1073,12 @@ func TestParseCallExpression(t *testing.T) {
 	if !testIdentifier(t, callExp.Function, "split") {
 		return
 	}
+
+	if len(callExp.Arguments) != 1 {
+		t.Fatalf("len(callExp.Arguments) is not 1, got %d", len(callExp.Arguments))
+	}
+
+	if !testStringLiteral(t, callExp.Arguments[0], " ") {
+		return
+	}
 }
