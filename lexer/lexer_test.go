@@ -368,13 +368,13 @@ func TestFunctionCall(t *testing.T) {
 	})
 
 	t.Run("On float", func(tt *testing.T) {
-		inp := `{{ 3.14.round() }}`
+		inp := `{{ 3.14.int() }}`
 
 		TokenizeString(t, inp, []token.Token{
 			{Type: token.LBRACES, Literal: "{{"},
 			{Type: token.FLOAT, Literal: "3.14"},
 			{Type: token.DOT, Literal: "."},
-			{Type: token.IDENT, Literal: "round"},
+			{Type: token.IDENT, Literal: "int"},
 			{Type: token.LPAREN, Literal: "("},
 			{Type: token.RPAREN, Literal: ")"},
 			{Type: token.RBRACES, Literal: "}}"},
