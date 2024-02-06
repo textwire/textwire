@@ -16,6 +16,7 @@ const (
 	RESERVE_OBJ = "RESERVE"
 	INSERT_OBJ  = "INSERT"
 	BLOCK_OBJ   = "BLOCK"
+	BUILTIN_OBJ = "FUNCTION"
 )
 
 type Object interface {

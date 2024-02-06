@@ -301,3 +301,16 @@ func TestEvalVariableDeclaration(t *testing.T) {
 		evaluationExpected(t, tt.inp, tt.expected)
 	}
 }
+
+func TestEvalCallExpression(t *testing.T) {
+	tests := []struct {
+		inp      string
+		expected string
+	}{
+		{`{{ "anna".len() }}`, "4"},
+	}
+
+	for _, tt := range tests {
+		evaluationExpected(t, tt.inp, tt.expected)
+	}
+}

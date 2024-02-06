@@ -68,6 +68,8 @@ func (e *Evaluator) Eval(node ast.Node, env *object.Env) object.Object {
 		return e.evalInfixExpression(node.Operator, node.Left, node.Right, env)
 	case *ast.PostfixExpression:
 		return e.evalPostfixExpression(node, env)
+	case *ast.CallExpression:
+		return e.evalCallExpression(node, env)
 	case *ast.NilLiteral:
 		return NIL
 	}
@@ -327,6 +329,33 @@ func (e *Evaluator) evalPostfixExpression(node *ast.PostfixExpression, env *obje
 	}
 
 	return e.evalPostfixOperatorExpression(leftObj, node.Operator, node)
+}
+
+func (e *Evaluator) evalCallExpression(node *ast.CallExpression, env *object.Env) object.Object {
+	receiverObj := e.Eval(node.Receiver, env)
+
+	if isError(receiverObj) {
+		return receiverObj
+	}
+
+	typeFuncs, ok := functions[receiverObj.Type()]
+
+	if !ok {
+		return e.newError(node, fail.ErrNoFuncForThisType,
+			node.Function.Value, receiverObj.Type())
+	}
+
+	args := e.evalExpressions(node.Arguments, env)
+
+	if len(args) == 1 && isError(args[0]) {
+		return args[0]
+	}
+
+	if buitin, ok := typeFuncs[node.Function.Value]; ok {
+		return buitin.Fn(receiverObj, args...)
+	}
+
+	return e.newError(node, fail.ErrFuncDoNotExist, node.Function.Value)
 }
 
 func (e *Evaluator) evalPostfixOperatorExpression(left object.Object, operator string, node ast.Node) object.Object {
