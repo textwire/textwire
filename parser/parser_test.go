@@ -1060,17 +1060,17 @@ func TestParseCallExpression(t *testing.T) {
 		t.Fatalf("stmts[0] is not a ExpressionStatement, got %T", stmts[0])
 	}
 
-	callExpr, ok := stmt.Expression.(*ast.CallExpression)
+	callExp, ok := stmt.Expression.(*ast.CallExpression)
 
 	if !ok {
 		t.Fatalf("stmt.Expression is not a CallExpression, got %T", stmt.Expression)
 	}
 
-	if !testStringLiteral(t, callExpr.Receiver, "Serhii Cho") {
+	if !testStringLiteral(t, callExp.Receiver, "Serhii Cho") {
 		return
 	}
 
-	if !testIdentifier(t, callExpr.Function, "split") {
+	if !testIdentifier(t, callExp.Function, "split") {
 		return
 	}
 }

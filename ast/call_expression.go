@@ -8,9 +8,9 @@ import (
 )
 
 type CallExpression struct {
-	Token     token.Token // The receiver token
-	Receiver  Expression  // The receiver of the call
-	Function  *Identifier // The function being called
+	Token     token.Token // Function identifier token
+	Receiver  Expression  // Receiver of the call
+	Function  *Identifier // Function being called
 	Arguments []Expression
 }
 
