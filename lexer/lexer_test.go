@@ -350,3 +350,18 @@ func TestIsDirectoryStart(t *testing.T) {
 		}
 	})
 }
+
+func TestFunctions(t *testing.T) {
+	inp := `{{ "test".upper() }}`
+
+	TokenizeString(t, inp, []token.Token{
+		{Type: token.LBRACES, Literal: "{{"},
+		{Type: token.STR, Literal: "test"},
+		{Type: token.DOT, Literal: "."},
+		{Type: token.IDENT, Literal: "upper"},
+		{Type: token.LPAREN, Literal: "("},
+		{Type: token.RPAREN, Literal: ")"},
+		{Type: token.RBRACES, Literal: "}}"},
+		{Type: token.EOF, Literal: ""},
+	})
+}

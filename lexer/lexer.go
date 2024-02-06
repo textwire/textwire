@@ -111,6 +111,8 @@ func (l *Lexer) embeddedCodeToken() token.Token {
 		return l.newTokenAndAdvance(token.LBRACKET, "[")
 	case ']':
 		return l.newTokenAndAdvance(token.RBRACKET, "]")
+	case '.':
+		return l.newTokenAndAdvance(token.DOT, ".")
 	case ';':
 		return l.newTokenAndAdvance(token.SEMI, ";")
 	case '"', '\'':
