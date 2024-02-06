@@ -1051,34 +1051,51 @@ func TestParseTwoExpression(t *testing.T) {
 }
 
 func TestParseCallExpression(t *testing.T) {
-	inp := `{{ "Serhii Cho".split(" ") }}`
-
-	stmts := parseStatements(t, inp, 1, nil)
-	stmt, ok := stmts[0].(*ast.ExpressionStatement)
-
-	if !ok {
-		t.Fatalf("stmts[0] is not a ExpressionStatement, got %T", stmts[0])
+	tests := []struct {
+		inp      string
+		receiver interface{}
+		function string
+		args     []interface{}
+	}{
+		{
+			`{{ "Serhii Cho".split(" ") }}`,
+			"Serhii Cho",
+			"split",
+			[]interface{}{" "},
+		},
 	}
 
-	callExp, ok := stmt.Expression.(*ast.CallExpression)
+	for _, tt := range tests {
+		stmts := parseStatements(t, tt.inp, 1, nil)
+		stmt, ok := stmts[0].(*ast.ExpressionStatement)
 
-	if !ok {
-		t.Fatalf("stmt.Expression is not a CallExpression, got %T", stmt.Expression)
-	}
+		if !ok {
+			t.Fatalf("stmts[0] is not a ExpressionStatement, got %T", stmts[0])
+		}
 
-	if !testStringLiteral(t, callExp.Receiver, "Serhii Cho") {
-		return
-	}
+		callExp, ok := stmt.Expression.(*ast.CallExpression)
 
-	if !testIdentifier(t, callExp.Function, "split") {
-		return
-	}
+		if !ok {
+			t.Fatalf("stmt.Expression is not a CallExpression, got %T", stmt.Expression)
+		}
 
-	if len(callExp.Arguments) != 1 {
-		t.Fatalf("len(callExp.Arguments) is not 1, got %d", len(callExp.Arguments))
-	}
+		if !testLiteralExpression(t, callExp.Receiver, tt.receiver) {
+			return
+		}
 
-	if !testStringLiteral(t, callExp.Arguments[0], " ") {
-		return
+		if !testIdentifier(t, callExp.Function, tt.function) {
+			return
+		}
+
+		if len(callExp.Arguments) != len(tt.args) {
+			t.Fatalf("len(callExp.Arguments) is not %d, got %d",
+				len(tt.args), len(callExp.Arguments))
+		}
+
+		for i, arg := range tt.args {
+			if !testLiteralExpression(t, callExp.Arguments[i], arg) {
+				return
+			}
+		}
 	}
 }
