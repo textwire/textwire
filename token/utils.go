@@ -36,7 +36,7 @@ var tokens = [...]string{
 	RPAREN:   ")",
 	LBRACKET: "[",
 	RBRACKET: "]",
-	PERIOD:   ".",
+	DOT:      ".",
 	SEMI:     ";",
 
 	QUESTION: "?",

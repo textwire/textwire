@@ -37,7 +37,7 @@ var precedences = map[token.TokenType]int{
 	token.GTHAN:    LESS_GREATER,
 	token.LTHAN_EQ: LESS_GREATER,
 	token.GTHAN_EQ: LESS_GREATER,
-	token.PERIOD:   SUM,
+	token.DOT:      SUM,
 	token.ADD:      SUM,
 	token.SUB:      SUM,
 	token.DIV:      PRODUCT,

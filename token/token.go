@@ -46,7 +46,7 @@ const (
 	QUESTION // ?
 	COLON    // :
 	COMMA    // ,
-	PERIOD   // .
+	DOT      // .
 	SEMI     // ;
 
 	// Keywords
