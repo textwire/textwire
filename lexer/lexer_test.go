@@ -184,16 +184,29 @@ func TestOperators(t *testing.T) {
 	})
 }
 
-func TestStrings(t *testing.T) {
-	inp := `{{ "Anna \"and\" Serhii" + '' }}`
+func TestStrings(test *testing.T) {
+	test.Run("String with quotes", func(t *testing.T) {
+		inp := `{{ "Anna \"and\" Serhii" + '' }}`
 
-	TokenizeString(t, inp, []token.Token{
-		{Type: token.LBRACES, Literal: "{{"},
-		{Type: token.STR, Literal: `Anna "and" Serhii`},
-		{Type: token.ADD, Literal: "+"},
-		{Type: token.STR, Literal: ""},
-		{Type: token.RBRACES, Literal: "}}"},
-		{Type: token.EOF, Literal: ""},
+		TokenizeString(t, inp, []token.Token{
+			{Type: token.LBRACES, Literal: "{{"},
+			{Type: token.STR, Literal: `Anna "and" Serhii`},
+			{Type: token.ADD, Literal: "+"},
+			{Type: token.STR, Literal: ""},
+			{Type: token.RBRACES, Literal: "}}"},
+			{Type: token.EOF, Literal: ""},
+		})
+	})
+
+	test.Run("Empty string", func(t *testing.T) {
+		inp := `{{ "" }}`
+
+		TokenizeString(t, inp, []token.Token{
+			{Type: token.LBRACES, Literal: "{{"},
+			{Type: token.STR, Literal: ""},
+			{Type: token.RBRACES, Literal: "}}"},
+			{Type: token.EOF, Literal: ""},
+		})
 	})
 }
 
