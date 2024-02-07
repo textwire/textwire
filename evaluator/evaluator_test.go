@@ -14,6 +14,7 @@ func testEval(inp string) object.Object {
 	p := parser.New(l, "")
 	prog := p.ParseProgram()
 	env := object.NewEnv()
+
 	eval := New(&EvalContext{
 		absPath: "/path/to/file",
 	})
@@ -309,6 +310,7 @@ func TestEvalCallExpression(test *testing.T) {
 			expected string
 		}{
 			{`{{ "anna".len() }}`, "4"},
+			{`{{ "".len() }}`, "0"},
 		}
 
 		for _, tt := range tests {

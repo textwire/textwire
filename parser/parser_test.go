@@ -311,6 +311,7 @@ func TestParseStringLiteral(t *testing.T) {
 		{`{{ "Hello World" }}`, "Hello World"},
 		{`{{ "Serhii \"Cho\"" }}`, `Serhii "Cho"`},
 		{`{{ 'Hello World' }}`, "Hello World"},
+		{`{{ "" }}`, ""},
 	}
 
 	for _, tt := range tests {
@@ -1079,6 +1080,31 @@ func TestParseCallExpression(t *testing.T) {
 	}
 
 	if !testStringLiteral(t, callExp.Arguments[0], " ") {
+		return
+	}
+}
+
+func TestParseCallExpressionWithEmptyString(t *testing.T) {
+	inp := `{{ "".len() }}`
+
+	stmts := parseStatements(t, inp, 1, nil)
+	stmt, ok := stmts[0].(*ast.ExpressionStatement)
+
+	if !ok {
+		t.Fatalf("stmts[0] is not a ExpressionStatement, got %T", stmts[0])
+	}
+
+	callExp, ok := stmt.Expression.(*ast.CallExpression)
+
+	if !ok {
+		t.Fatalf("stmt.Expression is not a CallExpression, got %T", stmt.Expression)
+	}
+
+	if !testStringLiteral(t, callExp.Receiver, "") {
+		return
+	}
+
+	if !testIdentifier(t, callExp.Function, "len") {
 		return
 	}
 }
