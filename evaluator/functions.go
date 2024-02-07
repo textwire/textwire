@@ -6,6 +6,7 @@ import (
 
 var functions = map[object.ObjectType]map[string]*object.Builtin{
 	object.STR_OBJ: {
-		"len": {Fn: strLenFunc},
+		"len":   {Fn: strLenFunc},
+		"split": {Fn: strSplitFunc},
 	},
 }
