@@ -569,13 +569,9 @@ func (p *Parser) parseIfStatement() *ast.IfStatement {
 	}
 
 	if p.peekTokenIs(token.ELSE) {
-		p.nextToken() // move to "@else"
-		p.nextToken() // skip "@else"
+		stmt.Alternative = p.parseAlternativeBlock()
 
-		stmt.Alternative = p.parseBlockStatement()
-
-		if p.peekTokenIs(token.ELSEIF) {
-			p.newError(p.peekToken.Line, fail.ErrElseifCannotFollowElse)
+		if stmt.Alternative == nil {
 			return nil
 		}
 	}
@@ -585,6 +581,20 @@ func (p *Parser) parseIfStatement() *ast.IfStatement {
 	}
 
 	return stmt
+}
+
+func (p *Parser) parseAlternativeBlock() *ast.BlockStatement {
+	p.nextToken() // move to "@else"
+	p.nextToken() // skip "@else"
+
+	alt := p.parseBlockStatement()
+
+	if p.peekTokenIs(token.ELSEIF) {
+		p.newError(p.peekToken.Line, fail.ErrElseifCannotFollowElse)
+		return nil
+	}
+
+	return alt
 }
 
 func (p *Parser) parseForStatement() *ast.ForStatement {
