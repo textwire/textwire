@@ -783,11 +783,12 @@ func TestParseDefineStatement(t *testing.T) {
 		inp      string
 		varName  string
 		varValue interface{}
+		str      string
 	}{
-		{`{{ var name = "Anna" }}`, "name", "Anna"},
-		{`{{ var myAge = 34 }}`, "myAge", 34},
-		{`{{ name := "Anna" }}`, "name", "Anna"},
-		{`{{ myAge := 34 }}`, "myAge", 34},
+		{`{{ var name = "Anna" }}`, "name", "Anna", `var name = "Anna"`},
+		{`{{ var myAge = 34 }}`, "myAge", 34, `var myAge = 34`},
+		{`{{ name := "Anna" }}`, "name", "Anna", `name := "Anna"`},
+		{`{{ myAge := 34 }}`, "myAge", 34, `myAge := 34`},
 	}
 
 	for _, tt := range tests {
@@ -806,7 +807,7 @@ func TestParseDefineStatement(t *testing.T) {
 			return
 		}
 
-		if stmt.String() != tt.inp {
+		if stmt.String() != tt.str {
 			t.Errorf("stmt.String() is not %s, got %s", tt.inp, stmt.String())
 		}
 	}
@@ -1028,11 +1029,11 @@ func TestParseTwoStatements(t *testing.T) {
 		return
 	}
 
-	if stmts[0].String() != `{{ name := "Anna" }}` {
+	if stmts[0].String() != `name := "Anna"` {
 		t.Errorf("stmts[0].String() is not '{{ name := \"Anna\" }}', got %s", stmts[0].String())
 	}
 
-	if stmts[1].String() != `{{ name }}` {
+	if stmts[1].String() != `name` {
 		t.Errorf("stmts[1].String() is not '{{ name }}', got %s", stmts[1].String())
 	}
 }
@@ -1119,7 +1120,7 @@ func TestParseForStatement(t *testing.T) {
 		t.Fatalf("stmts[0] is not a ForStatement, got %T", stmts[0])
 	}
 
-	if stmt.Init.String() != `{{ i := 0 }}` {
+	if stmt.Init.String() != `i := 0` {
 		t.Errorf("stmt.Init.String() is not '{{ i := 0 }}', got %s", stmt.Init.String())
 	}
 }

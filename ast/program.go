@@ -25,6 +25,11 @@ func (p *Program) String() string {
 	var out bytes.Buffer
 
 	for _, stmt := range p.Statements {
+		if _, ok := stmt.(*ExpressionStatement); ok {
+			out.WriteString("{{ " + stmt.String() + " }}")
+			continue
+		}
+
 		out.WriteString(stmt.String())
 	}
 

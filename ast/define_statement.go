@@ -19,10 +19,10 @@ func (ds *DefineStatement) TokenLiteral() string {
 
 func (ds *DefineStatement) String() string {
 	if ds.Token.Type == token.VAR {
-		return "{{ var " + ds.Name.String() + " = " + ds.Value.String() + " }}"
+		return "var " + ds.Name.String() + " = " + ds.Value.String()
 	}
 
-	return "{{ " + ds.Name.String() + " := " + ds.Value.String() + " }}"
+	return ds.Name.String() + " := " + ds.Value.String()
 }
 
 func (df *DefineStatement) Line() uint {

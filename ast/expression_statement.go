@@ -19,7 +19,7 @@ func (es *ExpressionStatement) String() string {
 		return ""
 	}
 
-	return "{{ " + es.Expression.String() + " }}"
+	return es.Expression.String()
 }
 
 func (es *ExpressionStatement) Line() uint {
