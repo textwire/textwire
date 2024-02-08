@@ -11,7 +11,7 @@ type ForStatement struct {
 	Init      Statement   // The initialization statement; or nil
 	Condition Expression  // The condition expression; or nil
 	Post      Statement   // The post iteration statement; or nil
-	Body      *BlockStatement
+	Block     *BlockStatement
 }
 
 func (fs *ForStatement) statementNode() {
@@ -30,7 +30,7 @@ func (fs *ForStatement) String() string {
 	out.WriteString(fs.Post.String())
 	out.WriteString(")\n")
 
-	out.WriteString(fs.Body.String() + "\n")
+	out.WriteString(fs.Block.String() + "\n")
 
 	out.WriteString("@end\n")
 

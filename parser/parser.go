@@ -162,7 +162,7 @@ func (p *Parser) parseStatement() ast.Statement {
 }
 
 func (p *Parser) parseEmbeddedCode() ast.Statement {
-	p.nextToken() // skip "{{" or ";"
+	p.nextToken() // skip "{{" or ";" or "("
 
 	if p.curTokenIs(token.RBRACES) {
 		p.newError(p.curToken.Line, fail.ErrEmptyBrackets)
@@ -613,6 +613,38 @@ func (p *Parser) parseForStatement() *ast.ForStatement {
 	if !p.expectPeek(token.LPAREN) { // move to "("
 		return nil
 	}
+
+	// Parse Init
+	if !p.peekTokenIs(token.SEMI) {
+		stmt.Init = p.parseEmbeddedCode()
+	}
+
+	if !p.expectPeek(token.SEMI) { // move to ";"
+		return nil
+	}
+
+	// Parse Condition
+	if !p.peekTokenIs(token.SEMI) {
+		p.nextToken() // skip ";"
+		stmt.Condition = p.parseExpression(LOWEST)
+	}
+
+	if !p.expectPeek(token.SEMI) { // move to ";"
+		return nil
+	}
+
+	// Parse Post statement
+	if !p.peekTokenIs(token.RPAREN) {
+		stmt.Post = p.parseEmbeddedCode()
+	}
+
+	if !p.expectPeek(token.RPAREN) { // move to ")"
+		return nil
+	}
+
+	p.nextToken() // skip ")"
+
+	stmt.Block = p.parseBlockStatement()
 
 	return stmt
 }
