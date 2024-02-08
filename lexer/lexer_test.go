@@ -59,13 +59,13 @@ func TestIntegers(t *testing.T) {
 }
 
 func TestFloats(t *testing.T) {
-	inp := "{{ 0.12 1.1111 9. }}"
+	inp := "{{ 0.12 1.1111 9.1 }}"
 
 	TokenizeString(t, inp, []token.Token{
 		{Type: token.LBRACES, Literal: "{{"},
 		{Type: token.FLOAT, Literal: "0.12"},
 		{Type: token.FLOAT, Literal: "1.1111"},
-		{Type: token.FLOAT, Literal: "9."},
+		{Type: token.FLOAT, Literal: "9.1"},
 		{Type: token.RBRACES, Literal: "}}"},
 		{Type: token.EOF, Literal: ""},
 	})
@@ -380,12 +380,12 @@ func TestCallExpression(t *testing.T) {
 		})
 	})
 
-	t.Run("On float", func(tt *testing.T) {
-		inp := `{{ 3.14.int() }}`
+	t.Run("On int", func(tt *testing.T) {
+		inp := `{{ 3.int() }}`
 
 		TokenizeString(t, inp, []token.Token{
 			{Type: token.LBRACES, Literal: "{{"},
-			{Type: token.FLOAT, Literal: "3.14"},
+			{Type: token.INT, Literal: "3"},
 			{Type: token.DOT, Literal: "."},
 			{Type: token.IDENT, Literal: "int"},
 			{Type: token.LPAREN, Literal: "("},

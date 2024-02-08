@@ -318,16 +318,14 @@ func (l *Lexer) readString() string {
 func (l *Lexer) readNumber() (string, bool) {
 	position := l.position
 	isInt := true
-	dots := 0
 
 	for isNumber(l.char) || l.char == '.' {
 		if l.char == '.' {
-			dots += 1
-			isInt = false
-		}
+			if !isNumber(l.peekChar()) {
+				break
+			}
 
-		if dots > 1 {
-			break
+			isInt = false
 		}
 
 		l.advanceChar()
