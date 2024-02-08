@@ -24,7 +24,15 @@ func (fs *ForStatement) TokenLiteral() string {
 func (fs *ForStatement) String() string {
 	var out bytes.Buffer
 
-	// todo: here
+	out.WriteString("@for(")
+	out.WriteString(fs.Init.String() + "; ")
+	out.WriteString(fs.Condition.String() + "; ")
+	out.WriteString(fs.Post.String())
+	out.WriteString(")\n")
+
+	out.WriteString(fs.Body.String() + "\n")
+
+	out.WriteString("@end\n")
 
 	return out.String()
 }
