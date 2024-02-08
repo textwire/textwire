@@ -35,3 +35,21 @@ func TestIsTruthy(t *testing.T) {
 		}
 	}
 }
+
+func TestNativeToBooleanObject(t *testing.T) {
+	tests := []struct {
+		inp      bool
+		expected object.Object
+	}{
+		{true, TRUE},
+		{false, FALSE},
+	}
+
+	for _, tt := range tests {
+		result := nativeBoolToBooleanObject(tt.inp)
+
+		if result != tt.expected {
+			t.Errorf("nativeBoolToBooleanObject(%t) returned %s, expected %s", tt.inp, result, tt.expected)
+		}
+	}
+}
