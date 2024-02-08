@@ -546,26 +546,13 @@ func (p *Parser) parseIfStatement() *ast.IfStatement {
 	stmt.Consequence = p.parseBlockStatement()
 
 	for p.peekTokenIs(token.ELSEIF) {
-		if !p.expectPeek(token.ELSEIF) { // move to "@elseif"
+		alt := p.parseElseIfStatement()
+
+		if alt == nil {
 			return nil
 		}
 
-		p.nextToken() // skip "@elseif"
-		p.nextToken() // skip "("
-
-		condition := p.parseExpression(LOWEST)
-
-		if !p.expectPeek(token.RPAREN) { // move to ")"
-			return nil
-		}
-
-		p.nextToken() // skip ")"
-
-		stmt.Alternatives = append(stmt.Alternatives, &ast.ElseIfStatement{
-			Token:       p.curToken,
-			Condition:   condition,
-			Consequence: p.parseBlockStatement(),
-		})
+		stmt.Alternatives = append(stmt.Alternatives, alt)
 	}
 
 	if p.peekTokenIs(token.ELSE) {
@@ -581,6 +568,29 @@ func (p *Parser) parseIfStatement() *ast.IfStatement {
 	}
 
 	return stmt
+}
+
+func (p *Parser) parseElseIfStatement() *ast.ElseIfStatement {
+	if !p.expectPeek(token.ELSEIF) { // move to "@elseif"
+		return nil
+	}
+
+	p.nextToken() // skip "@elseif"
+	p.nextToken() // skip "("
+
+	condition := p.parseExpression(LOWEST)
+
+	if !p.expectPeek(token.RPAREN) { // move to ")"
+		return nil
+	}
+
+	p.nextToken() // skip ")"
+
+	return &ast.ElseIfStatement{
+		Token:       p.curToken,
+		Condition:   condition,
+		Consequence: p.parseBlockStatement(),
+	}
 }
 
 func (p *Parser) parseAlternativeBlock() *ast.BlockStatement {
