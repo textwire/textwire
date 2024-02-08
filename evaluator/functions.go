@@ -9,5 +9,6 @@ var functions = map[object.ObjectType]map[string]*object.Builtin{
 		"len":   {Fn: strLenFunc},
 		"split": {Fn: strSplitFunc},
 		"raw":   {Fn: strRawFunc},
+		"trim":  {Fn: strTrimFunc},
 	},
 }
