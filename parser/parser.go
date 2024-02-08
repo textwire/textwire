@@ -148,6 +148,8 @@ func (p *Parser) parseStatement() ast.Statement {
 		return p.parseEmbeddedCode()
 	case token.IF:
 		return p.parseIfStatement()
+	case token.FOR:
+		return p.parseForStatement()
 	case token.USE:
 		return p.parseUseStatement()
 	case token.RESERVE:
@@ -581,6 +583,12 @@ func (p *Parser) parseIfStatement() *ast.IfStatement {
 	if !p.expectPeek(token.END) { // move to "@end"
 		return nil
 	}
+
+	return stmt
+}
+
+func (p *Parser) parseForStatement() *ast.ForStatement {
+	stmt := &ast.ForStatement{Token: p.curToken} // "@for"
 
 	return stmt
 }
