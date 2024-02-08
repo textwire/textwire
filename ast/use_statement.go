@@ -7,7 +7,7 @@ import (
 )
 
 type UseStatement struct {
-	Token   token.Token    // The 'use' token
+	Token   token.Token    // The '@use' token
 	Name    *StringLiteral // The relative path to the layout like 'layouts/main'
 	Program *Program
 }

@@ -8,7 +8,7 @@ import (
 )
 
 type InsertStatement struct {
-	Token    token.Token     // The 'insert' token
+	Token    token.Token     // The '@insert' token
 	Name     *StringLiteral  // The name of the insert statement
 	Argument Expression      // The argument to the insert statement; nil if has block
 	Block    *BlockStatement // The block of the insert statement; nil if has argument
