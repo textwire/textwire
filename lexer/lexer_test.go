@@ -395,3 +395,24 @@ func TestCallExpression(t *testing.T) {
 		})
 	})
 }
+
+func TestForLoopStatement(t *testing.T) {
+	inp := `@for(i := 0; i < 10; i++)`
+
+	TokenizeString(t, inp, []token.Token{
+		{Type: token.FOR, Literal: "@for"},
+		{Type: token.LPAREN, Literal: "("},
+		{Type: token.IDENT, Literal: "i"},
+		{Type: token.DEFINE, Literal: ":="},
+		{Type: token.INT, Literal: "0"},
+		{Type: token.SEMI, Literal: ";"},
+		{Type: token.IDENT, Literal: "i"},
+		{Type: token.LTHAN, Literal: "<"},
+		{Type: token.INT, Literal: "10"},
+		{Type: token.SEMI, Literal: ";"},
+		{Type: token.IDENT, Literal: "i"},
+		{Type: token.INC, Literal: "++"},
+		{Type: token.RPAREN, Literal: ")"},
+		{Type: token.EOF, Literal: ""},
+	})
+}
