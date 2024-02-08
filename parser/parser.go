@@ -502,9 +502,7 @@ func (p *Parser) parseTernaryExpression(left ast.Expression) ast.Expression {
 }
 
 func (p *Parser) parseVarStatement() ast.Statement {
-	stmt := &ast.DefineStatement{
-		Token: p.curToken, // "var"
-	}
+	stmt := &ast.DefineStatement{Token: p.curToken} // "var"
 
 	if !p.expectPeek(token.IDENT) { // move to identifier
 		return nil
@@ -527,9 +525,7 @@ func (p *Parser) parseVarStatement() ast.Statement {
 }
 
 func (p *Parser) parseIfStatement() *ast.IfStatement {
-	stmt := &ast.IfStatement{
-		Token: p.curToken, // "@if"
-	}
+	stmt := &ast.IfStatement{Token: p.curToken} // "@if"
 
 	if !p.expectPeek(token.LPAREN) { // move to "("
 		return nil
