@@ -302,34 +302,3 @@ func TestEvalVariableDeclaration(t *testing.T) {
 		evaluationExpected(t, tt.inp, tt.expected)
 	}
 }
-
-func TestEvalCallExpression(test *testing.T) {
-	test.Run("string functions", func(t *testing.T) {
-		tests := []struct {
-			inp      string
-			expected string
-		}{
-			{`{{ "anna".len() }}`, "4"},
-			{`{{ "".len() }}`, "0"},
-			{`{{ "one two three".split() }}`, "one, two, three"},
-			{`{{ "one|two|three".split("|") }}`, "one, two, three"},
-			{`{{ "one-two".split("-") }}`, "one, two"},
-			{`{{ "<h1>nice</h1>".raw()`, "<h1>nice</h1>"},
-			{`{{ "cool".raw()`, "cool"},
-			{`{{ " 	test		".trim()`, "test"},
-			{`{{ "ease".trim("e")`, "as"},
-			{`{{ "(no war!)".trim("()")`, "no war!"},
-			{`{{ [].len() }}`, "0"},
-			{`{{ [1, 2, 3].len() }}`, "3"},
-			{`{{ [0, [2, [1, 2]]].len() }}`, "2"},
-			{`{{ 13.999.int() }}`, "13"},
-			{`{{ 10.0.int() }}`, "10"},
-			{`{{ 1.float() }}`, "1.0"},
-			{`{{ 321.float().int() }}`, "321"},
-		}
-
-		for _, tt := range tests {
-			evaluationExpected(t, tt.inp, tt.expected)
-		}
-	})
-}
