@@ -322,6 +322,8 @@ func TestEvalCallExpression(test *testing.T) {
 			{`{{ [].len() }}`, "0"},
 			{`{{ [1, 2, 3].len() }}`, "3"},
 			{`{{ [0, [2, [1, 2]]].len() }}`, "2"},
+			{`{{ 13.999.int() }}`, "13"},
+			{`{{ 10.0.int() }}`, "10"},
 		}
 
 		for _, tt := range tests {
