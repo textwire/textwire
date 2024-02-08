@@ -314,6 +314,8 @@ func TestEvalCallExpression(test *testing.T) {
 			{`{{ "one two three".split() }}`, "one, two, three"},
 			{`{{ "one|two|three".split("|") }}`, "one, two, three"},
 			{`{{ "one-two".split("-") }}`, "one, two"},
+			{`{{ "<h1>nice</h1>".raw()`, "<h1>nice</h1>"},
+			{`{{ "cool".raw()`, "cool"},
 		}
 
 		for _, tt := range tests {

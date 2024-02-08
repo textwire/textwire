@@ -1,6 +1,7 @@
 package evaluator
 
 import (
+	"html"
 	"strings"
 
 	"github.com/textwire/textwire/object"
@@ -31,4 +32,10 @@ func strSplitFunc(receiver object.Object, args ...object.Object) object.Object {
 	}
 
 	return &object.Array{Elements: elems}
+}
+
+// strRawFunc prevents escaping HTML tags in a string
+func strRawFunc(receiver object.Object, args ...object.Object) object.Object {
+	str := receiver.(*object.Str)
+	return &object.Str{Value: html.UnescapeString(str.Value)}
 }
