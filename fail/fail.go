@@ -28,7 +28,7 @@ const (
 	ErrUnknownTypeForOperator = "Unknown type '%s' for '%s' operator"
 	ErrPrefixOperatorIsWrong  = "Prefix operator '%s' cannot be applied to '%s'"
 	ErrUseStmtMustHaveProgram = "The 'use' statement must have a program attached"
-	ErrFuncDoNotExist         = "Function '%s' doesn't exist. Try to update the Textwire to the latest version"
+	ErrFuncDoNotExist         = "Function '%s' doesn't exist. Try to update the Textwire to the latest version or checkout the documentation https://textwire.github.io"
 	ErrNoFuncForThisType      = "Function '%s' doesn't exist for type '%s'"
 
 	// Template errors
