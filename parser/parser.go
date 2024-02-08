@@ -590,6 +590,10 @@ func (p *Parser) parseIfStatement() *ast.IfStatement {
 func (p *Parser) parseForStatement() *ast.ForStatement {
 	stmt := &ast.ForStatement{Token: p.curToken} // "@for"
 
+	if !p.expectPeek(token.LPAREN) { // move to "("
+		return nil
+	}
+
 	return stmt
 }
 

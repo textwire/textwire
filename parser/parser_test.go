@@ -1108,3 +1108,14 @@ func TestParseCallExpressionWithEmptyString(t *testing.T) {
 		return
 	}
 }
+
+func TestParseForStatement(t *testing.T) {
+	inp := `@for(i := 0; i < 10; i++){{ i }}@end`
+
+	stmts := parseStatements(t, inp, 1, nil)
+	_, ok := stmts[0].(*ast.ForStatement)
+
+	if !ok {
+		t.Fatalf("stmts[0] is not a ForStatement, got %T", stmts[0])
+	}
+}
