@@ -1136,3 +1136,30 @@ func TestParseForStatement(t *testing.T) {
 		t.Errorf("stmt.Block.String() is not '{{ i }}', got %s", stmt.Block.String())
 	}
 }
+
+func TestParseInfiniteForStatement(t *testing.T) {
+	inp := `@for(;;)1@end`
+
+	stmts := parseStatements(t, inp, 1, nil)
+	stmt, ok := stmts[0].(*ast.ForStatement)
+
+	if !ok {
+		t.Fatalf("stmts[0] is not a ForStatement, got %T", stmts[0])
+	}
+
+	if stmt.Init != nil {
+		t.Errorf("stmt.Init is not nil, got %s", stmt.Init.String())
+	}
+
+	if stmt.Condition != nil {
+		t.Errorf("stmt.Condition is not nil, got %s", stmt.Condition.String())
+	}
+
+	if stmt.Post != nil {
+		t.Errorf("stmt.Post is not nil, got %s", stmt.Post.String())
+	}
+
+	if stmt.Block.String() != "1" {
+		t.Errorf("stmt.Block.String() is not '1', got %s", stmt.Block.String())
+	}
+}
