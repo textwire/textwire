@@ -302,3 +302,16 @@ func TestEvalVariableDeclaration(t *testing.T) {
 		evaluationExpected(t, tt.inp, tt.expected)
 	}
 }
+
+func TestEvalForStatement(t *testing.T) {
+	tests := []struct {
+		inp      string
+		expected string
+	}{
+		{`@for(i := 0; i < 10; i++){{ i }}@end`, "0123456789"},
+	}
+
+	for _, tt := range tests {
+		evaluationExpected(t, tt.inp, tt.expected)
+	}
+}
