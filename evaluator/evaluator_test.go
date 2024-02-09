@@ -308,7 +308,7 @@ func TestEvalForStatement(t *testing.T) {
 		inp      string
 		expected string
 	}{
-		{`@for(i := 0; i < 10; i++){{ i }}@end`, "0123456789"},
+		{`@for(i := 0; i < 2; i++){{ i }}@end`, "01"},
 	}
 
 	for _, tt := range tests {

@@ -2,6 +2,7 @@ package evaluator
 
 import (
 	"bytes"
+	"fmt"
 	"html"
 
 	"github.com/textwire/textwire/ast"
@@ -44,6 +45,8 @@ func (e *Evaluator) Eval(node ast.Node, env *object.Env) object.Object {
 		return NIL
 	case *ast.ReserveStatement:
 		return e.evalReserveStatement(node, env)
+	case *ast.ForStatement:
+		return e.evalForStatement(node, env)
 
 	// Expressions
 	case *ast.Identifier:
@@ -204,6 +207,58 @@ func (e *Evaluator) evalReserveStatement(node *ast.ReserveStatement, env *object
 	stmt.Argument = firstArg
 
 	return stmt
+}
+
+func (e *Evaluator) evalForStatement(node *ast.ForStatement, env *object.Env) object.Object {
+	init := e.Eval(node.Init, env)
+
+	if isError(init) {
+		return init
+	}
+
+	return e.evalForLoop(node, env)
+}
+
+func (e *Evaluator) evalForLoop(node *ast.ForStatement, env *object.Env) object.Object {
+	cond := e.Eval(node.Condition, env)
+
+	if isError(cond) {
+		return cond
+	}
+
+	post := e.Eval(node.Post, env)
+
+	if isError(post) {
+		return post
+	}
+
+	newEnv := object.NewEnclosedEnv(env)
+
+	for isTruthy(cond) {
+		block := e.Eval(node.Block, newEnv)
+
+		if isError(block) {
+			return block
+		}
+
+		post = e.Eval(node.Post, newEnv)
+
+		if isError(post) {
+			return post
+		}
+
+		v, _ := newEnv.Get("i")
+
+		fmt.Printf("-------> %#v\n", v)
+
+		cond = e.Eval(node.Condition, newEnv)
+
+		if isError(cond) {
+			return cond
+		}
+	}
+
+	return NIL
 }
 
 func (e *Evaluator) evalIdentifier(node *ast.Identifier, env *object.Env) object.Object {
