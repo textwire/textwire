@@ -1121,6 +1121,18 @@ func TestParseForStatement(t *testing.T) {
 	}
 
 	if stmt.Init.String() != `i := 0` {
-		t.Errorf("stmt.Init.String() is not '{{ i := 0 }}', got %s", stmt.Init.String())
+		t.Errorf("stmt.Init.String() is not 'i := 0', got %s", stmt.Init.String())
+	}
+
+	if stmt.Condition.String() != `(i < 10)` {
+		t.Errorf("stmt.Condition.String() is not '(i < 10)', got %s", stmt.Condition.String())
+	}
+
+	if stmt.Post.String() != `(i++)` {
+		t.Errorf("stmt.Post.String() is not '(i++)', got %s", stmt.Post.String())
+	}
+
+	if stmt.Block.String() != `{{ i }}` {
+		t.Errorf("stmt.Block.String() is not '{{ i }}', got %s", stmt.Block.String())
 	}
 }
