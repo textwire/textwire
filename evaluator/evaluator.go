@@ -46,6 +46,8 @@ func (e *Evaluator) Eval(node ast.Node, env *object.Env) object.Object {
 		return e.evalReserveStatement(node, env)
 	case *ast.ForStatement:
 		return e.evalForStatement(node, env)
+	case *ast.EachStatement:
+		return e.evalEachStatement(node, env)
 
 	// Expressions
 	case *ast.Identifier:
@@ -252,6 +254,31 @@ func (e *Evaluator) evalForStatement(node *ast.ForStatement, env *object.Env) ob
 		varName := node.Init.(*ast.DefineStatement).Name.Value
 
 		newEnv.Set(varName, post)
+	}
+
+	return &object.HTML{Value: blocks.String()}
+}
+
+func (e *Evaluator) evalEachStatement(node *ast.EachStatement, env *object.Env) object.Object {
+	newEnv := object.NewEnclosedEnv(env)
+
+	var blocks bytes.Buffer
+
+	varName := node.Var.Value
+	arrObj := e.Eval(node.Array, newEnv)
+
+	elems := arrObj.(*object.Array).Elements
+
+	for _, elem := range elems {
+		newEnv.Set(varName, elem)
+
+		block := e.Eval(node.Block, newEnv)
+
+		if isError(block) {
+			return block
+		}
+
+		blocks.WriteString(block.String())
 	}
 
 	return &object.HTML{Value: blocks.String()}

@@ -314,7 +314,8 @@ func TestEvalForStatement(t *testing.T) {
 		{`@for(; false;)Here@end`, ""},
 		{`@for(c := 1; false; c++){{ c }}@end`, ""},
 		{`@for(c := 1; c == 1; c++){{ c }}@end`, "1"},
-		{`@for(name in ["anna", "serhii"]){{ name }} @end`, "anna serhii "},
+		{`@each(name in ["anna", "serhii"]){{ name }} @end`, "anna serhii "},
+		{`@each(num in [1, 2, 3]){{ num }}@end`, "123"},
 	}
 
 	for _, tt := range tests {
