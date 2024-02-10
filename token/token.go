@@ -50,15 +50,17 @@ const (
 	SEMI     // ;
 
 	// Keywords
+	TRUE
+	FALSE
+	NIL
+	VAR
+
+	// Directives
 	IF
 	ELSE
 	ELSEIF
 	END
-	TRUE
-	FALSE
 	FOR
-	NIL
-	VAR
 	USE
 	RESERVE
 	INSERT
