@@ -2,7 +2,6 @@ package evaluator
 
 import (
 	"bytes"
-	"fmt"
 	"html"
 
 	"github.com/textwire/textwire/ast"
@@ -216,45 +215,27 @@ func (e *Evaluator) evalForStatement(node *ast.ForStatement, env *object.Env) ob
 		return init
 	}
 
-	return e.evalForLoop(node, env)
-}
-
-func (e *Evaluator) evalForLoop(node *ast.ForStatement, env *object.Env) object.Object {
-	cond := e.Eval(node.Condition, env)
-
-	if isError(cond) {
-		return cond
-	}
-
-	post := e.Eval(node.Post, env)
-
-	if isError(post) {
-		return post
-	}
-
 	newEnv := object.NewEnclosedEnv(env)
 
-	for isTruthy(cond) {
-		block := e.Eval(node.Block, newEnv)
-
-		if isError(block) {
-			return block
-		}
-
-		post = e.Eval(node.Post, newEnv)
-
-		if isError(post) {
-			return post
-		}
-
-		v, _ := newEnv.Get("i")
-
-		fmt.Printf("-------> %#v\n", v)
-
-		cond = e.Eval(node.Condition, newEnv)
+	for {
+		cond := e.Eval(node.Condition, newEnv)
 
 		if isError(cond) {
 			return cond
+		}
+
+		if !isTruthy(cond) {
+			break
+		}
+
+		if block := e.Eval(node.Block, newEnv); isError(block) {
+			return block
+		}
+
+		post := e.Eval(node.Post, newEnv)
+
+		if isError(post) {
+			return post
 		}
 	}
 
@@ -413,23 +394,27 @@ func (e *Evaluator) evalCallExpression(node *ast.CallExpression, env *object.Env
 	return e.newError(node, fail.ErrFuncDoNotExist, node.Function.Value)
 }
 
-func (e *Evaluator) evalPostfixOperatorExpression(left object.Object, operator string, node ast.Node) object.Object {
+func (e *Evaluator) evalPostfixOperatorExpression(
+	left object.Object,
+	operator string,
+	node ast.Node,
+) object.Object {
 	if operator == "++" {
 		if left.Is(object.INT_OBJ) {
-			value := left.(*object.Int).Value
-			return &object.Int{Value: value + 1}
+			value := left.(*object.Int).Value + 1
+			return &object.Int{Value: value}
 		}
 
 		if left.Is(object.FLOAT_OBJ) {
-			value := left.(*object.Float).Value
-			return &object.Float{Value: value + 1}
+			value := left.(*object.Float).Value + 1
+			return &object.Float{Value: value}
 		}
 	}
 
 	if operator == "--" {
 		if left.Is(object.INT_OBJ) {
-			value := left.(*object.Int).Value
-			return &object.Int{Value: value - 1}
+			value := left.(*object.Int).Value - 1
+			return &object.Int{Value: value}
 		}
 
 		if left.Is(object.FLOAT_OBJ) {
