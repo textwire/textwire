@@ -47,6 +47,7 @@ var tokens = [...]string{
 	FALSE: "false",
 	NIL:   "nil",
 	VAR:   "var",
+	IN:    "in",
 
 	USE:      "@use",
 	RESERVE:  "@reserve",

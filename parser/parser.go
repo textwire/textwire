@@ -176,6 +176,9 @@ func (p *Parser) parseEmbeddedCode() ast.Statement {
 		if p.peekTokenIs(token.DEFINE) {
 			return p.parseDefineStatement()
 		}
+		if p.peekToken.Literal == "in" {
+			return p.parseInStatement()
+		}
 	}
 
 	return p.parseExpressionStatement()
@@ -310,6 +313,28 @@ func (p *Parser) parseArrayLiteral() ast.Expression {
 
 func (p *Parser) parseHTMLStatement() *ast.HTMLStatement {
 	return &ast.HTMLStatement{Token: p.curToken}
+}
+
+func (p *Parser) parseInStatement() *ast.InStatement {
+	ident := &ast.Identifier{
+		Token: p.curToken, // identifier
+		Value: p.curToken.Literal,
+	}
+
+	stmt := &ast.InStatement{
+		Token: p.curToken, // variable name
+		Var:   ident,
+	}
+
+	if !p.expectPeek(token.IN) { // move to "in"
+		return nil
+	}
+
+	p.nextToken() // skip "in"
+
+	stmt.Array = p.parseExpression(LOWEST)
+
+	return stmt
 }
 
 func (p *Parser) parseDefineStatement() ast.Statement {
@@ -651,6 +676,11 @@ func (p *Parser) parseForStatement() *ast.ForStatement {
 	}
 
 	return stmt
+}
+
+func (p *Parser) parseForinStatement() *ast.ForinStatement {
+	// todo: here
+	return nil
 }
 
 func (p *Parser) parseBlockStatement() *ast.BlockStatement {

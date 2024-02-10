@@ -54,6 +54,7 @@ const (
 	FALSE
 	NIL
 	VAR
+	IN
 
 	// Directives
 	IF
@@ -74,6 +75,7 @@ var keywords = map[string]TokenType{
 	"false": FALSE,
 	"nil":   NIL,
 	"var":   VAR,
+	"in":    IN,
 }
 
 var directives = map[string]TokenType{
