@@ -211,18 +211,21 @@ func (e *Evaluator) evalReserveStatement(node *ast.ReserveStatement, env *object
 func (e *Evaluator) evalForStatement(node *ast.ForStatement, env *object.Env) object.Object {
 	newEnv := object.NewEnclosedEnv(env)
 
-	return e.evalForLoop(node, newEnv)
+	var init object.Object
+
+	if node.Init == nil {
+		return e.evalForLoop(node, newEnv, nil)
+	}
+
+	if init = e.Eval(node.Init, env); isError(init) {
+		return init
+	}
+
+	return e.evalForLoop(node, newEnv, init)
 }
 
-func (e *Evaluator) evalForLoop(node *ast.ForStatement, env *object.Env) object.Object {
-	var init object.Object
+func (e *Evaluator) evalForLoop(node *ast.ForStatement, env *object.Env, init object.Object) object.Object {
 	var blocks bytes.Buffer
-
-	if node.Init != nil {
-		if init = e.Eval(node.Init, env); isError(init) {
-			return init
-		}
-	}
 
 	for {
 		cond := e.Eval(node.Condition, env)
