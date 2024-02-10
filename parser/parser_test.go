@@ -1174,12 +1174,13 @@ func TestParseForinStatement(t *testing.T) {
 		t.Fatalf("stmts[0] is not a ForinStatement, got %T", stmts[0])
 	}
 
-	if stmt.Var.String() != `name` {
-		t.Errorf("stmt.Var.String() is not 'name', got %s", stmt.Var.String())
+	if stmt.Stmt.Var.String() != `name` {
+		t.Errorf("stmt.Stmt.Var.String() is not 'name', got %s", stmt.Stmt.Var.String())
 	}
 
-	if stmt.Array.String() != `["anna", "serhii"]` {
-		t.Errorf(`stmt.Array.String() is not '["anna", "serhii"]', got %s`, stmt.Array.String())
+	if stmt.Stmt.Array.String() != `["anna", "serhii"]` {
+		t.Errorf(`stmt.Stmt.Array.String() is not '["anna", "serhii"]', got %s`,
+			stmt.Stmt.Array.String())
 	}
 
 	if stmt.Block.String() != `{{ name }}` {

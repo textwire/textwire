@@ -8,8 +8,7 @@ import (
 
 type ForinStatement struct {
 	Token token.Token // The '@for' token
-	Var   *Identifier // The variable name
-	Array Expression  // The array expression
+	Stmt  *InStatement
 	Block *BlockStatement
 }
 
@@ -23,10 +22,8 @@ func (fs *ForinStatement) TokenLiteral() string {
 func (fs *ForinStatement) String() string {
 	var out bytes.Buffer
 
-	out.WriteString("@for(" + fs.Var.String() + " in ")
-	out.WriteString(fs.Array.String() + ")\n")
-	out.WriteString(fs.Block.String() + "\n")
-
+	out.WriteString("@for(" + fs.Stmt.String() + ")\n")
+	out.WriteString(fs.Block.String())
 	out.WriteString("@end\n")
 
 	return out.String()
