@@ -309,6 +309,11 @@ func TestEvalForStatement(t *testing.T) {
 		expected string
 	}{
 		{`@for(i := 0; i < 2; i++){{ i }}@end`, "01"},
+		{`@for(var i = 1; i <= 3; i++){{ i }}@end`, "123"},
+		{`@for(i := 0; i < 2; i++){{ i }}@end`, "01"},
+		{`@for(; false;)Here@end`, ""},
+		{`@for(c := 1; false; c++){{ c }}@end`, ""},
+		{`@for(c := 1; c == 1; c++){{ c }}@end`, "1"},
 	}
 
 	for _, tt := range tests {
