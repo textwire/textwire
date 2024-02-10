@@ -658,6 +658,37 @@ func (p *Parser) parseForStatement() *ast.ForStatement {
 func (p *Parser) parseEachStatement() *ast.EachStatement {
 	stmt := &ast.EachStatement{Token: p.curToken} // "@each"
 
+	if !p.expectPeek(token.LPAREN) { // move to "("
+		return nil
+	}
+
+	p.nextToken() // skip "("
+
+	stmt.Var = &ast.Identifier{
+		Token: p.curToken, // identifier
+		Value: p.curToken.Literal,
+	}
+
+	if !p.expectPeek(token.IN) { // move to "in"
+		return nil
+	}
+
+	p.nextToken() // skip "in"
+
+	stmt.Array = p.parseExpression(LOWEST)
+
+	if !p.expectPeek(token.RPAREN) { // move to ")"
+		return nil
+	}
+
+	p.nextToken() // skip ")"
+
+	stmt.Block = p.parseBlockStatement()
+
+	if !p.expectPeek(token.END) { // move to "@end"
+		return nil
+	}
+
 	return stmt
 }
 
