@@ -210,20 +210,20 @@ func (e *Evaluator) evalReserveStatement(node *ast.ReserveStatement, env *object
 
 func (e *Evaluator) evalForStatement(node *ast.ForStatement, env *object.Env) object.Object {
 	var init object.Object
+	var blocks bytes.Buffer
+
+	newEnv := object.NewEnclosedEnv(env)
 
 	if node.Init != nil {
-		init = e.Eval(node.Init, env)
+		init = e.Eval(node.Init, newEnv)
 
 		if isError(init) {
 			return init
 		}
 	}
 
-	forEnv := object.NewEnclosedEnv(env)
-	var result bytes.Buffer
-
 	for {
-		cond := e.Eval(node.Condition, forEnv)
+		cond := e.Eval(node.Condition, newEnv)
 
 		if isError(cond) {
 			return cond
@@ -233,15 +233,15 @@ func (e *Evaluator) evalForStatement(node *ast.ForStatement, env *object.Env) ob
 			break
 		}
 
-		block := e.Eval(node.Block, forEnv)
+		block := e.Eval(node.Block, newEnv)
 
 		if isError(block) {
 			return block
 		}
 
-		result.WriteString(block.String())
+		blocks.WriteString(block.String())
 
-		post := e.Eval(node.Post, forEnv)
+		post := e.Eval(node.Post, newEnv)
 
 		if isError(post) {
 			return post
@@ -253,10 +253,10 @@ func (e *Evaluator) evalForStatement(node *ast.ForStatement, env *object.Env) ob
 
 		varName := node.Init.(*ast.DefineStatement).Name.Value
 
-		forEnv.Set(varName, post)
+		newEnv.Set(varName, post)
 	}
 
-	return &object.HTML{Value: result.String()}
+	return &object.HTML{Value: blocks.String()}
 }
 
 func (e *Evaluator) evalIdentifier(node *ast.Identifier, env *object.Env) object.Object {
