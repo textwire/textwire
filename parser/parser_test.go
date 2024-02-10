@@ -1163,3 +1163,26 @@ func TestParseInfiniteForStatement(t *testing.T) {
 		t.Errorf("stmt.Block.String() is not '1', got %s", stmt.Block.String())
 	}
 }
+
+func TestParseForinStatement(t *testing.T) {
+	inp := `@for(name in ["anna", "serhii"]){{ name }}@end`
+
+	stmts := parseStatements(t, inp, 1, nil)
+	stmt, ok := stmts[0].(*ast.ForinStatement)
+
+	if !ok {
+		t.Fatalf("stmts[0] is not a ForinStatement, got %T", stmts[0])
+	}
+
+	if stmt.Var.String() != `name` {
+		t.Errorf("stmt.Var.String() is not 'name', got %s", stmt.Var.String())
+	}
+
+	if stmt.Array.String() != `["anna", "serhii"]` {
+		t.Errorf(`stmt.Array.String() is not '["anna", "serhii"]', got %s`, stmt.Array.String())
+	}
+
+	if stmt.Block.String() != `{{ name }}` {
+		t.Errorf("stmt.Block.String() is not '{{ name }}', got %s", stmt.Block.String())
+	}
+}
