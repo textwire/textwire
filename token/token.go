@@ -63,9 +63,10 @@ const (
 	END
 	FOR
 	USE
-	RESERVE
-	INSERT
+	EACH
 	BREAK
+	INSERT
+	RESERVE
 	CONTINUE
 )
 
@@ -87,6 +88,7 @@ var directives = map[string]TokenType{
 	"@reserve":  RESERVE,
 	"@insert":   INSERT,
 	"@for":      FOR,
+	"@each":     EACH,
 	"@break":    BREAK,
 	"@continue": CONTINUE,
 }
