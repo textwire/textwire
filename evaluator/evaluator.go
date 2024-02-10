@@ -209,19 +209,23 @@ func (e *Evaluator) evalReserveStatement(node *ast.ReserveStatement, env *object
 }
 
 func (e *Evaluator) evalForStatement(node *ast.ForStatement, env *object.Env) object.Object {
+	newEnv := object.NewEnclosedEnv(env)
+
+	return e.evalForLoop(node, newEnv)
+}
+
+func (e *Evaluator) evalForLoop(node *ast.ForStatement, env *object.Env) object.Object {
 	var init object.Object
 	var blocks bytes.Buffer
 
-	newEnv := object.NewEnclosedEnv(env)
-
 	if node.Init != nil {
-		if init = e.Eval(node.Init, newEnv); isError(init) {
+		if init = e.Eval(node.Init, env); isError(init) {
 			return init
 		}
 	}
 
 	for {
-		cond := e.Eval(node.Condition, newEnv)
+		cond := e.Eval(node.Condition, env)
 
 		if isError(cond) {
 			return cond
@@ -231,7 +235,7 @@ func (e *Evaluator) evalForStatement(node *ast.ForStatement, env *object.Env) ob
 			break
 		}
 
-		block := e.Eval(node.Block, newEnv)
+		block := e.Eval(node.Block, env)
 
 		if isError(block) {
 			return block
@@ -239,7 +243,7 @@ func (e *Evaluator) evalForStatement(node *ast.ForStatement, env *object.Env) ob
 
 		blocks.WriteString(block.String())
 
-		post := e.Eval(node.Post, newEnv)
+		post := e.Eval(node.Post, env)
 
 		if isError(post) {
 			return post
@@ -251,7 +255,7 @@ func (e *Evaluator) evalForStatement(node *ast.ForStatement, env *object.Env) ob
 
 		varName := node.Init.(*ast.DefineStatement).Name.Value
 
-		newEnv.Set(varName, post)
+		env.Set(varName, post)
 	}
 
 	return &object.HTML{Value: blocks.String()}
