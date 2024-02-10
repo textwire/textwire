@@ -215,9 +215,7 @@ func (e *Evaluator) evalForStatement(node *ast.ForStatement, env *object.Env) ob
 	newEnv := object.NewEnclosedEnv(env)
 
 	if node.Init != nil {
-		init = e.Eval(node.Init, newEnv)
-
-		if isError(init) {
+		if init = e.Eval(node.Init, newEnv); isError(init) {
 			return init
 		}
 	}
