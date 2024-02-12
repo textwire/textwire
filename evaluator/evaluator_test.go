@@ -295,6 +295,8 @@ func TestEvalAssignVariable(t *testing.T) {
 		{`{{ she = "Anna"; me = "Serhii"; she + " " + me }}`, "Anna Serhii"},
 		{`{{ names = ["Anna", "Serhii"] }}`, ""},
 		{`{{ names = ["Anna", "Serhii"]; names }}`, "Anna, Serhii"},
+		{`{{ age = 18; age = 2; age }}`, "2"},
+		{`{{ city = "Kiev"; city = "Moscow"; city }}`, "Moscow"},
 	}
 
 	for _, tt := range tests {
