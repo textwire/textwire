@@ -36,7 +36,7 @@ func (e *Evaluator) Eval(node ast.Node, env *object.Env) object.Object {
 		return e.evalIfStatement(node, env)
 	case *ast.BlockStatement:
 		return e.evalBlockStatement(node, env)
-	case *ast.DefineStatement:
+	case *ast.AssignStatement:
 		return e.evalDeclStatement(node, env)
 	case *ast.UseStatement:
 		return e.evalUseStatement(node, env)
@@ -145,7 +145,7 @@ func (e *Evaluator) evalBlockStatement(block *ast.BlockStatement, env *object.En
 	return &object.Block{Elements: elems}
 }
 
-func (e *Evaluator) evalDeclStatement(node *ast.DefineStatement, env *object.Env) object.Object {
+func (e *Evaluator) evalDeclStatement(node *ast.AssignStatement, env *object.Env) object.Object {
 	val := e.Eval(node.Value, env)
 
 	if isError(val) {
@@ -251,7 +251,7 @@ func (e *Evaluator) evalForStatement(node *ast.ForStatement, env *object.Env) ob
 			continue
 		}
 
-		varName := node.Init.(*ast.DefineStatement).Name.Value
+		varName := node.Init.(*ast.AssignStatement).Name.Value
 
 		newEnv.Set(varName, post)
 	}

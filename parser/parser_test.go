@@ -778,25 +778,23 @@ func TestParseIfElseIfElseStatement(t *testing.T) {
 	}
 }
 
-func TestParseDefineStatement(t *testing.T) {
+func TestParseAssignStatement(t *testing.T) {
 	tests := []struct {
 		inp      string
 		varName  string
 		varValue interface{}
 		str      string
 	}{
-		{`{{ var name = "Anna" }}`, "name", "Anna", `var name = "Anna"`},
-		{`{{ var myAge = 34 }}`, "myAge", 34, `var myAge = 34`},
-		{`{{ name := "Anna" }}`, "name", "Anna", `name := "Anna"`},
-		{`{{ myAge := 34 }}`, "myAge", 34, `myAge := 34`},
+		{`{{ name = "Anna" }}`, "name", "Anna", `name = "Anna"`},
+		{`{{ myAge = 34 }}`, "myAge", 34, `myAge = 34`},
 	}
 
 	for _, tt := range tests {
 		stmts := parseStatements(t, tt.inp, 1, nil)
-		stmt, ok := stmts[0].(*ast.DefineStatement)
+		stmt, ok := stmts[0].(*ast.AssignStatement)
 
 		if !ok {
-			t.Fatalf("stmts[0] is not a DeclStatement, got %T", stmts[0])
+			t.Fatalf("stmts[0] is not a AssignStatement, got %T", stmts[0])
 		}
 
 		if stmt.Name.Value != tt.varName {
@@ -1013,15 +1011,15 @@ func TestParsePostfixExpression(t *testing.T) {
 }
 
 func TestParseTwoStatements(t *testing.T) {
-	inp := `{{ name := "Anna"; name }}`
+	inp := `{{ name = "Anna"; name }}`
 
 	stmts := parseStatements(t, inp, 2, nil)
 
-	if !testIdentifier(t, stmts[0].(*ast.DefineStatement).Name, "name") {
+	if !testIdentifier(t, stmts[0].(*ast.AssignStatement).Name, "name") {
 		return
 	}
 
-	if !testStringLiteral(t, stmts[0].(*ast.DefineStatement).Value, "Anna") {
+	if !testStringLiteral(t, stmts[0].(*ast.AssignStatement).Value, "Anna") {
 		return
 	}
 
@@ -1029,8 +1027,8 @@ func TestParseTwoStatements(t *testing.T) {
 		return
 	}
 
-	if stmts[0].String() != `name := "Anna"` {
-		t.Errorf("stmts[0].String() is not '{{ name := \"Anna\" }}', got %s", stmts[0].String())
+	if stmts[0].String() != `name = "Anna"` {
+		t.Errorf("stmts[0].String() is not '{{ name = \"Anna\" }}', got %s", stmts[0].String())
 	}
 
 	if stmts[1].String() != `name` {
@@ -1111,7 +1109,7 @@ func TestParseCallExpressionWithEmptyString(t *testing.T) {
 }
 
 func TestParseForStatement(t *testing.T) {
-	inp := `@for(i := 0; i < 10; i++){{ i }}@end`
+	inp := `@for(i = 0; i < 10; i++){{ i }}@end`
 
 	stmts := parseStatements(t, inp, 1, nil)
 	stmt, ok := stmts[0].(*ast.ForStatement)
@@ -1120,8 +1118,8 @@ func TestParseForStatement(t *testing.T) {
 		t.Fatalf("stmts[0] is not a ForStatement, got %T", stmts[0])
 	}
 
-	if stmt.Init.String() != `i := 0` {
-		t.Errorf("stmt.Init.String() is not 'i := 0', got %s", stmt.Init.String())
+	if stmt.Init.String() != `i = 0` {
+		t.Errorf("stmt.Init.String() is not 'i = 0', got %s", stmt.Init.String())
 	}
 
 	if stmt.Condition.String() != `(i < 10)` {

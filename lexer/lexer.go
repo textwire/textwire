@@ -161,11 +161,6 @@ func (l *Lexer) embeddedCodeToken() token.Token {
 
 		return l.newTokenAndAdvance(token.ASSIGN, "=")
 	case ':':
-		if l.peekChar() == '=' {
-			l.advanceChar() // skip "="
-			return l.newTokenAndAdvance(token.DEFINE, ":=")
-		}
-
 		return l.newTokenAndAdvance(token.COLON, ":")
 	}
 

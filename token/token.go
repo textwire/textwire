@@ -26,7 +26,6 @@ const (
 
 	NOT    // !
 	ASSIGN // =
-	DEFINE // :=
 
 	// Comparison operators
 	EQ       // ==
@@ -53,7 +52,6 @@ const (
 	TRUE
 	FALSE
 	NIL
-	VAR
 	IN
 
 	// Directives
@@ -75,7 +73,6 @@ var keywords = map[string]TokenType{
 	"true":  TRUE,
 	"false": FALSE,
 	"nil":   NIL,
-	"var":   VAR,
 	"in":    IN,
 }
 

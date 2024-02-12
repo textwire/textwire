@@ -171,13 +171,8 @@ func (p *Parser) parseEmbeddedCode() ast.Statement {
 		return nil
 	}
 
-	switch p.curToken.Type {
-	case token.VAR:
-		return p.parseVarStatement()
-	case token.IDENT:
-		if p.peekTokenIs(token.DEFINE) {
-			return p.parseDefineStatement()
-		}
+	if p.curToken.Type == token.IDENT && p.peekTokenIs(token.ASSIGN) {
+		return p.parseAssignStatement()
 	}
 
 	return p.parseExpressionStatement()
@@ -314,22 +309,22 @@ func (p *Parser) parseHTMLStatement() *ast.HTMLStatement {
 	return &ast.HTMLStatement{Token: p.curToken}
 }
 
-func (p *Parser) parseDefineStatement() ast.Statement {
+func (p *Parser) parseAssignStatement() ast.Statement {
 	ident := &ast.Identifier{
 		Token: p.curToken, // identifier
 		Value: p.curToken.Literal,
 	}
 
-	stmt := &ast.DefineStatement{
+	stmt := &ast.AssignStatement{
 		Token: p.curToken, // identifier
 		Name:  ident,
 	}
 
-	if !p.expectPeek(token.DEFINE) { // move to ":="
+	if !p.expectPeek(token.ASSIGN) { // move to "="
 		return nil
 	}
 
-	p.nextToken() // skip ":="
+	p.nextToken() // skip "="
 
 	if p.curTokenIs(token.RBRACES) {
 		p.newError(p.curToken.Line, fail.ErrExpectedExpression)
@@ -506,7 +501,7 @@ func (p *Parser) parseTernaryExpression(left ast.Expression) ast.Expression {
 }
 
 func (p *Parser) parseVarStatement() ast.Statement {
-	stmt := &ast.DefineStatement{Token: p.curToken} // "var"
+	stmt := &ast.AssignStatement{Token: p.curToken} // "var"
 
 	if !p.expectPeek(token.IDENT) { // move to identifier
 		return nil

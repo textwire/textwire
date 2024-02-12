@@ -21,7 +21,6 @@ var tokens = [...]string{
 
 	NOT:    "!",
 	ASSIGN: "=",
-	DEFINE: ":=",
 	EQ:     "==",
 	NOT_EQ: "!=",
 
@@ -46,7 +45,6 @@ var tokens = [...]string{
 	TRUE:  "true",
 	FALSE: "false",
 	NIL:   "nil",
-	VAR:   "var",
 	IN:    "in",
 
 	USE:      "@use",

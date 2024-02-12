@@ -238,32 +238,17 @@ func TestIllegalToken(t *testing.T) {
 }
 
 func TestVariableDeclaration(t *testing.T) {
-	t.Run("Without var", func(tt *testing.T) {
-		inp := `{{ a := 1 }}`
+	inp := `{{ a = 1 }}`
 
-		TokenizeString(tt, inp, []token.Token{
-			{Type: token.LBRACES, Literal: "{{"},
-			{Type: token.IDENT, Literal: "a"},
-			{Type: token.DEFINE, Literal: ":="},
-			{Type: token.INT, Literal: "1"},
-			{Type: token.RBRACES, Literal: "}}"},
-			{Type: token.EOF, Literal: ""},
-		})
+	TokenizeString(t, inp, []token.Token{
+		{Type: token.LBRACES, Literal: "{{"},
+		{Type: token.IDENT, Literal: "a"},
+		{Type: token.ASSIGN, Literal: "="},
+		{Type: token.INT, Literal: "1"},
+		{Type: token.RBRACES, Literal: "}}"},
+		{Type: token.EOF, Literal: ""},
 	})
 
-	t.Run("With var", func(tt *testing.T) {
-		inp := `{{ var b = "hello" }}`
-
-		TokenizeString(tt, inp, []token.Token{
-			{Type: token.LBRACES, Literal: "{{"},
-			{Type: token.VAR, Literal: "var"},
-			{Type: token.IDENT, Literal: "b"},
-			{Type: token.ASSIGN, Literal: "="},
-			{Type: token.STR, Literal: "hello"},
-			{Type: token.RBRACES, Literal: "}}"},
-			{Type: token.EOF, Literal: ""},
-		})
-	})
 }
 
 func TestOther(t *testing.T) {
@@ -397,13 +382,13 @@ func TestCallExpression(t *testing.T) {
 }
 
 func TestForLoopStatement(t *testing.T) {
-	inp := `@for(i := 0; i < 10; i++)`
+	inp := `@for(i = 0; i < 10; i++)`
 
 	TokenizeString(t, inp, []token.Token{
 		{Type: token.FOR, Literal: "@for"},
 		{Type: token.LPAREN, Literal: "("},
 		{Type: token.IDENT, Literal: "i"},
-		{Type: token.DEFINE, Literal: ":="},
+		{Type: token.ASSIGN, Literal: "="},
 		{Type: token.INT, Literal: "0"},
 		{Type: token.SEMI, Literal: ";"},
 		{Type: token.IDENT, Literal: "i"},

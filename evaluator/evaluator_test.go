@@ -278,24 +278,23 @@ func TestEvalIndexExpression(t *testing.T) {
 	}
 }
 
-func TestEvalVariableDeclaration(t *testing.T) {
+func TestEvalAssignVariable(t *testing.T) {
 	tests := []struct {
 		inp      string
 		expected string
 	}{
-		{`{{ var age = 18 }}`, ""},
-		{`{{ age := 18 }}`, ""},
-		{`{{ var age = 18; age }}`, "18"},
-		{`{{ var myAge = 33; var herAge = 25; myAge + herAge }}`, "58"},
-		{`{{ var age = 18; age + age }}`, "36"},
-		{`{{ var herName = "Anna"; herName }}`, "Anna"},
-		{`{{ age := 18; age }}`, "18"},
-		{`{{ age := 18; age + 2 }}`, "20"},
-		{`{{ age := 18; age + age }}`, "36"},
-		{`{{ herName := "Anna"; herName }}`, "Anna"},
-		{`{{ she := "Anna"; var me = "Serhii"; she + " " + me }}`, "Anna Serhii"},
-		{`{{ var names = ["Anna", "Serhii"] }}`, ""},
-		{`{{ var names = ["Anna", "Serhii"]; names }}`, "Anna, Serhii"},
+		{`{{ age = 18 }}`, ""},
+		{`{{ age = 18; age }}`, "18"},
+		{`{{ myAge = 33; herAge = 25; myAge + herAge }}`, "58"},
+		{`{{ age = 18; age + age }}`, "36"},
+		{`{{ herName = "Anna"; herName }}`, "Anna"},
+		{`{{ age = 18; age }}`, "18"},
+		{`{{ age = 18; age + 2 }}`, "20"},
+		{`{{ age = 18; age + age }}`, "36"},
+		{`{{ herName = "Anna"; herName }}`, "Anna"},
+		{`{{ she = "Anna"; me = "Serhii"; she + " " + me }}`, "Anna Serhii"},
+		{`{{ names = ["Anna", "Serhii"] }}`, ""},
+		{`{{ names = ["Anna", "Serhii"]; names }}`, "Anna, Serhii"},
 	}
 
 	for _, tt := range tests {
@@ -308,12 +307,12 @@ func TestEvalForStatement(t *testing.T) {
 		inp      string
 		expected string
 	}{
-		{`@for(i := 0; i < 2; i++){{ i }}@end`, "01"},
-		{`@for(var i = 1; i <= 3; i++){{ i }}@end`, "123"},
-		{`@for(i := 0; i < 2; i++){{ i }}@end`, "01"},
+		{`@for(i = 0; i < 2; i++){{ i }}@end`, "01"},
+		{`@for(i = 1; i <= 3; i++){{ i }}@end`, "123"},
+		{`@for(i = 0; i < 2; i++){{ i }}@end`, "01"},
 		{`@for(; false;)Here@end`, ""},
-		{`@for(c := 1; false; c++){{ c }}@end`, ""},
-		{`@for(c := 1; c == 1; c++){{ c }}@end`, "1"},
+		{`@for(c = 1; false; c++){{ c }}@end`, ""},
+		{`@for(c = 1; c == 1; c++){{ c }}@end`, "1"},
 		{`@each(name in ["anna", "serhii"]){{ name }} @end`, "anna serhii "},
 		{`@each(num in [1, 2, 3]){{ num }}@end`, "123"},
 		{`@each(num in []){{ num }}@end`, ""},
