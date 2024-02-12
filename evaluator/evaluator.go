@@ -152,7 +152,11 @@ func (e *Evaluator) evalAssignStatement(node *ast.AssignStatement, env *object.E
 		return val
 	}
 
-	env.Set(node.Name.Value, val)
+	err := env.Set(node.Name.Value, val)
+
+	if err != nil {
+		return e.newError(node, err.Error())
+	}
 
 	return NIL
 }
@@ -253,7 +257,11 @@ func (e *Evaluator) evalForStatement(node *ast.ForStatement, env *object.Env) ob
 
 		varName := node.Init.(*ast.AssignStatement).Name.Value
 
-		newEnv.Set(varName, post)
+		err := newEnv.Set(varName, post)
+
+		if err != nil {
+			return e.newError(node, err.Error())
+		}
 	}
 
 	return &object.HTML{Value: blocks.String()}
@@ -270,7 +278,11 @@ func (e *Evaluator) evalEachStatement(node *ast.EachStatement, env *object.Env) 
 	elems := arrObj.(*object.Array).Elements
 
 	for _, elem := range elems {
-		newEnv.Set(varName, elem)
+		err := newEnv.Set(varName, elem)
+
+		if err != nil {
+			return e.newError(node, err.Error())
+		}
 
 		block := e.Eval(node.Block, newEnv)
 

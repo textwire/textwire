@@ -18,7 +18,7 @@ const (
 	ErrInsertStmtNotDefined   = "The insert statement named '%s' is not defined"
 	ErrExpectedIdentifier     = "Expected identifier, got '%s' instead"
 
-	// Interpreter (evaluator) errors
+	// Evaluator (interpreter) errors
 	ErrUnknownNodeType        = "Unknown node type '%T'"
 	ErrInsertMustHaveContent  = "The INSERT statement must have a content or a text argument"
 	ErrIdentifierNotFound     = "Identifier '%s' not found"
@@ -30,6 +30,7 @@ const (
 	ErrUseStmtMustHaveProgram = "The 'use' statement must have a program attached"
 	ErrFuncDoNotExist         = "Function '%s' doesn't exist. Try to update the Textwire to the latest version or checkout the documentation https://textwire.github.io"
 	ErrNoFuncForThisType      = "Function '%s' doesn't exist for type '%s'"
+	ErrLoopVariableIsReserved = "The 'loop' variable is reserved. You cannot use it as a variable name"
 
 	// Template errors
 	ErrUnsupportedType   = "Unsupported type '%T'"

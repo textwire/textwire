@@ -105,6 +105,8 @@ func TestErrorHandlingEvaluatingString(t *testing.T) {
 		{`{{ 1 }`, fail.New(1, "", "parser", fail.ErrIllegalToken, "}"), nil},
 		{`{{ 1 + "a" }}`, fail.New(1, "", "evaluator", fail.ErrTypeMismatch, object.INT_OBJ, "+", object.STR_OBJ), nil},
 		{`@use("sometemplate")`, fail.New(1, "", "evaluator", fail.ErrUseStmtMustHaveProgram), nil},
+		{`{{ loop = "test" }}`, fail.New(1, "", "evaluator", fail.ErrLoopVariableIsReserved), nil},
+		{`{{ loop }}`, fail.New(0, "", "evaluator", fail.ErrLoopVariableIsReserved), map[string]interface{}{"loop": "test"}},
 	}
 
 	for _, tt := range tests {
@@ -112,6 +114,7 @@ func TestErrorHandlingEvaluatingString(t *testing.T) {
 
 		if len(errs) == 0 {
 			t.Errorf("expected error but got none")
+			return
 		}
 
 		if errs[0].String() != tt.err.String() {
