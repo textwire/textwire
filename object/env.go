@@ -2,6 +2,7 @@ package object
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/textwire/textwire/fail"
 )
@@ -29,7 +30,8 @@ func EnvFromMap(data map[string]interface{}) (*Env, *fail.Error) {
 		obj := nativeToObject(val)
 
 		if obj == nil {
-			return nil, fail.New(0, "", "template", fail.ErrUnsupportedType, val)
+			return nil, fail.New(0, "", "template",
+				fail.ErrUnsupportedType, val)
 		}
 
 		err := env.Set(key, obj)
@@ -52,12 +54,24 @@ func (e *Env) Get(name string) (Object, bool) {
 	return obj, ok
 }
 
-func (e *Env) Set(name string, val Object) error {
-	if name == "loop" {
+func (e *Env) Set(key string, val Object) error {
+	if key == "loop" {
 		return errors.New(fail.ErrLoopVariableIsReserved)
 	}
 
-	e.store[name] = val
+	if oldVar, ok := e.isTypeMismatch(key, val); ok {
+		msg := fmt.Sprintf(fail.ErrVariableTypeMismatch, key,
+			oldVar.Type(), val.Type())
+
+		return errors.New(msg)
+	}
+
+	e.store[key] = val
 
 	return nil
+}
+
+func (e *Env) isTypeMismatch(key string, val Object) (Object, bool) {
+	oldVar, ok := e.Get(key)
+	return oldVar, (ok && oldVar != nil && oldVar.Type() != val.Type())
 }

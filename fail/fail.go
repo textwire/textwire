@@ -31,6 +31,7 @@ const (
 	ErrFuncDoNotExist         = "Function '%s' doesn't exist. Try to update the Textwire to the latest version or checkout the documentation https://textwire.github.io"
 	ErrNoFuncForThisType      = "Function '%s' doesn't exist for type '%s'"
 	ErrLoopVariableIsReserved = "The 'loop' variable is reserved. You cannot use it as a variable name"
+	ErrVariableTypeMismatch   = "Cannot assign variable '%s' of type '%s' to type '%s'"
 
 	// Template errors
 	ErrUnsupportedType   = "Unsupported type '%T'"
