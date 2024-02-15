@@ -74,7 +74,7 @@ func (e *Error) String() string {
 
 // FatalOnError calls log.Fatal if the error message is not empty
 func (e *Error) FatalOnError() {
-	if e.message == "" {
+	if e == nil {
 		return
 	}
 
@@ -83,7 +83,7 @@ func (e *Error) FatalOnError() {
 
 // PanicOnError panics if the error message is not empty
 func (e *Error) PanicOnError() {
-	if e.message == "" {
+	if e == nil {
 		return
 	}
 
@@ -93,7 +93,7 @@ func (e *Error) PanicOnError() {
 // PrintOnError prints the error message to the standard output
 // when the error message is not empty
 func (e *Error) PrintOnError() {
-	if e.message == "" {
+	if e == nil {
 		return
 	}
 
