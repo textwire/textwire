@@ -7,6 +7,18 @@ import (
 	"github.com/textwire/textwire/token"
 )
 
+var simpleTokens = map[byte]token.TokenType{
+	'*': token.MUL,
+	'?': token.QUESTION,
+	'/': token.DIV,
+	'%': token.MOD,
+	',': token.COMMA,
+	'[': token.LBRACKET,
+	']': token.RBRACKET,
+	'.': token.DOT,
+	';': token.SEMI,
+}
+
 type Lexer struct {
 	input                     string
 	position                  int
@@ -92,29 +104,16 @@ func (l *Lexer) directiveToken() token.Token {
 }
 
 func (l *Lexer) embeddedCodeToken() token.Token {
+	// check simple tokens first
+	if tok, ok := simpleTokens[l.char]; ok {
+		return l.newTokenAndAdvance(tok, string(l.char))
+	}
+
 	switch l.char {
-	case '*':
-		return l.newTokenAndAdvance(token.MUL, "*")
-	case '?':
-		return l.newTokenAndAdvance(token.QUESTION, "?")
-	case '/':
-		return l.newTokenAndAdvance(token.DIV, "/")
-	case '%':
-		return l.newTokenAndAdvance(token.MOD, "%")
-	case ',':
-		return l.newTokenAndAdvance(token.COMMA, ",")
 	case '(':
 		return l.leftParenthesesToken()
 	case ')':
 		return l.rightParenthesesToken()
-	case '[':
-		return l.newTokenAndAdvance(token.LBRACKET, "[")
-	case ']':
-		return l.newTokenAndAdvance(token.RBRACKET, "]")
-	case '.':
-		return l.newTokenAndAdvance(token.DOT, ".")
-	case ';':
-		return l.newTokenAndAdvance(token.SEMI, ";")
 	case '"', '\'':
 		str := l.readString()
 		return l.newTokenAndAdvance(token.STR, str)
