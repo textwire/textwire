@@ -2,6 +2,7 @@
 
 <p align="center">
 <a href="https://github.com/textwire/textwire/actions/workflows/go.yml"><img src="https://github.com/textwire/textwire/actions/workflows/go.yml/badge.svg" /></a>
+<img src="https://scrutinizer-ci.com/g/textwire/textwire/badges/quality-score.png?b=main" />
 </p>
 
 <p align="center"><img src="https://textwire.github.io/images/logo.png" width="200" height="200" /></p>
