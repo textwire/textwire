@@ -26,37 +26,37 @@ type Config struct {
 	configApplied bool
 }
 
-func NewTemplate(c *Config) (*Template, *fail.Error) {
+func NewTemplate(c *Config) (*Template, error) {
 	applyConfig(c)
 
 	paths, err := findTextwireFiles()
 
 	if err != nil {
-		return nil, fail.FromError(err, 0, "", "template")
+		return nil, fail.FromError(err, 0, "", "template").Error()
 	}
 
-	programs, errs := parsePrograms(paths)
+	programs, parseErr := parsePrograms(paths)
 
-	if len(errs) != 0 {
-		return nil, errs[0]
+	if parseErr != nil {
+		return nil, parseErr.Error()
 	}
 
 	return &Template{programs: programs}, nil
 }
 
-func EvaluateString(inp string, data map[string]interface{}) (string, []*fail.Error) {
+func EvaluateString(inp string, data map[string]interface{}) (string, error) {
 	config.configApplied = false
 
 	prog, errs := parseStr(inp)
 
 	if len(errs) != 0 {
-		return "", errs
+		return "", errs[0].Error()
 	}
 
 	env, err := object.EnvFromMap(data)
 
 	if err != nil {
-		return "", err.ToSlice()
+		return "", err.Error()
 	}
 
 	ctx := evaluator.NewContext("")
@@ -65,25 +65,25 @@ func EvaluateString(inp string, data map[string]interface{}) (string, []*fail.Er
 	evaluated := eval.Eval(prog, env)
 
 	if evaluated.Is(object.ERR_OBJ) {
-		return "", evaluated.(*object.Error).Err.ToSlice()
+		return "", evaluated.(*object.Error).Err.Error()
 	}
 
 	return evaluated.String(), nil
 }
 
-func EvaluateFile(absPath string, data map[string]interface{}) (string, []*fail.Error) {
+func EvaluateFile(absPath string, data map[string]interface{}) (string, error) {
 	config.configApplied = false
 
 	_, err := fileContent(absPath)
 
 	if err != nil {
-		return "", fail.FromError(err, 0, absPath, "template").ToSlice()
+		return "", fail.FromError(err, 0, absPath, "template").Error()
 	}
 
-	result, errs := EvaluateString(absPath, data)
+	result, err := EvaluateString(absPath, data)
 
-	if len(errs) != 0 {
-		return "", errs
+	if err != nil {
+		return "", err
 	}
 
 	return result, nil

@@ -45,11 +45,11 @@ func (t *Template) String(filename string, data map[string]interface{}) (string,
 	return evaluated.String(), nil
 }
 
-func (t *Template) Response(w http.ResponseWriter, filename string, data map[string]interface{}) *fail.Error {
+func (t *Template) Response(w http.ResponseWriter, filename string, data map[string]interface{}) error {
 	evaluated, err := t.String(filename, data)
 
 	if err != nil {
-		return err
+		return err.Error()
 	}
 
 	fmt.Fprint(w, evaluated)

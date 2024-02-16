@@ -22,11 +22,11 @@ func parseStr(text string) (*ast.Program, []*fail.Error) {
 	return prog, nil
 }
 
-func parseProgram(absPath string) (*ast.Program, []*fail.Error) {
+func parseProgram(absPath string) (*ast.Program, *fail.Error) {
 	content, err := fileContent(absPath)
 
 	if err != nil {
-		return nil, fail.FromError(err, 0, absPath, "template").ToSlice()
+		return nil, fail.FromError(err, 0, absPath, "template")
 	}
 
 	lex := lexer.New(content)
@@ -34,28 +34,28 @@ func parseProgram(absPath string) (*ast.Program, []*fail.Error) {
 	prog := pars.ParseProgram()
 
 	if len(pars.Errors()) != 0 {
-		return nil, pars.Errors()
+		return nil, pars.Errors()[0]
 	}
 
 	return prog, nil
 }
 
-func parsePrograms(paths map[string]string) (map[string]*ast.Program, []*fail.Error) {
+func parsePrograms(paths map[string]string) (map[string]*ast.Program, *fail.Error) {
 	var result = map[string]*ast.Program{}
 
 	for name, absPath := range paths {
-		prog, errs := parseProgram(absPath)
+		prog, err := parseProgram(absPath)
 
-		if len(errs) != 0 {
-			return nil, errs
+		if err != nil {
+			return nil, err
 		}
 
 		if hasLayout, useStmt := prog.HasUseStmt(); hasLayout {
-			errs = applyLayoutToProgram(useStmt.Name.Value, prog)
+			err = applyLayoutToProgram(useStmt.Name.Value, prog)
 		}
 
-		if len(errs) != 0 {
-			return nil, errs
+		if err != nil {
+			return nil, err
 		}
 
 		if !prog.HasReserveStmt() {
@@ -66,24 +66,24 @@ func parsePrograms(paths map[string]string) (map[string]*ast.Program, []*fail.Er
 	return result, nil
 }
 
-func applyLayoutToProgram(layoutName string, prog *ast.Program) []*fail.Error {
+func applyLayoutToProgram(layoutName string, prog *ast.Program) *fail.Error {
 	layoutAbsAPath, err := getFullPath(layoutName, true)
 
 	if err != nil {
-		return fail.FromError(err, 0, "", "template").ToSlice()
+		return fail.FromError(err, 0, "", "template")
 	}
 
-	layoutProg, errs := parseProgram(layoutAbsAPath)
+	layoutProg, parseErr := parseProgram(layoutAbsAPath)
 	layoutProg.IsLayout = true
 
-	if len(errs) != 0 {
-		return errs
+	if parseErr != nil {
+		return parseErr
 	}
 
 	layoutErr := layoutProg.ApplyInserts(prog.Inserts(), layoutAbsAPath)
 
 	if layoutErr != nil {
-		return layoutErr.ToSlice()
+		return layoutErr
 	}
 
 	prog.ApplyLayout(layoutProg)

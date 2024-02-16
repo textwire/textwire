@@ -6,19 +6,20 @@ import (
 	"net/http"
 
 	"github.com/textwire/textwire"
-	"github.com/textwire/textwire/fail"
 )
 
 var tpl *textwire.Template
 
 func main() {
-	var err *fail.Error
+	var err error
 
 	tpl, err = textwire.NewTemplate(&textwire.Config{
 		TemplateDir: "templates",
 	})
 
-	err.FatalOnError()
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	http.HandleFunc("/", homeHandler)
 	http.HandleFunc("/about", aboutHandler)
@@ -35,7 +36,9 @@ func homeHandler(w http.ResponseWriter, r *http.Request) {
 		"showNames": true,
 	})
 
-	err.FatalOnError()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
 }
 
 func aboutHandler(w http.ResponseWriter, r *http.Request) {
@@ -43,5 +46,7 @@ func aboutHandler(w http.ResponseWriter, r *http.Request) {
 		"title": "About page",
 	})
 
-	err.FatalOnError()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
 }

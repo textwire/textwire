@@ -62,7 +62,7 @@ func New(line uint, filepath, origin, msg string, args ...interface{}) *Error {
 
 // String returns the full error message with all the details
 func (e *Error) String() string {
-	path := ""
+	var path string
 
 	if e.filepath != "" {
 		path = fmt.Sprintf(" in %s", e.filepath)
@@ -100,8 +100,8 @@ func (e *Error) PrintOnError() {
 	log.Println(e.String())
 }
 
-func (e *Error) ToSlice() []*Error {
-	return []*Error{e}
+func (e *Error) Error() error {
+	return fmt.Errorf(e.String())
 }
 
 func FromError(err error, line uint, absPath, origin string, args ...interface{}) *Error {

@@ -38,10 +38,10 @@ func TestEvaluateString(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		actual, errs := EvaluateString(tt.inp, tt.data)
+		actual, err := EvaluateString(tt.inp, tt.data)
 
-		if len(errs) != 0 {
-			t.Errorf("error evaluating template: %s", errs[0])
+		if err != nil {
+			t.Errorf("error evaluating template: %s", err)
 		}
 
 		if actual != tt.expect {
@@ -111,16 +111,16 @@ func TestErrorHandlingEvaluatingString(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		_, errs := EvaluateString(tt.inp, tt.data)
+		_, err := EvaluateString(tt.inp, tt.data)
 
-		if len(errs) == 0 {
+		if err == nil {
 			t.Errorf("expected error but got none")
 			return
 		}
 
-		if errs[0].String() != tt.err.String() {
-			t.Errorf("wrong error message. EXPECTED:\n\"%s\"\nGOT:\n\"%s\"",
-				tt.err, errs[0])
+		if err.Error() != tt.err.String() {
+			t.Errorf("wrong error message. EXPECTED:\n%q\nGOT:\n%q",
+				tt.err, err)
 		}
 	}
 }
@@ -136,6 +136,6 @@ func TestEvaluateFile(t *testing.T) {
 	_, err := EvaluateFile(absPath, nil)
 
 	if err != nil {
-		t.Errorf("error evaluating file:\n%s", err[0])
+		t.Errorf("error evaluating file:\n%s", err)
 	}
 }
