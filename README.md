@@ -3,6 +3,7 @@
 <p align="center">
 <a href="https://github.com/textwire/textwire/actions/workflows/go.yml"><img src="https://github.com/textwire/textwire/actions/workflows/go.yml/badge.svg"></a>
 <a href="https://goreportcard.com/report/github.com/textwire/textwire"><img src="https://goreportcard.com/badge/github.com/textwire/textwire"></a>
+<a href="https://github.com/textwire/textwire/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-MIT-yellow.svg"></a>
 </p>
 
 <p align="center"><img src="https://textwire.github.io/images/logo.png" width="200" height="200" /></p>
