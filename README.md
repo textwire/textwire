@@ -1,8 +1,8 @@
 # Textwire. A templating language for Go.
 
 <p align="center">
-<a href="https://github.com/textwire/textwire/actions/workflows/go.yml"><img src="https://github.com/textwire/textwire/actions/workflows/go.yml/badge.svg" /></a>
-<img src="https://scrutinizer-ci.com/g/textwire/textwire/badges/quality-score.png?b=main" />
+<a href="https://github.com/textwire/textwire/actions/workflows/go.yml"><img src="https://github.com/textwire/textwire/actions/workflows/go.yml/badge.svg"></a>
+<a href="https://goreportcard.com/report/github.com/textwire/textwire"><img src="https://goreportcard.com/badge/github.com/textwire/textwire"></a>
 </p>
 
 <p align="center"><img src="https://textwire.github.io/images/logo.png" width="200" height="200" /></p>
