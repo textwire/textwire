@@ -6,6 +6,7 @@
         "LBRACES",
         "LTHAN",
         "RBRACES",
-        "stmts"
+        "stmts",
+        "templating"
     ]
 }
