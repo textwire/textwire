@@ -57,6 +57,9 @@ func TestEvalUseStatement(t *testing.T) {
 			"NAME_1":    "Anna Korotchaeva",
 			"name_2":    "Serhii Cho",
 		}},
+		{"4.loops", map[string]interface{}{
+			"names": []string{"Anna", "Serhii", "Vladimir"},
+		}},
 	}
 
 	tpl, err := NewTemplate(&Config{
