@@ -54,6 +54,8 @@ func (e *Evaluator) Eval(node ast.Node, env *object.Env) object.Object {
 		return e.evalIdentifier(node, env)
 	case *ast.IndexExpression:
 		return e.evalIndexExpression(node, env)
+	case *ast.DotExpression:
+		return e.evalDotExpression(node, env)
 	case *ast.IntegerLiteral:
 		return &object.Int{Value: node.Value}
 	case *ast.FloatLiteral:
@@ -350,6 +352,28 @@ func (e *Evaluator) evalObjectIndexExpression(obj object.Object, idx string) obj
 	}
 
 	return pair
+}
+
+func (e *Evaluator) evalDotExpression(node *ast.DotExpression, env *object.Env) object.Object {
+	receiverObj := e.Eval(node.Receiver, env)
+
+	if isError(receiverObj) {
+		return receiverObj
+	}
+
+	obj, ok := receiverObj.(*object.Obj)
+
+	if !ok {
+		return e.newError(node, fail.ErrDotOperatorNotSupported, receiverObj.Type())
+	}
+
+	val, ok := obj.Pairs[node.Key.Value]
+
+	if !ok {
+		return NIL
+	}
+
+	return val
 }
 
 func (e *Evaluator) evalPrefixExpression(node *ast.PrefixExpression, env *object.Env) object.Object {
