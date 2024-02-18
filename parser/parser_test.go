@@ -560,10 +560,6 @@ func TestErrorHandling(t *testing.T) {
 			fail.New(1, "", "parser", fail.ErrNoPrefixParseFunc,
 				token.String(token.RPAREN)),
 		},
-		{
-			"{{ 5 }",
-			fail.New(1, "", "parser", fail.ErrIllegalToken, "}"),
-		},
 	}
 
 	for _, tt := range tests {

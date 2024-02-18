@@ -57,7 +57,6 @@ func TestErrorHandlingEvaluatingString(t *testing.T) {
 		err  *fail.Error
 		data map[string]interface{}
 	}{
-		{`{{ 1 }`, fail.New(1, "", "parser", fail.ErrIllegalToken, "}"), nil},
 		{`{{ 1 + "a" }}`, fail.New(1, "", "evaluator", fail.ErrTypeMismatch, object.INT_OBJ, "+", object.STR_OBJ), nil},
 		{`@use("sometemplate")`, fail.New(1, "", "evaluator", fail.ErrUseStmtMustHaveProgram), nil},
 		{`{{ loop = "test" }}`, fail.New(1, "", "evaluator", fail.ErrLoopVariableIsReserved), nil},

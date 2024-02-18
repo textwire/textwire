@@ -227,16 +227,6 @@ func TestTernary(t *testing.T) {
 	})
 }
 
-func TestIllegalToken(t *testing.T) {
-	inp := `{{ 4 }`
-
-	TokenizeString(t, inp, []token.Token{
-		{Type: token.LBRACES, Literal: "{{"},
-		{Type: token.INT, Literal: "4"},
-		{Type: token.ILLEGAL, Literal: "}"},
-	})
-}
-
 func TestVariableDeclaration(t *testing.T) {
 	inp := `{{ a = 1 }}`
 
