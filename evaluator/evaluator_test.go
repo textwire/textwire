@@ -324,3 +324,16 @@ func TestEvalForStatement(t *testing.T) {
 		evaluationExpected(t, tt.inp, tt.expected)
 	}
 }
+
+func TestEvalObjectLiteral(t *testing.T) {
+	tests := []struct {
+		inp      string
+		expected string
+	}{
+		{`{{ obj = {"name": "John"}; obj.name }}`, "John"},
+	}
+
+	for _, tt := range tests {
+		evaluationExpected(t, tt.inp, tt.expected)
+	}
+}

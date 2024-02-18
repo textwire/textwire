@@ -1183,7 +1183,7 @@ func TestParseEachStatement(t *testing.T) {
 }
 
 func TestParseObjectStatement(t *testing.T) {
-	inp := `{{ { "name": "John", "age": 30 } }}`
+	inp := `{{ {"name": "John", "age": 30} }}`
 
 	stmts := parseStatements(t, inp, 1, nil)
 	stmt, ok := stmts[0].(*ast.ExpressionStatement)
