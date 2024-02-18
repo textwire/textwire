@@ -1185,3 +1185,28 @@ func TestParseEachStatement(t *testing.T) {
 		t.Errorf("stmt.Block.String() is not '{{ name }}', got %s", stmt.Block.String())
 	}
 }
+
+func TestParseObjectStatement(t *testing.T) {
+	inp := `{{ { "name": "John", "age": 30 } }}`
+
+	stmts := parseStatements(t, inp, 1, nil)
+	stmt, ok := stmts[0].(*ast.ExpressionStatement)
+
+	if !ok {
+		t.Fatalf("stmts[0] is not a ExpressionStatement, got %T", stmts[0])
+	}
+
+	obj, ok := stmt.Expression.(*ast.ObjectLiteral)
+
+	if !ok {
+		t.Fatalf("stmts[0] is not a ExpressionStatement, got %T", stmts[0])
+	}
+
+	if len(obj.Pairs) != 2 {
+		t.Fatalf("len(obj.Pairs) is not 2, got %d", len(obj.Pairs))
+	}
+
+	if obj.String() != `{ "name": "John", "age": 30 }` {
+		t.Fatalf(`obj.String() is not '{ "name": "John", "age": 30 }', got %s`, obj.String())
+	}
+}

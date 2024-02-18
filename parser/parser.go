@@ -84,6 +84,7 @@ func New(lexer *lexer.Lexer, filepath string) *Parser {
 	p.registerPrefix(token.NOT, p.parsePrefixExpression)
 	p.registerPrefix(token.LPAREN, p.parseGroupedExpression)
 	p.registerPrefix(token.LBRACKET, p.parseArrayLiteral)
+	p.registerPrefix(token.LBRACE, p.parseObjectLiteral)
 
 	// Infix operators
 	p.infixParseFns = make(map[token.TokenType]infixParseFn)
@@ -303,6 +304,43 @@ func (p *Parser) parseArrayLiteral() ast.Expression {
 	arr := &ast.ArrayLiteral{Token: p.curToken} // "["
 	arr.Elements = p.parseExpressionList(token.RBRACKET)
 	return arr
+}
+
+func (p *Parser) parseObjectLiteral() ast.Expression {
+	obj := &ast.ObjectLiteral{Token: p.curToken} // "{"
+
+	obj.Pairs = make(map[ast.Expression]ast.Expression)
+
+	p.nextToken() // skip "{"
+
+	if p.curTokenIs(token.RBRACE) {
+		return obj
+	}
+
+	for !p.peekTokenIs(token.RBRACE) {
+		key := p.parseExpression(LOWEST)
+
+		if !p.expectPeek(token.COLON) { // move to ":"
+			return nil
+		}
+
+		p.nextToken() // skip ":"
+
+		value := p.parseExpression(LOWEST)
+
+		obj.Pairs[key] = value
+
+		if p.peekTokenIs(token.COMMA) {
+			p.nextToken() // skip value
+			p.nextToken() // skip ","
+		}
+	}
+
+	if !p.expectPeek(token.RBRACE) { // move to "}"
+		return nil
+	}
+
+	return obj
 }
 
 func (p *Parser) parseHTMLStatement() *ast.HTMLStatement {
