@@ -1209,4 +1209,7 @@ func TestParseObjectStatement(t *testing.T) {
 	if obj.String() != `{ "name": "John", "age": 30 }` {
 		t.Fatalf(`obj.String() is not '{ "name": "John", "age": 30 }', got %s`, obj.String())
 	}
+
+	testStringLiteral(t, obj.Pairs["name"], "John")
+	testIntegerLiteral(t, obj.Pairs["age"], 30)
 }

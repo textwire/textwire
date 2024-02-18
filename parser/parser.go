@@ -309,7 +309,7 @@ func (p *Parser) parseArrayLiteral() ast.Expression {
 func (p *Parser) parseObjectLiteral() ast.Expression {
 	obj := &ast.ObjectLiteral{Token: p.curToken} // "{"
 
-	obj.Pairs = make(map[ast.Expression]ast.Expression)
+	obj.Pairs = make(map[string]ast.Expression)
 
 	p.nextToken() // skip "{"
 
@@ -318,7 +318,7 @@ func (p *Parser) parseObjectLiteral() ast.Expression {
 	}
 
 	for !p.peekTokenIs(token.RBRACE) {
-		key := p.parseExpression(LOWEST)
+		key := p.curToken.Literal
 
 		if !p.expectPeek(token.COLON) { // move to ":"
 			return nil

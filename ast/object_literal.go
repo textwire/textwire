@@ -2,14 +2,15 @@ package ast
 
 import (
 	"bytes"
+	"fmt"
 	"strings"
 
 	"github.com/textwire/textwire/token"
 )
 
 type ObjectLiteral struct {
-	Token token.Token               // The '{' token
-	Pairs map[Expression]Expression // The key-value pairs
+	Token token.Token           // The '{' token
+	Pairs map[string]Expression // The key-value pairs
 }
 
 func (ol *ObjectLiteral) expressionNode() {
@@ -24,7 +25,8 @@ func (ol *ObjectLiteral) String() string {
 
 	pairs := []string{}
 	for key, value := range ol.Pairs {
-		pairs = append(pairs, key.String()+": "+value.String())
+		k := fmt.Sprintf(`"%s": %s`, key, value.String())
+		pairs = append(pairs, k)
 	}
 
 	out.WriteString("{ ")
