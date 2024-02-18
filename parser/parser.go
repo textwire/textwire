@@ -105,7 +105,7 @@ func New(lexer *lexer.Lexer, filepath string) *Parser {
 	p.registerInfix(token.LBRACKET, p.parseIndexExpression)
 	p.registerInfix(token.INC, p.parsePostfixExpression)
 	p.registerInfix(token.DEC, p.parsePostfixExpression)
-	p.registerInfix(token.DOT, p.parseCallExpression)
+	p.registerInfix(token.DOT, p.parseDotExpression)
 
 	return p
 }
@@ -471,11 +471,30 @@ func (p *Parser) parsePostfixExpression(left ast.Expression) ast.Expression {
 	}
 }
 
-func (p *Parser) parseCallExpression(receiver ast.Expression) ast.Expression {
+func (p *Parser) parseDotExpression(receiver ast.Expression) ast.Expression {
 	if !p.expectPeek(token.IDENT) { // skip "." and move to identifier
 		return nil
 	}
 
+	if p.peekTokenIs(token.LPAREN) {
+		return p.parseCallExpression(receiver)
+	}
+
+	key, ok := p.parseIdentifier().(*ast.Identifier)
+
+	if !ok {
+		p.newError(p.curToken.Line, fail.ErrExpectedIdentifier, p.curToken.Literal)
+		return nil
+	}
+
+	return &ast.DotExpression{
+		Token:    p.curToken, // identifier
+		Receiver: receiver,
+		Key:      key,
+	}
+}
+
+func (p *Parser) parseCallExpression(receiver ast.Expression) ast.Expression {
 	ident, ok := p.parseIdentifier().(*ast.Identifier)
 
 	if !ok {

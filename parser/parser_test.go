@@ -1209,3 +1209,32 @@ func TestParseObjectStatement(t *testing.T) {
 	testStringLiteral(t, obj.Pairs["name"], "John")
 	testIntegerLiteral(t, obj.Pairs["age"], 30)
 }
+
+func TestParseDotExpression(t *testing.T) {
+	inp := `{{ person.name }}`
+
+	stmts := parseStatements(t, inp, 1, nil)
+	stmt, ok := stmts[0].(*ast.ExpressionStatement)
+
+	if !ok {
+		t.Fatalf("stmts[0] is not a ExpressionStatement, got %T", stmts[0])
+	}
+
+	dotExp, ok := stmt.Expression.(*ast.DotExpression)
+
+	if !ok {
+		t.Fatalf("stmt.Expression is not a DotExpression, got %T", stmt.Expression)
+	}
+
+	if dotExp.String() != "(person.name)" {
+		t.Fatalf("dotExp.String() is not '(person.name)', got %s", dotExp.String())
+	}
+
+	if !testIdentifier(t, dotExp.Receiver, "person") {
+		return
+	}
+
+	if !testIdentifier(t, dotExp.Key, "name") {
+		return
+	}
+}
