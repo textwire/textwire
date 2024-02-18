@@ -15,6 +15,8 @@ var simpleTokens = map[byte]token.TokenType{
 	',': token.COMMA,
 	'[': token.LBRACKET,
 	']': token.RBRACKET,
+	'{': token.LBRACE,
+	'}': token.RBRACE,
 	'.': token.DOT,
 	';': token.SEMI,
 }

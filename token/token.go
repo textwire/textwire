@@ -38,6 +38,8 @@ const (
 	// Delimiters
 	LBRACES  // {{
 	RBRACES  // }}
+	LBRACE   // {
+	RBRACE   // }
 	LPAREN   // (
 	RPAREN   // )
 	LBRACKET // [
