@@ -264,7 +264,7 @@ func (p *Parser) parseIntegerLiteral() ast.Expression {
 }
 
 func (p *Parser) parseFloatLiteral() ast.Expression {
-	val, err := strconv.ParseFloat(p.curToken.Literal, 10)
+	val, err := strconv.ParseFloat(p.curToken.Literal, 64)
 
 	if err != nil {
 		p.newError(
@@ -536,29 +536,6 @@ func (p *Parser) parseTernaryExpression(left ast.Expression) ast.Expression {
 	exp.Alternative = p.parseExpression(LOWEST)
 
 	return exp
-}
-
-func (p *Parser) parseVarStatement() ast.Statement {
-	stmt := &ast.AssignStatement{Token: p.curToken} // "var"
-
-	if !p.expectPeek(token.IDENT) { // move to identifier
-		return nil
-	}
-
-	stmt.Name = &ast.Identifier{
-		Token: p.curToken, // identifier
-		Value: p.curToken.Literal,
-	}
-
-	if !p.expectPeek(token.ASSIGN) { // move to "="
-		return nil
-	}
-
-	p.nextToken() // skip "="
-
-	stmt.Value = p.parseExpression(LOWEST)
-
-	return stmt
 }
 
 func (p *Parser) parseIfStatement() *ast.IfStatement {
