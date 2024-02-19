@@ -355,25 +355,15 @@ func (e *Evaluator) evalObjectIndexExpression(obj object.Object, idx string) obj
 }
 
 func (e *Evaluator) evalDotExpression(node *ast.DotExpression, env *object.Env) object.Object {
-	receiverObj := e.Eval(node.Receiver, env)
+	left := e.Eval(node.Left, env)
 
-	if isError(receiverObj) {
-		return receiverObj
+	if isError(left) {
+		return left
 	}
 
-	obj, ok := receiverObj.(*object.Obj)
+	key := node.Key.(*ast.Identifier)
 
-	if !ok {
-		return e.newError(node, fail.ErrDotOperatorNotSupported, receiverObj.Type())
-	}
-
-	val, ok := obj.Pairs[node.Key.(*ast.Identifier).Value]
-
-	if !ok {
-		return NIL
-	}
-
-	return val
+	return e.evalObjectIndexExpression(left.(*object.Obj), key.Value)
 }
 
 func (e *Evaluator) evalPrefixExpression(node *ast.PrefixExpression, env *object.Env) object.Object {
