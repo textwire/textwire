@@ -939,7 +939,7 @@ func TestParseArray(t *testing.T) {
 }
 
 func TestParseIndexExpression(t *testing.T) {
-	inp := `{{ arr[1 + 2] }}`
+	inp := `{{ arr[1 + 2][2] }}`
 
 	stmts := parseStatements(t, inp, 1, nil)
 	stmt, ok := stmts[0].(*ast.ExpressionStatement)
@@ -954,15 +954,7 @@ func TestParseIndexExpression(t *testing.T) {
 		t.Fatalf("stmt.Expression is not a IndexExpression, got %T", stmt.Expression)
 	}
 
-	if !testIdentifier(t, indexExp.Left, "arr") {
-		return
-	}
-
-	if !testInfixExpression(t, indexExp.Index, 1, "+", 2) {
-		return
-	}
-
-	if indexExp.String() != "(arr[(1 + 2)])" {
+	if indexExp.String() != "((arr[(1 + 2)])[2])" {
 		t.Errorf("indexExp.String() is not '(arr[(1 + 2)])', got %s", indexExp.String())
 	}
 }
@@ -1223,25 +1215,25 @@ func TestParseDotExpression(t *testing.T) {
 		t.Fatalf("stmt.Expression is not a DotExpression, got %T", stmt.Expression)
 	}
 
-	if dotExp.String() != "(person.(father.name))" {
-		t.Fatalf("dotExp.String() is not '(person.(father.name))', got %s", dotExp.String())
-	}
-
-	if !testIdentifier(t, dotExp.Receiver, "person") {
-		return
-	}
-
-	dotExp, ok = dotExp.Key.(*ast.DotExpression)
-
-	if !ok {
-		t.Fatalf("dotExp.Key is not a DotExpression, got %T", dotExp.Key)
-	}
-
-	if !testIdentifier(t, dotExp.Receiver, "father") {
-		return
+	if dotExp.String() != "((person.father).name)" {
+		t.Fatalf("dotExp.String() is not '((person.father).name)', got %s", dotExp.String())
 	}
 
 	if !testIdentifier(t, dotExp.Key, "name") {
+		return
+	}
+
+	dotExp, ok = dotExp.Left.(*ast.DotExpression)
+
+	if !ok {
+		t.Fatalf("dotExp.Left is not a DotExpression, got %T", dotExp.Left)
+	}
+
+	if !testIdentifier(t, dotExp.Key, "father") {
+		return
+	}
+
+	if !testIdentifier(t, dotExp.Left, "person") {
 		return
 	}
 }

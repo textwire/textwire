@@ -25,7 +25,7 @@ const (
 	PRODUCT      // *
 	PREFIX       // -X or !X
 	CALL         // myFunction(X)
-	INDEX        // array[index] or object[key]
+	INDEX        // array[index] or obj.key
 	POSTFIX      // X++ or X--
 )
 
@@ -37,13 +37,13 @@ var precedences = map[token.TokenType]int{
 	token.GTHAN:    LESS_GREATER,
 	token.LTHAN_EQ: LESS_GREATER,
 	token.GTHAN_EQ: LESS_GREATER,
-	token.DOT:      SUM,
 	token.ADD:      SUM,
 	token.SUB:      SUM,
 	token.DIV:      PRODUCT,
 	token.MOD:      PRODUCT,
 	token.MUL:      PRODUCT,
 	token.LPAREN:   CALL,
+	token.DOT:      INDEX,
 	token.LBRACKET: INDEX,
 	token.INC:      POSTFIX,
 	token.DEC:      POSTFIX,
@@ -469,22 +469,23 @@ func (p *Parser) parsePostfixExpression(left ast.Expression) ast.Expression {
 	}
 }
 
-func (p *Parser) parseDotExpression(receiver ast.Expression) ast.Expression {
+func (p *Parser) parseDotExpression(left ast.Expression) ast.Expression {
+	exp := &ast.DotExpression{
+		Token: p.curToken, // "."
+		Left:  left,
+	}
+
 	if !p.expectPeek(token.IDENT) { // skip "." and move to identifier
 		return nil
 	}
 
 	if p.peekTokenIs(token.LPAREN) {
-		return p.parseCallExpression(receiver)
+		return p.parseCallExpression(left)
 	}
 
-	key := p.parseExpression(LOWEST)
+	exp.Key = p.parseIdentifier()
 
-	return &ast.DotExpression{
-		Token:    p.curToken, // identifier
-		Receiver: receiver,
-		Key:      key,
-	}
+	return exp
 }
 
 func (p *Parser) parseCallExpression(receiver ast.Expression) ast.Expression {
