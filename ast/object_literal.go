@@ -29,9 +29,9 @@ func (ol *ObjectLiteral) String() string {
 		pairs = append(pairs, k)
 	}
 
-	out.WriteString("{ ")
+	out.WriteString("{")
 	out.WriteString(strings.Join(pairs, ", "))
-	out.WriteString(" }")
+	out.WriteString("}")
 
 	return out.String()
 

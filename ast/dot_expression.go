@@ -9,7 +9,7 @@ import (
 type DotExpression struct {
 	Token    token.Token // The field token
 	Receiver Expression  // -->x.y
-	Key      *Identifier // x.y<--
+	Key      Expression  // x.y<--
 }
 
 func (de *DotExpression) expressionNode() {

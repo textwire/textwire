@@ -367,7 +367,7 @@ func (e *Evaluator) evalDotExpression(node *ast.DotExpression, env *object.Env) 
 		return e.newError(node, fail.ErrDotOperatorNotSupported, receiverObj.Type())
 	}
 
-	val, ok := obj.Pairs[node.Key.Value]
+	val, ok := obj.Pairs[node.Key.(*ast.Identifier).Value]
 
 	if !ok {
 		return NIL
