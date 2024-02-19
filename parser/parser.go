@@ -25,7 +25,7 @@ const (
 	PRODUCT      // *
 	PREFIX       // -X or !X
 	CALL         // myFunction(X)
-	INDEX        // array[index]
+	INDEX        // array[index] or object[key]
 	POSTFIX      // X++ or X--
 )
 
@@ -326,9 +326,7 @@ func (p *Parser) parseObjectLiteral() ast.Expression {
 
 		p.nextToken() // skip ":"
 
-		value := p.parseExpression(LOWEST)
-
-		obj.Pairs[key] = value
+		obj.Pairs[key] = p.parseExpression(LOWEST)
 
 		if p.peekTokenIs(token.COMMA) {
 			p.nextToken() // skip value
@@ -480,12 +478,7 @@ func (p *Parser) parseDotExpression(receiver ast.Expression) ast.Expression {
 		return p.parseCallExpression(receiver)
 	}
 
-	key, ok := p.parseIdentifier().(*ast.Identifier)
-
-	if !ok {
-		p.newError(p.curToken.Line, fail.ErrExpectedIdentifier, p.curToken.Literal)
-		return nil
-	}
+	key := p.parseExpression(LOWEST)
 
 	return &ast.DotExpression{
 		Token:    p.curToken, // identifier

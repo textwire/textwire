@@ -15,8 +15,6 @@ var simpleTokens = map[byte]token.TokenType{
 	',': token.COMMA,
 	'[': token.LBRACKET,
 	']': token.RBRACKET,
-	'{': token.LBRACE,
-	'}': token.RBRACE,
 	'.': token.DOT,
 	';': token.SEMI,
 }
@@ -30,6 +28,7 @@ type Lexer struct {
 	isHTML                    bool
 	isDirective               bool
 	countDirectiveParentheses int
+	countCurlyBraces          int
 }
 
 func New(input string) *Lexer {
@@ -39,6 +38,7 @@ func New(input string) *Lexer {
 		isHTML:                    true,
 		isDirective:               false,
 		countDirectiveParentheses: 0,
+		countCurlyBraces:          0,
 	}
 
 	// set l.char to the first character
@@ -60,7 +60,7 @@ func (l *Lexer) NextToken() token.Token {
 		return l.bracesToken(token.LBRACES, "{{")
 	}
 
-	if l.char == '}' && l.peekChar() == '}' {
+	if l.char == '}' && l.peekChar() == '}' && l.countCurlyBraces == 0 {
 		return l.bracesToken(token.RBRACES, "}}")
 	}
 
@@ -112,6 +112,10 @@ func (l *Lexer) embeddedCodeToken() token.Token {
 	}
 
 	switch l.char {
+	case '{':
+		return l.leftBraceToken()
+	case '}':
+		return l.rightBraceToken()
 	case '(':
 		return l.leftParenthesesToken()
 	case ')':
@@ -181,6 +185,16 @@ func (l *Lexer) embeddedCodeToken() token.Token {
 	}
 
 	return l.newToken(token.ILLEGAL, string(l.char))
+}
+
+func (l *Lexer) leftBraceToken() token.Token {
+	l.countCurlyBraces += 1
+	return l.newTokenAndAdvance(token.LBRACE, "{")
+}
+
+func (l *Lexer) rightBraceToken() token.Token {
+	l.countCurlyBraces -= 1
+	return l.newTokenAndAdvance(token.RBRACE, "}")
 }
 
 func (l *Lexer) leftParenthesesToken() token.Token {

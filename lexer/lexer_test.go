@@ -393,18 +393,18 @@ func TestForLoopStatement(t *testing.T) {
 }
 
 func TestObjectStatement(t *testing.T) {
-	inp := `{{ {"name": "John", "age": 30} }}`
+	inp := `{{ {"father": {"name": "John"}} }}`
 
 	TokenizeString(t, inp, []token.Token{
 		{Type: token.LBRACES, Literal: "{{"},
 		{Type: token.LBRACE, Literal: "{"},
+		{Type: token.STR, Literal: "father"},
+		{Type: token.COLON, Literal: ":"},
+		{Type: token.LBRACE, Literal: "{"},
 		{Type: token.STR, Literal: "name"},
 		{Type: token.COLON, Literal: ":"},
 		{Type: token.STR, Literal: "John"},
-		{Type: token.COMMA, Literal: ","},
-		{Type: token.STR, Literal: "age"},
-		{Type: token.COLON, Literal: ":"},
-		{Type: token.INT, Literal: "30"},
+		{Type: token.RBRACE, Literal: "}"},
 		{Type: token.RBRACE, Literal: "}"},
 		{Type: token.RBRACES, Literal: "}}"},
 		{Type: token.EOF, Literal: ""},

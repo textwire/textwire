@@ -1183,7 +1183,7 @@ func TestParseEachStatement(t *testing.T) {
 }
 
 func TestParseObjectStatement(t *testing.T) {
-	inp := `{{ {"name": "John", "age": 30} }}`
+	inp := `{{ {"father": {"name": "John"}} }}`
 
 	stmts := parseStatements(t, inp, 1, nil)
 	stmt, ok := stmts[0].(*ast.ExpressionStatement)
@@ -1198,20 +1198,17 @@ func TestParseObjectStatement(t *testing.T) {
 		t.Fatalf("stmts[0] is not a ExpressionStatement, got %T", stmts[0])
 	}
 
-	if len(obj.Pairs) != 2 {
-		t.Fatalf("len(obj.Pairs) is not 2, got %d", len(obj.Pairs))
+	if len(obj.Pairs) != 1 {
+		t.Fatalf("len(obj.Pairs) is not 1, got %d", len(obj.Pairs))
 	}
 
-	if obj.String() != `{ "name": "John", "age": 30 }` {
-		t.Fatalf(`obj.String() is not '{ "name": "John", "age": 30 }', got %s`, obj.String())
+	if obj.String() != `{"father": {"name": "John"}}` {
+		t.Fatalf(`obj.String() is not '{"father": {"name": "John" }}', got %s`, obj.String())
 	}
-
-	testStringLiteral(t, obj.Pairs["name"], "John")
-	testIntegerLiteral(t, obj.Pairs["age"], 30)
 }
 
 func TestParseDotExpression(t *testing.T) {
-	inp := `{{ person.name }}`
+	inp := `{{ person.father.name }}`
 
 	stmts := parseStatements(t, inp, 1, nil)
 	stmt, ok := stmts[0].(*ast.ExpressionStatement)
@@ -1226,11 +1223,21 @@ func TestParseDotExpression(t *testing.T) {
 		t.Fatalf("stmt.Expression is not a DotExpression, got %T", stmt.Expression)
 	}
 
-	if dotExp.String() != "(person.name)" {
-		t.Fatalf("dotExp.String() is not '(person.name)', got %s", dotExp.String())
+	if dotExp.String() != "(person.(father.name))" {
+		t.Fatalf("dotExp.String() is not '(person.(father.name))', got %s", dotExp.String())
 	}
 
 	if !testIdentifier(t, dotExp.Receiver, "person") {
+		return
+	}
+
+	dotExp, ok = dotExp.Key.(*ast.DotExpression)
+
+	if !ok {
+		t.Fatalf("dotExp.Key is not a DotExpression, got %T", dotExp.Key)
+	}
+
+	if !testIdentifier(t, dotExp.Receiver, "father") {
 		return
 	}
 
