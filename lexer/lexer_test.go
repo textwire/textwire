@@ -227,16 +227,6 @@ func TestTernary(t *testing.T) {
 	})
 }
 
-func TestIllegalToken(t *testing.T) {
-	inp := `{{ 4 }`
-
-	TokenizeString(t, inp, []token.Token{
-		{Type: token.LBRACES, Literal: "{{"},
-		{Type: token.INT, Literal: "4"},
-		{Type: token.ILLEGAL, Literal: "}"},
-	})
-}
-
 func TestVariableDeclaration(t *testing.T) {
 	inp := `{{ a = 1 }}`
 
@@ -398,6 +388,25 @@ func TestForLoopStatement(t *testing.T) {
 		{Type: token.IDENT, Literal: "i"},
 		{Type: token.INC, Literal: "++"},
 		{Type: token.RPAREN, Literal: ")"},
+		{Type: token.EOF, Literal: ""},
+	})
+}
+
+func TestObjectStatement(t *testing.T) {
+	inp := `{{ {"father": {"name": "John"}} }}`
+
+	TokenizeString(t, inp, []token.Token{
+		{Type: token.LBRACES, Literal: "{{"},
+		{Type: token.LBRACE, Literal: "{"},
+		{Type: token.STR, Literal: "father"},
+		{Type: token.COLON, Literal: ":"},
+		{Type: token.LBRACE, Literal: "{"},
+		{Type: token.STR, Literal: "name"},
+		{Type: token.COLON, Literal: ":"},
+		{Type: token.STR, Literal: "John"},
+		{Type: token.RBRACE, Literal: "}"},
+		{Type: token.RBRACE, Literal: "}"},
+		{Type: token.RBRACES, Literal: "}}"},
 		{Type: token.EOF, Literal: ""},
 	})
 }

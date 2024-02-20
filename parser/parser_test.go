@@ -560,10 +560,6 @@ func TestErrorHandling(t *testing.T) {
 			fail.New(1, "", "parser", fail.ErrNoPrefixParseFunc,
 				token.String(token.RPAREN)),
 		},
-		{
-			"{{ 5 }",
-			fail.New(1, "", "parser", fail.ErrIllegalToken, "}"),
-		},
 	}
 
 	for _, tt := range tests {
@@ -943,7 +939,7 @@ func TestParseArray(t *testing.T) {
 }
 
 func TestParseIndexExpression(t *testing.T) {
-	inp := `{{ arr[1 + 2] }}`
+	inp := `{{ arr[1 + 2][2] }}`
 
 	stmts := parseStatements(t, inp, 1, nil)
 	stmt, ok := stmts[0].(*ast.ExpressionStatement)
@@ -958,15 +954,7 @@ func TestParseIndexExpression(t *testing.T) {
 		t.Fatalf("stmt.Expression is not a IndexExpression, got %T", stmt.Expression)
 	}
 
-	if !testIdentifier(t, indexExp.Left, "arr") {
-		return
-	}
-
-	if !testInfixExpression(t, indexExp.Index, 1, "+", 2) {
-		return
-	}
-
-	if indexExp.String() != "(arr[(1 + 2)])" {
+	if indexExp.String() != "((arr[(1 + 2)])[2])" {
 		t.Errorf("indexExp.String() is not '(arr[(1 + 2)])', got %s", indexExp.String())
 	}
 }
@@ -1183,5 +1171,69 @@ func TestParseEachStatement(t *testing.T) {
 
 	if stmt.Block.String() != `{{ name }}` {
 		t.Errorf("stmt.Block.String() is not '{{ name }}', got %s", stmt.Block.String())
+	}
+}
+
+func TestParseObjectStatement(t *testing.T) {
+	inp := `{{ {"father": {"name": "John"}} }}`
+
+	stmts := parseStatements(t, inp, 1, nil)
+	stmt, ok := stmts[0].(*ast.ExpressionStatement)
+
+	if !ok {
+		t.Fatalf("stmts[0] is not a ExpressionStatement, got %T", stmts[0])
+	}
+
+	obj, ok := stmt.Expression.(*ast.ObjectLiteral)
+
+	if !ok {
+		t.Fatalf("stmts[0] is not a ExpressionStatement, got %T", stmts[0])
+	}
+
+	if len(obj.Pairs) != 1 {
+		t.Fatalf("len(obj.Pairs) is not 1, got %d", len(obj.Pairs))
+	}
+
+	if obj.String() != `{"father": {"name": "John"}}` {
+		t.Fatalf(`obj.String() is not '{"father": {"name": "John" }}', got %s`, obj.String())
+	}
+}
+
+func TestParseDotExpression(t *testing.T) {
+	inp := `{{ person.father.name }}`
+
+	stmts := parseStatements(t, inp, 1, nil)
+	stmt, ok := stmts[0].(*ast.ExpressionStatement)
+
+	if !ok {
+		t.Fatalf("stmts[0] is not a ExpressionStatement, got %T", stmts[0])
+	}
+
+	dotExp, ok := stmt.Expression.(*ast.DotExpression)
+
+	if !ok {
+		t.Fatalf("stmt.Expression is not a DotExpression, got %T", stmt.Expression)
+	}
+
+	if dotExp.String() != "((person.father).name)" {
+		t.Fatalf("dotExp.String() is not '((person.father).name)', got %s", dotExp.String())
+	}
+
+	if !testIdentifier(t, dotExp.Key, "name") {
+		return
+	}
+
+	dotExp, ok = dotExp.Left.(*ast.DotExpression)
+
+	if !ok {
+		t.Fatalf("dotExp.Left is not a DotExpression, got %T", dotExp.Left)
+	}
+
+	if !testIdentifier(t, dotExp.Key, "father") {
+		return
+	}
+
+	if !testIdentifier(t, dotExp.Left, "person") {
+		return
 	}
 }

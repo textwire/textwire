@@ -54,6 +54,8 @@ func (e *Evaluator) Eval(node ast.Node, env *object.Env) object.Object {
 		return e.evalIdentifier(node, env)
 	case *ast.IndexExpression:
 		return e.evalIndexExpression(node, env)
+	case *ast.DotExpression:
+		return e.evalDotExpression(node, env)
 	case *ast.IntegerLiteral:
 		return &object.Int{Value: node.Value}
 	case *ast.FloatLiteral:
@@ -62,6 +64,8 @@ func (e *Evaluator) Eval(node ast.Node, env *object.Env) object.Object {
 		return &object.Str{Value: html.EscapeString(node.Value)}
 	case *ast.BooleanLiteral:
 		return nativeBoolToBooleanObject(node.Value)
+	case *ast.ObjectLiteral:
+		return e.evalObjectLiteral(node, env)
 	case *ast.ArrayLiteral:
 		return e.evalArrayLiteral(node, env)
 	case *ast.PrefixExpression:
@@ -347,6 +351,8 @@ func (e *Evaluator) evalIndexExpression(
 	switch {
 	case left.Is(object.ARR_OBJ) && idx.Is(object.INT_OBJ):
 		return e.evalArrayIndexExpression(left, idx)
+	case left.Is(object.OBJ_OBJ) && idx.Is(object.STR_OBJ):
+		return e.evalObjectIndexExpression(left.(*object.Obj), idx.(*object.Str).Value)
 	}
 
 	return e.newError(node, fail.ErrIndexNotSupported, left.Type())
@@ -367,10 +373,30 @@ func (e *Evaluator) evalArrayIndexExpression(
 	return arrObj.Elements[index]
 }
 
-func (e *Evaluator) evalPrefixExpression(
-	node *ast.PrefixExpression,
-	env *object.Env,
-) object.Object {
+func (e *Evaluator) evalObjectIndexExpression(obj object.Object, idx string) object.Object {
+	objObj := obj.(*object.Obj)
+	pair, ok := objObj.Pairs[idx]
+
+	if !ok {
+		return NIL
+	}
+
+	return pair
+}
+
+func (e *Evaluator) evalDotExpression(node *ast.DotExpression, env *object.Env) object.Object {
+	left := e.Eval(node.Left, env)
+
+	if isError(left) {
+		return left
+	}
+
+	key := node.Key.(*ast.Identifier)
+
+	return e.evalObjectIndexExpression(left.(*object.Obj), key.Value)
+}
+
+func (e *Evaluator) evalPrefixExpression(node *ast.PrefixExpression, env *object.Env) object.Object {
 	right := e.Eval(node.Right, env)
 
 	if isError(right) {
@@ -416,6 +442,22 @@ func (e *Evaluator) evalArrayLiteral(
 	}
 
 	return &object.Array{Elements: elems}
+}
+
+func (e *Evaluator) evalObjectLiteral(node *ast.ObjectLiteral, env *object.Env) object.Object {
+	pairs := make(map[string]object.Object)
+
+	for key, value := range node.Pairs {
+		valueObj := e.Eval(value, env)
+
+		if isError(valueObj) {
+			return valueObj
+		}
+
+		pairs[key] = valueObj
+	}
+
+	return &object.Obj{Pairs: pairs}
 }
 
 func (e *Evaluator) evalExpressions(

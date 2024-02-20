@@ -25,7 +25,7 @@ const (
 	PRODUCT      // *
 	PREFIX       // -X or !X
 	CALL         // myFunction(X)
-	INDEX        // array[index]
+	INDEX        // array[index] or obj.key
 	POSTFIX      // X++ or X--
 )
 
@@ -37,13 +37,13 @@ var precedences = map[token.TokenType]int{
 	token.GTHAN:    LESS_GREATER,
 	token.LTHAN_EQ: LESS_GREATER,
 	token.GTHAN_EQ: LESS_GREATER,
-	token.DOT:      SUM,
 	token.ADD:      SUM,
 	token.SUB:      SUM,
 	token.DIV:      PRODUCT,
 	token.MOD:      PRODUCT,
 	token.MUL:      PRODUCT,
 	token.LPAREN:   CALL,
+	token.DOT:      INDEX,
 	token.LBRACKET: INDEX,
 	token.INC:      POSTFIX,
 	token.DEC:      POSTFIX,
@@ -84,6 +84,7 @@ func New(lexer *lexer.Lexer, filepath string) *Parser {
 	p.registerPrefix(token.NOT, p.parsePrefixExpression)
 	p.registerPrefix(token.LPAREN, p.parseGroupedExpression)
 	p.registerPrefix(token.LBRACKET, p.parseArrayLiteral)
+	p.registerPrefix(token.LBRACE, p.parseObjectLiteral)
 
 	// Infix operators
 	p.infixParseFns = make(map[token.TokenType]infixParseFn)
@@ -104,7 +105,7 @@ func New(lexer *lexer.Lexer, filepath string) *Parser {
 	p.registerInfix(token.LBRACKET, p.parseIndexExpression)
 	p.registerInfix(token.INC, p.parsePostfixExpression)
 	p.registerInfix(token.DEC, p.parsePostfixExpression)
-	p.registerInfix(token.DOT, p.parseCallExpression)
+	p.registerInfix(token.DOT, p.parseDotExpression)
 
 	return p
 }
@@ -263,7 +264,7 @@ func (p *Parser) parseIntegerLiteral() ast.Expression {
 }
 
 func (p *Parser) parseFloatLiteral() ast.Expression {
-	val, err := strconv.ParseFloat(p.curToken.Literal, 10)
+	val, err := strconv.ParseFloat(p.curToken.Literal, 64)
 
 	if err != nil {
 		p.newError(
@@ -303,6 +304,41 @@ func (p *Parser) parseArrayLiteral() ast.Expression {
 	arr := &ast.ArrayLiteral{Token: p.curToken} // "["
 	arr.Elements = p.parseExpressionList(token.RBRACKET)
 	return arr
+}
+
+func (p *Parser) parseObjectLiteral() ast.Expression {
+	obj := &ast.ObjectLiteral{Token: p.curToken} // "{"
+
+	obj.Pairs = make(map[string]ast.Expression)
+
+	p.nextToken() // skip "{"
+
+	if p.curTokenIs(token.RBRACE) {
+		return obj
+	}
+
+	for !p.peekTokenIs(token.RBRACE) {
+		key := p.curToken.Literal
+
+		if !p.expectPeek(token.COLON) { // move to ":"
+			return nil
+		}
+
+		p.nextToken() // skip ":"
+
+		obj.Pairs[key] = p.parseExpression(LOWEST)
+
+		if p.peekTokenIs(token.COMMA) {
+			p.nextToken() // skip value
+			p.nextToken() // skip ","
+		}
+	}
+
+	if !p.expectPeek(token.RBRACE) { // move to "}"
+		return nil
+	}
+
+	return obj
 }
 
 func (p *Parser) parseHTMLStatement() *ast.HTMLStatement {
@@ -433,11 +469,26 @@ func (p *Parser) parsePostfixExpression(left ast.Expression) ast.Expression {
 	}
 }
 
-func (p *Parser) parseCallExpression(receiver ast.Expression) ast.Expression {
+func (p *Parser) parseDotExpression(left ast.Expression) ast.Expression {
+	exp := &ast.DotExpression{
+		Token: p.curToken, // "."
+		Left:  left,
+	}
+
 	if !p.expectPeek(token.IDENT) { // skip "." and move to identifier
 		return nil
 	}
 
+	if p.peekTokenIs(token.LPAREN) {
+		return p.parseCallExpression(left)
+	}
+
+	exp.Key = p.parseIdentifier()
+
+	return exp
+}
+
+func (p *Parser) parseCallExpression(receiver ast.Expression) ast.Expression {
 	ident, ok := p.parseIdentifier().(*ast.Identifier)
 
 	if !ok {
@@ -498,29 +549,6 @@ func (p *Parser) parseTernaryExpression(left ast.Expression) ast.Expression {
 	exp.Alternative = p.parseExpression(LOWEST)
 
 	return exp
-}
-
-func (p *Parser) parseVarStatement() ast.Statement {
-	stmt := &ast.AssignStatement{Token: p.curToken} // "var"
-
-	if !p.expectPeek(token.IDENT) { // move to identifier
-		return nil
-	}
-
-	stmt.Name = &ast.Identifier{
-		Token: p.curToken, // identifier
-		Value: p.curToken.Literal,
-	}
-
-	if !p.expectPeek(token.ASSIGN) { // move to "="
-		return nil
-	}
-
-	p.nextToken() // skip "="
-
-	stmt.Value = p.parseExpression(LOWEST)
-
-	return stmt
 }
 
 func (p *Parser) parseIfStatement() *ast.IfStatement {

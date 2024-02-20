@@ -31,6 +31,8 @@ var tokens = [...]string{
 
 	LBRACES:  "{{",
 	RBRACES:  "}}",
+	LBRACE:   "{",
+	RBRACE:   "}",
 	LPAREN:   "(",
 	RPAREN:   ")",
 	LBRACKET: "[",
