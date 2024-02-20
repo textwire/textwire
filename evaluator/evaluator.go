@@ -424,7 +424,10 @@ func (e *Evaluator) evalObjectLiteral(node *ast.ObjectLiteral, env *object.Env) 
 	return &object.Obj{Pairs: pairs}
 }
 
-func (e *Evaluator) evalExpressions(exps []ast.Expression, env *object.Env) []object.Object {
+func (e *Evaluator) evalExpressions(
+	exps []ast.Expression,
+	env *object.Env,
+) []object.Object {
 	var result []object.Object
 
 	for _, expr := range exps {
