@@ -35,10 +35,10 @@ func TestEvaluateString(t *testing.T) {
 	}{
 		{"{{ 1 + 2 }}", "3", nil},
 		{"{{ n1 * n2 }}", "2", map[string]interface{}{"n1": 1, "n2": 2}},
-		{"{{ user.name.first }}", "Ann", map[string]interface{}{"user": struct {
-			Name struct{ First string }
+		{"{{ user.name.firstName }}", "Ann", map[string]interface{}{"user": struct {
+			Name struct{ FirstName string }
 			Age  int
-		}{Name: struct{ First string }{"Ann"}, Age: 20}}},
+		}{Name: struct{ FirstName string }{"Ann"}, Age: 20}}},
 	}
 
 	for _, tt := range tests {
