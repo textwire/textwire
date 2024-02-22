@@ -1,5 +1,9 @@
 package object
 
+import (
+	"reflect"
+)
+
 func nativeToObject(val interface{}) Object {
 	switch v := val.(type) {
 	case string:
@@ -36,7 +40,33 @@ func nativeToObject(val interface{}) Object {
 		return nativeSliceToArrayObject(v)
 	}
 
+	valType := reflect.TypeOf(val)
+
+	if valType.Kind() == reflect.Struct {
+		return nativeStructToObject(val)
+	}
+
 	return nil
+}
+
+func nativeStructToObject(val interface{}) Object {
+	obj := &Obj{Pairs: make(map[string]Object)}
+
+	valType := reflect.TypeOf(val)
+
+	for i := 0; i < valType.NumField(); i++ {
+		field := valType.Field(i)
+
+		if !field.IsExported() {
+			continue
+		}
+
+		fieldVal := reflect.ValueOf(val).Field(i).Interface()
+
+		obj.Pairs[field.Name] = nativeToObject(fieldVal)
+	}
+
+	return obj
 }
 
 func nativeSliceToArrayObject(slice interface{}) *Array {

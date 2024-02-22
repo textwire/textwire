@@ -2,6 +2,17 @@ package object
 
 import "testing"
 
+type name struct {
+	First string
+	Last  string
+}
+
+type admin struct {
+	Name  name
+	Age   int
+	email string // unexported field should be ignored
+}
+
 func TestEnvFromMap(t *testing.T) {
 	var float32val float32 = 5.731
 
@@ -36,6 +47,11 @@ func TestEnvFromMap(t *testing.T) {
 		"statuses": []bool{false, true},
 		"rates64":  []float64{23.4, 56.7, 89.0},
 		"rates32":  []float32{float32val, float32val, float32val},
+		"user": struct {
+			Name string
+			Age  int
+		}{"John", 23},
+		"admin": admin{name{First: "Ann", Last: "Cho"}, 24, "test@mail.com"},
 	}
 
 	expect := map[string]Object{
@@ -69,6 +85,17 @@ func TestEnvFromMap(t *testing.T) {
 		"statuses": &Array{Elements: []Object{&Bool{Value: false}, &Bool{Value: true}}},
 		"rates64":  &Array{Elements: []Object{&Float{Value: 23.4}, &Float{Value: 56.7}, &Float{Value: 89.0}}},
 		"rates32":  &Array{Elements: []Object{&Float{Value: float64(float32val)}, &Float{Value: float64(float32val)}, &Float{Value: float64(float32val)}}},
+		"user": &Obj{Pairs: map[string]Object{
+			"Name": &Str{Value: "John"},
+			"Age":  &Int{Value: 23},
+		}},
+		"admin": &Obj{Pairs: map[string]Object{
+			"Name": &Obj{Pairs: map[string]Object{
+				"first": &Str{Value: "Ann"},
+				"last":  &Str{Value: "Cho"},
+			}},
+			"Age": &Int{Value: 24},
+		}},
 	}
 
 	env, err := EnvFromMap(data)

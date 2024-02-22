@@ -3,6 +3,7 @@ package evaluator
 import (
 	"bytes"
 	"html"
+	"strings"
 
 	"github.com/textwire/textwire/ast"
 	"github.com/textwire/textwire/fail"
@@ -377,7 +378,14 @@ func (e *Evaluator) evalObjectIndexExpression(obj object.Object, idx string) obj
 	objObj := obj.(*object.Obj)
 	pair, ok := objObj.Pairs[idx]
 
-	if !ok {
+	if ok {
+		return pair
+	}
+
+	// make first letter lowercase on idx
+	idx = strings.ToUpper(idx[:1]) + idx[1:]
+
+	if pair, ok = objObj.Pairs[idx]; !ok {
 		return NIL
 	}
 
