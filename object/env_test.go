@@ -46,6 +46,7 @@ func TestEnvFromMap(t *testing.T) {
 		"names":    []string{"John", "Jane"},
 		"statuses": []bool{false, true},
 		"rates64":  []float64{23.4, 56.7, 89.0},
+		"values":   []interface{}{23.4, 56.7, 89.0},
 		"rates32":  []float32{float32val, float32val, float32val},
 		"user": struct {
 			Name string
@@ -55,6 +56,13 @@ func TestEnvFromMap(t *testing.T) {
 		"users": []admin{
 			{name{"John", "Doe"}, 23, "test@mail.com"},
 			{name{"Jane", "Doe"}, 24, "some@mail.com"},
+		},
+		"people": map[string]string{
+			"John": "Doe",
+			"Jane": "Doe",
+		},
+		"crowd": []map[string]string{
+			{"John": "Doe"},
 		},
 	}
 
@@ -88,6 +96,7 @@ func TestEnvFromMap(t *testing.T) {
 		"names":    &Array{Elements: []Object{&Str{Value: "John"}, &Str{Value: "Jane"}}},
 		"statuses": &Array{Elements: []Object{&Bool{Value: false}, &Bool{Value: true}}},
 		"rates64":  &Array{Elements: []Object{&Float{Value: 23.4}, &Float{Value: 56.7}, &Float{Value: 89.0}}},
+		"values":   &Array{Elements: []Object{&Float{Value: 23.4}, &Float{Value: 56.7}, &Float{Value: 89.0}}},
 		"rates32":  &Array{Elements: []Object{&Float{Value: float64(float32val)}, &Float{Value: float64(float32val)}, &Float{Value: float64(float32val)}}},
 		"user": &Obj{Pairs: map[string]Object{
 			"Name": &Str{Value: "John"},
@@ -114,6 +123,15 @@ func TestEnvFromMap(t *testing.T) {
 					"last":  &Str{Value: "Doe"},
 				}},
 				"Age": &Int{Value: 24},
+			}},
+		}},
+		"people": &Obj{Pairs: map[string]Object{
+			"John": &Str{Value: "Doe"},
+			"Jane": &Str{Value: "Doe"},
+		}},
+		"crowd": &Array{Elements: []Object{
+			&Obj{Pairs: map[string]Object{
+				"John": &Str{Value: "Doe"},
 			}},
 		}},
 	}

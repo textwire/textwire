@@ -45,9 +45,23 @@ func nativeToObject(val interface{}) Object {
 		return nativeStructToObject(val)
 	case reflect.Slice:
 		return nativeSliceToArrayObject(convertToInterfaceSlice(val))
+	case reflect.Map:
+		return nativeMapToObject(val)
 	}
 
 	return nil
+}
+
+func nativeMapToObject(val interface{}) Object {
+	obj := &Obj{Pairs: make(map[string]Object)}
+
+	valValue := reflect.ValueOf(val)
+
+	for _, key := range valValue.MapKeys() {
+		obj.Pairs[key.String()] = nativeToObject(valValue.MapIndex(key).Interface())
+	}
+
+	return obj
 }
 
 func convertToInterfaceSlice(slice interface{}) []interface{} {
