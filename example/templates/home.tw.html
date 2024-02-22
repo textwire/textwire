@@ -6,7 +6,7 @@
     <h2>{{ title }}</h2>
     <h3>Email is serhii@mail.com</h3>
 
-    <p>Here are names:</p>
+    <h3>Here are names:</h3>
 
     @if(showNames)
         <ul>
@@ -16,4 +16,12 @@
             <li>{{ names[3] }}</li>
         </ul>
     @end
+
+    <h3>Here are names:</h3>
+
+    <ul>
+        @each(book in books)
+            <li>{{ book.title }} by {{ book.author.name }}</li>
+        @end
+    </ul>
 @end

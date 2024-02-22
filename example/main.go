@@ -29,11 +29,28 @@ func main() {
 	log.Fatalln(http.ListenAndServe(":8080", nil))
 }
 
+type Author struct {
+	Name string
+}
+
+type Book struct {
+	Title  string
+	Author Author
+	price  float64
+}
+
 func homeHandler(w http.ResponseWriter, r *http.Request) {
+	books := []Book{
+		{Title: "The Catcher in the Rye", Author: Author{Name: "J.D. Salinger"}, price: 10.99},
+		{Title: "To Kill a Mockingbird", Author: Author{Name: "Harper Lee"}, price: 12.99},
+		{Title: "1984", Author: Author{Name: "George Orwell"}, price: 9.99},
+	}
+
 	err := tpl.Response(w, "home", map[string]interface{}{
 		"title":     "Home page",
 		"names":     []string{"John", "Jane", "Jack", "Jill"},
 		"showNames": true,
+		"books":     books,
 	})
 
 	if err != nil {
