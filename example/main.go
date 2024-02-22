@@ -34,16 +34,27 @@ type Author struct {
 }
 
 type Book struct {
-	Title  string
-	Author Author
-	price  float64
+	Title   string
+	Authors []Author
+	price   float64
 }
 
 func homeHandler(w http.ResponseWriter, r *http.Request) {
 	books := []Book{
-		{Title: "The Catcher in the Rye", Author: Author{Name: "J.D. Salinger"}, price: 10.99},
-		{Title: "To Kill a Mockingbird", Author: Author{Name: "Harper Lee"}, price: 12.99},
-		{Title: "1984", Author: Author{Name: "George Orwell"}, price: 9.99},
+		{
+			Title: "Harry Potter and the Sorcerer's Stone",
+			Authors: []Author{
+				{Name: "J.K. Rowling"},
+			},
+			price: 12.99,
+		},
+		{
+			Title: "The Lord of the Rings",
+			Authors: []Author{
+				{Name: "J.R.R. Tolkien"},
+			},
+			price: 24.99,
+		},
 	}
 
 	err := tpl.Response(w, "home", map[string]interface{}{
