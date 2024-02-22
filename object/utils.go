@@ -36,17 +36,34 @@ func nativeToObject(val interface{}) Object {
 		return &Int{Value: int64(v)}
 	case nil:
 		return &Nil{}
-	case []string, []int64, []int, []int8, []int16, []int32, []uint, []uint8, []uint16, []uint32, []uint64, []float32, []float64, []bool:
-		return nativeSliceToArrayObject(v)
 	}
 
 	valType := reflect.TypeOf(val)
 
-	if valType.Kind() == reflect.Struct {
+	switch valType.Kind() {
+	case reflect.Struct:
 		return nativeStructToObject(val)
+	case reflect.Slice:
+		return nativeSliceToArrayObject(convertToInterfaceSlice(val))
 	}
 
 	return nil
+}
+
+func convertToInterfaceSlice(slice interface{}) []interface{} {
+	s := reflect.ValueOf(slice)
+
+	if s.Kind() != reflect.Slice {
+		panic("InterfaceSlice() given a non-slice type")
+	}
+
+	ret := make([]interface{}, s.Len())
+
+	for i := 0; i < s.Len(); i++ {
+		ret[i] = s.Index(i).Interface()
+	}
+
+	return ret
 }
 
 func nativeStructToObject(val interface{}) Object {
@@ -69,66 +86,11 @@ func nativeStructToObject(val interface{}) Object {
 	return obj
 }
 
-func nativeSliceToArrayObject(slice interface{}) *Array {
+func nativeSliceToArrayObject(slice []interface{}) *Array {
 	arr := &Array{}
 
-	switch v := slice.(type) {
-	case []string:
-		for _, val := range v {
-			arr.Elements = append(arr.Elements, nativeToObject(val))
-		}
-	case []bool:
-		for _, val := range v {
-			arr.Elements = append(arr.Elements, nativeToObject(val))
-		}
-	case []float32:
-		for _, val := range v {
-			arr.Elements = append(arr.Elements, nativeToObject(val))
-		}
-	case []float64:
-		for _, val := range v {
-			arr.Elements = append(arr.Elements, nativeToObject(val))
-		}
-	case []int64:
-		for _, val := range v {
-			arr.Elements = append(arr.Elements, nativeToObject(val))
-		}
-	case []int32:
-		for _, val := range v {
-			arr.Elements = append(arr.Elements, nativeToObject(val))
-		}
-	case []int16:
-		for _, val := range v {
-			arr.Elements = append(arr.Elements, nativeToObject(val))
-		}
-	case []int8:
-		for _, val := range v {
-			arr.Elements = append(arr.Elements, nativeToObject(val))
-		}
-	case []int:
-		for _, val := range v {
-			arr.Elements = append(arr.Elements, nativeToObject(val))
-		}
-	case []uint64:
-		for _, val := range v {
-			arr.Elements = append(arr.Elements, nativeToObject(val))
-		}
-	case []uint32:
-		for _, val := range v {
-			arr.Elements = append(arr.Elements, nativeToObject(val))
-		}
-	case []uint16:
-		for _, val := range v {
-			arr.Elements = append(arr.Elements, nativeToObject(val))
-		}
-	case []uint8:
-		for _, val := range v {
-			arr.Elements = append(arr.Elements, nativeToObject(val))
-		}
-	case []uint:
-		for _, val := range v {
-			arr.Elements = append(arr.Elements, nativeToObject(val))
-		}
+	for _, val := range slice {
+		arr.Elements = append(arr.Elements, nativeToObject(val))
 	}
 
 	return arr
