@@ -52,6 +52,10 @@ func TestEnvFromMap(t *testing.T) {
 			Age  int
 		}{"John", 23},
 		"admin": admin{name{First: "Ann", Last: "Cho"}, 24, "test@mail.com"},
+		"users": []admin{
+			{name{"John", "Doe"}, 23, "test@mail.com"},
+			{name{"Jane", "Doe"}, 24, "some@mail.com"},
+		},
 	}
 
 	expect := map[string]Object{
@@ -95,6 +99,22 @@ func TestEnvFromMap(t *testing.T) {
 				"last":  &Str{Value: "Cho"},
 			}},
 			"Age": &Int{Value: 24},
+		}},
+		"users": &Array{Elements: []Object{
+			&Obj{Pairs: map[string]Object{
+				"Name": &Obj{Pairs: map[string]Object{
+					"first": &Str{Value: "John"},
+					"last":  &Str{Value: "Doe"},
+				}},
+				"Age": &Int{Value: 23},
+			}},
+			&Obj{Pairs: map[string]Object{
+				"Name": &Obj{Pairs: map[string]Object{
+					"first": &Str{Value: "Jane"},
+					"last":  &Str{Value: "Doe"},
+				}},
+				"Age": &Int{Value: 24},
+			}},
 		}},
 	}
 
