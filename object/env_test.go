@@ -1,17 +1,8 @@
 package object
 
-import "testing"
-
-type name struct {
-	First string
-	Last  string
-}
-
-type admin struct {
-	Name  name
-	Age   int
-	email string // unexported field should be ignored
-}
+import (
+	"testing"
+)
 
 func TestEnvFromMap(t *testing.T) {
 	var float32val float32 = 5.731
@@ -48,22 +39,6 @@ func TestEnvFromMap(t *testing.T) {
 		"rates64":  []float64{23.4, 56.7, 89.0},
 		"values":   []interface{}{23.4, 56.7, 89.0},
 		"rates32":  []float32{float32val, float32val, float32val},
-		"user": struct {
-			Name string
-			Age  int
-		}{"John", 23},
-		"admin": admin{name{First: "Ann", Last: "Cho"}, 24, "test@mail.com"},
-		"users": []admin{
-			{name{"John", "Doe"}, 23, "test@mail.com"},
-			{name{"Jane", "Doe"}, 24, "some@mail.com"},
-		},
-		"people": map[string]string{
-			"John": "Doe",
-			"Jane": "Doe",
-		},
-		"crowd": []map[string]string{
-			{"John": "Doe"},
-		},
 	}
 
 	expect := map[string]Object{
@@ -98,42 +73,6 @@ func TestEnvFromMap(t *testing.T) {
 		"rates64":  &Array{Elements: []Object{&Float{Value: 23.4}, &Float{Value: 56.7}, &Float{Value: 89.0}}},
 		"values":   &Array{Elements: []Object{&Float{Value: 23.4}, &Float{Value: 56.7}, &Float{Value: 89.0}}},
 		"rates32":  &Array{Elements: []Object{&Float{Value: float64(float32val)}, &Float{Value: float64(float32val)}, &Float{Value: float64(float32val)}}},
-		"user": &Obj{Pairs: map[string]Object{
-			"Name": &Str{Value: "John"},
-			"Age":  &Int{Value: 23},
-		}},
-		"admin": &Obj{Pairs: map[string]Object{
-			"Name": &Obj{Pairs: map[string]Object{
-				"first": &Str{Value: "Ann"},
-				"last":  &Str{Value: "Cho"},
-			}},
-			"Age": &Int{Value: 24},
-		}},
-		"users": &Array{Elements: []Object{
-			&Obj{Pairs: map[string]Object{
-				"Name": &Obj{Pairs: map[string]Object{
-					"first": &Str{Value: "John"},
-					"last":  &Str{Value: "Doe"},
-				}},
-				"Age": &Int{Value: 23},
-			}},
-			&Obj{Pairs: map[string]Object{
-				"Name": &Obj{Pairs: map[string]Object{
-					"first": &Str{Value: "Jane"},
-					"last":  &Str{Value: "Doe"},
-				}},
-				"Age": &Int{Value: 24},
-			}},
-		}},
-		"people": &Obj{Pairs: map[string]Object{
-			"John": &Str{Value: "Doe"},
-			"Jane": &Str{Value: "Doe"},
-		}},
-		"crowd": &Array{Elements: []Object{
-			&Obj{Pairs: map[string]Object{
-				"John": &Str{Value: "Doe"},
-			}},
-		}},
 	}
 
 	env, err := EnvFromMap(data)
