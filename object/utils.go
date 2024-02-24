@@ -47,6 +47,9 @@ func nativeToObject(val interface{}) Object {
 		return nativeSliceToArrayObject(convertToInterfaceSlice(val))
 	case reflect.Map:
 		return nativeMapToObject(val)
+	case reflect.Pointer:
+		// use nativeToObject recursively to handle pointers
+		return nativeToObject(reflect.ValueOf(val).Elem().Interface())
 	}
 
 	return nil
