@@ -29,31 +29,40 @@ func main() {
 	log.Fatalln(http.ListenAndServe(":8080", nil))
 }
 
-type Author struct {
-	Name string
+type Book struct {
+	ID     int     `json:"id,omitempty"`
+	Isbn   string  `json:"isbn,omitempty"`
+	Title  string  `json:"title,omitempty"`
+	Author *Author `json:"author,omitempty"`
 }
 
-type Book struct {
-	Title   string
-	Authors []Author
-	price   float64
+type Author struct {
+	ID        int    `json:"id,omitempty"`
+	FirstName string `json:"first_name,omitempty"`
+	LastName  string `json:"last_name,omitempty"`
 }
 
 func homeHandler(w http.ResponseWriter, r *http.Request) {
 	books := []Book{
 		{
-			Title: "Harry Potter and the Sorcerer's Stone",
-			Authors: []Author{
-				{Name: "J.K. Rowling"},
+			ID:    1,
+			Isbn:  "978-3-16-148410-0",
+			Title: "The Go Programming Language",
+			Author: &Author{
+				ID:        1,
+				FirstName: "Alan",
+				LastName:  "Donovan",
 			},
-			price: 12.99,
 		},
 		{
-			Title: "The Lord of the Rings",
-			Authors: []Author{
-				{Name: "J.R.R. Tolkien"},
+			ID:    2,
+			Isbn:  "978-3-16-148410-1",
+			Title: "The Rust Programming Language",
+			Author: &Author{
+				ID:        2,
+				FirstName: "Steve",
+				LastName:  "Klabnik",
 			},
-			price: 24.99,
 		},
 	}
 
