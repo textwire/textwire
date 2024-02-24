@@ -19,9 +19,13 @@
 
     <h3>Books:</h3>
 
-    <ul>
+    <div>
         @each(book in books)
-            <li>{{ book.title }} by (@each(author in book.authors){{ author.name }} @end)</li>
+            <div>
+                <h4>Title: {{ book.title }}</h4>
+                <p>ISBN: {{ book.isbn }}</p>
+                <p>Author: {{ book.author.firstName }}</p>
+            </div>
         @end
-    </ul>
+    </div>
 @end
