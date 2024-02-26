@@ -318,6 +318,11 @@ func TestEvalForStatement(t *testing.T) {
 		{`@each(name in ["anna", "serhii"]){{ name }} @end`, "anna serhii "},
 		{`@each(num in [1, 2, 3]){{ num }}@end`, "123"},
 		{`@each(num in []){{ num }}@end`, ""},
+		// test loop variable
+		{`@each(num in [43, 12, 53]){{ loop.index }}@end`, "012"},
+		{`@each(num in [100]){{ loop.index }}@end`, "0"},
+		{`@each(num in [1, 2, 3, 4]){{ loop.first }}@end`, "1000"},
+		{`@each(num in [1, 2, 3, 4]){{ loop.last }}@end`, "0001"},
 	}
 
 	for _, tt := range tests {

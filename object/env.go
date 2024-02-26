@@ -71,6 +71,10 @@ func (e *Env) Set(key string, val Object) error {
 	return nil
 }
 
+func (e *Env) SetLoopVar(pairs map[string]Object) {
+	e.store["loop"] = &Obj{Pairs: pairs}
+}
+
 func (e *Env) isTypeMismatch(key string, val Object) (Object, bool) {
 	oldVar, ok := e.Get(key)
 	return oldVar, (ok && oldVar != nil && oldVar.Type() != val.Type())

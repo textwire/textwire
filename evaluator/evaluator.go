@@ -302,13 +302,20 @@ func (e *Evaluator) evalEachStatement(
 	arrObj := e.Eval(node.Array, newEnv)
 
 	elems := arrObj.(*object.Array).Elements
+	elemsLen := len(elems)
 
-	for _, elem := range elems {
+	for i, elem := range elems {
 		err := newEnv.Set(varName, elem)
 
 		if err != nil {
 			return e.newError(node, err.Error())
 		}
+
+		newEnv.SetLoopVar(map[string]object.Object{
+			"index": &object.Int{Value: int64(i)},
+			"first": nativeBoolToBooleanObject(i == 0),
+			"last":  nativeBoolToBooleanObject(i == elemsLen-1),
+		})
 
 		block := e.Eval(node.Block, newEnv)
 
