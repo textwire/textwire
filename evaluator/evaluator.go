@@ -302,13 +302,21 @@ func (e *Evaluator) evalEachStatement(
 	arrObj := e.Eval(node.Array, newEnv)
 
 	elems := arrObj.(*object.Array).Elements
+	elemsLen := len(elems)
 
-	for _, elem := range elems {
+	for i, elem := range elems {
 		err := newEnv.Set(varName, elem)
 
 		if err != nil {
 			return e.newError(node, err.Error())
 		}
+
+		newEnv.SetLoopVar(map[string]object.Object{
+			"index": &object.Int{Value: int64(i)},
+			"first": nativeBoolToBooleanObject(i == 0),
+			"last":  nativeBoolToBooleanObject(i == elemsLen-1),
+			"iter":  &object.Int{Value: int64(i + 1)},
+		})
 
 		block := e.Eval(node.Block, newEnv)
 
@@ -353,7 +361,7 @@ func (e *Evaluator) evalIndexExpression(
 	case left.Is(object.ARR_OBJ) && idx.Is(object.INT_OBJ):
 		return e.evalArrayIndexExpression(left, idx)
 	case left.Is(object.OBJ_OBJ) && idx.Is(object.STR_OBJ):
-		return e.evalObjectIndexExpression(left.(*object.Obj), idx.(*object.Str).Value)
+		return e.evalObjectIndexExpression(left.(*object.Obj), idx.(*object.Str).Value, node.Index)
 	}
 
 	return e.newError(node, fail.ErrIndexNotSupported, left.Type())
@@ -374,7 +382,11 @@ func (e *Evaluator) evalArrayIndexExpression(
 	return arrObj.Elements[index]
 }
 
-func (e *Evaluator) evalObjectIndexExpression(obj object.Object, idx string) object.Object {
+func (e *Evaluator) evalObjectIndexExpression(
+	obj object.Object,
+	idx string,
+	node ast.Node,
+) object.Object {
 	objObj := obj.(*object.Obj)
 	pair, ok := objObj.Pairs[idx]
 
@@ -383,10 +395,10 @@ func (e *Evaluator) evalObjectIndexExpression(obj object.Object, idx string) obj
 	}
 
 	// make first letter lowercase on idx
-	idx = strings.ToUpper(idx[:1]) + idx[1:]
+	idxUpper := strings.ToUpper(idx[:1]) + idx[1:]
 
-	if pair, ok = objObj.Pairs[idx]; !ok {
-		return NIL
+	if pair, ok = objObj.Pairs[idxUpper]; !ok {
+		return e.newError(node, fail.ErrPropertyNotFound, idx, object.OBJ_OBJ)
 	}
 
 	return pair
@@ -401,7 +413,7 @@ func (e *Evaluator) evalDotExpression(node *ast.DotExpression, env *object.Env) 
 
 	key := node.Key.(*ast.Identifier)
 
-	return e.evalObjectIndexExpression(left.(*object.Obj), key.Value)
+	return e.evalObjectIndexExpression(left.(*object.Obj), key.Value, node)
 }
 
 func (e *Evaluator) evalPrefixExpression(node *ast.PrefixExpression, env *object.Env) object.Object {

@@ -33,6 +33,7 @@ const (
 	ErrLoopVariableIsReserved  = "the 'loop' variable is reserved. You cannot use it as a variable name"
 	ErrVariableTypeMismatch    = "cannot assign variable '%s' of type '%s' to type '%s'"
 	ErrDotOperatorNotSupported = "the dot operator is not supported for type '%s'"
+	ErrPropertyNotFound        = "property '%s' not found in type '%s'"
 
 	// Template errors
 	ErrUnsupportedType   = "unsupported type '%T'"
