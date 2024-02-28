@@ -176,7 +176,7 @@ func (p *Parser) parseEmbeddedCode() ast.Statement {
 		return p.parseAssignStmt()
 	}
 
-	return p.parseExpressionStatement()
+	return p.parseExpressionStmt()
 }
 
 func (p *Parser) registerPrefix(tokenType token.TokenType, fn prefixParseFn) {
@@ -745,10 +745,10 @@ func (p *Parser) parseBlockStmt() *ast.BlockStmt {
 	return stmt
 }
 
-func (p *Parser) parseExpressionStatement() ast.Statement {
+func (p *Parser) parseExpressionStmt() ast.Statement {
 	exp := p.parseExpression(LOWEST)
 
-	result := &ast.ExpressionStatement{Token: p.curToken, Expression: exp}
+	result := &ast.ExpressionStmt{Token: p.curToken, Expression: exp}
 
 	if p.peekTokenIs(token.RBRACES) {
 		p.nextToken() // skip "}}"

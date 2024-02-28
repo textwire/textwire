@@ -31,7 +31,7 @@ func (e *Evaluator) Eval(node ast.Node, env *object.Env) object.Object {
 		return e.evalProgram(node, env)
 	case *ast.HTMLStatement:
 		return &object.HTML{Value: node.String()}
-	case *ast.ExpressionStatement:
+	case *ast.ExpressionStmt:
 		return e.Eval(node.Expression, env)
 	case *ast.IfStatement:
 		return e.evalIfStatement(node, env)

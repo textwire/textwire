@@ -255,10 +255,10 @@ func testAlternative(t *testing.T, alt *ast.BlockStmt, altValue string) bool {
 
 func TestParseIdentifier(t *testing.T) {
 	stmts := parseStatements(t, "{{ myName }}", 1, nil)
-	stmt, ok := stmts[0].(*ast.ExpressionStatement)
+	stmt, ok := stmts[0].(*ast.ExpressionStmt)
 
 	if !ok {
-		t.Fatalf("stmts[0] is not an ExpressionStatement, got %T", stmts[0])
+		t.Fatalf("stmts[0] is not an ExpressionStmt, got %T", stmts[0])
 	}
 
 	if !testIdentifier(t, stmt.Expression, "myName") {
@@ -268,10 +268,10 @@ func TestParseIdentifier(t *testing.T) {
 
 func TestParseIntegerLiteral(t *testing.T) {
 	stmts := parseStatements(t, "{{ 234 }}", 1, nil)
-	stmt, ok := stmts[0].(*ast.ExpressionStatement)
+	stmt, ok := stmts[0].(*ast.ExpressionStmt)
 
 	if !ok {
-		t.Fatalf("stmts[0] is not an ExpressionStatement, got %T", stmts[0])
+		t.Fatalf("stmts[0] is not an ExpressionStmt, got %T", stmts[0])
 	}
 
 	if !testIntegerLiteral(t, stmt.Expression, 234) {
@@ -281,10 +281,10 @@ func TestParseIntegerLiteral(t *testing.T) {
 
 func TestParseFloatLiteral(t *testing.T) {
 	stmts := parseStatements(t, "{{ 2.34149 }}", 1, nil)
-	stmt, ok := stmts[0].(*ast.ExpressionStatement)
+	stmt, ok := stmts[0].(*ast.ExpressionStmt)
 
 	if !ok {
-		t.Fatalf("stmts[0] is not an ExpressionStatement, got %T", stmts[0])
+		t.Fatalf("stmts[0] is not an ExpressionStmt, got %T", stmts[0])
 	}
 
 	if !testFloatLiteral(t, stmt.Expression, 2.34149) {
@@ -294,10 +294,10 @@ func TestParseFloatLiteral(t *testing.T) {
 
 func TestParseNilLiteral(t *testing.T) {
 	stmts := parseStatements(t, "{{ nil }}", 1, nil)
-	stmt, ok := stmts[0].(*ast.ExpressionStatement)
+	stmt, ok := stmts[0].(*ast.ExpressionStmt)
 
 	if !ok {
-		t.Fatalf("stmts[0] is not an ExpressionStatement, got %T", stmts[0])
+		t.Fatalf("stmts[0] is not an ExpressionStmt, got %T", stmts[0])
 	}
 
 	testNilLiteral(t, stmt.Expression)
@@ -316,10 +316,10 @@ func TestParseStringLiteral(t *testing.T) {
 
 	for _, tt := range tests {
 		stmts := parseStatements(t, tt.inp, 1, nil)
-		stmt, ok := stmts[0].(*ast.ExpressionStatement)
+		stmt, ok := stmts[0].(*ast.ExpressionStmt)
 
 		if !ok {
-			t.Fatalf("stmts[0] is not an ExpressionStatement, got %T", stmts[0])
+			t.Fatalf("stmts[0] is not an ExpressionStmt, got %T", stmts[0])
 		}
 
 		if !testStringLiteral(t, stmt.Expression, tt.expect) {
@@ -332,10 +332,10 @@ func TestStringConcatenation(t *testing.T) {
 	inp := `{{ "Serhii" + " Anna" }}`
 
 	stmts := parseStatements(t, inp, 1, nil)
-	stmt, ok := stmts[0].(*ast.ExpressionStatement)
+	stmt, ok := stmts[0].(*ast.ExpressionStmt)
 
 	if !ok {
-		t.Fatalf("stmts[0] is not an ExpressionStatement, got %T", stmts[0])
+		t.Fatalf("stmts[0] is not an ExpressionStmt, got %T", stmts[0])
 	}
 
 	exp, ok := stmt.Expression.(*ast.InfixExpression)
@@ -361,10 +361,10 @@ func TestGroupedExpression(t *testing.T) {
 	test := "{{ (5 + 5) * 2 }}"
 
 	stmts := parseStatements(t, test, 1, nil)
-	stmt, ok := stmts[0].(*ast.ExpressionStatement)
+	stmt, ok := stmts[0].(*ast.ExpressionStmt)
 
 	if !ok {
-		t.Fatalf("stmts[0] is not an ExpressionStatement, got %T", stmts[0])
+		t.Fatalf("stmts[0] is not an ExpressionStmt, got %T", stmts[0])
 	}
 
 	exp, ok := stmt.Expression.(*ast.InfixExpression)
@@ -423,10 +423,10 @@ func TestInfixExpression(t *testing.T) {
 
 	for _, tt := range tests {
 		stmts := parseStatements(t, tt.inp, 1, nil)
-		stmt, ok := stmts[0].(*ast.ExpressionStatement)
+		stmt, ok := stmts[0].(*ast.ExpressionStmt)
 
 		if !ok {
-			t.Fatalf("stmts[0] is not an ExpressionStatement, got %T", stmts[0])
+			t.Fatalf("stmts[0] is not an ExpressionStmt, got %T", stmts[0])
 		}
 
 		testInfixExpression(t, stmt.Expression, tt.left, tt.operator, tt.right)
@@ -444,10 +444,10 @@ func TestBooleanExpression(t *testing.T) {
 
 	for _, tt := range tests {
 		stmts := parseStatements(t, tt.inp, 1, nil)
-		stmt, ok := stmts[0].(*ast.ExpressionStatement)
+		stmt, ok := stmts[0].(*ast.ExpressionStmt)
 
 		if !ok {
-			t.Fatalf("stmts[0] is not an ExpressionStatement, got %T", stmts[0])
+			t.Fatalf("stmts[0] is not an ExpressionStmt, got %T", stmts[0])
 		}
 
 		if !testBooleanLiteral(t, stmt.Expression, tt.expectBoolean) {
@@ -475,10 +475,10 @@ func TestPrefixExpression(t *testing.T) {
 
 	for _, tt := range tests {
 		stmts := parseStatements(t, tt.inp, 1, nil)
-		stmt, ok := stmts[0].(*ast.ExpressionStatement)
+		stmt, ok := stmts[0].(*ast.ExpressionStmt)
 
 		if !ok {
-			t.Fatalf("stmts[0] is not an ExpressionStatement, got %T", stmts[0])
+			t.Fatalf("stmts[0] is not an ExpressionStmt, got %T", stmts[0])
 		}
 
 		exp, ok := stmt.Expression.(*ast.PrefixExpression)
@@ -585,10 +585,10 @@ func TestTernaryExpression(t *testing.T) {
 	inp := `{{ true ? 100 : "Some string" }}`
 
 	stmts := parseStatements(t, inp, 1, nil)
-	stmt, ok := stmts[0].(*ast.ExpressionStatement)
+	stmt, ok := stmts[0].(*ast.ExpressionStmt)
 
 	if !ok {
-		t.Fatalf("stmts[0] is not an ExpressionStatement, got %T", stmts[0])
+		t.Fatalf("stmts[0] is not an ExpressionStmt, got %T", stmts[0])
 	}
 
 	exp, ok := stmt.Expression.(*ast.TernaryExpression)
@@ -909,10 +909,10 @@ func TestParseArray(t *testing.T) {
 	inp := `{{ [11, 234] }}`
 
 	stmts := parseStatements(t, inp, 1, nil)
-	stmt, ok := stmts[0].(*ast.ExpressionStatement)
+	stmt, ok := stmts[0].(*ast.ExpressionStmt)
 
 	if !ok {
-		t.Fatalf("stmts[0] is not a ExpressionStatement, got %T", stmts[0])
+		t.Fatalf("stmts[0] is not a ExpressionStmt, got %T", stmts[0])
 	}
 
 	arr, ok := stmt.Expression.(*ast.ArrayLiteral)
@@ -942,10 +942,10 @@ func TestParseIndexExpression(t *testing.T) {
 	inp := `{{ arr[1 + 2][2] }}`
 
 	stmts := parseStatements(t, inp, 1, nil)
-	stmt, ok := stmts[0].(*ast.ExpressionStatement)
+	stmt, ok := stmts[0].(*ast.ExpressionStmt)
 
 	if !ok {
-		t.Fatalf("stmts[0] is not a ExpressionStatement, got %T", stmts[0])
+		t.Fatalf("stmts[0] is not a ExpressionStmt, got %T", stmts[0])
 	}
 
 	indexExp, ok := stmt.Expression.(*ast.IndexExpression)
@@ -972,10 +972,10 @@ func TestParsePostfixExpression(t *testing.T) {
 
 	for _, tt := range tests {
 		stmts := parseStatements(t, tt.inp, 1, nil)
-		stmt, ok := stmts[0].(*ast.ExpressionStatement)
+		stmt, ok := stmts[0].(*ast.ExpressionStmt)
 
 		if !ok {
-			t.Fatalf("stmts[0] is not a ExpressionStatement, got %T", stmts[0])
+			t.Fatalf("stmts[0] is not a ExpressionStmt, got %T", stmts[0])
 		}
 
 		postfix, ok := stmt.Expression.(*ast.PostfixExpression)
@@ -1011,7 +1011,7 @@ func TestParseTwoStatements(t *testing.T) {
 		return
 	}
 
-	if !testIdentifier(t, stmts[1].(*ast.ExpressionStatement).Expression, "name") {
+	if !testIdentifier(t, stmts[1].(*ast.ExpressionStmt).Expression, "name") {
 		return
 	}
 
@@ -1029,11 +1029,11 @@ func TestParseTwoExpression(t *testing.T) {
 
 	stmts := parseStatements(t, inp, 2, nil)
 
-	if !testIntegerLiteral(t, stmts[0].(*ast.ExpressionStatement).Expression, 1) {
+	if !testIntegerLiteral(t, stmts[0].(*ast.ExpressionStmt).Expression, 1) {
 		return
 	}
 
-	if !testIntegerLiteral(t, stmts[1].(*ast.ExpressionStatement).Expression, 2) {
+	if !testIntegerLiteral(t, stmts[1].(*ast.ExpressionStmt).Expression, 2) {
 		return
 	}
 }
@@ -1042,10 +1042,10 @@ func TestParseCallExpression(t *testing.T) {
 	inp := `{{ "Serhii Cho".split(" ") }}`
 
 	stmts := parseStatements(t, inp, 1, nil)
-	stmt, ok := stmts[0].(*ast.ExpressionStatement)
+	stmt, ok := stmts[0].(*ast.ExpressionStmt)
 
 	if !ok {
-		t.Fatalf("stmts[0] is not a ExpressionStatement, got %T", stmts[0])
+		t.Fatalf("stmts[0] is not a ExpressionStmt, got %T", stmts[0])
 	}
 
 	callExp, ok := stmt.Expression.(*ast.CallExpression)
@@ -1075,10 +1075,10 @@ func TestParseCallExpressionWithEmptyString(t *testing.T) {
 	inp := `{{ "".len() }}`
 
 	stmts := parseStatements(t, inp, 1, nil)
-	stmt, ok := stmts[0].(*ast.ExpressionStatement)
+	stmt, ok := stmts[0].(*ast.ExpressionStmt)
 
 	if !ok {
-		t.Fatalf("stmts[0] is not a ExpressionStatement, got %T", stmts[0])
+		t.Fatalf("stmts[0] is not a ExpressionStmt, got %T", stmts[0])
 	}
 
 	callExp, ok := stmt.Expression.(*ast.CallExpression)
@@ -1220,16 +1220,16 @@ func TestParseObjectStatement(t *testing.T) {
 	inp := `{{ {"father": {"name": "John"}} }}`
 
 	stmts := parseStatements(t, inp, 1, nil)
-	stmt, ok := stmts[0].(*ast.ExpressionStatement)
+	stmt, ok := stmts[0].(*ast.ExpressionStmt)
 
 	if !ok {
-		t.Fatalf("stmts[0] is not a ExpressionStatement, got %T", stmts[0])
+		t.Fatalf("stmts[0] is not a ExpressionStmt, got %T", stmts[0])
 	}
 
 	obj, ok := stmt.Expression.(*ast.ObjectLiteral)
 
 	if !ok {
-		t.Fatalf("stmts[0] is not a ExpressionStatement, got %T", stmts[0])
+		t.Fatalf("stmts[0] is not a ExpressionStmt, got %T", stmts[0])
 	}
 
 	if len(obj.Pairs) != 1 {
@@ -1245,10 +1245,10 @@ func TestParseDotExpression(t *testing.T) {
 	inp := `{{ person.father.name }}`
 
 	stmts := parseStatements(t, inp, 1, nil)
-	stmt, ok := stmts[0].(*ast.ExpressionStatement)
+	stmt, ok := stmts[0].(*ast.ExpressionStmt)
 
 	if !ok {
-		t.Fatalf("stmts[0] is not a ExpressionStatement, got %T", stmts[0])
+		t.Fatalf("stmts[0] is not a ExpressionStmt, got %T", stmts[0])
 	}
 
 	dotExp, ok := stmt.Expression.(*ast.DotExpression)
