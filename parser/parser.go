@@ -571,7 +571,7 @@ func (p *Parser) parseIfStatement() *ast.IfStatement {
 	stmt.Consequence = p.parseBlockStmt()
 
 	for p.peekTokenIs(token.ELSEIF) {
-		alt := p.parseElseIfStatement()
+		alt := p.parseElseIfStmt()
 
 		if alt == nil {
 			return nil
@@ -595,7 +595,7 @@ func (p *Parser) parseIfStatement() *ast.IfStatement {
 	return stmt
 }
 
-func (p *Parser) parseElseIfStatement() *ast.ElseIfStatement {
+func (p *Parser) parseElseIfStmt() *ast.ElseIfStmt {
 	if !p.expectPeek(token.ELSEIF) { // move to "@elseif"
 		return nil
 	}
@@ -611,7 +611,7 @@ func (p *Parser) parseElseIfStatement() *ast.ElseIfStatement {
 
 	p.nextToken() // skip ")"
 
-	return &ast.ElseIfStatement{
+	return &ast.ElseIfStmt{
 		Token:       p.curToken,
 		Condition:   condition,
 		Consequence: p.parseBlockStmt(),

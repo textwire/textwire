@@ -7,11 +7,11 @@ import (
 )
 
 type IfStatement struct {
-	Token        token.Token        // The '@if' token
-	Condition    Expression         // The truthy condition
-	Consequence  *BlockStmt         // The 'then' block
-	Alternative  *BlockStmt         // The @else block
-	Alternatives []*ElseIfStatement // The @elseif blocks
+	Token        token.Token   // The '@if' token
+	Condition    Expression    // The truthy condition
+	Consequence  *BlockStmt    // The 'then' block
+	Alternative  *BlockStmt    // The @else block
+	Alternatives []*ElseIfStmt // The @elseif blocks
 }
 
 func (is *IfStatement) statementNode() {

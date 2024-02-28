@@ -6,20 +6,20 @@ import (
 	"github.com/textwire/textwire/token"
 )
 
-type ElseIfStatement struct {
+type ElseIfStmt struct {
 	Token       token.Token
 	Condition   Expression
 	Consequence *BlockStmt
 }
 
-func (eis *ElseIfStatement) statementNode() {
+func (eis *ElseIfStmt) statementNode() {
 }
 
-func (eis *ElseIfStatement) TokenLiteral() string {
+func (eis *ElseIfStmt) TokenLiteral() string {
 	return eis.Token.Literal
 }
 
-func (eis *ElseIfStatement) String() string {
+func (eis *ElseIfStmt) String() string {
 	var out bytes.Buffer
 
 	out.WriteString("@elseif(" + eis.Condition.String() + ")\n")
@@ -28,6 +28,6 @@ func (eis *ElseIfStatement) String() string {
 	return out.String()
 }
 
-func (eis *ElseIfStatement) Line() uint {
+func (eis *ElseIfStmt) Line() uint {
 	return eis.Token.Line
 }

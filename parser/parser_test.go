@@ -688,7 +688,7 @@ func TestParseNestedIfElseStatement(t *testing.T) {
 	}
 }
 
-func TestParseIfElseIfStatement(t *testing.T) {
+func TestParseIfElseIfStmt(t *testing.T) {
 	inp := `@if(true)1@elseif(false)2@end`
 
 	stmts := parseStatements(t, inp, 1, nil)
