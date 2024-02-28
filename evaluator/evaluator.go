@@ -75,8 +75,8 @@ func (e *Evaluator) Eval(node ast.Node, env *object.Env) object.Object {
 		return e.evalTernaryExp(node, env)
 	case *ast.InfixExp:
 		return e.evalInfixExp(node.Operator, node.Left, node.Right, env)
-	case *ast.PostfixExpression:
-		return e.evalPostfixExpression(node, env)
+	case *ast.PostfixExp:
+		return e.evalPostfixExp(node, env)
 	case *ast.CallExp:
 		return e.evalCallExp(node, env)
 	case *ast.NilLiteral:
@@ -529,8 +529,8 @@ func (e *Evaluator) evalInfixExp(
 	return e.evalInfixOperatorExpression(operator, leftObj, rightObj, left)
 }
 
-func (e *Evaluator) evalPostfixExpression(
-	node *ast.PostfixExpression,
+func (e *Evaluator) evalPostfixExp(
+	node *ast.PostfixExp,
 	env *object.Env,
 ) object.Object {
 	leftObj := e.Eval(node.Left, env)

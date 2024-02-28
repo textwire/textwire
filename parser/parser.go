@@ -103,8 +103,8 @@ func New(lexer *lexer.Lexer, filepath string) *Parser {
 
 	p.registerInfix(token.QUESTION, p.parseTernaryExp)
 	p.registerInfix(token.LBRACKET, p.parseIndexExp)
-	p.registerInfix(token.INC, p.parsePostfixExpression)
-	p.registerInfix(token.DEC, p.parsePostfixExpression)
+	p.registerInfix(token.INC, p.parsePostfixExp)
+	p.registerInfix(token.DEC, p.parsePostfixExp)
 	p.registerInfix(token.DOT, p.parseDotExp)
 
 	return p
@@ -461,8 +461,8 @@ func (p *Parser) parseIndexExp(left ast.Expression) ast.Expression {
 	return exp
 }
 
-func (p *Parser) parsePostfixExpression(left ast.Expression) ast.Expression {
-	return &ast.PostfixExpression{
+func (p *Parser) parsePostfixExp(left ast.Expression) ast.Expression {
+	return &ast.PostfixExp{
 		Token:    p.curToken,         // identifier
 		Operator: p.curToken.Literal, // "++" or "--"
 		Left:     left,

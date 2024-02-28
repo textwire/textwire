@@ -6,23 +6,23 @@ import (
 	"github.com/textwire/textwire/token"
 )
 
-type PostfixExpression struct {
+type PostfixExp struct {
 	Token    token.Token // The '++' or '--' token
 	Operator string
 	Left     Expression
 }
 
-func (pe *PostfixExpression) expressionNode() {
+func (pe *PostfixExp) expressionNode() {
 }
 
-func (pe *PostfixExpression) TokenLiteral() string {
+func (pe *PostfixExp) TokenLiteral() string {
 	return pe.Token.Literal
 }
 
-func (pe *PostfixExpression) String() string {
+func (pe *PostfixExp) String() string {
 	return fmt.Sprintf("(%s%s)", pe.Left, pe.Operator)
 }
 
-func (pe *PostfixExpression) Line() uint {
+func (pe *PostfixExp) Line() uint {
 	return pe.Token.Line
 }

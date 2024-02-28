@@ -959,7 +959,7 @@ func TestParseIndexExp(t *testing.T) {
 	}
 }
 
-func TestParsePostfixExpression(t *testing.T) {
+func TestParsePostfixExp(t *testing.T) {
 	tests := []struct {
 		inp      string
 		ident    string
@@ -978,10 +978,10 @@ func TestParsePostfixExpression(t *testing.T) {
 			t.Fatalf("stmts[0] is not a ExpressionStmt, got %T", stmts[0])
 		}
 
-		postfix, ok := stmt.Expression.(*ast.PostfixExpression)
+		postfix, ok := stmt.Expression.(*ast.PostfixExp)
 
 		if !ok {
-			t.Fatalf("stmt.Expression is not a PostfixExpression, got %T", stmt.Expression)
+			t.Fatalf("stmt.Expression is not a PostfixExp, got %T", stmt.Expression)
 		}
 
 		if !testIdentifier(t, postfix.Left, tt.ident) {
