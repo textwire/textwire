@@ -669,12 +669,12 @@ func TestParseNestedIfElseStatement(t *testing.T) {
 
 	stmts := parseStatements(t, inp, 3, nil)
 
-	if _, ok := stmts[0].(*ast.HTMLStatement); !ok {
-		t.Fatalf("stmts[0] is not an HTMLStatement, got %T", stmts[0])
+	if _, ok := stmts[0].(*ast.HTMLStmt); !ok {
+		t.Fatalf("stmts[0] is not an HTMLStmt, got %T", stmts[0])
 	}
 
-	if _, ok := stmts[2].(*ast.HTMLStatement); !ok {
-		t.Fatalf("stmts[2] is not an HTMLStatement, got %T", stmts[0])
+	if _, ok := stmts[2].(*ast.HTMLStmt); !ok {
+		t.Fatalf("stmts[2] is not an HTMLStmt, got %T", stmts[0])
 	}
 
 	ifStmt, isNotIfStmt := stmts[1].(*ast.IfStatement)
@@ -720,10 +720,10 @@ func TestParseIfElseIfStmt(t *testing.T) {
 		t.Errorf("alternative.Consequence.Statements does not contain 1 statement, got %d", len(alternative.Consequence.Statements))
 	}
 
-	consequence, ok := alternative.Consequence.Statements[0].(*ast.HTMLStatement)
+	consequence, ok := alternative.Consequence.Statements[0].(*ast.HTMLStmt)
 
 	if !ok {
-		t.Fatalf("alternative.Consequence.Statements[0] is not an HTMLStatement, got %T", alternative.Consequence.Statements[0])
+		t.Fatalf("alternative.Consequence.Statements[0] is not an HTMLStmt, got %T", alternative.Consequence.Statements[0])
 	}
 
 	if consequence.String() != "2" {
@@ -763,10 +763,10 @@ func TestParseIfElseIfElseStatement(t *testing.T) {
 		t.Errorf("alternative.Consequence.Statements does not contain 1 statement, got %d", len(elseIfAlternative.Consequence.Statements))
 	}
 
-	consequence, ok := elseIfAlternative.Consequence.Statements[0].(*ast.HTMLStatement)
+	consequence, ok := elseIfAlternative.Consequence.Statements[0].(*ast.HTMLStmt)
 
 	if !ok {
-		t.Fatalf("alternative.Consequence.Statements[0] is not an HTMLStatement, got %T", elseIfAlternative.Consequence.Statements[0])
+		t.Fatalf("alternative.Consequence.Statements[0] is not an HTMLStmt, got %T", elseIfAlternative.Consequence.Statements[0])
 	}
 
 	if consequence.String() != "2" {
@@ -838,7 +838,7 @@ func TestParseReserveStatement(t *testing.T) {
 			Name: &ast.StringLiteral{Value: "content"},
 			Block: &ast.BlockStmt{
 				Statements: []ast.Statement{
-					&ast.HTMLStatement{
+					&ast.HTMLStmt{
 						Token: token.Token{Type: token.HTML, Literal: "<h1>Some content</h1>"},
 					},
 				},

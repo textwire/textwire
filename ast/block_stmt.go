@@ -22,7 +22,7 @@ func (bs *BlockStmt) String() string {
 	var out bytes.Buffer
 
 	for _, s := range bs.Statements {
-		_, isHTML := s.(*HTMLStatement)
+		_, isHTML := s.(*HTMLStmt)
 
 		if isHTML {
 			out.WriteString(s.String())

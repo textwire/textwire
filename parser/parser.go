@@ -142,7 +142,7 @@ func (p *Parser) ParseProgram() *ast.Program {
 func (p *Parser) parseStatement() ast.Statement {
 	switch p.curToken.Type {
 	case token.HTML:
-		return p.parseHTMLStatement()
+		return p.parseHTMLStmt()
 	case token.LBRACES:
 		return p.parseEmbeddedCode()
 	case token.SEMI:
@@ -341,8 +341,8 @@ func (p *Parser) parseObjectLiteral() ast.Expression {
 	return obj
 }
 
-func (p *Parser) parseHTMLStatement() *ast.HTMLStatement {
-	return &ast.HTMLStatement{Token: p.curToken}
+func (p *Parser) parseHTMLStmt() *ast.HTMLStmt {
+	return &ast.HTMLStmt{Token: p.curToken}
 }
 
 func (p *Parser) parseAssignStmt() ast.Statement {
