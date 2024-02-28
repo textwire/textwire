@@ -4,23 +4,23 @@ import (
 	"github.com/textwire/textwire/token"
 )
 
-type AssignStatement struct {
+type AssignStmt struct {
 	Token token.Token // The 'var' or identifier token
 	Name  *Identifier
 	Value Expression
 }
 
-func (as *AssignStatement) statementNode() {
+func (as *AssignStmt) statementNode() {
 }
 
-func (as *AssignStatement) TokenLiteral() string {
+func (as *AssignStmt) TokenLiteral() string {
 	return as.Token.Literal
 }
 
-func (as *AssignStatement) String() string {
+func (as *AssignStmt) String() string {
 	return as.Name.String() + " = " + as.Value.String()
 }
 
-func (as *AssignStatement) Line() uint {
+func (as *AssignStmt) Line() uint {
 	return as.Token.Line
 }

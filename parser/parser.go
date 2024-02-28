@@ -173,7 +173,7 @@ func (p *Parser) parseEmbeddedCode() ast.Statement {
 	}
 
 	if p.curToken.Type == token.IDENT && p.peekTokenIs(token.ASSIGN) {
-		return p.parseAssignStatement()
+		return p.parseAssignStmt()
 	}
 
 	return p.parseExpressionStatement()
@@ -345,13 +345,13 @@ func (p *Parser) parseHTMLStatement() *ast.HTMLStatement {
 	return &ast.HTMLStatement{Token: p.curToken}
 }
 
-func (p *Parser) parseAssignStatement() ast.Statement {
+func (p *Parser) parseAssignStmt() ast.Statement {
 	ident := &ast.Identifier{
 		Token: p.curToken, // identifier
 		Value: p.curToken.Literal,
 	}
 
-	stmt := &ast.AssignStatement{
+	stmt := &ast.AssignStmt{
 		Token: p.curToken, // identifier
 		Name:  ident,
 	}

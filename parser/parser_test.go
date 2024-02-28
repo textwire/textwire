@@ -774,7 +774,7 @@ func TestParseIfElseIfElseStatement(t *testing.T) {
 	}
 }
 
-func TestParseAssignStatement(t *testing.T) {
+func TestParseAssignStmt(t *testing.T) {
 	tests := []struct {
 		inp      string
 		varName  string
@@ -787,10 +787,10 @@ func TestParseAssignStatement(t *testing.T) {
 
 	for _, tt := range tests {
 		stmts := parseStatements(t, tt.inp, 1, nil)
-		stmt, ok := stmts[0].(*ast.AssignStatement)
+		stmt, ok := stmts[0].(*ast.AssignStmt)
 
 		if !ok {
-			t.Fatalf("stmts[0] is not a AssignStatement, got %T", stmts[0])
+			t.Fatalf("stmts[0] is not a AssignStmt, got %T", stmts[0])
 		}
 
 		if stmt.Name.Value != tt.varName {
@@ -1003,11 +1003,11 @@ func TestParseTwoStatements(t *testing.T) {
 
 	stmts := parseStatements(t, inp, 2, nil)
 
-	if !testIdentifier(t, stmts[0].(*ast.AssignStatement).Name, "name") {
+	if !testIdentifier(t, stmts[0].(*ast.AssignStmt).Name, "name") {
 		return
 	}
 
-	if !testStringLiteral(t, stmts[0].(*ast.AssignStatement).Value, "Anna") {
+	if !testStringLiteral(t, stmts[0].(*ast.AssignStmt).Value, "Anna") {
 		return
 	}
 
