@@ -1241,7 +1241,7 @@ func TestParseObjectStatement(t *testing.T) {
 	}
 }
 
-func TestParseDotExpression(t *testing.T) {
+func TestParseDotExp(t *testing.T) {
 	inp := `{{ person.father.name }}`
 
 	stmts := parseStatements(t, inp, 1, nil)
@@ -1251,10 +1251,10 @@ func TestParseDotExpression(t *testing.T) {
 		t.Fatalf("stmts[0] is not a ExpressionStmt, got %T", stmts[0])
 	}
 
-	dotExp, ok := stmt.Expression.(*ast.DotExpression)
+	dotExp, ok := stmt.Expression.(*ast.DotExp)
 
 	if !ok {
-		t.Fatalf("stmt.Expression is not a DotExpression, got %T", stmt.Expression)
+		t.Fatalf("stmt.Expression is not a DotExp, got %T", stmt.Expression)
 	}
 
 	if dotExp.String() != "((person.father).name)" {
@@ -1269,7 +1269,7 @@ func TestParseDotExpression(t *testing.T) {
 		t.Fatalf("dotExp.Left is nil")
 	}
 
-	dotExp, ok = dotExp.Left.(*ast.DotExpression)
+	dotExp, ok = dotExp.Left.(*ast.DotExp)
 
 	if dotExp == nil {
 		t.Fatalf("dotExp is nil")
@@ -1277,7 +1277,7 @@ func TestParseDotExpression(t *testing.T) {
 	}
 
 	if !ok {
-		t.Fatalf("dotExp.Left is not a DotExpression, got %T", dotExp.Left)
+		t.Fatalf("dotExp.Left is not a DotExp, got %T", dotExp.Left)
 	}
 
 	if !testIdentifier(t, dotExp.Key, "father") {

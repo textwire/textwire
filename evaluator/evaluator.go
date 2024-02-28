@@ -55,8 +55,8 @@ func (e *Evaluator) Eval(node ast.Node, env *object.Env) object.Object {
 		return e.evalIdentifier(node, env)
 	case *ast.IndexExpression:
 		return e.evalIndexExpression(node, env)
-	case *ast.DotExpression:
-		return e.evalDotExpression(node, env)
+	case *ast.DotExp:
+		return e.evalDotExp(node, env)
 	case *ast.IntegerLiteral:
 		return &object.Int{Value: node.Value}
 	case *ast.FloatLiteral:
@@ -413,7 +413,7 @@ func (e *Evaluator) evalObjectIndexExpression(
 	return pair
 }
 
-func (e *Evaluator) evalDotExpression(node *ast.DotExpression, env *object.Env) object.Object {
+func (e *Evaluator) evalDotExp(node *ast.DotExp, env *object.Env) object.Object {
 	left := e.Eval(node.Left, env)
 
 	if isError(left) {
