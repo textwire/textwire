@@ -6,24 +6,24 @@ import (
 	"github.com/textwire/textwire/token"
 )
 
-type TernaryExpression struct {
+type TernaryExp struct {
 	Token       token.Token // The '?' token
 	Condition   Expression
 	Consequence Expression
 	Alternative Expression
 }
 
-func (te *TernaryExpression) expressionNode() {
+func (te *TernaryExp) expressionNode() {
 }
 
-func (te *TernaryExpression) TokenLiteral() string {
+func (te *TernaryExp) TokenLiteral() string {
 	return te.Token.Literal
 }
 
-func (te *TernaryExpression) String() string {
+func (te *TernaryExp) String() string {
 	return fmt.Sprintf("(%s ? %s : %s)", te.Condition, te.Condition, te.Alternative)
 }
 
-func (te *TernaryExpression) Line() uint {
+func (te *TernaryExp) Line() uint {
 	return te.Token.Line
 }

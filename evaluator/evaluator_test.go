@@ -175,7 +175,7 @@ func TestEvalStringExpression(t *testing.T) {
 	}
 }
 
-func TestEvalTernaryExpression(t *testing.T) {
+func TestEvalTernaryExp(t *testing.T) {
 	tests := []struct {
 		inp      string
 		expected string

@@ -101,7 +101,7 @@ func New(lexer *lexer.Lexer, filepath string) *Parser {
 	p.registerInfix(token.LTHAN_EQ, p.parseInfixExp)
 	p.registerInfix(token.GTHAN_EQ, p.parseInfixExp)
 
-	p.registerInfix(token.QUESTION, p.parseTernaryExpression)
+	p.registerInfix(token.QUESTION, p.parseTernaryExp)
 	p.registerInfix(token.LBRACKET, p.parseIndexExp)
 	p.registerInfix(token.INC, p.parsePostfixExpression)
 	p.registerInfix(token.DEC, p.parsePostfixExpression)
@@ -530,8 +530,8 @@ func (p *Parser) parseInfixExp(left ast.Expression) ast.Expression {
 	return exp
 }
 
-func (p *Parser) parseTernaryExpression(left ast.Expression) ast.Expression {
-	exp := &ast.TernaryExpression{
+func (p *Parser) parseTernaryExp(left ast.Expression) ast.Expression {
+	exp := &ast.TernaryExp{
 		Token:     p.curToken, // "?"
 		Condition: left,
 	}

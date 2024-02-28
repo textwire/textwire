@@ -71,8 +71,8 @@ func (e *Evaluator) Eval(node ast.Node, env *object.Env) object.Object {
 		return e.evalArrayLiteral(node, env)
 	case *ast.PrefixExpression:
 		return e.evalPrefixExpression(node, env)
-	case *ast.TernaryExpression:
-		return e.evalTernaryExpression(node, env)
+	case *ast.TernaryExp:
+		return e.evalTernaryExp(node, env)
 	case *ast.InfixExp:
 		return e.evalInfixExp(node.Operator, node.Left, node.Right, env)
 	case *ast.PostfixExpression:
@@ -443,8 +443,8 @@ func (e *Evaluator) evalPrefixExpression(node *ast.PrefixExpression, env *object
 		node.Operator, right.Type())
 }
 
-func (e *Evaluator) evalTernaryExpression(
-	node *ast.TernaryExpression,
+func (e *Evaluator) evalTernaryExp(
+	node *ast.TernaryExp,
 	env *object.Env,
 ) object.Object {
 	condition := e.Eval(node.Condition, env)
