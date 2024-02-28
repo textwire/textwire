@@ -88,18 +88,18 @@ func New(lexer *lexer.Lexer, filepath string) *Parser {
 
 	// Infix operators
 	p.infixParseFns = make(map[token.TokenType]infixParseFn)
-	p.registerInfix(token.ADD, p.parseInfixExpression)
-	p.registerInfix(token.SUB, p.parseInfixExpression)
-	p.registerInfix(token.MUL, p.parseInfixExpression)
-	p.registerInfix(token.DIV, p.parseInfixExpression)
-	p.registerInfix(token.MOD, p.parseInfixExpression)
+	p.registerInfix(token.ADD, p.parseInfixExp)
+	p.registerInfix(token.SUB, p.parseInfixExp)
+	p.registerInfix(token.MUL, p.parseInfixExp)
+	p.registerInfix(token.DIV, p.parseInfixExp)
+	p.registerInfix(token.MOD, p.parseInfixExp)
 
-	p.registerInfix(token.EQ, p.parseInfixExpression)
-	p.registerInfix(token.NOT_EQ, p.parseInfixExpression)
-	p.registerInfix(token.LTHAN, p.parseInfixExpression)
-	p.registerInfix(token.GTHAN, p.parseInfixExpression)
-	p.registerInfix(token.LTHAN_EQ, p.parseInfixExpression)
-	p.registerInfix(token.GTHAN_EQ, p.parseInfixExpression)
+	p.registerInfix(token.EQ, p.parseInfixExp)
+	p.registerInfix(token.NOT_EQ, p.parseInfixExp)
+	p.registerInfix(token.LTHAN, p.parseInfixExp)
+	p.registerInfix(token.GTHAN, p.parseInfixExp)
+	p.registerInfix(token.LTHAN_EQ, p.parseInfixExp)
+	p.registerInfix(token.GTHAN_EQ, p.parseInfixExp)
 
 	p.registerInfix(token.QUESTION, p.parseTernaryExpression)
 	p.registerInfix(token.LBRACKET, p.parseIndexExp)
@@ -511,8 +511,8 @@ func (p *Parser) parseCallExp(receiver ast.Expression) ast.Expression {
 	return exp
 }
 
-func (p *Parser) parseInfixExpression(left ast.Expression) ast.Expression {
-	exp := &ast.InfixExpression{
+func (p *Parser) parseInfixExp(left ast.Expression) ast.Expression {
+	exp := &ast.InfixExp{
 		Token:    p.curToken, // operator
 		Operator: p.curToken.Literal,
 		Left:     left,

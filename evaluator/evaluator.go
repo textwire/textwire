@@ -73,8 +73,8 @@ func (e *Evaluator) Eval(node ast.Node, env *object.Env) object.Object {
 		return e.evalPrefixExpression(node, env)
 	case *ast.TernaryExpression:
 		return e.evalTernaryExpression(node, env)
-	case *ast.InfixExpression:
-		return e.evalInfixExpression(node.Operator, node.Left, node.Right, env)
+	case *ast.InfixExp:
+		return e.evalInfixExp(node.Operator, node.Left, node.Right, env)
 	case *ast.PostfixExpression:
 		return e.evalPostfixExpression(node, env)
 	case *ast.CallExp:
@@ -508,7 +508,7 @@ func (e *Evaluator) evalExpressions(
 	return result
 }
 
-func (e *Evaluator) evalInfixExpression(
+func (e *Evaluator) evalInfixExp(
 	operator string,
 	left,
 	right ast.Expression,
@@ -619,28 +619,28 @@ func (e *Evaluator) evalInfixOperatorExpression(
 	}
 
 	if operator == "+" && left.Is(object.STR_OBJ) {
-		return e.evalStringInfixExpression(right, left)
+		return e.evalStringInfixExp(right, left)
 	}
 
 	switch left.Type() {
 	case object.INT_OBJ:
-		return e.evalIntegerInfixExpression(operator, right, left, leftNode)
+		return e.evalIntegerInfixExp(operator, right, left, leftNode)
 	case object.FLOAT_OBJ:
-		return e.evalFloatInfixExpression(operator, right, left, leftNode)
+		return e.evalFloatInfixExp(operator, right, left, leftNode)
 	}
 
 	return e.newError(leftNode, fail.ErrUnknownTypeForOperator,
 		left.Type(), operator)
 }
 
-func (e *Evaluator) evalStringInfixExpression(right, left object.Object) object.Object {
+func (e *Evaluator) evalStringInfixExp(right, left object.Object) object.Object {
 	leftVal := left.(*object.Str).Value
 	rightVal := right.(*object.Str).Value
 
 	return &object.Str{Value: leftVal + rightVal}
 }
 
-func (e *Evaluator) evalIntegerInfixExpression(
+func (e *Evaluator) evalIntegerInfixExp(
 	operator string,
 	right,
 	left object.Object,
@@ -678,7 +678,7 @@ func (e *Evaluator) evalIntegerInfixExpression(
 		left.Type(), operator)
 }
 
-func (e *Evaluator) evalFloatInfixExpression(
+func (e *Evaluator) evalFloatInfixExp(
 	operator string,
 	right,
 	left object.Object,

@@ -44,11 +44,11 @@ func parseStatements(t *testing.T, inp string, stmtCount int, inserts map[string
 	return prog.Statements
 }
 
-func testInfixExpression(t *testing.T, exp ast.Expression, left interface{}, operator string, right interface{}) bool {
-	infix, ok := exp.(*ast.InfixExpression)
+func testInfixExp(t *testing.T, exp ast.Expression, left interface{}, operator string, right interface{}) bool {
+	infix, ok := exp.(*ast.InfixExp)
 
 	if !ok {
-		t.Errorf("exp is not an InfixExpression, got %T", exp)
+		t.Errorf("exp is not an InfixExp, got %T", exp)
 		return false
 	}
 
@@ -338,10 +338,10 @@ func TestStringConcatenation(t *testing.T) {
 		t.Fatalf("stmts[0] is not an ExpressionStmt, got %T", stmts[0])
 	}
 
-	exp, ok := stmt.Expression.(*ast.InfixExpression)
+	exp, ok := stmt.Expression.(*ast.InfixExp)
 
 	if !ok {
-		t.Fatalf("stmt is not an InfixExpression, got %T", stmt.Expression)
+		t.Fatalf("stmt is not an InfixExp, got %T", stmt.Expression)
 	}
 
 	if exp.Left.TokenLiteral() != "Serhii" {
@@ -367,10 +367,10 @@ func TestGroupedExpression(t *testing.T) {
 		t.Fatalf("stmts[0] is not an ExpressionStmt, got %T", stmts[0])
 	}
 
-	exp, ok := stmt.Expression.(*ast.InfixExpression)
+	exp, ok := stmt.Expression.(*ast.InfixExp)
 
 	if !ok {
-		t.Fatalf("stmt is not an InfixExpression, got %T", stmt.Expression)
+		t.Fatalf("stmt is not an InfixExp, got %T", stmt.Expression)
 	}
 
 	if !testIntegerLiteral(t, exp.Right, 2) {
@@ -381,10 +381,10 @@ func TestGroupedExpression(t *testing.T) {
 		t.Fatalf("exp.Operator is not %s, got %s", "*", exp.Operator)
 	}
 
-	infix, ok := exp.Left.(*ast.InfixExpression)
+	infix, ok := exp.Left.(*ast.InfixExp)
 
 	if !ok {
-		t.Fatalf("exp.Left is not an InfixExpression, got %T", exp.Left)
+		t.Fatalf("exp.Left is not an InfixExp, got %T", exp.Left)
 	}
 
 	if !testIntegerLiteral(t, infix.Left, 5) {
@@ -400,7 +400,7 @@ func TestGroupedExpression(t *testing.T) {
 	}
 }
 
-func TestInfixExpression(t *testing.T) {
+func TestInfixExp(t *testing.T) {
 	tests := []struct {
 		inp      string
 		left     interface{}
@@ -429,7 +429,7 @@ func TestInfixExpression(t *testing.T) {
 			t.Fatalf("stmts[0] is not an ExpressionStmt, got %T", stmts[0])
 		}
 
-		testInfixExpression(t, stmt.Expression, tt.left, tt.operator, tt.right)
+		testInfixExp(t, stmt.Expression, tt.left, tt.operator, tt.right)
 	}
 }
 
