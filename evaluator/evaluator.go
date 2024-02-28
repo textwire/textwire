@@ -249,15 +249,17 @@ func (e *Evaluator) evalForStatement(
 		}
 	}
 
-	cond := e.Eval(node.Condition, newEnv)
-
-	if isError(cond) {
-		return cond
-	}
-
 	// evaluate alternative block if condition is false
-	if !isTruthy(cond) && node.Alternative != nil {
-		return e.Eval(node.Alternative, newEnv)
+	if node.Condition != nil {
+		cond := e.Eval(node.Condition, newEnv)
+
+		if isError(cond) {
+			return cond
+		}
+
+		if !isTruthy(cond) && node.Alternative != nil {
+			return e.Eval(node.Alternative, newEnv)
+		}
 	}
 
 	for {
