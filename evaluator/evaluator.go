@@ -39,8 +39,8 @@ func (e *Evaluator) Eval(node ast.Node, env *object.Env) object.Object {
 		return e.evalBlockStmt(node, env)
 	case *ast.AssignStmt:
 		return e.evalAssignStmt(node, env)
-	case *ast.UseStatement:
-		return e.evalUseStatement(node, env)
+	case *ast.UseStmt:
+		return e.evalUseStmt(node, env)
 	case *ast.InsertStmt:
 		return NIL
 	case *ast.ReserveStmt:
@@ -169,8 +169,8 @@ func (e *Evaluator) evalAssignStmt(node *ast.AssignStmt, env *object.Env) object
 	return NIL
 }
 
-func (e *Evaluator) evalUseStatement(
-	node *ast.UseStatement,
+func (e *Evaluator) evalUseStmt(
+	node *ast.UseStmt,
 	env *object.Env,
 ) object.Object {
 	if node.Program == nil {

@@ -6,23 +6,23 @@ import (
 	"github.com/textwire/textwire/token"
 )
 
-type UseStatement struct {
+type UseStmt struct {
 	Token   token.Token    // The '@use' token
 	Name    *StringLiteral // The relative path to the layout like 'layouts/main'
 	Program *Program
 }
 
-func (us *UseStatement) statementNode() {
+func (us *UseStmt) statementNode() {
 }
 
-func (us *UseStatement) TokenLiteral() string {
+func (us *UseStmt) TokenLiteral() string {
 	return us.Token.Literal
 }
 
-func (us *UseStatement) String() string {
+func (us *UseStmt) String() string {
 	return fmt.Sprintf(`@use(%s)`, us.Name.String())
 }
 
-func (us *UseStatement) Line() uint {
+func (us *UseStmt) Line() uint {
 	return us.Token.Line
 }

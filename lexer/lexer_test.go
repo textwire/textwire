@@ -114,7 +114,7 @@ func TestIfStatement(t *testing.T) {
 	})
 }
 
-func TestUseStatement(t *testing.T) {
+func TestUseStmt(t *testing.T) {
 	inp := `<div>@use("layouts/main")</div>`
 
 	TokenizeString(t, inp, []token.Token{

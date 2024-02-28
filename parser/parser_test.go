@@ -807,14 +807,14 @@ func TestParseAssignStmt(t *testing.T) {
 	}
 }
 
-func TestParseUseStatement(t *testing.T) {
+func TestParseUseStmt(t *testing.T) {
 	inp := `@use("main")`
 
 	stmts := parseStatements(t, inp, 1, nil)
-	stmt, ok := stmts[0].(*ast.UseStatement)
+	stmt, ok := stmts[0].(*ast.UseStmt)
 
 	if !ok {
-		t.Fatalf("stmts[0] is not a UseStatement, got %T", stmts[0])
+		t.Fatalf("stmts[0] is not a UseStmt, got %T", stmts[0])
 	}
 
 	if stmt.Name.Value != "main" {

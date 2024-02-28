@@ -154,7 +154,7 @@ func (p *Parser) parseStatement() ast.Statement {
 	case token.EACH:
 		return p.parseEachStmt()
 	case token.USE:
-		return p.parseUseStatement()
+		return p.parseUseStmt()
 	case token.RESERVE:
 		return p.parseReserveStmt()
 	case token.INSERT:
@@ -372,8 +372,8 @@ func (p *Parser) parseAssignStmt() ast.Statement {
 	return stmt
 }
 
-func (p *Parser) parseUseStatement() ast.Statement {
-	stmt := &ast.UseStatement{
+func (p *Parser) parseUseStmt() ast.Statement {
+	stmt := &ast.UseStmt{
 		Token: p.curToken, // "@use"
 	}
 

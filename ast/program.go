@@ -82,7 +82,7 @@ func (p *Program) ApplyInserts(inserts map[string]*InsertStmt, absPath string) *
 // When we use layout, we do not print the file itself
 func (p *Program) ApplyLayout(layoutProg *Program) error {
 	p.Statements = []Statement{p.Statements[0]}
-	p.Statements[0].(*UseStatement).Program = layoutProg
+	p.Statements[0].(*UseStmt).Program = layoutProg
 
 	return nil
 }
@@ -97,13 +97,13 @@ func (p *Program) HasReserveStmt() bool {
 	return false
 }
 
-func (p *Program) HasUseStmt() (bool, *UseStatement) {
+func (p *Program) HasUseStmt() (bool, *UseStmt) {
 	for _, stmt := range p.Statements {
 		if stmt.TokenLiteral() != token.String(token.USE) {
 			continue
 		}
 
-		return true, stmt.(*UseStatement)
+		return true, stmt.(*UseStmt)
 	}
 
 	return false, nil
