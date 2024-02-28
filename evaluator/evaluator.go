@@ -69,8 +69,8 @@ func (e *Evaluator) Eval(node ast.Node, env *object.Env) object.Object {
 		return e.evalObjectLiteral(node, env)
 	case *ast.ArrayLiteral:
 		return e.evalArrayLiteral(node, env)
-	case *ast.PrefixExpression:
-		return e.evalPrefixExpression(node, env)
+	case *ast.PrefixExp:
+		return e.evalPrefixExp(node, env)
 	case *ast.TernaryExp:
 		return e.evalTernaryExp(node, env)
 	case *ast.InfixExp:
@@ -425,7 +425,7 @@ func (e *Evaluator) evalDotExp(node *ast.DotExp, env *object.Env) object.Object 
 	return e.evalObjectIndexExp(left.(*object.Obj), key.Value, node)
 }
 
-func (e *Evaluator) evalPrefixExpression(node *ast.PrefixExpression, env *object.Env) object.Object {
+func (e *Evaluator) evalPrefixExp(node *ast.PrefixExp, env *object.Env) object.Object {
 	right := e.Eval(node.Right, env)
 
 	if isError(right) {

@@ -80,8 +80,8 @@ func New(lexer *lexer.Lexer, filepath string) *Parser {
 	p.registerPrefix(token.NIL, p.parseNilLiteral)
 	p.registerPrefix(token.TRUE, p.parseBooleanLiteral)
 	p.registerPrefix(token.FALSE, p.parseBooleanLiteral)
-	p.registerPrefix(token.SUB, p.parsePrefixExpression)
-	p.registerPrefix(token.NOT, p.parsePrefixExpression)
+	p.registerPrefix(token.SUB, p.parsePrefixExp)
+	p.registerPrefix(token.NOT, p.parsePrefixExp)
 	p.registerPrefix(token.LPAREN, p.parseGroupedExpression)
 	p.registerPrefix(token.LBRACKET, p.parseArrayLiteral)
 	p.registerPrefix(token.LBRACE, p.parseObjectLiteral)
@@ -786,8 +786,8 @@ func (p *Parser) parseExpression(precedence int) ast.Expression {
 	return leftExp
 }
 
-func (p *Parser) parsePrefixExpression() ast.Expression {
-	exp := &ast.PrefixExpression{
+func (p *Parser) parsePrefixExp() ast.Expression {
+	exp := &ast.PrefixExp{
 		Token:    p.curToken, // prefix operator
 		Operator: p.curToken.Literal,
 	}

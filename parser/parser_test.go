@@ -456,7 +456,7 @@ func TestBooleanExpression(t *testing.T) {
 	}
 }
 
-func TestPrefixExpression(t *testing.T) {
+func TestPrefixExp(t *testing.T) {
 	tests := []struct {
 		inp      string
 		operator string
@@ -481,10 +481,10 @@ func TestPrefixExpression(t *testing.T) {
 			t.Fatalf("stmts[0] is not an ExpressionStmt, got %T", stmts[0])
 		}
 
-		exp, ok := stmt.Expression.(*ast.PrefixExpression)
+		exp, ok := stmt.Expression.(*ast.PrefixExp)
 
 		if !ok {
-			t.Fatalf("stmt is not a PrefixExpression, got %T", stmt.Expression)
+			t.Fatalf("stmt is not a PrefixExp, got %T", stmt.Expression)
 		}
 
 		if exp.Operator != tt.operator {
