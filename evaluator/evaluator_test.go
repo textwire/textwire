@@ -318,6 +318,18 @@ func TestEvalForStatement(t *testing.T) {
 		{`@for(; false;)Here@end`, ""},
 		{`@for(c = 1; false; c++){{ c }}@end`, ""},
 		{`@for(c = 1; c == 1; c++){{ c }}@end`, "1"},
+	}
+
+	for _, tt := range tests {
+		evaluationExpected(t, tt.inp, tt.expected)
+	}
+}
+
+func TestEvalEachStatement(t *testing.T) {
+	tests := []struct {
+		inp      string
+		expected string
+	}{
 		{`@each(name in ["anna", "serhii"]){{ name }} @end`, "anna serhii "},
 		{`@each(num in [1, 2, 3]){{ num }}@end`, "123"},
 		{`@each(num in []){{ num }}@end`, ""},
