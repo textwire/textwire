@@ -328,6 +328,10 @@ func TestEvalForStatement(t *testing.T) {
 		{`@each(num in [1, 2, 3, 4]){{ loop.last }}@end`, "0001"},
 		{`@each(num in [4, 2, 8]){{ loop.iter }}@end`, "123"},
 		{`@each(num in [9, 3, 44, 24, 1, 3]){{ loop.iter }}@end`, "123456"},
+		// test @each directive
+		{`@each(v in []){{ v }}@else<b>Empty array</b>@end`, "<b>Empty array</b>"},
+		{`@each(n in []){{ n }}@else@end`, ""},
+		{`@each(n in []){{ n }}@elsetest@end`, "test"},
 	}
 
 	for _, tt := range tests {

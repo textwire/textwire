@@ -304,6 +304,11 @@ func (e *Evaluator) evalEachStatement(
 	elems := arrObj.(*object.Array).Elements
 	elemsLen := len(elems)
 
+	// evaluate alternative block if array is empty
+	if elemsLen == 0 && node.Alternative != nil {
+		return e.Eval(node.Alternative, newEnv)
+	}
+
 	for i, elem := range elems {
 		err := newEnv.Set(varName, elem)
 
@@ -627,6 +632,7 @@ func (e *Evaluator) evalInfixOperatorExpression(
 func (e *Evaluator) evalStringInfixExpression(right, left object.Object) object.Object {
 	leftVal := left.(*object.Str).Value
 	rightVal := right.(*object.Str).Value
+
 	return &object.Str{Value: leftVal + rightVal}
 }
 
