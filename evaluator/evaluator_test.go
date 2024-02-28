@@ -307,7 +307,7 @@ func TestEvalAssignVariable(t *testing.T) {
 	}
 }
 
-func TestEvalForStatement(t *testing.T) {
+func TestEvalForStmt(t *testing.T) {
 	tests := []struct {
 		inp      string
 		expected string

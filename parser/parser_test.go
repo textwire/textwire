@@ -1096,14 +1096,14 @@ func TestParseCallExpressionWithEmptyString(t *testing.T) {
 	}
 }
 
-func TestParseForStatement(t *testing.T) {
+func TestParseForStmt(t *testing.T) {
 	inp := `@for(i = 0; i < 10; i++){{ i }}@end`
 
 	stmts := parseStatements(t, inp, 1, nil)
-	stmt, ok := stmts[0].(*ast.ForStatement)
+	stmt, ok := stmts[0].(*ast.ForStmt)
 
 	if !ok {
-		t.Fatalf("stmts[0] is not a ForStatement, got %T", stmts[0])
+		t.Fatalf("stmts[0] is not a ForStmt, got %T", stmts[0])
 	}
 
 	if stmt.Init.String() != `i = 0` {
@@ -1131,10 +1131,10 @@ func TestParseForElseStatement(t *testing.T) {
 	inp := `@for(i = 0; i < 0; i++){{ i }}@elseEmpty@end`
 
 	stmts := parseStatements(t, inp, 1, nil)
-	stmt, ok := stmts[0].(*ast.ForStatement)
+	stmt, ok := stmts[0].(*ast.ForStmt)
 
 	if !ok {
-		t.Fatalf("stmts[0] is not a ForStatement, got %T", stmts[0])
+		t.Fatalf("stmts[0] is not a ForStmt, got %T", stmts[0])
 	}
 
 	if stmt.Alternative == nil {
@@ -1146,14 +1146,14 @@ func TestParseForElseStatement(t *testing.T) {
 	}
 }
 
-func TestParseInfiniteForStatement(t *testing.T) {
+func TestParseInfiniteForStmt(t *testing.T) {
 	inp := `@for(;;)1@end`
 
 	stmts := parseStatements(t, inp, 1, nil)
-	stmt, ok := stmts[0].(*ast.ForStatement)
+	stmt, ok := stmts[0].(*ast.ForStmt)
 
 	if !ok {
-		t.Fatalf("stmts[0] is not a ForStatement, got %T", stmts[0])
+		t.Fatalf("stmts[0] is not a ForStmt, got %T", stmts[0])
 	}
 
 	if stmt.Init != nil {

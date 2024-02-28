@@ -150,7 +150,7 @@ func (p *Parser) parseStatement() ast.Statement {
 	case token.IF:
 		return p.parseIfStatement()
 	case token.FOR:
-		return p.parseForStatement()
+		return p.parseForStmt()
 	case token.EACH:
 		return p.parseEachStmt()
 	case token.USE:
@@ -632,8 +632,8 @@ func (p *Parser) parseAlternativeBlock() *ast.BlockStmt {
 	return alt
 }
 
-func (p *Parser) parseForStatement() *ast.ForStatement {
-	stmt := &ast.ForStatement{Token: p.curToken} // "@for"
+func (p *Parser) parseForStmt() *ast.ForStmt {
+	stmt := &ast.ForStmt{Token: p.curToken} // "@for"
 
 	if !p.expectPeek(token.LPAREN) { // move to "("
 		return nil

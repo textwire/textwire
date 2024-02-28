@@ -6,7 +6,7 @@ import (
 	"github.com/textwire/textwire/token"
 )
 
-type ForStatement struct {
+type ForStmt struct {
 	Token       token.Token // The '@for' token
 	Init        Statement   // The initialization statement; or nil
 	Condition   Expression  // The condition expression; or nil
@@ -15,14 +15,14 @@ type ForStatement struct {
 	Block       *BlockStmt
 }
 
-func (fs *ForStatement) statementNode() {
+func (fs *ForStmt) statementNode() {
 }
 
-func (fs *ForStatement) TokenLiteral() string {
+func (fs *ForStmt) TokenLiteral() string {
 	return fs.Token.Literal
 }
 
-func (fs *ForStatement) String() string {
+func (fs *ForStmt) String() string {
 	var out bytes.Buffer
 
 	out.WriteString("@for(")
@@ -43,6 +43,6 @@ func (fs *ForStatement) String() string {
 	return out.String()
 }
 
-func (fs *ForStatement) Line() uint {
+func (fs *ForStmt) Line() uint {
 	return fs.Token.Line
 }
