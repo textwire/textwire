@@ -1242,7 +1242,16 @@ func TestParseDotExpression(t *testing.T) {
 		return
 	}
 
+	if dotExp.Left == nil {
+		t.Fatalf("dotExp.Left is nil")
+	}
+
 	dotExp, ok = dotExp.Left.(*ast.DotExpression)
+
+	if dotExp == nil {
+		t.Fatalf("dotExp is nil")
+		return
+	}
 
 	if !ok {
 		t.Fatalf("dotExp.Left is not a DotExpression, got %T", dotExp.Left)
