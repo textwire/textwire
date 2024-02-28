@@ -6,7 +6,7 @@ import (
 	"github.com/textwire/textwire/token"
 )
 
-type EachStatement struct {
+type EachStmt struct {
 	Token       token.Token // The '@for' token
 	Var         *Identifier // The variable name
 	Array       Expression  // The array to loop over
@@ -14,14 +14,14 @@ type EachStatement struct {
 	Block       *BlockStmt
 }
 
-func (es *EachStatement) statementNode() {
+func (es *EachStmt) statementNode() {
 }
 
-func (es *EachStatement) TokenLiteral() string {
+func (es *EachStmt) TokenLiteral() string {
 	return es.Token.Literal
 }
 
-func (es *EachStatement) String() string {
+func (es *EachStmt) String() string {
 	var out bytes.Buffer
 
 	out.WriteString("@each(")
@@ -41,6 +41,6 @@ func (es *EachStatement) String() string {
 	return out.String()
 }
 
-func (es *EachStatement) Line() uint {
+func (es *EachStmt) Line() uint {
 	return es.Token.Line
 }

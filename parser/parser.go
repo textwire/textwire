@@ -152,7 +152,7 @@ func (p *Parser) parseStatement() ast.Statement {
 	case token.FOR:
 		return p.parseForStatement()
 	case token.EACH:
-		return p.parseEachStatement()
+		return p.parseEachStmt()
 	case token.USE:
 		return p.parseUseStatement()
 	case token.RESERVE:
@@ -683,8 +683,8 @@ func (p *Parser) parseForStatement() *ast.ForStatement {
 	return stmt
 }
 
-func (p *Parser) parseEachStatement() *ast.EachStatement {
-	stmt := &ast.EachStatement{Token: p.curToken} // "@each"
+func (p *Parser) parseEachStmt() *ast.EachStmt {
+	stmt := &ast.EachStmt{Token: p.curToken} // "@each"
 
 	if !p.expectPeek(token.LPAREN) { // move to "("
 		return nil

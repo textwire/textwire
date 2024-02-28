@@ -47,8 +47,8 @@ func (e *Evaluator) Eval(node ast.Node, env *object.Env) object.Object {
 		return e.evalReserveStatement(node, env)
 	case *ast.ForStatement:
 		return e.evalForStatement(node, env)
-	case *ast.EachStatement:
-		return e.evalEachStatement(node, env)
+	case *ast.EachStmt:
+		return e.evalEachStmt(node, env)
 
 	// Expressions
 	case *ast.Identifier:
@@ -297,8 +297,8 @@ func (e *Evaluator) evalForStatement(
 	return &object.HTML{Value: blocks.String()}
 }
 
-func (e *Evaluator) evalEachStatement(
-	node *ast.EachStatement,
+func (e *Evaluator) evalEachStmt(
+	node *ast.EachStmt,
 	env *object.Env,
 ) object.Object {
 	newEnv := object.NewEnclosedEnv(env)

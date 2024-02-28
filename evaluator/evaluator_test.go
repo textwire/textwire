@@ -328,7 +328,7 @@ func TestEvalForStatement(t *testing.T) {
 	}
 }
 
-func TestEvalEachStatement(t *testing.T) {
+func TestEvalEachStmt(t *testing.T) {
 	tests := []struct {
 		inp      string
 		expected string

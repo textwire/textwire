@@ -1173,14 +1173,14 @@ func TestParseInfiniteForStatement(t *testing.T) {
 	}
 }
 
-func TestParseEachStatement(t *testing.T) {
+func TestParseEachStmt(t *testing.T) {
 	inp := `@each(name in ["anna", "serhii"]){{ name }}@end`
 
 	stmts := parseStatements(t, inp, 1, nil)
-	stmt, ok := stmts[0].(*ast.EachStatement)
+	stmt, ok := stmts[0].(*ast.EachStmt)
 
 	if !ok {
-		t.Fatalf("stmts[0] is not a EachStatement, got %T", stmts[0])
+		t.Fatalf("stmts[0] is not a EachStmt, got %T", stmts[0])
 	}
 
 	if stmt.Var.String() != `name` {
@@ -1205,10 +1205,10 @@ func TestParseEachElseStatement(t *testing.T) {
 	inp := `@each(v in []){{ v }}@elseTest@end`
 
 	stmts := parseStatements(t, inp, 1, nil)
-	stmt, ok := stmts[0].(*ast.EachStatement)
+	stmt, ok := stmts[0].(*ast.EachStmt)
 
 	if !ok {
-		t.Fatalf("stmts[0] is not a EachStatement, got %T", stmts[0])
+		t.Fatalf("stmts[0] is not a EachStmt, got %T", stmts[0])
 	}
 
 	if stmt.Alternative.String() != "Test" {
