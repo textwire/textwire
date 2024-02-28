@@ -7,21 +7,21 @@ import (
 	"github.com/textwire/textwire/token"
 )
 
-type CallExpression struct {
+type CallExp struct {
 	Token     token.Token // Function identifier token
 	Receiver  Expression  // Receiver of the call
 	Function  *Identifier // Function being called
 	Arguments []Expression
 }
 
-func (ce *CallExpression) expressionNode() {
+func (ce *CallExp) expressionNode() {
 }
 
-func (ce *CallExpression) TokenLiteral() string {
+func (ce *CallExp) TokenLiteral() string {
 	return ce.Token.Literal
 }
 
-func (ce *CallExpression) String() string {
+func (ce *CallExp) String() string {
 	var args bytes.Buffer
 
 	for i, arg := range ce.Arguments {
@@ -36,6 +36,6 @@ func (ce *CallExpression) String() string {
 		ce.Function.String(), args.String())
 }
 
-func (ce *CallExpression) Line() uint {
+func (ce *CallExp) Line() uint {
 	return ce.Token.Line
 }

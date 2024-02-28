@@ -87,7 +87,7 @@ func TestIdentifiers(t *testing.T) {
 	})
 }
 
-func TestIfStatement(t *testing.T) {
+func TestIfStmt(t *testing.T) {
 	inp := `@if(true(()))one@elseif(false){{ "nice" }}@elsethree@endfour`
 
 	TokenizeString(t, inp, []token.Token{
@@ -114,7 +114,7 @@ func TestIfStatement(t *testing.T) {
 	})
 }
 
-func TestUseStatement(t *testing.T) {
+func TestUseStmt(t *testing.T) {
 	inp := `<div>@use("layouts/main")</div>`
 
 	TokenizeString(t, inp, []token.Token{
@@ -128,7 +128,7 @@ func TestUseStatement(t *testing.T) {
 	})
 }
 
-func TestReserveStatement(t *testing.T) {
+func TestReserveStmt(t *testing.T) {
 	inp := `<div>@reserve("title")</div>`
 
 	TokenizeString(t, inp, []token.Token{
@@ -142,7 +142,7 @@ func TestReserveStatement(t *testing.T) {
 	})
 }
 
-func TestInsertStatement(t *testing.T) {
+func TestInsertStmt(t *testing.T) {
 	inp := `@insert("title")<div>Nice one</div>@end`
 
 	TokenizeString(t, inp, []token.Token{
@@ -339,7 +339,7 @@ func TestIsDirectoryStart(t *testing.T) {
 	})
 }
 
-func TestCallExpression(t *testing.T) {
+func TestCallExp(t *testing.T) {
 	t.Run("On string", func(tt *testing.T) {
 		inp := `{{ "test".upper() }}`
 

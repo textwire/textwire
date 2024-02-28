@@ -6,23 +6,23 @@ import (
 	"github.com/textwire/textwire/token"
 )
 
-type DotExpression struct {
+type DotExp struct {
 	Token token.Token // The dot token
 	Left  Expression  // -->x.y
 	Key   Expression  // x.y<--
 }
 
-func (de *DotExpression) expressionNode() {
+func (de *DotExp) expressionNode() {
 }
 
-func (de *DotExpression) TokenLiteral() string {
+func (de *DotExp) TokenLiteral() string {
 	return de.Token.Literal
 }
 
-func (de *DotExpression) String() string {
+func (de *DotExp) String() string {
 	return fmt.Sprintf("(%s.%s)", de.Left, de.Key)
 }
 
-func (de *DotExpression) Line() uint {
+func (de *DotExp) Line() uint {
 	return de.Token.Line
 }

@@ -6,23 +6,23 @@ import (
 	"github.com/textwire/textwire/token"
 )
 
-type InfixExpression struct {
+type InfixExp struct {
 	Token    token.Token // The operator token, e.g. +
 	Operator string      // The operator, e.g. +
 	Left     Expression
 	Right    Expression
 }
 
-func (ie *InfixExpression) expressionNode() {}
+func (ie *InfixExp) expressionNode() {}
 
-func (ie *InfixExpression) TokenLiteral() string {
+func (ie *InfixExp) TokenLiteral() string {
 	return ie.Token.Literal
 }
 
-func (ie *InfixExpression) String() string {
+func (ie *InfixExp) String() string {
 	return fmt.Sprintf("(%s %s %s)", ie.Left, ie.Operator, ie.Right)
 }
 
-func (ie *InfixExpression) Line() uint {
+func (ie *InfixExp) Line() uint {
 	return ie.Token.Line
 }

@@ -63,7 +63,7 @@ func TestEvalHTML(t *testing.T) {
 	}
 }
 
-func TestEvalNumericExpression(t *testing.T) {
+func TestEvalNumericExp(t *testing.T) {
 	tests := []struct {
 		inp      string
 		expected string
@@ -73,6 +73,9 @@ func TestEvalNumericExpression(t *testing.T) {
 		{"{{ 10 }}", "10"},
 		{"{{ -123 }}", "-123"},
 		{`{{ 5 + 5 }}`, "10"},
+		{`{{ 5 - 5 }}`, "0"},
+		{`{{ 20 / 2 }}`, "10"},
+		{`{{ 23 * 2 }}`, "46"},
 		{`{{ 11 + 13 - 1 }}`, "23"},
 		{"{{ 2 * (5 + 10) }}", "30"},
 		{`{{ (3 + 5) * 2 }}`, "16"},
@@ -98,7 +101,7 @@ func TestEvalNumericExpression(t *testing.T) {
 	}
 }
 
-func TestEvalBooleanExpression(t *testing.T) {
+func TestEvalBooleanExp(t *testing.T) {
 	tests := []struct {
 		inp      string
 		expected string
@@ -149,12 +152,12 @@ func TestEvalBooleanExpression(t *testing.T) {
 	}
 }
 
-func TestEvalNilExpression(t *testing.T) {
+func TestEvalNilExp(t *testing.T) {
 	inp := "<h1>{{ nil }}</h1>"
 	evaluationExpected(t, inp, "<h1></h1>")
 }
 
-func TestEvalStringExpression(t *testing.T) {
+func TestEvalStringExp(t *testing.T) {
 	tests := []struct {
 		inp      string
 		expected string
@@ -172,7 +175,7 @@ func TestEvalStringExpression(t *testing.T) {
 	}
 }
 
-func TestEvalTernaryExpression(t *testing.T) {
+func TestEvalTernaryExp(t *testing.T) {
 	tests := []struct {
 		inp      string
 		expected string
@@ -194,7 +197,7 @@ func TestEvalTernaryExpression(t *testing.T) {
 	}
 }
 
-func TestEvalIfStatement(t *testing.T) {
+func TestEvalIfStmt(t *testing.T) {
 	tests := []struct {
 		inp    string
 		expect string
@@ -261,7 +264,7 @@ func TestEvalArray(t *testing.T) {
 	}
 }
 
-func TestEvalIndexExpression(t *testing.T) {
+func TestEvalIndexExp(t *testing.T) {
 	tests := []struct {
 		inp      string
 		expected string
@@ -304,7 +307,7 @@ func TestEvalAssignVariable(t *testing.T) {
 	}
 }
 
-func TestEvalForStatement(t *testing.T) {
+func TestEvalForStmt(t *testing.T) {
 	tests := []struct {
 		inp      string
 		expected string
@@ -315,6 +318,21 @@ func TestEvalForStatement(t *testing.T) {
 		{`@for(; false;)Here@end`, ""},
 		{`@for(c = 1; false; c++){{ c }}@end`, ""},
 		{`@for(c = 1; c == 1; c++){{ c }}@end`, "1"},
+		// test @else directive
+		{`@for(c = 1; false; c++){{ c }}@else<b>Empty</b>@end`, "<b>Empty</b>"},
+		{`@for(c = 0; c < 0; c++){{ c }}@elseEmpty@end`, "Empty"},
+	}
+
+	for _, tt := range tests {
+		evaluationExpected(t, tt.inp, tt.expected)
+	}
+}
+
+func TestEvalEachStmt(t *testing.T) {
+	tests := []struct {
+		inp      string
+		expected string
+	}{
 		{`@each(name in ["anna", "serhii"]){{ name }} @end`, "anna serhii "},
 		{`@each(num in [1, 2, 3]){{ num }}@end`, "123"},
 		{`@each(num in []){{ num }}@end`, ""},
@@ -325,6 +343,10 @@ func TestEvalForStatement(t *testing.T) {
 		{`@each(num in [1, 2, 3, 4]){{ loop.last }}@end`, "0001"},
 		{`@each(num in [4, 2, 8]){{ loop.iter }}@end`, "123"},
 		{`@each(num in [9, 3, 44, 24, 1, 3]){{ loop.iter }}@end`, "123456"},
+		// test @else directive
+		{`@each(v in []){{ v }}@else<b>Empty array</b>@end`, "<b>Empty array</b>"},
+		{`@each(n in []){{ n }}@else@end`, ""},
+		{`@each(n in []){{ n }}@elsetest@end`, "test"},
 	}
 
 	for _, tt := range tests {

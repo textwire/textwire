@@ -6,23 +6,23 @@ import (
 	"github.com/textwire/textwire/token"
 )
 
-type BlockStatement struct {
+type BlockStmt struct {
 	Token      token.Token
 	Statements []Statement
 }
 
-func (bs *BlockStatement) statementNode() {
+func (bs *BlockStmt) statementNode() {
 }
 
-func (bs *BlockStatement) TokenLiteral() string {
+func (bs *BlockStmt) TokenLiteral() string {
 	return bs.Token.Literal
 }
 
-func (bs *BlockStatement) String() string {
+func (bs *BlockStmt) String() string {
 	var out bytes.Buffer
 
 	for _, s := range bs.Statements {
-		_, isHTML := s.(*HTMLStatement)
+		_, isHTML := s.(*HTMLStmt)
 
 		if isHTML {
 			out.WriteString(s.String())
@@ -34,6 +34,6 @@ func (bs *BlockStatement) String() string {
 	return out.String()
 }
 
-func (bs *BlockStatement) Line() uint {
+func (bs *BlockStmt) Line() uint {
 	return bs.Token.Line
 }

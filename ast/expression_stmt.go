@@ -2,19 +2,19 @@ package ast
 
 import "github.com/textwire/textwire/token"
 
-type ExpressionStatement struct {
+type ExpressionStmt struct {
 	Token      token.Token
 	Expression Expression
 }
 
-func (es *ExpressionStatement) statementNode() {
+func (es *ExpressionStmt) statementNode() {
 }
 
-func (es *ExpressionStatement) TokenLiteral() string {
+func (es *ExpressionStmt) TokenLiteral() string {
 	return es.Token.Literal
 }
 
-func (es *ExpressionStatement) String() string {
+func (es *ExpressionStmt) String() string {
 	if es.Expression == nil {
 		return ""
 	}
@@ -22,6 +22,6 @@ func (es *ExpressionStatement) String() string {
 	return es.Expression.String()
 }
 
-func (es *ExpressionStatement) Line() uint {
+func (es *ExpressionStmt) Line() uint {
 	return es.Token.Line
 }
