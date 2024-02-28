@@ -318,6 +318,9 @@ func TestEvalForStatement(t *testing.T) {
 		{`@for(; false;)Here@end`, ""},
 		{`@for(c = 1; false; c++){{ c }}@end`, ""},
 		{`@for(c = 1; c == 1; c++){{ c }}@end`, "1"},
+		// test @else directive
+		{`@for(c = 1; false; c++){{ c }}@else<b>Empty</b>@end`, "<b>Empty</b>"},
+		{`@for(c = 0; c < 0; c++){{ c }}@elseEmpty@end`, "Empty"},
 	}
 
 	for _, tt := range tests {
@@ -340,7 +343,7 @@ func TestEvalEachStatement(t *testing.T) {
 		{`@each(num in [1, 2, 3, 4]){{ loop.last }}@end`, "0001"},
 		{`@each(num in [4, 2, 8]){{ loop.iter }}@end`, "123"},
 		{`@each(num in [9, 3, 44, 24, 1, 3]){{ loop.iter }}@end`, "123456"},
-		// test @each directive
+		// test @else directive
 		{`@each(v in []){{ v }}@else<b>Empty array</b>@end`, "<b>Empty array</b>"},
 		{`@each(n in []){{ n }}@else@end`, ""},
 		{`@each(n in []){{ n }}@elsetest@end`, "test"},

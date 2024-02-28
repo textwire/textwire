@@ -1121,6 +1121,29 @@ func TestParseForStatement(t *testing.T) {
 	if stmt.Block.String() != `{{ i }}` {
 		t.Errorf("stmt.Block.String() is not '{{ i }}', got %s", stmt.Block.String())
 	}
+
+	if stmt.Alternative != nil {
+		t.Errorf("stmt.Alternative is not nil, got %T", stmt.Alternative)
+	}
+}
+
+func TestParseForElseStatement(t *testing.T) {
+	inp := `@for(i = 0; i < 0; i++){{ i }}@elseEmpty@end`
+
+	stmts := parseStatements(t, inp, 1, nil)
+	stmt, ok := stmts[0].(*ast.ForStatement)
+
+	if !ok {
+		t.Fatalf("stmts[0] is not a ForStatement, got %T", stmts[0])
+	}
+
+	if stmt.Alternative == nil {
+		t.Fatalf("stmt.Alternative is nil")
+	}
+
+	if stmt.Alternative.String() != "Empty" {
+		t.Errorf("stmt.Alternative.String() is not 'Empty', got %s", stmt.Alternative.String())
+	}
 }
 
 func TestParseInfiniteForStatement(t *testing.T) {

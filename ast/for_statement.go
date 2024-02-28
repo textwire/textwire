@@ -7,11 +7,12 @@ import (
 )
 
 type ForStatement struct {
-	Token     token.Token // The '@for' token
-	Init      Statement   // The initialization statement; or nil
-	Condition Expression  // The condition expression; or nil
-	Post      Statement   // The post iteration statement; or nil
-	Block     *BlockStatement
+	Token       token.Token     // The '@for' token
+	Init        Statement       // The initialization statement; or nil
+	Condition   Expression      // The condition expression; or nil
+	Post        Statement       // The post iteration statement; or nil
+	Alternative *BlockStatement // The @else block
+	Block       *BlockStatement
 }
 
 func (fs *ForStatement) statementNode() {
@@ -31,6 +32,11 @@ func (fs *ForStatement) String() string {
 	out.WriteString(")\n")
 
 	out.WriteString(fs.Block.String() + "\n")
+
+	if fs.Alternative != nil {
+		out.WriteString("@else\n")
+		out.WriteString(fs.Alternative.String() + "\n")
+	}
 
 	out.WriteString("@end\n")
 
