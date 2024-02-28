@@ -434,9 +434,9 @@ func (e *Evaluator) evalPrefixExp(node *ast.PrefixExp, env *object.Env) object.O
 
 	switch node.Operator {
 	case "-":
-		return e.evalMinusPrefixOperatorExpression(right, node)
+		return e.evalMinusPrefixOperatorExp(right, node)
 	case "!":
-		return e.evalBangOperatorExpression(right, node)
+		return e.evalBangOperatorExp(right, node)
 	}
 
 	return e.newError(node, fail.ErrUnknownOperator,
@@ -526,7 +526,7 @@ func (e *Evaluator) evalInfixExp(
 		return rightObj
 	}
 
-	return e.evalInfixOperatorExpression(operator, leftObj, rightObj, left)
+	return e.evalInfixOperatorExp(operator, leftObj, rightObj, left)
 }
 
 func (e *Evaluator) evalPostfixExp(
@@ -539,7 +539,7 @@ func (e *Evaluator) evalPostfixExp(
 		return leftObj
 	}
 
-	return e.evalPostfixOperatorExpression(leftObj, node.Operator, node)
+	return e.evalPostfixOperatorExp(leftObj, node.Operator, node)
 }
 
 func (e *Evaluator) evalCallExp(
@@ -572,7 +572,7 @@ func (e *Evaluator) evalCallExp(
 	return e.newError(node, fail.ErrFuncDoNotExist, node.Function.Value)
 }
 
-func (e *Evaluator) evalPostfixOperatorExpression(
+func (e *Evaluator) evalPostfixOperatorExp(
 	left object.Object,
 	operator string,
 	node ast.Node,
@@ -607,7 +607,7 @@ func (e *Evaluator) evalPostfixOperatorExpression(
 		left.Type(), operator)
 }
 
-func (e *Evaluator) evalInfixOperatorExpression(
+func (e *Evaluator) evalInfixOperatorExp(
 	operator string,
 	left,
 	right object.Object,
@@ -714,7 +714,7 @@ func (e *Evaluator) evalFloatInfixExp(
 		left.Type(), operator)
 }
 
-func (e *Evaluator) evalMinusPrefixOperatorExpression(
+func (e *Evaluator) evalMinusPrefixOperatorExp(
 	right object.Object,
 	node ast.Node,
 ) object.Object {
@@ -731,7 +731,7 @@ func (e *Evaluator) evalMinusPrefixOperatorExpression(
 		"-", right.Type())
 }
 
-func (e *Evaluator) evalBangOperatorExpression(
+func (e *Evaluator) evalBangOperatorExp(
 	right object.Object,
 	node ast.Node,
 ) object.Object {

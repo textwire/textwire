@@ -63,7 +63,7 @@ func TestEvalHTML(t *testing.T) {
 	}
 }
 
-func TestEvalNumericExpression(t *testing.T) {
+func TestEvalNumericExp(t *testing.T) {
 	tests := []struct {
 		inp      string
 		expected string
@@ -101,7 +101,7 @@ func TestEvalNumericExpression(t *testing.T) {
 	}
 }
 
-func TestEvalBooleanExpression(t *testing.T) {
+func TestEvalBooleanExp(t *testing.T) {
 	tests := []struct {
 		inp      string
 		expected string
@@ -152,12 +152,12 @@ func TestEvalBooleanExpression(t *testing.T) {
 	}
 }
 
-func TestEvalNilExpression(t *testing.T) {
+func TestEvalNilExp(t *testing.T) {
 	inp := "<h1>{{ nil }}</h1>"
 	evaluationExpected(t, inp, "<h1></h1>")
 }
 
-func TestEvalStringExpression(t *testing.T) {
+func TestEvalStringExp(t *testing.T) {
 	tests := []struct {
 		inp      string
 		expected string
