@@ -102,7 +102,7 @@ func New(lexer *lexer.Lexer, filepath string) *Parser {
 	p.registerInfix(token.GTHAN_EQ, p.parseInfixExpression)
 
 	p.registerInfix(token.QUESTION, p.parseTernaryExpression)
-	p.registerInfix(token.LBRACKET, p.parseIndexExpression)
+	p.registerInfix(token.LBRACKET, p.parseIndexExp)
 	p.registerInfix(token.INC, p.parsePostfixExpression)
 	p.registerInfix(token.DEC, p.parsePostfixExpression)
 	p.registerInfix(token.DOT, p.parseDotExp)
@@ -444,8 +444,8 @@ func (p *Parser) parseInsertStmt() ast.Statement {
 	return stmt
 }
 
-func (p *Parser) parseIndexExpression(left ast.Expression) ast.Expression {
-	exp := &ast.IndexExpression{
+func (p *Parser) parseIndexExp(left ast.Expression) ast.Expression {
+	exp := &ast.IndexExp{
 		Token: p.curToken, // "["
 		Left:  left,
 	}

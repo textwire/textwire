@@ -53,8 +53,8 @@ func (e *Evaluator) Eval(node ast.Node, env *object.Env) object.Object {
 	// Expressions
 	case *ast.Identifier:
 		return e.evalIdentifier(node, env)
-	case *ast.IndexExpression:
-		return e.evalIndexExpression(node, env)
+	case *ast.IndexExp:
+		return e.evalIndexExp(node, env)
 	case *ast.DotExp:
 		return e.evalDotExp(node, env)
 	case *ast.IntegerLiteral:
@@ -350,8 +350,8 @@ func (e *Evaluator) evalIdentifier(
 	return e.newError(node, fail.ErrIdentifierNotFound, node.Value)
 }
 
-func (e *Evaluator) evalIndexExpression(
-	node *ast.IndexExpression,
+func (e *Evaluator) evalIndexExp(
+	node *ast.IndexExp,
 	env *object.Env,
 ) object.Object {
 	left := e.Eval(node.Left, env)
@@ -368,15 +368,15 @@ func (e *Evaluator) evalIndexExpression(
 
 	switch {
 	case left.Is(object.ARR_OBJ) && idx.Is(object.INT_OBJ):
-		return e.evalArrayIndexExpression(left, idx)
+		return e.evalArrayIndexExp(left, idx)
 	case left.Is(object.OBJ_OBJ) && idx.Is(object.STR_OBJ):
-		return e.evalObjectIndexExpression(left.(*object.Obj), idx.(*object.Str).Value, node.Index)
+		return e.evalObjectIndexExp(left.(*object.Obj), idx.(*object.Str).Value, node.Index)
 	}
 
 	return e.newError(node, fail.ErrIndexNotSupported, left.Type())
 }
 
-func (e *Evaluator) evalArrayIndexExpression(
+func (e *Evaluator) evalArrayIndexExp(
 	arr,
 	idx object.Object,
 ) object.Object {
@@ -391,7 +391,7 @@ func (e *Evaluator) evalArrayIndexExpression(
 	return arrObj.Elements[index]
 }
 
-func (e *Evaluator) evalObjectIndexExpression(
+func (e *Evaluator) evalObjectIndexExp(
 	obj object.Object,
 	idx string,
 	node ast.Node,
@@ -422,7 +422,7 @@ func (e *Evaluator) evalDotExp(node *ast.DotExp, env *object.Env) object.Object 
 
 	key := node.Key.(*ast.Identifier)
 
-	return e.evalObjectIndexExpression(left.(*object.Obj), key.Value, node)
+	return e.evalObjectIndexExp(left.(*object.Obj), key.Value, node)
 }
 
 func (e *Evaluator) evalPrefixExpression(node *ast.PrefixExpression, env *object.Env) object.Object {

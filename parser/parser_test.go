@@ -938,7 +938,7 @@ func TestParseArray(t *testing.T) {
 	}
 }
 
-func TestParseIndexExpression(t *testing.T) {
+func TestParseIndexExp(t *testing.T) {
 	inp := `{{ arr[1 + 2][2] }}`
 
 	stmts := parseStatements(t, inp, 1, nil)
@@ -948,10 +948,10 @@ func TestParseIndexExpression(t *testing.T) {
 		t.Fatalf("stmts[0] is not a ExpressionStmt, got %T", stmts[0])
 	}
 
-	indexExp, ok := stmt.Expression.(*ast.IndexExpression)
+	indexExp, ok := stmt.Expression.(*ast.IndexExp)
 
 	if !ok {
-		t.Fatalf("stmt.Expression is not a IndexExpression, got %T", stmt.Expression)
+		t.Fatalf("stmt.Expression is not a IndexExp, got %T", stmt.Expression)
 	}
 
 	if indexExp.String() != "((arr[(1 + 2)])[2])" {

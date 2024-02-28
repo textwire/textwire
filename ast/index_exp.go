@@ -6,23 +6,23 @@ import (
 	"github.com/textwire/textwire/token"
 )
 
-type IndexExpression struct {
+type IndexExp struct {
 	Token token.Token // The '[' token
 	Left  Expression
 	Index Expression
 }
 
-func (ie *IndexExpression) expressionNode() {
+func (ie *IndexExp) expressionNode() {
 }
 
-func (ie *IndexExpression) TokenLiteral() string {
+func (ie *IndexExp) TokenLiteral() string {
 	return ie.Token.Literal
 }
 
-func (ie *IndexExpression) String() string {
+func (ie *IndexExp) String() string {
 	return fmt.Sprintf("(%s[%s])", ie.Left, ie.Index.String())
 }
 
-func (ie *IndexExpression) Line() uint {
+func (ie *IndexExp) Line() uint {
 	return ie.Token.Line
 }

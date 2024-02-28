@@ -264,7 +264,7 @@ func TestEvalArray(t *testing.T) {
 	}
 }
 
-func TestEvalIndexExpression(t *testing.T) {
+func TestEvalIndexExp(t *testing.T) {
 	tests := []struct {
 		inp      string
 		expected string
