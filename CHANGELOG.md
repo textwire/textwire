@@ -4,6 +4,7 @@
 
 - Added `@else` directive for the `@each` loop which will be executed if the loop has no items to iterate over.
 - Added `@else` directive for the `@for` loop which will be executed if the loop has no items to iterate over.
+- Code refactoring and naming improvements.
 
 ------
 
