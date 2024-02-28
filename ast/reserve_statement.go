@@ -7,8 +7,8 @@ import (
 )
 
 type ReserveStatement struct {
-	Token  token.Token      // The '@reserve' token
-	Insert *InsertStatement // The insert statement; nil if not yet parsed
+	Token  token.Token // The '@reserve' token
+	Insert *InsertStmt // The insert statement; nil if not yet parsed
 	Name   *StringLiteral
 }
 

@@ -7,21 +7,21 @@ import (
 	"github.com/textwire/textwire/token"
 )
 
-type InsertStatement struct {
+type InsertStmt struct {
 	Token    token.Token    // The '@insert' token
 	Name     *StringLiteral // The name of the insert statement
 	Argument Expression     // The argument to the insert statement; nil if has block
 	Block    *BlockStmt     // The block of the insert statement; nil if has argument
 }
 
-func (is *InsertStatement) statementNode() {
+func (is *InsertStmt) statementNode() {
 }
 
-func (is *InsertStatement) TokenLiteral() string {
+func (is *InsertStmt) TokenLiteral() string {
 	return is.Token.Literal
 }
 
-func (is *InsertStatement) String() string {
+func (is *InsertStmt) String() string {
 	var out bytes.Buffer
 
 	if is.Argument != nil {
@@ -36,6 +36,6 @@ func (is *InsertStatement) String() string {
 	return out.String()
 }
 
-func (is *InsertStatement) Line() uint {
+func (is *InsertStmt) Line() uint {
 	return is.Token.Line
 }

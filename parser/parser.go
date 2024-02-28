@@ -158,7 +158,7 @@ func (p *Parser) parseStatement() ast.Statement {
 	case token.RESERVE:
 		return p.parseReserveStatement()
 	case token.INSERT:
-		return p.parseInsertStatement()
+		return p.parseInsertStmt()
 	default:
 		return nil
 	}
@@ -410,8 +410,8 @@ func (p *Parser) parseReserveStatement() ast.Statement {
 	return stmt
 }
 
-func (p *Parser) parseInsertStatement() ast.Statement {
-	stmt := &ast.InsertStatement{
+func (p *Parser) parseInsertStmt() ast.Statement {
+	stmt := &ast.InsertStmt{
 		Token: p.curToken, // "@insert"
 	}
 

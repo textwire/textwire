@@ -142,7 +142,7 @@ func TestReserveStatement(t *testing.T) {
 	})
 }
 
-func TestInsertStatement(t *testing.T) {
+func TestInsertStmt(t *testing.T) {
 	inp := `@insert("title")<div>Nice one</div>@end`
 
 	TokenizeString(t, inp, []token.Token{

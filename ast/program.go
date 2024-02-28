@@ -40,11 +40,11 @@ func (p *Program) Line() uint {
 	return p.Token.Line
 }
 
-func (p *Program) Inserts() map[string]*InsertStatement {
-	inserts := make(map[string]*InsertStatement)
+func (p *Program) Inserts() map[string]*InsertStmt {
+	inserts := make(map[string]*InsertStmt)
 
 	for _, stmt := range p.Statements {
-		if insertStmt, ok := stmt.(*InsertStatement); ok {
+		if insertStmt, ok := stmt.(*InsertStmt); ok {
 			inserts[insertStmt.Name.Value] = insertStmt
 		}
 	}
@@ -52,7 +52,7 @@ func (p *Program) Inserts() map[string]*InsertStatement {
 	return inserts
 }
 
-func (p *Program) ApplyInserts(inserts map[string]*InsertStatement, absPath string) *fail.Error {
+func (p *Program) ApplyInserts(inserts map[string]*InsertStmt, absPath string) *fail.Error {
 	for _, stmt := range p.Statements {
 		if stmt.TokenLiteral() != token.String(token.RESERVE) {
 			continue

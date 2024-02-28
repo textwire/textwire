@@ -25,7 +25,7 @@ func checkParserErrors(t *testing.T, p *Parser) {
 	t.FailNow()
 }
 
-func parseStatements(t *testing.T, inp string, stmtCount int, inserts map[string]*ast.InsertStatement) []ast.Statement {
+func parseStatements(t *testing.T, inp string, stmtCount int, inserts map[string]*ast.InsertStmt) []ast.Statement {
 	l := lexer.New(inp)
 	p := New(l, "")
 	prog := p.ParseProgram()
@@ -833,7 +833,7 @@ func TestParseUseStatement(t *testing.T) {
 func TestParseReserveStatement(t *testing.T) {
 	inp := `@reserve("content")`
 
-	stmts := parseStatements(t, inp, 1, map[string]*ast.InsertStatement{
+	stmts := parseStatements(t, inp, 1, map[string]*ast.InsertStmt{
 		"content": {
 			Name: &ast.StringLiteral{Value: "content"},
 			Block: &ast.BlockStmt{
@@ -861,15 +861,15 @@ func TestParseReserveStatement(t *testing.T) {
 	}
 }
 
-func TestInsertStatement(t *testing.T) {
+func TestInsertStmt(t *testing.T) {
 	t.Run("Insert with block", func(tt *testing.T) {
 		inp := `@insert("content")<h1>Some content</h1>@end`
 
 		stmts := parseStatements(t, inp, 1, nil)
-		stmt, ok := stmts[0].(*ast.InsertStatement)
+		stmt, ok := stmts[0].(*ast.InsertStmt)
 
 		if !ok {
-			t.Fatalf("stmts[0] is not a InsertStatement, got %T", stmts[0])
+			t.Fatalf("stmts[0] is not a InsertStmt, got %T", stmts[0])
 		}
 
 		if stmt.Name.Value != "content" {
@@ -885,10 +885,10 @@ func TestInsertStatement(t *testing.T) {
 		inp := `@insert("content", "Some content")`
 
 		stmts := parseStatements(t, inp, 1, nil)
-		stmt, ok := stmts[0].(*ast.InsertStatement)
+		stmt, ok := stmts[0].(*ast.InsertStmt)
 
 		if !ok {
-			t.Fatalf("stmts[0] is not a InsertStatement, got %T", stmts[0])
+			t.Fatalf("stmts[0] is not a InsertStmt, got %T", stmts[0])
 		}
 
 		if stmt.Name.Value != "content" {

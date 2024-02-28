@@ -41,7 +41,7 @@ func (e *Evaluator) Eval(node ast.Node, env *object.Env) object.Object {
 		return e.evalAssignStmt(node, env)
 	case *ast.UseStatement:
 		return e.evalUseStatement(node, env)
-	case *ast.InsertStatement:
+	case *ast.InsertStmt:
 		return NIL
 	case *ast.ReserveStatement:
 		return e.evalReserveStatement(node, env)
