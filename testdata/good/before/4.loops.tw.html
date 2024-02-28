@@ -3,3 +3,9 @@
         <li>{{ name }} @for(i = 0; i < 3; i++){{ i }}@end</li>
     @end
 </ul>
+
+<ul>
+    @each(name in names)
+        <li>{{ loop.iter }}: {{ name }}</li>
+    @end
+</ul>
