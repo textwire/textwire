@@ -610,7 +610,7 @@ func (e *Evaluator) evalInfixOperatorExpression(
 	}
 
 	if operator == "+" && left.Is(object.STR_OBJ) {
-		return e.evalStringInfixExpression(operator, right, left)
+		return e.evalStringInfixExpression(right, left)
 	}
 
 	switch left.Type() {
@@ -624,14 +624,9 @@ func (e *Evaluator) evalInfixOperatorExpression(
 		left.Type(), operator)
 }
 
-func (e *Evaluator) evalStringInfixExpression(
-	operator string,
-	right,
-	left object.Object,
-) object.Object {
+func (e *Evaluator) evalStringInfixExpression(right, left object.Object) object.Object {
 	leftVal := left.(*object.Str).Value
 	rightVal := right.(*object.Str).Value
-
 	return &object.Str{Value: leftVal + rightVal}
 }
 
