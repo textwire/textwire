@@ -215,10 +215,10 @@ func testLiteralExpression(
 }
 
 func testConsequence(t *testing.T, stmt ast.Statement, condition interface{}, consequence string) bool {
-	ifStmt, ok := stmt.(*ast.IfStatement)
+	ifStmt, ok := stmt.(*ast.IfStmt)
 
 	if !ok {
-		t.Errorf("stmt is not an IfStatement, got %T", stmt)
+		t.Errorf("stmt is not an IfStmt, got %T", stmt)
 		return false
 	}
 
@@ -610,14 +610,14 @@ func TestTernaryExpression(t *testing.T) {
 	}
 }
 
-func TestParseIfStatement(t *testing.T) {
+func TestParseIfStmt(t *testing.T) {
 	inp := `@if(true)1@end`
 
 	stmts := parseStatements(t, inp, 1, nil)
-	stmt, ok := stmts[0].(*ast.IfStatement)
+	stmt, ok := stmts[0].(*ast.IfStmt)
 
 	if !ok {
-		t.Fatalf("stmts[0] is not an IfStatement, got %T", stmts[0])
+		t.Fatalf("stmts[0] is not an IfStmt, got %T", stmts[0])
 	}
 
 	if !testConsequence(t, stmt, true, "1") {
@@ -637,10 +637,10 @@ func TestParseIfElseStatement(t *testing.T) {
 	inp := `@if(true)1@else2@end`
 
 	stmts := parseStatements(t, inp, 1, nil)
-	stmt, ok := stmts[0].(*ast.IfStatement)
+	stmt, ok := stmts[0].(*ast.IfStmt)
 
 	if !ok {
-		t.Fatalf("stmts[0] is not an IfStatement, got %T", stmts[0])
+		t.Fatalf("stmts[0] is not an IfStmt, got %T", stmts[0])
 	}
 
 	if !testConsequence(t, stmt, true, "1") {
@@ -677,10 +677,10 @@ func TestParseNestedIfElseStatement(t *testing.T) {
 		t.Fatalf("stmts[2] is not an HTMLStmt, got %T", stmts[0])
 	}
 
-	ifStmt, isNotIfStmt := stmts[1].(*ast.IfStatement)
+	ifStmt, isNotIfStmt := stmts[1].(*ast.IfStmt)
 
 	if !isNotIfStmt {
-		t.Fatalf("stmts[1] is not an IfStatement, got %T", stmts[0])
+		t.Fatalf("stmts[1] is not an IfStmt, got %T", stmts[0])
 	}
 
 	if len(ifStmt.Consequence.Statements) != 3 {
@@ -692,10 +692,10 @@ func TestParseIfElseIfStmt(t *testing.T) {
 	inp := `@if(true)1@elseif(false)2@end`
 
 	stmts := parseStatements(t, inp, 1, nil)
-	stmt, ok := stmts[0].(*ast.IfStatement)
+	stmt, ok := stmts[0].(*ast.IfStmt)
 
 	if !ok {
-		t.Fatalf("stmts[0] is not an IfStatement, got %T", stmts[0])
+		t.Fatalf("stmts[0] is not an IfStmt, got %T", stmts[0])
 	}
 
 	if !testConsequence(t, stmt, true, "1") {
@@ -735,10 +735,10 @@ func TestParseIfElseIfElseStatement(t *testing.T) {
 	inp := `@if(true)1@elseif(false)2@else3@end`
 
 	stmts := parseStatements(t, inp, 1, nil)
-	stmt, ok := stmts[0].(*ast.IfStatement)
+	stmt, ok := stmts[0].(*ast.IfStmt)
 
 	if !ok {
-		t.Fatalf("stmts[0] is not an IfStatement, got %T", stmts[0])
+		t.Fatalf("stmts[0] is not an IfStmt, got %T", stmts[0])
 	}
 
 	if !testConsequence(t, stmt, true, "1") {

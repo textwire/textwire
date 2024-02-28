@@ -148,7 +148,7 @@ func (p *Parser) parseStatement() ast.Statement {
 	case token.SEMI:
 		return p.parseEmbeddedCode()
 	case token.IF:
-		return p.parseIfStatement()
+		return p.parseIfStmt()
 	case token.FOR:
 		return p.parseForStmt()
 	case token.EACH:
@@ -551,8 +551,8 @@ func (p *Parser) parseTernaryExpression(left ast.Expression) ast.Expression {
 	return exp
 }
 
-func (p *Parser) parseIfStatement() *ast.IfStatement {
-	stmt := &ast.IfStatement{Token: p.curToken} // "@if"
+func (p *Parser) parseIfStmt() *ast.IfStmt {
+	stmt := &ast.IfStmt{Token: p.curToken} // "@if"
 
 	if !p.expectPeek(token.LPAREN) { // move to "("
 		return nil

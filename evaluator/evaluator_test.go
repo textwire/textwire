@@ -197,7 +197,7 @@ func TestEvalTernaryExpression(t *testing.T) {
 	}
 }
 
-func TestEvalIfStatement(t *testing.T) {
+func TestEvalIfStmt(t *testing.T) {
 	tests := []struct {
 		inp    string
 		expect string

@@ -33,8 +33,8 @@ func (e *Evaluator) Eval(node ast.Node, env *object.Env) object.Object {
 		return &object.HTML{Value: node.String()}
 	case *ast.ExpressionStmt:
 		return e.Eval(node.Expression, env)
-	case *ast.IfStatement:
-		return e.evalIfStatement(node, env)
+	case *ast.IfStmt:
+		return e.evalIfStmt(node, env)
 	case *ast.BlockStmt:
 		return e.evalBlockStmt(node, env)
 	case *ast.AssignStmt:
@@ -102,10 +102,7 @@ func (e *Evaluator) evalProgram(prog *ast.Program, env *object.Env) object.Objec
 	return &object.HTML{Value: out.String()}
 }
 
-func (e *Evaluator) evalIfStatement(
-	node *ast.IfStatement,
-	env *object.Env,
-) object.Object {
+func (e *Evaluator) evalIfStmt(node *ast.IfStmt, env *object.Env) object.Object {
 	condition := e.Eval(node.Condition, env)
 
 	if isError(condition) {

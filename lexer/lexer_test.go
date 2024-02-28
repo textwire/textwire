@@ -87,7 +87,7 @@ func TestIdentifiers(t *testing.T) {
 	})
 }
 
-func TestIfStatement(t *testing.T) {
+func TestIfStmt(t *testing.T) {
 	inp := `@if(true(()))one@elseif(false){{ "nice" }}@elsethree@endfour`
 
 	TokenizeString(t, inp, []token.Token{

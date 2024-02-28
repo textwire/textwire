@@ -6,7 +6,7 @@ import (
 	"github.com/textwire/textwire/token"
 )
 
-type IfStatement struct {
+type IfStmt struct {
 	Token        token.Token   // The '@if' token
 	Condition    Expression    // The truthy condition
 	Consequence  *BlockStmt    // The 'then' block
@@ -14,14 +14,14 @@ type IfStatement struct {
 	Alternatives []*ElseIfStmt // The @elseif blocks
 }
 
-func (is *IfStatement) statementNode() {
+func (is *IfStmt) statementNode() {
 }
 
-func (is *IfStatement) TokenLiteral() string {
+func (is *IfStmt) TokenLiteral() string {
 	return is.Token.Literal
 }
 
-func (is *IfStatement) String() string {
+func (is *IfStmt) String() string {
 	var out bytes.Buffer
 
 	out.WriteString("@if(" + is.Condition.String() + ")\n")
@@ -42,6 +42,6 @@ func (is *IfStatement) String() string {
 	return out.String()
 }
 
-func (is *IfStatement) Line() uint {
+func (is *IfStmt) Line() uint {
 	return is.Token.Line
 }
