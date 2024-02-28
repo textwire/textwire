@@ -480,7 +480,7 @@ func (p *Parser) parseDotExpression(left ast.Expression) ast.Expression {
 	}
 
 	if p.peekTokenIs(token.LPAREN) {
-		return p.parseCallExpression(left)
+		return p.parseCallExp(left)
 	}
 
 	exp.Key = p.parseIdentifier()
@@ -488,7 +488,7 @@ func (p *Parser) parseDotExpression(left ast.Expression) ast.Expression {
 	return exp
 }
 
-func (p *Parser) parseCallExpression(receiver ast.Expression) ast.Expression {
+func (p *Parser) parseCallExp(receiver ast.Expression) ast.Expression {
 	ident, ok := p.parseIdentifier().(*ast.Identifier)
 
 	if !ok {
@@ -496,7 +496,7 @@ func (p *Parser) parseCallExpression(receiver ast.Expression) ast.Expression {
 		return nil
 	}
 
-	exp := &ast.CallExpression{
+	exp := &ast.CallExp{
 		Token:    p.curToken, // identifier
 		Receiver: receiver,
 		Function: ident,

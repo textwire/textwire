@@ -1038,7 +1038,7 @@ func TestParseTwoExpression(t *testing.T) {
 	}
 }
 
-func TestParseCallExpression(t *testing.T) {
+func TestParseCallExp(t *testing.T) {
 	inp := `{{ "Serhii Cho".split(" ") }}`
 
 	stmts := parseStatements(t, inp, 1, nil)
@@ -1048,10 +1048,10 @@ func TestParseCallExpression(t *testing.T) {
 		t.Fatalf("stmts[0] is not a ExpressionStmt, got %T", stmts[0])
 	}
 
-	callExp, ok := stmt.Expression.(*ast.CallExpression)
+	callExp, ok := stmt.Expression.(*ast.CallExp)
 
 	if !ok {
-		t.Fatalf("stmt.Expression is not a CallExpression, got %T", stmt.Expression)
+		t.Fatalf("stmt.Expression is not a CallExp, got %T", stmt.Expression)
 	}
 
 	if !testStringLiteral(t, callExp.Receiver, "Serhii Cho") {
@@ -1071,7 +1071,7 @@ func TestParseCallExpression(t *testing.T) {
 	}
 }
 
-func TestParseCallExpressionWithEmptyString(t *testing.T) {
+func TestParseCallExpWithEmptyString(t *testing.T) {
 	inp := `{{ "".len() }}`
 
 	stmts := parseStatements(t, inp, 1, nil)
@@ -1081,10 +1081,10 @@ func TestParseCallExpressionWithEmptyString(t *testing.T) {
 		t.Fatalf("stmts[0] is not a ExpressionStmt, got %T", stmts[0])
 	}
 
-	callExp, ok := stmt.Expression.(*ast.CallExpression)
+	callExp, ok := stmt.Expression.(*ast.CallExp)
 
 	if !ok {
-		t.Fatalf("stmt.Expression is not a CallExpression, got %T", stmt.Expression)
+		t.Fatalf("stmt.Expression is not a CallExp, got %T", stmt.Expression)
 	}
 
 	if !testStringLiteral(t, callExp.Receiver, "") {

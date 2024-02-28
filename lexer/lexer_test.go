@@ -339,7 +339,7 @@ func TestIsDirectoryStart(t *testing.T) {
 	})
 }
 
-func TestCallExpression(t *testing.T) {
+func TestCallExp(t *testing.T) {
 	t.Run("On string", func(tt *testing.T) {
 		inp := `{{ "test".upper() }}`
 
