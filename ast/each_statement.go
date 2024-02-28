@@ -30,6 +30,12 @@ func (es *EachStatement) String() string {
 	out.WriteString(es.Array.String())
 	out.WriteString(")\n")
 	out.WriteString(es.Block.String() + "\n")
+
+	if es.Alternative != nil {
+		out.WriteString("@else\n")
+		out.WriteString(es.Alternative.String() + "\n")
+	}
+
 	out.WriteString("@end\n")
 
 	return out.String()
