@@ -35,8 +35,8 @@ func (e *Evaluator) Eval(node ast.Node, env *object.Env) object.Object {
 		return e.Eval(node.Expression, env)
 	case *ast.IfStatement:
 		return e.evalIfStatement(node, env)
-	case *ast.BlockStatement:
-		return e.evalBlockStatement(node, env)
+	case *ast.BlockStmt:
+		return e.evalBlockStmt(node, env)
 	case *ast.AssignStmt:
 		return e.evalAssignStmt(node, env)
 	case *ast.UseStatement:
@@ -137,10 +137,7 @@ func (e *Evaluator) evalIfStatement(
 	return NIL
 }
 
-func (e *Evaluator) evalBlockStatement(
-	block *ast.BlockStatement,
-	env *object.Env,
-) object.Object {
+func (e *Evaluator) evalBlockStmt(block *ast.BlockStmt, env *object.Env) object.Object {
 	var elems []object.Object
 
 	for _, statement := range block.Statements {

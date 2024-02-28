@@ -234,7 +234,7 @@ func testConsequence(t *testing.T, stmt ast.Statement, condition interface{}, co
 	return true
 }
 
-func testAlternative(t *testing.T, alt *ast.BlockStatement, altValue string) bool {
+func testAlternative(t *testing.T, alt *ast.BlockStmt, altValue string) bool {
 	if alt == nil {
 		t.Errorf("alternative is nil")
 		return false
@@ -836,7 +836,7 @@ func TestParseReserveStatement(t *testing.T) {
 	stmts := parseStatements(t, inp, 1, map[string]*ast.InsertStatement{
 		"content": {
 			Name: &ast.StringLiteral{Value: "content"},
-			Block: &ast.BlockStatement{
+			Block: &ast.BlockStmt{
 				Statements: []ast.Statement{
 					&ast.HTMLStatement{
 						Token: token.Token{Type: token.HTML, Literal: "<h1>Some content</h1>"},

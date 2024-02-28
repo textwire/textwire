@@ -7,12 +7,12 @@ import (
 )
 
 type ForStatement struct {
-	Token       token.Token     // The '@for' token
-	Init        Statement       // The initialization statement; or nil
-	Condition   Expression      // The condition expression; or nil
-	Post        Statement       // The post iteration statement; or nil
-	Alternative *BlockStatement // The @else block
-	Block       *BlockStatement
+	Token       token.Token // The '@for' token
+	Init        Statement   // The initialization statement; or nil
+	Condition   Expression  // The condition expression; or nil
+	Post        Statement   // The post iteration statement; or nil
+	Alternative *BlockStmt  // The @else block
+	Block       *BlockStmt
 }
 
 func (fs *ForStatement) statementNode() {

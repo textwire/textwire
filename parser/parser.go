@@ -439,7 +439,7 @@ func (p *Parser) parseInsertStatement() ast.Statement {
 
 	p.nextToken() // skip ")"
 
-	stmt.Block = p.parseBlockStatement()
+	stmt.Block = p.parseBlockStmt()
 
 	return stmt
 }
@@ -568,7 +568,7 @@ func (p *Parser) parseIfStatement() *ast.IfStatement {
 
 	p.nextToken() // skip ")"
 
-	stmt.Consequence = p.parseBlockStatement()
+	stmt.Consequence = p.parseBlockStmt()
 
 	for p.peekTokenIs(token.ELSEIF) {
 		alt := p.parseElseIfStatement()
@@ -614,15 +614,15 @@ func (p *Parser) parseElseIfStatement() *ast.ElseIfStatement {
 	return &ast.ElseIfStatement{
 		Token:       p.curToken,
 		Condition:   condition,
-		Consequence: p.parseBlockStatement(),
+		Consequence: p.parseBlockStmt(),
 	}
 }
 
-func (p *Parser) parseAlternativeBlock() *ast.BlockStatement {
+func (p *Parser) parseAlternativeBlock() *ast.BlockStmt {
 	p.nextToken() // move to "@else"
 	p.nextToken() // skip "@else"
 
-	alt := p.parseBlockStatement()
+	alt := p.parseBlockStmt()
 
 	if p.peekTokenIs(token.ELSEIF) {
 		p.newError(p.peekToken.Line, fail.ErrElseifCannotFollowElse)
@@ -669,11 +669,11 @@ func (p *Parser) parseForStatement() *ast.ForStatement {
 
 	p.nextToken() // skip ")"
 
-	stmt.Block = p.parseBlockStatement()
+	stmt.Block = p.parseBlockStmt()
 
 	if p.peekTokenIs(token.ELSE) {
 		p.nextToken() // skip "@else"
-		stmt.Alternative = p.parseBlockStatement()
+		stmt.Alternative = p.parseBlockStmt()
 	}
 
 	if !p.expectPeek(token.END) { // move to "@end"
@@ -711,11 +711,11 @@ func (p *Parser) parseEachStatement() *ast.EachStatement {
 
 	p.nextToken() // skip ")"
 
-	stmt.Block = p.parseBlockStatement()
+	stmt.Block = p.parseBlockStmt()
 
 	if p.peekTokenIs(token.ELSE) {
 		p.nextToken() // skip "@else"
-		stmt.Alternative = p.parseBlockStatement()
+		stmt.Alternative = p.parseBlockStmt()
 	}
 
 	if !p.expectPeek(token.END) { // move to "@end"
@@ -725,8 +725,8 @@ func (p *Parser) parseEachStatement() *ast.EachStatement {
 	return stmt
 }
 
-func (p *Parser) parseBlockStatement() *ast.BlockStatement {
-	stmt := &ast.BlockStatement{Token: p.curToken}
+func (p *Parser) parseBlockStmt() *ast.BlockStmt {
+	stmt := &ast.BlockStmt{Token: p.curToken}
 
 	for {
 		block := p.parseStatement()

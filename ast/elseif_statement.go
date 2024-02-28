@@ -9,7 +9,7 @@ import (
 type ElseIfStatement struct {
 	Token       token.Token
 	Condition   Expression
-	Consequence *BlockStatement
+	Consequence *BlockStmt
 }
 
 func (eis *ElseIfStatement) statementNode() {
