@@ -7,10 +7,11 @@ import (
 )
 
 type EachStatement struct {
-	Token token.Token // The '@for' token
-	Var   *Identifier // The variable name
-	Array Expression  // The array to loop over
-	Block *BlockStatement
+	Token       token.Token     // The '@for' token
+	Var         *Identifier     // The variable name
+	Array       Expression      // The array to loop over
+	Alternative *BlockStatement // The @else block
+	Block       *BlockStatement
 }
 
 func (es *EachStatement) statementNode() {

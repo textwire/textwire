@@ -708,6 +708,11 @@ func (p *Parser) parseEachStatement() *ast.EachStatement {
 
 	stmt.Block = p.parseBlockStatement()
 
+	if p.peekTokenIs(token.ELSE) {
+		p.nextToken() // skip "@else"
+		stmt.Alternative = p.parseBlockStatement()
+	}
+
 	if !p.expectPeek(token.END) { // move to "@end"
 		return nil
 	}

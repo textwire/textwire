@@ -1172,6 +1172,25 @@ func TestParseEachStatement(t *testing.T) {
 	if stmt.Block.String() != `{{ name }}` {
 		t.Errorf("stmt.Block.String() is not '{{ name }}', got %s", stmt.Block.String())
 	}
+
+	if stmt.Alternative != nil {
+		t.Errorf("stmt.Alternative is not nil, got %T", stmt.Alternative)
+	}
+}
+
+func TestParseEachElseStatement(t *testing.T) {
+	inp := `@each(v in []){{ v }}@elseTest@end`
+
+	stmts := parseStatements(t, inp, 1, nil)
+	stmt, ok := stmts[0].(*ast.EachStatement)
+
+	if !ok {
+		t.Fatalf("stmts[0] is not a EachStatement, got %T", stmts[0])
+	}
+
+	if stmt.Alternative.String() != "Test" {
+		t.Errorf("stmt.Alternative.String() is not 'Test', got %s", stmt.Alternative.String())
+	}
 }
 
 func TestParseObjectStatement(t *testing.T) {
