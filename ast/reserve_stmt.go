@@ -6,23 +6,23 @@ import (
 	"github.com/textwire/textwire/token"
 )
 
-type ReserveStatement struct {
+type ReserveStmt struct {
 	Token  token.Token // The '@reserve' token
 	Insert *InsertStmt // The insert statement; nil if not yet parsed
 	Name   *StringLiteral
 }
 
-func (rs *ReserveStatement) statementNode() {
+func (rs *ReserveStmt) statementNode() {
 }
 
-func (rs *ReserveStatement) TokenLiteral() string {
+func (rs *ReserveStmt) TokenLiteral() string {
 	return rs.Token.Literal
 }
 
-func (rs *ReserveStatement) String() string {
+func (rs *ReserveStmt) String() string {
 	return fmt.Sprintf(`@reserve("%s")`, rs.Name.String())
 }
 
-func (rs *ReserveStatement) Line() uint {
+func (rs *ReserveStmt) Line() uint {
 	return rs.Token.Line
 }

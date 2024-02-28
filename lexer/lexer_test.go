@@ -128,7 +128,7 @@ func TestUseStatement(t *testing.T) {
 	})
 }
 
-func TestReserveStatement(t *testing.T) {
+func TestReserveStmt(t *testing.T) {
 	inp := `<div>@reserve("title")</div>`
 
 	TokenizeString(t, inp, []token.Token{

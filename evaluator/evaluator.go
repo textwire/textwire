@@ -43,8 +43,8 @@ func (e *Evaluator) Eval(node ast.Node, env *object.Env) object.Object {
 		return e.evalUseStatement(node, env)
 	case *ast.InsertStmt:
 		return NIL
-	case *ast.ReserveStatement:
-		return e.evalReserveStatement(node, env)
+	case *ast.ReserveStmt:
+		return e.evalReserveStmt(node, env)
 	case *ast.ForStmt:
 		return e.evalForStmt(node, env)
 	case *ast.EachStmt:
@@ -195,8 +195,8 @@ func (e *Evaluator) evalUseStatement(
 	}
 }
 
-func (e *Evaluator) evalReserveStatement(
-	node *ast.ReserveStatement,
+func (e *Evaluator) evalReserveStmt(
+	node *ast.ReserveStmt,
 	env *object.Env,
 ) object.Object {
 	stmt := &object.Reserve{Name: node.Name.Value}

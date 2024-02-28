@@ -830,7 +830,7 @@ func TestParseUseStatement(t *testing.T) {
 	}
 }
 
-func TestParseReserveStatement(t *testing.T) {
+func TestParseReserveStmt(t *testing.T) {
 	inp := `@reserve("content")`
 
 	stmts := parseStatements(t, inp, 1, map[string]*ast.InsertStmt{
@@ -846,10 +846,10 @@ func TestParseReserveStatement(t *testing.T) {
 		},
 	})
 
-	stmt, ok := stmts[0].(*ast.ReserveStatement)
+	stmt, ok := stmts[0].(*ast.ReserveStmt)
 
 	if !ok {
-		t.Fatalf("stmts[0] is not a ReserveStatement, got %T", stmts[0])
+		t.Fatalf("stmts[0] is not a ReserveStmt, got %T", stmts[0])
 	}
 
 	if stmt.Name.Value != "content" {

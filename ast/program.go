@@ -58,7 +58,7 @@ func (p *Program) ApplyInserts(inserts map[string]*InsertStmt, absPath string) *
 			continue
 		}
 
-		reserve, ok := stmt.(*ReserveStatement)
+		reserve, ok := stmt.(*ReserveStmt)
 
 		if !ok {
 			return fail.New(stmt.Line(), absPath, "parser",
