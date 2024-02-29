@@ -159,6 +159,10 @@ func (p *Parser) parseStatement() ast.Statement {
 		return p.parseReserveStmt()
 	case token.INSERT:
 		return p.parseInsertStmt()
+	case token.BREAK:
+		return &ast.BreakStmt{Token: p.curToken}
+	case token.CONTINUE:
+		return &ast.ContinueStmt{Token: p.curToken}
 	default:
 		return nil
 	}
