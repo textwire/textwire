@@ -27,13 +27,13 @@ func evaluationExpected(t *testing.T, inp, expect string) {
 	errObj, ok := evaluated.(*object.Error)
 
 	if ok {
-		t.Errorf("evaluation failed: %s", errObj.String())
+		t.Fatalf("evaluation failed: %s", errObj.String())
 	}
 
 	result := evaluated.String()
 
 	if result != expect {
-		t.Errorf("result is not '%s', got '%s'", expect, result)
+		t.Fatalf("result is not '%s', got '%s'", expect, result)
 	}
 }
 
@@ -347,6 +347,11 @@ func TestEvalEachStmt(t *testing.T) {
 		{`@each(v in []){{ v }}@else<b>Empty array</b>@end`, "<b>Empty array</b>"},
 		{`@each(n in []){{ n }}@else@end`, ""},
 		{`@each(n in []){{ n }}@elsetest@end`, "test"},
+		{`@each(n in [1, 2, 3, 4, 5]){{ n }}@end`, "12345"},
+		// test @break directive
+		{`@each(n in [1, 2, 3, 4, 5])@break{{ n }}@end@end`, ""},
+		{`@each(n in [1, 2, 3, 4, 5])@if(n == 3)@break@end{{ n }}@end`, "12"},
+		{`@each(n in [1, 2, 3, 4, 5])@if(n == 3)@continue@end{{ n }}@end`, "1245"},
 	}
 
 	for _, tt := range tests {

@@ -11,9 +11,11 @@ import (
 )
 
 var (
-	NIL   = &object.Nil{}
-	TRUE  = &object.Bool{Value: true}
-	FALSE = &object.Bool{Value: false}
+	NIL      = &object.Nil{}
+	TRUE     = &object.Bool{Value: true}
+	FALSE    = &object.Bool{Value: false}
+	BREAK    = &object.Break{}
+	CONTINUE = &object.Continue{}
 )
 
 type Evaluator struct {
@@ -49,6 +51,10 @@ func (e *Evaluator) Eval(node ast.Node, env *object.Env) object.Object {
 		return e.evalForStmt(node, env)
 	case *ast.EachStmt:
 		return e.evalEachStmt(node, env)
+	case *ast.BreakStmt:
+		return BREAK
+	case *ast.ContinueStmt:
+		return CONTINUE
 
 	// Expressions
 	case *ast.Identifier:
@@ -137,10 +143,14 @@ func (e *Evaluator) evalIfStmt(node *ast.IfStmt, env *object.Env) object.Object 
 func (e *Evaluator) evalBlockStmt(block *ast.BlockStmt, env *object.Env) object.Object {
 	var elems []object.Object
 
-	for _, statement := range block.Statements {
-		stmtObj := e.Eval(statement, env)
+	for _, stmt := range block.Statements {
+		stmtObj := e.Eval(stmt, env)
 
 		if isError(stmtObj) {
+			return stmtObj
+		}
+
+		if stmtObj.Is(object.BREAK_OBJ) || stmtObj.Is(object.CONTINUE_OBJ) {
 			return stmtObj
 		}
 
@@ -294,10 +304,7 @@ func (e *Evaluator) evalForStmt(
 	return &object.HTML{Value: blocks.String()}
 }
 
-func (e *Evaluator) evalEachStmt(
-	node *ast.EachStmt,
-	env *object.Env,
-) object.Object {
+func (e *Evaluator) evalEachStmt(node *ast.EachStmt, env *object.Env) object.Object {
 	newEnv := object.NewEnclosedEnv(env)
 
 	var blocks bytes.Buffer
@@ -331,6 +338,10 @@ func (e *Evaluator) evalEachStmt(
 
 		if isError(block) {
 			return block
+		}
+
+		if block.Is(object.BREAK_OBJ) {
+			break
 		}
 
 		blocks.WriteString(block.String())
