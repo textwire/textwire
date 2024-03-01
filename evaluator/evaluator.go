@@ -629,26 +629,17 @@ func (e *Evaluator) evalInfixOperatorExp(
 			left.Type(), operator, right.Type())
 	}
 
-	if operator == "+" && left.Is(object.STR_OBJ) {
-		return e.evalStringInfixExp(right, left)
-	}
-
 	switch left.Type() {
 	case object.INT_OBJ:
 		return e.evalIntegerInfixExp(operator, right, left, leftNode)
 	case object.FLOAT_OBJ:
 		return e.evalFloatInfixExp(operator, right, left, leftNode)
+	case object.STR_OBJ:
+		return e.evalStringInfixExp(operator, right, left, leftNode)
 	}
 
 	return e.newError(leftNode, fail.ErrUnknownTypeForOperator,
 		left.Type(), operator)
-}
-
-func (e *Evaluator) evalStringInfixExp(right, left object.Object) object.Object {
-	leftVal := left.(*object.Str).Value
-	rightVal := right.(*object.Str).Value
-
-	return &object.Str{Value: leftVal + rightVal}
 }
 
 func (e *Evaluator) evalIntegerInfixExp(
@@ -683,6 +674,28 @@ func (e *Evaluator) evalIntegerInfixExp(
 		return nativeBoolToBooleanObject(leftVal >= rightVal)
 	case "<=":
 		return nativeBoolToBooleanObject(leftVal <= rightVal)
+	}
+
+	return e.newError(leftNode, fail.ErrUnknownTypeForOperator,
+		left.Type(), operator)
+}
+
+func (e *Evaluator) evalStringInfixExp(
+	operator string,
+	right,
+	left object.Object,
+	leftNode ast.Node,
+) object.Object {
+	leftVal := left.(*object.Str).Value
+	rightVal := right.(*object.Str).Value
+
+	switch operator {
+	case "==":
+		return nativeBoolToBooleanObject(leftVal == rightVal)
+	case "!=":
+		return nativeBoolToBooleanObject(leftVal != rightVal)
+	case "+":
+		return &object.Str{Value: leftVal + rightVal}
 	}
 
 	return e.newError(leftNode, fail.ErrUnknownTypeForOperator,
