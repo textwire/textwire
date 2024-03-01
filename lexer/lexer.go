@@ -93,8 +93,8 @@ func (l *Lexer) directiveToken() token.Token {
 		return l.newToken(tok, string(l.char))
 	}
 
-	// ELSE and END tokens don't have parentheses
-	if tok == token.ELSE || tok == token.END {
+	// ELSE, END, BREAK, CONTINUE tokens don't have parentheses
+	if tok == token.ELSE || tok == token.END || tok == token.BREAK || tok == token.CONTINUE {
 		l.isDirective = false
 		l.isHTML = true
 	} else {
