@@ -4,6 +4,7 @@
 
 - Added `@break` and `@continue` directives for the `@each` loop.
 - Added `@break` and `@continue` directives for the `@for` loop.
+- Fixed bug where you couldn't compare strings with the `==` operator. For example, `@if(n == "hello")` was returning error.
 
 ## v1.1.0 (2024-02-28)
 
