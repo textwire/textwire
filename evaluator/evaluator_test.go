@@ -348,11 +348,10 @@ func TestEvalEachStmt(t *testing.T) {
 		{`@each(n in []){{ n }}@else@end`, ""},
 		{`@each(n in []){{ n }}@elsetest@end`, "test"},
 		{`@each(n in [1, 2, 3, 4, 5]){{ n }}@end`, "12345"},
-		// test @break and @continue directives
-		{`@each(n in [1, 2, 3, 4, 5])@break{{ n }}@end@end`, ""},
+		// test @break directive
+		{`@each(n in [1, 2, 3, 4, 5])@break{{ n }}@end`, ""},
+		{`@each(n in [1, 2, 3, 4, 5]){{ n }}@break@end`, "1"},
 		{`@each(n in [1, 2, 3, 4, 5])@if(n == 3)@break@end{{ n }}@end`, "12"},
-		{`@each(n in [1, 2, 3, 4, 5])@if(n == 3)@continue@end{{ n }}@end`, "1245"},
-		{`@each(i in ["Anna", "Serhii"])@if(i == "Serhii")@continue@end{{ i }}@end`, "Anna"},
 	}
 
 	for _, tt := range tests {

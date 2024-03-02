@@ -144,17 +144,17 @@ func (e *Evaluator) evalBlockStmt(block *ast.BlockStmt, env *object.Env) object.
 	var elems []object.Object
 
 	for _, stmt := range block.Statements {
-		stmtObj := e.Eval(stmt, env)
+		obj := e.Eval(stmt, env)
 
-		if isError(stmtObj) {
-			return stmtObj
+		if isError(obj) {
+			return obj
 		}
 
-		if stmtObj.Is(object.BREAK_OBJ) || stmtObj.Is(object.CONTINUE_OBJ) {
-			return stmtObj
-		}
+		elems = append(elems, obj)
 
-		elems = append(elems, stmtObj)
+		if hasBreaks(obj) {
+			break
+		}
 	}
 
 	return &object.Block{Elements: elems}
@@ -340,11 +340,11 @@ func (e *Evaluator) evalEachStmt(node *ast.EachStmt, env *object.Env) object.Obj
 			return block
 		}
 
-		if block.Is(object.BREAK_OBJ) {
+		blocks.WriteString(block.String())
+
+		if hasBreaks(block) {
 			break
 		}
-
-		blocks.WriteString(block.String())
 	}
 
 	return &object.HTML{Value: blocks.String()}

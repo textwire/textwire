@@ -34,3 +34,20 @@ func nativeBoolToBooleanObject(input bool) object.Object {
 
 	return FALSE
 }
+
+func hasBreaks(obj object.Object) bool {
+	block, isBlock := obj.(*object.Block)
+
+	if !isBlock {
+		return obj.Is(object.BREAK_OBJ)
+	}
+
+	// also check recursively for nested blocks
+	for _, elem := range block.Elements {
+		if hasBreaks(elem) {
+			return true
+		}
+	}
+
+	return false
+}
