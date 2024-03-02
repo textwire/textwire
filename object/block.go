@@ -1,6 +1,8 @@
 package object
 
-import "bytes"
+import (
+	"bytes"
+)
 
 type Block struct {
 	Elements []Object
