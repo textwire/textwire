@@ -35,11 +35,19 @@ func nativeBoolToBooleanObject(input bool) object.Object {
 	return FALSE
 }
 
-func hasControlStmt(obj object.Object, controlType string) bool {
+func hasBreakStmt(obj object.Object) bool {
+	return hasControlStmt(obj, object.BREAK_OBJ)
+}
+
+func hasContinueStmt(obj object.Object) bool {
+	return hasControlStmt(obj, object.CONTINUE_OBJ)
+}
+
+func hasControlStmt(obj object.Object, controlType object.ObjectType) bool {
 	block, isBlock := obj.(*object.Block)
 
 	if !isBlock {
-		return obj.Is(object.ObjectType(controlType))
+		return obj.Is(controlType)
 	}
 
 	// also check recursively for nested blocks

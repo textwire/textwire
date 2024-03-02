@@ -152,7 +152,7 @@ func (e *Evaluator) evalBlockStmt(block *ast.BlockStmt, env *object.Env) object.
 
 		elems = append(elems, obj)
 
-		if hasControlStmt(obj, object.BREAK_OBJ) {
+		if hasBreakStmt(obj) || hasContinueStmt(obj) {
 			break
 		}
 	}
@@ -342,8 +342,12 @@ func (e *Evaluator) evalEachStmt(node *ast.EachStmt, env *object.Env) object.Obj
 
 		blocks.WriteString(block.String())
 
-		if hasControlStmt(block, object.BREAK_OBJ) {
+		if hasBreakStmt(block) {
 			break
+		}
+
+		if hasContinueStmt(block) {
+			continue
 		}
 	}
 
