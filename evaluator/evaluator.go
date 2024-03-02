@@ -176,10 +176,7 @@ func (e *Evaluator) evalAssignStmt(node *ast.AssignStmt, env *object.Env) object
 	return NIL
 }
 
-func (e *Evaluator) evalUseStmt(
-	node *ast.UseStmt,
-	env *object.Env,
-) object.Object {
+func (e *Evaluator) evalUseStmt(node *ast.UseStmt, env *object.Env) object.Object {
 	if node.Program == nil {
 		return e.newError(node, fail.ErrUseStmtMustHaveProgram)
 	}
@@ -235,10 +232,7 @@ func (e *Evaluator) evalReserveStmt(
 	return stmt
 }
 
-func (e *Evaluator) evalForStmt(
-	node *ast.ForStmt,
-	env *object.Env,
-) object.Object {
+func (e *Evaluator) evalForStmt(node *ast.ForStmt, env *object.Env) object.Object {
 	newEnv := object.NewEnclosedEnv(env)
 
 	var init object.Object
