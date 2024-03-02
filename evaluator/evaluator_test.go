@@ -27,13 +27,13 @@ func evaluationExpected(t *testing.T, inp, expect string) {
 	errObj, ok := evaluated.(*object.Error)
 
 	if ok {
-		t.Errorf("evaluation failed: %s", errObj.String())
+		t.Fatalf("evaluation failed: %s", errObj.String())
 	}
 
 	result := evaluated.String()
 
 	if result != expect {
-		t.Errorf("result is not '%s', got '%s'", expect, result)
+		t.Fatalf("result is not '%s', got '%s'", expect, result)
 	}
 }
 
@@ -321,6 +321,14 @@ func TestEvalForStmt(t *testing.T) {
 		// test @else directive
 		{`@for(c = 1; false; c++){{ c }}@else<b>Empty</b>@end`, "<b>Empty</b>"},
 		{`@for(c = 0; c < 0; c++){{ c }}@elseEmpty@end`, "Empty"},
+		// test @break directive
+		{`@for(i = 1; i <= 3; i++){{ i }}@break@end`, "1"},
+		{`@for(i = 1; i <= 3; i++)@break{{ i }}@end`, ""},
+		{`@for(i = 1; i <= 3; i++)@if(i == 3)@break@end{{ i }}@end`, "12"},
+		// test @continue directive
+		{`@for(i = 1; i <= 3; i++)@continue{{ i }}@end`, ""},
+		{`@for(i = 1; i <= 3; i++){{ i }}@continue@end`, "123"},
+		{`@for(i = 1; i <= 3; i++)@if(i == 2)@continue@end{{ i }}@end`, "13"},
 	}
 
 	for _, tt := range tests {
@@ -347,6 +355,15 @@ func TestEvalEachStmt(t *testing.T) {
 		{`@each(v in []){{ v }}@else<b>Empty array</b>@end`, "<b>Empty array</b>"},
 		{`@each(n in []){{ n }}@else@end`, ""},
 		{`@each(n in []){{ n }}@elsetest@end`, "test"},
+		{`@each(n in [1, 2, 3, 4, 5]){{ n }}@end`, "12345"},
+		// test @break directive
+		{`@each(n in [1, 2, 3, 4, 5])@break{{ n }}@end`, ""},
+		{`@each(n in [1, 2, 3, 4, 5]){{ n }}@break@end`, "1"},
+		{`@each(n in [1, 2, 3, 4, 5])@if(n == 3)@break@end{{ n }}@end`, "12"},
+		// test @continue directive
+		{`@each(n in [1, 2, 3, 4, 5])@continue{{ n }}@end`, ""},
+		{`@each(n in [1, 2, 3, 4, 5]){{ n }}@continue@end`, "12345"},
+		{`@each(n in [1, 2, 3, 4, 5])@if(n == 3)@continue@end{{ n }}@end`, "1245"},
 	}
 
 	for _, tt := range tests {

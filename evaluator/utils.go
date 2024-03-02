@@ -34,3 +34,28 @@ func nativeBoolToBooleanObject(input bool) object.Object {
 
 	return FALSE
 }
+
+func hasBreakStmt(obj object.Object) bool {
+	return hasControlStmt(obj, object.BREAK_OBJ)
+}
+
+func hasContinueStmt(obj object.Object) bool {
+	return hasControlStmt(obj, object.CONTINUE_OBJ)
+}
+
+func hasControlStmt(obj object.Object, controlType object.ObjectType) bool {
+	block, isBlock := obj.(*object.Block)
+
+	if !isBlock {
+		return obj.Is(controlType)
+	}
+
+	// also check recursively for nested blocks
+	for _, elem := range block.Elements {
+		if hasControlStmt(elem, controlType) {
+			return true
+		}
+	}
+
+	return false
+}

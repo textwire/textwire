@@ -11,9 +11,11 @@ import (
 )
 
 var (
-	NIL   = &object.Nil{}
-	TRUE  = &object.Bool{Value: true}
-	FALSE = &object.Bool{Value: false}
+	NIL      = &object.Nil{}
+	TRUE     = &object.Bool{Value: true}
+	FALSE    = &object.Bool{Value: false}
+	BREAK    = &object.Break{}
+	CONTINUE = &object.Continue{}
 )
 
 type Evaluator struct {
@@ -49,6 +51,10 @@ func (e *Evaluator) Eval(node ast.Node, env *object.Env) object.Object {
 		return e.evalForStmt(node, env)
 	case *ast.EachStmt:
 		return e.evalEachStmt(node, env)
+	case *ast.BreakStmt:
+		return BREAK
+	case *ast.ContinueStmt:
+		return CONTINUE
 
 	// Expressions
 	case *ast.Identifier:
@@ -137,14 +143,18 @@ func (e *Evaluator) evalIfStmt(node *ast.IfStmt, env *object.Env) object.Object 
 func (e *Evaluator) evalBlockStmt(block *ast.BlockStmt, env *object.Env) object.Object {
 	var elems []object.Object
 
-	for _, statement := range block.Statements {
-		stmtObj := e.Eval(statement, env)
+	for _, stmt := range block.Statements {
+		obj := e.Eval(stmt, env)
 
-		if isError(stmtObj) {
-			return stmtObj
+		if isError(obj) {
+			return obj
 		}
 
-		elems = append(elems, stmtObj)
+		elems = append(elems, obj)
+
+		if hasBreakStmt(obj) || hasContinueStmt(obj) {
+			break
+		}
 	}
 
 	return &object.Block{Elements: elems}
@@ -166,10 +176,7 @@ func (e *Evaluator) evalAssignStmt(node *ast.AssignStmt, env *object.Env) object
 	return NIL
 }
 
-func (e *Evaluator) evalUseStmt(
-	node *ast.UseStmt,
-	env *object.Env,
-) object.Object {
+func (e *Evaluator) evalUseStmt(node *ast.UseStmt, env *object.Env) object.Object {
 	if node.Program == nil {
 		return e.newError(node, fail.ErrUseStmtMustHaveProgram)
 	}
@@ -225,10 +232,7 @@ func (e *Evaluator) evalReserveStmt(
 	return stmt
 }
 
-func (e *Evaluator) evalForStmt(
-	node *ast.ForStmt,
-	env *object.Env,
-) object.Object {
+func (e *Evaluator) evalForStmt(node *ast.ForStmt, env *object.Env) object.Object {
 	newEnv := object.NewEnclosedEnv(env)
 
 	var init object.Object
@@ -289,15 +293,20 @@ func (e *Evaluator) evalForStmt(
 		if err != nil {
 			return e.newError(node, err.Error())
 		}
+
+		if hasBreakStmt(block) {
+			break
+		}
+
+		if hasContinueStmt(block) {
+			continue
+		}
 	}
 
 	return &object.HTML{Value: blocks.String()}
 }
 
-func (e *Evaluator) evalEachStmt(
-	node *ast.EachStmt,
-	env *object.Env,
-) object.Object {
+func (e *Evaluator) evalEachStmt(node *ast.EachStmt, env *object.Env) object.Object {
 	newEnv := object.NewEnclosedEnv(env)
 
 	var blocks bytes.Buffer
@@ -334,6 +343,14 @@ func (e *Evaluator) evalEachStmt(
 		}
 
 		blocks.WriteString(block.String())
+
+		if hasBreakStmt(block) {
+			break
+		}
+
+		if hasContinueStmt(block) {
+			continue
+		}
 	}
 
 	return &object.HTML{Value: blocks.String()}
@@ -618,26 +635,17 @@ func (e *Evaluator) evalInfixOperatorExp(
 			left.Type(), operator, right.Type())
 	}
 
-	if operator == "+" && left.Is(object.STR_OBJ) {
-		return e.evalStringInfixExp(right, left)
-	}
-
 	switch left.Type() {
 	case object.INT_OBJ:
 		return e.evalIntegerInfixExp(operator, right, left, leftNode)
 	case object.FLOAT_OBJ:
 		return e.evalFloatInfixExp(operator, right, left, leftNode)
+	case object.STR_OBJ:
+		return e.evalStringInfixExp(operator, right, left, leftNode)
 	}
 
 	return e.newError(leftNode, fail.ErrUnknownTypeForOperator,
 		left.Type(), operator)
-}
-
-func (e *Evaluator) evalStringInfixExp(right, left object.Object) object.Object {
-	leftVal := left.(*object.Str).Value
-	rightVal := right.(*object.Str).Value
-
-	return &object.Str{Value: leftVal + rightVal}
 }
 
 func (e *Evaluator) evalIntegerInfixExp(
@@ -672,6 +680,28 @@ func (e *Evaluator) evalIntegerInfixExp(
 		return nativeBoolToBooleanObject(leftVal >= rightVal)
 	case "<=":
 		return nativeBoolToBooleanObject(leftVal <= rightVal)
+	}
+
+	return e.newError(leftNode, fail.ErrUnknownTypeForOperator,
+		left.Type(), operator)
+}
+
+func (e *Evaluator) evalStringInfixExp(
+	operator string,
+	right,
+	left object.Object,
+	leftNode ast.Node,
+) object.Object {
+	leftVal := left.(*object.Str).Value
+	rightVal := right.(*object.Str).Value
+
+	switch operator {
+	case "==":
+		return nativeBoolToBooleanObject(leftVal == rightVal)
+	case "!=":
+		return nativeBoolToBooleanObject(leftVal != rightVal)
+	case "+":
+		return &object.Str{Value: leftVal + rightVal}
 	}
 
 	return e.newError(leftNode, fail.ErrUnknownTypeForOperator,

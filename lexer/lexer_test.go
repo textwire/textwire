@@ -392,6 +392,38 @@ func TestForLoopStatement(t *testing.T) {
 	})
 }
 
+func TestEachLoopStatement(t *testing.T) {
+	inp := `@each(n in [1, 2, 3])@if(n == 2)@break@end{{ n }}@end`
+
+	TokenizeString(t, inp, []token.Token{
+		{Type: token.EACH, Literal: "@each"},
+		{Type: token.LPAREN, Literal: "("},
+		{Type: token.IDENT, Literal: "n"},
+		{Type: token.IN, Literal: "in"},
+		{Type: token.LBRACKET, Literal: "["},
+		{Type: token.INT, Literal: "1"},
+		{Type: token.COMMA, Literal: ","},
+		{Type: token.INT, Literal: "2"},
+		{Type: token.COMMA, Literal: ","},
+		{Type: token.INT, Literal: "3"},
+		{Type: token.RBRACKET, Literal: "]"},
+		{Type: token.RPAREN, Literal: ")"},
+		{Type: token.IF, Literal: "@if"},
+		{Type: token.LPAREN, Literal: "("},
+		{Type: token.IDENT, Literal: "n"},
+		{Type: token.EQ, Literal: "=="},
+		{Type: token.INT, Literal: "2"},
+		{Type: token.RPAREN, Literal: ")"},
+		{Type: token.BREAK, Literal: "@break"},
+		{Type: token.END, Literal: "@end"},
+		{Type: token.LBRACES, Literal: "{{"},
+		{Type: token.IDENT, Literal: "n"},
+		{Type: token.RBRACES, Literal: "}}"},
+		{Type: token.END, Literal: "@end"},
+		{Type: token.EOF, Literal: ""},
+	})
+}
+
 func TestObjectStatement(t *testing.T) {
 	inp := `{{ {"father": {"name": "John"}} }}`
 

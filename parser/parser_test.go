@@ -1288,3 +1288,25 @@ func TestParseDotExp(t *testing.T) {
 		return
 	}
 }
+
+func TestParseBreakDirective(t *testing.T) {
+	inp := `@break`
+
+	stmts := parseStatements(t, inp, 1, nil)
+	_, ok := stmts[0].(*ast.BreakStmt)
+
+	if !ok {
+		t.Fatalf("stmts[0] is not a BreakStmt, got %T", stmts[0])
+	}
+}
+
+func TestParseContinueDirective(t *testing.T) {
+	inp := `@continue`
+
+	stmts := parseStatements(t, inp, 1, nil)
+	_, ok := stmts[0].(*ast.ContinueStmt)
+
+	if !ok {
+		t.Fatalf("stmts[0] is not a ContinueStmt, got %T", stmts[0])
+	}
+}
