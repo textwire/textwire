@@ -1,6 +1,6 @@
 # Release notes for 1.x
 
-## v1.2.0 (2024-02-29)
+## v1.2.0 (2024-03-02)
 
 - Added `@break` and `@continue` directives for the `@each` loop.
 - Added `@break` and `@continue` directives for the `@for` loop.
