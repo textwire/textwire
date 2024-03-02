@@ -321,6 +321,14 @@ func TestEvalForStmt(t *testing.T) {
 		// test @else directive
 		{`@for(c = 1; false; c++){{ c }}@else<b>Empty</b>@end`, "<b>Empty</b>"},
 		{`@for(c = 0; c < 0; c++){{ c }}@elseEmpty@end`, "Empty"},
+		// test @break directive
+		{`@for(i = 1; i <= 3; i++){{ i }}@break@end`, "1"},
+		{`@for(i = 1; i <= 3; i++)@break{{ i }}@end`, ""},
+		{`@for(i = 1; i <= 3; i++)@if(i == 3)@break@end{{ i }}@end`, "12"},
+		// test @continue directive
+		{`@for(i = 1; i <= 3; i++)@continue{{ i }}@end`, ""},
+		{`@for(i = 1; i <= 3; i++){{ i }}@continue@end`, "123"},
+		{`@for(i = 1; i <= 3; i++)@if(i == 2)@continue@end{{ i }}@end`, "13"},
 	}
 
 	for _, tt := range tests {

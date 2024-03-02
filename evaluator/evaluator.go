@@ -299,6 +299,14 @@ func (e *Evaluator) evalForStmt(
 		if err != nil {
 			return e.newError(node, err.Error())
 		}
+
+		if hasBreakStmt(block) {
+			break
+		}
+
+		if hasContinueStmt(block) {
+			continue
+		}
 	}
 
 	return &object.HTML{Value: blocks.String()}
