@@ -1,5 +1,9 @@
 # Release notes for 1.x
 
+## v1.3.0 (2024-03-02)
+
+- Added `@breakIf` and `@continueIf` directives for the `@each` loop.
+
 ## v1.2.0 (2024-03-02)
 
 - Added `@break` and `@continue` directives for the `@each` loop.
