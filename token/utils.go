@@ -49,16 +49,18 @@ var tokens = [...]string{
 	NIL:   "nil",
 	IN:    "in",
 
-	USE:      "@use",
-	RESERVE:  "@reserve",
-	INSERT:   "@insert",
-	FOR:      "@for",
-	BREAK:    "@break",
-	CONTINUE: "@continue",
-	IF:       "@if",
-	ELSE:     "@else",
-	ELSEIF:   "@elseif",
-	END:      "@end",
+	USE:         "@use",
+	RESERVE:     "@reserve",
+	INSERT:      "@insert",
+	FOR:         "@for",
+	BREAK:       "@break",
+	CONTINUE:    "@continue",
+	BREAK_IF:    "@breakIf",
+	CONTINUE_IF: "@continueIf",
+	IF:          "@if",
+	ELSE:        "@else",
+	ELSEIF:      "@elseif",
+	END:         "@end",
 }
 
 func String(t TokenType) string {

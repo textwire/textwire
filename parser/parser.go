@@ -159,6 +159,10 @@ func (p *Parser) parseStatement() ast.Statement {
 		return p.parseReserveStmt()
 	case token.INSERT:
 		return p.parseInsertStmt()
+	case token.BREAK_IF:
+		return p.parseBreakIfStmt()
+	case token.CONTINUE_IF:
+		return p.parseContinueIfStmt()
 	case token.BREAK:
 		return &ast.BreakStmt{Token: p.curToken}
 	case token.CONTINUE:
@@ -391,6 +395,38 @@ func (p *Parser) parseUseStmt() ast.Statement {
 		Token: p.curToken,
 		Value: p.curToken.Literal,
 	}
+
+	return stmt
+}
+
+func (p *Parser) parseBreakIfStmt() ast.Statement {
+	stmt := &ast.BreakIfStmt{
+		Token: p.curToken, // "@breakIf"
+	}
+
+	if !p.expectPeek(token.LPAREN) { // move to "("
+		return nil
+	}
+
+	p.nextToken() // skip "("
+
+	stmt.Condition = p.parseExpression(LOWEST)
+
+	return stmt
+}
+
+func (p *Parser) parseContinueIfStmt() ast.Statement {
+	stmt := &ast.ContinueIfStmt{
+		Token: p.curToken, // "@continueIf"
+	}
+
+	if !p.expectPeek(token.LPAREN) { // move to "("
+		return nil
+	}
+
+	p.nextToken() // skip "("
+
+	stmt.Condition = p.parseExpression(LOWEST)
 
 	return stmt
 }
