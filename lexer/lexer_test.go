@@ -442,3 +442,24 @@ func TestObjectStatement(t *testing.T) {
 		{Type: token.EOF, Literal: ""},
 	})
 }
+
+func TestDirectives(t *testing.T) {
+	inp := `@breakIf(true) @break @continue @continueIf(false)`
+
+	TokenizeString(t, inp, []token.Token{
+		{Type: token.BREAK_IF, Literal: "@breakIf"},
+		{Type: token.LPAREN, Literal: "("},
+		{Type: token.TRUE, Literal: "true"},
+		{Type: token.RPAREN, Literal: ")"},
+		{Type: token.HTML, Literal: " "},
+		{Type: token.BREAK, Literal: "@break"},
+		{Type: token.HTML, Literal: " "},
+		{Type: token.CONTINUE, Literal: "@continue"},
+		{Type: token.HTML, Literal: " "},
+		{Type: token.CONTINUE_IF, Literal: "@continueIf"},
+		{Type: token.LPAREN, Literal: "("},
+		{Type: token.FALSE, Literal: "false"},
+		{Type: token.RPAREN, Literal: ")"},
+		{Type: token.EOF, Literal: ""},
+	})
+}

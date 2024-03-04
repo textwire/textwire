@@ -259,7 +259,7 @@ func (l *Lexer) readDirective() (token.TokenType, string) {
 
 		l.advanceChar()
 
-		if !l.isPotentialElseif(tok) && tok != token.ILLEGAL {
+		if !l.isPotentiallyLong(tok) && tok != token.ILLEGAL {
 			break
 		}
 	}
@@ -293,8 +293,10 @@ func (l *Lexer) isDirectiveStmt() bool {
 	return false
 }
 
-func (l *Lexer) isPotentialElseif(tok token.TokenType) bool {
-	return tok == token.ELSE && l.char == 'i' && l.peekChar() == 'f'
+func (l *Lexer) isPotentiallyLong(tok token.TokenType) bool {
+	return (tok == token.ELSE && l.char == 'i' && l.peekChar() == 'f') ||
+		(tok == token.BREAK && l.char == 'I' && l.peekChar() == 'f') ||
+		(tok == token.CONTINUE && l.char == 'I' && l.peekChar() == 'f')
 }
 
 func (l *Lexer) readString() string {

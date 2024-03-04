@@ -64,9 +64,11 @@ const (
 	FOR
 	USE
 	EACH
-	BREAK
+	BREAK_IF
+	CONTINUE_IF
 	INSERT
 	RESERVE
+	BREAK
 	CONTINUE
 )
 
@@ -79,17 +81,19 @@ var keywords = map[string]TokenType{
 }
 
 var directives = map[string]TokenType{
-	"@if":       IF,
-	"@else":     ELSE,
-	"@elseif":   ELSEIF,
-	"@end":      END,
-	"@use":      USE,
-	"@reserve":  RESERVE,
-	"@insert":   INSERT,
-	"@for":      FOR,
-	"@each":     EACH,
-	"@break":    BREAK,
-	"@continue": CONTINUE,
+	"@if":         IF,
+	"@else":       ELSE,
+	"@elseif":     ELSEIF,
+	"@end":        END,
+	"@use":        USE,
+	"@reserve":    RESERVE,
+	"@insert":     INSERT,
+	"@for":        FOR,
+	"@each":       EACH,
+	"@continue":   CONTINUE,
+	"@continueIf": CONTINUE_IF,
+	"@break":      BREAK,
+	"@breakIf":    BREAK_IF,
 }
 
 type Token struct {

@@ -51,6 +51,10 @@ func (e *Evaluator) Eval(node ast.Node, env *object.Env) object.Object {
 		return e.evalForStmt(node, env)
 	case *ast.EachStmt:
 		return e.evalEachStmt(node, env)
+	case *ast.BreakIfStmt:
+		return e.evalBreakIfStmt(node, env)
+	case *ast.ContinueIfStmt:
+		return e.evalContinueIfStmt(node, env)
 	case *ast.BreakStmt:
 		return BREAK
 	case *ast.ContinueStmt:
@@ -354,6 +358,40 @@ func (e *Evaluator) evalEachStmt(node *ast.EachStmt, env *object.Env) object.Obj
 	}
 
 	return &object.HTML{Value: blocks.String()}
+}
+
+func (e *Evaluator) evalBreakIfStmt(
+	node *ast.BreakIfStmt,
+	env *object.Env,
+) object.Object {
+	condition := e.Eval(node.Condition, env)
+
+	if isError(condition) {
+		return condition
+	}
+
+	if isTruthy(condition) {
+		return BREAK
+	}
+
+	return NIL
+}
+
+func (e *Evaluator) evalContinueIfStmt(
+	node *ast.ContinueIfStmt,
+	env *object.Env,
+) object.Object {
+	condition := e.Eval(node.Condition, env)
+
+	if isError(condition) {
+		return condition
+	}
+
+	if isTruthy(condition) {
+		return CONTINUE
+	}
+
+	return NIL
 }
 
 func (e *Evaluator) evalIdentifier(

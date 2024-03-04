@@ -5,7 +5,7 @@ func isIdent(ch byte) bool {
 }
 
 func isLetterWord(ch byte) bool {
-	return ('a' <= ch && ch <= 'z') || ch == '@'
+	return ('a' <= ch && ch <= 'z') || ('A' <= ch && ch <= 'Z') || ch == '@'
 }
 
 func isNumber(ch byte) bool {

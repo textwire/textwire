@@ -1310,3 +1310,30 @@ func TestParseContinueDirective(t *testing.T) {
 		t.Fatalf("stmts[0] is not a ContinueStmt, got %T", stmts[0])
 	}
 }
+
+func TestParseBreakIfDirective(t *testing.T) {
+	inp := `@breakIf(true)`
+
+	stmts := parseStatements(t, inp, 1, nil)
+	breakStmt, ok := stmts[0].(*ast.BreakIfStmt)
+
+	if !ok {
+		t.Fatalf("stmts[0] is not a BreakIfStmt, got %T", stmts[0])
+	}
+
+	testBooleanLiteral(t, breakStmt.Condition, true)
+}
+
+func TestParseContinueIfDirective(t *testing.T) {
+	inp := `@continueIf(false)`
+
+	stmts := parseStatements(t, inp, 1, nil)
+
+	contStmt, ok := stmts[0].(*ast.ContinueIfStmt)
+
+	if !ok {
+		t.Fatalf("stmts[0] is not a ContinueIfStmt, got %T", stmts[0])
+	}
+
+	testBooleanLiteral(t, contStmt.Condition, false)
+}
