@@ -1,4 +1,6 @@
-# Release notes for 1.x
+# Release notes
+
+## v1.4.0 (2024-03-11)
 
 ## v1.3.0 (2024-03-04)
 
