@@ -443,7 +443,7 @@ func TestObjectStatement(t *testing.T) {
 	})
 }
 
-func TestDirectives(t *testing.T) {
+func TestBreakDirectives(t *testing.T) {
 	inp := `@breakIf(true) @break @continue @continueIf(false)`
 
 	TokenizeString(t, inp, []token.Token{
@@ -459,6 +459,20 @@ func TestDirectives(t *testing.T) {
 		{Type: token.CONTINUE_IF, Literal: "@continueIf"},
 		{Type: token.LPAREN, Literal: "("},
 		{Type: token.FALSE, Literal: "false"},
+		{Type: token.RPAREN, Literal: ")"},
+		{Type: token.EOF, Literal: ""},
+	})
+}
+
+func TestComponentDirective(t *testing.T) {
+	inp := `@component("components/book-card", card)`
+
+	TokenizeString(t, inp, []token.Token{
+		{Type: token.COMPONENT, Literal: "@component"},
+		{Type: token.LPAREN, Literal: "("},
+		{Type: token.STR, Literal: "components/book-card"},
+		{Type: token.COMMA, Literal: ","},
+		{Type: token.IDENT, Literal: "card"},
 		{Type: token.RPAREN, Literal: ")"},
 		{Type: token.EOF, Literal: ""},
 	})

@@ -61,6 +61,7 @@ var tokens = [...]string{
 	ELSE:        "@else",
 	ELSEIF:      "@elseif",
 	END:         "@end",
+	COMPONENT:   "@component",
 }
 
 func String(t TokenType) string {
