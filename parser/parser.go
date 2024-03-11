@@ -475,6 +475,8 @@ func (p *Parser) parseReserveStmt() ast.Statement {
 		Value: p.curToken.Literal,
 	}
 
+	p.nextToken() // skip ")"
+
 	return stmt
 }
 
