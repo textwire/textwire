@@ -1354,4 +1354,8 @@ func TestParseComponentDirective(t *testing.T) {
 	}
 
 	testIdentifier(t, compStmt.Arguments[0], "card")
+
+	if compStmt.Block != nil {
+		t.Fatalf("compStmt.Block is not nil, got %T", compStmt.Block)
+	}
 }
