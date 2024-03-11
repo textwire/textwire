@@ -1326,7 +1326,6 @@ func TestParseBreakIfDirective(t *testing.T) {
 
 func TestParseContinueIfDirective(t *testing.T) {
 	inp := `@continueIf(false)`
-
 	stmts := parseStatements(t, inp, 1, nil)
 
 	contStmt, ok := stmts[0].(*ast.ContinueIfStmt)
@@ -1336,4 +1335,23 @@ func TestParseContinueIfDirective(t *testing.T) {
 	}
 
 	testBooleanLiteral(t, contStmt.Condition, false)
+}
+
+func TestParseComponentDirective(t *testing.T) {
+	inp := `@component("components/book-card", card)`
+	stmts := parseStatements(t, inp, 1, nil)
+
+	compStmt, ok := stmts[0].(*ast.ComponentStmt)
+
+	if !ok {
+		t.Fatalf("stmts[0] is not a ComponentStmt, got %T", stmts[0])
+	}
+
+	testStringLiteral(t, compStmt.Name, "components/book-card")
+
+	if len(compStmt.Arguments) != 1 {
+		t.Fatalf("len(compStmt.Arguments) is not 1, got %d", len(compStmt.Arguments))
+	}
+
+	testIdentifier(t, compStmt.Arguments[0], "card")
 }

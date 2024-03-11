@@ -163,6 +163,8 @@ func (p *Parser) parseStatement() ast.Statement {
 		return p.parseBreakIfStmt()
 	case token.CONTINUE_IF:
 		return p.parseContinueIfStmt()
+	case token.COMPONENT:
+		return p.parseComponentStmt()
 	case token.BREAK:
 		return &ast.BreakStmt{Token: p.curToken}
 	case token.CONTINUE:
@@ -427,6 +429,32 @@ func (p *Parser) parseContinueIfStmt() ast.Statement {
 	p.nextToken() // skip "("
 
 	stmt.Condition = p.parseExpression(LOWEST)
+
+	return stmt
+}
+
+func (p *Parser) parseComponentStmt() ast.Statement {
+	stmt := &ast.ComponentStmt{
+		Token: p.curToken, // "@component"
+	}
+
+	if !p.expectPeek(token.LPAREN) { // move to "("
+		return nil
+	}
+
+	p.nextToken() // skip "("
+
+	stmt.Name = &ast.StringLiteral{
+		Token: p.curToken,
+		Value: p.curToken.Literal,
+	}
+
+	if p.peekTokenIs(token.COMMA) {
+		p.nextToken() // skip component name
+		stmt.Arguments = p.parseExpressionList(token.RPAREN)
+	}
+
+	p.nextToken() // skip ")"
 
 	return stmt
 }
