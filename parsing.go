@@ -50,18 +50,12 @@ func parsePrograms(paths map[string]string) (map[string]*ast.Program, *fail.Erro
 			return nil, err
 		}
 
-		if prog.HasUseStmt() {
-			err = applyLayoutToProgram(prog)
-
-			if err != nil {
-				return nil, err
-			}
+		if err = applyLayoutToProgram(prog); err != nil {
+			return nil, err
 		}
 
-		if prog.HasComponentStmt() {
-			if err = applyComponentToProgram(prog); err != nil {
-				return nil, err
-			}
+		if err = applyComponentToProgram(prog); err != nil {
+			return nil, err
 		}
 
 		if !prog.HasReserveStmt() {
@@ -73,6 +67,10 @@ func parsePrograms(paths map[string]string) (map[string]*ast.Program, *fail.Erro
 }
 
 func applyLayoutToProgram(prog *ast.Program) *fail.Error {
+	if !prog.HasUseStmt() {
+		return nil
+	}
+
 	layoutName := prog.UseStmt.Name.Value
 	layoutAbsPath, err := getFullPath(layoutName, true)
 

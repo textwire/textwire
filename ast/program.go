@@ -92,7 +92,3 @@ func (p *Program) HasReserveStmt() bool {
 func (p *Program) HasUseStmt() bool {
 	return p.UseStmt != nil
 }
-
-func (p *Program) HasComponentStmt() bool {
-	return len(p.Components) > 0
-}
