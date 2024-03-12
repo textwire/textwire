@@ -1,7 +1,6 @@
 package textwire
 
 import (
-	"fmt"
 	"strings"
 
 	"github.com/textwire/textwire/ast"
@@ -51,7 +50,6 @@ func parsePrograms(paths map[string]string) (map[string]*ast.Program, *fail.Erro
 			return nil, err
 		}
 
-		fmt.Printf("-------> %#v\n", prog.HasUseStmt())
 		if prog.HasUseStmt() {
 			err = applyLayoutToProgram(prog)
 
