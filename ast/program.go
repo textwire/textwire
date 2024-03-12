@@ -45,22 +45,11 @@ func (p *Program) Line() uint {
 }
 
 func (p *Program) ApplyInserts(inserts map[string]*InsertStmt, absPath string) *fail.Error {
-	for _, stmt := range p.Statements {
-		if stmt.TokenLiteral() != token.String(token.RESERVE) {
-			continue
-		}
-
-		reserve, ok := stmt.(*ReserveStmt)
-
-		if !ok {
-			return fail.New(stmt.Line(), absPath, "parser",
-				fail.ErrExceptedReserveStmt, stmt)
-		}
-
+	for _, reserve := range p.Reserves {
 		insert, hasInsert := inserts[reserve.Name.Value]
 
 		if !hasInsert {
-			return fail.New(stmt.Line(), absPath, "parser",
+			return fail.New(reserve.Line(), absPath, "parser",
 				fail.ErrInsertStmtNotDefined, reserve.Name.Value)
 		}
 
