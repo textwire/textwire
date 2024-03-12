@@ -13,6 +13,7 @@ type Program struct {
 	UseStmt    *UseStmt
 	Statements []Statement
 	Components []*ComponentStmt
+	Reserves   map[string]*ReserveStmt
 	Inserts    map[string]*InsertStmt
 }
 
@@ -85,13 +86,7 @@ func (p *Program) ApplyComponent(name string, prog *Program) {
 }
 
 func (p *Program) HasReserveStmt() bool {
-	for _, stmt := range p.Statements {
-		if stmt.TokenLiteral() == token.String(token.RESERVE) {
-			return true
-		}
-	}
-
-	return false
+	return len(p.Reserves) > 0
 }
 
 func (p *Program) HasUseStmt() bool {

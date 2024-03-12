@@ -60,9 +60,10 @@ type Parser struct {
 	prefixParseFns map[token.TokenType]prefixParseFn
 	infixParseFns  map[token.TokenType]infixParseFn
 
-	components []*ast.ComponentStmt
 	useStmt    *ast.UseStmt
+	components []*ast.ComponentStmt
 	inserts    map[string]*ast.InsertStmt
+	reserves   map[string]*ast.ReserveStmt
 }
 
 func New(lexer *lexer.Lexer, filepath string) *Parser {
@@ -72,6 +73,7 @@ func New(lexer *lexer.Lexer, filepath string) *Parser {
 		errors:     []*fail.Error{},
 		components: []*ast.ComponentStmt{},
 		inserts:    map[string]*ast.InsertStmt{},
+		reserves:   map[string]*ast.ReserveStmt{},
 	}
 
 	p.nextToken() // fill curToken
@@ -145,6 +147,7 @@ func (p *Parser) ParseProgram() *ast.Program {
 	prog.Components = p.components
 	prog.Inserts = p.inserts
 	prog.UseStmt = p.useStmt
+	prog.Reserves = p.reserves
 
 	return prog
 }
@@ -486,6 +489,8 @@ func (p *Parser) parseReserveStmt() ast.Statement {
 		Token: p.curToken,
 		Value: p.curToken.Literal,
 	}
+
+	p.reserves[stmt.Name.Value] = stmt
 
 	return stmt
 }
