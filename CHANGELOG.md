@@ -2,6 +2,10 @@
 
 ## v1.4.0 (2024-03-11)
 
+- Added `@component` directive for creating reusable components
+- Simplified parsing logic for `@use`, `@insert` and `@reserve` directives
+- Added ability to put `@use`, `@insert` and `@reserve` directives inside any other directive like `@if`, `@each`, `@for`, `@component` etc. Previously, you could only put them at the top level of the template.
+
 ## v1.3.0 (2024-03-04)
 
 - Added `@breakIf` and `@continueIf` directives for the `@each` loop.
