@@ -831,9 +831,9 @@ func TestParseUseStmt(t *testing.T) {
 }
 
 func TestParseReserveStmt(t *testing.T) {
-	inp := `@reserve("content")`
+	inp := `<div>@reserve("content")</div>`
 
-	stmts := parseStatements(t, inp, 1, map[string]*ast.InsertStmt{
+	stmts := parseStatements(t, inp, 3, map[string]*ast.InsertStmt{
 		"content": {
 			Name: &ast.StringLiteral{Value: "content"},
 			Block: &ast.BlockStmt{
@@ -846,7 +846,7 @@ func TestParseReserveStmt(t *testing.T) {
 		},
 	})
 
-	stmt, ok := stmts[0].(*ast.ReserveStmt)
+	stmt, ok := stmts[1].(*ast.ReserveStmt)
 
 	if !ok {
 		t.Fatalf("stmts[0] is not a ReserveStmt, got %T", stmts[0])
@@ -1338,10 +1338,10 @@ func TestParseContinueIfDirective(t *testing.T) {
 }
 
 func TestParseComponentDirective(t *testing.T) {
-	inp := `@component("components/book-card", card)`
-	stmts := parseStatements(t, inp, 1, nil)
+	inp := `<ul>@component("components/book-card", card)</ul>`
+	stmts := parseStatements(t, inp, 3, nil)
 
-	compStmt, ok := stmts[0].(*ast.ComponentStmt)
+	compStmt, ok := stmts[1].(*ast.ComponentStmt)
 
 	if !ok {
 		t.Fatalf("stmts[0] is not a ComponentStmt, got %T", stmts[0])

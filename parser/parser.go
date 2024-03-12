@@ -454,8 +454,6 @@ func (p *Parser) parseComponentStmt() ast.Statement {
 		stmt.Arguments = p.parseExpressionList(token.RPAREN)
 	}
 
-	p.nextToken() // skip ")"
-
 	return stmt
 }
 
@@ -474,8 +472,6 @@ func (p *Parser) parseReserveStmt() ast.Statement {
 		Token: p.curToken,
 		Value: p.curToken.Literal,
 	}
-
-	p.nextToken() // skip ")"
 
 	return stmt
 }
