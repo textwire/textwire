@@ -9,9 +9,11 @@ import (
 
 type Program struct {
 	Token      token.Token // The 'program' token
-	Statements []Statement
 	IsLayout   bool
+	UseStmt    *UseStmt
+	Statements []Statement
 	Components []*ComponentStmt
+	Inserts    map[string]*InsertStmt
 }
 
 func (p *Program) TokenLiteral() string {
@@ -39,18 +41,6 @@ func (p *Program) String() string {
 
 func (p *Program) Line() uint {
 	return p.Token.Line
-}
-
-func (p *Program) Inserts() map[string]*InsertStmt {
-	inserts := make(map[string]*InsertStmt)
-
-	for _, stmt := range p.Statements {
-		if insertStmt, ok := stmt.(*InsertStmt); ok {
-			inserts[insertStmt.Name.Value] = insertStmt
-		}
-	}
-
-	return inserts
 }
 
 func (p *Program) ApplyInserts(inserts map[string]*InsertStmt, absPath string) *fail.Error {
@@ -104,16 +94,8 @@ func (p *Program) HasReserveStmt() bool {
 	return false
 }
 
-func (p *Program) HasUseStmt() (bool, *UseStmt) {
-	for _, stmt := range p.Statements {
-		if stmt.TokenLiteral() != token.String(token.USE) {
-			continue
-		}
-
-		return true, stmt.(*UseStmt)
-	}
-
-	return false, nil
+func (p *Program) HasUseStmt() bool {
+	return p.UseStmt != nil
 }
 
 func (p *Program) HasComponentStmt() bool {

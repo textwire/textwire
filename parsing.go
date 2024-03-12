@@ -1,6 +1,7 @@
 package textwire
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/textwire/textwire/ast"
@@ -50,16 +51,19 @@ func parsePrograms(paths map[string]string) (map[string]*ast.Program, *fail.Erro
 			return nil, err
 		}
 
-		if hasLayout, useStmt := prog.HasUseStmt(); hasLayout {
-			err = applyLayoutToProgram(useStmt.Name.Value, prog)
+		fmt.Printf("-------> %#v\n", prog.HasUseStmt())
+		if prog.HasUseStmt() {
+			err = applyLayoutToProgram(prog)
 
 			if err != nil {
 				return nil, err
 			}
 		}
 
-		if err = applyComponentToProgram(prog); err != nil {
-			return nil, err
+		if prog.HasComponentStmt() {
+			if err = applyComponentToProgram(prog); err != nil {
+				return nil, err
+			}
 		}
 
 		if !prog.HasReserveStmt() {
@@ -70,7 +74,8 @@ func parsePrograms(paths map[string]string) (map[string]*ast.Program, *fail.Erro
 	return result, nil
 }
 
-func applyLayoutToProgram(layoutName string, prog *ast.Program) *fail.Error {
+func applyLayoutToProgram(prog *ast.Program) *fail.Error {
+	layoutName := prog.UseStmt.Name.Value
 	layoutAbsPath, err := getFullPath(layoutName, true)
 
 	if err != nil {
@@ -84,7 +89,7 @@ func applyLayoutToProgram(layoutName string, prog *ast.Program) *fail.Error {
 		return parseErr
 	}
 
-	layoutErr := layoutProg.ApplyInserts(prog.Inserts(), layoutAbsPath)
+	layoutErr := layoutProg.ApplyInserts(prog.Inserts, layoutAbsPath)
 
 	if layoutErr != nil {
 		return layoutErr

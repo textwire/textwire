@@ -187,10 +187,8 @@ func (e *Evaluator) evalUseStmt(node *ast.UseStmt, env *object.Env) object.Objec
 		return e.newError(node, fail.ErrUseStmtMustHaveProgram)
 	}
 
-	if node.Program.IsLayout {
-		if hasUseStmt, _ := node.Program.HasUseStmt(); hasUseStmt {
-			return e.newError(node, fail.ErrUseStmtNotAllowed)
-		}
+	if node.Program.IsLayout && node.Program.HasUseStmt() {
+		return e.newError(node, fail.ErrUseStmtNotAllowed)
 	}
 
 	layoutContent := e.Eval(node.Program, env)

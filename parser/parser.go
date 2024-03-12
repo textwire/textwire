@@ -61,6 +61,8 @@ type Parser struct {
 	infixParseFns  map[token.TokenType]infixParseFn
 
 	components []*ast.ComponentStmt
+	useStmt    *ast.UseStmt
+	inserts    map[string]*ast.InsertStmt
 }
 
 func New(lexer *lexer.Lexer, filepath string) *Parser {
@@ -69,6 +71,7 @@ func New(lexer *lexer.Lexer, filepath string) *Parser {
 		filepath:   filepath,
 		errors:     []*fail.Error{},
 		components: []*ast.ComponentStmt{},
+		inserts:    map[string]*ast.InsertStmt{},
 	}
 
 	p.nextToken() // fill curToken
@@ -140,6 +143,8 @@ func (p *Parser) ParseProgram() *ast.Program {
 	}
 
 	prog.Components = p.components
+	prog.Inserts = p.inserts
+	prog.UseStmt = p.useStmt
 
 	return prog
 }
@@ -403,6 +408,8 @@ func (p *Parser) parseUseStmt() ast.Statement {
 		Value: p.curToken.Literal,
 	}
 
+	p.useStmt = stmt
+
 	return stmt
 }
 
@@ -503,6 +510,9 @@ func (p *Parser) parseInsertStmt() ast.Statement {
 		p.nextToken() // skip insert name
 		p.nextToken() // skip ","
 		stmt.Argument = p.parseExpression(LOWEST)
+
+		p.inserts[stmt.Name.Value] = stmt
+
 		return stmt
 	}
 
@@ -513,6 +523,8 @@ func (p *Parser) parseInsertStmt() ast.Statement {
 	p.nextToken() // skip ")"
 
 	stmt.Block = p.parseBlockStmt()
+
+	p.inserts[stmt.Name.Value] = stmt
 
 	return stmt
 }
