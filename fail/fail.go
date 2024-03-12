@@ -17,6 +17,9 @@ const (
 	ErrExceptedReserveStmt    = "expected *ReserveStmt, got %T"
 	ErrInsertStmtNotDefined   = "the insert statement named '%s' is not defined"
 	ErrExpectedIdentifier     = "expected identifier, got '%s' instead"
+	ErrExceptedComponentStmt  = "expected *ComponentStmt, got %T"
+	ErrBlockStmtNotDefined    = "the block statement named '%s' is not defined"
+	ErrComponentMustHaveBlock = "the component '%s' must have a block"
 
 	// Evaluator (interpreter) errors
 	ErrUnknownNodeType         = "unknown node type '%T'"

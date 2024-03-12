@@ -11,7 +11,7 @@ type ComponentStmt struct {
 	Token     token.Token // The '@component' token
 	Name      *StringLiteral
 	Arguments []Expression
-	Block     *BlockStmt
+	Block     *Program
 }
 
 func (cs *ComponentStmt) statementNode() {

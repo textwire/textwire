@@ -11,6 +11,7 @@ type Program struct {
 	Token      token.Token // The 'program' token
 	Statements []Statement
 	IsLayout   bool
+	Components []*ComponentStmt
 }
 
 func (p *Program) TokenLiteral() string {
@@ -80,11 +81,17 @@ func (p *Program) ApplyInserts(inserts map[string]*InsertStmt, absPath string) *
 
 // Remove all the statements except the first one, which is the layout statement
 // When we use layout, we do not print the file itself
-func (p *Program) ApplyLayout(layoutProg *Program) error {
+func (p *Program) ApplyLayout(prog *Program) {
 	p.Statements = []Statement{p.Statements[0]}
-	p.Statements[0].(*UseStmt).Program = layoutProg
+	p.Statements[0].(*UseStmt).Program = prog
+}
 
-	return nil
+func (p *Program) ApplyComponent(name string, prog *Program) {
+	for _, comp := range p.Components {
+		if comp.Name.Value == name {
+			comp.Block = prog
+		}
+	}
 }
 
 func (p *Program) HasReserveStmt() bool {
@@ -107,4 +114,8 @@ func (p *Program) HasUseStmt() (bool, *UseStmt) {
 	}
 
 	return false, nil
+}
+
+func (p *Program) HasComponentStmt() bool {
+	return len(p.Components) > 0
 }

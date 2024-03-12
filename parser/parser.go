@@ -59,13 +59,16 @@ type Parser struct {
 
 	prefixParseFns map[token.TokenType]prefixParseFn
 	infixParseFns  map[token.TokenType]infixParseFn
+
+	components []*ast.ComponentStmt
 }
 
 func New(lexer *lexer.Lexer, filepath string) *Parser {
 	p := &Parser{
-		l:        lexer,
-		errors:   []*fail.Error{},
-		filepath: filepath,
+		l:          lexer,
+		filepath:   filepath,
+		errors:     []*fail.Error{},
+		components: []*ast.ComponentStmt{},
 	}
 
 	p.nextToken() // fill curToken
@@ -135,6 +138,8 @@ func (p *Parser) ParseProgram() *ast.Program {
 
 		p.nextToken() // skip "}}"
 	}
+
+	prog.Components = p.components
 
 	return prog
 }
@@ -453,6 +458,8 @@ func (p *Parser) parseComponentStmt() ast.Statement {
 		p.nextToken() // skip component name
 		stmt.Arguments = p.parseExpressionList(token.RPAREN)
 	}
+
+	p.components = append(p.components, stmt)
 
 	return stmt
 }
