@@ -227,7 +227,8 @@ func testConsequence(t *testing.T, stmt ast.Statement, condition interface{}, co
 	}
 
 	if ifStmt.Consequence.String() != consequence {
-		t.Errorf("ifStmt.Consequence.String() is not %q, got %q", consequence, ifStmt.Consequence.String())
+		t.Errorf("ifStmt.Consequence.String() is not %q, got %q",
+			consequence, ifStmt.Consequence.String())
 		return false
 	}
 
@@ -241,7 +242,9 @@ func testAlternative(t *testing.T, alt *ast.BlockStmt, altValue string) bool {
 	}
 
 	if len(alt.Statements) != 1 {
-		t.Errorf("alternative.Statements does not contain 1 statement, got %d", len(alt.Statements))
+		t.Errorf("alternative.Statements does not contain 1 statement, got %d",
+			len(alt.Statements))
+
 		return false
 	}
 
@@ -684,7 +687,8 @@ func TestParseNestedIfElseStatement(t *testing.T) {
 	}
 
 	if len(ifStmt.Consequence.Statements) != 3 {
-		t.Fatalf("ifStmt.Consequence.Statements does not contain 3 statement, got %d", len(ifStmt.Consequence.Statements))
+		t.Fatalf("ifStmt.Consequence.Statements does not contain 3 statement, got %d",
+			len(ifStmt.Consequence.Statements))
 	}
 }
 
@@ -707,7 +711,8 @@ func TestParseIfElseIfStmt(t *testing.T) {
 	}
 
 	if len(stmt.Alternatives) != 1 {
-		t.Errorf("ifStmt.Alternatives does not contain 1 statement, got %d", len(stmt.Alternatives))
+		t.Errorf("ifStmt.Alternatives does not contain 1 statement, got %d",
+			len(stmt.Alternatives))
 	}
 
 	alternative := stmt.Alternatives[0]
@@ -717,13 +722,15 @@ func TestParseIfElseIfStmt(t *testing.T) {
 	}
 
 	if len(alternative.Consequence.Statements) != 1 {
-		t.Errorf("alternative.Consequence.Statements does not contain 1 statement, got %d", len(alternative.Consequence.Statements))
+		t.Errorf("alternative.Consequence.Statements does not contain 1 statement, got %d",
+			len(alternative.Consequence.Statements))
 	}
 
 	consequence, ok := alternative.Consequence.Statements[0].(*ast.HTMLStmt)
 
 	if !ok {
-		t.Fatalf("alternative.Consequence.Statements[0] is not an HTMLStmt, got %T", alternative.Consequence.Statements[0])
+		t.Fatalf("alternative.Consequence.Statements[0] is not an HTMLStmt, got %T",
+			alternative.Consequence.Statements[0])
 	}
 
 	if consequence.String() != "2" {
@@ -750,7 +757,8 @@ func TestParseIfElseIfElseStatement(t *testing.T) {
 	}
 
 	if len(stmt.Alternatives) != 1 {
-		t.Errorf("ifStmt.Alternatives does not contain 1 statement, got %d", len(stmt.Alternatives))
+		t.Errorf("ifStmt.Alternatives does not contain 1 statement, got %d",
+			len(stmt.Alternatives))
 	}
 
 	elseIfAlternative := stmt.Alternatives[0]
@@ -760,13 +768,15 @@ func TestParseIfElseIfElseStatement(t *testing.T) {
 	}
 
 	if len(elseIfAlternative.Consequence.Statements) != 1 {
-		t.Errorf("alternative.Consequence.Statements does not contain 1 statement, got %d", len(elseIfAlternative.Consequence.Statements))
+		t.Errorf("alternative.Consequence.Statements does not contain 1 statement, got %d",
+			len(elseIfAlternative.Consequence.Statements))
 	}
 
 	consequence, ok := elseIfAlternative.Consequence.Statements[0].(*ast.HTMLStmt)
 
 	if !ok {
-		t.Fatalf("alternative.Consequence.Statements[0] is not an HTMLStmt, got %T", elseIfAlternative.Consequence.Statements[0])
+		t.Fatalf("alternative.Consequence.Statements[0] is not an HTMLStmt, got %T",
+			elseIfAlternative.Consequence.Statements[0])
 	}
 
 	if consequence.String() != "2" {
@@ -839,7 +849,10 @@ func TestParseReserveStmt(t *testing.T) {
 			Block: &ast.BlockStmt{
 				Statements: []ast.Statement{
 					&ast.HTMLStmt{
-						Token: token.Token{Type: token.HTML, Literal: "<h1>Some content</h1>"},
+						Token: token.Token{
+							Type:    token.HTML,
+							Literal: "<h1>Some content</h1>",
+						},
 					},
 				},
 			},
@@ -877,7 +890,8 @@ func TestInsertStmt(t *testing.T) {
 		}
 
 		if stmt.Block.String() != "<h1>Some content</h1>" {
-			t.Errorf("stmt.Block.String() is not '<h1>Some content</h1>', got %s", stmt.Block.String())
+			t.Errorf("stmt.Block.String() is not '<h1>Some content</h1>', got %s",
+				stmt.Block.String())
 		}
 	})
 
@@ -955,7 +969,8 @@ func TestParseIndexExp(t *testing.T) {
 	}
 
 	if indexExp.String() != "((arr[(1 + 2)])[2])" {
-		t.Errorf("indexExp.String() is not '(arr[(1 + 2)])', got %s", indexExp.String())
+		t.Errorf("indexExp.String() is not '(arr[(1 + 2)])', got %s",
+			indexExp.String())
 	}
 }
 
@@ -989,7 +1004,8 @@ func TestParsePostfixExp(t *testing.T) {
 		}
 
 		if postfix.Operator != tt.operator {
-			t.Errorf("postfix.Operator is not '%s', got %s", tt.operator, postfix.Operator)
+			t.Errorf("postfix.Operator is not '%s', got %s", tt.operator,
+				postfix.Operator)
 		}
 
 		if postfix.String() != tt.str {
@@ -1016,7 +1032,8 @@ func TestParseTwoStatements(t *testing.T) {
 	}
 
 	if stmts[0].String() != `name = "Anna"` {
-		t.Errorf("stmts[0].String() is not '{{ name = \"Anna\" }}', got %s", stmts[0].String())
+		t.Errorf("stmts[0].String() is not '{{ name = \"Anna\" }}', got %s",
+			stmts[0].String())
 	}
 
 	if stmts[1].String() != `name` {
@@ -1111,7 +1128,8 @@ func TestParseForStmt(t *testing.T) {
 	}
 
 	if stmt.Condition.String() != `(i < 10)` {
-		t.Errorf("stmt.Condition.String() is not '(i < 10)', got %s", stmt.Condition.String())
+		t.Errorf("stmt.Condition.String() is not '(i < 10)', got %s",
+			stmt.Condition.String())
 	}
 
 	if stmt.Post.String() != `(i++)` {
@@ -1142,7 +1160,8 @@ func TestParseForElseStatement(t *testing.T) {
 	}
 
 	if stmt.Alternative.String() != "Empty" {
-		t.Errorf("stmt.Alternative.String() is not 'Empty', got %s", stmt.Alternative.String())
+		t.Errorf("stmt.Alternative.String() is not 'Empty', got %s",
+			stmt.Alternative.String())
 	}
 }
 
@@ -1212,7 +1231,8 @@ func TestParseEachElseStatement(t *testing.T) {
 	}
 
 	if stmt.Alternative.String() != "Test" {
-		t.Errorf("stmt.Alternative.String() is not 'Test', got %s", stmt.Alternative.String())
+		t.Errorf("stmt.Alternative.String() is not 'Test', got %s",
+			stmt.Alternative.String())
 	}
 }
 
@@ -1266,7 +1286,8 @@ func TestParseDotExp(t *testing.T) {
 	}
 
 	if dotExp.String() != "((person.father).name)" {
-		t.Fatalf("dotExp.String() is not '((person.father).name)', got %s", dotExp.String())
+		t.Fatalf("dotExp.String() is not '((person.father).name)', got %s",
+			dotExp.String())
 	}
 
 	if !testIdentifier(t, dotExp.Key, "name") {
