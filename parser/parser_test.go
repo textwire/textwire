@@ -1217,7 +1217,7 @@ func TestParseEachElseStatement(t *testing.T) {
 }
 
 func TestParseObjectStatement(t *testing.T) {
-	inp := `{{ {"father": {"name": "John"}} }}`
+	inp := `{{ {"father": {name: "John"}} }}`
 
 	stmts := parseStatements(t, inp, 1, nil)
 	stmt, ok := stmts[0].(*ast.ExpressionStmt)
@@ -1239,6 +1239,14 @@ func TestParseObjectStatement(t *testing.T) {
 	if obj.String() != `{"father": {"name": "John"}}` {
 		t.Fatalf(`obj.String() is not '{"father": {"name": "John" }}', got %s`, obj.String())
 	}
+
+	nested, ok := obj.Pairs["father"].(*ast.ObjectLiteral)
+
+	if !ok {
+		t.Fatalf("obj.Pairs['father'] is not a ObjectLiteral, got %T", obj.Pairs["father"])
+	}
+
+	testStringLiteral(t, nested.Pairs["name"], "John")
 }
 
 func TestParseDotExp(t *testing.T) {
