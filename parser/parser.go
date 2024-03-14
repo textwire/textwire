@@ -467,8 +467,17 @@ func (p *Parser) parseComponentStmt() ast.Statement {
 	}
 
 	if p.peekTokenIs(token.COMMA) {
-		p.nextToken() // skip component name
-		stmt.Arguments = p.parseExpressionList(token.RPAREN)
+		p.nextToken() // move to ","
+		p.nextToken() // skip ","
+
+		obj, ok := p.parseExpression(LOWEST).(*ast.ObjectLiteral)
+
+		if !ok {
+			p.newError(p.curToken.Line, fail.ErrExpectedObjectLiteral, p.curToken.Literal)
+			return nil
+		}
+
+		stmt.Argument = obj
 	}
 
 	p.components = append(p.components, stmt)

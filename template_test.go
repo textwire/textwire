@@ -50,16 +50,16 @@ func TestEvalUseStmt(t *testing.T) {
 		fileName string
 		data     map[string]interface{}
 	}{
-		// {"1.no-stmts", nil},
-		// {"2.with-inserts", nil},
-		// {"3.without-layout", map[string]interface{}{
-		// 	"pageTitle": "Test Page",
-		// 	"NAME_1":    "Anna Korotchaeva",
-		// 	"name_2":    "Serhii Cho",
-		// }},
-		// {"4.loops", map[string]interface{}{
-		// 	"names": []string{"Anna", "Serhii", "Vladimir"},
-		// }},
+		{"1.no-stmts", nil},
+		{"2.with-inserts", nil},
+		{"3.without-layout", map[string]interface{}{
+			"pageTitle": "Test Page",
+			"NAME_1":    "Anna Korotchaeva",
+			"name_2":    "Serhii Cho",
+		}},
+		{"4.loops", map[string]interface{}{
+			"names": []string{"Anna", "Serhii", "Vladimir"},
+		}},
 		{"5.with-component", map[string]interface{}{
 			"names": []string{"Anna", "Serhii", "Vladimir"},
 		}},

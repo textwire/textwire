@@ -1395,7 +1395,7 @@ func TestParseContinueIfDirective(t *testing.T) {
 }
 
 func TestParseComponentDirective(t *testing.T) {
-	inp := `<ul>@component("components/book-card", card)</ul>`
+	inp := `<ul>@component("components/book-card", { c: card })</ul>`
 	stmts := parseStatements(t, inp, 3, nil)
 
 	compStmt, ok := stmts[1].(*ast.ComponentStmt)
@@ -1406,11 +1406,16 @@ func TestParseComponentDirective(t *testing.T) {
 
 	testStringLiteral(t, compStmt.Name, "components/book-card")
 
-	if len(compStmt.Arguments) != 1 {
-		t.Fatalf("len(compStmt.Arguments) is not 1, got %d", len(compStmt.Arguments))
+	if len(compStmt.Argument.Pairs) != 1 {
+		t.Fatalf("len(compStmt.Arguments) is not 1, got %d", len(compStmt.Argument.Pairs))
 	}
 
-	testIdentifier(t, compStmt.Arguments[0], "card")
+	testIdentifier(t, compStmt.Argument.Pairs["c"], "card")
+
+	if compStmt.String() != `@component("components/book-card", {"c": card})` {
+		t.Fatalf(`compStmt.String() is not '@component("components/book-card", {"c": card})', got %s`,
+			compStmt.String())
+	}
 
 	if compStmt.Block != nil {
 		t.Fatalf("compStmt.Block is not nil, got %T", compStmt.Block)

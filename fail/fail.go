@@ -18,6 +18,7 @@ const (
 	ErrExpectedIdentifier     = "expected identifier, got '%s' instead"
 	ErrExceptedComponentStmt  = "expected *ComponentStmt, got %T"
 	ErrComponentMustHaveBlock = "the component '%s' must have a block"
+	ErrExpectedObjectLiteral  = "expected object literal, got '%s' instead"
 
 	// Evaluator (interpreter) errors
 	ErrUnknownNodeType         = "unknown node type '%T'"

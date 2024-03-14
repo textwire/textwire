@@ -465,14 +465,18 @@ func TestBreakDirectives(t *testing.T) {
 }
 
 func TestComponentDirective(t *testing.T) {
-	inp := `@component("components/book-card", card)`
+	inp := `@component("components/book-card", { c: card })`
 
 	TokenizeString(t, inp, []token.Token{
 		{Type: token.COMPONENT, Literal: "@component"},
 		{Type: token.LPAREN, Literal: "("},
 		{Type: token.STR, Literal: "components/book-card"},
 		{Type: token.COMMA, Literal: ","},
+		{Type: token.LBRACE, Literal: "{"},
+		{Type: token.IDENT, Literal: "c"},
+		{Type: token.COLON, Literal: ":"},
 		{Type: token.IDENT, Literal: "card"},
+		{Type: token.RBRACE, Literal: "}"},
 		{Type: token.RPAREN, Literal: ")"},
 		{Type: token.EOF, Literal: ""},
 	})

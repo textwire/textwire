@@ -248,21 +248,14 @@ func (e *Evaluator) evalComponentStmt(node *ast.ComponentStmt, env *object.Env) 
 
 	newEnv := object.NewEnclosedEnv(env)
 
-	for _, arg := range node.Arguments {
+	for key, arg := range node.Argument.Pairs {
 		val := e.Eval(arg, env)
 
 		if isError(val) {
 			return val
 		}
 
-		_, isIdent := arg.(*ast.Identifier)
-
-		// todo: redo this, we need to pass object to component
-		if isIdent {
-			newEnv.Set(arg.(*ast.Identifier).Value, val)
-		} else {
-			// todo: handle this case
-		}
+		newEnv.Set(key, val)
 	}
 
 	content := e.Eval(node.Block, newEnv)
