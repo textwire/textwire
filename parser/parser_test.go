@@ -1257,16 +1257,44 @@ func TestParseObjectStatement(t *testing.T) {
 	}
 
 	if obj.String() != `{"father": {"name": "John"}}` {
-		t.Fatalf(`obj.String() is not '{"father": {"name": "John" }}', got %s`, obj.String())
+		t.Fatalf(`obj.String() is not '{"father": {"name": "John" }}', got %s`,
+			obj.String())
 	}
 
 	nested, ok := obj.Pairs["father"].(*ast.ObjectLiteral)
 
 	if !ok {
-		t.Fatalf("obj.Pairs['father'] is not a ObjectLiteral, got %T", obj.Pairs["father"])
+		t.Fatalf("obj.Pairs['father'] is not a ObjectLiteral, got %T",
+			obj.Pairs["father"])
 	}
 
 	testStringLiteral(t, nested.Pairs["name"], "John")
+}
+
+func TestParseObjectWithShorthandPropertyNotation(t *testing.T) {
+	inp := `{{ { name, age } }}`
+
+	stmts := parseStatements(t, inp, 1, nil)
+	stmt, ok := stmts[0].(*ast.ExpressionStmt)
+
+	if !ok {
+		t.Fatalf("stmts[0] is not a ExpressionStmt, got %T", stmts[0])
+	}
+
+	obj, ok := stmt.Expression.(*ast.ObjectLiteral)
+
+	if !ok {
+		t.Fatalf("stmts[0] is not a ExpressionStmt, got %T", stmts[0])
+	}
+
+	if len(obj.Pairs) != 2 {
+		t.Fatalf("len(obj.Pairs) is not 2, got %d", len(obj.Pairs))
+	}
+
+	if obj.String() != `{"name": name, "age": age}` {
+		t.Fatalf(`obj.String() is not '{"name": name, "age": age}', got %s`,
+			obj.String())
+	}
 }
 
 func TestParseDotExp(t *testing.T) {

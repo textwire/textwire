@@ -340,25 +340,27 @@ func (p *Parser) parseObjectLiteral() ast.Expression {
 		return obj
 	}
 
-	for !p.peekTokenIs(token.RBRACE) {
+	for !p.curTokenIs(token.RBRACE) {
 		key := p.curToken.Literal
 
-		if !p.expectPeek(token.COLON) { // move to ":"
-			return nil
+		if p.peekTokenIs(token.COLON) {
+			p.nextToken() // move to ":"
+			p.nextToken() // skip to ":"
+
+			obj.Pairs[key] = p.parseExpression(LOWEST)
+		} else {
+			obj.Pairs[key] = p.parseExpression(LOWEST)
 		}
 
-		p.nextToken() // skip ":"
-
-		obj.Pairs[key] = p.parseExpression(LOWEST)
+		if p.peekTokenIs(token.RBRACE) {
+			p.nextToken() // skip "}"
+			break
+		}
 
 		if p.peekTokenIs(token.COMMA) {
-			p.nextToken() // skip value
+			p.nextToken() // move to ","
 			p.nextToken() // skip ","
 		}
-	}
-
-	if !p.expectPeek(token.RBRACE) { // move to "}"
-		return nil
 	}
 
 	return obj
