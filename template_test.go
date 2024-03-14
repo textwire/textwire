@@ -65,6 +65,7 @@ func TestEvalUseStmt(t *testing.T) {
 		}},
 		{"6.use-inside-if", nil},
 		{"7.insert-without-use", nil},
+		{"8.with-component", nil},
 	}
 
 	tpl, err := NewTemplate(&Config{
