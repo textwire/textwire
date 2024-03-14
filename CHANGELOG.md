@@ -7,6 +7,7 @@
 - Added ability to put `@use`, `@insert` and `@reserve` directives inside any other directive like `@if`, `@each`, `@for`, `@component` etc. Previously, you could only put them at the top level of the template
 - Added ability to define objects key without quotes. For example, `{{ obj = { key: "value" } }}` is now the same as `{{ obj = { "key": "value" } }}`
 - Added shorthand property notation for objects, similar to JavaScript. For example, `{{ obj = { key } }}` is now the same as `{{ obj = { "key": key } }}`
+- Changed so that `@use` statement is not required to be the first in the file. Now, you can place it anywhere in the file
 
 ## v1.3.0 (2024-03-04)
 

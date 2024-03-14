@@ -59,11 +59,9 @@ func (p *Program) ApplyInserts(inserts map[string]*InsertStmt, absPath string) *
 	return nil
 }
 
-// Remove all the statements except the first one, which is the layout statement
-// When we use layout, we do not print the file itself
 func (p *Program) ApplyLayout(prog *Program) {
-	p.Statements = []Statement{p.Statements[0]}
-	p.Statements[0].(*UseStmt).Program = prog
+	p.UseStmt.Program = prog
+	p.Statements = []Statement{p.UseStmt}
 }
 
 func (p *Program) ApplyComponent(name string, prog *Program) {

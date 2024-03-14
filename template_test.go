@@ -63,6 +63,7 @@ func TestEvalUseStmt(t *testing.T) {
 		{"5.with-component", map[string]interface{}{
 			"names": []string{"Anna", "Serhii", "Vladimir"},
 		}},
+		{"6.use-inside-if", nil},
 	}
 
 	tpl, err := NewTemplate(&Config{
