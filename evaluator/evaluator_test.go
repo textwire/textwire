@@ -395,6 +395,8 @@ func TestEvalObjectLiteral(t *testing.T) {
 		{`{{ user = {"father": {"name": "John"}}; user.father.name }}`, "John"},
 		{`{{ user = {"father": {"name": {"first": "Sam"}}}; user.father.name.first }}`, "Sam"},
 		{`{{ u = {"father": {name: {"first": "Sam"}}}; u['father']['name'].first }}`, "Sam"},
+		{`{{ name = "Sam"; age = 12; obj = { name, age }; obj.name }}`, "Sam"},
+		{`{{ name = "Sam"; age = 12; obj = { name, age }; obj.age }}`, "12"},
 	}
 
 	for _, tt := range tests {
