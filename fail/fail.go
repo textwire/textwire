@@ -14,9 +14,11 @@ const (
 	ErrNoPrefixParseFunc      = "no prefix parse function for '%s'"
 	ErrIllegalToken           = "illegal token '%s' found"
 	ErrElseifCannotFollowElse = "'@elseif' directive cannot follow '@else'"
-	ErrExceptedReserveStmt    = "expected *ReserveStmt, got %T"
 	ErrInsertStmtNotDefined   = "the insert statement named '%s' is not defined"
 	ErrExpectedIdentifier     = "expected identifier, got '%s' instead"
+	ErrExceptedComponentStmt  = "expected *ComponentStmt, got %T"
+	ErrComponentMustHaveBlock = "the component '%s' must have a block"
+	ErrExpectedObjectLiteral  = "expected object literal, got '%s' instead"
 
 	// Evaluator (interpreter) errors
 	ErrUnknownNodeType         = "unknown node type '%T'"

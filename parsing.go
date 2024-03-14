@@ -50,11 +50,11 @@ func parsePrograms(paths map[string]string) (map[string]*ast.Program, *fail.Erro
 			return nil, err
 		}
 
-		if hasLayout, useStmt := prog.HasUseStmt(); hasLayout {
-			err = applyLayoutToProgram(useStmt.Name.Value, prog)
+		if err = applyLayoutToProgram(prog); err != nil {
+			return nil, err
 		}
 
-		if err != nil {
+		if err = applyComponentToProgram(prog); err != nil {
 			return nil, err
 		}
 
@@ -66,27 +66,53 @@ func parsePrograms(paths map[string]string) (map[string]*ast.Program, *fail.Erro
 	return result, nil
 }
 
-func applyLayoutToProgram(layoutName string, prog *ast.Program) *fail.Error {
-	layoutAbsAPath, err := getFullPath(layoutName, true)
+func applyLayoutToProgram(prog *ast.Program) *fail.Error {
+	if !prog.HasUseStmt() {
+		return nil
+	}
+
+	layoutName := prog.UseStmt.Name.Value
+	layoutAbsPath, err := getFullPath(layoutName, true)
 
 	if err != nil {
 		return fail.FromError(err, 0, "", "template")
 	}
 
-	layoutProg, parseErr := parseProgram(layoutAbsAPath)
+	layoutProg, parseErr := parseProgram(layoutAbsPath)
 	layoutProg.IsLayout = true
 
 	if parseErr != nil {
 		return parseErr
 	}
 
-	layoutErr := layoutProg.ApplyInserts(prog.Inserts(), layoutAbsAPath)
+	layoutErr := layoutProg.ApplyInserts(prog.Inserts, layoutAbsPath)
 
 	if layoutErr != nil {
 		return layoutErr
 	}
 
 	prog.ApplyLayout(layoutProg)
+
+	return nil
+}
+
+func applyComponentToProgram(prog *ast.Program) *fail.Error {
+	for _, comp := range prog.Components {
+		compName := comp.Name.Value
+		compAbsPath, err := getFullPath(compName, true)
+
+		if err != nil {
+			return fail.FromError(err, 0, "", "template")
+		}
+
+		compProg, parseErr := parseProgram(compAbsPath)
+
+		if parseErr != nil {
+			return parseErr
+		}
+
+		prog.ApplyComponent(compName, compProg)
+	}
 
 	return nil
 }

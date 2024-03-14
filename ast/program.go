@@ -9,8 +9,12 @@ import (
 
 type Program struct {
 	Token      token.Token // The 'program' token
-	Statements []Statement
 	IsLayout   bool
+	UseStmt    *UseStmt
+	Statements []Statement
+	Components []*ComponentStmt
+	Reserves   map[string]*ReserveStmt
+	Inserts    map[string]*InsertStmt
 }
 
 func (p *Program) TokenLiteral() string {
@@ -40,35 +44,12 @@ func (p *Program) Line() uint {
 	return p.Token.Line
 }
 
-func (p *Program) Inserts() map[string]*InsertStmt {
-	inserts := make(map[string]*InsertStmt)
-
-	for _, stmt := range p.Statements {
-		if insertStmt, ok := stmt.(*InsertStmt); ok {
-			inserts[insertStmt.Name.Value] = insertStmt
-		}
-	}
-
-	return inserts
-}
-
 func (p *Program) ApplyInserts(inserts map[string]*InsertStmt, absPath string) *fail.Error {
-	for _, stmt := range p.Statements {
-		if stmt.TokenLiteral() != token.String(token.RESERVE) {
-			continue
-		}
-
-		reserve, ok := stmt.(*ReserveStmt)
-
-		if !ok {
-			return fail.New(stmt.Line(), absPath, "parser",
-				fail.ErrExceptedReserveStmt, stmt)
-		}
-
+	for _, reserve := range p.Reserves {
 		insert, hasInsert := inserts[reserve.Name.Value]
 
 		if !hasInsert {
-			return fail.New(stmt.Line(), absPath, "parser",
+			return fail.New(reserve.Line(), absPath, "parser",
 				fail.ErrInsertStmtNotDefined, reserve.Name.Value)
 		}
 
@@ -78,33 +59,23 @@ func (p *Program) ApplyInserts(inserts map[string]*InsertStmt, absPath string) *
 	return nil
 }
 
-// Remove all the statements except the first one, which is the layout statement
-// When we use layout, we do not print the file itself
-func (p *Program) ApplyLayout(layoutProg *Program) error {
-	p.Statements = []Statement{p.Statements[0]}
-	p.Statements[0].(*UseStmt).Program = layoutProg
+func (p *Program) ApplyLayout(prog *Program) {
+	p.UseStmt.Program = prog
+	p.Statements = []Statement{p.UseStmt}
+}
 
-	return nil
+func (p *Program) ApplyComponent(name string, prog *Program) {
+	for _, comp := range p.Components {
+		if comp.Name.Value == name {
+			comp.Block = prog
+		}
+	}
 }
 
 func (p *Program) HasReserveStmt() bool {
-	for _, stmt := range p.Statements {
-		if stmt.TokenLiteral() == token.String(token.RESERVE) {
-			return true
-		}
-	}
-
-	return false
+	return len(p.Reserves) > 0
 }
 
-func (p *Program) HasUseStmt() (bool, *UseStmt) {
-	for _, stmt := range p.Statements {
-		if stmt.TokenLiteral() != token.String(token.USE) {
-			continue
-		}
-
-		return true, stmt.(*UseStmt)
-	}
-
-	return false, nil
+func (p *Program) HasUseStmt() bool {
+	return p.UseStmt != nil
 }

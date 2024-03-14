@@ -59,13 +59,21 @@ type Parser struct {
 
 	prefixParseFns map[token.TokenType]prefixParseFn
 	infixParseFns  map[token.TokenType]infixParseFn
+
+	useStmt    *ast.UseStmt
+	components []*ast.ComponentStmt
+	inserts    map[string]*ast.InsertStmt
+	reserves   map[string]*ast.ReserveStmt
 }
 
 func New(lexer *lexer.Lexer, filepath string) *Parser {
 	p := &Parser{
-		l:        lexer,
-		errors:   []*fail.Error{},
-		filepath: filepath,
+		l:          lexer,
+		filepath:   filepath,
+		errors:     []*fail.Error{},
+		components: []*ast.ComponentStmt{},
+		inserts:    map[string]*ast.InsertStmt{},
+		reserves:   map[string]*ast.ReserveStmt{},
 	}
 
 	p.nextToken() // fill curToken
@@ -136,6 +144,11 @@ func (p *Parser) ParseProgram() *ast.Program {
 		p.nextToken() // skip "}}"
 	}
 
+	prog.Components = p.components
+	prog.Inserts = p.inserts
+	prog.UseStmt = p.useStmt
+	prog.Reserves = p.reserves
+
 	return prog
 }
 
@@ -163,6 +176,8 @@ func (p *Parser) parseStatement() ast.Statement {
 		return p.parseBreakIfStmt()
 	case token.CONTINUE_IF:
 		return p.parseContinueIfStmt()
+	case token.COMPONENT:
+		return p.parseComponentStmt()
 	case token.BREAK:
 		return &ast.BreakStmt{Token: p.curToken}
 	case token.CONTINUE:
@@ -325,25 +340,27 @@ func (p *Parser) parseObjectLiteral() ast.Expression {
 		return obj
 	}
 
-	for !p.peekTokenIs(token.RBRACE) {
+	for !p.curTokenIs(token.RBRACE) {
 		key := p.curToken.Literal
 
-		if !p.expectPeek(token.COLON) { // move to ":"
-			return nil
+		if p.peekTokenIs(token.COLON) {
+			p.nextToken() // move to ":"
+			p.nextToken() // skip to ":"
+
+			obj.Pairs[key] = p.parseExpression(LOWEST)
+		} else {
+			obj.Pairs[key] = p.parseExpression(LOWEST)
 		}
 
-		p.nextToken() // skip ":"
-
-		obj.Pairs[key] = p.parseExpression(LOWEST)
+		if p.peekTokenIs(token.RBRACE) {
+			p.nextToken() // skip "}"
+			break
+		}
 
 		if p.peekTokenIs(token.COMMA) {
-			p.nextToken() // skip value
+			p.nextToken() // move to ","
 			p.nextToken() // skip ","
 		}
-	}
-
-	if !p.expectPeek(token.RBRACE) { // move to "}"
-		return nil
 	}
 
 	return obj
@@ -396,6 +413,8 @@ func (p *Parser) parseUseStmt() ast.Statement {
 		Value: p.curToken.Literal,
 	}
 
+	p.useStmt = stmt
+
 	return stmt
 }
 
@@ -431,6 +450,41 @@ func (p *Parser) parseContinueIfStmt() ast.Statement {
 	return stmt
 }
 
+func (p *Parser) parseComponentStmt() ast.Statement {
+	stmt := &ast.ComponentStmt{
+		Token: p.curToken, // "@component"
+	}
+
+	if !p.expectPeek(token.LPAREN) { // move to "("
+		return nil
+	}
+
+	p.nextToken() // skip "("
+
+	stmt.Name = &ast.StringLiteral{
+		Token: p.curToken,
+		Value: p.curToken.Literal,
+	}
+
+	if p.peekTokenIs(token.COMMA) {
+		p.nextToken() // move to ","
+		p.nextToken() // skip ","
+
+		obj, ok := p.parseExpression(LOWEST).(*ast.ObjectLiteral)
+
+		if !ok {
+			p.newError(p.curToken.Line, fail.ErrExpectedObjectLiteral, p.curToken.Literal)
+			return nil
+		}
+
+		stmt.Argument = obj
+	}
+
+	p.components = append(p.components, stmt)
+
+	return stmt
+}
+
 func (p *Parser) parseReserveStmt() ast.Statement {
 	stmt := &ast.ReserveStmt{
 		Token: p.curToken, // "@reserve"
@@ -446,6 +500,8 @@ func (p *Parser) parseReserveStmt() ast.Statement {
 		Token: p.curToken,
 		Value: p.curToken.Literal,
 	}
+
+	p.reserves[stmt.Name.Value] = stmt
 
 	return stmt
 }
@@ -470,6 +526,9 @@ func (p *Parser) parseInsertStmt() ast.Statement {
 		p.nextToken() // skip insert name
 		p.nextToken() // skip ","
 		stmt.Argument = p.parseExpression(LOWEST)
+
+		p.inserts[stmt.Name.Value] = stmt
+
 		return stmt
 	}
 
@@ -480,6 +539,8 @@ func (p *Parser) parseInsertStmt() ast.Statement {
 	p.nextToken() // skip ")"
 
 	stmt.Block = p.parseBlockStmt()
+
+	p.inserts[stmt.Name.Value] = stmt
 
 	return stmt
 }

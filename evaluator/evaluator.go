@@ -43,8 +43,6 @@ func (e *Evaluator) Eval(node ast.Node, env *object.Env) object.Object {
 		return e.evalAssignStmt(node, env)
 	case *ast.UseStmt:
 		return e.evalUseStmt(node, env)
-	case *ast.InsertStmt:
-		return NIL
 	case *ast.ReserveStmt:
 		return e.evalReserveStmt(node, env)
 	case *ast.ForStmt:
@@ -53,12 +51,16 @@ func (e *Evaluator) Eval(node ast.Node, env *object.Env) object.Object {
 		return e.evalEachStmt(node, env)
 	case *ast.BreakIfStmt:
 		return e.evalBreakIfStmt(node, env)
+	case *ast.ComponentStmt:
+		return e.evalComponentStmt(node, env)
 	case *ast.ContinueIfStmt:
 		return e.evalContinueIfStmt(node, env)
 	case *ast.BreakStmt:
 		return BREAK
 	case *ast.ContinueStmt:
 		return CONTINUE
+	case *ast.InsertStmt:
+		return NIL
 
 	// Expressions
 	case *ast.Identifier:
@@ -185,10 +187,8 @@ func (e *Evaluator) evalUseStmt(node *ast.UseStmt, env *object.Env) object.Objec
 		return e.newError(node, fail.ErrUseStmtMustHaveProgram)
 	}
 
-	if node.Program.IsLayout {
-		if hasUseStmt, _ := node.Program.HasUseStmt(); hasUseStmt {
-			return e.newError(node, fail.ErrUseStmtNotAllowed)
-		}
+	if node.Program.IsLayout && node.Program.HasUseStmt() {
+		return e.newError(node, fail.ErrUseStmtNotAllowed)
 	}
 
 	layoutContent := e.Eval(node.Program, env)
@@ -203,10 +203,7 @@ func (e *Evaluator) evalUseStmt(node *ast.UseStmt, env *object.Env) object.Objec
 	}
 }
 
-func (e *Evaluator) evalReserveStmt(
-	node *ast.ReserveStmt,
-	env *object.Env,
-) object.Object {
+func (e *Evaluator) evalReserveStmt(node *ast.ReserveStmt, env *object.Env) object.Object {
 	stmt := &object.Reserve{Name: node.Name.Value}
 
 	if node.Insert.Block != nil {
@@ -232,6 +229,42 @@ func (e *Evaluator) evalReserveStmt(
 	}
 
 	stmt.Argument = firstArg
+
+	return stmt
+}
+
+func (e *Evaluator) evalComponentStmt(node *ast.ComponentStmt, env *object.Env) object.Object {
+	name := e.Eval(node.Name, env)
+
+	if isError(name) {
+		return name
+	}
+
+	if node.Block == nil {
+		return e.newError(node, fail.ErrComponentMustHaveBlock, name.String())
+	}
+
+	stmt := &object.Component{Name: name.String()}
+
+	newEnv := object.NewEnclosedEnv(env)
+
+	for key, arg := range node.Argument.Pairs {
+		val := e.Eval(arg, env)
+
+		if isError(val) {
+			return val
+		}
+
+		newEnv.Set(key, val)
+	}
+
+	content := e.Eval(node.Block, newEnv)
+
+	if isError(content) {
+		return content
+	}
+
+	stmt.Content = content
 
 	return stmt
 }

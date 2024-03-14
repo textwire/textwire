@@ -70,6 +70,7 @@ const (
 	RESERVE
 	BREAK
 	CONTINUE
+	COMPONENT
 )
 
 var keywords = map[string]TokenType{
@@ -94,6 +95,7 @@ var directives = map[string]TokenType{
 	"@continueIf": CONTINUE_IF,
 	"@break":      BREAK,
 	"@breakIf":    BREAK_IF,
+	"@component":  COMPONENT,
 }
 
 type Token struct {
