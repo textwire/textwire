@@ -64,6 +64,7 @@ func TestEvalUseStmt(t *testing.T) {
 			"names": []string{"Anna", "Serhii", "Vladimir"},
 		}},
 		{"6.use-inside-if", nil},
+		{"7.insert-without-use", nil},
 	}
 
 	tpl, err := NewTemplate(&Config{
