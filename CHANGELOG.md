@@ -1,5 +1,9 @@
 # Release notes
 
+## v1.4.1 (2024-03-18)
+
+- Added link to a [Textwire VSCode extension link](https://marketplace.visualstudio.com/items?itemName=SerhiiCho.textwire) in the README.md file
+
 ## v1.4.0 (2024-03-11)
 
 - Added `@component` directive for creating reusable components
