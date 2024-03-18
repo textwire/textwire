@@ -19,6 +19,9 @@ type Config struct {
 
 	// TemplateExt is the extension of the Textwire
 	// template files. Default is ".tw.html"
+	// If you use a different extension other then ".tw.html",
+	// you will loose syntax highlighting in VSCode editor
+	// if you use the Textwire extension
 	TemplateExt string
 
 	// configApplied is a flag to check if the configuration

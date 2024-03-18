@@ -1291,9 +1291,10 @@ func TestParseObjectWithShorthandPropertyNotation(t *testing.T) {
 		t.Fatalf("len(obj.Pairs) is not 2, got %d", len(obj.Pairs))
 	}
 
-	if obj.String() != `{"name": name, "age": age}` {
-		t.Fatalf(`obj.String() is not '{"name": name, "age": age}', got %s`,
-			obj.String())
+	str := obj.String()
+
+	if str != `{"name": name, "age": age}` {
+		t.Fatalf(`obj.String() is not '{"name": name, "age": age}', got '%s'`, str)
 	}
 }
 
