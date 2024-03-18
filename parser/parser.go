@@ -925,8 +925,14 @@ func (p *Parser) parseExpressionList(endTok token.TokenType) []ast.Expression {
 	result = append(result, p.parseExpression(LOWEST))
 
 	for p.peekTokenIs(token.COMMA) {
+		p.nextToken() // move to ","
+
+		// break when has a trailing comma
+		if p.peekTokenIs(endTok) {
+			break
+		}
+
 		p.nextToken() // skip ","
-		p.nextToken() // skip expression
 		result = append(result, p.parseExpression(LOWEST))
 	}
 

@@ -1,5 +1,9 @@
 # Release notes
 
+## v1.5.0 (2024-03-19)
+
+- Added trailing comma support in object and array literals. For example, `{{ obj = { key: "value", } }}` and `{{ arr = [1, 2, 3, ] }}` are now valid
+
 ## v1.4.1 (2024-03-18)
 
 - Added link to a [Textwire VSCode extension link](https://marketplace.visualstudio.com/items?itemName=SerhiiCho.textwire) in the README.md file

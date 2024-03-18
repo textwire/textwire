@@ -920,7 +920,7 @@ func TestInsertStmt(t *testing.T) {
 }
 
 func TestParseArray(t *testing.T) {
-	inp := `{{ [11, 234] }}`
+	inp := `{{ [11, 234,] }}`
 
 	stmts := parseStatements(t, inp, 1, nil)
 	stmt, ok := stmts[0].(*ast.ExpressionStmt)
@@ -1237,7 +1237,7 @@ func TestParseEachElseStatement(t *testing.T) {
 }
 
 func TestParseObjectStatement(t *testing.T) {
-	inp := `{{ {"father": {name: "John"}} }}`
+	inp := `{{ {"father": {name: "John"},} }}`
 
 	stmts := parseStatements(t, inp, 1, nil)
 	stmt, ok := stmts[0].(*ast.ExpressionStmt)
