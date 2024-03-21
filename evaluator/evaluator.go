@@ -74,7 +74,7 @@ func (e *Evaluator) Eval(node ast.Node, env *object.Env) object.Object {
 	case *ast.FloatLiteral:
 		return &object.Float{Value: node.Value}
 	case *ast.StringLiteral:
-		return &object.Str{Value: html.EscapeString(node.Value)}
+		return e.evalString(node, env)
 	case *ast.BooleanLiteral:
 		return nativeBoolToBooleanObject(node.Value)
 	case *ast.ObjectLiteral:
@@ -511,6 +511,16 @@ func (e *Evaluator) evalDotExp(node *ast.DotExp, env *object.Env) object.Object 
 	key := node.Key.(*ast.Identifier)
 
 	return e.evalObjectIndexExp(left.(*object.Obj), key.Value, node)
+}
+
+func (e *Evaluator) evalString(node *ast.StringLiteral, _ *object.Env) object.Object {
+	str := html.EscapeString(node.Value)
+
+	// unescape single and double quotes
+	str = strings.ReplaceAll(str, "&#34;", `"`)
+	str = strings.ReplaceAll(str, "&#39;", `'`)
+
+	return &object.Str{Value: str}
 }
 
 func (e *Evaluator) evalPrefixExp(node *ast.PrefixExp, env *object.Env) object.Object {
