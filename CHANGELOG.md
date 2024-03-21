@@ -1,6 +1,6 @@
 # Release notes
 
-## v1.5.0 (2024-03-19)
+## v1.5.0 (2024-03-21)
 
 - Added trailing comma support in object and array literals. For example, `{{ obj = { key: "value", } }}` and `{{ arr = [1, 2, 3, ] }}` are now valid
 
