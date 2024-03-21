@@ -57,7 +57,14 @@ func (l *Lexer) NextToken() token.Token {
 	}
 
 	if l.char == '{' && l.peekChar() == '{' {
-		return l.bracesToken(token.LBRACES, "{{")
+		tok := l.bracesToken(token.LBRACES, "{{")
+
+		if l.char == '-' && l.peekChar() == '-' {
+			l.skipComment()
+			return l.NextToken()
+		}
+
+		return tok
 	}
 
 	if l.char == '}' && l.peekChar() == '}' && l.countCurlyBraces == 0 {
@@ -434,6 +441,17 @@ func (l *Lexer) skipWhitespace() {
 
 		l.advanceChar()
 	}
+}
+
+func (l *Lexer) skipComment() {
+	for l.char != '}' || l.peekChar() != '}' {
+		l.advanceChar()
+	}
+
+	l.isHTML = true
+
+	l.advanceChar() // skip "}"
+	l.advanceChar() // skip "}"
 }
 
 func (l *Lexer) peekChar() byte {

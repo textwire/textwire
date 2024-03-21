@@ -403,3 +403,18 @@ func TestEvalObjectLiteral(t *testing.T) {
 		evaluationExpected(t, tt.inp, tt.expected)
 	}
 }
+
+func TestEvalComments(t *testing.T) {
+	tests := []struct {
+		inp      string
+		expected string
+	}{
+		{"{{-- This is a comment --}}", ""},
+		{"<section>{{-- This is a comment --}}</section>", "<section></section>"},
+		{"Some {{-- --}}text", "Some text"},
+	}
+
+	for _, tt := range tests {
+		evaluationExpected(t, tt.inp, tt.expected)
+	}
+}
