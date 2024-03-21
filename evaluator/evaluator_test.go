@@ -163,7 +163,9 @@ func TestEvalStringExp(t *testing.T) {
 		expected string
 	}{
 		{`{{ "Hello World" }}`, "Hello World"},
-		{`{{ "She \"is\" pretty" }}`, `She &#34;is&#34; pretty`},
+		{`<div {{ 'data-attr="Test"' }}></div>`, `<div data-attr="Test"></div>`},
+		{`<div {{ "data-attr='Test'" }}></div>`, `<div data-attr='Test'></div>`},
+		{`{{ "She \"is\" pretty" }}`, `She "is" pretty`},
 		{`{{ "Korotchaeva" + " " + "Anna" }}`, "Korotchaeva Anna"},
 		{`{{ "She" + " " + "is" + " " + "nice" }}`, "She is nice"},
 		{"{{ '' }}", ""},

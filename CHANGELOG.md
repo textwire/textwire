@@ -1,5 +1,9 @@
 # Release notes
 
+## v1.5.1 (2024-03-21)
+
+- Removed escaping single and double quotes in strings when printing them. For example, `{{ "Hello, 'world'" }}` and `{{ 'Hello, "world"' }}` will now print `Hello, 'world'` and `Hello, "world"` respectively instead of using HTML entities to escape the quotes
+
 ## v1.5.0 (2024-03-21)
 
 - Added trailing comma support in object and array literals. For example, `{{ obj = { key: "value", } }}` and `{{ arr = [1, 2, 3, ] }}` are now valid
