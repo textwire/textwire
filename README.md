@@ -1,4 +1,4 @@
-# Textwire. A templating language for Go.
+# Textwire. A templating language for Go
 
 <p align="center">
 <a href="https://github.com/textwire/textwire/actions/workflows/go.yml"><img src="https://github.com/textwire/textwire/actions/workflows/go.yml/badge.svg"></a>

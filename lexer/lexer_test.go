@@ -481,3 +481,14 @@ func TestComponentDirective(t *testing.T) {
 		{Type: token.EOF, Literal: ""},
 	})
 }
+
+// Comments should be ignored by the lexer
+func TestCommentStatement(t *testing.T) {
+	inp := `<div>{{-- This is a comment --}}</div>`
+
+	TokenizeString(t, inp, []token.Token{
+		{Type: token.HTML, Literal: "<div>"},
+		{Type: token.HTML, Literal: "</div>"},
+		{Type: token.EOF, Literal: ""},
+	})
+}
