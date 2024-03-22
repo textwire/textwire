@@ -351,6 +351,10 @@ func (e *Evaluator) evalEachStmt(node *ast.EachStmt, env *object.Env) object.Obj
 	varName := node.Var.Value
 	arrObj := e.Eval(node.Array, newEnv)
 
+	if isError(arrObj) {
+		return arrObj
+	}
+
 	elems := arrObj.(*object.Array).Elements
 	elemsLen := len(elems)
 

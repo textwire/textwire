@@ -2,7 +2,8 @@
 
 ## v1.5.2 (2024-03-22)
 
-- Fixed bug where you were you couldn't comment a block of Textwire code
+- Fixed a bug where you were you couldn't comment a block of Textwire code
+- Added error check when executing `@each` statement. Occasionally, if passed array was invalid, it would panic. Now, it will return an error message
 
 ## v1.5.1 (2024-03-21)
 
