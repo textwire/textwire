@@ -444,8 +444,18 @@ func (l *Lexer) skipWhitespace() {
 }
 
 func (l *Lexer) skipComment() {
-	for l.char != '}' || l.peekChar() != '}' {
-		l.advanceChar()
+	for {
+		if l.char != '-' || l.peekChar() != '-' {
+			l.advanceChar()
+			continue
+		}
+
+		l.advanceChar() // skip "-"
+		l.advanceChar() // skip "-"
+
+		if l.char == '}' || l.peekChar() == '}' {
+			break
+		}
 	}
 
 	l.isHTML = true

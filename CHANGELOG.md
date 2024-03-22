@@ -1,5 +1,10 @@
 # Release notes
 
+## v1.5.2 (2024-03-22)
+
+- Fixed a bug where you were you couldn't comment a block of Textwire code
+- Added error check when executing `@each` statement. Occasionally, if passed array was invalid, it would panic. Now, it will return an error message
+
 ## v1.5.1 (2024-03-21)
 
 - Removed escaping single and double quotes in strings when printing them. For example, `{{ "Hello, 'world'" }}` and `{{ 'Hello, "world"' }}` will now print `Hello, 'world'` and `Hello, "world"` respectively instead of using HTML entities to escape the quotes
