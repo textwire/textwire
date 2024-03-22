@@ -484,11 +484,21 @@ func TestComponentDirective(t *testing.T) {
 
 // Comments should be ignored by the lexer
 func TestCommentStatement(t *testing.T) {
-	inp := `<div>{{-- This is a comment --}}</div>`
+	t.Run("Simple comment", func(tt *testing.T) {
+		inp := `<div>{{-- This is a comment --}}</div>`
 
-	TokenizeString(t, inp, []token.Token{
-		{Type: token.HTML, Literal: "<div>"},
-		{Type: token.HTML, Literal: "</div>"},
-		{Type: token.EOF, Literal: ""},
+		TokenizeString(t, inp, []token.Token{
+			{Type: token.HTML, Literal: "<div>"},
+			{Type: token.HTML, Literal: "</div>"},
+			{Type: token.EOF, Literal: ""},
+		})
+	})
+
+	t.Run("Commented code", func(tt *testing.T) {
+		inp := `{{-- @each(u in users){{ u }}@end --}}`
+
+		TokenizeString(t, inp, []token.Token{
+			{Type: token.EOF, Literal: ""},
+		})
 	})
 }

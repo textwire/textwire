@@ -414,6 +414,7 @@ func TestEvalComments(t *testing.T) {
 		{"{{-- This is a comment --}}", ""},
 		{"<section>{{-- This is a comment --}}</section>", "<section></section>"},
 		{"Some {{-- --}}text", "Some text"},
+		{"{{-- @each(u in users){{ u }}@end --}}", ""},
 	}
 
 	for _, tt := range tests {

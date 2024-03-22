@@ -1,5 +1,9 @@
 # Release notes
 
+## v1.5.2 (2024-03-22)
+
+- Fixed bug where you were you couldn't comment a block of Textwire code
+
 ## v1.5.1 (2024-03-21)
 
 - Removed escaping single and double quotes in strings when printing them. For example, `{{ "Hello, 'world'" }}` and `{{ 'Hello, "world"' }}` will now print `Hello, 'world'` and `Hello, "world"` respectively instead of using HTML entities to escape the quotes
