@@ -12,7 +12,8 @@ var functions = map[object.ObjectType]map[string]*object.Builtin{
 		"trim":  {Fn: strTrimFunc},
 	},
 	object.ARR_OBJ: {
-		"len": {Fn: arrayLenFunc},
+		"len":  {Fn: arrayLenFunc},
+		"join": {Fn: arrayJoinFunc},
 	},
 	object.FLOAT_OBJ: {
 		"int": {Fn: floatIntFunc},
