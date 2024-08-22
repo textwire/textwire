@@ -1,6 +1,6 @@
 # Release notes
 
-## v1.6.0 (2024-08-23)
+## v1.6.0 (2024-08-22)
 - Improve error handling for functions. If you call a function that doesn't exist, it will not only tell that function doesn't exist, but also the type of the target that you are trying to call a function on
 - Added `join` function to arrays. For example, `{{ arr = [1, 2, 3]; arr.join(", ") }}` will print `1, 2, 3`
 
