@@ -1,5 +1,9 @@
 # Release notes
 
+## v1.6.0 (2024-08-23)
+- Improve error handling for functions. If you call a function that doesn't exist, it will not only tell that function doesn't exist, but also the type of the target that you are trying to call a function on
+- Added `join` function to arrays. For example, `{{ arr = [1, 2, 3]; arr.join(", ") }}` will print `1, 2, 3`
+
 ## v1.5.2 (2024-03-22)
 - Fixed a bug where you were you couldn't comment a block of Textwire code
 - Added error check when executing `@each` statement. Occasionally, if passed array was invalid, it would panic. Now, it will return an error message

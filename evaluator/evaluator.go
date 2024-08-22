@@ -671,7 +671,7 @@ func (e *Evaluator) evalCallExp(
 		return buitin.Fn(receiverObj, args...)
 	}
 
-	return e.newError(node, fail.ErrFuncDoNotExist, node.Function.Value)
+	return e.newError(node, fail.ErrNoFuncForThisType, node.Function.Value, receiverObj.Type())
 }
 
 func (e *Evaluator) evalPostfixOperatorExp(
