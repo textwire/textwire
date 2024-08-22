@@ -1,10 +1,10 @@
 # Release notes
 
-* 🧑‍💻 - Sign of improving developer experience
-* ✨ - Sign of introducing new features
-* 🐛 - Sign of fixes bugs
-* ♻️ - Sign of refactoring code
-* 📝 - Sign of adding or updating documentation
+* 🧑‍💻 - Improving developer experience
+* ✨ - Introducing new features
+* 🐛 - Fixing bugs
+* ♻️ - Refactoring code
+* 📝 - Adding or updating documentation
 
 ## v1.6.1 (2024-08-22)
 - 🧑‍💻 Improve `join` function for arrays by adding default separator ",". If you don't provide a separator, it will use a comma as a default separator
