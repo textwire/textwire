@@ -10,7 +10,14 @@ func arrayLenFunc(receiver object.Object, args ...object.Object) object.Object {
 
 // arrayJoinFunc joins the elements of the given array with the given separator
 func arrayJoinFunc(receiver object.Object, args ...object.Object) object.Object {
-	separator := args[0].(*object.Str).Value
+	var separator string
+
+	if len(args) == 0 {
+		separator = ","
+	} else {
+		separator = args[0].(*object.Str).Value
+	}
+
 	elements := receiver.(*object.Array).Elements
 
 	var result string
