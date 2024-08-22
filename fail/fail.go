@@ -30,7 +30,6 @@ const (
 	ErrUnknownTypeForOperator  = "unknown type '%s' for '%s' operator"
 	ErrPrefixOperatorIsWrong   = "prefix operator '%s' cannot be applied to '%s'"
 	ErrUseStmtMustHaveProgram  = "the 'use' statement must have a program attached"
-	ErrFuncDoNotExist          = "function '%s' doesn't exist. Try to update the Textwire to the latest version or checkout the documentation https://textwire.github.io"
 	ErrNoFuncForThisType       = "function '%s' doesn't exist for type '%s'"
 	ErrLoopVariableIsReserved  = "the 'loop' variable is reserved. You cannot use it as a variable name"
 	ErrVariableTypeMismatch    = "cannot assign variable '%s' of type '%s' to type '%s'"
