@@ -10,6 +10,8 @@ var functions = map[object.ObjectType]map[string]*object.Builtin{
 		"split": {Fn: strSplitFunc},
 		"raw":   {Fn: strRawFunc},
 		"trim":  {Fn: strTrimFunc},
+		"upper": {Fn: strUpperFunc},
+		"lower": {Fn: strLowerFunc},
 	},
 	object.ARR_OBJ: {
 		"len":  {Fn: arrayLenFunc},

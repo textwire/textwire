@@ -6,6 +6,10 @@
 * ♻️ - Refactoring code
 * 📝 - Adding or updating documentation
 
+## v1.7.0 (2024-08-29)
+- ✨ Added `upper` function to strings. For example, `{{ "hello".upper() }}` will print `HELLO`
+- ✨ Added `lower` function to strings. For example, `{{ "HELLO".lower() }}` will print `hello`
+
 ## v1.6.1 (2024-08-22)
 - 🧑‍💻 Improve `join` function for arrays by adding default separator ",". If you don't provide a separator, it will use a comma as a default separator
 - 📝 Added emojis for each changelog item
