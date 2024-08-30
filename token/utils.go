@@ -59,7 +59,7 @@ var tokens = [...]string{
 	CONTINUE_IF: "@continueIf",
 	IF:          "@if",
 	ELSE:        "@else",
-	ELSEIF:      "@elseif",
+	ELSE_IF:     "@elseif",
 	END:         "@end",
 	COMPONENT:   "@component",
 }

@@ -59,7 +59,7 @@ const (
 	// Directives
 	IF
 	ELSE
-	ELSEIF
+	ELSE_IF
 	END
 	FOR
 	USE
@@ -84,7 +84,7 @@ var keywords = map[string]TokenType{
 var directives = map[string]TokenType{
 	"@if":         IF,
 	"@else":       ELSE,
-	"@elseif":     ELSEIF,
+	"@elseif":     ELSE_IF,
 	"@end":        END,
 	"@use":        USE,
 	"@reserve":    RESERVE,

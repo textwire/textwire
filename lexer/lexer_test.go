@@ -100,7 +100,7 @@ func TestIfStmt(t *testing.T) {
 		{Type: token.RPAREN, Literal: ")"},
 		{Type: token.RPAREN, Literal: ")"},
 		{Type: token.HTML, Literal: "one"},
-		{Type: token.ELSEIF, Literal: "@elseif"},
+		{Type: token.ELSE_IF, Literal: "@elseif"},
 		{Type: token.LPAREN, Literal: "("},
 		{Type: token.FALSE, Literal: "false"},
 		{Type: token.RPAREN, Literal: ")"},

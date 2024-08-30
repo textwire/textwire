@@ -671,7 +671,7 @@ func (p *Parser) parseIfStmt() *ast.IfStmt {
 
 	stmt.Consequence = p.parseBlockStmt()
 
-	for p.peekTokenIs(token.ELSEIF) {
+	for p.peekTokenIs(token.ELSE_IF) {
 		alt := p.parseElseIfStmt()
 
 		if alt == nil {
@@ -697,7 +697,7 @@ func (p *Parser) parseIfStmt() *ast.IfStmt {
 }
 
 func (p *Parser) parseElseIfStmt() *ast.ElseIfStmt {
-	if !p.expectPeek(token.ELSEIF) { // move to "@elseif"
+	if !p.expectPeek(token.ELSE_IF) { // move to "@elseif"
 		return nil
 	}
 
@@ -725,7 +725,7 @@ func (p *Parser) parseAlternativeBlock() *ast.BlockStmt {
 
 	alt := p.parseBlockStmt()
 
-	if p.peekTokenIs(token.ELSEIF) {
+	if p.peekTokenIs(token.ELSE_IF) {
 		p.newError(p.peekToken.Line, fail.ErrElseifCannotFollowElse)
 		return nil
 	}
@@ -836,7 +836,7 @@ func (p *Parser) parseBlockStmt() *ast.BlockStmt {
 			stmt.Statements = append(stmt.Statements, block)
 		}
 
-		if p.peekTokenIs(token.ELSE, token.ELSEIF, token.END) {
+		if p.peekTokenIs(token.ELSE, token.ELSE_IF, token.END) {
 			break
 		}
 
