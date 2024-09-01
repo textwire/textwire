@@ -482,6 +482,25 @@ func TestComponentDirective(t *testing.T) {
 	})
 }
 
+func TestComponentSlotDirective(t *testing.T) {
+	inp := `@component("card")@slot("top")<h1>Hello</h1>@end@end`
+
+	TokenizeString(t, inp, []token.Token{
+		{Type: token.COMPONENT, Literal: "@component"},
+		{Type: token.LPAREN, Literal: "("},
+		{Type: token.STR, Literal: "card"},
+		{Type: token.RPAREN, Literal: ")"},
+		{Type: token.SLOT, Literal: "@slot"},
+		{Type: token.LPAREN, Literal: "("},
+		{Type: token.STR, Literal: "top"},
+		{Type: token.RPAREN, Literal: ")"},
+		{Type: token.HTML, Literal: "<h1>Hello</h1>"},
+		{Type: token.END, Literal: "@end"},
+		{Type: token.END, Literal: "@end"},
+		{Type: token.EOF, Literal: ""},
+	})
+}
+
 // Comments should be ignored by the lexer
 func TestCommentStatement(t *testing.T) {
 	t.Run("Simple comment", func(tt *testing.T) {
