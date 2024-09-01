@@ -11,6 +11,7 @@ type ComponentStmt struct {
 	Name     *StringLiteral
 	Argument *ObjectLiteral
 	Block    *Program
+	Slots    []*SlotStmt
 }
 
 func (cs *ComponentStmt) statementNode() {
@@ -28,6 +29,11 @@ func (cs *ComponentStmt) String() string {
 	out.WriteString(", ")
 	out.WriteString(cs.Argument.String())
 	out.WriteString(")")
+
+	for _, slot := range cs.Slots {
+		out.WriteString("\n")
+		out.WriteString(slot.String())
+	}
 
 	return out.String()
 }
