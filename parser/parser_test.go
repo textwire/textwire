@@ -876,13 +876,13 @@ func TestParseReserveStmt(t *testing.T) {
 
 func TestInsertStmt(t *testing.T) {
 	t.Run("Insert with block", func(tt *testing.T) {
-		inp := `@insert("content")<h1>Some content</h1>@end`
+		inp := `<h1>@insert("content")<h1>Some content</h1>@end</h1>`
 
-		stmts := parseStatements(t, inp, 1, nil)
-		stmt, ok := stmts[0].(*ast.InsertStmt)
+		stmts := parseStatements(t, inp, 3, nil)
+		stmt, ok := stmts[1].(*ast.InsertStmt)
 
 		if !ok {
-			t.Fatalf("stmts[0] is not a InsertStmt, got %T", stmts[0])
+			t.Fatalf("stmts[1] is not a InsertStmt, got %T", stmts[0])
 		}
 
 		if stmt.Name.Value != "content" {
@@ -896,13 +896,13 @@ func TestInsertStmt(t *testing.T) {
 	})
 
 	t.Run("Insert with argument", func(tt *testing.T) {
-		inp := `@insert("content", "Some content")`
+		inp := `<h1>@insert("content", "Some content")</h1>`
 
-		stmts := parseStatements(t, inp, 1, nil)
-		stmt, ok := stmts[0].(*ast.InsertStmt)
+		stmts := parseStatements(t, inp, 3, nil)
+		stmt, ok := stmts[1].(*ast.InsertStmt)
 
 		if !ok {
-			t.Fatalf("stmts[0] is not a InsertStmt, got %T", stmts[0])
+			t.Fatalf("stmts[1] is not a InsertStmt, got %T", stmts[0])
 		}
 
 		if stmt.Name.Value != "content" {
@@ -1402,6 +1402,10 @@ func TestParseComponentDirective(t *testing.T) {
 	}
 
 	testIdentifier(t, compStmt.Argument.Pairs["c"], "card")
+
+	if compStmt.Body != nil {
+		t.Fatalf("compStmt.Body is not nil, got %T", compStmt.Body)
+	}
 
 	if compStmt.String() != `@component("components/book-card", {"c": card})` {
 		t.Fatalf(`compStmt.String() is not '@component("components/book-card", {"c": card})', got %s`,

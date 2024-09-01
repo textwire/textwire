@@ -522,12 +522,15 @@ func (p *Parser) parseInsertStmt() ast.Statement {
 		Value: p.curToken.Literal,
 	}
 
+	hasBody := true
+
 	if p.peekTokenIs(token.COMMA) {
 		p.nextToken() // skip insert name
 		p.nextToken() // skip ","
 		stmt.Argument = p.parseExpression(LOWEST)
 
 		p.inserts[stmt.Name.Value] = stmt
+		hasBody = false
 
 		return stmt
 	}
@@ -538,7 +541,9 @@ func (p *Parser) parseInsertStmt() ast.Statement {
 
 	p.nextToken() // skip ")"
 
-	stmt.Block = p.parseBlockStmt()
+	if hasBody {
+		stmt.Block = p.parseBlockStmt()
+	}
 
 	p.inserts[stmt.Name.Value] = stmt
 
@@ -829,7 +834,7 @@ func (p *Parser) parseEachStmt() *ast.EachStmt {
 func (p *Parser) parseBlockStmt() *ast.BlockStmt {
 	stmt := &ast.BlockStmt{Token: p.curToken}
 
-	for {
+	for !p.curTokenIs(token.END) {
 		block := p.parseStatement()
 
 		if block != nil {

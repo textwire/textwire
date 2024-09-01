@@ -9,6 +9,7 @@
 ## v1.7.0 (2024-08-29)
 - ✨ Added `upper` function to strings. For example, `{{ "hello".upper() }}` will print `HELLO`
 - ✨ Added `lower` function to strings. For example, `{{ "HELLO".lower() }}` will print `hello`
+- 🐛 Fix bug that was appearing if you put HTML after the `@insert` directive. For example, `@insert('content', 'nice')<h2>Text</h2>` would result in error
 
 ## v1.6.1 (2024-08-22)
 - 🧑‍💻 Improve `join` function for arrays by adding default separator ",". If you don't provide a separator, it will use a comma as a default separator
