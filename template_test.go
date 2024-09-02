@@ -67,6 +67,8 @@ func TestEvalUseStmt(t *testing.T) {
 		{"7.insert-without-use", nil},
 		{"8.with-component", nil},
 		{"9.with-inserts-and-html", nil},
+		{"11.with-component-no-args", nil},
+		// {"10.with-component-and-slots", nil},
 	}
 
 	tpl, err := NewTemplate(&Config{

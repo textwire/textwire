@@ -248,14 +248,16 @@ func (e *Evaluator) evalComponentStmt(node *ast.ComponentStmt, env *object.Env) 
 
 	newEnv := object.NewEnclosedEnv(env)
 
-	for key, arg := range node.Argument.Pairs {
-		val := e.Eval(arg, env)
+	if node.Argument != nil {
+		for key, arg := range node.Argument.Pairs {
+			val := e.Eval(arg, env)
 
-		if isError(val) {
-			return val
+			if isError(val) {
+				return val
+			}
+
+			newEnv.Set(key, val)
 		}
-
-		newEnv.Set(key, val)
 	}
 
 	content := e.Eval(node.Block, newEnv)
