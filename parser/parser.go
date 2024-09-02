@@ -480,9 +480,66 @@ func (p *Parser) parseComponentStmt() ast.Statement {
 		stmt.Argument = obj
 	}
 
+	if !p.expectPeek(token.RPAREN) { // move to ")"
+		return nil
+	}
+
+	if p.peekTokenIs(token.SLOT) {
+		p.nextToken() // skip ")"
+		stmt.Slots = p.parseSlots()
+	} else if p.peekTokenIs(token.HTML) && isWhitespace(p.peekToken.Literal) {
+		// whitespace := p.peekToken
+		p.nextToken() // skip ")"
+
+		if p.peekTokenIs(token.SLOT) {
+			p.nextToken() // skip whitespace
+			stmt.Slots = p.parseSlots()
+		}
+	}
+
 	p.components = append(p.components, stmt)
 
 	return stmt
+}
+
+func (p *Parser) parseSlots() []*ast.SlotStmt {
+	var slots []*ast.SlotStmt
+
+	for p.curTokenIs(token.SLOT) {
+		tok := p.curToken
+
+		if !p.expectPeek(token.LPAREN) { // move to "("
+			return nil
+		}
+
+		p.nextToken() // skip "("
+
+		slotName := &ast.StringLiteral{
+			Token: p.curToken,
+			Value: p.curToken.Literal,
+		}
+
+		if !p.expectPeek(token.RPAREN) { // move to ")"
+			return nil
+		}
+
+		p.nextToken() // skip ")"
+
+		slots = append(slots, &ast.SlotStmt{
+			Token: tok, // "@slot"
+			Name:  slotName,
+			Body:  p.parseBlockStmt(),
+		})
+
+		p.nextToken() // skip block statement
+		p.nextToken() // skip "@end"
+
+		for p.curTokenIs(token.HTML) {
+			p.nextToken() // skip whitespace
+		}
+	}
+
+	return slots
 }
 
 func (p *Parser) parseReserveStmt() ast.Statement {
@@ -539,9 +596,8 @@ func (p *Parser) parseInsertStmt() ast.Statement {
 		return nil
 	}
 
-	p.nextToken() // skip ")"
-
 	if hasBody {
+		p.nextToken() // skip ")"
 		stmt.Block = p.parseBlockStmt()
 	}
 
