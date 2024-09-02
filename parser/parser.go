@@ -141,7 +141,7 @@ func (p *Parser) ParseProgram() *ast.Program {
 
 		prog.Statements = append(prog.Statements, stmt)
 
-		p.nextToken() // skip "}}"
+		p.nextToken() // skip "}}" or "@end" or ")" from directives
 	}
 
 	prog.Components = p.components
@@ -488,7 +488,6 @@ func (p *Parser) parseComponentStmt() ast.Statement {
 		p.nextToken() // skip ")"
 		stmt.Slots = p.parseSlots()
 	} else if p.peekTokenIs(token.HTML) && isWhitespace(p.peekToken.Literal) {
-		// whitespace := p.peekToken
 		p.nextToken() // skip ")"
 
 		if p.peekTokenIs(token.SLOT) {

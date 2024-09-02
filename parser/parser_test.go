@@ -1408,9 +1408,10 @@ func TestParseComponentDirective(t *testing.T) {
 			tt.Fatalf("len(compStmt.Slots) is not empty, got '%d' slots", len(compStmt.Slots))
 		}
 
-		if compStmt.String() != `@component("components/book-card", {"c": card})` {
-			tt.Fatalf(`compStmt.String() is not '@component("components/book-card", {"c": card})', got %s`,
-				compStmt.String())
+		expect := `@component("components/book-card", {"c": card})`
+
+		if compStmt.String() != expect {
+			tt.Fatalf(`compStmt.String() is not '%s', got %s`, expect, compStmt.String())
 		}
 	})
 
@@ -1449,6 +1450,37 @@ func TestParseComponentDirective(t *testing.T) {
 		if compStmt.Slots[1].String() != expect {
 			tt.Fatalf("compStmt.Slots[0].String() is not '%s', got %s", expect,
 				compStmt.Slots[1].String())
+		}
+	})
+
+	t.Run("@component with whitespace at the end", func(tt *testing.T) {
+		inp := "@component('some')\n <b>Book</b>"
+		stmts := parseStatements(tt, inp, 2, nil)
+
+		compStmt, ok := stmts[0].(*ast.ComponentStmt)
+
+		if !ok {
+			tt.Fatalf("stmts[0] is not a ComponentStmt, got %T", stmts[1])
+		}
+
+		testStringLiteral(tt, compStmt.Name, "some")
+
+		expect := "@component(\"some\")"
+
+		if compStmt.String() != expect {
+			tt.Fatalf("compStmt.String() is not `%s`, got `%s`", expect, compStmt.String())
+		}
+
+		htmlStmt, htmlOk := stmts[1].(*ast.HTMLStmt)
+
+		if !htmlOk {
+			tt.Fatalf("stmts[1] is not a HTMLStmt, got %T", stmts[1])
+		}
+
+		expect = "\n <b>Book</b>"
+
+		if htmlStmt.String() != expect {
+			tt.Fatalf("htmlStmt.String() is not `%s`, got `%s`", expect, htmlStmt.String())
 		}
 	})
 }
