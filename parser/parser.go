@@ -178,6 +178,8 @@ func (p *Parser) parseStatement() ast.Statement {
 		return p.parseContinueIfStmt()
 	case token.COMPONENT:
 		return p.parseComponentStmt()
+	case token.SLOT:
+		return p.parseSlotStmt()
 	case token.BREAK:
 		return &ast.BreakStmt{Token: p.curToken}
 	case token.CONTINUE:
@@ -499,6 +501,32 @@ func (p *Parser) parseComponentStmt() ast.Statement {
 	p.components = append(p.components, stmt)
 
 	return stmt
+}
+
+// parseSlotStmt parses a slot statement inside a component file.
+// Slots inside a component are parsed by other function
+func (p *Parser) parseSlotStmt() *ast.SlotStmt {
+	tok := p.curToken
+
+	if !p.expectPeek(token.LPAREN) { // move to "("
+		return nil
+	}
+
+	p.nextToken() // skip "("
+
+	slotName := &ast.StringLiteral{
+		Token: p.curToken,
+		Value: p.curToken.Literal,
+	}
+
+	if !p.expectPeek(token.RPAREN) { // move to ")"
+		return nil
+	}
+
+	return &ast.SlotStmt{
+		Token: tok, // "@slot"
+		Name:  slotName,
+	}
 }
 
 func (p *Parser) parseSlots() []*ast.SlotStmt {

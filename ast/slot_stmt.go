@@ -9,7 +9,7 @@ import (
 type SlotStmt struct {
 	Token token.Token // The '@slot' token
 	Name  *StringLiteral
-	Body  *BlockStmt
+	Body  *BlockStmt // optional block statement
 }
 
 func (ss *SlotStmt) statementNode() {
@@ -24,11 +24,13 @@ func (ss *SlotStmt) String() string {
 
 	out.WriteString("@slot(")
 	out.WriteString(ss.Name.String())
-	out.WriteString(")\n")
+	out.WriteString(")")
 
-	out.WriteString(ss.Body.String())
-
-	out.WriteString("\n@end")
+	if ss.Body != nil {
+		out.WriteString("\n")
+		out.WriteString(ss.Body.String())
+		out.WriteString("\n@end")
+	}
 
 	return out.String()
 }
