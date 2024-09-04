@@ -55,6 +55,8 @@ func (e *Evaluator) Eval(node ast.Node, env *object.Env) object.Object {
 		return e.evalComponentStmt(node, env)
 	case *ast.ContinueIfStmt:
 		return e.evalContinueIfStmt(node, env)
+	case *ast.SlotStmt:
+		return e.evalSlotStmt(node, env)
 	case *ast.BreakStmt:
 		return BREAK
 	case *ast.ContinueStmt:
@@ -431,6 +433,19 @@ func (e *Evaluator) evalContinueIfStmt(
 	}
 
 	return NIL
+}
+
+func (e *Evaluator) evalSlotStmt(
+	node *ast.SlotStmt,
+	env *object.Env,
+) object.Object {
+	body := e.Eval(node.Body, env)
+
+	if isError(body) {
+		return body
+	}
+
+	return &object.Slot{Name: node.Name.Value, Content: body}
 }
 
 func (e *Evaluator) evalIdentifier(
