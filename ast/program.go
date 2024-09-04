@@ -71,7 +71,7 @@ func (p *Program) ApplyComponent(name string, prog *Program) {
 		}
 
 		for _, slot := range comp.Slots {
-			idx := findSlotStmtIndex(prog.Statements, slot.Name.Value)
+			idx := findSlotStmtIndex(prog.Statements, slot.Name)
 
 			if idx > -1 {
 				prog.Statements[idx].(*SlotStmt).Body = slot.Body

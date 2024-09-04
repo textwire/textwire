@@ -1505,7 +1505,7 @@ func TestParseSlotDirective(t *testing.T) {
 		}
 	})
 
-	t.Run("default slot", func(tt *testing.T) {
+	t.Run("default slot without end", func(tt *testing.T) {
 		tt.Skip()
 		inp := `<header>@slot</header>`
 		stmts := parseStatements(tt, inp, 3, nil)
