@@ -10,7 +10,7 @@ func TestFindSlotStmtIndex(t *testing.T) {
 			&SlotStmt{Name: &StringLiteral{Value: "street"}},
 		}
 
-		idx := findSlotStmtIndex(stmts, "city")
+		idx := findSlotStmtIndex(stmts, &StringLiteral{Value: "city"})
 
 		if idx != 1 {
 			tt.Errorf("expected index 1 but got %d", idx)
@@ -24,7 +24,7 @@ func TestFindSlotStmtIndex(t *testing.T) {
 			&SlotStmt{Name: &StringLiteral{Value: "street"}},
 		}
 
-		idx := findSlotStmtIndex(stmts, "name")
+		idx := findSlotStmtIndex(stmts, &StringLiteral{Value: "name"})
 
 		if idx != -1 {
 			tt.Errorf("expected index -1 but got %d", idx)
