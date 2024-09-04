@@ -1486,20 +1486,40 @@ func TestParseComponentDirective(t *testing.T) {
 }
 
 func TestParseSlotDirective(t *testing.T) {
-	inp := `<h2>@slot("header")</h2>`
-	stmts := parseStatements(t, inp, 3, nil)
+	t.Run("named slot", func(tt *testing.T) {
+		inp := `<h2>@slot("header")</h2>`
+		stmts := parseStatements(tt, inp, 3, nil)
 
-	slotStmt, ok := stmts[1].(*ast.SlotStmt)
+		slotStmt, ok := stmts[1].(*ast.SlotStmt)
 
-	if !ok {
-		t.Fatalf("stmts[1] is not a SlotStmt, got %T", stmts[1])
-	}
+		if !ok {
+			t.Fatalf("stmts[1] is not a SlotStmt, got %T", stmts[1])
+		}
 
-	testStringLiteral(t, slotStmt.Name, "header")
+		testStringLiteral(tt, slotStmt.Name, "header")
 
-	expect := "@slot(\"header\")"
+		expect := "@slot(\"header\")"
 
-	if slotStmt.String() != expect {
-		t.Fatalf("slotStmt.String() is not `%s`, got `%s`", expect, slotStmt.String())
-	}
+		if slotStmt.String() != expect {
+			t.Fatalf("slotStmt.String() is not `%s`, got `%s`", expect, slotStmt.String())
+		}
+	})
+
+	t.Run("default slot", func(tt *testing.T) {
+		tt.Skip()
+		inp := `<header>@slot</header>`
+		stmts := parseStatements(tt, inp, 3, nil)
+
+		slotStmt, ok := stmts[1].(*ast.SlotStmt)
+
+		if !ok {
+			t.Fatalf("stmts[1] is not a SlotStmt, got %T", stmts[1])
+		}
+
+		testNilLiteral(tt, slotStmt.Name)
+
+		if slotStmt.String() != "@slot" {
+			t.Fatalf("slotStmt.String() is not @slot, got `%s`", slotStmt.String())
+		}
+	})
 }

@@ -141,7 +141,7 @@ func (p *Parser) ParseProgram() *ast.Program {
 
 		prog.Statements = append(prog.Statements, stmt)
 
-		p.nextToken() // skip "}}" or "@end" or ")" from directives
+		p.nextToken() // skip to next token
 	}
 
 	prog.Components = p.components
@@ -508,10 +508,14 @@ func (p *Parser) parseComponentStmt() ast.Statement {
 func (p *Parser) parseSlotStmt() *ast.SlotStmt {
 	tok := p.curToken
 
-	if !p.expectPeek(token.LPAREN) { // move to "("
-		return nil
+	if !p.peekTokenIs(token.LPAREN) {
+		return &ast.SlotStmt{
+			Token: tok, // "@slot"
+			Name:  nil,
+		}
 	}
 
+	p.nextToken() // skip "@slot"
 	p.nextToken() // skip "("
 
 	slotName := &ast.StringLiteral{
