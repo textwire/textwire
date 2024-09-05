@@ -59,7 +59,7 @@ const (
 	// Directives
 	IF
 	ELSE
-	ELSEIF
+	ELSE_IF
 	END
 	FOR
 	USE
@@ -71,6 +71,7 @@ const (
 	BREAK
 	CONTINUE
 	COMPONENT
+	SLOT
 )
 
 var keywords = map[string]TokenType{
@@ -84,7 +85,7 @@ var keywords = map[string]TokenType{
 var directives = map[string]TokenType{
 	"@if":         IF,
 	"@else":       ELSE,
-	"@elseif":     ELSEIF,
+	"@elseif":     ELSE_IF,
 	"@end":        END,
 	"@use":        USE,
 	"@reserve":    RESERVE,
@@ -96,6 +97,7 @@ var directives = map[string]TokenType{
 	"@break":      BREAK,
 	"@breakIf":    BREAK_IF,
 	"@component":  COMPONENT,
+	"@slot":       SLOT,
 }
 
 type Token struct {

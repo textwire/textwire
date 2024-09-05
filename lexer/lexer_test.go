@@ -100,7 +100,7 @@ func TestIfStmt(t *testing.T) {
 		{Type: token.RPAREN, Literal: ")"},
 		{Type: token.RPAREN, Literal: ")"},
 		{Type: token.HTML, Literal: "one"},
-		{Type: token.ELSEIF, Literal: "@elseif"},
+		{Type: token.ELSE_IF, Literal: "@elseif"},
 		{Type: token.LPAREN, Literal: "("},
 		{Type: token.FALSE, Literal: "false"},
 		{Type: token.RPAREN, Literal: ")"},
@@ -479,6 +479,43 @@ func TestComponentDirective(t *testing.T) {
 		{Type: token.RBRACE, Literal: "}"},
 		{Type: token.RPAREN, Literal: ")"},
 		{Type: token.EOF, Literal: ""},
+	})
+}
+
+func TestComponentSlotDirective(t *testing.T) {
+	t.Run("slots with parentheses", func(tt *testing.T) {
+		inp := `@component("card")@slot("top")<h1>Hello</h1>@end@end`
+
+		TokenizeString(t, inp, []token.Token{
+			{Type: token.COMPONENT, Literal: "@component"},
+			{Type: token.LPAREN, Literal: "("},
+			{Type: token.STR, Literal: "card"},
+			{Type: token.RPAREN, Literal: ")"},
+			{Type: token.SLOT, Literal: "@slot"},
+			{Type: token.LPAREN, Literal: "("},
+			{Type: token.STR, Literal: "top"},
+			{Type: token.RPAREN, Literal: ")"},
+			{Type: token.HTML, Literal: "<h1>Hello</h1>"},
+			{Type: token.END, Literal: "@end"},
+			{Type: token.END, Literal: "@end"},
+			{Type: token.EOF, Literal: ""},
+		})
+	})
+
+	t.Run("slots without parentheses", func(tt *testing.T) {
+		inp := `@component("card")@slotNICE@end@end`
+
+		TokenizeString(t, inp, []token.Token{
+			{Type: token.COMPONENT, Literal: "@component"},
+			{Type: token.LPAREN, Literal: "("},
+			{Type: token.STR, Literal: "card"},
+			{Type: token.RPAREN, Literal: ")"},
+			{Type: token.SLOT, Literal: "@slot"},
+			{Type: token.HTML, Literal: "NICE"},
+			{Type: token.END, Literal: "@end"},
+			{Type: token.END, Literal: "@end"},
+			{Type: token.EOF, Literal: ""},
+		})
 	})
 }
 

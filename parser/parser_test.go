@@ -876,13 +876,13 @@ func TestParseReserveStmt(t *testing.T) {
 
 func TestInsertStmt(t *testing.T) {
 	t.Run("Insert with block", func(tt *testing.T) {
-		inp := `@insert("content")<h1>Some content</h1>@end`
+		inp := `<h1>@insert("content")<h1>Some content</h1>@end</h1>`
 
-		stmts := parseStatements(t, inp, 1, nil)
-		stmt, ok := stmts[0].(*ast.InsertStmt)
+		stmts := parseStatements(t, inp, 3, nil)
+		stmt, ok := stmts[1].(*ast.InsertStmt)
 
 		if !ok {
-			t.Fatalf("stmts[0] is not a InsertStmt, got %T", stmts[0])
+			t.Fatalf("stmts[1] is not a InsertStmt, got %T", stmts[0])
 		}
 
 		if stmt.Name.Value != "content" {
@@ -896,13 +896,13 @@ func TestInsertStmt(t *testing.T) {
 	})
 
 	t.Run("Insert with argument", func(tt *testing.T) {
-		inp := `@insert("content", "Some content")`
+		inp := `<h1>@insert("content", "Some content")</h1>`
 
-		stmts := parseStatements(t, inp, 1, nil)
-		stmt, ok := stmts[0].(*ast.InsertStmt)
+		stmts := parseStatements(t, inp, 3, nil)
+		stmt, ok := stmts[1].(*ast.InsertStmt)
 
 		if !ok {
-			t.Fatalf("stmts[0] is not a InsertStmt, got %T", stmts[0])
+			t.Fatalf("stmts[1] is not a InsertStmt, got %T", stmts[0])
 		}
 
 		if stmt.Name.Value != "content" {
@@ -1386,29 +1386,140 @@ func TestParseContinueIfDirective(t *testing.T) {
 }
 
 func TestParseComponentDirective(t *testing.T) {
-	inp := `<ul>@component("components/book-card", { c: card })</ul>`
-	stmts := parseStatements(t, inp, 3, nil)
+	t.Run("@component without slots", func(tt *testing.T) {
+		inp := `<ul>@component("components/book-card", { c: card })</ul>`
+		stmts := parseStatements(tt, inp, 3, nil)
 
-	compStmt, ok := stmts[1].(*ast.ComponentStmt)
+		compStmt, ok := stmts[1].(*ast.ComponentStmt)
 
-	if !ok {
-		t.Fatalf("stmts[0] is not a ComponentStmt, got %T", stmts[0])
-	}
+		if !ok {
+			tt.Fatalf("stmts[1] is not a ComponentStmt, got %T", stmts[1])
+		}
 
-	testStringLiteral(t, compStmt.Name, "components/book-card")
+		testStringLiteral(tt, compStmt.Name, "components/book-card")
 
-	if len(compStmt.Argument.Pairs) != 1 {
-		t.Fatalf("len(compStmt.Arguments) is not 1, got %d", len(compStmt.Argument.Pairs))
-	}
+		if len(compStmt.Argument.Pairs) != 1 {
+			tt.Fatalf("len(compStmt.Arguments) is not 1, got %d", len(compStmt.Argument.Pairs))
+		}
 
-	testIdentifier(t, compStmt.Argument.Pairs["c"], "card")
+		testIdentifier(tt, compStmt.Argument.Pairs["c"], "card")
 
-	if compStmt.String() != `@component("components/book-card", {"c": card})` {
-		t.Fatalf(`compStmt.String() is not '@component("components/book-card", {"c": card})', got %s`,
-			compStmt.String())
-	}
+		if len(compStmt.Slots) != 0 {
+			tt.Fatalf("len(compStmt.Slots) is not empty, got '%d' slots", len(compStmt.Slots))
+		}
 
-	if compStmt.Block != nil {
-		t.Fatalf("compStmt.Block is not nil, got %T", compStmt.Block)
-	}
+		expect := `@component("components/book-card", {"c": card})`
+
+		if compStmt.String() != expect {
+			tt.Fatalf(`compStmt.String() is not '%s', got %s`, expect, compStmt.String())
+		}
+	})
+
+	t.Run("@component with 1 slot", func(tt *testing.T) {
+		inp := `<ul>
+			@component("components/book-card", { c: card })
+				@slot("header")<h1>Header</h1>@end
+				@slot("footer")<footer>Footer</footer>@end
+			@end
+		</ul>`
+
+		stmts := parseStatements(tt, inp, 3, nil)
+
+		compStmt, ok := stmts[1].(*ast.ComponentStmt)
+
+		if !ok {
+			tt.Fatalf("stmts[1] is not a ComponentStmt, got %T", stmts[1])
+		}
+
+		if len(compStmt.Slots) != 2 {
+			tt.Fatalf("len(compStmt.Slots) is not 2, got %d", len(compStmt.Slots))
+		}
+
+		testStringLiteral(tt, compStmt.Slots[0].Name, "header")
+		testStringLiteral(tt, compStmt.Slots[1].Name, "footer")
+
+		expect := "@slot(\"header\")\n<h1>Header</h1>\n@end"
+
+		if compStmt.Slots[0].String() != expect {
+			tt.Fatalf("compStmt.Slots[0].String() is not '%s', got %s", expect,
+				compStmt.Slots[0].String())
+		}
+
+		expect = "@slot(\"footer\")\n<footer>Footer</footer>\n@end"
+
+		if compStmt.Slots[1].String() != expect {
+			tt.Fatalf("compStmt.Slots[0].String() is not '%s', got %s", expect,
+				compStmt.Slots[1].String())
+		}
+	})
+
+	t.Run("@component with whitespace at the end", func(tt *testing.T) {
+		inp := "@component('some')\n <b>Book</b>"
+		stmts := parseStatements(tt, inp, 2, nil)
+
+		compStmt, ok := stmts[0].(*ast.ComponentStmt)
+
+		if !ok {
+			tt.Fatalf("stmts[0] is not a ComponentStmt, got %T", stmts[1])
+		}
+
+		testStringLiteral(tt, compStmt.Name, "some")
+
+		expect := "@component(\"some\")"
+
+		if compStmt.String() != expect {
+			tt.Fatalf("compStmt.String() is not `%s`, got `%s`", expect, compStmt.String())
+		}
+
+		htmlStmt, htmlOk := stmts[1].(*ast.HTMLStmt)
+
+		if !htmlOk {
+			tt.Fatalf("stmts[1] is not a HTMLStmt, got %T", stmts[1])
+		}
+
+		expect = "\n <b>Book</b>"
+
+		if htmlStmt.String() != expect {
+			tt.Fatalf("htmlStmt.String() is not `%s`, got `%s`", expect, htmlStmt.String())
+		}
+	})
+}
+
+func TestParseSlotDirective(t *testing.T) {
+	t.Run("named slot", func(tt *testing.T) {
+		inp := `<h2>@slot("header")</h2>`
+		stmts := parseStatements(tt, inp, 3, nil)
+
+		slotStmt, ok := stmts[1].(*ast.SlotStmt)
+
+		if !ok {
+			t.Fatalf("stmts[1] is not a SlotStmt, got %T", stmts[1])
+		}
+
+		testStringLiteral(tt, slotStmt.Name, "header")
+
+		expect := "@slot(\"header\")"
+
+		if slotStmt.String() != expect {
+			t.Fatalf("slotStmt.String() is not `%s`, got `%s`", expect, slotStmt.String())
+		}
+	})
+
+	t.Run("default slot without end", func(tt *testing.T) {
+		tt.Skip()
+		inp := `<header>@slot</header>`
+		stmts := parseStatements(tt, inp, 3, nil)
+
+		slotStmt, ok := stmts[1].(*ast.SlotStmt)
+
+		if !ok {
+			t.Fatalf("stmts[1] is not a SlotStmt, got %T", stmts[1])
+		}
+
+		testNilLiteral(tt, slotStmt.Name)
+
+		if slotStmt.String() != "@slot" {
+			t.Fatalf("slotStmt.String() is not @slot, got `%s`", slotStmt.String())
+		}
+	})
 }

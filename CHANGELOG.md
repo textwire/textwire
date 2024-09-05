@@ -6,6 +6,13 @@
 * ♻️ - Refactoring code
 * 📝 - Adding or updating documentation
 
+## v1.7.0 (2024-09-03)
+- ✨ Added `upper` function to strings. For example, `{{ "hello".upper() }}` will print `HELLO`
+- ✨ Added `lower` function to strings. For example, `{{ "HELLO".lower() }}` will print `hello`
+- 🐛 Fixed bug that was appearing if you put HTML after the `@insert` directive. For example, `@insert('content', 'nice')<h2>Text</h2>` would result in error
+- 🐛 Fixed bug where you couldn't define `@component("person")` directives without the second argument
+- ✨ Added `@slot` directive for components. You can define slots in components and then pass content to them when using the component
+
 ## v1.6.1 (2024-08-22)
 - 🧑‍💻 Improve `join` function for arrays by adding default separator ",". If you don't provide a separator, it will use a comma as a default separator
 - 📝 Added emojis for each changelog item

@@ -24,6 +24,7 @@ func (ol *ObjectLiteral) String() string {
 	var out bytes.Buffer
 
 	pairs := []string{}
+
 	for key, value := range ol.Pairs {
 		k := fmt.Sprintf(`"%s": %s`, key, value.String())
 		pairs = append(pairs, k)

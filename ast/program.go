@@ -66,9 +66,19 @@ func (p *Program) ApplyLayout(prog *Program) {
 
 func (p *Program) ApplyComponent(name string, prog *Program) {
 	for _, comp := range p.Components {
-		if comp.Name.Value == name {
-			comp.Block = prog
+		if comp.Name.Value != name {
+			continue
 		}
+
+		for _, slot := range comp.Slots {
+			idx := findSlotStmtIndex(prog.Statements, slot.Name.Value)
+
+			if idx > -1 {
+				prog.Statements[idx].(*SlotStmt).Body = slot.Body
+			}
+		}
+
+		comp.Block = prog
 	}
 }
 

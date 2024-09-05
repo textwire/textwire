@@ -19,6 +19,18 @@ var simpleTokens = map[byte]token.TokenType{
 	';': token.SEMI,
 }
 
+var tokensWithoutParens = map[token.TokenType]bool{
+	token.ELSE:     true,
+	token.END:      true,
+	token.BREAK:    true,
+	token.CONTINUE: true,
+	token.SLOT:     true,
+}
+
+var tokensWithOptionalParens = map[token.TokenType]bool{
+	token.SLOT: true,
+}
+
 type Lexer struct {
 	input                     string
 	position                  int
@@ -100,14 +112,11 @@ func (l *Lexer) directiveToken() token.Token {
 		return l.newToken(tok, string(l.char))
 	}
 
-	// ELSE, END, BREAK, CONTINUE tokens don't have parentheses
-	if tok == token.ELSE || tok == token.END || tok == token.BREAK || tok == token.CONTINUE {
-		l.isDirective = false
-		l.isHTML = true
-	} else {
-		l.isDirective = true
-		l.isHTML = false
-	}
+	hasOptionalParens := tokensWithOptionalParens[tok] && l.char == '('
+	hasNoParens := tokensWithoutParens[tok]
+
+	l.isDirective = hasOptionalParens || !hasNoParens
+	l.isHTML = !l.isDirective
 
 	return l.newToken(tok, keyword)
 }

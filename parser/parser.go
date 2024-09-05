@@ -141,7 +141,7 @@ func (p *Parser) ParseProgram() *ast.Program {
 
 		prog.Statements = append(prog.Statements, stmt)
 
-		p.nextToken() // skip "}}"
+		p.nextToken() // skip to next token
 	}
 
 	prog.Components = p.components
@@ -178,6 +178,8 @@ func (p *Parser) parseStatement() ast.Statement {
 		return p.parseContinueIfStmt()
 	case token.COMPONENT:
 		return p.parseComponentStmt()
+	case token.SLOT:
+		return p.parseSlotStmt()
 	case token.BREAK:
 		return &ast.BreakStmt{Token: p.curToken}
 	case token.CONTINUE:
@@ -480,9 +482,94 @@ func (p *Parser) parseComponentStmt() ast.Statement {
 		stmt.Argument = obj
 	}
 
+	if !p.expectPeek(token.RPAREN) { // move to ")"
+		return nil
+	}
+
+	if p.peekTokenIs(token.SLOT) {
+		p.nextToken() // skip ")"
+		stmt.Slots = p.parseSlots()
+	} else if p.peekTokenIs(token.HTML) && isWhitespace(p.peekToken.Literal) {
+		p.nextToken() // skip ")"
+
+		if p.peekTokenIs(token.SLOT) {
+			p.nextToken() // skip whitespace
+			stmt.Slots = p.parseSlots()
+		}
+	}
+
 	p.components = append(p.components, stmt)
 
 	return stmt
+}
+
+// parseSlotStmt parses a slot statement inside a component file.
+// Slots inside a component are parsed by other function
+func (p *Parser) parseSlotStmt() *ast.SlotStmt {
+	tok := p.curToken
+
+	if !p.peekTokenIs(token.LPAREN) {
+		return &ast.SlotStmt{
+			Token: tok, // "@slot"
+			Name:  &ast.StringLiteral{Value: ""},
+		}
+	}
+
+	p.nextToken() // skip "@slot"
+	p.nextToken() // skip "("
+
+	slotName := &ast.StringLiteral{
+		Token: p.curToken,
+		Value: p.curToken.Literal,
+	}
+
+	if !p.expectPeek(token.RPAREN) { // move to ")"
+		return nil
+	}
+
+	return &ast.SlotStmt{
+		Token: tok, // "@slot"
+		Name:  slotName,
+	}
+}
+
+func (p *Parser) parseSlots() []*ast.SlotStmt {
+	var slots []*ast.SlotStmt
+
+	for p.curTokenIs(token.SLOT) {
+		slotName := &ast.StringLiteral{Value: ""}
+
+		tok := p.curToken
+
+		if p.peekTokenIs(token.LPAREN) {
+			p.nextToken() // move to "("
+			p.nextToken() // skip "("
+
+			slotName.Token = p.curToken
+			slotName.Value = p.curToken.Literal
+
+			if !p.expectPeek(token.RPAREN) { // move to ")"
+				return nil
+			}
+
+			p.nextToken() // skip ")"
+		}
+
+		slots = append(slots, &ast.SlotStmt{
+			Token: tok, // "@slot"
+			Name:  slotName,
+			Body:  p.parseBlockStmt(),
+		})
+
+		p.nextToken() // skip block statement
+		p.nextToken() // skip "@end"
+
+		for p.curTokenIs(token.HTML) {
+			p.nextToken() // skip whitespace
+		}
+	}
+
+	return slots
 }
 
 func (p *Parser) parseReserveStmt() ast.Statement {
@@ -522,12 +609,15 @@ func (p *Parser) parseInsertStmt() ast.Statement {
 		Value: p.curToken.Literal,
 	}
 
+	hasBody := true
+
 	if p.peekTokenIs(token.COMMA) {
 		p.nextToken() // skip insert name
 		p.nextToken() // skip ","
 		stmt.Argument = p.parseExpression(LOWEST)
 
 		p.inserts[stmt.Name.Value] = stmt
+		hasBody = false
 
 		return stmt
 	}
@@ -536,9 +626,10 @@ func (p *Parser) parseInsertStmt() ast.Statement {
 		return nil
 	}
 
-	p.nextToken() // skip ")"
-
-	stmt.Block = p.parseBlockStmt()
+	if hasBody {
+		p.nextToken() // skip ")"
+		stmt.Block = p.parseBlockStmt()
+	}
 
 	p.inserts[stmt.Name.Value] = stmt
 
@@ -671,7 +762,7 @@ func (p *Parser) parseIfStmt() *ast.IfStmt {
 
 	stmt.Consequence = p.parseBlockStmt()
 
-	for p.peekTokenIs(token.ELSEIF) {
+	for p.peekTokenIs(token.ELSE_IF) {
 		alt := p.parseElseIfStmt()
 
 		if alt == nil {
@@ -697,7 +788,7 @@ func (p *Parser) parseIfStmt() *ast.IfStmt {
 }
 
 func (p *Parser) parseElseIfStmt() *ast.ElseIfStmt {
-	if !p.expectPeek(token.ELSEIF) { // move to "@elseif"
+	if !p.expectPeek(token.ELSE_IF) { // move to "@elseif"
 		return nil
 	}
 
@@ -725,7 +816,7 @@ func (p *Parser) parseAlternativeBlock() *ast.BlockStmt {
 
 	alt := p.parseBlockStmt()
 
-	if p.peekTokenIs(token.ELSEIF) {
+	if p.peekTokenIs(token.ELSE_IF) {
 		p.newError(p.peekToken.Line, fail.ErrElseifCannotFollowElse)
 		return nil
 	}
@@ -829,14 +920,14 @@ func (p *Parser) parseEachStmt() *ast.EachStmt {
 func (p *Parser) parseBlockStmt() *ast.BlockStmt {
 	stmt := &ast.BlockStmt{Token: p.curToken}
 
-	for {
+	for !p.curTokenIs(token.END) {
 		block := p.parseStatement()
 
 		if block != nil {
 			stmt.Statements = append(stmt.Statements, block)
 		}
 
-		if p.peekTokenIs(token.ELSE, token.ELSEIF, token.END) {
+		if p.peekTokenIs(token.ELSE, token.ELSE_IF, token.END) {
 			break
 		}
 

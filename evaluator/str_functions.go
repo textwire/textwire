@@ -8,7 +8,7 @@ import (
 )
 
 // strLenFunc returns the length of the given string
-func strLenFunc(receiver object.Object, args ...object.Object) object.Object {
+func strLenFunc(receiver object.Object, _ ...object.Object) object.Object {
 	str := receiver.(*object.Str).Value
 	return &object.Int{Value: int64(len(str))}
 }
@@ -34,7 +34,7 @@ func strSplitFunc(receiver object.Object, args ...object.Object) object.Object {
 }
 
 // strRawFunc prevents escaping HTML tags in a string
-func strRawFunc(receiver object.Object, args ...object.Object) object.Object {
+func strRawFunc(receiver object.Object, _ ...object.Object) object.Object {
 	str := receiver.(*object.Str)
 	return &object.Str{Value: html.UnescapeString(str.Value)}
 }
@@ -50,4 +50,16 @@ func strTrimFunc(receiver object.Object, args ...object.Object) object.Object {
 	str := receiver.(*object.Str).Value
 
 	return &object.Str{Value: strings.Trim(str, chars)}
+}
+
+// strUpperFunc returns a string with all characters in uppercase
+func strUpperFunc(receiver object.Object, _ ...object.Object) object.Object {
+	str := receiver.(*object.Str)
+	return &object.Str{Value: strings.ToUpper(str.Value)}
+}
+
+// strLowerFunc returns a string with all characters in lowercase
+func strLowerFunc(receiver object.Object, _ ...object.Object) object.Object {
+	str := receiver.(*object.Str)
+	return &object.Str{Value: strings.ToLower(str.Value)}
 }
