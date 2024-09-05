@@ -439,10 +439,16 @@ func (e *Evaluator) evalSlotStmt(
 	node *ast.SlotStmt,
 	env *object.Env,
 ) object.Object {
-	body := e.Eval(node.Body, env)
+	var body object.Object
 
-	if isError(body) {
-		return body
+	if node.Body != nil {
+		body = e.Eval(node.Body, env)
+
+		if isError(body) {
+			return body
+		}
+	} else {
+		body = NIL
 	}
 
 	return &object.Slot{Name: node.Name.Value, Content: body}

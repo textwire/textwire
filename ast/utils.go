@@ -1,6 +1,6 @@
 package ast
 
-func findSlotStmtIndex(stmts []Statement, slotName *StringLiteral) int {
+func findSlotStmtIndex(stmts []Statement, slotName string) int {
 	for i, stmt := range stmts {
 		slot, isSlot := stmt.(*SlotStmt)
 
@@ -8,11 +8,7 @@ func findSlotStmtIndex(stmts []Statement, slotName *StringLiteral) int {
 			continue
 		}
 
-		if slot.Name == nil && slotName == nil {
-			return i
-		}
-
-		if slot.Name.Value == slotName.Value {
+		if slot.Name.Value == slotName {
 			return i
 		}
 	}

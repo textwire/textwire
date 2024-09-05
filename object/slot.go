@@ -10,6 +10,10 @@ func (s *Slot) Type() ObjectType {
 }
 
 func (s *Slot) String() string {
+	if s.Content == nil {
+		return ""
+	}
+
 	return s.Content.String()
 }
 

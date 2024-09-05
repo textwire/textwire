@@ -511,7 +511,7 @@ func (p *Parser) parseSlotStmt() *ast.SlotStmt {
 	if !p.peekTokenIs(token.LPAREN) {
 		return &ast.SlotStmt{
 			Token: tok, // "@slot"
-			Name:  nil,
+			Name:  &ast.StringLiteral{Value: ""},
 		}
 	}
 
@@ -537,24 +537,23 @@ func (p *Parser) parseSlots() []*ast.SlotStmt {
 	var slots []*ast.SlotStmt
 
 	for p.curTokenIs(token.SLOT) {
+		slotName := &ast.StringLiteral{Value: ""}
+
 		tok := p.curToken
 
-		if !p.expectPeek(token.LPAREN) { // move to "("
-			return nil
+		if p.peekTokenIs(token.LPAREN) {
+			p.nextToken() // move to "("
+			p.nextToken() // skip "("
+
+			slotName.Token = p.curToken
+			slotName.Value = p.curToken.Literal
+
+			if !p.expectPeek(token.RPAREN) { // move to ")"
+				return nil
+			}
+
+			p.nextToken() // skip ")"
 		}
-
-		p.nextToken() // skip "("
-
-		slotName := &ast.StringLiteral{
-			Token: p.curToken,
-			Value: p.curToken.Literal,
-		}
-
-		if !p.expectPeek(token.RPAREN) { // move to ")"
-			return nil
-		}
-
-		p.nextToken() // skip ")"
 
 		slots = append(slots, &ast.SlotStmt{
 			Token: tok, // "@slot"
