@@ -6,7 +6,7 @@
 * ♻️ - Refactoring code
 * 📝 - Adding or updating documentation
 
-## v1.7.0 (2024-09-03)
+## v1.7.0 (2024-09-05)
 - ✨ Added `upper` function to strings. For example, `{{ "hello".upper() }}` will print `HELLO`
 - ✨ Added `lower` function to strings. For example, `{{ "HELLO".lower() }}` will print `hello`
 - 🐛 Fixed bug that was appearing if you put HTML after the `@insert` directive. For example, `@insert('content', 'nice')<h2>Text</h2>` would result in error
