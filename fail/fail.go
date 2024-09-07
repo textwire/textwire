@@ -20,6 +20,7 @@ const (
 	ErrComponentMustHaveBlock = "the component '%s' must have a block"
 	ErrExpectedObjectLiteral  = "expected object literal, got '%s' instead"
 	ErrSlotNotDefined         = "'%s' slot is not defined in the component '%s'"
+	ErrDefaultSlotNotDefined  = "default slot is not defined in the component '%s'"
 
 	// Evaluator (interpreter) errors
 	ErrUnknownNodeType         = "unknown node type '%T'"

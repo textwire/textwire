@@ -74,6 +74,11 @@ func (p *Program) ApplyComponent(name string, prog *Program, progFilePath string
 			idx := findSlotStmtIndex(prog.Statements, slot.Name.Value)
 
 			if idx == -1 {
+				if slot.Name.Value == "" {
+					return fail.New(slot.Line(), progFilePath, "parser",
+						fail.ErrDefaultSlotNotDefined, name)
+				}
+
 				return fail.New(slot.Line(), progFilePath, "parser",
 					fail.ErrSlotNotDefined, slot.Name.Value, name)
 			}

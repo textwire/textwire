@@ -8,12 +8,8 @@ import (
 )
 
 func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
-	tpl, tplErr := NewTemplate(&Config{
-		TemplateDir: "testdata/bad",
-	})
-
 	path, err := getFullPath("", false)
-	path += "/"
+	path += "/testdata/bad/"
 
 	if err != nil {
 		t.Errorf("unexpected error: %s", err)
@@ -21,28 +17,42 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 	}
 
 	tests := []struct {
-		fileName string
-		err      *fail.Error
-		data     map[string]interface{}
+		dirName string
+		err     *fail.Error
+		data    map[string]interface{}
 	}{
+		{
+			"use-inside-tpl",
+			fail.New(1, path+"use-inside-tpl/index.tw.html", "evaluator", fail.ErrUseStmtNotAllowed),
+			nil,
+		},
 		{
 			"unknown-slot-usage",
 			fail.New(
 				2,
-				path+"unknown-slot-usage.tw.html",
+				path+"unknown-slot-usage/index.tw.html",
 				"parser",
-				fmt.Sprintf(fail.ErrSlotNotDefined, "unknown", "components/user"),
+				fmt.Sprintf(fail.ErrSlotNotDefined, "unknown", "user"),
 			),
 			nil,
 		},
 		{
-			"use-inside-tpl",
-			fail.New(1, path+"use-inside-tpl.tw.html", "evaluator", fail.ErrUseStmtNotAllowed),
+			"unknown-default-slot-usage",
+			fail.New(
+				2,
+				path+"unknown-default-slot-usage/index.tw.html",
+				"parser",
+				fmt.Sprintf(fail.ErrDefaultSlotNotDefined, "book"),
+			),
 			nil,
 		},
 	}
 
 	for _, tt := range tests {
+		tpl, tplErr := NewTemplate(&Config{
+			TemplateDir: "testdata/bad/" + tt.dirName,
+		})
+
 		if tplErr != nil {
 			if tplErr.Error() != tt.err.String() {
 				t.Errorf("wrong error message. EXPECTED:\n\"%s\"\nGOT:\n\"%s\"", tt.err, tplErr)
@@ -50,7 +60,7 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 			return
 		}
 
-		_, err := tpl.String(tt.fileName, tt.data)
+		_, err := tpl.String("index", tt.data)
 
 		if err == nil {
 			t.Errorf("expected error but got none")
