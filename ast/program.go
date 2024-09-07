@@ -64,7 +64,7 @@ func (p *Program) ApplyLayout(prog *Program) {
 	p.Statements = []Statement{p.UseStmt}
 }
 
-func (p *Program) ApplyComponent(name string, prog *Program) {
+func (p *Program) ApplyComponent(name string, prog *Program, progFilePath string) *fail.Error {
 	for _, comp := range p.Components {
 		if comp.Name.Value != name {
 			continue
@@ -73,13 +73,18 @@ func (p *Program) ApplyComponent(name string, prog *Program) {
 		for _, slot := range comp.Slots {
 			idx := findSlotStmtIndex(prog.Statements, slot.Name.Value)
 
-			if idx > -1 {
-				prog.Statements[idx].(*SlotStmt).Body = slot.Body
+			if idx == -1 {
+				return fail.New(slot.Line(), progFilePath, "parser",
+					fail.ErrSlotNotDefined, slot.Name.Value, name)
 			}
+
+			prog.Statements[idx].(*SlotStmt).Body = slot.Body
 		}
 
 		comp.Block = prog
 	}
+
+	return nil
 }
 
 func (p *Program) HasReserveStmt() bool {

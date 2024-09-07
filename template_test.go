@@ -1,13 +1,14 @@
 package textwire
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/textwire/textwire/fail"
 )
 
 func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
-	tpl, _ := NewTemplate(&Config{
+	tpl, tplErr := NewTemplate(&Config{
 		TemplateDir: "testdata/bad",
 	})
 
@@ -24,14 +25,31 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 		err      *fail.Error
 		data     map[string]interface{}
 	}{
+		// {
+		// 	"1.use-inside-tpl",
+		// 	fail.New(1, path+"1.use-inside-tpl.tw.html", "evaluator", fail.ErrUseStmtNotAllowed),
+		// 	nil,
+		// },
 		{
-			"1.use-inside-tpl",
-			fail.New(1, path+"1.use-inside-tpl.tw.html", "evaluator", fail.ErrUseStmtNotAllowed),
+			"2.unknown-slot-usage",
+			fail.New(
+				2,
+				path+"2.unknown-slot-usage.tw.html",
+				"parser",
+				fmt.Sprintf(fail.ErrSlotNotDefined, "unknown", "components/user"),
+			),
 			nil,
 		},
 	}
 
 	for _, tt := range tests {
+		if tplErr != nil {
+			if tplErr.Error() != tt.err.String() {
+				t.Errorf("wrong error message. EXPECTED:\n\"%s\"\nGOT:\n\"%s\"", tt.err, tplErr)
+			}
+			return
+		}
+
 		_, err := tpl.String(tt.fileName, tt.data)
 
 		if err == nil {
