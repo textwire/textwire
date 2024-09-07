@@ -25,19 +25,19 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 		err      *fail.Error
 		data     map[string]interface{}
 	}{
-		// {
-		// 	"1.use-inside-tpl",
-		// 	fail.New(1, path+"1.use-inside-tpl.tw.html", "evaluator", fail.ErrUseStmtNotAllowed),
-		// 	nil,
-		// },
 		{
-			"2.unknown-slot-usage",
+			"unknown-slot-usage",
 			fail.New(
 				2,
-				path+"2.unknown-slot-usage.tw.html",
+				path+"unknown-slot-usage.tw.html",
 				"parser",
 				fmt.Sprintf(fail.ErrSlotNotDefined, "unknown", "components/user"),
 			),
+			nil,
+		},
+		{
+			"use-inside-tpl",
+			fail.New(1, path+"use-inside-tpl.tw.html", "evaluator", fail.ErrUseStmtNotAllowed),
 			nil,
 		},
 	}
