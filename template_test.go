@@ -27,30 +27,30 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 			nil,
 		},
 		{
-			"unknown-slot-usage",
+			"unknown-slot",
 			fail.New(
 				2,
-				path+"unknown-slot-usage/index.tw.html",
+				path+"unknown-slot/index.tw.html",
 				"parser",
 				fmt.Sprintf(fail.ErrSlotNotDefined, "unknown", "user"),
 			),
 			nil,
 		},
 		{
-			"unknown-default-slot-usage",
+			"unknown-default-slot",
 			fail.New(
 				2,
-				path+"unknown-default-slot-usage/index.tw.html",
+				path+"unknown-default-slot/index.tw.html",
 				"parser",
 				fmt.Sprintf(fail.ErrDefaultSlotNotDefined, "book"),
 			),
 			nil,
 		},
 		{
-			"duplicate-slot-usage",
+			"duplicate-slot",
 			fail.New(
 				2,
-				path+"duplicate-slot-usage/index.tw.html",
+				path+"duplicate-slot/index.tw.html",
 				"parser",
 				fmt.Sprintf(fail.ErrDuplicateSlotUsage, "content", 2, "user"),
 			),
