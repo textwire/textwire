@@ -64,22 +64,45 @@ func (p *Program) ApplyLayout(prog *Program) {
 	p.Statements = []Statement{p.UseStmt}
 }
 
-func (p *Program) ApplyComponent(name string, prog *Program) {
+func (p *Program) ApplyComponent(name string, prog *Program, progFilePath string) *fail.Error {
 	for _, comp := range p.Components {
 		if comp.Name.Value != name {
 			continue
 		}
 
+		// returns error if there are duplicate slots
+		duplicateName, times := findDuplicateSlot(comp.Slots)
+
+		if duplicateName != "" {
+			if name == "" {
+				return fail.New(prog.Line(), progFilePath, "parser",
+					fail.ErrDuplicateDefaultSlotUsage, times, name)
+			}
+
+			return fail.New(prog.Line(), progFilePath, "parser",
+				fail.ErrDuplicateSlotUsage, duplicateName, times, name)
+		}
+
 		for _, slot := range comp.Slots {
 			idx := findSlotStmtIndex(prog.Statements, slot.Name.Value)
 
-			if idx > -1 {
-				prog.Statements[idx].(*SlotStmt).Body = slot.Body
+			if idx == -1 {
+				if slot.Name.Value == "" {
+					return fail.New(prog.Line(), progFilePath, "parser",
+						fail.ErrDefaultSlotNotDefined, name)
+				}
+
+				return fail.New(prog.Line(), progFilePath, "parser",
+					fail.ErrSlotNotDefined, slot.Name.Value, name)
 			}
+
+			prog.Statements[idx].(*SlotStmt).Body = slot.Body
 		}
 
 		comp.Block = prog
 	}
+
+	return nil
 }
 
 func (p *Program) HasReserveStmt() bool {

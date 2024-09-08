@@ -54,7 +54,7 @@ func parsePrograms(paths map[string]string) (map[string]*ast.Program, *fail.Erro
 			return nil, err
 		}
 
-		if err = applyComponentToProgram(prog); err != nil {
+		if err = applyComponentToProgram(prog, absPath); err != nil {
 			return nil, err
 		}
 
@@ -96,7 +96,7 @@ func applyLayoutToProgram(prog *ast.Program) *fail.Error {
 	return nil
 }
 
-func applyComponentToProgram(prog *ast.Program) *fail.Error {
+func applyComponentToProgram(prog *ast.Program, progFilePath string) *fail.Error {
 	for _, comp := range prog.Components {
 		compName := comp.Name.Value
 		compAbsPath, err := getFullPath(compName, true)
@@ -111,7 +111,9 @@ func applyComponentToProgram(prog *ast.Program) *fail.Error {
 			return parseErr
 		}
 
-		prog.ApplyComponent(compName, compProg)
+		if compErr := prog.ApplyComponent(compName, compProg, progFilePath); compErr != nil {
+			return compErr
+		}
 	}
 
 	return nil

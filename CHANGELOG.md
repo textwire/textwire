@@ -6,6 +6,10 @@
 * ♻️ - Refactoring code
 * 📝 - Adding or updating documentation
 
+## v1.7.1 (2024-09-08)
+- 🧑‍💻 Improve error handling for component slots. When you pass a slot that isn't defined, you'll get an error
+- 🧑‍💻 Improve error handling for component slots. When you pass multiple slots with the same name, you'll get an error
+
 ## v1.7.0 (2024-09-05)
 - ✨ Added `upper` function to strings. For example, `{{ "hello".upper() }}` will print `HELLO`
 - ✨ Added `lower` function to strings. For example, `{{ "HELLO".lower() }}` will print `hello`

@@ -1,18 +1,15 @@
 package textwire
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/textwire/textwire/fail"
 )
 
 func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
-	tpl, _ := NewTemplate(&Config{
-		TemplateDir: "testdata/bad",
-	})
-
 	path, err := getFullPath("", false)
-	path += "/"
+	path += "/testdata/bad/"
 
 	if err != nil {
 		t.Errorf("unexpected error: %s", err)
@@ -20,19 +17,70 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 	}
 
 	tests := []struct {
-		fileName string
-		err      *fail.Error
-		data     map[string]interface{}
+		dirName string
+		err     *fail.Error
+		data    map[string]interface{}
 	}{
 		{
-			"1.use-inside-tpl",
-			fail.New(1, path+"1.use-inside-tpl.tw.html", "evaluator", fail.ErrUseStmtNotAllowed),
+			"use-inside-tpl",
+			fail.New(1, path+"use-inside-tpl/index.tw.html", "evaluator", fail.ErrUseStmtNotAllowed),
+			nil,
+		},
+		{
+			"unknown-slot",
+			fail.New(
+				2,
+				path+"unknown-slot/index.tw.html",
+				"parser",
+				fmt.Sprintf(fail.ErrSlotNotDefined, "unknown", "user"),
+			),
+			nil,
+		},
+		{
+			"unknown-default-slot",
+			fail.New(
+				2,
+				path+"unknown-default-slot/index.tw.html",
+				"parser",
+				fmt.Sprintf(fail.ErrDefaultSlotNotDefined, "book"),
+			),
+			nil,
+		},
+		{
+			"duplicate-slot",
+			fail.New(
+				2,
+				path+"duplicate-slot/index.tw.html",
+				"parser",
+				fmt.Sprintf(fail.ErrDuplicateSlotUsage, "content", 2, "user"),
+			),
+			nil,
+		},
+		{
+			"duplicate-default-slot",
+			fail.New(
+				2,
+				path+"duplicate-default-slot/index.tw.html",
+				"parser",
+				fmt.Sprintf(fail.ErrDuplicateSlotUsage, "", 2, "user"),
+			),
 			nil,
 		},
 	}
 
 	for _, tt := range tests {
-		_, err := tpl.String(tt.fileName, tt.data)
+		tpl, tplErr := NewTemplate(&Config{
+			TemplateDir: "testdata/bad/" + tt.dirName,
+		})
+
+		if tplErr != nil {
+			if tplErr.Error() != tt.err.String() {
+				t.Errorf("wrong error message. EXPECTED:\n\"%s\"\nGOT:\n\"%s\"", tt.err, tplErr)
+			}
+			return
+		}
+
+		_, err := tpl.String("index", tt.data)
 
 		if err == nil {
 			t.Errorf("expected error but got none")
