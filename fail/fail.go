@@ -21,6 +21,7 @@ const (
 	ErrExpectedObjectLiteral  = "expected object literal, got '%s' instead"
 	ErrSlotNotDefined         = "'%s' slot is not defined in the component '%s'"
 	ErrDefaultSlotNotDefined  = "default slot is not defined in the component '%s'"
+	ErrDuplicateSlotUsage     = "duplicate slot usage '%s' found %d times in the component '%s'"
 
 	// Evaluator (interpreter) errors
 	ErrUnknownNodeType         = "unknown node type '%T'"

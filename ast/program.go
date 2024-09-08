@@ -70,16 +70,24 @@ func (p *Program) ApplyComponent(name string, prog *Program, progFilePath string
 			continue
 		}
 
+		// returns error if there are duplicate slots
+		duplicateName, times := findDuplicateSlot(comp.Slots)
+
+		if duplicateName != "" {
+			return fail.New(prog.Line(), progFilePath, "parser",
+				fail.ErrDuplicateSlotUsage, duplicateName, times, name)
+		}
+
 		for _, slot := range comp.Slots {
 			idx := findSlotStmtIndex(prog.Statements, slot.Name.Value)
 
 			if idx == -1 {
 				if slot.Name.Value == "" {
-					return fail.New(slot.Line(), progFilePath, "parser",
+					return fail.New(prog.Line(), progFilePath, "parser",
 						fail.ErrDefaultSlotNotDefined, name)
 				}
 
-				return fail.New(slot.Line(), progFilePath, "parser",
+				return fail.New(prog.Line(), progFilePath, "parser",
 					fail.ErrSlotNotDefined, slot.Name.Value, name)
 			}
 
