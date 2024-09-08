@@ -74,6 +74,11 @@ func (p *Program) ApplyComponent(name string, prog *Program, progFilePath string
 		duplicateName, times := findDuplicateSlot(comp.Slots)
 
 		if duplicateName != "" {
+			if name == "" {
+				return fail.New(prog.Line(), progFilePath, "parser",
+					fail.ErrDuplicateDefaultSlotUsage, times, name)
+			}
+
 			return fail.New(prog.Line(), progFilePath, "parser",
 				fail.ErrDuplicateSlotUsage, duplicateName, times, name)
 		}

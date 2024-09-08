@@ -56,6 +56,16 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 			),
 			nil,
 		},
+		{
+			"duplicate-default-slot",
+			fail.New(
+				2,
+				path+"duplicate-default-slot/index.tw.html",
+				"parser",
+				fmt.Sprintf(fail.ErrDuplicateSlotUsage, "", 2, "user"),
+			),
+			nil,
+		},
 	}
 
 	for _, tt := range tests {
