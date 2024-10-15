@@ -6,6 +6,9 @@
 * ♻️ - Refactoring code
 * 📝 - Adding or updating documentation
 
+## v2.0.0 (2024-10-15)
+- ✨ Added the ability to define your own functions for specific types
+
 ## v1.7.1 (2024-09-08)
 - 🧑‍💻 Improve error handling for component slots. When you pass a slot that isn't defined, you'll get an error
 - 🧑‍💻 Improve error handling for component slots. When you pass multiple slots with the same name, you'll get an error
