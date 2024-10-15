@@ -1,35 +1,22 @@
 package textwire
 
 import (
-	"github.com/textwire/textwire/evaluator"
-	"github.com/textwire/textwire/fail"
-	"github.com/textwire/textwire/object"
+	"github.com/textwire/textwire/v2/config"
+	"github.com/textwire/textwire/v2/evaluator"
+	"github.com/textwire/textwire/v2/fail"
+	"github.com/textwire/textwire/v2/object"
 )
 
-var config = &Config{
+var conf = &config.Config{
 	TemplateDir: "templates",
 	TemplateExt: ".tw.html",
 }
 
-// Config is the main configuration for Textwire
-type Config struct {
-	// TemplateDir is the directory where the Textwire
-	// templates are located. Default is "templates"
-	TemplateDir string
+// configApplied is a flag to check if
+// the configuration are set or not
+var configApplied = false
 
-	// TemplateExt is the extension of the Textwire
-	// template files. Default is ".tw.html"
-	// If you use a different extension other then ".tw.html",
-	// you will loose syntax highlighting in VSCode editor
-	// if you use the Textwire extension
-	TemplateExt string
-
-	// configApplied is a flag to check if the configuration
-	// are set or not
-	configApplied bool
-}
-
-func NewTemplate(c *Config) (*Template, error) {
+func NewTemplate(c *config.Config) (*Template, error) {
 	applyConfig(c)
 
 	paths, err := findTextwireFiles()
@@ -48,7 +35,7 @@ func NewTemplate(c *Config) (*Template, error) {
 }
 
 func EvaluateString(inp string, data map[string]interface{}) (string, error) {
-	config.configApplied = false
+	configApplied = false
 
 	prog, errs := parseStr(inp)
 
@@ -75,7 +62,7 @@ func EvaluateString(inp string, data map[string]interface{}) (string, error) {
 }
 
 func EvaluateFile(absPath string, data map[string]interface{}) (string, error) {
-	config.configApplied = false
+	configApplied = false
 
 	_, err := fileContent(absPath)
 

@@ -1,7 +1,7 @@
 package evaluator
 
 import (
-	"github.com/textwire/textwire/object"
+	"github.com/textwire/textwire/v2/object"
 )
 
 var functions = map[object.ObjectType]map[string]*object.Builtin{

@@ -3,7 +3,7 @@ package evaluator
 import (
 	"testing"
 
-	"github.com/textwire/textwire/object"
+	"github.com/textwire/textwire/v2/object"
 )
 
 func TestIsTruthy(t *testing.T) {

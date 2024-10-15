@@ -5,9 +5,9 @@ import (
 	"html"
 	"strings"
 
-	"github.com/textwire/textwire/ast"
-	"github.com/textwire/textwire/fail"
-	"github.com/textwire/textwire/object"
+	"github.com/textwire/textwire/v2/ast"
+	"github.com/textwire/textwire/v2/fail"
+	"github.com/textwire/textwire/v2/object"
 )
 
 var (
@@ -680,6 +680,8 @@ func (e *Evaluator) evalCallExp(
 	typeFuncs, ok := functions[receiverObj.Type()]
 
 	if !ok {
+		// TODO: check for custom function
+
 		return e.newError(node, fail.ErrNoFuncForThisType,
 			node.Function.Value, receiverObj.Type())
 	}

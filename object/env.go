@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/textwire/textwire/fail"
+	fail "github.com/textwire/textwire/v2/fail"
 )
 
 type Env struct {

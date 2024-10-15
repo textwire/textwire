@@ -7,12 +7,12 @@ import (
 )
 
 func getFullPath(filename string, appendExt bool) (string, error) {
-	if config.configApplied {
-		filename = config.TemplateDir + "/" + filename
+	if configApplied {
+		filename = conf.TemplateDir + "/" + filename
 	}
 
 	if appendExt {
-		filename += config.TemplateExt
+		filename += conf.TemplateExt
 	}
 
 	absPath, err := filepath.Abs(filename)
@@ -39,12 +39,12 @@ func fileContent(absPath string) (string, error) {
 func findTextwireFiles() (map[string]string, error) {
 	var result = map[string]string{}
 
-	err := filepath.Walk(config.TemplateDir, func(path string, info os.FileInfo, err error) error {
+	err := filepath.Walk(conf.TemplateDir, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}
 
-		if info.IsDir() || !strings.Contains(path, config.TemplateExt) {
+		if info.IsDir() || !strings.Contains(path, conf.TemplateExt) {
 			return nil
 		}
 
@@ -67,7 +67,7 @@ func findTextwireFiles() (map[string]string, error) {
 }
 
 func nameFromPath(path string) string {
-	name := strings.Replace(path, config.TemplateDir+"/", "", 1)
-	name = strings.Replace(name, config.TemplateExt, "", 1)
+	name := strings.Replace(path, conf.TemplateDir+"/", "", 1)
+	name = strings.Replace(name, conf.TemplateExt, "", 1)
 	return name
 }

@@ -4,9 +4,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/textwire/textwire/lexer"
-	"github.com/textwire/textwire/object"
-	"github.com/textwire/textwire/parser"
+	"github.com/textwire/textwire/v2/lexer"
+	"github.com/textwire/textwire/v2/object"
+	"github.com/textwire/textwire/v2/parser"
 )
 
 func testEval(inp string) object.Object {

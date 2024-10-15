@@ -1,7 +1,7 @@
 package evaluator
 
 import (
-	"github.com/textwire/textwire/object"
+	"github.com/textwire/textwire/v2/object"
 )
 
 func isTruthy(obj object.Object) bool {

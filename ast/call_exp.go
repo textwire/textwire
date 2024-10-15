@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"fmt"
 
-	"github.com/textwire/textwire/token"
+	"github.com/textwire/textwire/v2/token"
 )
 
 type CallExp struct {

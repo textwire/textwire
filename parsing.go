@@ -3,10 +3,11 @@ package textwire
 import (
 	"strings"
 
-	"github.com/textwire/textwire/ast"
-	"github.com/textwire/textwire/fail"
-	"github.com/textwire/textwire/lexer"
-	"github.com/textwire/textwire/parser"
+	ast "github.com/textwire/textwire/v2/ast"
+	config "github.com/textwire/textwire/v2/config"
+	fail "github.com/textwire/textwire/v2/fail"
+	lexer "github.com/textwire/textwire/v2/lexer"
+	parser "github.com/textwire/textwire/v2/parser"
 )
 
 func parseStr(text string) (*ast.Program, []*fail.Error) {
@@ -119,14 +120,14 @@ func applyComponentToProgram(prog *ast.Program, progFilePath string) *fail.Error
 	return nil
 }
 
-func applyConfig(c *Config) {
-	config.configApplied = true
+func applyConfig(c *config.Config) {
+	configApplied = true
 
 	if c.TemplateDir != "" {
-		config.TemplateDir = strings.Trim(c.TemplateDir, "/")
+		conf.TemplateDir = strings.Trim(c.TemplateDir, "/")
 	}
 
 	if c.TemplateExt != "" {
-		config.TemplateExt = c.TemplateExt
+		conf.TemplateExt = c.TemplateExt
 	}
 }

@@ -1,6 +1,6 @@
 package evaluator
 
-import "github.com/textwire/textwire/object"
+import "github.com/textwire/textwire/v2/object"
 
 // floatIntFunc returns the integer part of the given float
 func floatIntFunc(receiver object.Object, args ...object.Object) object.Object {

@@ -1,6 +1,6 @@
 package object
 
-import "github.com/textwire/textwire/fail"
+import "github.com/textwire/textwire/v2/fail"
 
 type Error struct {
 	Err *fail.Error
