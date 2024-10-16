@@ -49,7 +49,7 @@ func EvaluateString(inp string, data map[string]interface{}) (string, error) {
 		return "", err.Error()
 	}
 
-	ctx := evaluator.NewContext("")
+	ctx := evaluator.NewContext("", conf)
 	eval := evaluator.New(ctx)
 
 	evaluated := eval.Eval(prog, env)

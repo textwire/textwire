@@ -1,6 +1,7 @@
 package textwire
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -39,6 +40,7 @@ func fileContent(absPath string) (string, error) {
 func findTextwireFiles() (map[string]string, error) {
 	var result = map[string]string{}
 
+	fmt.Printf("-------> %#v\n", conf)
 	err := filepath.Walk(conf.TemplateDir, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err

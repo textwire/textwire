@@ -4,6 +4,7 @@ type StrFunc func(string) string
 type ArrFunc func([]interface{}) []string
 type IntFunc func(int) int
 type FloatFunc func(float64) float64
+type BoolFunc func(bool) bool
 
 // Config is the main configuration for Textwire
 type Config struct {
@@ -23,4 +24,5 @@ type Config struct {
 	ArrFuncs   map[string]ArrFunc
 	IntFuncs   map[string]IntFunc
 	FloatFuncs map[string]FloatFunc
+	BoolFuncs  map[string]BoolFunc
 }

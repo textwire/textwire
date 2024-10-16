@@ -4,10 +4,12 @@ import "github.com/textwire/textwire/v2/config"
 
 type EvalContext struct {
 	absPath string
-	// TODO: use this field
-	config *config.Config
+	conf    *config.Config
 }
 
-func NewContext(absPath string) *EvalContext {
-	return &EvalContext{absPath: absPath}
+func NewContext(absPath string, conf *config.Config) *EvalContext {
+	return &EvalContext{
+		absPath: absPath,
+		conf:    conf,
+	}
 }

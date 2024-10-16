@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"testing"
 
-	config "github.com/textwire/textwire/v2/config"
-	fail "github.com/textwire/textwire/v2/fail"
+	"github.com/textwire/textwire/v2/config"
+	"github.com/textwire/textwire/v2/fail"
 )
 
 func TestErrorHandlingEvaluatingTemplate(t *testing.T) {

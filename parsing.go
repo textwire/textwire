@@ -130,4 +130,24 @@ func applyConfig(c *config.Config) {
 	if c.TemplateExt != "" {
 		conf.TemplateExt = c.TemplateExt
 	}
+
+	if c.FloatFuncs != nil {
+		conf.FloatFuncs = c.FloatFuncs
+	}
+
+	if c.IntFuncs != nil {
+		conf.IntFuncs = c.IntFuncs
+	}
+
+	if c.StrFuncs != nil {
+		conf.StrFuncs = c.StrFuncs
+	}
+
+	if c.BoolFuncs != nil {
+		conf.BoolFuncs = c.BoolFuncs
+	}
+
+	if c.ArrFuncs != nil {
+		conf.ArrFuncs = c.ArrFuncs
+	}
 }

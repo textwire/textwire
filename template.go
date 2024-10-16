@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"net/http"
 
-	ast "github.com/textwire/textwire/v2/ast"
-	evaluator "github.com/textwire/textwire/v2/evaluator"
-	fail "github.com/textwire/textwire/v2/fail"
-	object "github.com/textwire/textwire/v2/object"
+	"github.com/textwire/textwire/v2/ast"
+	"github.com/textwire/textwire/v2/evaluator"
+	"github.com/textwire/textwire/v2/fail"
+	"github.com/textwire/textwire/v2/object"
 )
 
 type Template struct {
@@ -33,7 +33,7 @@ func (t *Template) String(filename string, data map[string]interface{}) (string,
 		return "", fail.New(0, absPath, "template", fail.ErrTemplateNotFound)
 	}
 
-	ctx := evaluator.NewContext(absPath)
+	ctx := evaluator.NewContext(absPath, conf)
 	eval := evaluator.New(ctx)
 
 	evaluated := eval.Eval(prog, env)
