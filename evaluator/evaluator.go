@@ -702,19 +702,19 @@ func (e *Evaluator) evalCallExp(
 		switch receiverType {
 		case object.STR_OBJ:
 			fun := e.ctx.customFunc.Str[funcName]
-			return fun(receiverObj, args...)
+			return fun(receiverObj.(*object.Str), args...)
 		case object.ARR_OBJ:
 			fun := e.ctx.customFunc.Arr[funcName]
-			return fun(receiverObj, args...)
+			return fun(receiverObj.(*object.Array), args...)
 		case object.INT_OBJ:
 			fun := e.ctx.customFunc.Int[funcName]
-			return fun(receiverObj, args...)
+			return fun(receiverObj.(*object.Int), args...)
 		case object.FLOAT_OBJ:
 			fun := e.ctx.customFunc.Float[funcName]
-			return fun(receiverObj, args...)
+			return fun(receiverObj.(*object.Float), args...)
 		case object.BOOL_OBJ:
 			fun := e.ctx.customFunc.Bool[funcName]
-			return fun(receiverObj, args...)
+			return fun(receiverObj.(*object.Bool), args...)
 		}
 	}
 

@@ -15,9 +15,8 @@ var tpl *textwire.Template
 func main() {
 	var err error
 
-	textwire.RegisterStrFunc("reverse", func(s object.Object, args ...object.Object) object.Object {
-		str := s.(*object.Str).Value
-		runes := []rune(str)
+	textwire.RegisterStrFunc("reverse", func(s *object.Str, args ...object.Object) object.Object {
+		runes := []rune(s.Value)
 
 		for i, j := 0, len(runes)-1; i < j; i, j = i+1, j-1 {
 			runes[i], runes[j] = runes[j], runes[i]

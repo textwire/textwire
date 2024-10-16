@@ -100,10 +100,9 @@ func TestEvaluateFile(t *testing.T) {
 }
 
 func TestEvaluateStringWithCustomFunction(t *testing.T) {
-	t.Run("without arguments", func(tt *testing.T) {
-		RegisterIntFunc("double", func(num object.Object, args ...object.Object) object.Object {
-			numValue := num.(*object.Int).Value
-			return &object.Int{Value: numValue * 2}
+	t.Run("integer receiver", func(tt *testing.T) {
+		RegisterIntFunc("double", func(num *object.Int, args ...object.Object) object.Object {
+			return &object.Int{Value: num.Value * 2}
 		})
 
 		actual, err := EvaluateString("{{ 3.double() }}", nil)
@@ -112,21 +111,33 @@ func TestEvaluateStringWithCustomFunction(t *testing.T) {
 			t.Errorf("error evaluating template: %s", err)
 		}
 
-		expect := "6"
-
-		if actual != expect {
-			t.Errorf("wrong result. EXPECTED:\n\"%s\"\nGOT:\n\"%s\"",
-				expect, actual)
+		if actual != "6" {
+			t.Errorf("wrong result. EXPECTED:\n\"%s\"\nGOT:\n\"%s\"", "6", actual)
 		}
 	})
 
-	t.Run("with 2 arguments", func(tt *testing.T) {
-		RegisterStrFunc("concat", func(s object.Object, args ...object.Object) object.Object {
-			str := s.(*object.Str).Value
+	t.Run("float receiver", func(tt *testing.T) {
+		// TODO: implement
+	})
 
-			return &object.Str{
-				Value: str + args[0].(*object.Str).Value + args[1].(*object.Str).Value,
-			}
+	t.Run("array receiver", func(tt *testing.T) {
+		// TODO: implement
+	})
+
+	t.Run("string receiver", func(tt *testing.T) {
+		// TODO: implement
+	})
+
+	t.Run("boolean receiver", func(tt *testing.T) {
+		// TODO: implement
+	})
+
+	t.Run("with 2 arguments", func(tt *testing.T) {
+		RegisterStrFunc("concat", func(s *object.Str, args ...object.Object) object.Object {
+			arg1Value := args[0].(*object.Str).Value
+			arg2Value := args[1].(*object.Str).Value
+
+			return &object.Str{Value: s.Value + arg1Value + arg2Value}
 		})
 
 		actual, err := EvaluateString("{{ 'anna'.concat(' ', 'smith') }}", nil)
@@ -135,11 +146,8 @@ func TestEvaluateStringWithCustomFunction(t *testing.T) {
 			t.Errorf("error evaluating template: %s", err)
 		}
 
-		expect := "anna smith"
-
-		if actual != expect {
-			t.Errorf("wrong result. EXPECTED:\n\"%s\"\nGOT:\n\"%s\"",
-				expect, actual)
+		if actual != "anna smith" {
+			t.Errorf("wrong result. EXPECTED:\n\"%s\"\nGOT:\n\"%s\"", "anna smith", actual)
 		}
 	})
 }

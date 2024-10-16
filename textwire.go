@@ -76,7 +76,7 @@ func EvaluateFile(absPath string, data map[string]interface{}) (string, error) {
 	return result, nil
 }
 
-func RegisterStrFunc(name string, fn object.BuiltinFunction) error {
+func RegisterStrFunc(name string, fn option.StrCustomFunc) error {
 	if _, ok := customFunc.Str[name]; ok {
 		return fail.New(0, "", "API", fail.ErrFuncAlreadyDefined, name, "strings").Error()
 	}
@@ -86,7 +86,7 @@ func RegisterStrFunc(name string, fn object.BuiltinFunction) error {
 	return nil
 }
 
-func RegisterArrFunc(name string, fn object.BuiltinFunction) error {
+func RegisterArrFunc(name string, fn option.ArrayCustomFunc) error {
 	if _, ok := customFunc.Arr[name]; ok {
 		return fail.New(0, "", "API", fail.ErrFuncAlreadyDefined, name, "arrays").Error()
 	}
@@ -96,7 +96,7 @@ func RegisterArrFunc(name string, fn object.BuiltinFunction) error {
 	return nil
 }
 
-func RegisterIntFunc(name string, fn object.BuiltinFunction) error {
+func RegisterIntFunc(name string, fn option.IntCustomFunc) error {
 	if _, ok := customFunc.Int[name]; ok {
 		return fail.New(0, "", "API", fail.ErrFuncAlreadyDefined, name, "integers").Error()
 	}
@@ -106,7 +106,7 @@ func RegisterIntFunc(name string, fn object.BuiltinFunction) error {
 	return nil
 }
 
-func RegisterFloatFunc(name string, fn object.BuiltinFunction) error {
+func RegisterFloatFunc(name string, fn option.FloatCustomFunc) error {
 	if _, ok := customFunc.Float[name]; ok {
 		return fail.New(0, "", "API", fail.ErrFuncAlreadyDefined, name, "floats").Error()
 	}
@@ -116,7 +116,7 @@ func RegisterFloatFunc(name string, fn object.BuiltinFunction) error {
 	return nil
 }
 
-func RegisterBoolFunc(name string, fn object.BuiltinFunction) error {
+func RegisterBoolFunc(name string, fn option.BoolCustomFunc) error {
 	if _, ok := customFunc.Bool[name]; ok {
 		return fail.New(0, "", "API", fail.ErrFuncAlreadyDefined, name, "booleans").Error()
 	}
