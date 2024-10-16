@@ -98,3 +98,20 @@ func TestEvaluateFile(t *testing.T) {
 		t.Errorf("error evaluating file:\n%s", err)
 	}
 }
+
+func TestEvaluateStringWithCustomFunction(t *testing.T) {
+	t.Run("without arguments", func(tt *testing.T) {
+		actual, err := EvaluateString("{{ 'anna'.upLast() }}", nil)
+
+		if err != nil {
+			t.Errorf("error evaluating template: %s", err)
+		}
+
+		expect := "annA"
+
+		if actual != expect {
+			t.Errorf("wrong result. EXPECTED:\n\"%s\"\nGOT:\n\"%s\"",
+				expect, actual)
+		}
+	})
+}
