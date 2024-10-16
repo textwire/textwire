@@ -33,7 +33,7 @@ func (t *Template) String(filename string, data map[string]interface{}) (string,
 		return "", fail.New(0, absPath, "template", fail.ErrTemplateNotFound)
 	}
 
-	ctx := evaluator.NewContext(absPath, conf)
+	ctx := evaluator.NewContext(absPath, customFunc)
 	eval := evaluator.New(ctx)
 
 	evaluated := eval.Eval(prog, env)

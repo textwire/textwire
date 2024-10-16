@@ -698,22 +698,22 @@ func (e *Evaluator) evalCallExp(
 		return buitin.Fn(receiverObj, args...)
 	}
 
-	if hasCustomFunc(e.ctx.conf, receiverType) {
+	if hasCustomFunc(e.ctx.customFunc, receiverType) {
 		switch receiverType {
 		case object.STR_OBJ:
-			fun := e.ctx.conf.Funcs.Str[funcName]
+			fun := e.ctx.customFunc.Str[funcName]
 			return fun(receiverObj, args...)
 		case object.ARR_OBJ:
-			fun := e.ctx.conf.Funcs.Arr[funcName]
+			fun := e.ctx.customFunc.Arr[funcName]
 			return fun(receiverObj, args...)
 		case object.INT_OBJ:
-			fun := e.ctx.conf.Funcs.Int[funcName]
+			fun := e.ctx.customFunc.Int[funcName]
 			return fun(receiverObj, args...)
 		case object.FLOAT_OBJ:
-			fun := e.ctx.conf.Funcs.Float[funcName]
+			fun := e.ctx.customFunc.Float[funcName]
 			return fun(receiverObj, args...)
 		case object.BOOL_OBJ:
-			fun := e.ctx.conf.Funcs.Bool[funcName]
+			fun := e.ctx.customFunc.Bool[funcName]
 			return fun(receiverObj, args...)
 		}
 	}

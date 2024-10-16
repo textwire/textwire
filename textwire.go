@@ -1,19 +1,20 @@
 package textwire
 
 import (
-	"github.com/textwire/textwire/v2/config"
 	"github.com/textwire/textwire/v2/evaluator"
 	"github.com/textwire/textwire/v2/fail"
 	"github.com/textwire/textwire/v2/object"
+	"github.com/textwire/textwire/v2/option"
 )
 
-var conf = config.New("templates", ".tw.html")
+var conf = option.New("templates", ".tw.html")
+var customFunc = option.NewFunc()
 
 // usesTemplates is a flag to check if user uses Textwire templates or not
 var usesTemplates = false
 
-func NewTemplate(c *config.Config) (*Template, error) {
-	applyConfig(c)
+func NewTemplate(opt *option.Option) (*Template, error) {
+	applyOptions(opt)
 
 	paths, err := findTextwireFiles()
 
@@ -45,7 +46,7 @@ func EvaluateString(inp string, data map[string]interface{}) (string, error) {
 		return "", err.Error()
 	}
 
-	ctx := evaluator.NewContext("", conf)
+	ctx := evaluator.NewContext("", customFunc)
 	eval := evaluator.New(ctx)
 
 	evaluated := eval.Eval(prog, env)
@@ -76,51 +77,51 @@ func EvaluateFile(absPath string, data map[string]interface{}) (string, error) {
 }
 
 func RegisterStrFunc(name string, fn object.BuiltinFunction) error {
-	if _, ok := conf.Funcs.Str[name]; ok {
+	if _, ok := customFunc.Str[name]; ok {
 		return fail.New(0, "", "API", fail.ErrFuncAlreadyDefined, name, "strings").Error()
 	}
 
-	conf.Funcs.Str[name] = fn
+	customFunc.Str[name] = fn
 
 	return nil
 }
 
 func RegisterArrFunc(name string, fn object.BuiltinFunction) error {
-	if _, ok := conf.Funcs.Arr[name]; ok {
+	if _, ok := customFunc.Arr[name]; ok {
 		return fail.New(0, "", "API", fail.ErrFuncAlreadyDefined, name, "arrays").Error()
 	}
 
-	conf.Funcs.Arr[name] = fn
+	customFunc.Arr[name] = fn
 
 	return nil
 }
 
 func RegisterIntFunc(name string, fn object.BuiltinFunction) error {
-	if _, ok := conf.Funcs.Int[name]; ok {
+	if _, ok := customFunc.Int[name]; ok {
 		return fail.New(0, "", "API", fail.ErrFuncAlreadyDefined, name, "integers").Error()
 	}
 
-	conf.Funcs.Int[name] = fn
+	customFunc.Int[name] = fn
 
 	return nil
 }
 
 func RegisterFloatFunc(name string, fn object.BuiltinFunction) error {
-	if _, ok := conf.Funcs.Float[name]; ok {
+	if _, ok := customFunc.Float[name]; ok {
 		return fail.New(0, "", "API", fail.ErrFuncAlreadyDefined, name, "floats").Error()
 	}
 
-	conf.Funcs.Float[name] = fn
+	customFunc.Float[name] = fn
 
 	return nil
 }
 
 func RegisterBoolFunc(name string, fn object.BuiltinFunction) error {
-	if _, ok := conf.Funcs.Bool[name]; ok {
+	if _, ok := customFunc.Bool[name]; ok {
 		return fail.New(0, "", "API", fail.ErrFuncAlreadyDefined, name, "booleans").Error()
 	}
 
-	conf.Funcs.Bool[name] = fn
+	customFunc.Bool[name] = fn
 
 	return nil
 }

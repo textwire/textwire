@@ -3,11 +3,11 @@ package textwire
 import (
 	"strings"
 
-	ast "github.com/textwire/textwire/v2/ast"
-	config "github.com/textwire/textwire/v2/config"
-	fail "github.com/textwire/textwire/v2/fail"
-	lexer "github.com/textwire/textwire/v2/lexer"
-	parser "github.com/textwire/textwire/v2/parser"
+	"github.com/textwire/textwire/v2/ast"
+	"github.com/textwire/textwire/v2/fail"
+	"github.com/textwire/textwire/v2/lexer"
+	"github.com/textwire/textwire/v2/option"
+	"github.com/textwire/textwire/v2/parser"
 )
 
 func parseStr(text string) (*ast.Program, []*fail.Error) {
@@ -120,34 +120,14 @@ func applyComponentToProgram(prog *ast.Program, progFilePath string) *fail.Error
 	return nil
 }
 
-func applyConfig(c *config.Config) {
+func applyOptions(opt *option.Option) {
 	usesTemplates = true
 
-	if c.TemplateDir != "" {
-		conf.TemplateDir = strings.Trim(c.TemplateDir, "/")
+	if opt.TemplateDir != "" {
+		conf.TemplateDir = strings.Trim(opt.TemplateDir, "/")
 	}
 
-	if c.TemplateExt != "" {
-		conf.TemplateExt = c.TemplateExt
-	}
-
-	if c.Funcs.Float != nil {
-		conf.Funcs.Float = c.Funcs.Float
-	}
-
-	if c.Funcs.Int != nil {
-		conf.Funcs.Int = c.Funcs.Int
-	}
-
-	if c.Funcs.Int != nil {
-		conf.Funcs.Int = c.Funcs.Int
-	}
-
-	if c.Funcs.Bool != nil {
-		conf.Funcs.Bool = c.Funcs.Bool
-	}
-
-	if c.Funcs.Arr != nil {
-		conf.Funcs.Arr = c.Funcs.Arr
+	if opt.TemplateExt != "" {
+		conf.TemplateExt = opt.TemplateExt
 	}
 }

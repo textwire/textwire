@@ -17,7 +17,6 @@ func testEval(inp string) object.Object {
 
 	eval := New(&EvalContext{
 		absPath: "/path/to/file",
-		conf:    nil,
 	})
 
 	return eval.Eval(prog, env)

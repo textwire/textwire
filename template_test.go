@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/textwire/textwire/v2/config"
 	"github.com/textwire/textwire/v2/fail"
+	"github.com/textwire/textwire/v2/option"
 )
 
 func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
@@ -70,7 +70,7 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		tpl, tplErr := NewTemplate(&config.Config{
+		tpl, tplErr := NewTemplate(&option.Option{
 			TemplateDir: "testdata/bad/" + tt.dirName,
 		})
 
@@ -120,7 +120,7 @@ func TestFiles(t *testing.T) {
 		{"10.with-component-and-slots", nil},
 	}
 
-	tpl, err := NewTemplate(&config.Config{
+	tpl, err := NewTemplate(&option.Option{
 		TemplateDir: "testdata/good/before",
 	})
 
