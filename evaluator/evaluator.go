@@ -680,10 +680,12 @@ func (e *Evaluator) evalCallExp(
 	typeFuncs, ok := functions[receiverObj.Type()]
 
 	if !ok {
-		// TODO: check for custom function
-
-		return e.newError(node, fail.ErrNoFuncForThisType,
-			node.Function.Value, receiverObj.Type())
+		if hasCustomFunc(e.ctx.conf, receiverObj.Type()) {
+			// execute custom function
+		} else {
+			return e.newError(node, fail.ErrNoFuncForThisType,
+				node.Function.Value, receiverObj.Type())
+		}
 	}
 
 	args := e.evalExpressions(node.Arguments, env)

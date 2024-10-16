@@ -1,6 +1,7 @@
 package evaluator
 
 import (
+	"github.com/textwire/textwire/v2/config"
 	"github.com/textwire/textwire/v2/object"
 )
 
@@ -58,4 +59,27 @@ func hasControlStmt(obj object.Object, controlType object.ObjectType) bool {
 	}
 
 	return false
+}
+
+// hasCustomFunc checks if the object has a custom function
+func hasCustomFunc(c *config.Config, t object.ObjectType) bool {
+	switch t {
+	case object.STR_OBJ:
+		return len(c.Funcs.Str) > 0
+	case object.ARR_OBJ:
+		return len(c.Funcs.Arr) > 0
+	case object.INT_OBJ:
+		return len(c.Funcs.Int) > 0
+	case object.FLOAT_OBJ:
+		return len(c.Funcs.Float) > 0
+	case object.BOOL_OBJ:
+		return len(c.Funcs.Bool) > 0
+	default:
+		return false
+	}
+}
+
+// customFunc executes a custom function on the object
+func customFunc(c *config.Config, t object.ObjectType) {
+	//
 }

@@ -7,14 +7,10 @@ import (
 	"github.com/textwire/textwire/v2/object"
 )
 
-var conf = &config.Config{
-	TemplateDir: "templates",
-	TemplateExt: ".tw.html",
-}
+var conf = config.New("templates", ".tw.html")
 
-// configApplied is a flag to check if
-// the configuration are set or not
-var configApplied = false
+// usesTemplates is a flag to check if user uses Textwire templates or not
+var usesTemplates = false
 
 func NewTemplate(c *config.Config) (*Template, error) {
 	applyConfig(c)
@@ -35,7 +31,7 @@ func NewTemplate(c *config.Config) (*Template, error) {
 }
 
 func EvaluateString(inp string, data map[string]interface{}) (string, error) {
-	configApplied = false
+	usesTemplates = false
 
 	prog, errs := parseStr(inp)
 
@@ -62,7 +58,7 @@ func EvaluateString(inp string, data map[string]interface{}) (string, error) {
 }
 
 func EvaluateFile(absPath string, data map[string]interface{}) (string, error) {
-	configApplied = false
+	usesTemplates = false
 
 	_, err := fileContent(absPath)
 
@@ -77,4 +73,54 @@ func EvaluateFile(absPath string, data map[string]interface{}) (string, error) {
 	}
 
 	return result, nil
+}
+
+func RegisterStrFunc(name string, fn config.StrFunc) error {
+	if _, ok := conf.Funcs.Str[name]; ok {
+		return fail.New(0, "", "API", fail.ErrFuncAlreadyDefined, name, "strings").Error()
+	}
+
+	conf.Funcs.Str[name] = fn
+
+	return nil
+}
+
+func RegisterArrFunc(name string, fn config.ArrFunc) error {
+	if _, ok := conf.Funcs.Arr[name]; ok {
+		return fail.New(0, "", "API", fail.ErrFuncAlreadyDefined, name, "arrays").Error()
+	}
+
+	conf.Funcs.Arr[name] = fn
+
+	return nil
+}
+
+func RegisterIntFunc(name string, fn config.IntFunc) error {
+	if _, ok := conf.Funcs.Int[name]; ok {
+		return fail.New(0, "", "API", fail.ErrFuncAlreadyDefined, name, "integers").Error()
+	}
+
+	conf.Funcs.Int[name] = fn
+
+	return nil
+}
+
+func RegisterFloatFunc(name string, fn config.FloatFunc) error {
+	if _, ok := conf.Funcs.Float[name]; ok {
+		return fail.New(0, "", "API", fail.ErrFuncAlreadyDefined, name, "floats").Error()
+	}
+
+	conf.Funcs.Float[name] = fn
+
+	return nil
+}
+
+func RegisterBoolFunc(name string, fn config.BoolFunc) error {
+	if _, ok := conf.Funcs.Bool[name]; ok {
+		return fail.New(0, "", "API", fail.ErrFuncAlreadyDefined, name, "booleans").Error()
+	}
+
+	conf.Funcs.Bool[name] = fn
+
+	return nil
 }

@@ -7,7 +7,7 @@ import (
 )
 
 func getFullPath(filename string, appendExt bool) (string, error) {
-	if configApplied {
+	if usesTemplates {
 		filename = conf.TemplateDir + "/" + filename
 	}
 

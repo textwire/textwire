@@ -101,6 +101,10 @@ func TestEvaluateFile(t *testing.T) {
 
 func TestEvaluateStringWithCustomFunction(t *testing.T) {
 	t.Run("without arguments", func(tt *testing.T) {
+		RegisterStrFunc("upLast", func(s string) string {
+			return s[:len(s)-1] + string(s[len(s)-1]-32)
+		})
+
 		actual, err := EvaluateString("{{ 'anna'.upLast() }}", nil)
 
 		if err != nil {

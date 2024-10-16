@@ -45,6 +45,9 @@ const (
 	ErrTemplateNotFound  = "template not found"
 	ErrUseStmtNotAllowed = "the 'use' statement is not allowed in a layout file. It will cause infinite recursion"
 
+	// API errors
+	ErrFuncAlreadyDefined = "custom function '%s' already defined for '%s'"
+
 	NoErrorsFound = "there are no Textwire errors"
 )
 

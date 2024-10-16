@@ -19,10 +19,28 @@ type Config struct {
 	// if you use the Textwire extension
 	TemplateExt string
 
-	// Configurations for custom functions
-	StrFuncs   map[string]StrFunc
-	ArrFuncs   map[string]ArrFunc
-	IntFuncs   map[string]IntFunc
-	FloatFuncs map[string]FloatFunc
-	BoolFuncs  map[string]BoolFunc
+	// Funcs is the custom functions that can be used
+	Funcs Funcs
+}
+
+func New(dir, ext string) *Config {
+	return &Config{
+		TemplateDir: dir,
+		TemplateExt: ext,
+		Funcs: Funcs{
+			Str:   make(map[string]StrFunc),
+			Arr:   make(map[string]ArrFunc),
+			Int:   make(map[string]IntFunc),
+			Float: make(map[string]FloatFunc),
+			Bool:  make(map[string]BoolFunc),
+		},
+	}
+}
+
+type Funcs struct {
+	Str   map[string]StrFunc
+	Arr   map[string]ArrFunc
+	Int   map[string]IntFunc
+	Float map[string]FloatFunc
+	Bool  map[string]BoolFunc
 }

@@ -121,7 +121,7 @@ func applyComponentToProgram(prog *ast.Program, progFilePath string) *fail.Error
 }
 
 func applyConfig(c *config.Config) {
-	configApplied = true
+	usesTemplates = true
 
 	if c.TemplateDir != "" {
 		conf.TemplateDir = strings.Trim(c.TemplateDir, "/")
@@ -131,23 +131,23 @@ func applyConfig(c *config.Config) {
 		conf.TemplateExt = c.TemplateExt
 	}
 
-	if c.FloatFuncs != nil {
-		conf.FloatFuncs = c.FloatFuncs
+	if c.Funcs.Float != nil {
+		conf.Funcs.Float = c.Funcs.Float
 	}
 
-	if c.IntFuncs != nil {
-		conf.IntFuncs = c.IntFuncs
+	if c.Funcs.Int != nil {
+		conf.Funcs.Int = c.Funcs.Int
 	}
 
-	if c.StrFuncs != nil {
-		conf.StrFuncs = c.StrFuncs
+	if c.Funcs.Int != nil {
+		conf.Funcs.Int = c.Funcs.Int
 	}
 
-	if c.BoolFuncs != nil {
-		conf.BoolFuncs = c.BoolFuncs
+	if c.Funcs.Bool != nil {
+		conf.Funcs.Bool = c.Funcs.Bool
 	}
 
-	if c.ArrFuncs != nil {
-		conf.ArrFuncs = c.ArrFuncs
+	if c.Funcs.Arr != nil {
+		conf.Funcs.Arr = c.Funcs.Arr
 	}
 }
