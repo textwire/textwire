@@ -1,10 +1,6 @@
 package config
 
-type StrFunc func(string) string
-type ArrFunc func([]interface{}) []string
-type IntFunc func(int) int
-type FloatFunc func(float64) float64
-type BoolFunc func(bool) bool
+import "github.com/textwire/textwire/v2/object"
 
 // Config is the main configuration for Textwire
 type Config struct {
@@ -28,19 +24,19 @@ func New(dir, ext string) *Config {
 		TemplateDir: dir,
 		TemplateExt: ext,
 		Funcs: Funcs{
-			Str:   make(map[string]StrFunc),
-			Arr:   make(map[string]ArrFunc),
-			Int:   make(map[string]IntFunc),
-			Float: make(map[string]FloatFunc),
-			Bool:  make(map[string]BoolFunc),
+			Str:   make(map[string]object.BuiltinFunction),
+			Arr:   make(map[string]object.BuiltinFunction),
+			Int:   make(map[string]object.BuiltinFunction),
+			Float: make(map[string]object.BuiltinFunction),
+			Bool:  make(map[string]object.BuiltinFunction),
 		},
 	}
 }
 
 type Funcs struct {
-	Str   map[string]StrFunc
-	Arr   map[string]ArrFunc
-	Int   map[string]IntFunc
-	Float map[string]FloatFunc
-	Bool  map[string]BoolFunc
+	Str   map[string]object.BuiltinFunction
+	Arr   map[string]object.BuiltinFunction
+	Int   map[string]object.BuiltinFunction
+	Float map[string]object.BuiltinFunction
+	Bool  map[string]object.BuiltinFunction
 }

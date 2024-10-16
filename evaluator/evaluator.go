@@ -677,15 +677,13 @@ func (e *Evaluator) evalCallExp(
 		return receiverObj
 	}
 
-	typeFuncs, ok := functions[receiverObj.Type()]
+	receiverType := receiverObj.Type()
+	funcName := node.Function.Value
+
+	typeFuncs, ok := functions[receiverType]
 
 	if !ok {
-		if hasCustomFunc(e.ctx.conf, receiverObj.Type()) {
-			// execute custom function
-		} else {
-			return e.newError(node, fail.ErrNoFuncForThisType,
-				node.Function.Value, receiverObj.Type())
-		}
+		return e.newError(node, fail.ErrNoFuncForThisType, funcName, receiverType)
 	}
 
 	args := e.evalExpressions(node.Arguments, env)
@@ -694,8 +692,24 @@ func (e *Evaluator) evalCallExp(
 		return args[0]
 	}
 
-	if buitin, ok := typeFuncs[node.Function.Value]; ok {
+	buitin, ok := typeFuncs[node.Function.Value]
+
+	if ok {
 		return buitin.Fn(receiverObj, args...)
+	} else if hasCustomFunc(e.ctx.conf, receiverType) {
+		switch receiverType {
+		case object.STR_OBJ:
+			fun := e.ctx.conf.Funcs.Str[funcName]
+			return fun(receiverObj, args...)
+		case object.ARR_OBJ:
+			//
+		case object.INT_OBJ:
+			//
+		case object.FLOAT_OBJ:
+			//
+		case object.BOOL_OBJ:
+			//
+		}
 	}
 
 	return e.newError(node, fail.ErrNoFuncForThisType, node.Function.Value, receiverObj.Type())

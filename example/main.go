@@ -7,6 +7,7 @@ import (
 
 	"github.com/textwire/textwire/v2"
 	"github.com/textwire/textwire/v2/config"
+	"github.com/textwire/textwire/v2/object"
 )
 
 var tpl *textwire.Template
@@ -14,14 +15,25 @@ var tpl *textwire.Template
 func main() {
 	var err error
 
-	textwire.RegisterStrFunc("reverse", func(s string) string {
-		runes := []rune(s)
+	// textwire.RegisterStrFunc("reverse", func(s string) string {
+	// 	runes := []rune(s)
+
+	// 	for i, j := 0, len(runes)-1; i < j; i, j = i+1, j-1 {
+	// 		runes[i], runes[j] = runes[j], runes[i]
+	// 	}
+
+	// 	return string(runes)
+	// })
+
+	textwire.RegisterStrFunc("reverse", func(s object.Object, args ...object.Object) object.Object {
+		str := s.(*object.Str).Value
+		runes := []rune(str)
 
 		for i, j := 0, len(runes)-1; i < j; i, j = i+1, j-1 {
 			runes[i], runes[j] = runes[j], runes[i]
 		}
 
-		return string(runes)
+		return &object.Str{Value: string(runes)}
 	})
 
 	tpl, err = textwire.NewTemplate(&config.Config{

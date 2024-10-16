@@ -78,8 +78,3 @@ func hasCustomFunc(c *config.Config, t object.ObjectType) bool {
 		return false
 	}
 }
-
-// customFunc executes a custom function on the object
-func customFunc(c *config.Config, t object.ObjectType) {
-	//
-}
