@@ -6,7 +6,6 @@ import (
 	"net/http"
 
 	"github.com/textwire/textwire/v2"
-	"github.com/textwire/textwire/v2/object"
 	"github.com/textwire/textwire/v2/option"
 )
 
@@ -15,14 +14,14 @@ var tpl *textwire.Template
 func main() {
 	var err error
 
-	textwire.RegisterStrFunc("reverse", func(s *object.Str, args ...object.Object) object.Object {
-		runes := []rune(s.Value)
+	textwire.RegisterStrFunc("reverse", func(s string, args ...interface{}) string {
+		runes := []rune(s)
 
 		for i, j := 0, len(runes)-1; i < j; i, j = i+1, j-1 {
 			runes[i], runes[j] = runes[j], runes[i]
 		}
 
-		return &object.Str{Value: string(runes)}
+		return string(runes)
 	})
 
 	tpl, err = textwire.NewTemplate(&option.Option{

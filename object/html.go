@@ -12,6 +12,10 @@ func (h *HTML) String() string {
 	return h.Value
 }
 
+func (h *HTML) Val() interface{} {
+	return h.Value
+}
+
 func (h *HTML) Is(t ObjectType) bool {
 	return t == h.Type()
 }

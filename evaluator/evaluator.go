@@ -699,26 +699,44 @@ func (e *Evaluator) evalCallExp(
 	}
 
 	if hasCustomFunc(e.ctx.customFunc, receiverType) {
+		nativeArgs := e.objectsToNativeType(args)
+
 		switch receiverType {
 		case object.STR_OBJ:
 			fun := e.ctx.customFunc.Str[funcName]
-			return fun(receiverObj.(*object.Str), args...)
+			res := fun(receiverObj.String(), nativeArgs...)
+			return object.NativeToObject(res)
 		case object.ARR_OBJ:
 			fun := e.ctx.customFunc.Arr[funcName]
-			return fun(receiverObj.(*object.Array), args...)
+			nativeElems := e.objectsToNativeType(receiverObj.(*object.Array).Elements)
+			res := fun(nativeElems, nativeArgs...)
+			return object.NativeToObject(res)
 		case object.INT_OBJ:
 			fun := e.ctx.customFunc.Int[funcName]
-			return fun(receiverObj.(*object.Int), args...)
+			res := fun(int(receiverObj.(*object.Int).Value), nativeArgs...)
+			return object.NativeToObject(res)
 		case object.FLOAT_OBJ:
 			fun := e.ctx.customFunc.Float[funcName]
-			return fun(receiverObj.(*object.Float), args...)
+			res := fun(receiverObj.(*object.Float).Value, nativeArgs...)
+			return object.NativeToObject(res)
 		case object.BOOL_OBJ:
 			fun := e.ctx.customFunc.Bool[funcName]
-			return fun(receiverObj.(*object.Bool), args...)
+			res := fun(receiverObj.(*object.Bool).Value, nativeArgs...)
+			return object.NativeToObject(res)
 		}
 	}
 
 	return e.newError(node, fail.ErrNoFuncForThisType, node.Function.Value, receiverObj.Type())
+}
+
+func (e *Evaluator) objectsToNativeType(args []object.Object) []interface{} {
+	var result []interface{}
+
+	for _, arg := range args {
+		result = append(result, arg.Val())
+	}
+
+	return result
 }
 
 func (e *Evaluator) evalPostfixOperatorExp(

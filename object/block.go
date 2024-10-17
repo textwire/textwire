@@ -22,6 +22,16 @@ func (b *Block) String() string {
 	return out.String()
 }
 
+func (b *Block) Val() interface{} {
+	var result []interface{}
+
+	for _, e := range b.Elements {
+		result = append(result, e.Val())
+	}
+
+	return result
+}
+
 func (b *Block) Is(t ObjectType) bool {
 	return t == b.Type()
 }

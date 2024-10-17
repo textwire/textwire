@@ -1,12 +1,10 @@
 package option
 
-import "github.com/textwire/textwire/v2/object"
-
-type StrCustomFunc func(s *object.Str, args ...object.Object) object.Object
-type ArrayCustomFunc func(a *object.Array, args ...object.Object) object.Object
-type IntCustomFunc func(i *object.Int, args ...object.Object) object.Object
-type FloatCustomFunc func(f *object.Float, args ...object.Object) object.Object
-type BoolCustomFunc func(b *object.Bool, args ...object.Object) object.Object
+type StrCustomFunc func(s string, args ...interface{}) string
+type ArrayCustomFunc func(a []interface{}, args ...interface{}) []interface{}
+type IntCustomFunc func(i int, args ...interface{}) int
+type FloatCustomFunc func(f float64, args ...interface{}) float64
+type BoolCustomFunc func(b bool, args ...interface{}) bool
 
 type Func struct {
 	Str   map[string]StrCustomFunc

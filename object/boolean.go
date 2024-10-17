@@ -16,6 +16,10 @@ func (b *Bool) String() string {
 	return "0"
 }
 
+func (b *Bool) Val() interface{} {
+	return b.Value
+}
+
 func (b *Bool) Is(t ObjectType) bool {
 	return t == b.Type()
 }

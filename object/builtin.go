@@ -10,6 +10,10 @@ func (b *Builtin) Type() ObjectType {
 	return BUILTIN_OBJ
 }
 
+func (b *Builtin) Val() interface{} {
+	return b.Fn
+}
+
 func (b *Builtin) String() string {
 	return "builtin function"
 }

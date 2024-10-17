@@ -12,6 +12,10 @@ func (s *Str) String() string {
 	return s.Value
 }
 
+func (s *Str) Val() interface{} {
+	return s.Value
+}
+
 func (s *Str) Is(t ObjectType) bool {
 	return t == s.Type()
 }

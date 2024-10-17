@@ -27,7 +27,7 @@ func EnvFromMap(data map[string]interface{}) (*Env, *fail.Error) {
 	env := NewEnv()
 
 	for key, val := range data {
-		obj := nativeToObject(val)
+		obj := NativeToObject(val)
 
 		if obj == nil {
 			return nil, fail.New(0, "", "template",

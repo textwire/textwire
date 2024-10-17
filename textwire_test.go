@@ -101,8 +101,8 @@ func TestEvaluateFile(t *testing.T) {
 
 func TestEvaluateStringWithCustomFunction(t *testing.T) {
 	t.Run("integer receiver", func(tt *testing.T) {
-		RegisterIntFunc("double", func(num *object.Int, args ...object.Object) object.Object {
-			return &object.Int{Value: num.Value * 2}
+		RegisterIntFunc("double", func(num int, args ...interface{}) int {
+			return num * 2
 		})
 
 		actual, err := EvaluateString("{{ 3.double() }}", nil)
@@ -133,21 +133,21 @@ func TestEvaluateStringWithCustomFunction(t *testing.T) {
 	})
 
 	t.Run("with 2 arguments", func(tt *testing.T) {
-		RegisterStrFunc("concat", func(s *object.Str, args ...object.Object) object.Object {
-			arg1Value := args[0].(*object.Str).Value
-			arg2Value := args[1].(*object.Str).Value
+		RegisterStrFunc("concat", func(s string, args ...interface{}) string {
+			arg1Value := args[0].(string)
+			arg2Value := args[1].(string)
 
-			return &object.Str{Value: s.Value + arg1Value + arg2Value}
+			return s + arg1Value + arg2Value
 		})
 
-		actual, err := EvaluateString("{{ 'anna'.concat(' ', 'smith') }}", nil)
+		actual, err := EvaluateString("{{ 'anna'.concat(' ', 'cho') }}", nil)
 
 		if err != nil {
 			t.Errorf("error evaluating template: %s", err)
 		}
 
-		if actual != "anna smith" {
-			t.Errorf("wrong result. EXPECTED:\n\"%s\"\nGOT:\n\"%s\"", "anna smith", actual)
+		if actual != "anna cho" {
+			t.Errorf("wrong result. EXPECTED:\n\"%s\"\nGOT:\n\"%s\"", "anna cho", actual)
 		}
 	})
 }
