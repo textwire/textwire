@@ -184,4 +184,30 @@ func TestCustomFunctions(t *testing.T) {
 			t.Errorf("wrong result. EXPECTED: 'anna cho' GOT: '%s'", actual)
 		}
 	})
+
+	t.Run("registering already registered function", func(t *testing.T) {
+		err := RegisterStrFunc("len", func(s string, args ...interface{}) string {
+			return "some output"
+		})
+
+		if err != nil {
+			t.Errorf("error registering function: %s", err)
+		}
+
+		// Registering the same function again should return an error
+		err = RegisterStrFunc("len", func(s string, args ...interface{}) string {
+			return "some output"
+		})
+
+		if err == nil {
+			t.Error("expected error but got none")
+			return
+		}
+
+		expect := fail.New(0, "", "API", fail.ErrFuncAlreadyDefined, "len", "strings")
+
+		if err.Error() != expect.Error().Error() {
+			t.Errorf("wrong error message. EXPECTED: %q GOT: %q", expect, err)
+		}
+	})
 }
