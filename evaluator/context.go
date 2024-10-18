@@ -1,13 +1,13 @@
 package evaluator
 
-import "github.com/textwire/textwire/v2/option"
+import "github.com/textwire/textwire/v2/config"
 
 type EvalContext struct {
 	absPath    string
-	customFunc *option.Func
+	customFunc *config.Func
 }
 
-func NewContext(absPath string, customFunc *option.Func) *EvalContext {
+func NewContext(absPath string, customFunc *config.Func) *EvalContext {
 	return &EvalContext{
 		absPath:    absPath,
 		customFunc: customFunc,

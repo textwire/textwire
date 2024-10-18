@@ -1,7 +1,7 @@
-package option
+package config
 
-// Option is the main configuration for Textwire
-type Option struct {
+// Config is the main configuration for Textwire
+type Config struct {
 	// TemplateDir is the directory where the Textwire
 	// templates are located. Default is "templates"
 	TemplateDir string
@@ -14,8 +14,8 @@ type Option struct {
 	TemplateExt string
 }
 
-func New(dir, ext string) *Option {
-	return &Option{
+func New(dir, ext string) *Config {
+	return &Config{
 		TemplateDir: dir,
 		TemplateExt: ext,
 	}

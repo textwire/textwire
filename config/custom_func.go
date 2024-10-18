@@ -1,4 +1,4 @@
-package option
+package config
 
 type StrCustomFunc func(s string, args ...interface{}) string
 type ArrayCustomFunc func(a []interface{}, args ...interface{}) []interface{}

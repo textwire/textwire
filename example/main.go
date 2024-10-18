@@ -6,7 +6,7 @@ import (
 	"net/http"
 
 	"github.com/textwire/textwire/v2"
-	"github.com/textwire/textwire/v2/option"
+	"github.com/textwire/textwire/v2/config"
 )
 
 var tpl *textwire.Template
@@ -24,7 +24,7 @@ func main() {
 		return string(runes)
 	})
 
-	tpl, err = textwire.NewTemplate(&option.Option{
+	tpl, err = textwire.NewTemplate(&config.Config{
 		TemplateDir: "templates",
 	})
 

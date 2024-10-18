@@ -1,8 +1,8 @@
 package evaluator
 
 import (
+	"github.com/textwire/textwire/v2/config"
 	"github.com/textwire/textwire/v2/object"
-	"github.com/textwire/textwire/v2/option"
 )
 
 func isTruthy(obj object.Object) bool {
@@ -62,7 +62,7 @@ func hasControlStmt(obj object.Object, controlType object.ObjectType) bool {
 }
 
 // hasCustomFunc checks if the object has a custom function
-func hasCustomFunc(customFunc *option.Func, t object.ObjectType) bool {
+func hasCustomFunc(customFunc *config.Func, t object.ObjectType) bool {
 	switch t {
 	case object.STR_OBJ:
 		return len(customFunc.Str) > 0
