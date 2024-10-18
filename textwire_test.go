@@ -99,8 +99,8 @@ func TestEvaluateFile(t *testing.T) {
 	}
 }
 
-func TestEvaluateStringWithCustomFunction(t *testing.T) {
-	t.Run("integer receiver", func(tt *testing.T) {
+func TestCustomFunctions(t *testing.T) {
+	t.Run("register for integer receiver", func(tt *testing.T) {
 		RegisterIntFunc("double", func(num int, args ...interface{}) int {
 			return num * 2
 		})
@@ -116,7 +116,7 @@ func TestEvaluateStringWithCustomFunction(t *testing.T) {
 		}
 	})
 
-	t.Run("float receiver", func(tt *testing.T) {
+	t.Run("register for float receiver", func(tt *testing.T) {
 		RegisterFloatFunc("double", func(num float64, args ...interface{}) float64 {
 			return num * 2
 		})
@@ -132,7 +132,7 @@ func TestEvaluateStringWithCustomFunction(t *testing.T) {
 		}
 	})
 
-	t.Run("array receiver", func(tt *testing.T) {
+	t.Run("register for array receiver", func(tt *testing.T) {
 		RegisterArrFunc("addNumber", func(arr []interface{}, args ...interface{}) []interface{} {
 			firstArg := args[0].(int64)
 			arr = append(arr, firstArg)
@@ -150,15 +150,23 @@ func TestEvaluateStringWithCustomFunction(t *testing.T) {
 		}
 	})
 
-	t.Run("string receiver", func(tt *testing.T) {
-		// TODO: implement
+	t.Run("register for boolean receiver", func(tt *testing.T) {
+		RegisterBoolFunc("negate", func(b bool, args ...interface{}) bool {
+			return !b
+		})
+
+		actual, err := EvaluateString("{{ true.negate() }}", nil)
+
+		if err != nil {
+			t.Errorf("error evaluating template: %s", err)
+		}
+
+		if actual != "0" {
+			t.Errorf("wrong result. EXPECTED: '0' GOT '%s'", actual)
+		}
 	})
 
-	t.Run("boolean receiver", func(tt *testing.T) {
-		// TODO: implement
-	})
-
-	t.Run("with 2 arguments", func(tt *testing.T) {
+	t.Run("register for string receiver", func(tt *testing.T) {
 		RegisterStrFunc("concat", func(s string, args ...interface{}) string {
 			arg1Value := args[0].(string)
 			arg2Value := args[1].(string)

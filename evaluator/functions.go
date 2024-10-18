@@ -23,4 +23,5 @@ var functions = map[object.ObjectType]map[string]*object.Builtin{
 	object.INT_OBJ: {
 		"float": {Fn: intFloatFunc},
 	},
+	object.BOOL_OBJ: {},
 }
