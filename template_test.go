@@ -150,3 +150,46 @@ func TestFiles(t *testing.T) {
 		}
 	}
 }
+
+func TestRegisteringCustomFunction(t *testing.T) {
+	fileName, err := getFullPath("", false)
+	fileName += "/testdata/good/12.with-custom-function"
+
+	if err != nil {
+		t.Errorf("unexpected error: %s", err)
+		return
+	}
+
+	tpl, tplErr := NewTemplate(&option.Option{
+		TemplateDir: "testdata/good/before/",
+	})
+
+	RegisterStrFunc("secondLetterUppercase", func(s string, args ...interface{}) string {
+		if len(s) < 2 {
+			return s
+		}
+
+		return string(s[0]) + string(s[1]-32) + s[2:]
+	})
+
+	if tplErr != nil {
+		t.Fatalf("unexpected error: %s", tplErr)
+	}
+
+	expected, err := readFile("testdata/good/expected/12.with-custom-function.html")
+
+	if err != nil {
+		t.Errorf("error reading expected file: %s", err)
+		return
+	}
+
+	actual, evalErr := tpl.String("12.with-custom-function", nil)
+
+	if evalErr != nil {
+		t.Fatalf("error evaluating template: %s", evalErr)
+	}
+
+	if actual != expected {
+		t.Errorf("wrong result. EXPECTED: '%s' GOT: '%s'", expected, actual)
+	}
+}
