@@ -41,16 +41,16 @@ func TestEvaluateString(t *testing.T) {
 		}{Name: struct{ FirstName string }{"Ann"}, Age: 20}}},
 	}
 
-	for _, tt := range tests {
-		actual, err := EvaluateString(tt.inp, tt.data)
+	for _, tc := range tests {
+		actual, err := EvaluateString(tc.inp, tc.data)
 
 		if err != nil {
 			t.Errorf("error evaluating template: %s", err)
 		}
 
-		if actual != tt.expect {
+		if actual != tc.expect {
 			t.Errorf("wrong result. EXPECTED:\n\"%s\"\nGOT:\n\"%s\"",
-				tt.expect, actual)
+				tc.expect, actual)
 		}
 	}
 }
@@ -69,17 +69,17 @@ func TestErrorHandlingEvaluatingString(t *testing.T) {
 		{`{{ obj = {}; obj.name }}`, fail.New(1, "", "evaluator", fail.ErrPropertyNotFound, "name", object.OBJ_OBJ), nil},
 	}
 
-	for _, tt := range tests {
-		_, err := EvaluateString(tt.inp, tt.data)
+	for _, tc := range tests {
+		_, err := EvaluateString(tc.inp, tc.data)
 
 		if err == nil {
 			t.Errorf("expected error but got none")
 			return
 		}
 
-		if err.Error() != tt.err.String() {
+		if err.Error() != tc.err.String() {
 			t.Errorf("wrong error message. EXPECTED:\n%q\nGOT:\n%q",
-				tt.err, err)
+				tc.err, err)
 		}
 	}
 }
@@ -100,7 +100,7 @@ func TestEvaluateFile(t *testing.T) {
 }
 
 func TestCustomFunctions(t *testing.T) {
-	t.Run("register for integer receiver", func(tt *testing.T) {
+	t.Run("register for integer receiver", func(t *testing.T) {
 		RegisterIntFunc("double", func(num int, args ...interface{}) int {
 			return num * 2
 		})
@@ -116,7 +116,7 @@ func TestCustomFunctions(t *testing.T) {
 		}
 	})
 
-	t.Run("register for float receiver", func(tt *testing.T) {
+	t.Run("register for float receiver", func(t *testing.T) {
 		RegisterFloatFunc("double", func(num float64, args ...interface{}) float64 {
 			return num * 2
 		})
@@ -132,7 +132,7 @@ func TestCustomFunctions(t *testing.T) {
 		}
 	})
 
-	t.Run("register for array receiver", func(tt *testing.T) {
+	t.Run("register for array receiver", func(t *testing.T) {
 		RegisterArrFunc("addNumber", func(arr []interface{}, args ...interface{}) []interface{} {
 			firstArg := args[0].(int64)
 			arr = append(arr, firstArg)
@@ -150,7 +150,7 @@ func TestCustomFunctions(t *testing.T) {
 		}
 	})
 
-	t.Run("register for boolean receiver", func(tt *testing.T) {
+	t.Run("register for boolean receiver", func(t *testing.T) {
 		RegisterBoolFunc("negate", func(b bool, args ...interface{}) bool {
 			return !b
 		})
@@ -166,7 +166,7 @@ func TestCustomFunctions(t *testing.T) {
 		}
 	})
 
-	t.Run("register for string receiver", func(tt *testing.T) {
+	t.Run("register for string receiver", func(t *testing.T) {
 		RegisterStrFunc("concat", func(s string, args ...interface{}) string {
 			arg1Value := args[0].(string)
 			arg2Value := args[1].(string)

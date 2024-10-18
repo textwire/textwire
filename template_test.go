@@ -69,27 +69,27 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 		},
 	}
 
-	for _, tt := range tests {
+	for _, tc := range tests {
 		tpl, tplErr := NewTemplate(&option.Option{
-			TemplateDir: "testdata/bad/" + tt.dirName,
+			TemplateDir: "testdata/bad/" + tc.dirName,
 		})
 
 		if tplErr != nil {
-			if tplErr.Error() != tt.err.String() {
-				t.Errorf("wrong error message. EXPECTED:\n\"%s\"\nGOT:\n\"%s\"", tt.err, tplErr)
+			if tplErr.Error() != tc.err.String() {
+				t.Errorf("wrong error message. EXPECTED:\n\"%s\"\nGOT:\n\"%s\"", tc.err, tplErr)
 			}
 			return
 		}
 
-		_, err := tpl.String("index", tt.data)
+		_, err := tpl.String("index", tc.data)
 
 		if err == nil {
 			t.Errorf("expected error but got none")
 			return
 		}
 
-		if err.String() != tt.err.String() {
-			t.Errorf("wrong error message. EXPECTED:\n\"%s\"\nGOT:\n\"%s\"", tt.err, err)
+		if err.String() != tc.err.String() {
+			t.Errorf("wrong error message. EXPECTED:\n\"%s\"\nGOT:\n\"%s\"", tc.err, err)
 		}
 	}
 }
@@ -129,15 +129,15 @@ func TestFiles(t *testing.T) {
 		return
 	}
 
-	for _, tt := range tests {
-		actual, evalErr := tpl.String(tt.fileName, tt.data)
+	for _, tc := range tests {
+		actual, evalErr := tpl.String(tc.fileName, tc.data)
 
 		if evalErr != nil {
 			t.Errorf("error evaluating template: %s", evalErr)
 			return
 		}
 
-		expected, err := readFile("testdata/good/expected/" + tt.fileName + ".html")
+		expected, err := readFile("testdata/good/expected/" + tc.fileName + ".html")
 
 		if err != nil {
 			t.Errorf("error reading expected file: %s", err)

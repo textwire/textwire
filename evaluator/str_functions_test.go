@@ -21,7 +21,7 @@ func TestEvalStringFunctions(t *testing.T) {
 		{`{{ "Hello World 你好".lower() }}`, "hello world 你好"},
 	}
 
-	for _, tt := range tests {
-		evaluationExpected(t, tt.inp, tt.expected)
+	for _, tc := range tests {
+		evaluationExpected(t, tc.inp, tc.expected)
 	}
 }

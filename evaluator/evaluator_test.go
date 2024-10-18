@@ -58,8 +58,8 @@ func TestEvalHTML(t *testing.T) {
 		{`\\\{{ x }}`, `\\{{ x }}`},
 	}
 
-	for _, tt := range tests {
-		evaluationExpected(t, tt.inp, tt.expected)
+	for _, tc := range tests {
+		evaluationExpected(t, tc.inp, tc.expected)
 	}
 }
 
@@ -96,8 +96,8 @@ func TestEvalNumericExp(t *testing.T) {
 		{`{{ 2.0 + 1.2 }}`, "3.2"},
 	}
 
-	for _, tt := range tests {
-		evaluationExpected(t, tt.inp, tt.expected)
+	for _, tc := range tests {
+		evaluationExpected(t, tc.inp, tc.expected)
 	}
 }
 
@@ -134,8 +134,8 @@ func TestEvalBooleanExp(t *testing.T) {
 		{`{{ 1.1 >= 2.1 }}`, "0"},
 	}
 
-	for _, tt := range tests {
-		evaluated := testEval(tt.inp)
+	for _, tc := range tests {
+		evaluated := testEval(tc.inp)
 
 		errObj, ok := evaluated.(*object.Error)
 
@@ -146,8 +146,8 @@ func TestEvalBooleanExp(t *testing.T) {
 
 		result := evaluated.String()
 
-		if result != tt.expected {
-			t.Errorf("result is not %s, got %s", tt.expected, result)
+		if result != tc.expected {
+			t.Errorf("result is not %s, got %s", tc.expected, result)
 		}
 	}
 }
@@ -172,8 +172,8 @@ func TestEvalStringExp(t *testing.T) {
 		{`{{ "<h1>Test</h1>" }}`, "&lt;h1&gt;Test&lt;/h1&gt;"},
 	}
 
-	for _, tt := range tests {
-		evaluationExpected(t, tt.inp, tt.expected)
+	for _, tc := range tests {
+		evaluationExpected(t, tc.inp, tc.expected)
 	}
 }
 
@@ -194,8 +194,8 @@ func TestEvalTernaryExp(t *testing.T) {
 		{`{{ !!false ? 1 : 0 }}`, "0"},
 	}
 
-	for _, tt := range tests {
-		evaluationExpected(t, tt.inp, tt.expected)
+	for _, tc := range tests {
+		evaluationExpected(t, tc.inp, tc.expected)
 	}
 }
 
@@ -232,8 +232,8 @@ func TestEvalIfStmt(t *testing.T) {
 		},
 	}
 
-	for _, tt := range tests {
-		evaluated := testEval(tt.inp)
+	for _, tc := range tests {
+		evaluated := testEval(tc.inp)
 		errObj, ok := evaluated.(*object.Error)
 
 		if ok {
@@ -242,8 +242,8 @@ func TestEvalIfStmt(t *testing.T) {
 
 		result := strings.TrimSpace(evaluated.String())
 
-		if result != tt.expect {
-			t.Errorf("result is not %q, got %q", tt.expect, result)
+		if result != tc.expect {
+			t.Errorf("result is not %q, got %q", tc.expect, result)
 		}
 	}
 }
@@ -261,8 +261,8 @@ func TestEvalArray(t *testing.T) {
 		{`{{ [[1, [2]], 3] }}`, "1, 2, 3"},
 	}
 
-	for _, tt := range tests {
-		evaluationExpected(t, tt.inp, tt.expected)
+	for _, tc := range tests {
+		evaluationExpected(t, tc.inp, tc.expected)
 	}
 }
 
@@ -278,8 +278,8 @@ func TestEvalIndexExp(t *testing.T) {
 		{`{{ [[[11]]][0][0][0] }}`, "11"},
 	}
 
-	for _, tt := range tests {
-		evaluationExpected(t, tt.inp, tt.expected)
+	for _, tc := range tests {
+		evaluationExpected(t, tc.inp, tc.expected)
 	}
 }
 
@@ -304,8 +304,8 @@ func TestEvalAssignVariable(t *testing.T) {
 		{`{{ city = "Kiev"; city = "Moscow"; city }}`, "Moscow"},
 	}
 
-	for _, tt := range tests {
-		evaluationExpected(t, tt.inp, tt.expected)
+	for _, tc := range tests {
+		evaluationExpected(t, tc.inp, tc.expected)
 	}
 }
 
@@ -339,8 +339,8 @@ func TestEvalForStmt(t *testing.T) {
 		{`@for(i = 1; i <= 3; i++)@continueIf(i == 2){{ i }}@end`, "13"},
 	}
 
-	for _, tt := range tests {
-		evaluationExpected(t, tt.inp, tt.expected)
+	for _, tc := range tests {
+		evaluationExpected(t, tc.inp, tc.expected)
 	}
 }
 
@@ -380,8 +380,8 @@ func TestEvalEachStmt(t *testing.T) {
 		{`@each(n in ["ann", "serhii", "sam"])@continueIf(n == 'sam'){{ n }} @end`, "ann serhii "},
 	}
 
-	for _, tt := range tests {
-		evaluationExpected(t, tt.inp, tt.expected)
+	for _, tc := range tests {
+		evaluationExpected(t, tc.inp, tc.expected)
 	}
 }
 
@@ -401,8 +401,8 @@ func TestEvalObjectLiteral(t *testing.T) {
 		{`{{ name = "Sam"; age = 12; obj = { name, age }; obj.age }}`, "12"},
 	}
 
-	for _, tt := range tests {
-		evaluationExpected(t, tt.inp, tt.expected)
+	for _, tc := range tests {
+		evaluationExpected(t, tc.inp, tc.expected)
 	}
 }
 
@@ -417,7 +417,7 @@ func TestEvalComments(t *testing.T) {
 		{"{{-- @each(u in users){{ u }}@end --}}", ""},
 	}
 
-	for _, tt := range tests {
-		evaluationExpected(t, tt.inp, tt.expected)
+	for _, tc := range tests {
+		evaluationExpected(t, tc.inp, tc.expected)
 	}
 }

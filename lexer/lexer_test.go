@@ -307,30 +307,30 @@ func TestLineNumber(t *testing.T) {
 		},
 	}
 
-	for _, tt := range tests {
-		l := New(tt.inp)
+	for _, tc := range tests {
+		l := New(tc.inp)
 		var lastTok token.Token
 
 		for tok := l.NextToken(); tok.Type != token.EOF; tok = l.NextToken() {
 			lastTok = tok
 		}
 
-		if lastTok.Line != tt.line {
-			t.Errorf("Expected line number %d, got %d", tt.line, lastTok.Line)
+		if lastTok.Line != tc.line {
+			t.Errorf("Expected line number %d, got %d", tc.line, lastTok.Line)
 		}
 	}
 }
 
 func TestIsDirectoryStart(t *testing.T) {
-	t.Run("Not a directive", func(tt *testing.T) {
+	t.Run("Not a directive", func(t *testing.T) {
 		l := New(`test@email.com`)
 
 		if ok := l.isDirectiveStmt(); ok {
-			tt.Errorf("Expected not a directive")
+			t.Errorf("Expected not a directive")
 		}
 	})
 
-	t.Run("Directive", func(tt *testing.T) {
+	t.Run("Directive", func(t *testing.T) {
 		l := New(`@if(true)@end`)
 
 		if ok := l.isDirectiveStmt(); !ok {
@@ -340,7 +340,7 @@ func TestIsDirectoryStart(t *testing.T) {
 }
 
 func TestCallExp(t *testing.T) {
-	t.Run("On string", func(tt *testing.T) {
+	t.Run("On string", func(t *testing.T) {
 		inp := `{{ "test".upper() }}`
 
 		TokenizeString(t, inp, []token.Token{
@@ -355,7 +355,7 @@ func TestCallExp(t *testing.T) {
 		})
 	})
 
-	t.Run("On int", func(tt *testing.T) {
+	t.Run("On int", func(t *testing.T) {
 		inp := `{{ 3.int() }}`
 
 		TokenizeString(t, inp, []token.Token{
@@ -483,7 +483,7 @@ func TestComponentDirective(t *testing.T) {
 }
 
 func TestComponentSlotDirective(t *testing.T) {
-	t.Run("slots with parentheses", func(tt *testing.T) {
+	t.Run("slots with parentheses", func(t *testing.T) {
 		inp := `@component("card")@slot("top")<h1>Hello</h1>@end@end`
 
 		TokenizeString(t, inp, []token.Token{
@@ -502,7 +502,7 @@ func TestComponentSlotDirective(t *testing.T) {
 		})
 	})
 
-	t.Run("slots without parentheses", func(tt *testing.T) {
+	t.Run("slots without parentheses", func(t *testing.T) {
 		inp := `@component("card")@slotNICE@end@end`
 
 		TokenizeString(t, inp, []token.Token{
@@ -521,7 +521,7 @@ func TestComponentSlotDirective(t *testing.T) {
 
 // Comments should be ignored by the lexer
 func TestCommentStatement(t *testing.T) {
-	t.Run("Simple comment", func(tt *testing.T) {
+	t.Run("Simple comment", func(t *testing.T) {
 		inp := `<div>{{-- This is a comment --}}</div>`
 
 		TokenizeString(t, inp, []token.Token{
@@ -531,7 +531,7 @@ func TestCommentStatement(t *testing.T) {
 		})
 	})
 
-	t.Run("Commented code", func(tt *testing.T) {
+	t.Run("Commented code", func(t *testing.T) {
 		inp := `{{-- @each(u in users){{ u }}@end --}}`
 
 		TokenizeString(t, inp, []token.Token{

@@ -3,7 +3,7 @@ package ast
 import "testing"
 
 func TestFindSlotStmtIndex(t *testing.T) {
-	t.Run("found", func(tt *testing.T) {
+	t.Run("found", func(t *testing.T) {
 		stmts := []Statement{
 			&SlotStmt{Name: &StringLiteral{Value: "country"}},
 			&SlotStmt{Name: &StringLiteral{Value: "city"}},
@@ -13,11 +13,11 @@ func TestFindSlotStmtIndex(t *testing.T) {
 		idx := findSlotStmtIndex(stmts, "city")
 
 		if idx != 1 {
-			tt.Errorf("expected index 1 but got %d", idx)
+			t.Errorf("expected index 1 but got %d", idx)
 		}
 	})
 
-	t.Run("not found", func(tt *testing.T) {
+	t.Run("not found", func(t *testing.T) {
 		stmts := []Statement{
 			&SlotStmt{Name: &StringLiteral{Value: "country"}},
 			&SlotStmt{Name: &StringLiteral{Value: "city"}},
@@ -27,7 +27,7 @@ func TestFindSlotStmtIndex(t *testing.T) {
 		idx := findSlotStmtIndex(stmts, "name")
 
 		if idx != -1 {
-			tt.Errorf("expected index -1 but got %d", idx)
+			t.Errorf("expected index -1 but got %d", idx)
 		}
 	})
 }

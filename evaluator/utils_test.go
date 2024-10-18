@@ -27,11 +27,11 @@ func TestIsTruthy(t *testing.T) {
 		{&object.Array{Elements: nil}, true},
 	}
 
-	for _, tt := range tests {
-		result := isTruthy(tt.inp)
+	for _, tc := range tests {
+		result := isTruthy(tc.inp)
 
-		if result != tt.expected {
-			t.Errorf("isTruthy(%v) returned %t, expected %t", tt.inp, result, tt.expected)
+		if result != tc.expected {
+			t.Errorf("isTruthy(%v) returned %t, expected %t", tc.inp, result, tc.expected)
 		}
 	}
 }
@@ -45,11 +45,11 @@ func TestNativeToBooleanObject(t *testing.T) {
 		{false, FALSE},
 	}
 
-	for _, tt := range tests {
-		result := nativeBoolToBooleanObject(tt.inp)
+	for _, tc := range tests {
+		result := nativeBoolToBooleanObject(tc.inp)
 
-		if result != tt.expected {
-			t.Errorf("nativeBoolToBooleanObject(%t) returned %s, expected %s", tt.inp, result, tt.expected)
+		if result != tc.expected {
+			t.Errorf("nativeBoolToBooleanObject(%t) returned %s, expected %s", tc.inp, result, tc.expected)
 		}
 	}
 }
