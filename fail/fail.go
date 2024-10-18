@@ -1,6 +1,7 @@
 package fail
 
 import (
+	"errors"
 	"fmt"
 	"log"
 )
@@ -111,7 +112,7 @@ func (e *Error) PrintOnError() {
 }
 
 func (e *Error) Error() error {
-	return fmt.Errorf(e.String())
+	return errors.New(e.String())
 }
 
 func FromError(err error, line uint, absPath, origin string, args ...interface{}) *Error {
