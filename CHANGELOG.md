@@ -7,6 +7,7 @@
 * 📝 - Adding or updating documentation
 
 ## v2.0.0 (2024-10-18)
+### Breaking changes
 - ✨ Added the ability to register your own custom functions for specific types and use them in your Textiwre code like built-in functions
 
 ## v1.7.1 (2024-09-08)
