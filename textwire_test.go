@@ -112,16 +112,42 @@ func TestEvaluateStringWithCustomFunction(t *testing.T) {
 		}
 
 		if actual != "6" {
-			t.Errorf("wrong result. EXPECTED:\n\"%s\"\nGOT:\n\"%s\"", "6", actual)
+			t.Errorf("wrong result. EXPECTED: '6' GOT: '%s'", actual)
 		}
 	})
 
 	t.Run("float receiver", func(tt *testing.T) {
-		// TODO: implement
+		RegisterFloatFunc("double", func(num float64, args ...interface{}) float64 {
+			return num * 2
+		})
+
+		actual, err := EvaluateString("{{ 3.5.double() }}", nil)
+
+		if err != nil {
+			t.Errorf("error evaluating template: %s", err)
+		}
+
+		if actual != "7.0" {
+			t.Errorf("wrong result. EXPECTED: '7.0' GOT: '%s'", actual)
+		}
 	})
 
 	t.Run("array receiver", func(tt *testing.T) {
-		// TODO: implement
+		RegisterArrFunc("addNumber", func(arr []interface{}, args ...interface{}) []interface{} {
+			firstArg := args[0].(int64)
+			arr = append(arr, firstArg)
+			return arr
+		})
+
+		actual, err := EvaluateString("{{ [1, 2].addNumber(3) }}", nil)
+
+		if err != nil {
+			t.Errorf("error evaluating template: %s", err)
+		}
+
+		if actual != "1, 2, 3" {
+			t.Errorf("wrong result. EXPECTED: '1, 2, 3' GOT: '%s'", actual)
+		}
 	})
 
 	t.Run("string receiver", func(tt *testing.T) {
@@ -147,7 +173,7 @@ func TestEvaluateStringWithCustomFunction(t *testing.T) {
 		}
 
 		if actual != "anna cho" {
-			t.Errorf("wrong result. EXPECTED:\n\"%s\"\nGOT:\n\"%s\"", "anna cho", actual)
+			t.Errorf("wrong result. EXPECTED: 'anna cho' GOT: '%s'", actual)
 		}
 	})
 }
