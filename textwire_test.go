@@ -106,13 +106,13 @@ func TestCustomFunctions(t *testing.T) {
 		})
 
 		if err != nil {
-			t.Errorf("error registering function: %s", err)
+			t.Fatalf("error registering function: %s", err)
 		}
 
 		actual, err := EvaluateString("{{ 3.double() }}", nil)
 
 		if err != nil {
-			t.Errorf("error evaluating template: %s", err)
+			t.Fatalf("error evaluating template: %s", err)
 		}
 
 		if actual != "6" {
@@ -126,17 +126,17 @@ func TestCustomFunctions(t *testing.T) {
 		})
 
 		if err != nil {
-			t.Errorf("error registering function: %s", err)
+			t.Fatalf("error registering function: %s", err)
 		}
 
 		actual, err := EvaluateString("{{ 3.5.double() }}", nil)
 
 		if err != nil {
-			t.Errorf("error evaluating template: %s", err)
+			t.Fatalf("error evaluating template: %s", err)
 		}
 
 		if actual != "7.0" {
-			t.Errorf("wrong result. EXPECTED: '7.0' GOT: '%s'", actual)
+			t.Fatalf("wrong result. EXPECTED: '7.0' GOT: '%s'", actual)
 		}
 	})
 
@@ -148,17 +148,17 @@ func TestCustomFunctions(t *testing.T) {
 		})
 
 		if err != nil {
-			t.Errorf("error registering function: %s", err)
+			t.Fatalf("error registering function: %s", err)
 		}
 
 		actual, err := EvaluateString("{{ [1, 2].addNumber(3) }}", nil)
 
 		if err != nil {
-			t.Errorf("error evaluating template: %s", err)
+			t.Fatalf("error evaluating template: %s", err)
 		}
 
 		if actual != "1, 2, 3" {
-			t.Errorf("wrong result. EXPECTED: '1, 2, 3' GOT: '%s'", actual)
+			t.Fatalf("wrong result. EXPECTED: '1, 2, 3' GOT: '%s'", actual)
 		}
 	})
 
@@ -168,17 +168,17 @@ func TestCustomFunctions(t *testing.T) {
 		})
 
 		if err != nil {
-			t.Errorf("error registering function: %s", err)
+			t.Fatalf("error registering function: %s", err)
 		}
 
 		actual, err := EvaluateString("{{ true.negate() }}", nil)
 
 		if err != nil {
-			t.Errorf("error evaluating template: %s", err)
+			t.Fatalf("error evaluating template: %s", err)
 		}
 
 		if actual != "0" {
-			t.Errorf("wrong result. EXPECTED: '0' GOT '%s'", actual)
+			t.Fatalf("wrong result. EXPECTED: '0' GOT '%s'", actual)
 		}
 	})
 
@@ -191,17 +191,17 @@ func TestCustomFunctions(t *testing.T) {
 		})
 
 		if err != nil {
-			t.Errorf("error registering function: %s", err)
+			t.Fatalf("error registering function: %s", err)
 		}
 
 		actual, err := EvaluateString("{{ 'anna'.concat(' ', 'cho') }}", nil)
 
 		if err != nil {
-			t.Errorf("error evaluating template: %s", err)
+			t.Fatalf("error evaluating template: %s", err)
 		}
 
 		if actual != "anna cho" {
-			t.Errorf("wrong result. EXPECTED: 'anna cho' GOT: '%s'", actual)
+			t.Fatalf("wrong result. EXPECTED: 'anna cho' GOT: '%s'", actual)
 		}
 	})
 
@@ -211,7 +211,7 @@ func TestCustomFunctions(t *testing.T) {
 		})
 
 		if err != nil {
-			t.Errorf("error registering function: %s", err)
+			t.Fatalf("error registering function: %s", err)
 		}
 
 		// Registering the same function again should return an error
@@ -220,13 +220,34 @@ func TestCustomFunctions(t *testing.T) {
 		})
 
 		if err == nil {
-			t.Errorf("expected error but got none")
+			t.Fatalf("expected error but got none")
 		}
 
 		expect := fail.New(0, "", "API", fail.ErrFuncAlreadyDefined, "len", "strings")
 
 		if err.Error() != expect.Error().Error() {
-			t.Errorf("wrong error message. EXPECTED: %q GOT: %q", expect, err)
+			t.Fatalf("wrong error message. EXPECTED: %q GOT: %q", expect, err)
+		}
+	})
+
+	t.Run("redefining built-in function not working", func(t *testing.T) {
+		err := RegisterStrFunc("trim", func(s string, args ...interface{}) string {
+			return "some output"
+		})
+
+		if err != nil {
+			t.Fatalf("error registering function: %s", err)
+		}
+
+		actual, err := EvaluateString("{{ ' anna '.trim() }}", nil)
+
+		if err != nil {
+			t.Fatalf("error registering function: %s", err)
+		}
+
+		// the output should be the same as the built-in function even though we redefined it
+		if actual != "anna" {
+			t.Fatalf("wrong output. EXPECTED: 'anna' GOT: '%s'", actual)
 		}
 	})
 }

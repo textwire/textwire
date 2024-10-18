@@ -47,7 +47,8 @@ const (
 	ErrUseStmtNotAllowed = "the 'use' statement is not allowed in a layout file. It will cause infinite recursion"
 
 	// API errors
-	ErrFuncAlreadyDefined = "custom function '%s' already defined for '%s'"
+	ErrFuncAlreadyDefined        = "custom function '%s' already defined for '%s'"
+	ErrCannotOverrideBuiltInFunc = "cannot override built-in function '%s' for '%s'"
 
 	NoErrorsFound = "there are no Textwire errors"
 )
