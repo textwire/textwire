@@ -101,9 +101,13 @@ func TestEvaluateFile(t *testing.T) {
 
 func TestCustomFunctions(t *testing.T) {
 	t.Run("register for integer receiver", func(t *testing.T) {
-		RegisterIntFunc("double", func(num int, args ...interface{}) int {
+		err := RegisterIntFunc("double", func(num int, args ...interface{}) int {
 			return num * 2
 		})
+
+		if err != nil {
+			t.Errorf("error registering function: %s", err)
+		}
 
 		actual, err := EvaluateString("{{ 3.double() }}", nil)
 
@@ -117,9 +121,13 @@ func TestCustomFunctions(t *testing.T) {
 	})
 
 	t.Run("register for float receiver", func(t *testing.T) {
-		RegisterFloatFunc("double", func(num float64, args ...interface{}) float64 {
+		err := RegisterFloatFunc("double", func(num float64, args ...interface{}) float64 {
 			return num * 2
 		})
+
+		if err != nil {
+			t.Errorf("error registering function: %s", err)
+		}
 
 		actual, err := EvaluateString("{{ 3.5.double() }}", nil)
 
@@ -133,11 +141,15 @@ func TestCustomFunctions(t *testing.T) {
 	})
 
 	t.Run("register for array receiver", func(t *testing.T) {
-		RegisterArrFunc("addNumber", func(arr []interface{}, args ...interface{}) []interface{} {
+		err := RegisterArrFunc("addNumber", func(arr []interface{}, args ...interface{}) []interface{} {
 			firstArg := args[0].(int64)
 			arr = append(arr, firstArg)
 			return arr
 		})
+
+		if err != nil {
+			t.Errorf("error registering function: %s", err)
+		}
 
 		actual, err := EvaluateString("{{ [1, 2].addNumber(3) }}", nil)
 
@@ -151,9 +163,13 @@ func TestCustomFunctions(t *testing.T) {
 	})
 
 	t.Run("register for boolean receiver", func(t *testing.T) {
-		RegisterBoolFunc("negate", func(b bool, args ...interface{}) bool {
+		err := RegisterBoolFunc("negate", func(b bool, args ...interface{}) bool {
 			return !b
 		})
+
+		if err != nil {
+			t.Errorf("error registering function: %s", err)
+		}
 
 		actual, err := EvaluateString("{{ true.negate() }}", nil)
 
@@ -167,12 +183,16 @@ func TestCustomFunctions(t *testing.T) {
 	})
 
 	t.Run("register for string receiver", func(t *testing.T) {
-		RegisterStrFunc("concat", func(s string, args ...interface{}) string {
+		err := RegisterStrFunc("concat", func(s string, args ...interface{}) string {
 			arg1Value := args[0].(string)
 			arg2Value := args[1].(string)
 
 			return s + arg1Value + arg2Value
 		})
+
+		if err != nil {
+			t.Errorf("error registering function: %s", err)
+		}
 
 		actual, err := EvaluateString("{{ 'anna'.concat(' ', 'cho') }}", nil)
 
@@ -200,8 +220,7 @@ func TestCustomFunctions(t *testing.T) {
 		})
 
 		if err == nil {
-			t.Error("expected error but got none")
-			return
+			t.Errorf("expected error but got none")
 		}
 
 		expect := fail.New(0, "", "API", fail.ErrFuncAlreadyDefined, "len", "strings")
