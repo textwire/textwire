@@ -5,7 +5,8 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/textwire/textwire"
+	"github.com/textwire/textwire/v2"
+	"github.com/textwire/textwire/v2/config"
 )
 
 var tpl *textwire.Template
@@ -13,7 +14,17 @@ var tpl *textwire.Template
 func main() {
 	var err error
 
-	tpl, err = textwire.NewTemplate(&textwire.Config{
+	textwire.RegisterStrFunc("reverse", func(s string, args ...interface{}) string {
+		runes := []rune(s)
+
+		for i, j := 0, len(runes)-1; i < j; i, j = i+1, j-1 {
+			runes[i], runes[j] = runes[j], runes[i]
+		}
+
+		return string(runes)
+	})
+
+	tpl, err = textwire.NewTemplate(&config.Config{
 		TemplateDir: "templates",
 	})
 

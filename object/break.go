@@ -10,6 +10,10 @@ func (b *Break) String() string {
 	return ""
 }
 
+func (b *Break) Val() interface{} {
+	return nil
+}
+
 func (b *Break) Is(t ObjectType) bool {
 	return t == b.Type()
 }

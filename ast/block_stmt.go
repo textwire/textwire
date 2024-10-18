@@ -3,7 +3,7 @@ package ast
 import (
 	"bytes"
 
-	"github.com/textwire/textwire/token"
+	"github.com/textwire/textwire/v2/token"
 )
 
 type BlockStmt struct {

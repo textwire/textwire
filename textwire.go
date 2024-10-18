@@ -1,36 +1,20 @@
 package textwire
 
 import (
-	"github.com/textwire/textwire/evaluator"
-	"github.com/textwire/textwire/fail"
-	"github.com/textwire/textwire/object"
+	"github.com/textwire/textwire/v2/config"
+	"github.com/textwire/textwire/v2/evaluator"
+	"github.com/textwire/textwire/v2/fail"
+	"github.com/textwire/textwire/v2/object"
 )
 
-var config = &Config{
-	TemplateDir: "templates",
-	TemplateExt: ".tw.html",
-}
+var conf = config.New("templates", ".tw.html")
+var customFunc = config.NewFunc()
 
-// Config is the main configuration for Textwire
-type Config struct {
-	// TemplateDir is the directory where the Textwire
-	// templates are located. Default is "templates"
-	TemplateDir string
+// usesTemplates is a flag to check if user uses Textwire templates or not
+var usesTemplates = false
 
-	// TemplateExt is the extension of the Textwire
-	// template files. Default is ".tw.html"
-	// If you use a different extension other then ".tw.html",
-	// you will loose syntax highlighting in VSCode editor
-	// if you use the Textwire extension
-	TemplateExt string
-
-	// configApplied is a flag to check if the configuration
-	// are set or not
-	configApplied bool
-}
-
-func NewTemplate(c *Config) (*Template, error) {
-	applyConfig(c)
+func NewTemplate(opt *config.Config) (*Template, error) {
+	applyOptions(opt)
 
 	paths, err := findTextwireFiles()
 
@@ -48,7 +32,7 @@ func NewTemplate(c *Config) (*Template, error) {
 }
 
 func EvaluateString(inp string, data map[string]interface{}) (string, error) {
-	config.configApplied = false
+	usesTemplates = false
 
 	prog, errs := parseStr(inp)
 
@@ -62,7 +46,7 @@ func EvaluateString(inp string, data map[string]interface{}) (string, error) {
 		return "", err.Error()
 	}
 
-	ctx := evaluator.NewContext("")
+	ctx := evaluator.NewContext("", customFunc)
 	eval := evaluator.New(ctx)
 
 	evaluated := eval.Eval(prog, env)
@@ -75,7 +59,7 @@ func EvaluateString(inp string, data map[string]interface{}) (string, error) {
 }
 
 func EvaluateFile(absPath string, data map[string]interface{}) (string, error) {
-	config.configApplied = false
+	usesTemplates = false
 
 	_, err := fileContent(absPath)
 
@@ -90,4 +74,54 @@ func EvaluateFile(absPath string, data map[string]interface{}) (string, error) {
 	}
 
 	return result, nil
+}
+
+func RegisterStrFunc(name string, fn config.StrCustomFunc) error {
+	if _, ok := customFunc.Str[name]; ok {
+		return fail.New(0, "", "API", fail.ErrFuncAlreadyDefined, name, "strings").Error()
+	}
+
+	customFunc.Str[name] = fn
+
+	return nil
+}
+
+func RegisterArrFunc(name string, fn config.ArrayCustomFunc) error {
+	if _, ok := customFunc.Arr[name]; ok {
+		return fail.New(0, "", "API", fail.ErrFuncAlreadyDefined, name, "arrays").Error()
+	}
+
+	customFunc.Arr[name] = fn
+
+	return nil
+}
+
+func RegisterIntFunc(name string, fn config.IntCustomFunc) error {
+	if _, ok := customFunc.Int[name]; ok {
+		return fail.New(0, "", "API", fail.ErrFuncAlreadyDefined, name, "integers").Error()
+	}
+
+	customFunc.Int[name] = fn
+
+	return nil
+}
+
+func RegisterFloatFunc(name string, fn config.FloatCustomFunc) error {
+	if _, ok := customFunc.Float[name]; ok {
+		return fail.New(0, "", "API", fail.ErrFuncAlreadyDefined, name, "floats").Error()
+	}
+
+	customFunc.Float[name] = fn
+
+	return nil
+}
+
+func RegisterBoolFunc(name string, fn config.BoolCustomFunc) error {
+	if _, ok := customFunc.Bool[name]; ok {
+		return fail.New(0, "", "API", fail.ErrFuncAlreadyDefined, name, "booleans").Error()
+	}
+
+	customFunc.Bool[name] = fn
+
+	return nil
 }

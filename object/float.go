@@ -23,6 +23,10 @@ func (f *Float) String() string {
 	return fmt.Sprintf("%g", f.Value)
 }
 
+func (f *Float) Val() interface{} {
+	return f.Value
+}
+
 func (f *Float) SubtractFromFloat(num uint) error {
 	// Convert the float to a string
 	strValue := strconv.FormatFloat(f.Value, 'f', -1, 64)

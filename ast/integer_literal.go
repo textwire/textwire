@@ -1,6 +1,6 @@
 package ast
 
-import "github.com/textwire/textwire/token"
+import "github.com/textwire/textwire/v2/token"
 
 type IntegerLiteral struct {
 	Token token.Token

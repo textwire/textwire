@@ -18,6 +18,10 @@ func (r *Reserve) String() string {
 	return r.Content.String()
 }
 
+func (r *Reserve) Val() interface{} {
+	return r.Content.Val()
+}
+
 func (r *Reserve) Is(t ObjectType) bool {
 	return t == r.Type()
 }

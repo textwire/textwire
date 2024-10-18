@@ -17,6 +17,10 @@ func (s *Slot) String() string {
 	return s.Content.String()
 }
 
+func (s *Slot) Val() interface{} {
+	return s.Content.Val()
+}
+
 func (s *Slot) Is(t ObjectType) bool {
 	return t == s.Type()
 }

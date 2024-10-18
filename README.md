@@ -15,7 +15,7 @@ Textwire is a simple yet powerful templating language for Go. It is designed to 
 ## Installation
 
 ```bash
-go get github.com/textwire/textwire
+go get github.com/textwire/textwire/v2
 ```
 
 ## VSCode Extension

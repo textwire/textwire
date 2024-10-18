@@ -5,8 +5,8 @@ import (
 	"os"
 	"testing"
 
-	"github.com/textwire/textwire/fail"
-	"github.com/textwire/textwire/object"
+	fail "github.com/textwire/textwire/v2/fail"
+	object "github.com/textwire/textwire/v2/object"
 )
 
 func readFile(fileName string) (string, error) {
@@ -41,16 +41,16 @@ func TestEvaluateString(t *testing.T) {
 		}{Name: struct{ FirstName string }{"Ann"}, Age: 20}}},
 	}
 
-	for _, tt := range tests {
-		actual, err := EvaluateString(tt.inp, tt.data)
+	for _, tc := range tests {
+		actual, err := EvaluateString(tc.inp, tc.data)
 
 		if err != nil {
 			t.Errorf("error evaluating template: %s", err)
 		}
 
-		if actual != tt.expect {
+		if actual != tc.expect {
 			t.Errorf("wrong result. EXPECTED:\n\"%s\"\nGOT:\n\"%s\"",
-				tt.expect, actual)
+				tc.expect, actual)
 		}
 	}
 }
@@ -69,17 +69,17 @@ func TestErrorHandlingEvaluatingString(t *testing.T) {
 		{`{{ obj = {}; obj.name }}`, fail.New(1, "", "evaluator", fail.ErrPropertyNotFound, "name", object.OBJ_OBJ), nil},
 	}
 
-	for _, tt := range tests {
-		_, err := EvaluateString(tt.inp, tt.data)
+	for _, tc := range tests {
+		_, err := EvaluateString(tc.inp, tc.data)
 
 		if err == nil {
 			t.Errorf("expected error but got none")
 			return
 		}
 
-		if err.Error() != tt.err.String() {
+		if err.Error() != tc.err.String() {
 			t.Errorf("wrong error message. EXPECTED:\n%q\nGOT:\n%q",
-				tt.err, err)
+				tc.err, err)
 		}
 	}
 }
@@ -97,4 +97,157 @@ func TestEvaluateFile(t *testing.T) {
 	if err != nil {
 		t.Errorf("error evaluating file:\n%s", err)
 	}
+}
+
+func TestCustomFunctions(t *testing.T) {
+	t.Run("register for integer receiver", func(t *testing.T) {
+		err := RegisterIntFunc("double", func(num int, args ...interface{}) int {
+			return num * 2
+		})
+
+		if err != nil {
+			t.Fatalf("error registering function: %s", err)
+		}
+
+		actual, err := EvaluateString("{{ 3.double() }}", nil)
+
+		if err != nil {
+			t.Fatalf("error evaluating template: %s", err)
+		}
+
+		if actual != "6" {
+			t.Errorf("wrong result. EXPECTED: '6' GOT: '%s'", actual)
+		}
+	})
+
+	t.Run("register for float receiver", func(t *testing.T) {
+		err := RegisterFloatFunc("double", func(num float64, args ...interface{}) float64 {
+			return num * 2
+		})
+
+		if err != nil {
+			t.Fatalf("error registering function: %s", err)
+		}
+
+		actual, err := EvaluateString("{{ 3.5.double() }}", nil)
+
+		if err != nil {
+			t.Fatalf("error evaluating template: %s", err)
+		}
+
+		if actual != "7.0" {
+			t.Fatalf("wrong result. EXPECTED: '7.0' GOT: '%s'", actual)
+		}
+	})
+
+	t.Run("register for array receiver", func(t *testing.T) {
+		err := RegisterArrFunc("addNumber", func(arr []interface{}, args ...interface{}) []interface{} {
+			firstArg := args[0].(int64)
+			arr = append(arr, firstArg)
+			return arr
+		})
+
+		if err != nil {
+			t.Fatalf("error registering function: %s", err)
+		}
+
+		actual, err := EvaluateString("{{ [1, 2].addNumber(3) }}", nil)
+
+		if err != nil {
+			t.Fatalf("error evaluating template: %s", err)
+		}
+
+		if actual != "1, 2, 3" {
+			t.Fatalf("wrong result. EXPECTED: '1, 2, 3' GOT: '%s'", actual)
+		}
+	})
+
+	t.Run("register for boolean receiver", func(t *testing.T) {
+		err := RegisterBoolFunc("negate", func(b bool, args ...interface{}) bool {
+			return !b
+		})
+
+		if err != nil {
+			t.Fatalf("error registering function: %s", err)
+		}
+
+		actual, err := EvaluateString("{{ true.negate() }}", nil)
+
+		if err != nil {
+			t.Fatalf("error evaluating template: %s", err)
+		}
+
+		if actual != "0" {
+			t.Fatalf("wrong result. EXPECTED: '0' GOT '%s'", actual)
+		}
+	})
+
+	t.Run("register for string receiver", func(t *testing.T) {
+		err := RegisterStrFunc("concat", func(s string, args ...interface{}) string {
+			arg1Value := args[0].(string)
+			arg2Value := args[1].(string)
+
+			return s + arg1Value + arg2Value
+		})
+
+		if err != nil {
+			t.Fatalf("error registering function: %s", err)
+		}
+
+		actual, err := EvaluateString("{{ 'anna'.concat(' ', 'cho') }}", nil)
+
+		if err != nil {
+			t.Fatalf("error evaluating template: %s", err)
+		}
+
+		if actual != "anna cho" {
+			t.Fatalf("wrong result. EXPECTED: 'anna cho' GOT: '%s'", actual)
+		}
+	})
+
+	t.Run("registering already registered function", func(t *testing.T) {
+		err := RegisterStrFunc("len", func(s string, args ...interface{}) string {
+			return "some output"
+		})
+
+		if err != nil {
+			t.Fatalf("error registering function: %s", err)
+		}
+
+		// Registering the same function again should return an error
+		err = RegisterStrFunc("len", func(s string, args ...interface{}) string {
+			return "some output"
+		})
+
+		if err == nil {
+			t.Fatalf("expected error but got none")
+		}
+
+		expect := fail.New(0, "", "API", fail.ErrFuncAlreadyDefined, "len", "strings")
+
+		if err.Error() != expect.Error().Error() {
+			t.Fatalf("wrong error message. EXPECTED: %q GOT: %q", expect, err)
+		}
+	})
+
+	t.Run("redefining built-in function not working", func(t *testing.T) {
+		err := RegisterStrFunc("trim", func(s string, args ...interface{}) string {
+			return "some output"
+		})
+
+		if err != nil {
+			t.Fatalf("error registering function: %s", err)
+		}
+
+		actual, err := EvaluateString("{{ ' anna '.trim() }}", nil)
+
+		if err != nil {
+			t.Fatalf("error registering function: %s", err)
+		}
+
+		// the output should be the same as the built-in function even though we redefined it
+		if actual != "anna" {
+			t.Fatalf("wrong output. EXPECTED: 'anna' GOT: '%s'", actual)
+		}
+	})
 }

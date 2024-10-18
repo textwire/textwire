@@ -4,7 +4,7 @@ import (
 	"reflect"
 )
 
-func nativeToObject(val interface{}) Object {
+func NativeToObject(val interface{}) Object {
 	switch v := val.(type) {
 	case string:
 		return &Str{Value: v}
@@ -48,8 +48,8 @@ func nativeToObject(val interface{}) Object {
 	case reflect.Map:
 		return nativeMapToObject(val)
 	case reflect.Pointer:
-		// use nativeToObject recursively to handle pointers
-		return nativeToObject(reflect.ValueOf(val).Elem().Interface())
+		// NativeToObject is used recursively to handle pointers
+		return NativeToObject(reflect.ValueOf(val).Elem().Interface())
 	}
 
 	return nil
@@ -61,7 +61,7 @@ func nativeMapToObject(val interface{}) Object {
 	valValue := reflect.ValueOf(val)
 
 	for _, key := range valValue.MapKeys() {
-		obj.Pairs[key.String()] = nativeToObject(valValue.MapIndex(key).Interface())
+		obj.Pairs[key.String()] = NativeToObject(valValue.MapIndex(key).Interface())
 	}
 
 	return obj
@@ -97,7 +97,7 @@ func nativeStructToObject(val interface{}) Object {
 
 		fieldVal := reflect.ValueOf(val).Field(i).Interface()
 
-		obj.Pairs[field.Name] = nativeToObject(fieldVal)
+		obj.Pairs[field.Name] = NativeToObject(fieldVal)
 	}
 
 	return obj
@@ -107,7 +107,7 @@ func nativeSliceToArrayObject(slice []interface{}) *Array {
 	arr := &Array{}
 
 	for _, val := range slice {
-		arr.Elements = append(arr.Elements, nativeToObject(val))
+		arr.Elements = append(arr.Elements, NativeToObject(val))
 	}
 
 	return arr

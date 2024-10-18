@@ -1,6 +1,6 @@
 package object
 
-import "github.com/textwire/textwire/fail"
+import "github.com/textwire/textwire/v2/fail"
 
 type Error struct {
 	Err *fail.Error
@@ -11,6 +11,10 @@ func (e *Error) Type() ObjectType {
 }
 
 func (e *Error) String() string {
+	return e.Err.String()
+}
+
+func (e *Error) Val() interface{} {
 	return e.Err.String()
 }
 

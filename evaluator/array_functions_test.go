@@ -16,7 +16,7 @@ func TestEvalArrayFunctions(t *testing.T) {
 		{`{{ [].join() }}`, ""},
 	}
 
-	for _, tt := range tests {
-		evaluationExpected(t, tt.inp, tt.expected)
+	for _, tc := range tests {
+		evaluationExpected(t, tc.inp, tc.expected)
 	}
 }

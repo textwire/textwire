@@ -10,6 +10,10 @@ func (n *Nil) String() string {
 	return ""
 }
 
+func (n *Nil) Val() interface{} {
+	return nil
+}
+
 func (n *Nil) Is(t ObjectType) bool {
 	return t == n.Type()
 }

@@ -1,8 +1,6 @@
 package ast
 
-import (
-	"github.com/textwire/textwire/token"
-)
+import "github.com/textwire/textwire/v2/token"
 
 type ContinueIfStmt struct {
 	Token     token.Token // The '@continueIf' token

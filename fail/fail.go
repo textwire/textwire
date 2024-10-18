@@ -1,6 +1,7 @@
 package fail
 
 import (
+	"errors"
 	"fmt"
 	"log"
 )
@@ -44,6 +45,10 @@ const (
 	ErrUnsupportedType   = "unsupported type '%T'"
 	ErrTemplateNotFound  = "template not found"
 	ErrUseStmtNotAllowed = "the 'use' statement is not allowed in a layout file. It will cause infinite recursion"
+
+	// API errors
+	ErrFuncAlreadyDefined        = "custom function '%s' already defined for '%s'"
+	ErrCannotOverrideBuiltInFunc = "cannot override built-in function '%s' for '%s'"
 
 	NoErrorsFound = "there are no Textwire errors"
 )
@@ -108,7 +113,7 @@ func (e *Error) PrintOnError() {
 }
 
 func (e *Error) Error() error {
-	return fmt.Errorf(e.String())
+	return errors.New(e.String())
 }
 
 func FromError(err error, line uint, absPath, origin string, args ...interface{}) *Error {

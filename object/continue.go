@@ -10,6 +10,10 @@ func (c *Continue) String() string {
 	return ""
 }
 
+func (c *Continue) Val() interface{} {
+	return nil
+}
+
 func (c *Continue) Is(t ObjectType) bool {
 	return t == c.Type()
 }

@@ -24,6 +24,16 @@ func (a *Array) String() string {
 	return out.String()
 }
 
+func (a *Array) Val() interface{} {
+	var result []interface{}
+
+	for _, elem := range a.Elements {
+		result = append(result, elem.Val())
+	}
+
+	return result
+}
+
 func (a *Array) Is(t ObjectType) bool {
 	return t == a.Type()
 }

@@ -4,7 +4,7 @@ import (
 	"html"
 	"strings"
 
-	"github.com/textwire/textwire/object"
+	"github.com/textwire/textwire/v2/object"
 )
 
 // strLenFunc returns the length of the given string

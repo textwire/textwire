@@ -5,9 +5,9 @@ import (
 	"html"
 	"strings"
 
-	"github.com/textwire/textwire/ast"
-	"github.com/textwire/textwire/fail"
-	"github.com/textwire/textwire/object"
+	"github.com/textwire/textwire/v2/ast"
+	"github.com/textwire/textwire/v2/fail"
+	"github.com/textwire/textwire/v2/object"
 )
 
 var (
@@ -677,11 +677,13 @@ func (e *Evaluator) evalCallExp(
 		return receiverObj
 	}
 
-	typeFuncs, ok := functions[receiverObj.Type()]
+	receiverType := receiverObj.Type()
+	funcName := node.Function.Value
+
+	typeFuncs, ok := functions[receiverType]
 
 	if !ok {
-		return e.newError(node, fail.ErrNoFuncForThisType,
-			node.Function.Value, receiverObj.Type())
+		return e.newError(node, fail.ErrNoFuncForThisType, funcName, receiverType)
 	}
 
 	args := e.evalExpressions(node.Arguments, env)
@@ -690,11 +692,51 @@ func (e *Evaluator) evalCallExp(
 		return args[0]
 	}
 
-	if buitin, ok := typeFuncs[node.Function.Value]; ok {
+	buitin, ok := typeFuncs[node.Function.Value]
+
+	if ok {
 		return buitin.Fn(receiverObj, args...)
 	}
 
+	if hasCustomFunc(e.ctx.customFunc, receiverType) {
+		nativeArgs := e.objectsToNativeType(args)
+
+		switch receiverType {
+		case object.STR_OBJ:
+			fun := e.ctx.customFunc.Str[funcName]
+			res := fun(receiverObj.String(), nativeArgs...)
+			return object.NativeToObject(res)
+		case object.ARR_OBJ:
+			fun := e.ctx.customFunc.Arr[funcName]
+			nativeElems := e.objectsToNativeType(receiverObj.(*object.Array).Elements)
+			res := fun(nativeElems, nativeArgs...)
+			return object.NativeToObject(res)
+		case object.INT_OBJ:
+			fun := e.ctx.customFunc.Int[funcName]
+			res := fun(int(receiverObj.(*object.Int).Value), nativeArgs...)
+			return object.NativeToObject(res)
+		case object.FLOAT_OBJ:
+			fun := e.ctx.customFunc.Float[funcName]
+			res := fun(receiverObj.(*object.Float).Value, nativeArgs...)
+			return object.NativeToObject(res)
+		case object.BOOL_OBJ:
+			fun := e.ctx.customFunc.Bool[funcName]
+			res := fun(receiverObj.(*object.Bool).Value, nativeArgs...)
+			return object.NativeToObject(res)
+		}
+	}
+
 	return e.newError(node, fail.ErrNoFuncForThisType, node.Function.Value, receiverObj.Type())
+}
+
+func (e *Evaluator) objectsToNativeType(args []object.Object) []interface{} {
+	var result []interface{}
+
+	for _, arg := range args {
+		result = append(result, arg.Val())
+	}
+
+	return result
 }
 
 func (e *Evaluator) evalPostfixOperatorExp(

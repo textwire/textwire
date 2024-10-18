@@ -1,6 +1,6 @@
 package evaluator
 
-import "github.com/textwire/textwire/object"
+import "github.com/textwire/textwire/v2/object"
 
 // arrayLenFunc returns the length of the given array
 func arrayLenFunc(receiver object.Object, args ...object.Object) object.Object {

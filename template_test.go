@@ -4,7 +4,8 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/textwire/textwire/fail"
+	"github.com/textwire/textwire/v2/config"
+	"github.com/textwire/textwire/v2/fail"
 )
 
 func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
@@ -68,27 +69,27 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 		},
 	}
 
-	for _, tt := range tests {
-		tpl, tplErr := NewTemplate(&Config{
-			TemplateDir: "testdata/bad/" + tt.dirName,
+	for _, tc := range tests {
+		tpl, tplErr := NewTemplate(&config.Config{
+			TemplateDir: "testdata/bad/" + tc.dirName,
 		})
 
 		if tplErr != nil {
-			if tplErr.Error() != tt.err.String() {
-				t.Errorf("wrong error message. EXPECTED:\n\"%s\"\nGOT:\n\"%s\"", tt.err, tplErr)
+			if tplErr.Error() != tc.err.String() {
+				t.Errorf("wrong error message. EXPECTED:\n\"%s\"\nGOT:\n\"%s\"", tc.err, tplErr)
 			}
 			return
 		}
 
-		_, err := tpl.String("index", tt.data)
+		_, err := tpl.String("index", tc.data)
 
 		if err == nil {
 			t.Errorf("expected error but got none")
 			return
 		}
 
-		if err.String() != tt.err.String() {
-			t.Errorf("wrong error message. EXPECTED:\n\"%s\"\nGOT:\n\"%s\"", tt.err, err)
+		if err.String() != tc.err.String() {
+			t.Errorf("wrong error message. EXPECTED:\n\"%s\"\nGOT:\n\"%s\"", tc.err, err)
 		}
 	}
 }
@@ -119,7 +120,7 @@ func TestFiles(t *testing.T) {
 		{"10.with-component-and-slots", nil},
 	}
 
-	tpl, err := NewTemplate(&Config{
+	tpl, err := NewTemplate(&config.Config{
 		TemplateDir: "testdata/good/before",
 	})
 
@@ -128,15 +129,15 @@ func TestFiles(t *testing.T) {
 		return
 	}
 
-	for _, tt := range tests {
-		actual, evalErr := tpl.String(tt.fileName, tt.data)
+	for _, tc := range tests {
+		actual, evalErr := tpl.String(tc.fileName, tc.data)
 
 		if evalErr != nil {
 			t.Errorf("error evaluating template: %s", evalErr)
 			return
 		}
 
-		expected, err := readFile("testdata/good/expected/" + tt.fileName + ".html")
+		expected, err := readFile("testdata/good/expected/" + tc.fileName + ".html")
 
 		if err != nil {
 			t.Errorf("error reading expected file: %s", err)
@@ -147,5 +148,48 @@ func TestFiles(t *testing.T) {
 			t.Errorf("wrong result. EXPECTED:\n\"%s\"\nGOT:\n\"%s\"",
 				expected, actual)
 		}
+	}
+}
+
+func TestRegisteringCustomFunction(t *testing.T) {
+	fileName, err := getFullPath("", false)
+	fileName += "/testdata/good/12.with-custom-function"
+
+	if err != nil {
+		t.Errorf("unexpected error: %s", err)
+		return
+	}
+
+	tpl, tplErr := NewTemplate(&config.Config{
+		TemplateDir: "testdata/good/before/",
+	})
+
+	RegisterStrFunc("secondLetterUppercase", func(s string, args ...interface{}) string {
+		if len(s) < 2 {
+			return s
+		}
+
+		return string(s[0]) + string(s[1]-32) + s[2:]
+	})
+
+	if tplErr != nil {
+		t.Fatalf("unexpected error: %s", tplErr)
+	}
+
+	expected, err := readFile("testdata/good/expected/12.with-custom-function.html")
+
+	if err != nil {
+		t.Errorf("error reading expected file: %s", err)
+		return
+	}
+
+	actual, evalErr := tpl.String("12.with-custom-function", nil)
+
+	if evalErr != nil {
+		t.Fatalf("error evaluating template: %s", evalErr)
+	}
+
+	if actual != expected {
+		t.Errorf("wrong result. EXPECTED: '%s' GOT: '%s'", expected, actual)
 	}
 }
