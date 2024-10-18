@@ -8,7 +8,9 @@
 
 ## v2.0.0 (2024-10-18)
 ### Breaking changes
-- ✨ Added the ability to register your own custom functions for specific types and use them in your Textwire code like built-in functions. If you are upgrading from version 1, change `textwire.Config`
+- ✨ Added the ability to register your own custom functions for specific types and use them in your Textwire code like built-in functions. If you are upgrading from version 1, make these changes:
+    1. Change all the imports from `github.com/textwire/textwire` to `github.com/textwire/textwire/v2`
+    1. Change the package name from `textwire.Config` to `config.Config` in your code if you use configuration
 
 ## v1.7.1 (2024-09-08)
 - 🧑‍💻 Improve error handling for component slots. When you pass a slot that isn't defined, you'll get an error
