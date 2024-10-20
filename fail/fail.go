@@ -41,6 +41,11 @@ const (
 	ErrDotOperatorNotSupported = "the dot operator is not supported for type '%s'"
 	ErrPropertyNotFound        = "property '%s' not found in type '%s'"
 
+	// Functions
+	ErrFuncRequiresOneArg = "function '%s' requires at least one argument"
+	ErrFuncFirstArgInt    = "the first argument for function '%s' must be an integer"
+	ErrFuncSecondArgInt   = "the second argument for function '%s' must be an integer"
+
 	// Template errors
 	ErrUnsupportedType   = "unsupported type '%T'"
 	ErrTemplateNotFound  = "template not found"
@@ -59,7 +64,7 @@ type Error struct {
 	message  string
 	line     uint
 	filepath string
-	origin   string // "parser" | "evaluator" | "template"
+	origin   string // "parser" | "evaluator" | "template" | "API"
 }
 
 // New creates a new Error instance of Error

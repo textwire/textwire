@@ -1,6 +1,10 @@
 package evaluator
 
 import (
+	"errors"
+	"fmt"
+
+	"github.com/textwire/textwire/v2/fail"
 	"github.com/textwire/textwire/v2/object"
 )
 
@@ -62,4 +66,41 @@ func arrayReverseFunc(receiver object.Object, args ...object.Object) (object.Obj
 	}
 
 	return &object.Array{Elements: reversed}, nil
+}
+
+// arraySliceFunc returns a slice of the given array
+func arraySliceFunc(receiver object.Object, args ...object.Object) (object.Object, error) {
+	arr := receiver.(*object.Array)
+
+	argsLen := len(args)
+	elemsLen := len(arr.Elements)
+
+	if argsLen < 1 {
+		msg := fmt.Sprintf(fail.ErrFuncRequiresOneArg, "slice")
+		return nil, errors.New(msg)
+	}
+
+	startFrom, ok := args[0].(*object.Int)
+
+	if !ok {
+		msg := fmt.Sprintf(fail.ErrFuncFirstArgInt, "slice")
+		return nil, errors.New(msg)
+	}
+
+	start := int(startFrom.Value)
+
+	if start < 0 {
+		start = 0
+	}
+
+	if start > elemsLen {
+		start = elemsLen
+	}
+
+	if argsLen == 1 {
+		newArr := arr.Elements[start:]
+		return &object.Array{Elements: newArr}, nil
+	}
+
+	return nil, nil
 }
