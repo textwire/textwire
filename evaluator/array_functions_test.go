@@ -38,6 +38,9 @@ func TestEvalArrayFunctions(t *testing.T) {
 		{`{{ [1, 2, 3].slice(-34) }}`, "1, 2, 3"}, // should change -35 to 0
 		{`{{ [0, 1, 2, 3].slice(2) }}`, "2, 3"},
 		{`{{ [0, 1, 2, 3].slice(5) }}`, ""},
+		{`{{ [0, 1, 2, 3].slice(1, 3) }}`, "1, 2"},
+		{`{{ ['one', 'two', 'three', "four"].slice(1, 2) }}`, "two"},
+		{`{{ ['one', 'two', 'three', "four"].slice(0, -3) }}`, ""},
 	}
 
 	for _, tc := range tests {

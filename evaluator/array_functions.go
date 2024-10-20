@@ -98,9 +98,25 @@ func arraySliceFunc(receiver object.Object, args ...object.Object) (object.Objec
 	}
 
 	if argsLen == 1 {
-		newArr := arr.Elements[start:]
-		return &object.Array{Elements: newArr}, nil
+		return &object.Array{Elements: arr.Elements[start:]}, nil
 	}
 
-	return nil, nil
+	endAt, ok := args[1].(*object.Int)
+
+	if !ok {
+		msg := fmt.Sprintf(fail.ErrFuncSecondArgInt, "slice")
+		return nil, errors.New(msg)
+	}
+
+	end := int(endAt.Value)
+
+	if end < 0 {
+		end = 0
+	}
+
+	if end > elemsLen {
+		end = elemsLen
+	}
+
+	return &object.Array{Elements: arr.Elements[start:end]}, nil
 }

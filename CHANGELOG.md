@@ -6,8 +6,12 @@
 * ♻️ - Refactoring code
 * 📝 - Adding or updating documentation
 
+## v2.1.0 (2024-10-20)
+- 📝 Remove `CONTRIBUTING.md` file
+- ✨ For array literals, added functions: `rand`, `reverse`, `slice`
+
 ## v2.0.0 (2024-10-18)
-### Breaking changes
+- ♻️ [BREAKING CHANGE!] Moved `textwire.Config` to a separate package `config.Config`
 - ✨ Added the ability to register your own custom functions for specific types and use them in your Textwire code like built-in functions. If you are upgrading from version 1, make these changes:
     1. Change all the imports from `github.com/textwire/textwire` to `github.com/textwire/textwire/v2`
     2. Run `go mod tidy` to update the dependencies
