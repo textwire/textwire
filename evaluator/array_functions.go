@@ -42,3 +42,20 @@ func arrayRandFunc(receiver object.Object, args ...object.Object) object.Object 
 
 	return elements[0]
 }
+
+func arrayReverseFunc(receiver object.Object, args ...object.Object) object.Object {
+	elements := receiver.(*object.Array).Elements
+	length := len(elements)
+
+	if length == 0 {
+		return receiver
+	}
+
+	reversed := make([]object.Object, length)
+
+	for i, el := range elements {
+		reversed[length-i-1] = el
+	}
+
+	return &object.Array{Elements: reversed}
+}

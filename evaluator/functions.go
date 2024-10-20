@@ -14,9 +14,10 @@ var functions = map[object.ObjectType]map[string]*object.Builtin{
 		"lower": {Fn: strLowerFunc},
 	},
 	object.ARR_OBJ: {
-		"len":  {Fn: arrayLenFunc},
-		"join": {Fn: arrayJoinFunc},
-		"rand": {Fn: arrayRandFunc},
+		"len":     {Fn: arrayLenFunc},
+		"join":    {Fn: arrayJoinFunc},
+		"rand":    {Fn: arrayRandFunc},
+		"reverse": {Fn: arrayReverseFunc},
 	},
 	object.FLOAT_OBJ: {
 		"int": {Fn: floatIntFunc},
