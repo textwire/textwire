@@ -14,6 +14,10 @@ func TestEvalArrayFunctions(t *testing.T) {
 		{`{{ ["one", "two", "three"].join(" ") }}`, "one two three"},
 		{`{{ ["one", "two", "three"].join() }}`, "one,two,three"},
 		{`{{ [].join() }}`, ""},
+		{`{{ [].rand() }}`, ""},
+		{`{{ [1].rand() }}`, "1"},
+		{`{{ ["some"].rand() }}`, "some"},
+		{`{{ [[[4]]].rand().rand().rand() }}`, "4"},
 	}
 
 	for _, tc := range tests {

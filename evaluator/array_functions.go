@@ -31,3 +31,14 @@ func arrayJoinFunc(receiver object.Object, args ...object.Object) object.Object 
 
 	return &object.Str{Value: result}
 }
+
+func arrayRandFunc(receiver object.Object, args ...object.Object) object.Object {
+	elements := receiver.(*object.Array).Elements
+	length := len(elements)
+
+	if length == 0 {
+		return &object.Nil{}
+	}
+
+	return elements[0]
+}

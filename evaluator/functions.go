@@ -16,6 +16,7 @@ var functions = map[object.ObjectType]map[string]*object.Builtin{
 	object.ARR_OBJ: {
 		"len":  {Fn: arrayLenFunc},
 		"join": {Fn: arrayJoinFunc},
+		"rand": {Fn: arrayRandFunc},
 	},
 	object.FLOAT_OBJ: {
 		"int": {Fn: floatIntFunc},
