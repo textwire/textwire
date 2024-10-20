@@ -695,7 +695,13 @@ func (e *Evaluator) evalCallExp(
 	buitin, ok := typeFuncs[node.Function.Value]
 
 	if ok {
-		return buitin.Fn(receiverObj, args...)
+		res, err := buitin.Fn(receiverObj, args...)
+
+		if err != nil {
+			return e.newError(node, err.Error())
+		}
+
+		return res
 	}
 
 	if hasCustomFunc(e.ctx.customFunc, receiverType) {

@@ -1,6 +1,6 @@
 package object
 
-type BuiltinFunction func(receiver Object, args ...Object) Object
+type BuiltinFunction func(receiver Object, args ...Object) (Object, error)
 
 type Builtin struct {
 	Fn BuiltinFunction

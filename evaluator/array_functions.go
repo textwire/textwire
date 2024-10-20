@@ -1,15 +1,17 @@
 package evaluator
 
-import "github.com/textwire/textwire/v2/object"
+import (
+	"github.com/textwire/textwire/v2/object"
+)
 
 // arrayLenFunc returns the length of the given array
-func arrayLenFunc(receiver object.Object, args ...object.Object) object.Object {
+func arrayLenFunc(receiver object.Object, args ...object.Object) (object.Object, error) {
 	length := len(receiver.(*object.Array).Elements)
-	return &object.Int{Value: int64(length)}
+	return &object.Int{Value: int64(length)}, nil
 }
 
 // arrayJoinFunc joins the elements of the given array with the given separator
-func arrayJoinFunc(receiver object.Object, args ...object.Object) object.Object {
+func arrayJoinFunc(receiver object.Object, args ...object.Object) (object.Object, error) {
 	var separator string
 
 	if len(args) == 0 {
@@ -29,26 +31,28 @@ func arrayJoinFunc(receiver object.Object, args ...object.Object) object.Object 
 		result += el.String()
 	}
 
-	return &object.Str{Value: result}
+	return &object.Str{Value: result}, nil
 }
 
-func arrayRandFunc(receiver object.Object, args ...object.Object) object.Object {
+// arrayRandFunc returns a random element from the given array
+func arrayRandFunc(receiver object.Object, args ...object.Object) (object.Object, error) {
 	elements := receiver.(*object.Array).Elements
 	length := len(elements)
 
 	if length == 0 {
-		return &object.Nil{}
+		return &object.Nil{}, nil
 	}
 
-	return elements[0]
+	return elements[0], nil
 }
 
-func arrayReverseFunc(receiver object.Object, args ...object.Object) object.Object {
+// arrayReverseFunc reverses the elements of the given array
+func arrayReverseFunc(receiver object.Object, args ...object.Object) (object.Object, error) {
 	elements := receiver.(*object.Array).Elements
 	length := len(elements)
 
 	if length == 0 {
-		return receiver
+		return receiver, nil
 	}
 
 	reversed := make([]object.Object, length)
@@ -57,5 +61,5 @@ func arrayReverseFunc(receiver object.Object, args ...object.Object) object.Obje
 		reversed[length-i-1] = el
 	}
 
-	return &object.Array{Elements: reversed}
+	return &object.Array{Elements: reversed}, nil
 }

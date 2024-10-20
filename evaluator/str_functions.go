@@ -8,13 +8,13 @@ import (
 )
 
 // strLenFunc returns the length of the given string
-func strLenFunc(receiver object.Object, _ ...object.Object) object.Object {
+func strLenFunc(receiver object.Object, _ ...object.Object) (object.Object, error) {
 	str := receiver.(*object.Str).Value
-	return &object.Int{Value: int64(len(str))}
+	return &object.Int{Value: int64(len(str))}, nil
 }
 
 // strSplitFunc returns a list of strings split by the given separator
-func strSplitFunc(receiver object.Object, args ...object.Object) object.Object {
+func strSplitFunc(receiver object.Object, args ...object.Object) (object.Object, error) {
 	separator := " "
 
 	if len(args) > 0 && args[0].Type() == object.STR_OBJ {
@@ -30,17 +30,17 @@ func strSplitFunc(receiver object.Object, args ...object.Object) object.Object {
 		elems = append(elems, &object.Str{Value: val})
 	}
 
-	return &object.Array{Elements: elems}
+	return &object.Array{Elements: elems}, nil
 }
 
 // strRawFunc prevents escaping HTML tags in a string
-func strRawFunc(receiver object.Object, _ ...object.Object) object.Object {
+func strRawFunc(receiver object.Object, _ ...object.Object) (object.Object, error) {
 	str := receiver.(*object.Str)
-	return &object.Str{Value: html.UnescapeString(str.Value)}
+	return &object.Str{Value: html.UnescapeString(str.Value)}, nil
 }
 
 // strTrimFunc returns a string with leading and trailing whitespace removed
-func strTrimFunc(receiver object.Object, args ...object.Object) object.Object {
+func strTrimFunc(receiver object.Object, args ...object.Object) (object.Object, error) {
 	chars := "\t \n\r"
 
 	if len(args) > 0 && args[0].Type() == object.STR_OBJ {
@@ -49,17 +49,17 @@ func strTrimFunc(receiver object.Object, args ...object.Object) object.Object {
 
 	str := receiver.(*object.Str).Value
 
-	return &object.Str{Value: strings.Trim(str, chars)}
+	return &object.Str{Value: strings.Trim(str, chars)}, nil
 }
 
 // strUpperFunc returns a string with all characters in uppercase
-func strUpperFunc(receiver object.Object, _ ...object.Object) object.Object {
+func strUpperFunc(receiver object.Object, _ ...object.Object) (object.Object, error) {
 	str := receiver.(*object.Str)
-	return &object.Str{Value: strings.ToUpper(str.Value)}
+	return &object.Str{Value: strings.ToUpper(str.Value)}, nil
 }
 
 // strLowerFunc returns a string with all characters in lowercase
-func strLowerFunc(receiver object.Object, _ ...object.Object) object.Object {
+func strLowerFunc(receiver object.Object, _ ...object.Object) (object.Object, error) {
 	str := receiver.(*object.Str)
-	return &object.Str{Value: strings.ToLower(str.Value)}
+	return &object.Str{Value: strings.ToLower(str.Value)}, nil
 }
