@@ -32,6 +32,18 @@ func TestFunctionGivesError(t *testing.T) {
 		{`{{ [1, 2].join([]) }}`, fail.ErrFuncFirstArgStr, "join"},
 		{`{{ [1, 2].join(3.0) }}`, fail.ErrFuncFirstArgStr, "join"},
 		{`{{ [1, 2].join(nil) }}`, fail.ErrFuncFirstArgStr, "join"},
+		// split function
+		{`{{ "nice".split(1) }}`, fail.ErrFuncFirstArgStr, "split"},
+		{`{{ "nice".split({}) }}`, fail.ErrFuncFirstArgStr, "split"},
+		{`{{ "nice".split([]) }}`, fail.ErrFuncFirstArgStr, "split"},
+		{`{{ "nice".split(3.0) }}`, fail.ErrFuncFirstArgStr, "split"},
+		{`{{ "nice".split(nil) }}`, fail.ErrFuncFirstArgStr, "split"},
+		// trim function
+		{`{{ " nice".trim(1) }}`, fail.ErrFuncFirstArgStr, "trim"},
+		{`{{ " nice".trim({}) }}`, fail.ErrFuncFirstArgStr, "trim"},
+		{`{{ " nice".trim([]) }}`, fail.ErrFuncFirstArgStr, "trim"},
+		{`{{ " nice".trim(3.0) }}`, fail.ErrFuncFirstArgStr, "trim"},
+		{`{{ " nice".trim(nil) }}`, fail.ErrFuncFirstArgStr, "trim"},
 	}
 
 	for _, tc := range tests {

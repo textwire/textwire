@@ -1,9 +1,12 @@
 package evaluator
 
 import (
+	"errors"
+	"fmt"
 	"html"
 	"strings"
 
+	"github.com/textwire/textwire/v2/fail"
 	"github.com/textwire/textwire/v2/object"
 )
 
@@ -17,8 +20,15 @@ func strLenFunc(receiver object.Object, _ ...object.Object) (object.Object, erro
 func strSplitFunc(receiver object.Object, args ...object.Object) (object.Object, error) {
 	separator := " "
 
-	if len(args) > 0 && args[0].Type() == object.STR_OBJ {
-		separator = args[0].(*object.Str).Value
+	if len(args) > 0 {
+		str, ok := args[0].(*object.Str)
+
+		if !ok {
+			msg := fmt.Sprintf(fail.ErrFuncFirstArgStr, "split")
+			return nil, errors.New(msg)
+		}
+
+		separator = str.Value
 	}
 
 	str := receiver.(*object.Str).Value
@@ -43,8 +53,15 @@ func strRawFunc(receiver object.Object, _ ...object.Object) (object.Object, erro
 func strTrimFunc(receiver object.Object, args ...object.Object) (object.Object, error) {
 	chars := "\t \n\r"
 
-	if len(args) > 0 && args[0].Type() == object.STR_OBJ {
-		chars = args[0].(*object.Str).Value
+	if len(args) > 0 {
+		str, ok := args[0].(*object.Str)
+
+		if !ok {
+			msg := fmt.Sprintf(fail.ErrFuncFirstArgStr, "trim")
+			return nil, errors.New(msg)
+		}
+
+		chars = str.Value
 	}
 
 	str := receiver.(*object.Str).Value

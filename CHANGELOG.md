@@ -8,7 +8,8 @@
 
 ## v2.1.0 (2024-10-20)
 - 📝 Remove `CONTRIBUTING.md` file
-- ✨ For array literals, added functions: `rand`, `reverse`, `slice`
+- ✨ For array literals, added `3` built-in functions: `rand`, `reverse`, `slice`
+- 🧑‍💻 Improve error handling for built-in function
 
 ## v2.0.0 (2024-10-18)
 - ♻️ [BREAKING CHANGE!] Moved `textwire.Config` to a separate package `config.Config`
