@@ -85,7 +85,7 @@ func homeHandler(w http.ResponseWriter, r *http.Request) {
 	})
 
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		log.Println(err.Error())
 	}
 }
 
