@@ -21,7 +21,14 @@ func arrayJoinFunc(receiver object.Object, args ...object.Object) (object.Object
 	if len(args) == 0 {
 		separator = ","
 	} else {
-		separator = args[0].(*object.Str).Value
+		str, ok := args[0].(*object.Str)
+
+		if !ok {
+			msg := fmt.Sprintf(fail.ErrFuncFirstArgStr, "join")
+			return nil, errors.New(msg)
+		}
+
+		separator = str.Value
 	}
 
 	elements := receiver.(*object.Array).Elements

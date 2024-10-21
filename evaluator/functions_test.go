@@ -13,7 +13,25 @@ func TestFunctionGivesError(t *testing.T) {
 		expectedErr string
 		funcName    string
 	}{
+		// slice function
 		{`{{ [1, 2].slice() }}`, fail.ErrFuncRequiresOneArg, "slice"},
+		{`{{ [1, 2].slice("hi") }}`, fail.ErrFuncFirstArgInt, "slice"},
+		{`{{ [1, 2].slice({}) }}`, fail.ErrFuncFirstArgInt, "slice"},
+		{`{{ [1, 2].slice([]) }}`, fail.ErrFuncFirstArgInt, "slice"},
+		{`{{ [1, 2].slice(3.0) }}`, fail.ErrFuncFirstArgInt, "slice"},
+		{`{{ [1, 2].slice(nil) }}`, fail.ErrFuncFirstArgInt, "slice"},
+		{`{{ [1, 2].slice("hi", "hi") }}`, fail.ErrFuncFirstArgInt, "slice"},
+		{`{{ [1, 2].slice(0, "hi") }}`, fail.ErrFuncSecondArgInt, "slice"},
+		{`{{ [1, 2].slice(0, {}) }}`, fail.ErrFuncSecondArgInt, "slice"},
+		{`{{ [1, 2].slice(0, []) }}`, fail.ErrFuncSecondArgInt, "slice"},
+		{`{{ [1, 2].slice(0, 3.0) }}`, fail.ErrFuncSecondArgInt, "slice"},
+		{`{{ [1, 2].slice(0, nil) }}`, fail.ErrFuncSecondArgInt, "slice"},
+		// join function
+		{`{{ [1, 2].join(1) }}`, fail.ErrFuncFirstArgStr, "join"},
+		{`{{ [1, 2].join({}) }}`, fail.ErrFuncFirstArgStr, "join"},
+		{`{{ [1, 2].join([]) }}`, fail.ErrFuncFirstArgStr, "join"},
+		{`{{ [1, 2].join(3.0) }}`, fail.ErrFuncFirstArgStr, "join"},
+		{`{{ [1, 2].join(nil) }}`, fail.ErrFuncFirstArgStr, "join"},
 	}
 
 	for _, tc := range tests {

@@ -45,6 +45,7 @@ const (
 	ErrFuncRequiresOneArg = "function '%s' requires at least one argument"
 	ErrFuncFirstArgInt    = "the first argument for function '%s' must be an integer"
 	ErrFuncSecondArgInt   = "the second argument for function '%s' must be an integer"
+	ErrFuncFirstArgStr    = "the first argument for function '%s' must be a string"
 
 	// Template errors
 	ErrUnsupportedType   = "unsupported type '%T'"
