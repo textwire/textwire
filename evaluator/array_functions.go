@@ -3,6 +3,8 @@ package evaluator
 import (
 	"errors"
 	"fmt"
+	"math/rand"
+	"time"
 
 	"github.com/textwire/textwire/v2/fail"
 	"github.com/textwire/textwire/v2/object"
@@ -122,4 +124,29 @@ func arraySliceFunc(receiver object.Object, args ...object.Object) (object.Objec
 	}
 
 	return &object.Array{Elements: arr.Elements[start:end]}, nil
+}
+
+// arrayShuffleFunc shuffles the elements of the given array
+func arrayShuffleFunc(receiver object.Object, args ...object.Object) (object.Object, error) {
+	elems := receiver.(*object.Array).Elements
+	length := len(elems)
+
+	if length == 0 {
+		return receiver, nil
+	}
+
+	// Create a copy of the elements to shuffle
+	shuffled := make([]object.Object, length)
+	copy(shuffled, elems)
+
+	// Seed the random number generator to ensure different results
+	rand.New(rand.NewSource(time.Now().UnixNano()))
+
+	// Perform Fisher-Yates shuffle
+	for i := length - 1; i > 0; i-- {
+		j := rand.Intn(i + 1)                               // Pick a random index
+		shuffled[i], shuffled[j] = shuffled[j], shuffled[i] // Swap elements
+	}
+
+	return &object.Array{Elements: shuffled}, nil
 }

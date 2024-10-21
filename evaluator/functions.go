@@ -19,6 +19,7 @@ var functions = map[object.ObjectType]map[string]*object.Builtin{
 		"rand":    {Fn: arrayRandFunc},
 		"reverse": {Fn: arrayReverseFunc},
 		"slice":   {Fn: arraySliceFunc},
+		"shuffle": {Fn: arrayShuffleFunc},
 	},
 	object.FLOAT_OBJ: {
 		"int": {Fn: floatIntFunc},
