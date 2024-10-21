@@ -110,11 +110,7 @@ func arraySliceFunc(receiver object.Object, args ...object.Object) (object.Objec
 
 	end := int(endAt.Value)
 
-	if end < 0 {
-		end = 0
-	}
-
-	if end > elemsLen {
+	if end < 0 || end > elemsLen {
 		end = elemsLen
 	}
 
