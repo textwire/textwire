@@ -15,7 +15,7 @@ For more detailed information about this release, read the [Textwire v2.1.0 Rele
     - For array literals, added `4` built-in functions: `rand`, `reverse`, `slice`, `shuffle`
     - For integer literals, added `2` built-in functions: `abs`, `str`
     - For float literals, added `5` built-in functions: `abs`, `ceil`, `floor`, `round`, `str`
-    - For string literals, added `2` built-in functions: `capitalize`, `reverse`
+    - For string literals, added `3` built-in functions: `capitalize`, `reverse`, `contains`
     - For boolean literals, added `1` built-in function: `binary`
 - 📝 Remove `CONTRIBUTING.md` file
 - 🧑‍💻 Improve error handling for built-in function. If you pass the wrong argument type it will generate an error

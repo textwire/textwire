@@ -34,6 +34,14 @@ func TestEvalStringFunctions(t *testing.T) {
 		{`{{ "reverse_-1234567890!@#$%^*()=+".reverse() }}`, "+=)(*^%$#@!0987654321-_esrever"},
 		{`{{ "".reverse() }}`, ""},
 		{`{{ "T".reverse() }}`, "T"},
+		// contains
+		{`{{ "Hello World 你好".contains("World") }}`, "1"},
+		{`{{ "Hello World 你好".contains("world") }}`, "0"},
+		{`{{ "Hello World 你好".contains("你好") }}`, "1"},
+		{`{{ "Hello World 你好".contains("你") }}`, "1"},
+		{`{{ "Hello World 你好".contains("你好 ") }}`, "0"},
+		{`{{ "".contains("") }}`, "1"},
+		{`{{ "some".contains("") }}`, "1"},
 	}
 
 	for _, tc := range tests {

@@ -24,7 +24,7 @@ func strSplitFunc(receiver object.Object, args ...object.Object) (object.Object,
 		str, ok := args[0].(*object.Str)
 
 		if !ok {
-			msg := fmt.Sprintf(fail.ErrFuncFirstArgStr, "split")
+			msg := fmt.Sprintf(fail.ErrFuncFirstArgStr, "split", "string")
 			return nil, errors.New(msg)
 		}
 
@@ -57,7 +57,7 @@ func strTrimFunc(receiver object.Object, args ...object.Object) (object.Object, 
 		str, ok := args[0].(*object.Str)
 
 		if !ok {
-			msg := fmt.Sprintf(fail.ErrFuncFirstArgStr, "trim")
+			msg := fmt.Sprintf(fail.ErrFuncFirstArgStr, "trim", "string")
 			return nil, errors.New(msg)
 		}
 
@@ -107,4 +107,23 @@ func strReverseFunc(receiver object.Object, _ ...object.Object) (object.Object, 
 	}
 
 	return &object.Str{Value: string(runes)}, nil
+}
+
+// strContainsFunc returns true if the string contains the given substring, false otherwise
+func strContainsFunc(receiver object.Object, args ...object.Object) (object.Object, error) {
+	if len(args) == 0 {
+		msg := fmt.Sprintf(fail.ErrFuncRequiresOneArg, "contains", "string")
+		return nil, errors.New(msg)
+	}
+
+	substr, ok := args[0].(*object.Str)
+
+	if !ok {
+		msg := fmt.Sprintf(fail.ErrFuncFirstArgStr, "contains", "string")
+		return nil, errors.New(msg)
+	}
+
+	val := receiver.(*object.Str).Value
+
+	return &object.Bool{Value: strings.Contains(val, substr.Value)}, nil
 }

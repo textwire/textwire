@@ -9,41 +9,42 @@ import (
 
 func TestFunctionGivesError(t *testing.T) {
 	tests := []struct {
-		inp         string
-		expectedErr string
-		funcName    string
+		inp string
+		err *fail.Error
 	}{
 		// slice
-		{`{{ [1, 2].slice() }}`, fail.ErrFuncRequiresOneArg, "slice"},
-		{`{{ [1, 2].slice("hi") }}`, fail.ErrFuncFirstArgInt, "slice"},
-		{`{{ [1, 2].slice({}) }}`, fail.ErrFuncFirstArgInt, "slice"},
-		{`{{ [1, 2].slice([]) }}`, fail.ErrFuncFirstArgInt, "slice"},
-		{`{{ [1, 2].slice(3.0) }}`, fail.ErrFuncFirstArgInt, "slice"},
-		{`{{ [1, 2].slice(nil) }}`, fail.ErrFuncFirstArgInt, "slice"},
-		{`{{ [1, 2].slice("hi", "hi") }}`, fail.ErrFuncFirstArgInt, "slice"},
-		{`{{ [1, 2].slice(0, "hi") }}`, fail.ErrFuncSecondArgInt, "slice"},
-		{`{{ [1, 2].slice(0, {}) }}`, fail.ErrFuncSecondArgInt, "slice"},
-		{`{{ [1, 2].slice(0, []) }}`, fail.ErrFuncSecondArgInt, "slice"},
-		{`{{ [1, 2].slice(0, 3.0) }}`, fail.ErrFuncSecondArgInt, "slice"},
-		{`{{ [1, 2].slice(0, nil) }}`, fail.ErrFuncSecondArgInt, "slice"},
+		{`{{ [1, 2].slice() }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncRequiresOneArg, "slice", "array")},
+		{`{{ [1, 2].slice("hi") }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncFirstArgInt, "slice", "array")},
+		{`{{ [1, 2].slice({}) }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncFirstArgInt, "slice", "array")},
+		{`{{ [1, 2].slice([]) }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncFirstArgInt, "slice", "array")},
+		{`{{ [1, 2].slice(3.0) }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncFirstArgInt, "slice", "array")},
+		{`{{ [1, 2].slice(nil) }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncFirstArgInt, "slice", "array")},
+		{`{{ [1, 2].slice("hi", "hi") }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncFirstArgInt, "slice", "array")},
+		{`{{ [1, 2].slice(0, "hi") }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncSecondArgInt, "slice", "array")},
+		{`{{ [1, 2].slice(0, {}) }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncSecondArgInt, "slice", "array")},
+		{`{{ [1, 2].slice(0, []) }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncSecondArgInt, "slice", "array")},
+		{`{{ [1, 2].slice(0, 3.0) }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncSecondArgInt, "slice", "array")},
+		{`{{ [1, 2].slice(0, nil) }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncSecondArgInt, "slice", "array")},
 		// join
-		{`{{ [1, 2].join(1) }}`, fail.ErrFuncFirstArgStr, "join"},
-		{`{{ [1, 2].join({}) }}`, fail.ErrFuncFirstArgStr, "join"},
-		{`{{ [1, 2].join([]) }}`, fail.ErrFuncFirstArgStr, "join"},
-		{`{{ [1, 2].join(3.0) }}`, fail.ErrFuncFirstArgStr, "join"},
-		{`{{ [1, 2].join(nil) }}`, fail.ErrFuncFirstArgStr, "join"},
+		{`{{ [1, 2].join(1) }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncFirstArgStr, "join", "array")},
+		{`{{ [1, 2].join({}) }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncFirstArgStr, "join", "array")},
+		{`{{ [1, 2].join([]) }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncFirstArgStr, "join", "array")},
+		{`{{ [1, 2].join(3.0) }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncFirstArgStr, "join", "array")},
+		{`{{ [1, 2].join(nil) }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncFirstArgStr, "join", "array")},
 		// split
-		{`{{ "nice".split(1) }}`, fail.ErrFuncFirstArgStr, "split"},
-		{`{{ "nice".split({}) }}`, fail.ErrFuncFirstArgStr, "split"},
-		{`{{ "nice".split([]) }}`, fail.ErrFuncFirstArgStr, "split"},
-		{`{{ "nice".split(3.0) }}`, fail.ErrFuncFirstArgStr, "split"},
-		{`{{ "nice".split(nil) }}`, fail.ErrFuncFirstArgStr, "split"},
+		{`{{ "nice".split(1) }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncFirstArgStr, "split", "string")},
+		{`{{ "nice".split({}) }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncFirstArgStr, "split", "string")},
+		{`{{ "nice".split([]) }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncFirstArgStr, "split", "string")},
+		{`{{ "nice".split(3.0) }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncFirstArgStr, "split", "string")},
+		{`{{ "nice".split(nil) }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncFirstArgStr, "split", "string")},
 		// trim
-		{`{{ " nice".trim(1) }}`, fail.ErrFuncFirstArgStr, "trim"},
-		{`{{ " nice".trim({}) }}`, fail.ErrFuncFirstArgStr, "trim"},
-		{`{{ " nice".trim([]) }}`, fail.ErrFuncFirstArgStr, "trim"},
-		{`{{ " nice".trim(3.0) }}`, fail.ErrFuncFirstArgStr, "trim"},
-		{`{{ " nice".trim(nil) }}`, fail.ErrFuncFirstArgStr, "trim"},
+		{`{{ " nice".trim(1) }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncFirstArgStr, "trim", "string")},
+		{`{{ " nice".trim({}) }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncFirstArgStr, "trim", "string")},
+		{`{{ " nice".trim([]) }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncFirstArgStr, "trim", "string")},
+		{`{{ " nice".trim(3.0) }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncFirstArgStr, "trim", "string")},
+		{`{{ " nice".trim(nil) }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncFirstArgStr, "trim", "string")},
+		// contains
+		{`{{ "anna".contains() }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncRequiresOneArg, "contains", "string")},
 	}
 
 	for _, tc := range tests {
@@ -58,10 +59,8 @@ func TestFunctionGivesError(t *testing.T) {
 			t.Fatalf("expected object.ERR_OBJ, got=%T", evaluated)
 		}
 
-		failErr := fail.New(1, "/path/to/file", "evaluator", tc.expectedErr, tc.funcName)
-
-		if errObj.String() != failErr.String() {
-			t.Fatalf("expected error message=%q, got=%q", failErr.String(), errObj.String())
+		if errObj.String() != tc.err.String() {
+			t.Fatalf("expected error message=%q, got=%q", tc.err.String(), errObj.String())
 		}
 	}
 }
