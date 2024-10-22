@@ -22,3 +22,14 @@ func floatStrFunc(receiver object.Object, args ...object.Object) (object.Object,
 
 	return &object.Str{Value: strNumber}, nil
 }
+
+// floatAbsFunc returns the absolute value of an float
+func floatAbsFunc(receiver object.Object, args ...object.Object) (object.Object, error) {
+	floatVal := receiver.(*object.Float).Value
+
+	if floatVal < 0 {
+		return &object.Float{Value: -floatVal}, nil
+	}
+
+	return receiver, nil
+}
