@@ -7,16 +7,16 @@ func TestEvalIntFunctions(t *testing.T) {
 		inp      string
 		expected string
 	}{
-		// float func
+		// float
 		{`{{ 1.float() }}`, "1.0"},
 		{`{{ 321.float().int() }}`, "321"},
-		// abs func
+		// abs
 		{`{{ 1.abs() }}`, "1"},
 		{`{{ -1.abs() }}`, "1"},
 		{`{{ 0.abs() }}`, "0"},
 		{`{{ -999999.abs() }}`, "999999"},
 		{`{{ 999999.abs() }}`, "999999"},
-		// str func
+		// str
 		{`{{ 1.str() }}`, "1"},
 		{`{{ 321.str() }}`, "321"},
 		{`{{ -1.str() }}`, "-1"},

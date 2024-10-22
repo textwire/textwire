@@ -13,7 +13,7 @@ func TestFunctionGivesError(t *testing.T) {
 		expectedErr string
 		funcName    string
 	}{
-		// slice function
+		// slice
 		{`{{ [1, 2].slice() }}`, fail.ErrFuncRequiresOneArg, "slice"},
 		{`{{ [1, 2].slice("hi") }}`, fail.ErrFuncFirstArgInt, "slice"},
 		{`{{ [1, 2].slice({}) }}`, fail.ErrFuncFirstArgInt, "slice"},
@@ -26,19 +26,19 @@ func TestFunctionGivesError(t *testing.T) {
 		{`{{ [1, 2].slice(0, []) }}`, fail.ErrFuncSecondArgInt, "slice"},
 		{`{{ [1, 2].slice(0, 3.0) }}`, fail.ErrFuncSecondArgInt, "slice"},
 		{`{{ [1, 2].slice(0, nil) }}`, fail.ErrFuncSecondArgInt, "slice"},
-		// join function
+		// join
 		{`{{ [1, 2].join(1) }}`, fail.ErrFuncFirstArgStr, "join"},
 		{`{{ [1, 2].join({}) }}`, fail.ErrFuncFirstArgStr, "join"},
 		{`{{ [1, 2].join([]) }}`, fail.ErrFuncFirstArgStr, "join"},
 		{`{{ [1, 2].join(3.0) }}`, fail.ErrFuncFirstArgStr, "join"},
 		{`{{ [1, 2].join(nil) }}`, fail.ErrFuncFirstArgStr, "join"},
-		// split function
+		// split
 		{`{{ "nice".split(1) }}`, fail.ErrFuncFirstArgStr, "split"},
 		{`{{ "nice".split({}) }}`, fail.ErrFuncFirstArgStr, "split"},
 		{`{{ "nice".split([]) }}`, fail.ErrFuncFirstArgStr, "split"},
 		{`{{ "nice".split(3.0) }}`, fail.ErrFuncFirstArgStr, "split"},
 		{`{{ "nice".split(nil) }}`, fail.ErrFuncFirstArgStr, "split"},
-		// trim function
+		// trim
 		{`{{ " nice".trim(1) }}`, fail.ErrFuncFirstArgStr, "trim"},
 		{`{{ " nice".trim({}) }}`, fail.ErrFuncFirstArgStr, "trim"},
 		{`{{ " nice".trim([]) }}`, fail.ErrFuncFirstArgStr, "trim"},
