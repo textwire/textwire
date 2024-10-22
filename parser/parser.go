@@ -18,15 +18,16 @@ type (
 const (
 	_ int = iota
 	LOWEST
-	TERNARY      // a ? b : c
-	EQ           // ==
-	LESS_GREATER // > or <
-	SUM          // +
-	PRODUCT      // *
-	PREFIX       // -X or !X
-	CALL         // myFunction(X)
-	INDEX        // array[index] or obj.key
-	POSTFIX      // X++ or X--
+	TERNARY       // a ? b : c
+	EQ            // ==
+	LESS_GREATER  // > or <
+	SUM           // +
+	PRODUCT       // *
+	MEMBER_ACCESS // <expr>.<ident>
+	PREFIX        // -X or !X
+	CALL          // myFunction(X)
+	INDEX         // array[index]
+	POSTFIX       // X++ or X--
 )
 
 var precedences = map[token.TokenType]int{
@@ -43,7 +44,7 @@ var precedences = map[token.TokenType]int{
 	token.MOD:      PRODUCT,
 	token.MUL:      PRODUCT,
 	token.LPAREN:   CALL,
-	token.DOT:      INDEX,
+	token.DOT:      MEMBER_ACCESS,
 	token.LBRACKET: INDEX,
 	token.INC:      POSTFIX,
 	token.DEC:      POSTFIX,

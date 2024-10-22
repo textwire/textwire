@@ -6,10 +6,10 @@
 * ♻️ - Refactoring code
 * 📝 - Adding or updating documentation
 
-## v2.1.0 (2024-10-20)
+## v2.1.0 (2024-10-23)
 - 📝 Remove `CONTRIBUTING.md` file
-- ✨ For array literals, added `3` built-in functions: `rand`, `reverse`, `slice`
-- 🧑‍💻 Improve error handling for built-in function
+- 🐛 Fixed bug with incorrect precedence with prefixed expressions like `{{ -1.abs() }}`. This expression would left out the `-`
+- ✨ For array literals, added `4` built-in functions: `rand`, `reverse`, `slice`, `shuffle`
 
 ## v2.0.0 (2024-10-18)
 - ♻️ [BREAKING CHANGE!] Moved `textwire.Config` to a separate package `config.Config`
