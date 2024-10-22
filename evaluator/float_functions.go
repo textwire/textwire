@@ -1,9 +1,8 @@
 package evaluator
 
 import (
-	"strconv"
-
 	"github.com/textwire/textwire/v2/object"
+	"github.com/textwire/textwire/v2/utils"
 )
 
 // floatIntFunc returns the integer part of the given float
@@ -14,13 +13,8 @@ func floatIntFunc(receiver object.Object, args ...object.Object) (object.Object,
 
 // floatStrFunc converts a float to a string and returns it
 func floatStrFunc(receiver object.Object, args ...object.Object) (object.Object, error) {
-	floatVal := receiver.(*object.Float).Value
-
-	// Convert float64 to string using 'g' format with a precision of -1
-	// to preserve the exact value
-	strNumber := strconv.FormatFloat(floatVal, 'f', -1, 64)
-
-	return &object.Str{Value: strNumber}, nil
+	val := receiver.(*object.Float).Value
+	return &object.Str{Value: utils.FloatToStr(val)}, nil
 }
 
 // floatAbsFunc returns the absolute value of an float

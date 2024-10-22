@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+
+	"github.com/textwire/textwire/v2/utils"
 )
 
 type Float struct {
@@ -20,7 +22,7 @@ func (f *Float) String() string {
 		return fmt.Sprintf("%.1f", f.Value)
 	}
 
-	return fmt.Sprintf("%g", f.Value)
+	return utils.FloatToStr(f.Value)
 }
 
 func (f *Float) Val() interface{} {
