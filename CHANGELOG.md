@@ -9,13 +9,16 @@
 ## v2.1.0 (2024-10-23)
 For more detailed information about this release, read the [Textwire v2.1.0 Release Notes](https://textwire.github.io/blog/2024/10/23/textwire-v2.1.0-release-notes)
 
+- 🐛 Bugs
+    - Fixed bug with incorrect precedence with prefixed expressions like `{{ -1.abs() }}`. This expression would left out the `-`
+- ✨ Features
+    - For array literals, added `4` built-in functions: `rand`, `reverse`, `slice`, `shuffle`
+    - For integer literals, added `2` built-in functions: `abs`, `str`
+    - For float literals, added `5` built-in functions: `abs`, `ceil`, `floor`, `round`, `str`
+    - For string literals, added `2` built-in functions: `capitalize`, `reverse`
+    - For boolean literals, added `1` built-in function: `binary`
 - 📝 Remove `CONTRIBUTING.md` file
 - 🧑‍💻 Improve error handling for built-in function. If you pass the wrong argument type it will generate an error
-- 🐛 Fixed bug with incorrect precedence with prefixed expressions like `{{ -1.abs() }}`. This expression would left out the `-`
-- ✨ For array literals, added `4` built-in functions: `rand`, `reverse`, `slice`, `shuffle`
-- ✨ For integer literals, added `2` built-in functions: `abs`, `str`
-- ✨ For float literals, added `5` built-in functions: `abs`, `ceil`, `floor`, `round`, `str`
-- ✨ For string literals, added `2` built-in functions: `capitalize`, `reverse`
 
 ## v2.0.0 (2024-10-18)
 - ♻️ [BREAKING CHANGE!] Moved `textwire.Config` to a separate package `config.Config`

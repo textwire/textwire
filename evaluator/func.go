@@ -36,5 +36,7 @@ var functions = map[object.ObjectType]map[string]*object.Builtin{
 		"abs":   {Fn: intAbsFunc},
 		"str":   {Fn: intStrFunc},
 	},
-	object.BOOL_OBJ: {},
+	object.BOOL_OBJ: {
+		"binary": {Fn: boolBinaryFunc},
+	},
 }
