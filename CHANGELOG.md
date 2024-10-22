@@ -10,6 +10,7 @@
 - 📝 Remove `CONTRIBUTING.md` file
 - 🐛 Fixed bug with incorrect precedence with prefixed expressions like `{{ -1.abs() }}`. This expression would left out the `-`
 - ✨ For array literals, added `4` built-in functions: `rand`, `reverse`, `slice`, `shuffle`
+- ✨ For integer literals, added `2` built-in functions: `abs`, `str`
 
 ## v2.0.0 (2024-10-18)
 - ♻️ [BREAKING CHANGE!] Moved `textwire.Config` to a separate package `config.Config`

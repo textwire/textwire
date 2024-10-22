@@ -4,6 +4,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/textwire/textwire/v2/fail"
 	"github.com/textwire/textwire/v2/lexer"
 	"github.com/textwire/textwire/v2/object"
 	"github.com/textwire/textwire/v2/parser"
@@ -419,5 +420,30 @@ func TestEvalComments(t *testing.T) {
 
 	for _, tc := range tests {
 		evaluationExpected(t, tc.inp, tc.expected)
+	}
+}
+
+func TestFuncDoesntExist(t *testing.T) {
+	inp := "{{ 5.somefunction() }}"
+
+	evaluated := testEval(inp)
+
+	errObj, ok := evaluated.(*object.Error)
+
+	if !ok {
+		t.Fatalf("evaluation failed: %s", errObj.String())
+	}
+
+	expected := fail.New(
+		1,
+		"/path/to/file",
+		"evaluator",
+		fail.ErrNoFuncForThisType,
+		"somefunction",
+		object.INT_OBJ,
+	)
+
+	if errObj.String() != expected.String() {
+		t.Fatalf("error message is not '%s', got '%s'", expected, errObj.String())
 	}
 }
