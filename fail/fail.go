@@ -35,13 +35,13 @@ const (
 	ErrUnknownTypeForOperator  = "unknown type '%s' for '%s' operator"
 	ErrPrefixOperatorIsWrong   = "prefix operator '%s' cannot be applied to '%s'"
 	ErrUseStmtMustHaveProgram  = "the 'use' statement must have a program attached"
-	ErrNoFuncForThisType       = "function '%s' doesn't exist for type '%s'"
 	ErrLoopVariableIsReserved  = "the 'loop' variable is reserved. You cannot use it as a variable name"
 	ErrVariableTypeMismatch    = "cannot assign variable '%s' of type '%s' to type '%s'"
 	ErrDotOperatorNotSupported = "the dot operator is not supported for type '%s'"
 	ErrPropertyNotFound        = "property '%s' not found in type '%s'"
 
 	// Functions
+	ErrNoFuncForThisType  = "function '%s' doesn't exist for type '%s'"
 	ErrFuncRequiresOneArg = "function '%s' requires at least one argument"
 	ErrFuncFirstArgInt    = "the first argument for function '%s' must be an integer"
 	ErrFuncSecondArgInt   = "the second argument for function '%s' must be an integer"

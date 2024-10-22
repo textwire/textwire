@@ -63,6 +63,10 @@ func hasControlStmt(obj object.Object, controlType object.ObjectType) bool {
 
 // hasCustomFunc checks if the object has a custom function
 func hasCustomFunc(customFunc *config.Func, t object.ObjectType) bool {
+	if customFunc == nil {
+		return false
+	}
+
 	switch t {
 	case object.STR_OBJ:
 		return len(customFunc.Str) > 0
