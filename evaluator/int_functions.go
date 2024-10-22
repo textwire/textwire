@@ -7,24 +7,24 @@ import (
 )
 
 // intFloatFunc converts an integer to a float and returns it
-func intFloatFunc(receiver object.Object, args ...object.Object) (object.Object, error) {
-	floatVal := receiver.(*object.Int).Value
-	return &object.Float{Value: float64(floatVal)}, nil
+func intFloatFunc(receiver object.Object, _ ...object.Object) (object.Object, error) {
+	val := receiver.(*object.Int).Value
+	return &object.Float{Value: float64(val)}, nil
 }
 
 // intAbsFunc returns the absolute value of an integer
-func intAbsFunc(receiver object.Object, args ...object.Object) (object.Object, error) {
-	intVal := receiver.(*object.Int).Value
+func intAbsFunc(receiver object.Object, _ ...object.Object) (object.Object, error) {
+	val := receiver.(*object.Int).Value
 
-	if intVal < 0 {
-		return &object.Int{Value: -intVal}, nil
+	if val < 0 {
+		return &object.Int{Value: -val}, nil
 	}
 
 	return receiver, nil
 }
 
 // intStrFunc converts an integer to a string and returns it
-func intStrFunc(receiver object.Object, args ...object.Object) (object.Object, error) {
-	intVal := receiver.(*object.Int).Value
-	return &object.Str{Value: strconv.FormatInt(intVal, 10)}, nil
+func intStrFunc(receiver object.Object, _ ...object.Object) (object.Object, error) {
+	val := receiver.(*object.Int).Value
+	return &object.Str{Value: strconv.FormatInt(val, 10)}, nil
 }

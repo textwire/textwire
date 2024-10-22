@@ -12,8 +12,8 @@ import (
 
 // strLenFunc returns the length of the given string
 func strLenFunc(receiver object.Object, _ ...object.Object) (object.Object, error) {
-	str := receiver.(*object.Str).Value
-	return &object.Int{Value: int64(len(str))}, nil
+	val := receiver.(*object.Str).Value
+	return &object.Int{Value: int64(len(val))}, nil
 }
 
 // strSplitFunc returns a list of strings split by the given separator
@@ -31,8 +31,8 @@ func strSplitFunc(receiver object.Object, args ...object.Object) (object.Object,
 		separator = str.Value
 	}
 
-	str := receiver.(*object.Str).Value
-	stringItems := strings.Split(str, separator)
+	val := receiver.(*object.Str).Value
+	stringItems := strings.Split(val, separator)
 
 	var elems []object.Object
 
@@ -45,8 +45,8 @@ func strSplitFunc(receiver object.Object, args ...object.Object) (object.Object,
 
 // strRawFunc prevents escaping HTML tags in a string
 func strRawFunc(receiver object.Object, _ ...object.Object) (object.Object, error) {
-	str := receiver.(*object.Str)
-	return &object.Str{Value: html.UnescapeString(str.Value)}, nil
+	val := receiver.(*object.Str).Value
+	return &object.Str{Value: html.UnescapeString(val)}, nil
 }
 
 // strTrimFunc returns a string with leading and trailing whitespace removed
@@ -64,15 +64,15 @@ func strTrimFunc(receiver object.Object, args ...object.Object) (object.Object, 
 		chars = str.Value
 	}
 
-	str := receiver.(*object.Str).Value
+	val := receiver.(*object.Str).Value
 
-	return &object.Str{Value: strings.Trim(str, chars)}, nil
+	return &object.Str{Value: strings.Trim(val, chars)}, nil
 }
 
 // strUpperFunc returns a string with all characters in uppercase
 func strUpperFunc(receiver object.Object, _ ...object.Object) (object.Object, error) {
-	str := receiver.(*object.Str)
-	return &object.Str{Value: strings.ToUpper(str.Value)}, nil
+	val := receiver.(*object.Str).Value
+	return &object.Str{Value: strings.ToUpper(val)}, nil
 }
 
 // strLowerFunc returns a string with all characters in lowercase

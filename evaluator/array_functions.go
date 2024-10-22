@@ -11,8 +11,9 @@ import (
 )
 
 // arrayLenFunc returns the length of the given array
-func arrayLenFunc(receiver object.Object, args ...object.Object) (object.Object, error) {
-	length := len(receiver.(*object.Array).Elements)
+func arrayLenFunc(receiver object.Object, _ ...object.Object) (object.Object, error) {
+	elems := receiver.(*object.Array).Elements
+	length := len(elems)
 	return &object.Int{Value: int64(length)}, nil
 }
 
@@ -33,11 +34,11 @@ func arrayJoinFunc(receiver object.Object, args ...object.Object) (object.Object
 		separator = str.Value
 	}
 
-	elements := receiver.(*object.Array).Elements
+	elems := receiver.(*object.Array).Elements
 
 	var result string
 
-	for i, el := range elements {
+	for i, el := range elems {
 		if i > 0 {
 			result += separator
 		}
@@ -48,21 +49,21 @@ func arrayJoinFunc(receiver object.Object, args ...object.Object) (object.Object
 }
 
 // arrayRandFunc returns a random element from the given array
-func arrayRandFunc(receiver object.Object, args ...object.Object) (object.Object, error) {
-	elements := receiver.(*object.Array).Elements
-	length := len(elements)
+func arrayRandFunc(receiver object.Object, _ ...object.Object) (object.Object, error) {
+	elems := receiver.(*object.Array).Elements
+	length := len(elems)
 
 	if length == 0 {
 		return &object.Nil{}, nil
 	}
 
-	return elements[0], nil
+	return elems[0], nil
 }
 
 // arrayReverseFunc reverses the elements of the given array
-func arrayReverseFunc(receiver object.Object, args ...object.Object) (object.Object, error) {
-	elements := receiver.(*object.Array).Elements
-	length := len(elements)
+func arrayReverseFunc(receiver object.Object, _ ...object.Object) (object.Object, error) {
+	elems := receiver.(*object.Array).Elements
+	length := len(elems)
 
 	if length == 0 {
 		return receiver, nil
@@ -70,7 +71,7 @@ func arrayReverseFunc(receiver object.Object, args ...object.Object) (object.Obj
 
 	reversed := make([]object.Object, length)
 
-	for i, el := range elements {
+	for i, el := range elems {
 		reversed[length-i-1] = el
 	}
 
@@ -79,10 +80,10 @@ func arrayReverseFunc(receiver object.Object, args ...object.Object) (object.Obj
 
 // arraySliceFunc returns a slice of the given array
 func arraySliceFunc(receiver object.Object, args ...object.Object) (object.Object, error) {
-	arr := receiver.(*object.Array)
+	elems := receiver.(*object.Array).Elements
 
 	argsLen := len(args)
-	elemsLen := len(arr.Elements)
+	elemsLen := len(elems)
 
 	if argsLen < 1 {
 		msg := fmt.Sprintf(fail.ErrFuncRequiresOneArg, "slice")
@@ -107,7 +108,7 @@ func arraySliceFunc(receiver object.Object, args ...object.Object) (object.Objec
 	}
 
 	if argsLen == 1 {
-		return &object.Array{Elements: arr.Elements[start:]}, nil
+		return &object.Array{Elements: elems[start:]}, nil
 	}
 
 	endAt, ok := args[1].(*object.Int)
@@ -123,11 +124,11 @@ func arraySliceFunc(receiver object.Object, args ...object.Object) (object.Objec
 		end = elemsLen
 	}
 
-	return &object.Array{Elements: arr.Elements[start:end]}, nil
+	return &object.Array{Elements: elems[start:end]}, nil
 }
 
 // arrayShuffleFunc shuffles the elements of the given array
-func arrayShuffleFunc(receiver object.Object, args ...object.Object) (object.Object, error) {
+func arrayShuffleFunc(receiver object.Object, _ ...object.Object) (object.Object, error) {
 	elems := receiver.(*object.Array).Elements
 	length := len(elems)
 
