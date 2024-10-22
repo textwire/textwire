@@ -15,6 +15,7 @@ For more detailed information about this release, read the [Textwire v2.1.0 Rele
 - ✨ For array literals, added `4` built-in functions: `rand`, `reverse`, `slice`, `shuffle`
 - ✨ For integer literals, added `2` built-in functions: `abs`, `str`
 - ✨ For float literals, added `5` built-in functions: `abs`, `ceil`, `floor`, `round`, `str`
+- ✨ For string literals, added `2` built-in functions: `capitalize`, `reverse`
 
 ## v2.0.0 (2024-10-18)
 - ♻️ [BREAKING CHANGE!] Moved `textwire.Config` to a separate package `config.Config`

@@ -6,12 +6,14 @@ import (
 
 var functions = map[object.ObjectType]map[string]*object.Builtin{
 	object.STR_OBJ: {
-		"len":   {Fn: strLenFunc},
-		"split": {Fn: strSplitFunc},
-		"raw":   {Fn: strRawFunc},
-		"trim":  {Fn: strTrimFunc},
-		"upper": {Fn: strUpperFunc},
-		"lower": {Fn: strLowerFunc},
+		"len":        {Fn: strLenFunc},
+		"split":      {Fn: strSplitFunc},
+		"raw":        {Fn: strRawFunc},
+		"trim":       {Fn: strTrimFunc},
+		"upper":      {Fn: strUpperFunc},
+		"lower":      {Fn: strLowerFunc},
+		"capitalize": {Fn: strCapitalizeFunc},
+		"reverse":    {Fn: strReverseFunc},
 	},
 	object.ARR_OBJ: {
 		"len":     {Fn: arrayLenFunc},

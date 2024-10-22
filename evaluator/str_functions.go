@@ -80,3 +80,31 @@ func strLowerFunc(receiver object.Object, _ ...object.Object) (object.Object, er
 	str := receiver.(*object.Str)
 	return &object.Str{Value: strings.ToLower(str.Value)}, nil
 }
+
+// strCapitalizeFunc returns a string with the first character capitalized
+func strCapitalizeFunc(receiver object.Object, _ ...object.Object) (object.Object, error) {
+	val := receiver.(*object.Str).Value
+
+	if len(val) == 0 {
+		return &object.Str{Value: ""}, nil
+	}
+
+	newVal := strings.ToUpper(val[:1]) + val[1:]
+
+	return &object.Str{Value: newVal}, nil
+}
+
+// strReverseFunc returns a string with the characters reversed
+func strReverseFunc(receiver object.Object, _ ...object.Object) (object.Object, error) {
+	val := receiver.(*object.Str).Value
+
+	runes := []rune(val)
+	n := len(runes)
+
+	// Reverse the slice of runes
+	for i := 0; i < n/2; i++ {
+		runes[i], runes[n-1-i] = runes[n-1-i], runes[i]
+	}
+
+	return &object.Str{Value: string(runes)}, nil
+}
