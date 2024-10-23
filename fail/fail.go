@@ -87,8 +87,7 @@ func (e *Error) String() string {
 		path = fmt.Sprintf(" in %s", e.filepath)
 	}
 
-	return fmt.Sprintf("[Textwire ERROR%s:%d]: %s",
-		path, e.line, e.message)
+	return fmt.Sprintf("[Textwire ERROR%s:%d]: %s", path, e.line, e.message)
 }
 
 // FatalOnError calls log.Fatal if the error message is not empty
