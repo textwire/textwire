@@ -704,7 +704,7 @@ func (e *Evaluator) evalCallExp(
 		return res
 	}
 
-	if hasCustomFunc(e.ctx.customFunc, receiverType) {
+	if hasCustomFunc(e.ctx.customFunc, receiverType, funcName) {
 		nativeArgs := e.objectsToNativeType(args)
 
 		switch receiverType {

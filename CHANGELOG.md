@@ -19,6 +19,7 @@ For more detailed information about this release, read the [Textwire v2.1.0 Rele
     - For boolean literals, added `1` built-in function: `binary`
 - 📝 Remove `CONTRIBUTING.md` file
 - 🧑‍💻 Improve error handling for built-in function. If you pass the wrong argument type it will generate an error
+- 🧑‍💻 Improve error handling for custom functions. Now, when you use function that is not defined, you'll get an error that the function x doesn't exists on type y
 
 ## v2.0.0 (2024-10-18)
 - ♻️ [BREAKING CHANGE!] Moved `textwire.Config` to a separate package `config.Config`
