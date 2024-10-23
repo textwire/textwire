@@ -1,6 +1,7 @@
 package textwire
 
-// errorPage returns HTML that's displayed when an error occurs while rendering a template
+// errorPage returns HTML that's displayed when an error
+// occurs while rendering a template
 func errorPage() string {
 	return `
 	<!DOCTYPE html>
