@@ -49,6 +49,7 @@ func (t *Template) Response(w http.ResponseWriter, filename string, data map[str
 	evaluated, err := t.String(filename, data)
 
 	if err != nil {
+		fmt.Fprint(w, errorPage())
 		return err.Error()
 	}
 

@@ -17,6 +17,7 @@ For more detailed information about this release, read the [Textwire v2.1.0 Rele
     - For float literals, added `5` built-in functions: `abs`, `ceil`, `floor`, `round`, `str`
     - For string literals, added `3` built-in functions: `capitalize`, `reverse`, `contains`
     - For boolean literals, added `1` built-in function: `binary`
+    - New error page while rendering a template. Instead of black screen we now get a simple error page with `Sorry! We’re having some trouble right now. Please check back shortly`
 - 🧑‍💻 Improvements
     - Improve error handling for built-in function. If you pass the wrong argument type it will generate an error
     - Improve error handling for custom functions. Now, when you use function that is not defined, you'll get an error that the function x doesn't exists on type y
