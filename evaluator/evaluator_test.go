@@ -423,27 +423,46 @@ func TestEvalComments(t *testing.T) {
 	}
 }
 
-func TestFuncDoesntExist(t *testing.T) {
-	inp := "{{ 5.somefunction() }}"
-
-	evaluated := testEval(inp)
-
-	errObj, ok := evaluated.(*object.Error)
-
-	if !ok {
-		t.Fatalf("evaluation failed: %s", errObj.String())
+func TestErrorHandling(t *testing.T) {
+	cases := []struct {
+		inp string
+		err *fail.Error
+	}{
+		{
+			inp: "{{ 5.somefunction() }}",
+			err: fail.New(
+				1,
+				"/path/to/file",
+				"evaluator",
+				fail.ErrNoFuncForThisType,
+				"somefunction",
+				object.INT_OBJ,
+			),
+		},
+		{
+			inp: "{{ 3 / 0 }}",
+			err: fail.New(
+				1,
+				"/path/to/file",
+				"evaluator",
+				fail.ErrDivisionByZero,
+			),
+		},
 	}
 
-	expected := fail.New(
-		1,
-		"/path/to/file",
-		"evaluator",
-		fail.ErrNoFuncForThisType,
-		"somefunction",
-		object.INT_OBJ,
-	)
+	for _, tc := range cases {
+		evaluated := testEval(tc.inp)
 
-	if errObj.String() != expected.String() {
-		t.Fatalf("error message is not '%s', got '%s'", expected, errObj.String())
+		errObj, ok := evaluated.(*object.Error)
+
+		if !ok {
+			t.Fatalf("evaluation failed: %s", errObj.String())
+		}
+
+		expect := tc.err.String()
+
+		if errObj.String() != expect {
+			t.Fatalf("error message is not '%s', got '%s'", expect, errObj.String())
+		}
 	}
 }

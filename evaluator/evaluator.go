@@ -821,6 +821,10 @@ func (e *Evaluator) evalIntegerInfixExp(
 	case "*":
 		return &object.Int{Value: leftVal * rightVal}
 	case "/":
+		if rightVal == 0 {
+			return e.newError(leftNode, fail.ErrDivisionByZero)
+		}
+
 		return &object.Int{Value: leftVal / rightVal}
 	case "%":
 		return &object.Int{Value: leftVal % rightVal}

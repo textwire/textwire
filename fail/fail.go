@@ -39,6 +39,7 @@ const (
 	ErrVariableTypeMismatch    = "cannot assign variable '%s' of type '%s' to type '%s'"
 	ErrDotOperatorNotSupported = "the dot operator is not supported for type '%s'"
 	ErrPropertyNotFound        = "property '%s' not found in type '%s'"
+	ErrDivisionByZero          = "division by zero error. The right-hand side of the division operator must not be zero"
 
 	// Functions
 	ErrNoFuncForThisType  = "function '%s' doesn't exist for type '%s'"
