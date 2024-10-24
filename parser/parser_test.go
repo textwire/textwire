@@ -521,6 +521,14 @@ func TestOperatorPrecedenceParsing(t *testing.T) {
 			"{{ a + b / c }}",
 			"{{ (a + (b / c)) }}",
 		},
+		{
+			"{{ -2.float() }}",
+			"{{ ((-2).float()) }}",
+		},
+		{
+			"{{ -obj.test }}",
+			"{{ ((-obj).test) }}",
+		},
 	}
 
 	for _, tc := range tests {

@@ -62,18 +62,22 @@ func hasControlStmt(obj object.Object, controlType object.ObjectType) bool {
 }
 
 // hasCustomFunc checks if the object has a custom function
-func hasCustomFunc(customFunc *config.Func, t object.ObjectType) bool {
+func hasCustomFunc(customFunc *config.Func, t object.ObjectType, funcName string) bool {
+	if customFunc == nil {
+		return false
+	}
+
 	switch t {
 	case object.STR_OBJ:
-		return len(customFunc.Str) > 0
+		return customFunc.Str[funcName] != nil
 	case object.ARR_OBJ:
-		return len(customFunc.Arr) > 0
+		return customFunc.Arr[funcName] != nil
 	case object.INT_OBJ:
-		return len(customFunc.Int) > 0
+		return customFunc.Int[funcName] != nil
 	case object.FLOAT_OBJ:
-		return len(customFunc.Float) > 0
+		return customFunc.Float[funcName] != nil
 	case object.BOOL_OBJ:
-		return len(customFunc.Bool) > 0
+		return customFunc.Bool[funcName] != nil
 	default:
 		return false
 	}

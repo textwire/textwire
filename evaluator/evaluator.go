@@ -695,10 +695,16 @@ func (e *Evaluator) evalCallExp(
 	buitin, ok := typeFuncs[node.Function.Value]
 
 	if ok {
-		return buitin.Fn(receiverObj, args...)
+		res, err := buitin.Fn(receiverObj, args...)
+
+		if err != nil {
+			return e.newError(node, err.Error())
+		}
+
+		return res
 	}
 
-	if hasCustomFunc(e.ctx.customFunc, receiverType) {
+	if hasCustomFunc(e.ctx.customFunc, receiverType, funcName) {
 		nativeArgs := e.objectsToNativeType(args)
 
 		switch receiverType {
@@ -815,6 +821,10 @@ func (e *Evaluator) evalIntegerInfixExp(
 	case "*":
 		return &object.Int{Value: leftVal * rightVal}
 	case "/":
+		if rightVal == 0 {
+			return e.newError(leftNode, fail.ErrDivisionByZero)
+		}
+
 		return &object.Int{Value: leftVal / rightVal}
 	case "%":
 		return &object.Int{Value: leftVal % rightVal}

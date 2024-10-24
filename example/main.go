@@ -54,6 +54,10 @@ type Author struct {
 }
 
 func homeHandler(w http.ResponseWriter, r *http.Request) {
+	if r.URL.Path != "/" {
+		return
+	}
+
 	books := []Book{
 		{
 			ID:    1,
@@ -85,16 +89,20 @@ func homeHandler(w http.ResponseWriter, r *http.Request) {
 	})
 
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		log.Println(err.Error())
 	}
 }
 
 func aboutHandler(w http.ResponseWriter, r *http.Request) {
+	if r.URL.Path != "/about" {
+		return
+	}
+
 	err := tpl.Response(w, "about", map[string]interface{}{
 		"title": "About page",
 	})
 
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		log.Println(err.Error())
 	}
 }

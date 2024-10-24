@@ -32,7 +32,7 @@ func (ce *CallExp) String() string {
 		}
 	}
 
-	return fmt.Sprintf("%s.%s(%s)", ce.Receiver.String(),
+	return fmt.Sprintf("(%s.%s(%s))", ce.Receiver.String(),
 		ce.Function.String(), args.String())
 }
 
