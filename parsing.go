@@ -123,6 +123,10 @@ func applyComponentToProgram(prog *ast.Program, progFilePath string) *fail.Error
 func applyOptions(opt *config.Config) {
 	usesTemplates = true
 
+	if opt == nil {
+		return
+	}
+
 	if opt.TemplateDir != "" {
 		conf.TemplateDir = strings.Trim(opt.TemplateDir, "/")
 	}

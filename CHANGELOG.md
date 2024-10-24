@@ -6,6 +6,9 @@
 * ♻️ - Refactoring code
 * 📝 - Adding or updating documentation
 
+## v2.1.1 (2024-10-24)
+- 🐛 Fixed bug where you couldn't pass `nil` to `textwire.NewTemplate` function
+
 ## v2.1.0 (2024-10-24)
 For more detailed information about this release, read the [Textwire v2.1.0 Release Notes](https://textwire.github.io/blog/2024/10/24/textwire-v2.1.0-release-notes)
 
