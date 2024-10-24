@@ -28,7 +28,7 @@ For more detailed information about this release, read the [Textwire v2.1.0 Rele
 
 ## v2.0.0 (2024-10-18)
 - ♻️ [BREAKING CHANGE!] Moved `textwire.Config` to a separate package `config.Config`
-- ✨ Added the ability to register your own custom functions for specific types and use them in your Textwire code like built-in functions. If you are upgrading from version 1, make these changes:
+- ✨ [suggested by @joeyjurjens](https://github.com/joeyjurjens) Added the ability to register your own custom functions for specific types and use them in your Textwire code like built-in functions. If you are upgrading from version 1, make these changes:
     1. Change all the imports from `github.com/textwire/textwire` to `github.com/textwire/textwire/v2`
     2. Run `go mod tidy` to update the dependencies
     3. Change the package name from `textwire.Config` to `config.Config` in your code if you use configuration and import `"github.com/textwire/textwire/v2/config"`. If you already have a package named `config`, you can alias the import like `twconfig "github.com/textwire/textwire/v2/config"`
