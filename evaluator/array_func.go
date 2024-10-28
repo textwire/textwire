@@ -27,7 +27,7 @@ func arrayJoinFunc(receiver object.Object, args ...object.Object) (object.Object
 		str, ok := args[0].(*object.Str)
 
 		if !ok {
-			msg := fmt.Sprintf(fail.ErrFuncFirstArgStr, "join", "array")
+			msg := fmt.Sprintf(fail.ErrFuncFirstArgStr, "join", object.ARR_OBJ)
 			return nil, errors.New(msg)
 		}
 
@@ -86,14 +86,14 @@ func arraySliceFunc(receiver object.Object, args ...object.Object) (object.Objec
 	elemsLen := len(elems)
 
 	if argsLen == 0 {
-		msg := fmt.Sprintf(fail.ErrFuncRequiresOneArg, "slice", "array")
+		msg := fmt.Sprintf(fail.ErrFuncRequiresOneArg, "slice", object.ARR_OBJ)
 		return nil, errors.New(msg)
 	}
 
 	startFrom, ok := args[0].(*object.Int)
 
 	if !ok {
-		msg := fmt.Sprintf(fail.ErrFuncFirstArgInt, "slice", "array")
+		msg := fmt.Sprintf(fail.ErrFuncFirstArgInt, "slice", object.ARR_OBJ)
 		return nil, errors.New(msg)
 	}
 
@@ -114,7 +114,7 @@ func arraySliceFunc(receiver object.Object, args ...object.Object) (object.Objec
 	endAt, ok := args[1].(*object.Int)
 
 	if !ok {
-		msg := fmt.Sprintf(fail.ErrFuncSecondArgInt, "slice", "array")
+		msg := fmt.Sprintf(fail.ErrFuncSecondArgInt, "slice", object.ARR_OBJ)
 		return nil, errors.New(msg)
 	}
 
