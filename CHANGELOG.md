@@ -7,6 +7,7 @@
 * 📝 - Adding or updating documentation
 
 ## v2.2.0 (2024-10-26)
+- ✨ Added `truncate` function for string type
 
 ## v2.1.1 (2024-10-24)
 - 🐛 Fixed bug where you couldn't pass `nil` to `textwire.NewTemplate` function

@@ -42,6 +42,16 @@ func TestEvalStringFunctions(t *testing.T) {
 		{`{{ "Hello World 你好".contains("你好 ") }}`, "0"},
 		{`{{ "".contains("") }}`, "1"},
 		{`{{ "some".contains("") }}`, "1"},
+		// truncate
+		{`{{ "Hello World".truncate(5) }}`, "Hello..."},
+		{`{{ "谢尔盖".truncate(3) }}`, "谢尔盖"},
+		{`{{ "anna".truncate(4) }}`, "anna"},
+		{`{{ "anna".truncate(4, "!!!") }}`, "anna"},
+		{`{{ "Hello World".truncate(5, "!!!") }}`, "Hello!!!"},
+		{`{{ "".truncate(0, "") }}`, ""},
+		{`{{ "1234567890".truncate(4, "~") }}`, "1234~"},
+		{`{{ "Hello World".truncate(0) }}`, "..."},
+		{`{{ "Hello World".truncate(0, "---") }}`, "---"},
 	}
 
 	for _, tc := range tests {

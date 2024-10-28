@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"html"
 	"strings"
+	"unicode/utf8"
 
 	"github.com/textwire/textwire/v2/fail"
 	"github.com/textwire/textwire/v2/object"
@@ -116,7 +117,7 @@ func strContainsFunc(receiver object.Object, args ...object.Object) (object.Obje
 		return nil, errors.New(msg)
 	}
 
-	substr, ok := args[0].(*object.Str)
+	firstArg, ok := args[0].(*object.Str)
 
 	if !ok {
 		msg := fmt.Sprintf(fail.ErrFuncFirstArgStr, "contains", object.STR_OBJ)
@@ -124,6 +125,43 @@ func strContainsFunc(receiver object.Object, args ...object.Object) (object.Obje
 	}
 
 	val := receiver.(*object.Str).Value
+	substr := firstArg.Value
 
-	return &object.Bool{Value: strings.Contains(val, substr.Value)}, nil
+	return &object.Bool{Value: strings.Contains(val, substr)}, nil
+}
+
+// strTruncateFunc returns a string truncated to the given length
+func strTruncateFunc(receiver object.Object, args ...object.Object) (object.Object, error) {
+	if len(args) == 0 {
+		msg := fmt.Sprintf(fail.ErrFuncRequiresOneArg, "truncate", "int")
+		return nil, errors.New(msg)
+	}
+
+	firstArg, ok := args[0].(*object.Int)
+
+	if !ok {
+		msg := fmt.Sprintf(fail.ErrFuncFirstArgInt, "truncate", object.STR_OBJ)
+		return nil, errors.New(msg)
+	}
+
+	val := receiver.(*object.Str).Value
+	limit := int(firstArg.Value)
+
+	if limit >= utf8.RuneCountInString(val) {
+		return &object.Str{Value: val}, nil
+	}
+
+	ellipsis := "..."
+
+	if len(args) > 1 {
+		secondArg, ok := args[1].(*object.Str)
+
+		if ok {
+			ellipsis = secondArg.Value
+		}
+	}
+
+	newVal := val[:firstArg.Value] + ellipsis
+
+	return &object.Str{Value: newVal}, nil
 }
