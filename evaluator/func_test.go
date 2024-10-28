@@ -45,6 +45,17 @@ func TestFunctionGivesError(t *testing.T) {
 		{`{{ " nice".trim(nil) }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncFirstArgStr, "trim", object.STR_OBJ)},
 		// contains
 		{`{{ "anna".contains() }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncRequiresOneArg, "contains", object.STR_OBJ)},
+		// truncate
+		{`{{ "anna serhii".truncate() }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncRequiresOneArg, "truncate", object.STR_OBJ)},
+		{`{{ "anna".truncate("hi") }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncFirstArgInt, "truncate", object.STR_OBJ)},
+		{`{{ "anna".truncate(true) }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncFirstArgInt, "truncate", object.STR_OBJ)},
+		{`{{ "anna".truncate([]) }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncFirstArgInt, "truncate", object.STR_OBJ)},
+		{`{{ "anna".truncate({}) }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncFirstArgInt, "truncate", object.STR_OBJ)},
+		{`{{ "anna".truncate(3.3) }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncFirstArgInt, "truncate", object.STR_OBJ)},
+		{`{{ "anna".truncate(1, true) }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncSecondArgStr, "truncate", object.STR_OBJ)},
+		{`{{ "anna".truncate(2, []) }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncSecondArgStr, "truncate", object.STR_OBJ)},
+		{`{{ "anna".truncate(1, {}) }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncSecondArgStr, "truncate", object.STR_OBJ)},
+		{`{{ "anna".truncate(1, 3.3) }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncSecondArgStr, "truncate", object.STR_OBJ)},
 	}
 
 	for _, tc := range tests {

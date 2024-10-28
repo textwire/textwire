@@ -133,7 +133,7 @@ func strContainsFunc(receiver object.Object, args ...object.Object) (object.Obje
 // strTruncateFunc returns a string truncated to the given length
 func strTruncateFunc(receiver object.Object, args ...object.Object) (object.Object, error) {
 	if len(args) == 0 {
-		msg := fmt.Sprintf(fail.ErrFuncRequiresOneArg, "truncate", object.INT_OBJ)
+		msg := fmt.Sprintf(fail.ErrFuncRequiresOneArg, "truncate", object.STR_OBJ)
 		return nil, errors.New(msg)
 	}
 
@@ -158,6 +158,9 @@ func strTruncateFunc(receiver object.Object, args ...object.Object) (object.Obje
 
 		if ok {
 			ellipsis = secondArg.Value
+		} else {
+			msg := fmt.Sprintf(fail.ErrFuncSecondArgStr, "truncate", object.STR_OBJ)
+			return nil, errors.New(msg)
 		}
 	}
 
