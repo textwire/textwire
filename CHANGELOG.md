@@ -7,7 +7,8 @@
 * 📝 - Adding or updating documentation
 
 ## v2.2.0 (2024-10-26)
-- ✨ Added `truncate` function for string type
+- ✨ Added `truncate` function for `STRING` type
+- ✨ Added `len` function for `INTEGER` type that returns the number of digits in the integer
 
 ## v2.1.1 (2024-10-24)
 - 🐛 Fixed bug where you couldn't pass `nil` to `textwire.NewTemplate` function

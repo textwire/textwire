@@ -28,3 +28,15 @@ func intStrFunc(receiver object.Object, _ ...object.Object) (object.Object, erro
 	val := receiver.(*object.Int).Value
 	return &object.Str{Value: strconv.FormatInt(val, 10)}, nil
 }
+
+// intLenFunc returns the number of digits in an integer
+func intLenFunc(receiver object.Object, _ ...object.Object) (object.Object, error) {
+	val := receiver.(*object.Int).Value
+	valStr := strconv.FormatInt(val, 10)
+
+	if val < 0 {
+		return &object.Int{Value: int64(len(valStr) - 1)}, nil
+	}
+
+	return &object.Int{Value: int64(len(valStr))}, nil
+}
