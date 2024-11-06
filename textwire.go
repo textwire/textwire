@@ -8,10 +8,9 @@ import (
 	"github.com/textwire/textwire/v2/evaluator"
 	"github.com/textwire/textwire/v2/fail"
 	"github.com/textwire/textwire/v2/object"
-	"golang.org/x/text/language"
 )
 
-var conf = config.New("templates", ".tw.html", &language.English)
+var conf = config.New("templates", ".tw.html")
 var customFunc = config.NewFunc()
 
 // usesTemplates is a flag to check if user uses Textwire templates or not
@@ -143,9 +142,5 @@ func Configure(opt *config.Config) {
 
 	if opt.TemplateExt != "" {
 		conf.TemplateExt = opt.TemplateExt
-	}
-
-	if opt.Locale != nil {
-		conf.Locale = opt.Locale
 	}
 }
