@@ -7,18 +7,19 @@ import (
 	"strings"
 	"unicode/utf8"
 
+	"github.com/textwire/textwire/v2/ctx"
 	"github.com/textwire/textwire/v2/fail"
 	"github.com/textwire/textwire/v2/object"
 )
 
 // strLenFunc returns the length of the given string
-func strLenFunc(receiver object.Object, _ ...object.Object) (object.Object, error) {
+func strLenFunc(_ *ctx.EvalCtx, receiver object.Object, _ ...object.Object) (object.Object, error) {
 	val := receiver.(*object.Str).Value
 	return &object.Int{Value: int64(len(val))}, nil
 }
 
 // strSplitFunc returns a list of strings split by the given separator
-func strSplitFunc(receiver object.Object, args ...object.Object) (object.Object, error) {
+func strSplitFunc(_ *ctx.EvalCtx, receiver object.Object, args ...object.Object) (object.Object, error) {
 	separator := " "
 
 	if len(args) > 0 {
@@ -45,13 +46,13 @@ func strSplitFunc(receiver object.Object, args ...object.Object) (object.Object,
 }
 
 // strRawFunc prevents escaping HTML tags in a string
-func strRawFunc(receiver object.Object, _ ...object.Object) (object.Object, error) {
+func strRawFunc(_ *ctx.EvalCtx, receiver object.Object, _ ...object.Object) (object.Object, error) {
 	val := receiver.(*object.Str).Value
 	return &object.Str{Value: html.UnescapeString(val)}, nil
 }
 
 // strTrimFunc returns a string with leading and trailing whitespace removed
-func strTrimFunc(receiver object.Object, args ...object.Object) (object.Object, error) {
+func strTrimFunc(_ *ctx.EvalCtx, receiver object.Object, args ...object.Object) (object.Object, error) {
 	chars := "\t \n\r"
 
 	if len(args) > 0 {
@@ -71,19 +72,19 @@ func strTrimFunc(receiver object.Object, args ...object.Object) (object.Object, 
 }
 
 // strUpperFunc returns a string with all characters in uppercase
-func strUpperFunc(receiver object.Object, _ ...object.Object) (object.Object, error) {
+func strUpperFunc(_ *ctx.EvalCtx, receiver object.Object, _ ...object.Object) (object.Object, error) {
 	val := receiver.(*object.Str).Value
 	return &object.Str{Value: strings.ToUpper(val)}, nil
 }
 
 // strLowerFunc returns a string with all characters in lowercase
-func strLowerFunc(receiver object.Object, _ ...object.Object) (object.Object, error) {
+func strLowerFunc(_ *ctx.EvalCtx, receiver object.Object, _ ...object.Object) (object.Object, error) {
 	str := receiver.(*object.Str)
 	return &object.Str{Value: strings.ToLower(str.Value)}, nil
 }
 
 // strCapitalizeFunc returns a string with the first character capitalized
-func strCapitalizeFunc(receiver object.Object, _ ...object.Object) (object.Object, error) {
+func strCapitalizeFunc(_ *ctx.EvalCtx, receiver object.Object, _ ...object.Object) (object.Object, error) {
 	val := receiver.(*object.Str).Value
 
 	if len(val) == 0 {
@@ -96,7 +97,7 @@ func strCapitalizeFunc(receiver object.Object, _ ...object.Object) (object.Objec
 }
 
 // strReverseFunc returns a string with the characters reversed
-func strReverseFunc(receiver object.Object, _ ...object.Object) (object.Object, error) {
+func strReverseFunc(_ *ctx.EvalCtx, receiver object.Object, _ ...object.Object) (object.Object, error) {
 	val := receiver.(*object.Str).Value
 
 	runes := []rune(val)
@@ -111,7 +112,7 @@ func strReverseFunc(receiver object.Object, _ ...object.Object) (object.Object, 
 }
 
 // strContainsFunc returns true if the string contains the given substring, false otherwise
-func strContainsFunc(receiver object.Object, args ...object.Object) (object.Object, error) {
+func strContainsFunc(_ *ctx.EvalCtx, receiver object.Object, args ...object.Object) (object.Object, error) {
 	if len(args) == 0 {
 		msg := fmt.Sprintf(fail.ErrFuncRequiresOneArg, "contains", object.STR_OBJ)
 		return nil, errors.New(msg)
@@ -131,7 +132,7 @@ func strContainsFunc(receiver object.Object, args ...object.Object) (object.Obje
 }
 
 // strTruncateFunc returns a string truncated to the given length
-func strTruncateFunc(receiver object.Object, args ...object.Object) (object.Object, error) {
+func strTruncateFunc(_ *ctx.EvalCtx, receiver object.Object, args ...object.Object) (object.Object, error) {
 	if len(args) == 0 {
 		msg := fmt.Sprintf(fail.ErrFuncRequiresOneArg, "truncate", object.STR_OBJ)
 		return nil, errors.New(msg)

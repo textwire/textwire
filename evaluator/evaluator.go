@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/textwire/textwire/v2/ast"
+	"github.com/textwire/textwire/v2/ctx"
 	"github.com/textwire/textwire/v2/fail"
 	"github.com/textwire/textwire/v2/object"
 )
@@ -19,10 +20,10 @@ var (
 )
 
 type Evaluator struct {
-	ctx *EvalContext
+	ctx *ctx.EvalCtx
 }
 
-func New(ctx *EvalContext) *Evaluator {
+func New(ctx *ctx.EvalCtx) *Evaluator {
 	return &Evaluator{ctx: ctx}
 }
 
@@ -695,7 +696,7 @@ func (e *Evaluator) evalCallExp(
 	buitin, ok := typeFuncs[node.Function.Value]
 
 	if ok {
-		res, err := buitin.Fn(receiverObj, args...)
+		res, err := buitin.Fn(e.ctx, receiverObj, args...)
 
 		if err != nil {
 			return e.newError(node, err.Error())
@@ -704,29 +705,29 @@ func (e *Evaluator) evalCallExp(
 		return res
 	}
 
-	if hasCustomFunc(e.ctx.customFunc, receiverType, funcName) {
+	if hasCustomFunc(e.ctx.CustomFunc, receiverType, funcName) {
 		nativeArgs := e.objectsToNativeType(args)
 
 		switch receiverType {
 		case object.STR_OBJ:
-			fun := e.ctx.customFunc.Str[funcName]
+			fun := e.ctx.CustomFunc.Str[funcName]
 			res := fun(receiverObj.String(), nativeArgs...)
 			return object.NativeToObject(res)
 		case object.ARR_OBJ:
-			fun := e.ctx.customFunc.Arr[funcName]
+			fun := e.ctx.CustomFunc.Arr[funcName]
 			nativeElems := e.objectsToNativeType(receiverObj.(*object.Array).Elements)
 			res := fun(nativeElems, nativeArgs...)
 			return object.NativeToObject(res)
 		case object.INT_OBJ:
-			fun := e.ctx.customFunc.Int[funcName]
+			fun := e.ctx.CustomFunc.Int[funcName]
 			res := fun(int(receiverObj.(*object.Int).Value), nativeArgs...)
 			return object.NativeToObject(res)
 		case object.FLOAT_OBJ:
-			fun := e.ctx.customFunc.Float[funcName]
+			fun := e.ctx.CustomFunc.Float[funcName]
 			res := fun(receiverObj.(*object.Float).Value, nativeArgs...)
 			return object.NativeToObject(res)
 		case object.BOOL_OBJ:
-			fun := e.ctx.customFunc.Bool[funcName]
+			fun := e.ctx.CustomFunc.Bool[funcName]
 			res := fun(receiverObj.(*object.Bool).Value, nativeArgs...)
 			return object.NativeToObject(res)
 		}
@@ -943,6 +944,6 @@ func (e *Evaluator) newError(
 	format string,
 	a ...interface{},
 ) *object.Error {
-	err := fail.New(node.Line(), e.ctx.absPath, "evaluator", format, a...)
+	err := fail.New(node.Line(), e.ctx.AbsPath, "evaluator", format, a...)
 	return &object.Error{Err: err}
 }

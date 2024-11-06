@@ -1,20 +1,24 @@
 package textwire
 
 import (
+	"strings"
+
 	"github.com/textwire/textwire/v2/config"
+	"github.com/textwire/textwire/v2/ctx"
 	"github.com/textwire/textwire/v2/evaluator"
 	"github.com/textwire/textwire/v2/fail"
 	"github.com/textwire/textwire/v2/object"
+	"golang.org/x/text/language"
 )
 
-var conf = config.New("templates", ".tw.html")
+var conf = config.New("templates", ".tw.html", &language.English)
 var customFunc = config.NewFunc()
 
 // usesTemplates is a flag to check if user uses Textwire templates or not
 var usesTemplates = false
 
 func NewTemplate(opt *config.Config) (*Template, error) {
-	applyOptions(opt)
+	Configure(opt)
 
 	paths, err := findTextwireFiles()
 
@@ -46,7 +50,7 @@ func EvaluateString(inp string, data map[string]interface{}) (string, error) {
 		return "", err.Error()
 	}
 
-	ctx := evaluator.NewContext("", customFunc)
+	ctx := ctx.NewContext("", customFunc, conf)
 	eval := evaluator.New(ctx)
 
 	evaluated := eval.Eval(prog, env)
@@ -124,4 +128,24 @@ func RegisterBoolFunc(name string, fn config.BoolCustomFunc) error {
 	customFunc.Bool[name] = fn
 
 	return nil
+}
+
+func Configure(opt *config.Config) {
+	usesTemplates = true
+
+	if opt == nil {
+		return
+	}
+
+	if opt.TemplateDir != "" {
+		conf.TemplateDir = strings.Trim(opt.TemplateDir, "/")
+	}
+
+	if opt.TemplateExt != "" {
+		conf.TemplateExt = opt.TemplateExt
+	}
+
+	if opt.Locale != nil {
+		conf.Locale = opt.Locale
+	}
 }

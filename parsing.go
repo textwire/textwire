@@ -1,10 +1,7 @@
 package textwire
 
 import (
-	"strings"
-
 	"github.com/textwire/textwire/v2/ast"
-	"github.com/textwire/textwire/v2/config"
 	"github.com/textwire/textwire/v2/fail"
 	"github.com/textwire/textwire/v2/lexer"
 	"github.com/textwire/textwire/v2/parser"
@@ -118,20 +115,4 @@ func applyComponentToProgram(prog *ast.Program, progFilePath string) *fail.Error
 	}
 
 	return nil
-}
-
-func applyOptions(opt *config.Config) {
-	usesTemplates = true
-
-	if opt == nil {
-		return
-	}
-
-	if opt.TemplateDir != "" {
-		conf.TemplateDir = strings.Trim(opt.TemplateDir, "/")
-	}
-
-	if opt.TemplateExt != "" {
-		conf.TemplateExt = opt.TemplateExt
-	}
 }
