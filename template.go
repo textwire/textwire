@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/textwire/textwire/v2/ast"
+	"github.com/textwire/textwire/v2/ctx"
 	"github.com/textwire/textwire/v2/evaluator"
 	"github.com/textwire/textwire/v2/fail"
 	"github.com/textwire/textwire/v2/object"
@@ -33,7 +34,7 @@ func (t *Template) String(filename string, data map[string]interface{}) (string,
 		return "", fail.New(0, absPath, "template", fail.ErrTemplateNotFound)
 	}
 
-	ctx := evaluator.NewContext(absPath, customFunc)
+	ctx := ctx.NewContext(absPath, customFunc, conf)
 	eval := evaluator.New(ctx)
 
 	evaluated := eval.Eval(prog, env)

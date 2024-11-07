@@ -44,9 +44,11 @@ const (
 	// Functions
 	ErrNoFuncForThisType  = "function '%s' doesn't exist for type '%s'"
 	ErrFuncRequiresOneArg = "function '%s' on type '%s' requires at least one argument"
-	ErrFuncFirstArgInt    = "the first argument for function '%s' on type '%s' must be an integer"
-	ErrFuncSecondArgInt   = "the second argument for function '%s' on type '%s' must be an integer"
-	ErrFuncFirstArgStr    = "the first argument for function '%s' on type '%s' must be a string"
+	ErrFuncFirstArgInt    = "the first argument for function '%s' on type '%s' must be an INTEGER"
+	ErrFuncFirstArgStr    = "the first argument for function '%s' on type '%s' must be a STRING"
+	ErrFuncSecondArgInt   = "the second argument for function '%s' on type '%s' must be an INTEGER"
+	ErrFuncSecondArgStr   = "the second argument for function '%s' on type '%s' must be a STRING"
+	ErrFuncMaxArgs        = "function '%s' on type '%s' accepts a maximum of '%d' arguments"
 
 	// Template errors
 	ErrUnsupportedType   = "unsupported type '%T'"

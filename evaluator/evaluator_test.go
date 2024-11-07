@@ -4,6 +4,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/textwire/textwire/v2/ctx"
 	"github.com/textwire/textwire/v2/fail"
 	"github.com/textwire/textwire/v2/lexer"
 	"github.com/textwire/textwire/v2/object"
@@ -16,8 +17,8 @@ func testEval(inp string) object.Object {
 	prog := p.ParseProgram()
 	env := object.NewEnv()
 
-	eval := New(&EvalContext{
-		absPath: "/path/to/file",
+	eval := New(&ctx.EvalCtx{
+		AbsPath: "/path/to/file",
 	})
 
 	return eval.Eval(prog, env)

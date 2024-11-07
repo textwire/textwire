@@ -15,6 +15,8 @@ var functions = map[object.ObjectType]map[string]*object.Builtin{
 		"capitalize": {Fn: strCapitalizeFunc},
 		"reverse":    {Fn: strReverseFunc},
 		"contains":   {Fn: strContainsFunc},
+		"truncate":   {Fn: strTruncateFunc},
+		"decimal":    {Fn: strDecimalFunc},
 	},
 	object.ARR_OBJ: {
 		"len":     {Fn: arrayLenFunc},
@@ -33,9 +35,11 @@ var functions = map[object.ObjectType]map[string]*object.Builtin{
 		"round": {Fn: floatRoundFunc},
 	},
 	object.INT_OBJ: {
-		"float": {Fn: intFloatFunc},
-		"abs":   {Fn: intAbsFunc},
-		"str":   {Fn: intStrFunc},
+		"float":   {Fn: intFloatFunc},
+		"abs":     {Fn: intAbsFunc},
+		"str":     {Fn: intStrFunc},
+		"len":     {Fn: intLenFunc},
+		"decimal": {Fn: intDecimalFunc},
 	},
 	object.BOOL_OBJ: {
 		"binary": {Fn: boolBinaryFunc},
