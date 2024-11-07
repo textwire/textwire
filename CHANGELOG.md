@@ -4,12 +4,12 @@
 * ✨ - Introducing new features
 * 🐛 - Fixing bugs
 * ♻️ - Refactoring code
-* 📝 - Adding or updating documentation
 
 ## v2.2.0 (2024-11-07)
 - ✨ Added `truncate` function for `STRING` type
 - ✨ Added `len` function for `INTEGER` type that returns the number of digits in the integer
 - ✨ Added `decimal` function for `INTEGER` and `STRING` types that converts to a string with decimal points
+- ♻️ Added more tests for utility functions
 
 ## v2.1.1 (2024-10-24)
 - 🐛 Fixed bug where you couldn't pass `nil` to `textwire.NewTemplate` function
