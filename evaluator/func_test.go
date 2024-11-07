@@ -56,7 +56,7 @@ func TestFunctionGivesError(t *testing.T) {
 		{`{{ "anna".truncate(2, []) }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncSecondArgStr, "truncate", object.STR_OBJ)},
 		{`{{ "anna".truncate(1, {}) }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncSecondArgStr, "truncate", object.STR_OBJ)},
 		{`{{ "anna".truncate(1, 3.3) }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncSecondArgStr, "truncate", object.STR_OBJ)},
-		// decimal
+		// decimal (STRING)
 		{`{{ "100".decimal(1) }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncFirstArgStr, "decimal", object.STR_OBJ)},
 		{`{{ "100".decimal(true) }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncFirstArgStr, "decimal", object.STR_OBJ)},
 		{`{{ "100".decimal([]) }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncFirstArgStr, "decimal", object.STR_OBJ)},
@@ -67,6 +67,17 @@ func TestFunctionGivesError(t *testing.T) {
 		{`{{ "100".decimal("", []) }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncSecondArgInt, "decimal", object.STR_OBJ)},
 		{`{{ "100".decimal("", {}) }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncSecondArgInt, "decimal", object.STR_OBJ)},
 		{`{{ "100".decimal("", 1.1) }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncSecondArgInt, "decimal", object.STR_OBJ)},
+		// decimal (INTEGER)
+		{`{{ 100.decimal(1) }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncFirstArgStr, "decimal", object.INT_OBJ)},
+		{`{{ 100.decimal(true) }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncFirstArgStr, "decimal", object.INT_OBJ)},
+		{`{{ 100.decimal([]) }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncFirstArgStr, "decimal", object.INT_OBJ)},
+		{`{{ 100.decimal({}) }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncFirstArgStr, "decimal", object.INT_OBJ)},
+		{`{{ 100.decimal(1.1) }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncFirstArgStr, "decimal", object.INT_OBJ)},
+		{`{{ 100.decimal("", "nice") }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncSecondArgInt, "decimal", object.INT_OBJ)},
+		{`{{ 100.decimal("", true) }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncSecondArgInt, "decimal", object.INT_OBJ)},
+		{`{{ 100.decimal("", []) }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncSecondArgInt, "decimal", object.INT_OBJ)},
+		{`{{ 100.decimal("", {}) }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncSecondArgInt, "decimal", object.INT_OBJ)},
+		{`{{ 100.decimal("", 1.1) }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncSecondArgInt, "decimal", object.INT_OBJ)},
 	}
 
 	for _, tc := range tests {

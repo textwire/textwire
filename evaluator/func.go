@@ -35,10 +35,11 @@ var functions = map[object.ObjectType]map[string]*object.Builtin{
 		"round": {Fn: floatRoundFunc},
 	},
 	object.INT_OBJ: {
-		"float": {Fn: intFloatFunc},
-		"abs":   {Fn: intAbsFunc},
-		"str":   {Fn: intStrFunc},
-		"len":   {Fn: intLenFunc},
+		"float":   {Fn: intFloatFunc},
+		"abs":     {Fn: intAbsFunc},
+		"str":     {Fn: intStrFunc},
+		"len":     {Fn: intLenFunc},
+		"decimal": {Fn: intDecimalFunc},
 	},
 	object.BOOL_OBJ: {
 		"binary": {Fn: boolBinaryFunc},

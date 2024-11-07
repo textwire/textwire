@@ -41,3 +41,8 @@ func intLenFunc(_ *ctx.EvalCtx, receiver object.Object, _ ...object.Object) (obj
 
 	return &object.Int{Value: int64(len(valStr))}, nil
 }
+
+// intDecimalFunc returns a string formatted as a decimal number
+func intDecimalFunc(_ *ctx.EvalCtx, receiver object.Object, args ...object.Object) (object.Object, error) {
+	return addDecimals(receiver, object.INT_OBJ, args...)
+}

@@ -1,8 +1,14 @@
 package evaluator
 
 import (
+	"errors"
+	"fmt"
+	"strings"
+
 	"github.com/textwire/textwire/v2/config"
+	"github.com/textwire/textwire/v2/fail"
 	"github.com/textwire/textwire/v2/object"
+	"github.com/textwire/textwire/v2/utils"
 )
 
 func isTruthy(obj object.Object) bool {
@@ -81,4 +87,56 @@ func hasCustomFunc(customFunc *config.Func, t object.ObjectType, funcName string
 	default:
 		return false
 	}
+}
+
+func addDecimals(receiver object.Object, objType object.ObjectType, args ...object.Object) (object.Object, error) {
+	var val string
+
+	if objType == object.STR_OBJ {
+		val = receiver.(*object.Str).Value
+	} else if objType == object.INT_OBJ {
+		val = receiver.(*object.Int).String()
+	}
+
+	if !utils.StrIsInt(val) {
+		return &object.Str{Value: val}, nil
+	}
+
+	separator := "."
+	decimals := 2
+
+	if len(args) > 2 {
+		msg := fmt.Sprintf(fail.ErrFuncMaxArgs, "decimal", objType, 2)
+		return nil, errors.New(msg)
+	}
+
+	if len(args) >= 1 {
+		separatorArg, ok := args[0].(*object.Str)
+
+		if !ok {
+			msg := fmt.Sprintf(fail.ErrFuncFirstArgStr, "decimal", objType)
+			return nil, errors.New(msg)
+		}
+
+		separator = separatorArg.Value
+	}
+
+	if len(args) == 2 {
+		decimalArg, ok := args[1].(*object.Int)
+
+		if !ok {
+			msg := fmt.Sprintf(fail.ErrFuncSecondArgInt, "decimal", objType)
+			return nil, errors.New(msg)
+		}
+
+		decimals = int(decimalArg.Value)
+	}
+
+	zeros := strings.Repeat("0", decimals)
+
+	if decimals == 0 {
+		return &object.Str{Value: val}, nil
+	}
+
+	return &object.Str{Value: val + separator + zeros}, nil
 }

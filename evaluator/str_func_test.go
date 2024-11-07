@@ -65,6 +65,7 @@ func TestEvalStringFunctions(t *testing.T) {
 		{`{{ "nice".decimal('|', 10) }}`, "nice"},
 		{`{{ "12.02".decimal() }}`, "12.02"},
 		{`{{ "10,10".decimal() }}`, "10,10"},
+		{`{{ "-900".decimal(',') }}`, "-900,00"},
 	}
 
 	for _, tc := range tests {
