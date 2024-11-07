@@ -10,6 +10,7 @@ import (
 	"github.com/textwire/textwire/v2/ctx"
 	"github.com/textwire/textwire/v2/fail"
 	"github.com/textwire/textwire/v2/object"
+	"github.com/textwire/textwire/v2/utils"
 )
 
 // strLenFunc returns the length of the given string
@@ -168,4 +169,51 @@ func strTruncateFunc(_ *ctx.EvalCtx, receiver object.Object, args ...object.Obje
 	newVal := val[:firstArg.Value] + ellipsis
 
 	return &object.Str{Value: newVal}, nil
+}
+
+// strDecimalFunc returns a string formatted as a decimal number
+func strDecimalFunc(_ *ctx.EvalCtx, receiver object.Object, args ...object.Object) (object.Object, error) {
+	val := receiver.(*object.Str).Value
+
+	if !utils.StrIsInt(val) {
+		return &object.Str{Value: val}, nil
+	}
+
+	separator := "."
+	decimals := 2
+
+	if len(args) > 2 {
+		msg := fmt.Sprintf(fail.ErrFuncMaxArgs, "decimal", object.STR_OBJ, 2)
+		return nil, errors.New(msg)
+	}
+
+	if len(args) >= 1 {
+		separatorArg, ok := args[0].(*object.Str)
+
+		if !ok {
+			msg := fmt.Sprintf(fail.ErrFuncFirstArgStr, "decimal", object.STR_OBJ)
+			return nil, errors.New(msg)
+		}
+
+		separator = separatorArg.Value
+	}
+
+	if len(args) == 2 {
+		decimalArg, ok := args[1].(*object.Int)
+
+		if !ok {
+			msg := fmt.Sprintf(fail.ErrFuncSecondArgInt, "decimal", object.STR_OBJ)
+			return nil, errors.New(msg)
+		}
+
+		decimals = int(decimalArg.Value)
+	}
+
+	zeros := strings.Repeat("0", decimals)
+
+	if decimals == 0 {
+		return &object.Str{Value: val}, nil
+	}
+
+	return &object.Str{Value: val + separator + zeros}, nil
 }

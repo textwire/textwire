@@ -48,6 +48,7 @@ const (
 	ErrFuncFirstArgStr    = "the first argument for function '%s' on type '%s' must be a STRING"
 	ErrFuncSecondArgInt   = "the second argument for function '%s' on type '%s' must be an INTEGER"
 	ErrFuncSecondArgStr   = "the second argument for function '%s' on type '%s' must be a STRING"
+	ErrFuncMaxArgs        = "function '%s' on type '%s' accepts a maximum of '%d' arguments"
 
 	// Template errors
 	ErrUnsupportedType   = "unsupported type '%T'"

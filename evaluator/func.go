@@ -16,6 +16,7 @@ var functions = map[object.ObjectType]map[string]*object.Builtin{
 		"reverse":    {Fn: strReverseFunc},
 		"contains":   {Fn: strContainsFunc},
 		"truncate":   {Fn: strTruncateFunc},
+		"decimal":    {Fn: strDecimalFunc},
 	},
 	object.ARR_OBJ: {
 		"len":     {Fn: arrayLenFunc},

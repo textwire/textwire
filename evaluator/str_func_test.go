@@ -52,6 +52,19 @@ func TestEvalStringFunctions(t *testing.T) {
 		{`{{ "1234567890".truncate(4, "~") }}`, "1234~"},
 		{`{{ "Hello World".truncate(0) }}`, "..."},
 		{`{{ "Hello World".truncate(0, "---") }}`, "---"},
+		// decimal
+		{`{{ "".decimal() }}`, ""},
+		{`{{ "0".decimal() }}`, "0.00"},
+		{`{{ "100".decimal() }}`, "100.00"},
+		{`{{ "2352".decimal() }}`, "2352.00"},
+		{`{{ "1000".decimal('_') }}`, "1000_00"},
+		{`{{ "9000".decimal('_', 10) }}`, "9000_0000000000"},
+		{`{{ "100".decimal('|', 0) }}`, "100"},
+		{`{{ "100".decimal('|', 1) }}`, "100|0"},
+		{`{{ "hello".decimal() }}`, "hello"},
+		{`{{ "nice".decimal('|', 10) }}`, "nice"},
+		{`{{ "12.02".decimal() }}`, "12.02"},
+		{`{{ "10,10".decimal() }}`, "10,10"},
 	}
 
 	for _, tc := range tests {
