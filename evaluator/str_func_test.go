@@ -10,38 +10,46 @@ func TestEvalStringFunctions(t *testing.T) {
 		// len
 		{`{{ "anna".len() }}`, "4"},
 		{`{{ "".len() }}`, "0"},
+		{`{{ "中国很漂亮".len() }}`, "5"},
 		// split
 		{`{{ "one two three".split() }}`, "one, two, three"},
 		{`{{ "one|two|three".split("|") }}`, "one, two, three"},
 		{`{{ "one-two".split("-") }}`, "one, two"},
+		{`{{ "我喜欢中文".split("欢") }}`, "我喜, 中文"},
 		// raw
 		{`{{ "<h1>nice</h1>".raw() }}`, "<h1>nice</h1>"},
 		{`{{ "cool".raw() }}`, "cool"},
+		{`{{ "<b>中国很大</b>".raw() }}`, "<b>中国很大</b>"},
 		// trim
 		{`{{ " 	test		".trim() }}`, "test"},
 		{`{{ "ease".trim("e") }}`, "as"},
 		{`{{ "(no war!)".trim("()") }}`, "no war!"},
+		{`{{ " 中国很大   ".trim("中 大") }}`, "国很"},
 		// upper
-		{`{{ "Hello World 你好".upper() }}`, "HELLO WORLD 你好"},
+		{`{{ "Hello World".upper() }}`, "HELLO WORLD"},
 		{`{{ "upper_-1234567890!@#$%^*()=+".upper() }}`, "UPPER_-1234567890!@#$%^*()=+"},
 		{`{{ "".upper() }}`, ""},
+		{`{{ "中国很大".upper() }}`, "中国很大"},
 		// lower
-		{`{{ "Hello World 你好".lower() }}`, "hello world 你好"},
+		{`{{ "Hello World".lower() }}`, "hello world"},
 		{`{{ "LOWER_-1234567890!@#$%^*()=+".lower() }}`, "lower_-1234567890!@#$%^*()=+"},
 		{`{{ "".lower() }}`, ""},
+		{`{{ "中国很大".lower() }}`, "中国很大"},
 		// reverse
-		{`{{ "Hello World 你好".reverse() }}`, "好你 dlroW olleH"},
+		{`{{ "Hello World".reverse() }}`, "dlroW olleH"},
 		{`{{ "reverse_-1234567890!@#$%^*()=+".reverse() }}`, "+=)(*^%$#@!0987654321-_esrever"},
 		{`{{ "".reverse() }}`, ""},
 		{`{{ "T".reverse() }}`, "T"},
+		{`{{ "我爱中文".reverse() }}`, "文中爱我"},
 		// contains
-		{`{{ "Hello World 你好".contains("World") }}`, "1"},
-		{`{{ "Hello World 你好".contains("world") }}`, "0"},
+		{`{{ "Hello World".contains("World") }}`, "1"},
+		{`{{ "Hello World".contains("world") }}`, "0"},
 		{`{{ "Hello World 你好".contains("你好") }}`, "1"},
 		{`{{ "Hello World 你好".contains("你") }}`, "1"},
 		{`{{ "Hello World 你好".contains("你好 ") }}`, "0"},
 		{`{{ "".contains("") }}`, "1"},
 		{`{{ "some".contains("") }}`, "1"},
+		{`{{ "Hello, World!".lower().contains("world") }}`, "1"},
 		// truncate
 		{`{{ "Hello World".truncate(5) }}`, "Hello..."},
 		{`{{ "谢尔盖".truncate(3) }}`, "谢尔盖"},
