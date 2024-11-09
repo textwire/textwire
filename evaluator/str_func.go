@@ -208,3 +208,8 @@ func strAtFunc(_ *ctx.EvalCtx, receiver object.Object, args ...object.Object) (o
 
 	return &object.Str{Value: string(chars[index])}, nil
 }
+
+// strFirstFunc returns the first character in the string
+func strFirstFunc(c *ctx.EvalCtx, receiver object.Object, _ ...object.Object) (object.Object, error) {
+	return strAtFunc(c, receiver, &object.Int{Value: 0})
+}

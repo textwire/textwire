@@ -6,8 +6,9 @@
 - ♻️ Refactoring code
 
 ## v2.3.0 (2024-11-08)
-- 🐛 Fixed bugs with `len` function for `STRING` type that was not handling Unicode correctly
-- ✨ Added `at` function for `STRING` type
+- 🐛 Fixed bugs with function `len` for `STRING` type that was not handling Unicode correctly
+- ✨ Added function `at` for `STRING` type
+- ✨ Added function `first` for `STRING` type
 
 ## v2.2.0 (2024-11-07)
 - ✨ Added `truncate` function for `STRING` type

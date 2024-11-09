@@ -88,6 +88,11 @@ func TestEvalStringFunctions(t *testing.T) {
 		{`{{ "Hello World".at(-1) }}`, "d"},
 		{`{{ "cho".at(-3) }}`, "c"},
 		{`{{ "我爱中国".at(-2) }}`, "中"},
+		// first
+		{`{{ "Textwire is awesome".first() }}`, "T"},
+		{`{{ "我爱你".first() }}`, "我"},
+		{`{{ "привет".first() }}`, "п"},
+		{`{{ "".first() }}`, ""},
 	}
 
 	for _, tc := range tests {
