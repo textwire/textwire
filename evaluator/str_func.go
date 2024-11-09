@@ -15,7 +15,8 @@ import (
 // strLenFunc returns the length of the given string
 func strLenFunc(_ *ctx.EvalCtx, receiver object.Object, _ ...object.Object) (object.Object, error) {
 	val := receiver.(*object.Str).Value
-	return &object.Int{Value: int64(len(val))}, nil
+	chars := []rune(val)
+	return &object.Int{Value: int64(len(chars))}, nil
 }
 
 // strSplitFunc returns a list of strings split by the given separator

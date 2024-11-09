@@ -1,9 +1,12 @@
 # Release notes
 
-* 🧑‍💻 - Improving developer experience
-* ✨ - Introducing new features
-* 🐛 - Fixing bugs
-* ♻️ - Refactoring code
+- 🧑‍💻 Improving developer experience
+- ✨ Introducing new features
+- 🐛 Fixing bugs
+- ♻️ Refactoring code
+
+## v2.3.0 (2024-11-08)
+- 🐛 Fixed bugs with `len` function for `STRING` type that was not handling Unicode correctly
 
 ## v2.2.0 (2024-11-07)
 - ✨ Added `truncate` function for `STRING` type
