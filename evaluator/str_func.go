@@ -175,3 +175,36 @@ func strTruncateFunc(_ *ctx.EvalCtx, receiver object.Object, args ...object.Obje
 func strDecimalFunc(_ *ctx.EvalCtx, receiver object.Object, args ...object.Object) (object.Object, error) {
 	return addDecimals(receiver, object.STR_OBJ, args...)
 }
+
+// strAtFunc returns the character at the given index in the string
+func strAtFunc(_ *ctx.EvalCtx, receiver object.Object, args ...object.Object) (object.Object, error) {
+	index := 0
+
+	if len(args) != 0 {
+		firstArg, ok := args[0].(*object.Int)
+
+		if !ok {
+			msg := fmt.Sprintf(fail.ErrFuncFirstArgInt, "at", object.STR_OBJ)
+			return nil, errors.New(msg)
+		}
+
+		index = int(firstArg.Value)
+	}
+
+	val := receiver.(*object.Str).Value
+	chars := []rune(val)
+
+	if len(chars) == 0 {
+		return &object.Nil{}, nil
+	}
+
+	if index < 0 {
+		index = len(chars) + index
+	}
+
+	if index >= len(chars) {
+		return &object.Nil{}, nil
+	}
+
+	return &object.Str{Value: string(chars[index])}, nil
+}

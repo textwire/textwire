@@ -74,6 +74,20 @@ func TestEvalStringFunctions(t *testing.T) {
 		{`{{ "12.02".decimal() }}`, "12.02"},
 		{`{{ "10,10".decimal() }}`, "10,10"},
 		{`{{ "-900".decimal(',') }}`, "-900,00"},
+		// at
+		{`{{ "Textwire is awesome".at() }}`, "T"},
+		{`{{ "Textwire is awesome".at(0) }}`, "T"},
+		{`{{ "Textwire is awesome".at(1) }}`, "e"},
+		{`{{ "Textwire is awesome".at(5) }}`, "i"},
+		{`{{ "Textwire is awesome".at(8) }}`, " "},
+		{`{{ "我爱你".at(2) }}`, "你"},
+		{`{{ "привет".at(2) }}`, "и"},
+		{`{{ "".at(0) }}`, ""},
+		{`{{ "".at(99) }}`, ""},
+		{`{{ "cho".at(-1) }}`, "o"},
+		{`{{ "Hello World".at(-1) }}`, "d"},
+		{`{{ "cho".at(-3) }}`, "c"},
+		{`{{ "我爱中国".at(-2) }}`, "中"},
 	}
 
 	for _, tc := range tests {

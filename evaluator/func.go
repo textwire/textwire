@@ -17,6 +17,7 @@ var functions = map[object.ObjectType]map[string]*object.Builtin{
 		"contains":   {Fn: strContainsFunc},
 		"truncate":   {Fn: strTruncateFunc},
 		"decimal":    {Fn: strDecimalFunc},
+		"at":         {Fn: strAtFunc},
 	},
 	object.ARR_OBJ: {
 		"len":     {Fn: arrayLenFunc},
