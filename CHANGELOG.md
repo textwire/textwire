@@ -7,6 +7,7 @@
 
 ## v2.3.0 (2024-11-08)
 - 🐛 Fixed bugs with `len` function for `STRING` type that was not handling Unicode correctly
+- ✨ Added `at` function for `STRING` type
 
 ## v2.2.0 (2024-11-07)
 - ✨ Added `truncate` function for `STRING` type
