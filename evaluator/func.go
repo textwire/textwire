@@ -19,6 +19,7 @@ var functions = map[object.ObjectType]map[string]*object.Builtin{
 		"decimal":    {Fn: strDecimalFunc},
 		"at":         {Fn: strAtFunc},
 		"first":      {Fn: strFirstFunc},
+		"last":       {Fn: strLastFunc},
 	},
 	object.ARR_OBJ: {
 		"len":     {Fn: arrayLenFunc},

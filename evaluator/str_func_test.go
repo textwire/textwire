@@ -93,6 +93,11 @@ func TestEvalStringFunctions(t *testing.T) {
 		{`{{ "我爱你".first() }}`, "我"},
 		{`{{ "привет".first() }}`, "п"},
 		{`{{ "".first() }}`, ""},
+		// last
+		{`{{ "Textwire is awesome".last() }}`, "e"},
+		{`{{ "我爱你".last() }}`, "你"},
+		{`{{ "привет".last() }}`, "т"},
+		{`{{ "".last() }}`, ""},
 	}
 
 	for _, tc := range tests {

@@ -213,3 +213,8 @@ func strAtFunc(_ *ctx.EvalCtx, receiver object.Object, args ...object.Object) (o
 func strFirstFunc(c *ctx.EvalCtx, receiver object.Object, _ ...object.Object) (object.Object, error) {
 	return strAtFunc(c, receiver, &object.Int{Value: 0})
 }
+
+// strLastFunc returns the last character in the string
+func strLastFunc(c *ctx.EvalCtx, receiver object.Object, _ ...object.Object) (object.Object, error) {
+	return strAtFunc(c, receiver, &object.Int{Value: -1})
+}

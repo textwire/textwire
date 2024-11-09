@@ -7,8 +7,9 @@
 
 ## v2.3.0 (2024-11-08)
 - 🐛 Fixed bugs with function `len` for `STRING` type that was not handling Unicode correctly
-- ✨ Added function `at` for `STRING` type
-- ✨ Added function `first` for `STRING` type
+- ✨ Added function `at` for `STRING` type that returns the character at the specified index
+- ✨ Added function `first` for `STRING` type that returns the first characters of the string
+- ✨ Added function `last` for `STRING` type that returns the last characters of the string
 
 ## v2.2.0 (2024-11-07)
 - ✨ Added `truncate` function for `STRING` type
