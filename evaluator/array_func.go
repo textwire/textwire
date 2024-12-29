@@ -174,7 +174,11 @@ func arrayContainsFunc(_ *ctx.EvalCtx, receiver object.Object, args ...object.Ob
 		isArr := el.Type() == object.ARR_OBJ && target.Type() == object.ARR_OBJ
 
 		if isObj || isArr {
-			return &object.Bool{Value: reflect.DeepEqual(el, target)}, nil
+			if reflect.DeepEqual(el, target) {
+				return &object.Bool{Value: true}, nil
+			}
+
+			continue
 		}
 
 		if el.Val() == target.Val() {
