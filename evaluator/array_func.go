@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"math/rand"
+	"reflect"
 	"time"
 
 	"github.com/textwire/textwire/v2/ctx"
@@ -166,10 +167,17 @@ func arrayContainsFunc(_ *ctx.EvalCtx, receiver object.Object, args ...object.Ob
 		return &object.Bool{Value: false}, nil
 	}
 
-	targetVal := args[0].Val()
+	target := args[0]
 
 	for _, el := range elems {
-		if el.Val() == targetVal {
+		isObj := el.Type() == object.OBJ_OBJ && target.Type() == object.OBJ_OBJ
+		isArr := el.Type() == object.ARR_OBJ && target.Type() == object.ARR_OBJ
+
+		if isObj || isArr {
+			return &object.Bool{Value: reflect.DeepEqual(el, target)}, nil
+		}
+
+		if el.Val() == target.Val() {
 			return &object.Bool{Value: true}, nil
 		}
 	}

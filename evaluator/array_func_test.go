@@ -48,6 +48,12 @@ func TestEvalArrayFunctions(t *testing.T) {
 		{`{{ [1, 2, 3].contains(1) }}`, "1"},
 		{`{{ [1, 2, 3].contains(4) }}`, "0"},
 		{`{{ [{}, [1, 2], 3].contains(1) }}`, "0"},
+		{`{{ [{}, [1, 2], 3].contains({}) }}`, "1"},
+		{`{{ [{nice: 3, cool: 'anna'}, [1, 2], 3].contains({nice:3, cool: 'anna'}) }}`, "1"},
+		{`{{ [{cool: 'anna', nice: 3}, [1, 2], 3].contains({nice:3, cool: 'anna'}) }}`, "1"},
+		{`{{ [[], 3].contains([]) }}`, "1"},
+		{`{{ [[1, 2], 3].contains([1, 2]) }}`, "1"},
+		{`{{ [[2, 1], 3].contains([1, 2]) }}`, "0"},
 	}
 
 	for _, tc := range tests {
