@@ -78,6 +78,11 @@ func TestFunctionGivesError(t *testing.T) {
 		{`{{ 100.decimal("", []) }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncSecondArgInt, "decimal", object.INT_OBJ)},
 		{`{{ 100.decimal("", {}) }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncSecondArgInt, "decimal", object.INT_OBJ)},
 		{`{{ 100.decimal("", 1.1) }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncSecondArgInt, "decimal", object.INT_OBJ)},
+		// then
+		{`{{ true.then() }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncRequiresOneArg, "then", object.BOOL_OBJ)},
+		{`{{ false.then() }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncRequiresOneArg, "then", object.BOOL_OBJ)},
+		// contains
+		{`{{ [1, 2].contains() }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncRequiresOneArg, "contains", object.ARR_OBJ)},
 	}
 
 	for _, tc := range tests {

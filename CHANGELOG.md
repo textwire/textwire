@@ -1,9 +1,17 @@
 # Release notes
 
-* 🧑‍💻 - Improving developer experience
-* ✨ - Introducing new features
-* 🐛 - Fixing bugs
-* ♻️ - Refactoring code
+- 🧑‍💻 Improving developer experience
+- ✨ Introducing new features
+- 🐛 Fixing bugs
+- ♻️ Refactoring code
+
+## v2.3.0 (2024-12-29)
+- 🐛 Fixed bugs with function `len` for `STRING` type that was not handling Unicode correctly
+- ✨ Added function `at` for `STRING` type that returns the character at the specified index
+- ✨ Added function `first` for `STRING` type that returns the first characters of the string
+- ✨ Added function `last` for `STRING` type that returns the last characters of the string
+- ✨ Added function `then` for `BOOLEAN` type that returns the passed value if the boolean is true, otherwise returns `nil`. If second argument is passed, it returns the second argument if the boolean is false
+- ✨ Added function `contains` for `ARRAY` type that returns true if the array contains the specified value, otherwise returns false
 
 ## v2.2.0 (2024-11-07)
 - ✨ Added `truncate` function for `STRING` type

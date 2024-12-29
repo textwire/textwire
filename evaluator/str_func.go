@@ -15,7 +15,8 @@ import (
 // strLenFunc returns the length of the given string
 func strLenFunc(_ *ctx.EvalCtx, receiver object.Object, _ ...object.Object) (object.Object, error) {
 	val := receiver.(*object.Str).Value
-	return &object.Int{Value: int64(len(val))}, nil
+	chars := []rune(val)
+	return &object.Int{Value: int64(len(chars))}, nil
 }
 
 // strSplitFunc returns a list of strings split by the given separator
@@ -173,4 +174,47 @@ func strTruncateFunc(_ *ctx.EvalCtx, receiver object.Object, args ...object.Obje
 // strDecimalFunc returns a string formatted as a decimal number
 func strDecimalFunc(_ *ctx.EvalCtx, receiver object.Object, args ...object.Object) (object.Object, error) {
 	return addDecimals(receiver, object.STR_OBJ, args...)
+}
+
+// strAtFunc returns the character at the given index in the string
+func strAtFunc(_ *ctx.EvalCtx, receiver object.Object, args ...object.Object) (object.Object, error) {
+	index := 0
+
+	if len(args) != 0 {
+		firstArg, ok := args[0].(*object.Int)
+
+		if !ok {
+			msg := fmt.Sprintf(fail.ErrFuncFirstArgInt, "at", object.STR_OBJ)
+			return nil, errors.New(msg)
+		}
+
+		index = int(firstArg.Value)
+	}
+
+	val := receiver.(*object.Str).Value
+	chars := []rune(val)
+
+	if len(chars) == 0 {
+		return &object.Nil{}, nil
+	}
+
+	if index < 0 {
+		index = len(chars) + index
+	}
+
+	if index >= len(chars) {
+		return &object.Nil{}, nil
+	}
+
+	return &object.Str{Value: string(chars[index])}, nil
+}
+
+// strFirstFunc returns the first character in the string
+func strFirstFunc(c *ctx.EvalCtx, receiver object.Object, _ ...object.Object) (object.Object, error) {
+	return strAtFunc(c, receiver, &object.Int{Value: 0})
+}
+
+// strLastFunc returns the last character in the string
+func strLastFunc(c *ctx.EvalCtx, receiver object.Object, _ ...object.Object) (object.Object, error) {
+	return strAtFunc(c, receiver, &object.Int{Value: -1})
 }

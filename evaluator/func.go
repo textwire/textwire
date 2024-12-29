@@ -17,14 +17,18 @@ var functions = map[object.ObjectType]map[string]*object.Builtin{
 		"contains":   {Fn: strContainsFunc},
 		"truncate":   {Fn: strTruncateFunc},
 		"decimal":    {Fn: strDecimalFunc},
+		"at":         {Fn: strAtFunc},
+		"first":      {Fn: strFirstFunc},
+		"last":       {Fn: strLastFunc},
 	},
 	object.ARR_OBJ: {
-		"len":     {Fn: arrayLenFunc},
-		"join":    {Fn: arrayJoinFunc},
-		"rand":    {Fn: arrayRandFunc},
-		"reverse": {Fn: arrayReverseFunc},
-		"slice":   {Fn: arraySliceFunc},
-		"shuffle": {Fn: arrayShuffleFunc},
+		"len":      {Fn: arrayLenFunc},
+		"join":     {Fn: arrayJoinFunc},
+		"rand":     {Fn: arrayRandFunc},
+		"reverse":  {Fn: arrayReverseFunc},
+		"slice":    {Fn: arraySliceFunc},
+		"shuffle":  {Fn: arrayShuffleFunc},
+		"contains": {Fn: arrayContainsFunc},
 	},
 	object.FLOAT_OBJ: {
 		"int":   {Fn: floatIntFunc},
@@ -43,5 +47,6 @@ var functions = map[object.ObjectType]map[string]*object.Builtin{
 	},
 	object.BOOL_OBJ: {
 		"binary": {Fn: boolBinaryFunc},
+		"then":   {Fn: boolThenFunc},
 	},
 }

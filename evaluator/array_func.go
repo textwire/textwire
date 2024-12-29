@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"math/rand"
+	"reflect"
 	"time"
 
 	"github.com/textwire/textwire/v2/ctx"
@@ -151,4 +152,39 @@ func arrayShuffleFunc(_ *ctx.EvalCtx, receiver object.Object, _ ...object.Object
 	}
 
 	return &object.Array{Elements: shuffled}, nil
+}
+
+// arrayContainsFunc checks if the given array contains the given element
+func arrayContainsFunc(_ *ctx.EvalCtx, receiver object.Object, args ...object.Object) (object.Object, error) {
+	if len(args) == 0 {
+		msg := fmt.Sprintf(fail.ErrFuncRequiresOneArg, "contains", object.ARR_OBJ)
+		return nil, errors.New(msg)
+	}
+
+	elems := receiver.(*object.Array).Elements
+
+	if len(elems) == 0 {
+		return &object.Bool{Value: false}, nil
+	}
+
+	target := args[0]
+
+	for _, el := range elems {
+		isObj := el.Type() == object.OBJ_OBJ && target.Type() == object.OBJ_OBJ
+		isArr := el.Type() == object.ARR_OBJ && target.Type() == object.ARR_OBJ
+
+		if isObj || isArr {
+			if reflect.DeepEqual(el, target) {
+				return &object.Bool{Value: true}, nil
+			}
+
+			continue
+		}
+
+		if el.Val() == target.Val() {
+			return &object.Bool{Value: true}, nil
+		}
+	}
+
+	return &object.Bool{Value: false}, nil
 }

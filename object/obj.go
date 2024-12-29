@@ -1,5 +1,7 @@
 package object
 
+import "bytes"
+
 type Obj struct {
 	Pairs map[string]Object
 }
@@ -9,7 +11,26 @@ func (o *Obj) Type() ObjectType {
 }
 
 func (o *Obj) String() string {
-	return ""
+	var out bytes.Buffer
+
+	out.WriteString("{")
+
+	idx := 0
+	last := len(o.Pairs) - 1
+
+	for key, pair := range o.Pairs {
+		out.WriteString(key + ": " + pair.String())
+
+		if idx != last {
+			out.WriteString(", ")
+		}
+
+		idx++
+	}
+
+	out.WriteString("}")
+
+	return out.String()
 }
 
 func (o *Obj) Val() interface{} {
