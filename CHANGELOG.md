@@ -5,7 +5,7 @@
 - 🐛 Fixing bugs
 - ♻️ Refactoring code
 
-## v2.3.0 (2024-11-09)
+## v2.3.0 (2024-12-29)
 - 🐛 Fixed bugs with function `len` for `STRING` type that was not handling Unicode correctly
 - ✨ Added function `at` for `STRING` type that returns the character at the specified index
 - ✨ Added function `first` for `STRING` type that returns the first characters of the string
