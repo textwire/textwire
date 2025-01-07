@@ -179,7 +179,7 @@ func (e *Evaluator) evalAssignStmt(node *ast.AssignStmt, env *object.Env) object
 	err := env.Set(node.Name.Value, val)
 
 	if err != nil {
-		return e.newError(node, err.Error())
+		return e.newError(node, "%s", err.Error())
 	}
 
 	return NIL
@@ -333,7 +333,7 @@ func (e *Evaluator) evalForStmt(node *ast.ForStmt, env *object.Env) object.Objec
 		err := newEnv.Set(varName, post)
 
 		if err != nil {
-			return e.newError(node, err.Error())
+			return e.newError(node, "%s", err.Error())
 		}
 
 		if hasBreakStmt(block) {
@@ -372,7 +372,7 @@ func (e *Evaluator) evalEachStmt(node *ast.EachStmt, env *object.Env) object.Obj
 		err := newEnv.Set(varName, elem)
 
 		if err != nil {
-			return e.newError(node, err.Error())
+			return e.newError(node, "%s", err.Error())
 		}
 
 		newEnv.SetLoopVar(map[string]object.Object{
@@ -699,7 +699,7 @@ func (e *Evaluator) evalCallExp(
 		res, err := buitin.Fn(e.ctx, receiverObj, args...)
 
 		if err != nil {
-			return e.newError(node, err.Error())
+			return e.newError(node, "%s", err.Error())
 		}
 
 		return res
