@@ -25,7 +25,7 @@ func (t *Template) String(filename string, data map[string]interface{}) (string,
 	absPath, err := getFullPath(filename, true)
 
 	if err != nil {
-		return "", fail.New(0, filename, "template", err.Error())
+		return "", fail.New(0, filename, "template", "%s", err.Error())
 	}
 
 	prog, ok := t.programs[filename]

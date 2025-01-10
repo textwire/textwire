@@ -5,7 +5,7 @@
 - 🐛 Fixing bugs
 - ♻️ Refactoring code
 
-## v2.4.0 (2025-01-08)
+## v2.4.0 (2025-01-10)
 
 ## v2.3.0 (2024-12-29)
 - 🐛 Fixed bugs with function `len` for `STRING` type that was not handling Unicode correctly
