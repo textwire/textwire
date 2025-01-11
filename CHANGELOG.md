@@ -6,7 +6,7 @@
 - ♻️ Refactoring code
 
 ## v2.4.0 (2025-01-11)
-- ✨ Added new functions for strings: `trimRight`, `trimLeft`
+- ✨ Added new functions for strings: `trimRight`, `trimLeft`, `repeat`
 - ✨ Added shortcut for using components, instead of writing `@component("components/post-card", { post })` you can now write `@component("~post-card", { post })`. `~` is an alias for the `components/` directory
 
 ## v2.3.0 (2024-12-29)

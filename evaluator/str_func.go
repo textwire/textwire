@@ -260,3 +260,23 @@ func strTrimLeftFunc(_ *ctx.EvalCtx, receiver object.Object, args ...object.Obje
 
 	return &object.Str{Value: strings.TrimLeft(val, chars)}, nil
 }
+
+// strRepeatFunc returns a string repeated n times
+func strRepeatFunc(_ *ctx.EvalCtx, receiver object.Object, args ...object.Object) (object.Object, error) {
+	if len(args) == 0 {
+		msg := fmt.Sprintf(fail.ErrFuncRequiresOneArg, "repeat", object.STR_OBJ)
+		return nil, errors.New(msg)
+	}
+
+	firstArg, ok := args[0].(*object.Int)
+
+	if !ok {
+		msg := fmt.Sprintf(fail.ErrFuncFirstArgInt, "repeat", object.STR_OBJ)
+		return nil, errors.New(msg)
+	}
+
+	val := receiver.(*object.Str).Value
+	repeated := strings.Repeat(val, int(firstArg.Value))
+
+	return &object.Str{Value: repeated}, nil
+}

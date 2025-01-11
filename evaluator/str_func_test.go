@@ -37,6 +37,16 @@ func TestEvalStringFunctions(t *testing.T) {
 		{`{{ "ease".trimLeft("e") }}`, "ase"},
 		{`{{ "(no war!)".trimLeft("()") }}`, "no war!)"},
 		{`{{ " 中国很大   ".trimLeft("中 大") }}`, "国很大   "},
+		// repeat
+		{`{{ "a".repeat(3) }}`, "aaa"},
+		{`{{ "a".repeat(0) }}`, ""},
+		{`{{ "a".repeat(1) }}`, "a"},
+		{`{{ "b".repeat(10) }}`, "bbbbbbbbbb"},
+		{`{{ "".repeat(10) }}`, ""},
+		{`{{ " ".repeat(4) }}`, "    "},
+		{`{{ "nice ".repeat(4) }}`, "nice nice nice nice "},
+		{`{{ "中国 ".repeat(4) }}`, "中国 中国 中国 中国 "},
+		{`{{ "просто ".repeat(2) }}`, "просто просто "},
 		// upper
 		{`{{ "Hello World".upper() }}`, "HELLO WORLD"},
 		{`{{ "upper_-1234567890!@#$%^*()=+".upper() }}`, "UPPER_-1234567890!@#$%^*()=+"},

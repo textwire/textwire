@@ -22,6 +22,7 @@ var functions = map[object.ObjectType]map[string]*object.Builtin{
 		"at":         {Fn: strAtFunc},
 		"first":      {Fn: strFirstFunc},
 		"last":       {Fn: strLastFunc},
+		"repeat":     {Fn: strRepeatFunc},
 	},
 	object.ARR_OBJ: {
 		"len":      {Fn: arrayLenFunc},
