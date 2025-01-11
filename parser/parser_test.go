@@ -571,6 +571,10 @@ func TestErrorHandling(t *testing.T) {
 			fail.New(1, "", "parser", fail.ErrNoPrefixParseFunc,
 				token.String(token.RPAREN)),
 		},
+		{
+			"@component('')",
+			fail.New(1, "", "parser", fail.ErrExpectedComponentName),
+		},
 	}
 
 	for _, tc := range tests {

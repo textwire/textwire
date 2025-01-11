@@ -24,6 +24,7 @@ const (
 	ErrDefaultSlotNotDefined     = "default slot is not defined in the component '%s'"
 	ErrDuplicateSlotUsage        = "duplicate slot usage '%s' found %d times in the component '%s'"
 	ErrDuplicateDefaultSlotUsage = "duplicate default slot usage found %d times in the component '%s'"
+	ErrExpectedComponentName     = "expected component name, got empty string instead"
 
 	// Evaluator (interpreter) errors
 	ErrUnknownNodeType         = "unknown node type '%T'"
