@@ -32,6 +32,8 @@ func TestEvalStringFunctions(t *testing.T) {
 		{`{{ " 中国很大   ".trimRight("中 大") }}`, " 中国很"},
 		// trimLeft
 		{`{{ " 	test		".trimLeft() }}`, "test		"},
+		{`{{ "Textwire".trimLeft('t') }}`, "Textwire"},
+		{`{{ "Textwire".trimLeft('T') }}`, "extwire"},
 		{`{{ "ease".trimLeft("e") }}`, "ase"},
 		{`{{ "(no war!)".trimLeft("()") }}`, "no war!)"},
 		{`{{ " 中国很大   ".trimLeft("中 大") }}`, "国很大   "},
