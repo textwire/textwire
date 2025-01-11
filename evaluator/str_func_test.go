@@ -25,6 +25,16 @@ func TestEvalStringFunctions(t *testing.T) {
 		{`{{ "ease".trim("e") }}`, "as"},
 		{`{{ "(no war!)".trim("()") }}`, "no war!"},
 		{`{{ " 中国很大   ".trim("中 大") }}`, "国很"},
+		// trimRight
+		{`{{ " 	test		".trimRight() }}`, " 	test"},
+		{`{{ "ease".trimRight("e") }}`, "eas"},
+		{`{{ "(no war!)".trimRight("()") }}`, "(no war!"},
+		{`{{ " 中国很大   ".trimRight("中 大") }}`, " 中国很"},
+		// trimLeft
+		{`{{ " 	test		".trimLeft() }}`, "test		"},
+		{`{{ "ease".trimLeft("e") }}`, "ase"},
+		{`{{ "(no war!)".trimLeft("()") }}`, "no war!)"},
+		{`{{ " 中国很大   ".trimLeft("中 大") }}`, "国很大   "},
 		// upper
 		{`{{ "Hello World".upper() }}`, "HELLO WORLD"},
 		{`{{ "upper_-1234567890!@#$%^*()=+".upper() }}`, "UPPER_-1234567890!@#$%^*()=+"},
