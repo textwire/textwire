@@ -25,6 +25,7 @@ func TestEvalStringFunctions(t *testing.T) {
 		{`{{ "ease".trim("e") }}`, "as"},
 		{`{{ "(no war!)".trim("()") }}`, "no war!"},
 		{`{{ " 中国很大   ".trim("中 大") }}`, "国很"},
+		{`{{ "😡🤣🤣🤣😤".trim("😡😤") }}`, "🤣🤣🤣"},
 		// trimRight
 		{`{{ " 	test		".trimRight() }}`, " 	test"},
 		{`{{ "ease".trimRight("e") }}`, "eas"},
@@ -47,22 +48,26 @@ func TestEvalStringFunctions(t *testing.T) {
 		{`{{ "nice ".repeat(4) }}`, "nice nice nice nice "},
 		{`{{ "中国 ".repeat(4) }}`, "中国 中国 中国 中国 "},
 		{`{{ "просто ".repeat(2) }}`, "просто просто "},
+		{`{{ '🤣'.repeat(5) }}`, "🤣🤣🤣🤣🤣"},
 		// upper
 		{`{{ "Hello World".upper() }}`, "HELLO WORLD"},
 		{`{{ "upper_-1234567890!@#$%^*()=+".upper() }}`, "UPPER_-1234567890!@#$%^*()=+"},
 		{`{{ "".upper() }}`, ""},
 		{`{{ "中国很大".upper() }}`, "中国很大"},
+		{`{{ "😡🤣😤".upper() }}`, "😡🤣😤"},
 		// lower
 		{`{{ "Hello World".lower() }}`, "hello world"},
 		{`{{ "LOWER_-1234567890!@#$%^*()=+".lower() }}`, "lower_-1234567890!@#$%^*()=+"},
 		{`{{ "".lower() }}`, ""},
 		{`{{ "中国很大".lower() }}`, "中国很大"},
+		{`{{ "😡🤣😤".lower() }}`, "😡🤣😤"},
 		// reverse
 		{`{{ "Hello World".reverse() }}`, "dlroW olleH"},
 		{`{{ "reverse_-1234567890!@#$%^*()=+".reverse() }}`, "+=)(*^%$#@!0987654321-_esrever"},
 		{`{{ "".reverse() }}`, ""},
 		{`{{ "T".reverse() }}`, "T"},
 		{`{{ "我爱中文".reverse() }}`, "文中爱我"},
+		{`{{ "😡🤣😤".reverse() }}`, "😤🤣😡"},
 		// contains
 		{`{{ "Hello World".contains("World") }}`, "1"},
 		{`{{ "Hello World".contains("world") }}`, "0"},
