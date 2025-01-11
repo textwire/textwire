@@ -612,17 +612,9 @@ func TestTernaryExp(t *testing.T) {
 		t.Fatalf("stmt is not a TernaryExp, got %T", stmt.Expression)
 	}
 
-	if !testBooleanLiteral(t, exp.Condition, true) {
-		return
-	}
-
-	if !testIntegerLiteral(t, exp.Consequence, 100) {
-		return
-	}
-
-	if !testStringLiteral(t, exp.Alternative, "Some string") {
-		return
-	}
+	testBooleanLiteral(t, exp.Condition, true)
+	testIntegerLiteral(t, exp.Consequence, 100)
+	testStringLiteral(t, exp.Alternative, "Some string")
 }
 
 func TestParseIfStmt(t *testing.T) {
@@ -1534,4 +1526,23 @@ func TestParseSlotDirective(t *testing.T) {
 			t.Fatalf("slotStmt.String() is not @slot, got `%s`", slotStmt.String())
 		}
 	})
+}
+
+func TestParseDumpStmt(t *testing.T) {
+	inp := `@dump("test", 1 + 2, false)`
+
+	stmts := parseStatements(t, inp, 1, nil)
+	stmt, ok := stmts[0].(*ast.DumpStmt)
+
+	if !ok {
+		t.Fatalf("stmts[0] is not an DumpStmt, got %T", stmts[0])
+	}
+
+	if len(stmt.Arguments) != 3 {
+		t.Fatalf("len(stmt.Arguments) is not 3, got %d", len(stmt.Arguments))
+	}
+
+	testStringLiteral(t, stmt.Arguments[0], "test")
+	testInfixExp(t, stmt.Arguments[1], 1, "+", 2)
+	testBooleanLiteral(t, stmt.Arguments[2], false)
 }

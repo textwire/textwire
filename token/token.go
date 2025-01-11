@@ -72,6 +72,7 @@ const (
 	CONTINUE
 	COMPONENT
 	SLOT
+	DUMP
 )
 
 var keywords = map[string]TokenType{
@@ -98,6 +99,7 @@ var directives = map[string]TokenType{
 	"@breakIf":    BREAK_IF,
 	"@component":  COMPONENT,
 	"@slot":       SLOT,
+	"@dump":       DUMP,
 }
 
 type Token struct {
