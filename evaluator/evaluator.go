@@ -2,6 +2,7 @@ package evaluator
 
 import (
 	"bytes"
+	"fmt"
 	"html"
 	"strings"
 
@@ -58,6 +59,8 @@ func (e *Evaluator) Eval(node ast.Node, env *object.Env) object.Object {
 		return e.evalContinueIfStmt(node, env)
 	case *ast.SlotStmt:
 		return e.evalSlotStmt(node, env)
+	case *ast.DumpStmt:
+		return e.evalDumpStmt(node, env)
 	case *ast.BreakStmt:
 		return BREAK
 	case *ast.ContinueStmt:
@@ -453,6 +456,17 @@ func (e *Evaluator) evalSlotStmt(
 	}
 
 	return &object.Slot{Name: node.Name.Value, Content: body}
+}
+
+func (e *Evaluator) evalDumpStmt(node *ast.DumpStmt, env *object.Env) object.Object {
+	var values []string
+
+	for _, arg := range node.Arguments {
+		val := e.Eval(arg, env)
+		values = append(values, fmt.Sprintf(object.DumpHTML, val.String()))
+	}
+
+	return &object.Dump{Values: values}
 }
 
 func (e *Evaluator) evalIdentifier(
