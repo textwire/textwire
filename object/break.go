@@ -10,6 +10,10 @@ func (b *Break) String() string {
 	return ""
 }
 
+func (b *Break) Dump(ident int) string {
+	return ""
+}
+
 func (b *Break) Val() interface{} {
 	return nil
 }

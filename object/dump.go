@@ -38,6 +38,10 @@ func (d *Dump) String() string {
 	return out.String()
 }
 
+func (d *Dump) Dump(ident int) string {
+	return "dump"
+}
+
 func (d *Dump) Val() interface{} {
 	var result []interface{}
 

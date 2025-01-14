@@ -2,6 +2,7 @@ package object
 
 import (
 	"bytes"
+	"strings"
 )
 
 type Block struct {
@@ -17,6 +18,19 @@ func (b *Block) String() string {
 
 	for _, e := range b.Elements {
 		out.WriteString(e.String())
+	}
+
+	return out.String()
+}
+
+func (b *Block) Dump(ident int) string {
+	spaces := strings.Repeat(" ", ident)
+	ident += 1
+
+	var out bytes.Buffer
+
+	for _, e := range b.Elements {
+		out.WriteString(spaces + e.Dump(ident))
 	}
 
 	return out.String()

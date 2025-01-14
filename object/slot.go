@@ -17,6 +17,10 @@ func (s *Slot) String() string {
 	return s.Content.String()
 }
 
+func (s *Slot) Dump(ident int) string {
+	return "slot"
+}
+
 func (s *Slot) Val() interface{} {
 	return s.Content.Val()
 }

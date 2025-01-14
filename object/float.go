@@ -25,6 +25,10 @@ func (f *Float) String() string {
 	return utils.FloatToStr(f.Value)
 }
 
+func (f *Float) Dump(ident int) string {
+	return "<span class='textwire-key'>" + f.String() + "</span>"
+}
+
 func (f *Float) Val() interface{} {
 	return f.Value
 }

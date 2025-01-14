@@ -10,6 +10,10 @@ func (c *Continue) String() string {
 	return ""
 }
 
+func (c *Continue) Dump(ident int) string {
+	return "continue"
+}
+
 func (c *Continue) Val() interface{} {
 	return nil
 }

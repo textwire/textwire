@@ -13,6 +13,10 @@ func (c *Component) String() string {
 	return c.Content.String()
 }
 
+func (c *Component) Dump(ident int) string {
+	return c.Content.Dump(ident)
+}
+
 func (c *Component) Val() interface{} {
 	return c.Content.Val()
 }

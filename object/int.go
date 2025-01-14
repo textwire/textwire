@@ -1,6 +1,8 @@
 package object
 
-import "fmt"
+import (
+	"fmt"
+)
 
 type Int struct {
 	Value int64
@@ -12,6 +14,10 @@ func (i *Int) Type() ObjectType {
 
 func (i *Int) String() string {
 	return fmt.Sprintf("%d", i.Value)
+}
+
+func (i *Int) Dump(ident int) string {
+	return fmt.Sprintf("<span class='textwire-key'>%d</span>", i.Value)
 }
 
 func (i *Int) Val() interface{} {

@@ -1,6 +1,9 @@
 package object
 
-import "bytes"
+import (
+	"bytes"
+	"strings"
+)
 
 type Array struct {
 	Elements []Object
@@ -20,6 +23,32 @@ func (a *Array) String() string {
 	if out.Len() > 1 {
 		out.Truncate(out.Len() - 2)
 	}
+
+	return out.String()
+}
+
+func (a *Array) Dump(ident int) string {
+	spaces := strings.Repeat(" ", ident)
+	ident += 1
+
+	var out bytes.Buffer
+
+	out.WriteString("<span class='textwire-brace'>[</span>\n")
+
+	idx := 0
+	last := len(a.Elements) - 1
+
+	for _, elem := range a.Elements {
+		out.WriteString(spaces + elem.Dump(ident))
+
+		if idx != last {
+			out.WriteString(",\n")
+		}
+
+		idx++
+	}
+
+	out.WriteString("<span class='textwire-brace'>]</span>\n")
 
 	return out.String()
 }

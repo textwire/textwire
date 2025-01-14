@@ -13,6 +13,10 @@ func (u *Use) String() string {
 	return u.Content.String()
 }
 
+func (u *Use) Dump(ident int) string {
+	return "use"
+}
+
 func (u *Use) Val() interface{} {
 	return u.Content.Val()
 }

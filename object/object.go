@@ -31,6 +31,7 @@ const (
 type Object interface {
 	Type() ObjectType
 	String() string
+	Dump(ident int) string
 	Is(ObjectType) bool
 	Val() interface{}
 }
