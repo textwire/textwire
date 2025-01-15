@@ -24,7 +24,7 @@ func (b *Block) String() string {
 }
 
 func (b *Block) Dump(ident int) string {
-	spaces := strings.Repeat(" ", ident)
+	spaces := strings.Repeat("  ", ident)
 	ident += 1
 
 	var out bytes.Buffer

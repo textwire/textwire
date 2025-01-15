@@ -28,29 +28,32 @@ func (a *Array) String() string {
 }
 
 func (a *Array) Dump(ident int) string {
-	spaces := strings.Repeat(" ", ident)
+	spaces := strings.Repeat("  ", ident)
 	ident += 1
 
 	var out bytes.Buffer
 
-	out.WriteString("<span class='textwire-brace'>[</span>\n")
+	out.WriteString("<span class='textwire-brace'>[</span>")
 
-	idx := 0
-	last := len(a.Elements) - 1
+	for i, elem := range a.Elements {
+		out.WriteString(spaces)
+		out.WriteString(elem.Dump(ident))
 
-	for _, elem := range a.Elements {
-		out.WriteString(spaces + elem.Dump(ident))
-
-		if idx != last {
-			out.WriteString(",\n")
+		if i < len(a.Elements)-1 {
+			out.WriteString(", ")
 		}
-
-		idx++
 	}
 
-	out.WriteString("<span class='textwire-brace'>]</span>\n")
+	res := out.String()
 
-	return out.String()
+	// take last 8 characters of the string
+	lastChar := res[len(res)-8:]
+
+	if lastChar == "}</span>" {
+		res += "\n"
+	}
+
+	return res + "<span class='textwire-brace'>]</span>\n"
 }
 
 func (a *Array) Val() interface{} {

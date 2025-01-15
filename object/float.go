@@ -26,7 +26,7 @@ func (f *Float) String() string {
 }
 
 func (f *Float) Dump(ident int) string {
-	return "<span class='textwire-key'>" + f.String() + "</span>"
+	return "<span class='textwire-num'>" + f.String() + "</span>"
 }
 
 func (f *Float) Val() interface{} {

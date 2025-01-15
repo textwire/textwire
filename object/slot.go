@@ -18,7 +18,7 @@ func (s *Slot) String() string {
 }
 
 func (s *Slot) Dump(ident int) string {
-	return "slot"
+	return "slot stmt"
 }
 
 func (s *Slot) Val() interface{} {

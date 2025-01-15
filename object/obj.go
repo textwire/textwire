@@ -2,7 +2,6 @@ package object
 
 import (
 	"bytes"
-	"fmt"
 	"strings"
 )
 
@@ -38,28 +37,26 @@ func (o *Obj) String() string {
 }
 
 func (o *Obj) Dump(ident int) string {
-	spaces := strings.Repeat(" ", ident)
+	spaces := strings.Repeat("  ", ident)
 	ident += 1
 
 	var out bytes.Buffer
 
+	out.WriteString("\n" + spaces)
 	out.WriteString("<span class='textwire-brace'>{</span>\n")
 
-	idx := 0
-	last := len(o.Pairs) - 1
+	ident += 1
+	insideSpaces := strings.Repeat("  ", ident)
 
 	for key, pair := range o.Pairs {
-		str := fmt.Sprintf("%s<span class='textwire-str'>%s</span>: %s", spaces, key, pair.Dump(ident))
-		out.WriteString(str)
-
-		if idx != last {
-			out.WriteString(", ")
-		}
-
-		idx++
+		out.WriteString(insideSpaces)
+		out.WriteString(`<span class="textwire-prop">"` + key + `"</span>`)
+		out.WriteString(": ")
+		out.WriteString(pair.Dump(ident))
+		out.WriteString(",\n")
 	}
 
-	out.WriteString("<span class='textwire-brace'>}</span>\n")
+	out.WriteString(spaces + "<span class='textwire-brace'>}</span>")
 
 	return out.String()
 }

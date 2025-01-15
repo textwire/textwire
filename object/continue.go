@@ -11,7 +11,7 @@ func (c *Continue) String() string {
 }
 
 func (c *Continue) Dump(ident int) string {
-	return "continue"
+	return "continue stmt"
 }
 
 func (c *Continue) Val() interface{} {

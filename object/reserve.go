@@ -19,7 +19,7 @@ func (r *Reserve) String() string {
 }
 
 func (r *Reserve) Dump(ident int) string {
-	return "reserve"
+	return "reserve stmt"
 }
 
 func (r *Reserve) Val() interface{} {

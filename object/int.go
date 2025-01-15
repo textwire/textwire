@@ -17,7 +17,7 @@ func (i *Int) String() string {
 }
 
 func (i *Int) Dump(ident int) string {
-	return fmt.Sprintf("<span class='textwire-key'>%d</span>", i.Value)
+	return fmt.Sprintf("<span class='textwire-num'>%d</span>", i.Value)
 }
 
 func (i *Int) Val() interface{} {

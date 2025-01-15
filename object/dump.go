@@ -7,6 +7,27 @@ var DumpHTML = `<style>
 	overflow-x: auto;
 	overflow-y: hidden;
     scrollbar-width: thin;
+	margin: 4px;
+}
+
+.textwire-prop {
+	color: #f8f8f2;
+}
+
+.textwire-str {
+	color: #75cf62;
+}
+
+.textwire-num {
+	color: #5090ff;
+}
+
+.textwire-key {
+	color: #f8f8f2;
+}
+
+.textwire-brace {
+	color: #e99f33;
 }
 
 .textwire-dump pre {
@@ -39,7 +60,7 @@ func (d *Dump) String() string {
 }
 
 func (d *Dump) Dump(ident int) string {
-	return "dump"
+	return "dump stmt"
 }
 
 func (d *Dump) Val() interface{} {

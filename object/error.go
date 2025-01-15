@@ -14,6 +14,10 @@ func (e *Error) String() string {
 	return e.Err.String()
 }
 
+func (e *Error) Dump(ident int) string {
+	return "error object"
+}
+
 func (e *Error) Val() interface{} {
 	return e.Err.String()
 }

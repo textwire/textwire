@@ -14,7 +14,7 @@ func (u *Use) String() string {
 }
 
 func (u *Use) Dump(ident int) string {
-	return "use"
+	return "use stmt"
 }
 
 func (u *Use) Val() interface{} {
