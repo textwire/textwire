@@ -15,15 +15,15 @@ var DumpHTML = `<style>
 }
 
 .textwire-str {
-	color: #75cf62;
+	color: #c3e88d;
 }
 
 .textwire-num {
-	color: #5090ff;
+	color: #76a8ff;
 }
 
 .textwire-key {
-	color: #f8f8f2;
+	color: #c792ea;
 }
 
 .textwire-brace {
@@ -31,7 +31,7 @@ var DumpHTML = `<style>
 }
 
 .textwire-dump pre {
-	background-color: #0b0019;
+	background-color: #212121;
 	color: white;
 	padding: 13px;
 	border-radius: 5px;
