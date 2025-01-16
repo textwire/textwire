@@ -10,25 +10,11 @@ var DumpHTML = `<style>
 	margin: 4px;
 }
 
-.textwire-prop {
-	color: #f8f8f2;
-}
-
-.textwire-str {
-	color: #c3e88d;
-}
-
-.textwire-num {
-	color: #76a8ff;
-}
-
-.textwire-key {
-	color: #c792ea;
-}
-
-.textwire-brace {
-	color: #e99f33;
-}
+.textwire-prop { color: #f8f8f2 }
+.textwire-str { color: #c3e88d }
+.textwire-num { color: #76a8ff }
+.textwire-key { color: #c792ea }
+.textwire-brace { color: #e99f33 }
 
 .textwire-dump pre {
 	background-color: #212121;
