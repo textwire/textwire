@@ -1,8 +1,11 @@
 package object
 
-import "bytes"
+import (
+	"bytes"
+	"fmt"
+)
 
-var DumpHTML = `<style>
+var outputHTML = `<style>
 .textwire-dump {
 	overflow-x: auto;
 	overflow-y: hidden;
@@ -38,9 +41,8 @@ func (d *Dump) Type() ObjectType {
 
 func (d *Dump) String() string {
 	var out bytes.Buffer
-
 	for _, v := range d.Values {
-		out.WriteString(v)
+		out.WriteString(fmt.Sprintf(outputHTML, v))
 	}
 
 	return out.String()

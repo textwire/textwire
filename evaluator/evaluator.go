@@ -2,7 +2,6 @@ package evaluator
 
 import (
 	"bytes"
-	"fmt"
 	"html"
 	"strings"
 
@@ -463,7 +462,7 @@ func (e *Evaluator) evalDumpStmt(node *ast.DumpStmt, env *object.Env) object.Obj
 
 	for _, arg := range node.Arguments {
 		val := e.Eval(arg, env)
-		values = append(values, fmt.Sprintf(object.DumpHTML, val.Dump(0)))
+		values = append(values, val.Dump(0))
 	}
 
 	return &object.Dump{Values: values}
