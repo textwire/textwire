@@ -2,6 +2,7 @@ package object
 
 import (
 	"bytes"
+	"fmt"
 	"strings"
 )
 
@@ -42,10 +43,9 @@ func (o *Obj) Dump(ident int) string {
 
 	var out bytes.Buffer
 
-	out.WriteString("\n" + spaces)
+	out.WriteString(fmt.Sprintf("<span class='textwire-meta'>object:%d </span>", len(o.Pairs)))
 	out.WriteString("<span class='textwire-brace'>{</span>\n")
 
-	ident += 1
 	insideSpaces := strings.Repeat("  ", ident)
 
 	for key, pair := range o.Pairs {

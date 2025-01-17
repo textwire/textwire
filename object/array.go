@@ -2,6 +2,8 @@ package object
 
 import (
 	"bytes"
+	"fmt"
+	"strings"
 )
 
 type Array struct {
@@ -27,18 +29,20 @@ func (a *Array) String() string {
 }
 
 func (a *Array) Dump(ident int) string {
+	spaces := strings.Repeat("  ", ident)
 	ident += 1
 
 	var out bytes.Buffer
 
-	out.WriteString("<span class='textwire-brace'>[</span>")
+	out.WriteString(fmt.Sprintf("<span class='textwire-meta'>array:%d </span>", len(a.Elements)))
+	out.WriteString("<span class='textwire-brace'>[</span>\n")
 
-	for i, elem := range a.Elements {
+	insideSpaces := strings.Repeat("  ", ident)
+
+	for _, elem := range a.Elements {
+		out.WriteString(insideSpaces)
 		out.WriteString(elem.Dump(ident))
-
-		if i < len(a.Elements)-1 {
-			out.WriteString(", ")
-		}
+		out.WriteString(",\n")
 	}
 
 	res := out.String()
@@ -50,7 +54,7 @@ func (a *Array) Dump(ident int) string {
 		res += "\n"
 	}
 
-	return res + "<span class='textwire-brace'>]</span>"
+	return res + spaces + "<span class='textwire-brace'>]</span>"
 }
 
 func (a *Array) Val() interface{} {

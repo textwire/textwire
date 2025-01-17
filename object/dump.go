@@ -13,13 +13,14 @@ var DumpHTML = `<style>
 .textwire-prop { color: #f8f8f2 }
 .textwire-str { color: #c3e88d }
 .textwire-num { color: #76a8ff }
-.textwire-key { color: #c792ea }
+.textwire-keyword { color: #c792ea }
 .textwire-brace { color: #e99f33 }
+.textwire-meta { color:#2c8ed0 }
 
 .textwire-dump pre {
 	background-color: #212121;
 	color: white;
-	padding: 13px;
+	padding: 20px;
 	border-radius: 5px;
 	margin: 0 !important;
 	width: fit-content;
