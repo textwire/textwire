@@ -8,6 +8,8 @@
 ## v2.4.0 (2025-01-11)
 - ✨ Added new functions for strings: `trimRight`, `trimLeft`, `repeat`
 - ✨ Added shortcut for using components, instead of writing `@component("components/post-card", { post })` you can now write `@component("~post-card", { post })`. `~` is an alias for the `components/` directory
+- ✨ Added `@dump` directive to dump the value of a variable to the output. This is useful for debugging purposes
+- ✨ Added `2` new functions for arrays: `append` and `prepend` to add elements to the end and beginning of an array
 
 ## v2.3.0 (2024-12-29)
 - 🐛 Fixed bugs with function `len` for `STRING` type that was not handling Unicode correctly
