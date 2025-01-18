@@ -188,3 +188,43 @@ func arrayContainsFunc(_ *ctx.EvalCtx, receiver object.Object, args ...object.Ob
 
 	return &object.Bool{Value: false}, nil
 }
+
+// arrayAppendFunc appends the given elements to the given array
+func arrayAppendFunc(_ *ctx.EvalCtx, receiver object.Object, args ...object.Object) (object.Object, error) {
+	if len(args) == 0 {
+		msg := fmt.Sprintf(fail.ErrFuncRequiresOneArg, "append", object.ARR_OBJ)
+		return nil, errors.New(msg)
+	}
+
+	elems := receiver.(*object.Array).Elements
+	newElems := make([]object.Object, len(elems)+len(args))
+
+	copy(newElems, elems)
+
+	for i, arg := range args {
+		newElems[len(elems)+i] = arg
+	}
+
+	return &object.Array{Elements: newElems}, nil
+}
+
+// arrayPrependFunc prepends the given elements to the given array
+func arrayPrependFunc(_ *ctx.EvalCtx, receiver object.Object, args ...object.Object) (object.Object, error) {
+	argsLen := len(args)
+
+	if argsLen == 0 {
+		msg := fmt.Sprintf(fail.ErrFuncRequiresOneArg, "prepend", object.ARR_OBJ)
+		return nil, errors.New(msg)
+	}
+
+	elems := receiver.(*object.Array).Elements
+	newElems := make([]object.Object, len(elems)+argsLen)
+
+	copy(newElems, args)
+
+	for i, el := range elems {
+		newElems[argsLen+i] = el
+	}
+
+	return &object.Array{Elements: newElems}, nil
+}

@@ -32,6 +32,8 @@ var functions = map[object.ObjectType]map[string]*object.Builtin{
 		"slice":    {Fn: arraySliceFunc},
 		"shuffle":  {Fn: arrayShuffleFunc},
 		"contains": {Fn: arrayContainsFunc},
+		"append":   {Fn: arrayAppendFunc},
+		"prepend":  {Fn: arrayPrependFunc},
 	},
 	object.FLOAT_OBJ: {
 		"int":   {Fn: floatIntFunc},

@@ -101,6 +101,10 @@ func TestFunctionGivesError(t *testing.T) {
 		{`{{ false.then() }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncRequiresOneArg, "then", object.BOOL_OBJ)},
 		// contains
 		{`{{ [1, 2].contains() }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncRequiresOneArg, "contains", object.ARR_OBJ)},
+		// append
+		{`{{ [1, 2].append() }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncRequiresOneArg, "append", object.ARR_OBJ)},
+		// prepend
+		{`{{ [1, 2].prepend() }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncRequiresOneArg, "prepend", object.ARR_OBJ)},
 	}
 
 	for _, tc := range tests {
