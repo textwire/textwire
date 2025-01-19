@@ -16,6 +16,14 @@ func (b *Bool) String() string {
 	return "0"
 }
 
+func (b *Bool) Dump(ident int) string {
+	if b.Value {
+		return "<span class='textwire-keyword'>true</span>"
+	}
+
+	return "<span class='textwire-keyword'>false</span>"
+}
+
 func (b *Bool) Val() interface{} {
 	return b.Value
 }

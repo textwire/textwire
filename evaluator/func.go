@@ -10,6 +10,8 @@ var functions = map[object.ObjectType]map[string]*object.Builtin{
 		"split":      {Fn: strSplitFunc},
 		"raw":        {Fn: strRawFunc},
 		"trim":       {Fn: strTrimFunc},
+		"trimRight":  {Fn: strTrimRightFunc},
+		"trimLeft":   {Fn: strTrimLeftFunc},
 		"upper":      {Fn: strUpperFunc},
 		"lower":      {Fn: strLowerFunc},
 		"capitalize": {Fn: strCapitalizeFunc},
@@ -20,6 +22,7 @@ var functions = map[object.ObjectType]map[string]*object.Builtin{
 		"at":         {Fn: strAtFunc},
 		"first":      {Fn: strFirstFunc},
 		"last":       {Fn: strLastFunc},
+		"repeat":     {Fn: strRepeatFunc},
 	},
 	object.ARR_OBJ: {
 		"len":      {Fn: arrayLenFunc},
@@ -29,6 +32,8 @@ var functions = map[object.ObjectType]map[string]*object.Builtin{
 		"slice":    {Fn: arraySliceFunc},
 		"shuffle":  {Fn: arrayShuffleFunc},
 		"contains": {Fn: arrayContainsFunc},
+		"append":   {Fn: arrayAppendFunc},
+		"prepend":  {Fn: arrayPrependFunc},
 	},
 	object.FLOAT_OBJ: {
 		"int":   {Fn: floatIntFunc},

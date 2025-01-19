@@ -12,6 +12,8 @@ import (
 	"github.com/textwire/textwire/v2/object"
 )
 
+const defaultCharTrim = "\t \n\r"
+
 // strLenFunc returns the length of the given string
 func strLenFunc(_ *ctx.EvalCtx, receiver object.Object, _ ...object.Object) (object.Object, error) {
 	val := receiver.(*object.Str).Value
@@ -54,7 +56,7 @@ func strRawFunc(_ *ctx.EvalCtx, receiver object.Object, _ ...object.Object) (obj
 
 // strTrimFunc returns a string with leading and trailing whitespace removed
 func strTrimFunc(_ *ctx.EvalCtx, receiver object.Object, args ...object.Object) (object.Object, error) {
-	chars := "\t \n\r"
+	chars := defaultCharTrim
 
 	if len(args) > 0 {
 		str, ok := args[0].(*object.Str)
@@ -217,4 +219,64 @@ func strFirstFunc(c *ctx.EvalCtx, receiver object.Object, _ ...object.Object) (o
 // strLastFunc returns the last character in the string
 func strLastFunc(c *ctx.EvalCtx, receiver object.Object, _ ...object.Object) (object.Object, error) {
 	return strAtFunc(c, receiver, &object.Int{Value: -1})
+}
+
+// strTrimRightFunc returns a string with trailing whitespace removed from the right
+func strTrimRightFunc(_ *ctx.EvalCtx, receiver object.Object, args ...object.Object) (object.Object, error) {
+	chars := defaultCharTrim
+
+	if len(args) > 0 {
+		str, ok := args[0].(*object.Str)
+
+		if !ok {
+			msg := fmt.Sprintf(fail.ErrFuncFirstArgStr, "trimRight", object.STR_OBJ)
+			return nil, errors.New(msg)
+		}
+
+		chars = str.Value
+	}
+
+	val := receiver.(*object.Str).Value
+
+	return &object.Str{Value: strings.TrimRight(val, chars)}, nil
+}
+
+// strTrimLeftFunc returns a string with trailing whitespace removed from the left
+func strTrimLeftFunc(_ *ctx.EvalCtx, receiver object.Object, args ...object.Object) (object.Object, error) {
+	chars := defaultCharTrim
+
+	if len(args) > 0 {
+		str, ok := args[0].(*object.Str)
+
+		if !ok {
+			msg := fmt.Sprintf(fail.ErrFuncFirstArgStr, "trimLeft", object.STR_OBJ)
+			return nil, errors.New(msg)
+		}
+
+		chars = str.Value
+	}
+
+	val := receiver.(*object.Str).Value
+
+	return &object.Str{Value: strings.TrimLeft(val, chars)}, nil
+}
+
+// strRepeatFunc returns a string repeated n times
+func strRepeatFunc(_ *ctx.EvalCtx, receiver object.Object, args ...object.Object) (object.Object, error) {
+	if len(args) == 0 {
+		msg := fmt.Sprintf(fail.ErrFuncRequiresOneArg, "repeat", object.STR_OBJ)
+		return nil, errors.New(msg)
+	}
+
+	firstArg, ok := args[0].(*object.Int)
+
+	if !ok {
+		msg := fmt.Sprintf(fail.ErrFuncFirstArgInt, "repeat", object.STR_OBJ)
+		return nil, errors.New(msg)
+	}
+
+	val := receiver.(*object.Str).Value
+	repeated := strings.Repeat(val, int(firstArg.Value))
+
+	return &object.Str{Value: repeated}, nil
 }

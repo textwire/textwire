@@ -1,7 +1,6 @@
 package textwire
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/textwire/textwire/v2/config"
@@ -33,7 +32,7 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 				2,
 				path+"unknown-slot/index.tw.html",
 				"parser",
-				fmt.Sprintf(fail.ErrSlotNotDefined, "unknown", "user"),
+				fail.ErrSlotNotDefined, "unknown", "user",
 			),
 			nil,
 		},
@@ -43,7 +42,7 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 				2,
 				path+"unknown-default-slot/index.tw.html",
 				"parser",
-				fmt.Sprintf(fail.ErrDefaultSlotNotDefined, "book"),
+				fail.ErrDefaultSlotNotDefined, "book",
 			),
 			nil,
 		},
@@ -53,7 +52,7 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 				2,
 				path+"duplicate-slot/index.tw.html",
 				"parser",
-				fmt.Sprintf(fail.ErrDuplicateSlotUsage, "content", 2, "user"),
+				fail.ErrDuplicateSlotUsage, "content", 2, "user",
 			),
 			nil,
 		},
@@ -63,7 +62,7 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 				2,
 				path+"duplicate-default-slot/index.tw.html",
 				"parser",
-				fmt.Sprintf(fail.ErrDuplicateSlotUsage, "", 2, "user"),
+				fail.ErrDuplicateSlotUsage, "", 2, "user",
 			),
 			nil,
 		},

@@ -24,6 +24,7 @@ const (
 	ErrDefaultSlotNotDefined     = "default slot is not defined in the component '%s'"
 	ErrDuplicateSlotUsage        = "duplicate slot usage '%s' found %d times in the component '%s'"
 	ErrDuplicateDefaultSlotUsage = "duplicate default slot usage found %d times in the component '%s'"
+	ErrExpectedComponentName     = "expected component name, got empty string instead"
 
 	// Evaluator (interpreter) errors
 	ErrUnknownNodeType         = "unknown node type '%T'"
@@ -81,15 +82,25 @@ func New(line uint, filepath, origin, msg string, args ...interface{}) *Error {
 	}
 }
 
-// String returns the full error message with all the details
-func (e *Error) String() string {
+// Meta returns the error meta information like the file path and line number
+func (e *Error) Meta() string {
 	var path string
 
 	if e.filepath != "" {
 		path = fmt.Sprintf(" in %s", e.filepath)
 	}
 
-	return fmt.Sprintf("[Textwire ERROR%s:%d]: %s", path, e.line, e.message)
+	return fmt.Sprintf("Textwire ERROR%s:%d", path, e.line)
+}
+
+// Message returns the error message
+func (e *Error) Message() string {
+	return e.message
+}
+
+// String returns the full error message with all the details
+func (e *Error) String() string {
+	return fmt.Sprintf("[%s]: %s", e.Meta(), e.Message())
 }
 
 // FatalOnError calls log.Fatal if the error message is not empty

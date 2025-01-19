@@ -20,6 +20,7 @@ const (
 	BUILTIN_OBJ   ObjectType = "FUNCTION"
 	COMPONENT_OBJ ObjectType = "COMPONENT"
 	SLOT_OBJ      ObjectType = "SLOT"
+	DUMP_OBJ      ObjectType = "DUMP"
 
 	BREAK_OBJ       ObjectType = "BREAK"
 	BREAK_IF_OBJ    ObjectType = "BREAK_IF"
@@ -30,6 +31,7 @@ const (
 type Object interface {
 	Type() ObjectType
 	String() string
+	Dump(ident int) string
 	Is(ObjectType) bool
 	Val() interface{}
 }

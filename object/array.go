@@ -1,6 +1,10 @@
 package object
 
-import "bytes"
+import (
+	"bytes"
+	"fmt"
+	"strings"
+)
 
 type Array struct {
 	Elements []Object
@@ -22,6 +26,35 @@ func (a *Array) String() string {
 	}
 
 	return out.String()
+}
+
+func (a *Array) Dump(ident int) string {
+	spaces := strings.Repeat("  ", ident)
+	ident += 1
+
+	var out bytes.Buffer
+
+	out.WriteString(fmt.Sprintf("<span class='textwire-meta'>array:%d </span>", len(a.Elements)))
+	out.WriteString("<span class='textwire-brace'>[</span>\n")
+
+	insideSpaces := strings.Repeat("  ", ident)
+
+	for _, elem := range a.Elements {
+		out.WriteString(insideSpaces)
+		out.WriteString(elem.Dump(ident))
+		out.WriteString(",\n")
+	}
+
+	res := out.String()
+
+	// take last 8 characters of the string
+	lastChar := res[len(res)-8:]
+
+	if lastChar == "}</span>" {
+		res += "\n"
+	}
+
+	return res + spaces + "<span class='textwire-brace'>]</span>"
 }
 
 func (a *Array) Val() interface{} {

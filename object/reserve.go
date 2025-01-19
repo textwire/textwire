@@ -18,6 +18,10 @@ func (r *Reserve) String() string {
 	return r.Content.String()
 }
 
+func (r *Reserve) Dump(ident int) string {
+	return "reserve stmt"
+}
+
 func (r *Reserve) Val() interface{} {
 	return r.Content.Val()
 }

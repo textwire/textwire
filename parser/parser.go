@@ -181,6 +181,8 @@ func (p *Parser) parseStatement() ast.Statement {
 		return p.parseComponentStmt()
 	case token.SLOT:
 		return p.parseSlotStmt()
+	case token.DUMP:
+		return p.parseDumpStmt()
 	case token.BREAK:
 		return &ast.BreakStmt{Token: p.curToken}
 	case token.CONTINUE:
@@ -466,7 +468,7 @@ func (p *Parser) parseComponentStmt() ast.Statement {
 
 	stmt.Name = &ast.StringLiteral{
 		Token: p.curToken,
-		Value: p.curToken.Literal,
+		Value: p.parseComponentName(),
 	}
 
 	if p.peekTokenIs(token.COMMA) {
@@ -504,6 +506,21 @@ func (p *Parser) parseComponentStmt() ast.Statement {
 	return stmt
 }
 
+func (p *Parser) parseComponentName() string {
+	name := p.curToken.Literal
+
+	if name == "" {
+		p.newError(p.curToken.Line, fail.ErrExpectedComponentName)
+		return ""
+	}
+
+	if name[0] == '~' {
+		name = "components/" + name[1:]
+	}
+
+	return name
+}
+
 // parseSlotStmt parses a slot statement inside a component file.
 // Slots inside a component are parsed by other function
 func (p *Parser) parseSlotStmt() *ast.SlotStmt {
@@ -531,6 +548,23 @@ func (p *Parser) parseSlotStmt() *ast.SlotStmt {
 	return &ast.SlotStmt{
 		Token: tok, // "@slot"
 		Name:  slotName,
+	}
+}
+
+func (p *Parser) parseDumpStmt() *ast.DumpStmt {
+	tok := p.curToken // "@dump"
+
+	var args []ast.Expression
+
+	if !p.expectPeek(token.LPAREN) { // move to "("
+		return nil
+	}
+
+	args = p.parseExpressionList(token.RPAREN)
+
+	return &ast.DumpStmt{
+		Token:     tok,
+		Arguments: args,
 	}
 }
 
