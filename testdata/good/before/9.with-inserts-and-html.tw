@@ -1,4 +1,4 @@
-@use("layouts/title-and-content")
+@use("layouts/title-with-if-and-content")
 
 @insert("title", "Home page")
 

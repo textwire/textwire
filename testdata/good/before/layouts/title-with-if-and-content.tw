@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<title>@reserve("title")</title>
+<title>@if(true)@reserve("title")@end</title>
 </head>
 <body>
 @reserve("content")
