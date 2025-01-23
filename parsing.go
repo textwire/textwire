@@ -77,11 +77,12 @@ func applyLayoutToProgram(prog *ast.Program) *fail.Error {
 	}
 
 	layoutProg, parseErr := parseProgram(layoutAbsPath)
-	layoutProg.IsLayout = true
 
 	if parseErr != nil {
 		return parseErr
 	}
+
+	layoutProg.IsLayout = true
 
 	layoutErr := layoutProg.ApplyInserts(prog.Inserts, layoutAbsPath)
 

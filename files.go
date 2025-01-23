@@ -1,6 +1,7 @@
 package textwire
 
 import (
+	"io"
 	"os"
 	"path/filepath"
 	"strings"
@@ -27,7 +28,7 @@ func getFullPath(filename string, appendExt bool) (string, error) {
 func fileContent(absPath string) (string, error) {
 	content, err := os.ReadFile(absPath)
 
-	if err != nil {
+	if err != nil && err != io.EOF {
 		return "", err
 	}
 
