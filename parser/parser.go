@@ -468,7 +468,7 @@ func (p *Parser) parseComponentStmt() ast.Statement {
 
 	stmt.Name = &ast.StringLiteral{
 		Token: p.curToken,
-		Value: p.parseComponentName(),
+		Value: p.parseAliasPathShortcut("components"),
 	}
 
 	if p.peekTokenIs(token.COMMA) {
@@ -506,7 +506,7 @@ func (p *Parser) parseComponentStmt() ast.Statement {
 	return stmt
 }
 
-func (p *Parser) parseComponentName() string {
+func (p *Parser) parseAliasPathShortcut(shortenTo string) string {
 	name := p.curToken.Literal
 
 	if name == "" {
@@ -515,7 +515,7 @@ func (p *Parser) parseComponentName() string {
 	}
 
 	if name[0] == '~' {
-		name = "components/" + name[1:]
+		name = shortenTo + "/" + name[1:]
 	}
 
 	return name
