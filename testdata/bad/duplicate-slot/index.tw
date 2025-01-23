@@ -1,4 +1,4 @@
-@component('user', { name: 'Anna' })
-    @slot('content')<p>Content 1</p>@end
-    @slot('content')<p>Content 2</p>@end
+@component("user", { name: "Anna" })
+    @slot("content")<p>Content 1</p>@end
+    @slot("content")<p>Content 2</p>@end
 @end

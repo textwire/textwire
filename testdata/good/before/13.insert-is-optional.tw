@@ -1,8 +1,8 @@
-@use('layouts/title-and-content')
+@use("layouts/title-and-content")
 
 <!-- Intentionally, no title inset here -->
 
-@insert('content')
+@insert("content")
 <p>Some content</p>
 
 <p>Here is more here</p>

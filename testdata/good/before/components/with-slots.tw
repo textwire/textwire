@@ -1,10 +1,10 @@
 <section>
-@slot('head')
+@slot("head")
 
 <h1>This is the title</h1>
 @slot
 <p>Some paragraph</p>
 <img src="https://via.placeholder.com/150" alt="Placeholder image">
 
-@slot('foot')
+@slot("foot")
 </section>
