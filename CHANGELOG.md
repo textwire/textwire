@@ -5,6 +5,9 @@
 - 🐛 Fixing bugs
 - ♻️ Refactoring code
 
+## v2.4.1 (2025-01-23)
+- 🐛 Fixed bug where `@insert` statement was required. Now, if you define `@reserve` statement in the layout, all the `@inserts` are optional
+
 ## v2.4.0 (2025-01-19)
 - ✨ Added 3 new functions for strings: `trimRight`, `trimLeft`, `repeat`
 - ✨ Added shortcut for using components, instead of writing `@component("components/post-card", { post })` you can now write `@component("~post-card", { post })`. `~` is an alias for the `components/` directory

@@ -211,6 +211,12 @@ func (e *Evaluator) evalUseStmt(node *ast.UseStmt, env *object.Env) object.Objec
 func (e *Evaluator) evalReserveStmt(node *ast.ReserveStmt, env *object.Env) object.Object {
 	stmt := &object.Reserve{Name: node.Name.Value}
 
+	// Inserts are optional statements.
+	// If not provided, reserve should be empty
+	if node.Insert == nil {
+		return NIL
+	}
+
 	if node.Insert.Block != nil {
 		result := e.Eval(node.Insert.Block, env)
 
