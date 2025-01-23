@@ -415,7 +415,7 @@ func (p *Parser) parseUseStmt() ast.Statement {
 
 	stmt.Name = &ast.StringLiteral{
 		Token: p.curToken,
-		Value: p.curToken.Literal,
+		Value: p.parseAliasPathShortcut("layouts"),
 	}
 
 	p.useStmt = stmt

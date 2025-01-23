@@ -2,6 +2,7 @@
 
 ## v2.5.0 (2025-01-24)
 - 🐛 Fixed bug where you weren't getting a proper Textwire error if the filepath on the `@use()` statement was incorrect
+- ✨ Added shortcut for using layouts, instead of writing `@use("layouts/main")` you can now write `@use("~main")`. `~` is an alias for the `layouts/` directory
 
 ## v2.4.1 (2025-01-23)
 - 🐛 Fixed bug where `@insert` statement was required. Now, if you define `@reserve` statement in the layout, all the `@inserts` are optional

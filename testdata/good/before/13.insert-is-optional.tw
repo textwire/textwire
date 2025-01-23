@@ -1,4 +1,4 @@
-@use("layouts/title-and-content")
+@use("~title-and-content")
 
 <!-- Intentionally, no title inset here -->
 
