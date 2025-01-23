@@ -15,7 +15,7 @@ func (bis *BreakIfStmt) TokenLiteral() string {
 }
 
 func (bis *BreakIfStmt) String() string {
-	return bis.Token.Literal
+	return bis.Token.Literal + "(" + bis.Condition.String() + ")"
 }
 
 func (bis *BreakIfStmt) Line() uint {

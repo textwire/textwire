@@ -1374,6 +1374,12 @@ func TestParseBreakIfDirective(t *testing.T) {
 	}
 
 	testBooleanLiteral(t, breakStmt.Condition, true)
+
+	expect := "@breakIf(true)"
+
+	if breakStmt.String() != expect {
+		t.Fatalf("breakStmt.String() is not '%s', got %s", expect, breakStmt.String())
+	}
 }
 
 func TestParseContinueIfDirective(t *testing.T) {
@@ -1387,6 +1393,12 @@ func TestParseContinueIfDirective(t *testing.T) {
 	}
 
 	testBooleanLiteral(t, contStmt.Condition, false)
+
+	expect := "@continueIf(false)"
+
+	if contStmt.String() != expect {
+		t.Fatalf("contStmt.String() is not '%s', got %s", expect, contStmt.String())
+	}
 }
 
 func TestParseComponentDirective(t *testing.T) {
