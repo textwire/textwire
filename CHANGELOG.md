@@ -1,9 +1,8 @@
 # Release notes
 
-- 🧑‍💻 Improving developer experience
-- ✨ Introducing new features
-- 🐛 Fixing bugs
-- ♻️ Refactoring code
+## v2.5.0 (2025-01-24)
+- ✨ Added `@eachComponent` directive that combines each loop with a component. This is useful when you want to render a component for each item in an array. For example, `@eachComponent(b in books, "~book", { b })`
+- ✨ Added shortcut for using layouts, instead of writing `@layout("layouts/main")` you can now write `@layout("~main")`. `~` is an alias for the `layouts/` directory
 
 ## v2.4.1 (2025-01-23)
 - 🐛 Fixed bug where `@insert` statement was required. Now, if you define `@reserve` statement in the layout, all the `@inserts` are optional
@@ -57,3 +56,4 @@ For more detailed information about this release, read the [Textwire v2.1.0 Rele
     3. Change the package name from `textwire.Config` to `config.Config` in your code if you use configuration and import `"github.com/textwire/textwire/v2/config"`. If you already have a package named `config`, you can alias the import like `twconfig "github.com/textwire/textwire/v2/config"`
 
 ## [Release Notes V1](.github/CHANGELOG-V1.md)
+## [Emojis Meaning](.github/EMOJIS.md)
