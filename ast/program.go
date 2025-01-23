@@ -49,8 +49,7 @@ func (p *Program) ApplyInserts(inserts map[string]*InsertStmt, absPath string) *
 		insert, hasInsert := inserts[reserve.Name.Value]
 
 		if !hasInsert {
-			return fail.New(reserve.Line(), absPath, "parser",
-				fail.ErrInsertStmtNotDefined, reserve.Name.Value)
+			continue
 		}
 
 		reserve.Insert = insert

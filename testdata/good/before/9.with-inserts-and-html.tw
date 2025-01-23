@@ -1,0 +1,10 @@
+@use("layouts/title-with-if-and-content")
+
+@insert("title", "Home page")
+
+<p>Outside the insert, should be ignored by the parser</p>
+
+@insert("content")
+<h1>Home page</h1>
+<p>Some content</p>
+@end
