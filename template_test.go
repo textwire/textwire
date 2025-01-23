@@ -23,14 +23,14 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 	}{
 		{
 			"use-inside-tpl",
-			fail.New(1, path+"use-inside-tpl/index.tw.html", "evaluator", fail.ErrUseStmtNotAllowed),
+			fail.New(1, path+"use-inside-tpl/index.tw", "evaluator", fail.ErrUseStmtNotAllowed),
 			nil,
 		},
 		{
 			"unknown-slot",
 			fail.New(
 				2,
-				path+"unknown-slot/index.tw.html",
+				path+"unknown-slot/index.tw",
 				"parser",
 				fail.ErrSlotNotDefined, "unknown", "user",
 			),
@@ -40,7 +40,7 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 			"unknown-default-slot",
 			fail.New(
 				2,
-				path+"unknown-default-slot/index.tw.html",
+				path+"unknown-default-slot/index.tw",
 				"parser",
 				fail.ErrDefaultSlotNotDefined, "book",
 			),
@@ -50,7 +50,7 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 			"duplicate-slot",
 			fail.New(
 				2,
-				path+"duplicate-slot/index.tw.html",
+				path+"duplicate-slot/index.tw",
 				"parser",
 				fail.ErrDuplicateSlotUsage, "content", 2, "user",
 			),
@@ -60,7 +60,7 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 			"duplicate-default-slot",
 			fail.New(
 				2,
-				path+"duplicate-default-slot/index.tw.html",
+				path+"duplicate-default-slot/index.tw",
 				"parser",
 				fail.ErrDuplicateSlotUsage, "", 2, "user",
 			),
@@ -71,6 +71,7 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 	for _, tc := range tests {
 		tpl, tplErr := NewTemplate(&config.Config{
 			TemplateDir: "testdata/bad/" + tc.dirName,
+			TemplateExt: ".tw",
 		})
 
 		if tplErr != nil {
@@ -121,6 +122,7 @@ func TestFiles(t *testing.T) {
 
 	tpl, err := NewTemplate(&config.Config{
 		TemplateDir: "testdata/good/before",
+		TemplateExt: ".tw",
 	})
 
 	if err != nil {
