@@ -66,6 +66,16 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 			),
 			nil,
 		},
+		{
+			"",
+			fail.New(
+				9,
+				path+"unknown-component.tw",
+				"parser",
+				fail.ErrUndefinedComponent, "some-name",
+			),
+			nil,
+		},
 	}
 
 	for _, tc := range tests {
@@ -78,14 +88,14 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 			if tplErr.Error() != tc.err.String() {
 				t.Errorf("wrong error message. EXPECTED:\n\"%s\"\nGOT:\n\"%s\"", tc.err, tplErr)
 			}
-			return
+			continue
 		}
 
 		_, err := tpl.String("index", tc.data)
 
 		if err == nil {
 			t.Errorf("expected error but got none")
-			return
+			continue
 		}
 
 		if err.String() != tc.err.String() {
