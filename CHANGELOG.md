@@ -1,9 +1,12 @@
 # Release notes
 
 ## v2.5.0 (2025-01-24)
-- 🐛 Fixed a bug where you weren't getting a proper Textwire error if the filepath on the `@use()` statement was incorrect
-- ✨ Added shortcut for using layouts, instead of writing `@use("layouts/main")` you can now write `@use("~main")`. `~` is an alias for the `layouts/` directory
-- 🐛 Fixed a bug. Previously, the logic with duplicate slots was strange. It would sometimes allow duplicate defaults slots
+### 🐛 Bug Fixes
+- **Incorrect Filepath in `@use` Statement**: Resolved an issue where invalid file paths in the `@use()` statement did not produce proper Textwire errors. Users will now see clear error messages for incorrect file paths.
+- **Duplicate Unnamed Slots**: Fixed a bug where templates with duplicate unnamed slots silently used the first slot and ignored others. Errors will now be shown to alert users of this issue.
+
+### ✨ New Features
+- **Layout Shortcut**: You can now use a shortcut for referencing layouts. Instead of writing `@use("layouts/main")`, simply use `@use("~main")`. The `~` symbol is an alias for the `layouts/` directory.
 
 ## v2.4.1 (2025-01-23)
 - 🐛 Fixed bug where `@insert` statement was required. Now, if you define `@reserve` statement in the layout, all the `@inserts` are optional
