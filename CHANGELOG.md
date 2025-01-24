@@ -9,14 +9,22 @@
 - **Layout Shortcut**: You can now use a shortcut for referencing layouts. Instead of writing `@use("layouts/main")`, simply use `@use("~main")`. The `~` symbol is an alias for the `layouts/` directory.
 
 ## v2.4.1 (2025-01-23)
-- 🐛 Fixed bug where `@insert` statement was required. Now, if you define `@reserve` statement in the layout, all the `@inserts` are optional
+### 🐛 Bug Fixes
+- **Optional `@insert` Statement**: Fixed an issue where the `@insert` statement was mandatory even when a `@reserve` statement was defined in the layout. All `@insert` statements are now optional in such cases.
 
 ## v2.4.0 (2025-01-19)
-- ✨ Added 3 new functions for strings: `trimRight`, `trimLeft`, `repeat`
-- ✨ Added shortcut for using components, instead of writing `@component("components/post-card", { post })` you can now write `@component("~post-card", { post })`. `~` is an alias for the `components/` directory
-- ✨ Added `@dump` directive to dump the value of a variable to the output. This is useful for debugging purposes
-- ✨ Added `2` new functions for arrays: `append` and `prepend` to add elements to the end and beginning of an array
-Read more in the [blogpost](https://textwire.github.io/blog/2025/01/10/textwire-v2.4.0)
+### ✨ New Features
+- **String Functions**: Added 3 new utility functions for strings:
+    - `trimRight`: Removes trailing spaces.
+    - `trimLeft`: Removes leading spaces.
+    - `repeat`: Repeats a string a specified number of times.
+- **Component Shortcut**: Simplify component usage with a new alias. Instead of writing `@component("components/post-card", { post })`, you can now write `@component("~post-card", { post })`. The `~` symbol is an alias for the `components/` directory.
+- **Debugging Helper**: Added the `@dump` directive to output the value of a variable for debugging purposes.
+- **Array Functions**: Added 2 new utility functions for arrays:
+    - `append`: Adds an element to the end of an array.
+    - `prepend`: Adds an element to the beginning of an array.
+
+For more details, read the [blog post](https://textwire.github.io/blog/2025/01/10/textwire-v2.4.0).
 
 ## v2.3.0 (2024-12-29)
 - 🐛 Fixed bugs with function `len` for `STRING` type that was not handling Unicode correctly
@@ -36,21 +44,24 @@ Read more in the [blogpost](https://textwire.github.io/blog/2025/01/10/textwire-
 - 🐛 Fixed bug where you couldn't pass `nil` to `textwire.NewTemplate` function
 
 ## v2.1.0 (2024-10-24)
-For more detailed information about this release, read the [Textwire v2.1.0 Release Notes](https://textwire.github.io/blog/2024/10/24/textwire-v2.1.0-release-notes)
+### ✨ New Features
+- For array literals, added `4` built-in functions: `rand`, `reverse`, `slice`, `shuffle`
+- For integer literals, added `2` built-in functions: `abs`, `str`
+- For float literals, added `5` built-in functions: `abs`, `ceil`, `floor`, `round`, `str`
+- For string literals, added `3` built-in functions: `capitalize`, `reverse`, `contains`
+- For boolean literals, added `1` built-in function: `binary`
+- New error page while rendering a template. Instead of black screen we now get a simple error page with `Sorry! We’re having some trouble right now. Please check back shortly`
 
-- ✨ Features
-    - For array literals, added `4` built-in functions: `rand`, `reverse`, `slice`, `shuffle`
-    - For integer literals, added `2` built-in functions: `abs`, `str`
-    - For float literals, added `5` built-in functions: `abs`, `ceil`, `floor`, `round`, `str`
-    - For string literals, added `3` built-in functions: `capitalize`, `reverse`, `contains`
-    - For boolean literals, added `1` built-in function: `binary`
-    - New error page while rendering a template. Instead of black screen we now get a simple error page with `Sorry! We’re having some trouble right now. Please check back shortly`
-- 🧑‍💻 Improvements
-    - 🐛 **Fixed Bug with Prefix Expression Precedence**: Resolved an issue where prefix expressions like `{{ -1.abs() }}` were not being processed correctly. Previously, the parser evaluated the expression as `{{ (-(1.abs())) }}`, resulting in an incorrect output of `-1`. Now, the parser correctly handles the precedence, evaluating it as `{{ ((-1).abs()) }}`
-    - 🧑‍💻 **Enhanced Error Handling for Built-in Functions:** Improved error messages when an incorrect argument type is passed to a built-in function. Users will now receive clear error messages indicating the type mismatch
-    - 🧑‍💻 **Enhanced Error Handling for Custom Functions:** If a function is called on a type where it doesn’t exist, Textwire now provides a detailed error message specifying that the function is undefined for that type. For example, an error message might read: `[Textwire ERROR in /var/www/html/templates/home.tw.html:3]: function 'some' doesn't exist for type 'STRING'`
-    - 🧑‍💻 **Enhanced Error Handling for Division by Zero:** Improved error messages for division-by-zero cases, replacing previous vague messages with more meaningful ones
-- 📝 Remove `CONTRIBUTING.md` file
+### 🧑‍💻 Improvements
+- **Enhanced Error Handling for Built-in Functions**: Improved error messages when an incorrect argument type is passed to a built-in function. Users will now receive clear error messages indicating the type mismatch
+- **Enhanced Error Handling for Custom Functions**: If a function is called on a type where it doesn’t exist, Textwire now provides a detailed error message specifying that the function is undefined for that type. For example, an error message might read: `[Textwire ERROR in /var/www/html/templates/home.tw.html:3]: function 'some' doesn't exist for type 'STRING'`
+- **Enhanced Error Handling for Division by Zero**: Improved error messages for division-by-zero cases, replacing previous vague messages with more meaningful ones
+- Remove `CONTRIBUTING.md` file
+
+### 🐛 Bug Fixes
+- **Fixed Bug with Prefix Expression Precedence**. Resolved an issue where prefix expressions like `{{ -1.abs() }}` were not being processed correctly. Previously, the parser evaluated the expression as `{{ (-(1.abs())) }}`, resulting in an incorrect output of `-1`. Now, the parser correctly handles the precedence, evaluating it as `{{ ((-1).abs()) }}`
+
+For more detailed information about this release, read the [Textwire v2.1.0 Release Notes](https://textwire.github.io/blog/2024/10/24/textwire-v2.1.0-release-notes)
 
 ## v2.0.0 (2024-10-18)
 - ♻️ [BREAKING CHANGE!] Moved `textwire.Config` to a separate package `config.Config`
