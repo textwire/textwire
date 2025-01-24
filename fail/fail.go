@@ -93,7 +93,6 @@ func (e *Error) Meta() string {
 	return fmt.Sprintf("Textwire %s ERROR%s:%d", e.origin, path, e.line)
 }
 
-// Message returns the error message
 func (e *Error) Message() string {
 	return e.message
 }

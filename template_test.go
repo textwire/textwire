@@ -67,40 +67,42 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 			nil,
 		},
 		{
-			"",
+			"unknown-component",
 			fail.New(
 				9,
-				path+"unknown-component.tw",
-				"parser",
-				fail.ErrUndefinedComponent, "some-name",
+				path+"unknown-component/index.tw",
+				"template",
+				fail.ErrUndefinedComponent, "unknown-name",
 			),
 			nil,
 		},
 	}
 
 	for _, tc := range tests {
-		tpl, tplErr := NewTemplate(&config.Config{
-			TemplateDir: "testdata/bad/" + tc.dirName,
-			TemplateExt: ".tw",
-		})
+		t.Run(tc.dirName, func(t *testing.T) {
+			tpl, tplErr := NewTemplate(&config.Config{
+				TemplateDir: "testdata/bad/" + tc.dirName,
+				TemplateExt: ".tw",
+			})
 
-		if tplErr != nil {
-			if tplErr.Error() != tc.err.String() {
-				t.Errorf("wrong error message. EXPECTED:\n\"%s\"\nGOT:\n\"%s\"", tc.err, tplErr)
+			if tplErr != nil {
+				if tplErr.Error() != tc.err.String() {
+					t.Errorf("wrong error message. EXPECTED:\n\"%s\"\nGOT:\n\"%s\"", tc.err, tplErr)
+				}
+				return
 			}
-			continue
-		}
 
-		_, err := tpl.String("index", tc.data)
+			_, err := tpl.String("index", tc.data)
 
-		if err == nil {
-			t.Errorf("expected error but got none")
-			continue
-		}
+			if err == nil {
+				t.Errorf("expected error but got none")
+				return
+			}
 
-		if err.String() != tc.err.String() {
-			t.Errorf("wrong error message. EXPECTED:\n\"%s\"\nGOT:\n\"%s\"", tc.err, err)
-		}
+			if err.String() != tc.err.String() {
+				t.Errorf("wrong error message. EXPECTED:\n\"%s\"\nGOT:\n\"%s\"", tc.err, err)
+			}
+		})
 	}
 }
 

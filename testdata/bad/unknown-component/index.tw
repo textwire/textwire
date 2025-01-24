@@ -6,6 +6,6 @@
     <title>Document</title>
 </head>
 <body>
-    @component('some-name')
+    @component('unknown-name')
 </body>
 </html>
