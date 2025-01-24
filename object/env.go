@@ -37,7 +37,7 @@ func EnvFromMap(data map[string]interface{}) (*Env, *fail.Error) {
 		err := env.Set(key, obj)
 
 		if err != nil {
-			return nil, fail.New(0, "", "template", "%s", err.Error())
+			return nil, fail.New(0, "", "evaluator", "%s", err.Error())
 		}
 	}
 
@@ -60,10 +60,7 @@ func (e *Env) Set(key string, val Object) error {
 	}
 
 	if oldVar, ok := e.isTypeMismatch(key, val); ok {
-		msg := fmt.Sprintf(fail.ErrVariableTypeMismatch, key,
-			oldVar.Type(), val.Type())
-
-		return errors.New(msg)
+		return e.variableMismatchError(key, oldVar, val)
 	}
 
 	e.store[key] = val
@@ -78,4 +75,9 @@ func (e *Env) SetLoopVar(pairs map[string]Object) {
 func (e *Env) isTypeMismatch(key string, val Object) (Object, bool) {
 	oldVar, ok := e.Get(key)
 	return oldVar, (ok && oldVar != nil && oldVar.Type() != val.Type())
+}
+
+func (e *Env) variableMismatchError(key string, oldVar, val Object) error {
+	msg := fmt.Sprintf(fail.ErrVariableTypeMismatch, key, oldVar.Type(), val.Type())
+	return errors.New(msg)
 }
