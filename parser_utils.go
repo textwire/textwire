@@ -70,10 +70,11 @@ func applyLayoutToProgram(prog *ast.Program) *fail.Error {
 	}
 
 	layoutName := prog.UseStmt.Name.Value
+	stmt := prog.UseStmt
 	layoutAbsPath, err := getFullPath(layoutName, true)
 
 	if err != nil {
-		return fail.FromError(err, 0, "", "template")
+		return fail.FromError(err, stmt.Line(), layoutAbsPath, "template")
 	}
 
 	layoutProg, parseErr := parseProgram(layoutAbsPath)
