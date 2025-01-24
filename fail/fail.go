@@ -89,7 +89,7 @@ func (e *Error) Meta() string {
 		path = fmt.Sprintf(" in %s", e.filepath)
 	}
 
-	return fmt.Sprintf("Textwire ERROR%s:%d", path, e.line)
+	return fmt.Sprintf("Textwire %s ERROR%s:%d", e.origin, path, e.line)
 }
 
 // Message returns the error message
