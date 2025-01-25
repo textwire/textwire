@@ -10,7 +10,7 @@ import (
 	"github.com/textwire/textwire/v2/object"
 )
 
-var conf = config.New("templates", ".tw.html")
+var userConfig = config.New("templates", ".tw.html", "")
 var customFunc = config.NewFunc()
 
 // usesTemplates is a flag to check if user uses Textwire templates or not
@@ -49,7 +49,7 @@ func EvaluateString(inp string, data map[string]interface{}) (string, error) {
 		return "", err.Error()
 	}
 
-	ctx := ctx.NewContext("", customFunc, conf)
+	ctx := ctx.NewContext("", customFunc, userConfig)
 	eval := evaluator.New(ctx)
 
 	evaluated := eval.Eval(prog, env)
@@ -137,10 +137,10 @@ func Configure(opt *config.Config) {
 	}
 
 	if opt.TemplateDir != "" {
-		conf.TemplateDir = strings.Trim(opt.TemplateDir, "/")
+		userConfig.TemplateDir = strings.Trim(opt.TemplateDir, "/")
 	}
 
 	if opt.TemplateExt != "" {
-		conf.TemplateExt = opt.TemplateExt
+		userConfig.TemplateExt = opt.TemplateExt
 	}
 }
