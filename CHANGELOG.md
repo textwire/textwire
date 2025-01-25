@@ -7,6 +7,7 @@
 
 ### ✨ New Features
 - **Layout Shortcut**: You can now use a shortcut for referencing layouts. Instead of writing `@use("layouts/main")`, simply use `@use("~main")`. The `~` symbol is an alias for the `layouts/` directory.
+- **Addition to error messages**: In addition to the error message, you now can see in which part of the Textwire the error occurred. Available parts are: `parser`, `evaluator`, `template`, `API`
 
 ## v2.4.1 (2025-01-23)
 ### 🐛 Bug Fixes
