@@ -1,0 +1,33 @@
+@use('~main')
+
+@insert('title', 'Home Page')
+
+@insert('content')
+    @component('~header', {
+        title: 'Home Page',
+        subtitle: 'Welcome to the Home page',
+    })
+
+    <h3>Names:</h3>
+
+    @if(showNames)
+        <ul>
+            <li>{{ names[0] }}</li>
+            <li>{{ names[1] }}</li>
+            <li>{{ names[2] }}</li>
+            <li>{{ names[3] }}</li>
+        </ul>
+    @end
+
+    <h3>Books:</h3>
+
+    <div>
+        @each(book in books)
+            <div>
+                <h4>Title: {{ book.title }}</h4>
+                <p>ISBN: {{ book.isbn.reverse() }}</p>
+                <p>Author: {{ book.author.firstName }}</p>
+            </div>
+        @end
+    </div>
+@end
