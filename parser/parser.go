@@ -630,7 +630,8 @@ func (p *Parser) parseReserveStmt() ast.Statement {
 
 func (p *Parser) parseInsertStmt() ast.Statement {
 	stmt := &ast.InsertStmt{
-		Token: p.curToken, // "@insert"
+		Token:    p.curToken, // "@insert"
+		FilePath: p.filepath,
 	}
 
 	if !p.expectPeek(token.LPAREN) { // move to "("

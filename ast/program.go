@@ -45,14 +45,28 @@ func (p *Program) Line() uint {
 }
 
 func (p *Program) ApplyInserts(inserts map[string]*InsertStmt, absPath string) *fail.Error {
+	if undefineInsert := p.undefinedInsert(inserts); undefineInsert != nil {
+		line := undefineInsert.Line()
+		path := undefineInsert.FilePath
+		name := undefineInsert.Name.Value
+		return fail.New(line, path, "parser", fail.ErrUndefinedInsert, name)
+	}
+
 	for _, reserve := range p.Reserves {
 		insert, hasInsert := inserts[reserve.Name.Value]
 
-		if !hasInsert {
-			continue
+		if hasInsert {
+			reserve.Insert = insert
 		}
+	}
 
-		reserve.Insert = insert
+	return nil
+}
+func (p *Program) undefinedInsert(inserts map[string]*InsertStmt) *InsertStmt {
+	for name := range inserts {
+		if _, ok := p.Reserves[name]; !ok {
+			return inserts[name]
+		}
 	}
 
 	return nil

@@ -76,6 +76,11 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 			),
 			nil,
 		},
+		{
+			"undefined-insert",
+			fail.New(5, path+"undefined-insert/index.tw", "parser", fail.ErrUndefinedInsert, "some-name"),
+			nil,
+		},
 	}
 
 	for _, tc := range tests {

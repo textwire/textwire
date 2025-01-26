@@ -25,6 +25,7 @@ const (
 	ErrDuplicateDefaultSlotUsage = "duplicate default slot usage found %d times in the component '%s'"
 	ErrExpectedComponentName     = "expected component name, got empty string instead"
 	ErrUndefinedComponent        = "component '%s' is not defined. Check if component exists"
+	ErrUndefinedInsert           = "insert with the name '%s' is not defined in layout. Check if you have a matching reserve statement with the same name"
 
 	// Evaluator (interpreter) errors
 	ErrUnknownNodeType         = "unknown node type '%T'"
@@ -99,7 +100,7 @@ func (e *Error) Message() string {
 
 // String returns the full error message with all the details
 func (e *Error) String() string {
-	return fmt.Sprintf("[%s]: %s", e.Meta(), e.Message())
+	return fmt.Sprintf("[%s]:\n%s", e.Meta(), e.Message())
 }
 
 // FatalOnError calls log.Fatal if the error message is not empty
