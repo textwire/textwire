@@ -64,13 +64,13 @@ func EvaluateString(inp string, data map[string]interface{}) (string, error) {
 func EvaluateFile(absPath string, data map[string]interface{}) (string, error) {
 	usesTemplates = false
 
-	_, err := fileContent(absPath)
+	content, err := fileContent(absPath)
 
 	if err != nil {
 		return "", fail.FromError(err, 0, absPath, "template").Error()
 	}
 
-	result, err := EvaluateString(absPath, data)
+	result, err := EvaluateString(content, data)
 
 	if err != nil {
 		return "", err
@@ -142,6 +142,10 @@ func Configure(opt *config.Config) {
 
 	if opt.TemplateExt != "" {
 		userConfig.TemplateExt = opt.TemplateExt
+	}
+
+	if opt.ErrorPagePath != "" {
+		userConfig.ErrorPagePath = opt.ErrorPagePath
 	}
 
 	userConfig.DebugMode = opt.DebugMode

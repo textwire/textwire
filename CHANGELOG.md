@@ -8,6 +8,7 @@
 ### 🐛 Bug Fixes
 - **Incorrect Filepath in `@use` Statement**: Resolved an issue where invalid file paths in the `@use()` statement did not produce proper Textwire errors. Users will now see clear error messages for incorrect file paths.
 - **Duplicate Unnamed Slots**: Fixed a bug where templates with duplicate unnamed slots silently used the first slot and ignored others. Errors will now be shown to alert users of this issue.
+- **EvaluateFile Function**: Fixed the output of the `EvaluateFile` function to return the evaluated content as a string. Previously, it was bugged and was returning the absolute path of the file.
 
 ### ✨ New Features
 - **Layout Shortcut**: You can now use a shortcut for referencing layouts. Instead of writing `@use("layouts/main")`, simply use `@use("~main")`. The `~` symbol is an alias for the `layouts/` directory.
