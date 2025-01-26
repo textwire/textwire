@@ -2,7 +2,8 @@
 
 ## v2.5.0 (2025-01-26)
 ### ⚠️ Possibly Breaking Changes
-- **Error when inserting unknown**: If you try to insert content that is not reserved in the layout, you will now receive an error message. Previously, the content was silently ignored.
+- **Error when inserting unknown**: If you try to insert content that is not reserved in the layout, you will now receive an error message. Previously, the it was silently ignored.
+- **Error when using duplicate inserts**: If you try to insert content multiple times with the same insert name, you will now receive an error message. Previously, the it was silently ignored.
 
 ### 🐛 Bug Fixes
 - **Incorrect Filepath in `@use` Statement**: Resolved an issue where invalid file paths in the `@use()` statement did not produce proper Textwire errors. Users will now see clear error messages for incorrect file paths.

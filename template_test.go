@@ -81,6 +81,11 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 			fail.New(5, path+"undefined-insert/index.tw", "parser", fail.ErrUndefinedInsert, "some-name"),
 			nil,
 		},
+		{
+			"duplicate-inserts",
+			fail.New(4, path+"duplicate-inserts/index.tw", "parser", fail.ErrDuplicateInserts, "title"),
+			nil,
+		},
 	}
 
 	for _, tc := range tests {

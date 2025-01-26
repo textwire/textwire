@@ -26,6 +26,7 @@ const (
 	ErrExpectedComponentName     = "expected component name, got empty string instead"
 	ErrUndefinedComponent        = "component '%s' is not defined. Check if component exists"
 	ErrUndefinedInsert           = "insert with the name '%s' is not defined in layout. Check if you have a matching reserve statement with the same name"
+	ErrDuplicateInserts          = "duplicate insert statements with the name '%s' found"
 
 	// Evaluator (interpreter) errors
 	ErrUnknownNodeType         = "unknown node type '%T'"

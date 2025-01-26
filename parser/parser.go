@@ -645,6 +645,10 @@ func (p *Parser) parseInsertStmt() ast.Statement {
 		Value: p.curToken.Literal,
 	}
 
+	if hasDuplicates := p.checkDuplicateInserts(stmt); hasDuplicates {
+		return nil
+	}
+
 	hasBody := true
 
 	if p.peekTokenIs(token.COMMA) {
@@ -670,6 +674,20 @@ func (p *Parser) parseInsertStmt() ast.Statement {
 	p.inserts[stmt.Name.Value] = stmt
 
 	return stmt
+}
+
+func (p *Parser) checkDuplicateInserts(stmt *ast.InsertStmt) bool {
+	if _, hasDuplicate := p.inserts[stmt.Name.Value]; hasDuplicate {
+		p.newError(
+			stmt.Token.Line,
+			fail.ErrDuplicateInserts,
+			stmt.Name.Value,
+		)
+
+		return true
+	}
+
+	return false
 }
 
 func (p *Parser) parseIndexExp(left ast.Expression) ast.Expression {
