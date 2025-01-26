@@ -12,11 +12,23 @@ type Config struct {
 	// you will loose syntax highlighting in VSCode editor
 	// if you use the Textwire extension
 	TemplateExt string
+
+	// ErrorPagePath is the relative path to the custom error page
+	// that will be displayed when an error occurs while
+	// rendering a template. Default is an internal error page.
+	// It's relative to the TemplateDir directory
+	ErrorPagePath string
+
+	// DebugMode is a flag to enable debug mode. When enabled, you
+	// can see error messages in the browser. Default is false
+	DebugMode bool
 }
 
-func New(dir, ext string) *Config {
+func New(dir, ext, errPagePath string, debug bool) *Config {
 	return &Config{
-		TemplateDir: dir,
-		TemplateExt: ext,
+		TemplateDir:   dir,
+		TemplateExt:   ext,
+		ErrorPagePath: errPagePath,
+		DebugMode:     debug,
 	}
 }

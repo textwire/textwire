@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/textwire/textwire/v2"
+	"github.com/textwire/textwire/v2/config"
 )
 
 var tpl *textwire.Template
@@ -23,7 +24,11 @@ func main() {
 		return string(runes)
 	})
 
-	tpl, err = textwire.NewTemplate(nil)
+	tpl, err = textwire.NewTemplate(&config.Config{
+		TemplateExt:   ".tw",
+		ErrorPagePath: "errors/oops.tw",
+		DebugMode:     true,
+	})
 
 	if err != nil {
 		log.Fatal(err)
@@ -79,7 +84,6 @@ func homeHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	err := tpl.Response(w, "home", map[string]interface{}{
-		"title":     "Home page",
 		"names":     []string{"John", "Jane", "Jack", "Jill"},
 		"showNames": true,
 		"books":     books,
@@ -95,9 +99,7 @@ func aboutHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err := tpl.Response(w, "about", map[string]interface{}{
-		"title": "About page",
-	})
+	err := tpl.Response(w, "about", map[string]interface{}{})
 
 	if err != nil {
 		log.Println(err.Error())
