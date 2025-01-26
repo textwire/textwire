@@ -1,6 +1,6 @@
 # Release notes
 
-## v2.5.0 (2025-01-24)
+## v2.5.0 (2025-01-26)
 ### 🐛 Bug Fixes
 - **Incorrect Filepath in `@use` Statement**: Resolved an issue where invalid file paths in the `@use()` statement did not produce proper Textwire errors. Users will now see clear error messages for incorrect file paths.
 - **Duplicate Unnamed Slots**: Fixed a bug where templates with duplicate unnamed slots silently used the first slot and ignored others. Errors will now be shown to alert users of this issue.
@@ -8,6 +8,9 @@
 ### ✨ New Features
 - **Layout Shortcut**: You can now use a shortcut for referencing layouts. Instead of writing `@use("layouts/main")`, simply use `@use("~main")`. The `~` symbol is an alias for the `layouts/` directory.
 - **Addition to error messages**: In addition to the error message, you now can see in which part of the Textwire the error occurred. Available parts are: `parser`, `evaluator`, `template`, `API`
+- **Custom Error Page**: Now you can provide a path to a custom error page in the `textwire.NewTemplate` function by passing a config with the `ErrorPagePath` field. If an error occurs while rendering a template, the custom error page will be displayed instead of the [default error page](https://textwire.github.io/docs/v2/guides/error-handling#error-output-in-templates).
+- **Improve Error Page**: Now you can set a `DebugMode` field in the config to `true` to see the error messages in the browser. This is useful for debugging purposes. Default is `false`.
+- **Custom Error Page**: Now you can provide a path to a custom error page through the `textwire.NewTemplate` function by passing a config with the `ErrorPagePath` field. If an error occurs while rendering a template, the custom error page will be displayed instead of the default error page.
 
 ## v2.4.1 (2025-01-23)
 ### 🐛 Bug Fixes
