@@ -30,15 +30,15 @@ const (
 
 	// Evaluator (interpreter) errors
 	ErrUnknownNodeType         = "unknown node type '%T'"
-	ErrInsertMustHaveContent   = "the INSERT statement must have a content or a text argument"
+	ErrInsertMustHaveContent   = "insert statement must have a content or a text argument"
 	ErrIdentifierNotFound      = "identifier '%s' not found"
-	ErrIndexNotSupported       = "the index operator '%s' is not supported"
+	ErrIndexNotSupported       = "index operator '%s' is not supported"
 	ErrUnknownOperator         = "unknown operator '%s%s'"
 	ErrTypeMismatch            = "type mismatch '%s %s %s'"
 	ErrUnknownTypeForOperator  = "unknown type '%s' for '%s' operator"
 	ErrPrefixOperatorIsWrong   = "prefix operator '%s' cannot be applied to '%s'"
-	ErrUseStmtMustHaveProgram  = "the 'use' statement must have a program attached"
-	ErrLoopVariableIsReserved  = "the 'loop' variable is reserved. You cannot use it as a variable name"
+	ErrUseStmtMustHaveProgram  = "use statement must have a program attached"
+	ErrLoopVariableIsReserved  = "loop variable is reserved. You cannot use it as a variable name"
 	ErrVariableTypeMismatch    = "cannot assign variable '%s' of type '%s' to type '%s'"
 	ErrDotOperatorNotSupported = "the dot operator is not supported for type '%s'"
 	ErrPropertyNotFound        = "property '%s' not found in type '%s'"
@@ -47,10 +47,10 @@ const (
 	// Functions
 	ErrNoFuncForThisType  = "function '%s' doesn't exist for type '%s'"
 	ErrFuncRequiresOneArg = "function '%s' on type '%s' requires at least one argument"
-	ErrFuncFirstArgInt    = "the first argument for function '%s' on type '%s' must be an INTEGER"
-	ErrFuncFirstArgStr    = "the first argument for function '%s' on type '%s' must be a STRING"
-	ErrFuncSecondArgInt   = "the second argument for function '%s' on type '%s' must be an INTEGER"
-	ErrFuncSecondArgStr   = "the second argument for function '%s' on type '%s' must be a STRING"
+	ErrFuncFirstArgInt    = "first argument for function '%s' on type '%s' must be an INTEGER"
+	ErrFuncFirstArgStr    = "first argument for function '%s' on type '%s' must be a STRING"
+	ErrFuncSecondArgInt   = "second argument for function '%s' on type '%s' must be an INTEGER"
+	ErrFuncSecondArgStr   = "second argument for function '%s' on type '%s' must be a STRING"
 	ErrFuncMaxArgs        = "function '%s' on type '%s' accepts a maximum of '%d' arguments"
 
 	// Template errors
