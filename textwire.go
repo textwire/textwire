@@ -10,7 +10,7 @@ import (
 	"github.com/textwire/textwire/v2/object"
 )
 
-var userConfig = config.New("templates", ".tw.html", "")
+var userConfig = config.New("templates", ".tw.html", "", false)
 var customFunc = config.NewFunc()
 
 // usesTemplates is a flag to check if user uses Textwire templates or not
@@ -143,4 +143,6 @@ func Configure(opt *config.Config) {
 	if opt.TemplateExt != "" {
 		userConfig.TemplateExt = opt.TemplateExt
 	}
+
+	userConfig.DebugMode = opt.DebugMode
 }
