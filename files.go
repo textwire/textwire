@@ -9,7 +9,7 @@ import (
 
 func getFullPath(filename string, appendExt bool) (string, error) {
 	if usesTemplates {
-		filename = userConfig.TemplateDir + "/" + filename
+		filename = joinPaths(userConfig.TemplateDir, filename)
 	}
 
 	if appendExt {
@@ -23,6 +23,10 @@ func getFullPath(filename string, appendExt bool) (string, error) {
 	}
 
 	return absPath, nil
+}
+
+func joinPaths(path1, path2 string) string {
+	return strings.TrimRight(path1, "/") + "/" + strings.TrimLeft(path2, "/")
 }
 
 func fileContent(absPath string) (string, error) {
