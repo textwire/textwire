@@ -55,7 +55,14 @@ func (t *Template) Response(w http.ResponseWriter, filename string, data map[str
 	}
 
 	if userConfig.ErrorPagePath == "" {
-		fmt.Fprint(w, errorPage(failErr))
+		out, err := errorPage(failErr)
+
+		if err != nil {
+			return err
+		}
+
+		fmt.Fprint(w, out)
+
 		return failErr.Error()
 	}
 

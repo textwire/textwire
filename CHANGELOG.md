@@ -13,7 +13,7 @@
 ### ✨ New Features
 - **Layout Shortcut**: You can now use a shortcut for referencing layouts. Instead of writing `@use("layouts/main")`, simply use `@use("~main")`. The `~` symbol is an alias for the `layouts/` directory.
 - **Custom Error Page**: Now you can provide a path to a custom error page in the `textwire.NewTemplate` function by passing a config with the `ErrorPagePath` field. If an error occurs while rendering a template, the custom error page will be displayed instead of the [default error page](https://textwire.github.io/docs/v2/guides/error-handling#error-output-in-templates).
-- **Improve Error Page**: Now you can set a `DebugMode` field in the config to `true` to see the error messages in the browser. This is useful for debugging purposes. Default is `false`.
+- **Improve Error Page**: Now you can set a `DebugMode` field in the config to `true` to see the error messages in the browser. This is useful for debugging purposes. Default is `false`. Plus, if you use VSCode, you can now click on the file path in the error message to open the file directly in the editor.
 - **Custom Error Page**: Now you can provide a path to a custom error page through the `textwire.NewTemplate` function by passing a config with the `ErrorPagePath` field. If an error occurs while rendering a template, the custom error page will be displayed instead of the default error page.
 
 ## v2.4.1 (2025-01-23)
