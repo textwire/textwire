@@ -177,14 +177,16 @@ func TestNewTemplate(t *testing.T) {
 
 func TestRegisteringCustomFunction(t *testing.T) {
 	fileName, err := getFullPath("", false)
-	fileName += "/textwire/testdata/good/12.with-custom-function"
 
 	if err != nil {
 		t.Errorf("unexpected error: %s", err)
 		return
 	}
 
+	fileName += "/textwire/testdata/good/12.with-custom-function"
+
 	tpl, tplErr := NewTemplate(&config.Config{
+		TemplateExt: ".tw",
 		TemplateDir: "textwire/testdata/good/before/",
 	})
 
