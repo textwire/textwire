@@ -116,7 +116,7 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 	}
 }
 
-func TestFiles(t *testing.T) {
+func TestNewTemplate(t *testing.T) {
 	tests := []struct {
 		fileName string
 		data     map[string]interface{}
