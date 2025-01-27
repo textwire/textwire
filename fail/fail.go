@@ -84,6 +84,14 @@ func New(line uint, filepath, origin, msg string, args ...interface{}) *Error {
 	}
 }
 
+func (e *Error) Filepath() string {
+	return e.filepath
+}
+
+func (e *Error) Line() uint {
+	return e.line
+}
+
 func (e *Error) Message() string {
 	return e.message
 }
