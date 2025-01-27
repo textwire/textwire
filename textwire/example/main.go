@@ -26,7 +26,7 @@ func main() {
 
 	tpl, err = textwire.NewTemplate(&config.Config{
 		TemplateExt:   ".tw",
-		ErrorPagePath: "errors/oops",
+		ErrorPagePath: "error-page",
 		DebugMode:     true,
 	})
 
