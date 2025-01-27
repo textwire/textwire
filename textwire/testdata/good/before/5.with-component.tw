@@ -1,0 +1,1 @@
+<ul>@each(name in names)@component("components/person", { name })@end</ul>

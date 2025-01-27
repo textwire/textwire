@@ -1,5 +1,0 @@
-@component('user', { name: 'Anna' })
-    @slot('unknown')
-        <p>Some content</p>
-    @end
-@end

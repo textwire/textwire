@@ -1,0 +1,9 @@
+@use('~main')
+
+@insert('title', 'About Us')
+
+@insert('content')
+    <h1>Oops!</h1>
+    <p>Something went wrong.</p>
+    <p><a href="/">Go back to home</a></p>
+@end

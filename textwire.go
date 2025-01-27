@@ -10,7 +10,7 @@ import (
 	"github.com/textwire/textwire/v2/object"
 )
 
-var conf = config.New("templates", ".tw.html")
+var userConfig = config.New("templates", ".tw.html", "", false)
 var customFunc = config.NewFunc()
 
 // usesTemplates is a flag to check if user uses Textwire templates or not
@@ -49,7 +49,7 @@ func EvaluateString(inp string, data map[string]interface{}) (string, error) {
 		return "", err.Error()
 	}
 
-	ctx := ctx.NewContext("", customFunc, conf)
+	ctx := ctx.NewContext("", customFunc, userConfig)
 	eval := evaluator.New(ctx)
 
 	evaluated := eval.Eval(prog, env)
@@ -64,13 +64,13 @@ func EvaluateString(inp string, data map[string]interface{}) (string, error) {
 func EvaluateFile(absPath string, data map[string]interface{}) (string, error) {
 	usesTemplates = false
 
-	_, err := fileContent(absPath)
+	content, err := fileContent(absPath)
 
 	if err != nil {
 		return "", fail.FromError(err, 0, absPath, "template").Error()
 	}
 
-	result, err := EvaluateString(absPath, data)
+	result, err := EvaluateString(content, data)
 
 	if err != nil {
 		return "", err
@@ -137,10 +137,16 @@ func Configure(opt *config.Config) {
 	}
 
 	if opt.TemplateDir != "" {
-		conf.TemplateDir = strings.Trim(opt.TemplateDir, "/")
+		userConfig.TemplateDir = strings.Trim(opt.TemplateDir, "/")
 	}
 
 	if opt.TemplateExt != "" {
-		conf.TemplateExt = opt.TemplateExt
+		userConfig.TemplateExt = opt.TemplateExt
 	}
+
+	if opt.ErrorPagePath != "" {
+		userConfig.ErrorPagePath = opt.ErrorPagePath
+	}
+
+	userConfig.DebugMode = opt.DebugMode
 }

@@ -1,3 +1,0 @@
-<ul>
-    @component('components/user', { name: "Anna", age: 27 })
-</ul>

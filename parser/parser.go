@@ -415,7 +415,7 @@ func (p *Parser) parseUseStmt() ast.Statement {
 
 	stmt.Name = &ast.StringLiteral{
 		Token: p.curToken,
-		Value: p.curToken.Literal,
+		Value: p.parseAliasPathShortcut("layouts"),
 	}
 
 	p.useStmt = stmt
@@ -468,7 +468,7 @@ func (p *Parser) parseComponentStmt() ast.Statement {
 
 	stmt.Name = &ast.StringLiteral{
 		Token: p.curToken,
-		Value: p.parseComponentName(),
+		Value: p.parseAliasPathShortcut("components"),
 	}
 
 	if p.peekTokenIs(token.COMMA) {
@@ -506,7 +506,7 @@ func (p *Parser) parseComponentStmt() ast.Statement {
 	return stmt
 }
 
-func (p *Parser) parseComponentName() string {
+func (p *Parser) parseAliasPathShortcut(shortenTo string) string {
 	name := p.curToken.Literal
 
 	if name == "" {
@@ -515,7 +515,7 @@ func (p *Parser) parseComponentName() string {
 	}
 
 	if name[0] == '~' {
-		name = "components/" + name[1:]
+		name = shortenTo + "/" + name[1:]
 	}
 
 	return name
@@ -630,7 +630,8 @@ func (p *Parser) parseReserveStmt() ast.Statement {
 
 func (p *Parser) parseInsertStmt() ast.Statement {
 	stmt := &ast.InsertStmt{
-		Token: p.curToken, // "@insert"
+		Token:    p.curToken, // "@insert"
+		FilePath: p.filepath,
 	}
 
 	if !p.expectPeek(token.LPAREN) { // move to "("
@@ -642,6 +643,10 @@ func (p *Parser) parseInsertStmt() ast.Statement {
 	stmt.Name = &ast.StringLiteral{
 		Token: p.curToken, // The name of the insert statement
 		Value: p.curToken.Literal,
+	}
+
+	if hasDuplicates := p.checkDuplicateInserts(stmt); hasDuplicates {
+		return nil
 	}
 
 	hasBody := true
@@ -669,6 +674,20 @@ func (p *Parser) parseInsertStmt() ast.Statement {
 	p.inserts[stmt.Name.Value] = stmt
 
 	return stmt
+}
+
+func (p *Parser) checkDuplicateInserts(stmt *ast.InsertStmt) bool {
+	if _, hasDuplicate := p.inserts[stmt.Name.Value]; hasDuplicate {
+		p.newError(
+			stmt.Token.Line,
+			fail.ErrDuplicateInserts,
+			stmt.Name.Value,
+		)
+
+		return true
+	}
+
+	return false
 }
 
 func (p *Parser) parseIndexExp(left ast.Expression) ast.Expression {

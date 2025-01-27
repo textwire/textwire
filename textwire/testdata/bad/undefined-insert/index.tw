@@ -1,0 +1,7 @@
+@use('layout')
+
+@insert('title', 'Some title')
+
+@insert('some-name')
+<h1>Some title is here</h1>
+@end

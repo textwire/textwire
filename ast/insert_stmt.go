@@ -12,6 +12,7 @@ type InsertStmt struct {
 	Name     *StringLiteral // The name of the insert statement
 	Argument Expression     // The argument to the insert statement; nil if has block
 	Block    *BlockStmt     // The block of the insert statement; nil if has argument
+	FilePath string         // The file path of the insert statement
 }
 
 func (is *InsertStmt) statementNode() {

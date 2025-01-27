@@ -24,18 +24,21 @@ const (
 	ErrDuplicateSlotUsage        = "duplicate slot usage '%s' found %d times in the component '%s'"
 	ErrDuplicateDefaultSlotUsage = "duplicate default slot usage found %d times in the component '%s'"
 	ErrExpectedComponentName     = "expected component name, got empty string instead"
+	ErrUndefinedComponent        = "component '%s' is not defined. Check if component exists"
+	ErrUndefinedInsert           = "insert with the name '%s' is not defined in layout. Check if you have a matching reserve statement with the same name"
+	ErrDuplicateInserts          = "duplicate insert statements with the name '%s' found"
 
 	// Evaluator (interpreter) errors
 	ErrUnknownNodeType         = "unknown node type '%T'"
-	ErrInsertMustHaveContent   = "the INSERT statement must have a content or a text argument"
+	ErrInsertMustHaveContent   = "insert statement must have a content or a text argument"
 	ErrIdentifierNotFound      = "identifier '%s' not found"
-	ErrIndexNotSupported       = "the index operator '%s' is not supported"
+	ErrIndexNotSupported       = "index operator '%s' is not supported"
 	ErrUnknownOperator         = "unknown operator '%s%s'"
 	ErrTypeMismatch            = "type mismatch '%s %s %s'"
 	ErrUnknownTypeForOperator  = "unknown type '%s' for '%s' operator"
 	ErrPrefixOperatorIsWrong   = "prefix operator '%s' cannot be applied to '%s'"
-	ErrUseStmtMustHaveProgram  = "the 'use' statement must have a program attached"
-	ErrLoopVariableIsReserved  = "the 'loop' variable is reserved. You cannot use it as a variable name"
+	ErrUseStmtMustHaveProgram  = "use statement must have a program attached"
+	ErrLoopVariableIsReserved  = "loop variable is reserved. You cannot use it as a variable name"
 	ErrVariableTypeMismatch    = "cannot assign variable '%s' of type '%s' to type '%s'"
 	ErrDotOperatorNotSupported = "the dot operator is not supported for type '%s'"
 	ErrPropertyNotFound        = "property '%s' not found in type '%s'"
@@ -44,10 +47,10 @@ const (
 	// Functions
 	ErrNoFuncForThisType  = "function '%s' doesn't exist for type '%s'"
 	ErrFuncRequiresOneArg = "function '%s' on type '%s' requires at least one argument"
-	ErrFuncFirstArgInt    = "the first argument for function '%s' on type '%s' must be an INTEGER"
-	ErrFuncFirstArgStr    = "the first argument for function '%s' on type '%s' must be a STRING"
-	ErrFuncSecondArgInt   = "the second argument for function '%s' on type '%s' must be an INTEGER"
-	ErrFuncSecondArgStr   = "the second argument for function '%s' on type '%s' must be a STRING"
+	ErrFuncFirstArgInt    = "first argument for function '%s' on type '%s' must be an INTEGER"
+	ErrFuncFirstArgStr    = "first argument for function '%s' on type '%s' must be a STRING"
+	ErrFuncSecondArgInt   = "second argument for function '%s' on type '%s' must be an INTEGER"
+	ErrFuncSecondArgStr   = "second argument for function '%s' on type '%s' must be a STRING"
 	ErrFuncMaxArgs        = "function '%s' on type '%s' accepts a maximum of '%d' arguments"
 
 	// Template errors
@@ -81,6 +84,18 @@ func New(line uint, filepath, origin, msg string, args ...interface{}) *Error {
 	}
 }
 
+func (e *Error) Filepath() string {
+	return e.filepath
+}
+
+func (e *Error) Line() uint {
+	return e.line
+}
+
+func (e *Error) Message() string {
+	return e.message
+}
+
 // Meta returns the error meta information like the file path and line number
 func (e *Error) Meta() string {
 	var path string
@@ -92,14 +107,9 @@ func (e *Error) Meta() string {
 	return fmt.Sprintf("Textwire ERROR%s:%d", path, e.line)
 }
 
-// Message returns the error message
-func (e *Error) Message() string {
-	return e.message
-}
-
 // String returns the full error message with all the details
 func (e *Error) String() string {
-	return fmt.Sprintf("[%s]: %s", e.Meta(), e.Message())
+	return fmt.Sprintf("[%s]:\n%s", e.Meta(), e.Message())
 }
 
 // FatalOnError calls log.Fatal if the error message is not empty

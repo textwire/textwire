@@ -7,7 +7,7 @@ test:
 .PHONE: run
 run:
 	clear
-	@cd example && go run main.go
+	@cd textwire/example && go run main.go
 
 .PHONE: shell
 shell:

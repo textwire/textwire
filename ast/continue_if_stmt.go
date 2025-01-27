@@ -15,7 +15,7 @@ func (cis *ContinueIfStmt) TokenLiteral() string {
 }
 
 func (cis *ContinueIfStmt) String() string {
-	return cis.Token.Literal
+	return cis.Token.Literal + "(" + cis.Condition.String() + ")"
 }
 
 func (cis *ContinueIfStmt) Line() uint {

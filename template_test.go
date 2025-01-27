@@ -9,7 +9,7 @@ import (
 
 func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 	path, err := getFullPath("", false)
-	path += "/testdata/bad/"
+	path += "/textwire/testdata/bad/"
 
 	if err != nil {
 		t.Errorf("unexpected error: %s", err)
@@ -66,35 +66,57 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 			),
 			nil,
 		},
+		{
+			"unknown-component",
+			fail.New(
+				9,
+				path+"unknown-component/index.tw",
+				"template",
+				fail.ErrUndefinedComponent, "unknown-name",
+			),
+			nil,
+		},
+		{
+			"undefined-insert",
+			fail.New(5, path+"undefined-insert/index.tw", "parser", fail.ErrUndefinedInsert, "some-name"),
+			nil,
+		},
+		{
+			"duplicate-inserts",
+			fail.New(4, path+"duplicate-inserts/index.tw", "parser", fail.ErrDuplicateInserts, "title"),
+			nil,
+		},
 	}
 
 	for _, tc := range tests {
-		tpl, tplErr := NewTemplate(&config.Config{
-			TemplateDir: "testdata/bad/" + tc.dirName,
-			TemplateExt: ".tw",
-		})
+		t.Run(tc.dirName, func(t *testing.T) {
+			tpl, tplErr := NewTemplate(&config.Config{
+				TemplateDir: "textwire/testdata/bad/" + tc.dirName,
+				TemplateExt: ".tw",
+			})
 
-		if tplErr != nil {
-			if tplErr.Error() != tc.err.String() {
-				t.Errorf("wrong error message. EXPECTED:\n\"%s\"\nGOT:\n\"%s\"", tc.err, tplErr)
+			if tplErr != nil {
+				if tplErr.Error() != tc.err.String() {
+					t.Errorf("wrong error message. EXPECTED:\n\"%s\"\nGOT:\n\"%s\"", tc.err, tplErr)
+				}
+				return
 			}
-			return
-		}
 
-		_, err := tpl.String("index", tc.data)
+			_, err := tpl.String("index", tc.data)
 
-		if err == nil {
-			t.Errorf("expected error but got none")
-			return
-		}
+			if err == nil {
+				t.Errorf("expected error but got none")
+				return
+			}
 
-		if err.String() != tc.err.String() {
-			t.Errorf("wrong error message. EXPECTED:\n\"%s\"\nGOT:\n\"%s\"", tc.err, err)
-		}
+			if err.String() != tc.err.String() {
+				t.Errorf("wrong error message. EXPECTED:\n\"%s\"\nGOT:\n\"%s\"", tc.err, err)
+			}
+		})
 	}
 }
 
-func TestFiles(t *testing.T) {
+func TestNewTemplate(t *testing.T) {
 	tests := []struct {
 		fileName string
 		data     map[string]interface{}
@@ -122,7 +144,7 @@ func TestFiles(t *testing.T) {
 	}
 
 	tpl, err := NewTemplate(&config.Config{
-		TemplateDir: "testdata/good/before",
+		TemplateDir: "textwire/testdata/good/before",
 		TemplateExt: ".tw",
 	})
 
@@ -139,7 +161,7 @@ func TestFiles(t *testing.T) {
 			return
 		}
 
-		expected, err := readFile("testdata/good/expected/" + tc.fileName + ".html")
+		expected, err := readFile("textwire/testdata/good/expected/" + tc.fileName + ".html")
 
 		if err != nil {
 			t.Errorf("error reading expected file: %s", err)
@@ -155,15 +177,17 @@ func TestFiles(t *testing.T) {
 
 func TestRegisteringCustomFunction(t *testing.T) {
 	fileName, err := getFullPath("", false)
-	fileName += "/testdata/good/12.with-custom-function"
 
 	if err != nil {
 		t.Errorf("unexpected error: %s", err)
 		return
 	}
 
+	fileName += "/textwire/testdata/good/12.with-custom-function"
+
 	tpl, tplErr := NewTemplate(&config.Config{
-		TemplateDir: "testdata/good/before/",
+		TemplateExt: ".tw",
+		TemplateDir: "textwire/testdata/good/before/",
 	})
 
 	RegisterStrFunc("secondLetterUppercase", func(s string, args ...interface{}) string {
@@ -178,7 +202,7 @@ func TestRegisteringCustomFunction(t *testing.T) {
 		t.Fatalf("unexpected error: %s", tplErr)
 	}
 
-	expected, err := readFile("testdata/good/expected/12.with-custom-function.html")
+	expected, err := readFile("textwire/testdata/good/expected/12.with-custom-function.html")
 
 	if err != nil {
 		t.Errorf("error reading expected file: %s", err)

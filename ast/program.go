@@ -45,14 +45,16 @@ func (p *Program) Line() uint {
 }
 
 func (p *Program) ApplyInserts(inserts map[string]*InsertStmt, absPath string) *fail.Error {
+	if err := p.checkUndefinedInsert(inserts); err != nil {
+		return err
+	}
+
 	for _, reserve := range p.Reserves {
 		insert, hasInsert := inserts[reserve.Name.Value]
 
-		if !hasInsert {
-			continue
+		if hasInsert {
+			reserve.Insert = insert
 		}
-
-		reserve.Insert = insert
 	}
 
 	return nil
@@ -69,10 +71,9 @@ func (p *Program) ApplyComponent(name string, prog *Program, progFilePath string
 			continue
 		}
 
-		// returns error if there are duplicate slots
 		duplicateName, times := findDuplicateSlot(comp.Slots)
 
-		if duplicateName != "" {
+		if times > 0 {
 			if name == "" {
 				return fail.New(prog.Line(), progFilePath, "parser",
 					fail.ErrDuplicateDefaultSlotUsage, times, name)
@@ -110,4 +111,20 @@ func (p *Program) HasReserveStmt() bool {
 
 func (p *Program) HasUseStmt() bool {
 	return p.UseStmt != nil
+}
+
+func (p *Program) checkUndefinedInsert(inserts map[string]*InsertStmt) *fail.Error {
+	for name := range inserts {
+		if _, ok := p.Reserves[name]; ok {
+			continue
+		}
+
+		line := inserts[name].Line()
+		path := inserts[name].FilePath
+		name := inserts[name].Name.Value
+
+		return fail.New(line, path, "parser", fail.ErrUndefinedInsert, name)
+	}
+
+	return nil
 }

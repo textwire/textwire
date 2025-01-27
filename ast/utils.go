@@ -23,9 +23,10 @@ func findDuplicateSlot(slots []*SlotStmt) (string, int) {
 		counts[slot.Name.Value]++
 	}
 
-	for name, count := range counts {
-		if count > 1 {
-			return name, count
+	// find the first slot name that has a count greater than 1
+	for name, times := range counts {
+		if times > 1 {
+			return name, times
 		}
 	}
 

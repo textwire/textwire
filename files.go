@@ -1,6 +1,7 @@
 package textwire
 
 import (
+	"io"
 	"os"
 	"path/filepath"
 	"strings"
@@ -8,11 +9,11 @@ import (
 
 func getFullPath(filename string, appendExt bool) (string, error) {
 	if usesTemplates {
-		filename = conf.TemplateDir + "/" + filename
+		filename = joinPaths(userConfig.TemplateDir, filename)
 	}
 
 	if appendExt {
-		filename += conf.TemplateExt
+		filename += userConfig.TemplateExt
 	}
 
 	absPath, err := filepath.Abs(filename)
@@ -24,10 +25,14 @@ func getFullPath(filename string, appendExt bool) (string, error) {
 	return absPath, nil
 }
 
+func joinPaths(path1, path2 string) string {
+	return strings.TrimRight(path1, "/") + "/" + strings.TrimLeft(path2, "/")
+}
+
 func fileContent(absPath string) (string, error) {
 	content, err := os.ReadFile(absPath)
 
-	if err != nil {
+	if err != nil && err != io.EOF {
 		return "", err
 	}
 
@@ -39,12 +44,12 @@ func fileContent(absPath string) (string, error) {
 func findTextwireFiles() (map[string]string, error) {
 	var result = map[string]string{}
 
-	err := filepath.Walk(conf.TemplateDir, func(path string, info os.FileInfo, err error) error {
+	err := filepath.Walk(userConfig.TemplateDir, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}
 
-		if info.IsDir() || !strings.Contains(path, conf.TemplateExt) {
+		if info.IsDir() || !strings.Contains(path, userConfig.TemplateExt) {
 			return nil
 		}
 
@@ -67,7 +72,7 @@ func findTextwireFiles() (map[string]string, error) {
 }
 
 func nameFromPath(path string) string {
-	name := strings.Replace(path, conf.TemplateDir+"/", "", 1)
-	name = strings.Replace(name, conf.TemplateExt, "", 1)
+	name := strings.Replace(path, userConfig.TemplateDir+"/", "", 1)
+	name = strings.Replace(name, userConfig.TemplateExt, "", 1)
 	return name
 }

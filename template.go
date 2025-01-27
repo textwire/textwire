@@ -34,7 +34,7 @@ func (t *Template) String(filename string, data map[string]interface{}) (string,
 		return "", fail.New(0, absPath, "template", fail.ErrTemplateNotFound)
 	}
 
-	ctx := ctx.NewContext(absPath, customFunc, conf)
+	ctx := ctx.NewContext(absPath, customFunc, userConfig)
 	eval := evaluator.New(ctx)
 
 	evaluated := eval.Eval(prog, env)
@@ -47,10 +47,38 @@ func (t *Template) String(filename string, data map[string]interface{}) (string,
 }
 
 func (t *Template) Response(w http.ResponseWriter, filename string, data map[string]interface{}) error {
-	evaluated, err := t.String(filename, data)
+	evaluated, failErr := t.String(filename, data)
+
+	if failErr == nil {
+		fmt.Fprint(w, evaluated)
+		return nil
+	}
+
+	hasErrorPage := userConfig.ErrorPagePath != ""
+
+	if hasErrorPage && !userConfig.DebugMode {
+		if err := t.responseErrorPage(w); err != nil {
+			return err
+		}
+
+		return failErr.Error()
+	}
+
+	out, err := errorPage(failErr)
 
 	if err != nil {
-		fmt.Fprint(w, errorPage())
+		return err
+	}
+
+	fmt.Fprint(w, out)
+
+	return failErr.Error()
+}
+
+func (t *Template) responseErrorPage(w http.ResponseWriter) error {
+	evaluated, err := t.String(userConfig.ErrorPagePath, nil)
+
+	if err != nil {
 		return err.Error()
 	}
 
