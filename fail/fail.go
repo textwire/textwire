@@ -84,6 +84,10 @@ func New(line uint, filepath, origin, msg string, args ...interface{}) *Error {
 	}
 }
 
+func (e *Error) Message() string {
+	return e.message
+}
+
 // Meta returns the error meta information like the file path and line number
 func (e *Error) Meta() string {
 	var path string
@@ -92,11 +96,7 @@ func (e *Error) Meta() string {
 		path = fmt.Sprintf(" in %s", e.filepath)
 	}
 
-	return fmt.Sprintf("Textwire %s ERROR%s:%d", e.origin, path, e.line)
-}
-
-func (e *Error) Message() string {
-	return e.message
+	return fmt.Sprintf("Textwire ERROR%s:%d", path, e.line)
 }
 
 // String returns the full error message with all the details
