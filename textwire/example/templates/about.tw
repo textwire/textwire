@@ -7,7 +7,6 @@
         title: 'About Us',
         subtitle: 'Welcome to the About Us page',
     })
-    {{ some }}
 
     <div>
         <h3>Our Team:</h3>
