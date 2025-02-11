@@ -1,5 +1,8 @@
 # Release notes
 
+## v2.5.1 (2025-02-11)
+- Change `interface{}` to `any` in test files
+
 ## v2.5.0 (2025-01-26)
 ### ⚠️ Possibly Breaking Changes
 - **Error when inserting unknown**: If you try to insert content that is not reserved in the layout, you will now receive an error message. Previously, the it was silently ignored.
