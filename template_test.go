@@ -19,7 +19,7 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 	tests := []struct {
 		dirName string
 		err     *fail.Error
-		data    map[string]interface{}
+		data    map[string]any
 	}{
 		{
 			"use-inside-tpl",
@@ -119,19 +119,19 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 func TestNewTemplate(t *testing.T) {
 	tests := []struct {
 		fileName string
-		data     map[string]interface{}
+		data     map[string]any
 	}{
 		{"1.no-stmts", nil},
 		{"2.with-inserts", nil},
-		{"3.without-layout", map[string]interface{}{
+		{"3.without-layout", map[string]any{
 			"pageTitle": "Test Page",
 			"NAME_1":    "Anna Korotchaeva",
 			"name_2":    "Serhii Cho",
 		}},
-		{"4.loops", map[string]interface{}{
+		{"4.loops", map[string]any{
 			"names": []string{"Anna", "Serhii", "Vladimir"},
 		}},
-		{"5.with-component", map[string]interface{}{
+		{"5.with-component", map[string]any{
 			"names": []string{"Anna", "Serhii", "Vladimir"},
 		}},
 		{"6.use-inside-if", nil},
@@ -190,7 +190,7 @@ func TestRegisteringCustomFunction(t *testing.T) {
 		TemplateDir: "textwire/testdata/good/before/",
 	})
 
-	RegisterStrFunc("secondLetterUppercase", func(s string, args ...interface{}) string {
+	RegisterStrFunc("secondLetterUppercase", func(s string, args ...any) string {
 		if len(s) < 2 {
 			return s
 		}

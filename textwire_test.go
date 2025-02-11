@@ -31,11 +31,11 @@ func TestEvaluateString(t *testing.T) {
 	tests := []struct {
 		inp    string
 		expect string
-		data   map[string]interface{}
+		data   map[string]any
 	}{
 		{"{{ 1 + 2 }}", "3", nil},
-		{"{{ n1 * n2 }}", "2", map[string]interface{}{"n1": 1, "n2": 2}},
-		{"{{ user.name.firstName }}", "Ann", map[string]interface{}{"user": struct {
+		{"{{ n1 * n2 }}", "2", map[string]any{"n1": 1, "n2": 2}},
+		{"{{ user.name.firstName }}", "Ann", map[string]any{"user": struct {
 			Name struct{ FirstName string }
 			Age  int
 		}{Name: struct{ FirstName string }{"Ann"}, Age: 20}}},
@@ -59,12 +59,12 @@ func TestErrorHandlingEvaluatingString(t *testing.T) {
 	tests := []struct {
 		inp  string
 		err  *fail.Error
-		data map[string]interface{}
+		data map[string]any
 	}{
 		{`{{ 1 + "a" }}`, fail.New(1, "", "evaluator", fail.ErrTypeMismatch, object.INT_OBJ, "+", object.STR_OBJ), nil},
 		{`@use("sometemplate")`, fail.New(1, "", "evaluator", fail.ErrUseStmtMustHaveProgram), nil},
 		{`{{ loop = "test" }}`, fail.New(1, "", "evaluator", fail.ErrLoopVariableIsReserved), nil},
-		{`{{ loop }}`, fail.New(0, "", "evaluator", fail.ErrLoopVariableIsReserved), map[string]interface{}{"loop": "test"}},
+		{`{{ loop }}`, fail.New(0, "", "evaluator", fail.ErrLoopVariableIsReserved), map[string]any{"loop": "test"}},
 		{`{{ n = 1; n = "test" }}`, fail.New(1, "", "evaluator", fail.ErrVariableTypeMismatch, "n", object.INT_OBJ, object.STR_OBJ), nil},
 		{`{{ obj = {}; obj.name }}`, fail.New(1, "", "evaluator", fail.ErrPropertyNotFound, "name", object.OBJ_OBJ), nil},
 	}
@@ -93,7 +93,7 @@ func TestEvaluateFile(t *testing.T) {
 		return
 	}
 
-	out, err := EvaluateFile(absPath, map[string]interface{}{
+	out, err := EvaluateFile(absPath, map[string]any{
 		"title":   "Textwire is Awesome",
 		"visible": true,
 	})
@@ -116,7 +116,7 @@ func TestEvaluateFile(t *testing.T) {
 
 func TestCustomFunctions(t *testing.T) {
 	t.Run("register for integer receiver", func(t *testing.T) {
-		err := RegisterIntFunc("double", func(num int, args ...interface{}) int {
+		err := RegisterIntFunc("double", func(num int, args ...any) int {
 			return num * 2
 		})
 
@@ -136,7 +136,7 @@ func TestCustomFunctions(t *testing.T) {
 	})
 
 	t.Run("register for float receiver", func(t *testing.T) {
-		err := RegisterFloatFunc("double", func(num float64, args ...interface{}) float64 {
+		err := RegisterFloatFunc("double", func(num float64, args ...any) float64 {
 			return num * 2
 		})
 
@@ -156,7 +156,7 @@ func TestCustomFunctions(t *testing.T) {
 	})
 
 	t.Run("register for array receiver", func(t *testing.T) {
-		err := RegisterArrFunc("addNumber", func(arr []interface{}, args ...interface{}) []interface{} {
+		err := RegisterArrFunc("addNumber", func(arr []any, args ...any) []any {
 			firstArg := args[0].(int64)
 			arr = append(arr, firstArg)
 			return arr
@@ -178,7 +178,7 @@ func TestCustomFunctions(t *testing.T) {
 	})
 
 	t.Run("register for boolean receiver", func(t *testing.T) {
-		err := RegisterBoolFunc("negate", func(b bool, args ...interface{}) bool {
+		err := RegisterBoolFunc("negate", func(b bool, args ...any) bool {
 			return !b
 		})
 
@@ -198,7 +198,7 @@ func TestCustomFunctions(t *testing.T) {
 	})
 
 	t.Run("register for string receiver", func(t *testing.T) {
-		err := RegisterStrFunc("concat", func(s string, args ...interface{}) string {
+		err := RegisterStrFunc("concat", func(s string, args ...any) string {
 			arg1Value := args[0].(string)
 			arg2Value := args[1].(string)
 
@@ -221,7 +221,7 @@ func TestCustomFunctions(t *testing.T) {
 	})
 
 	t.Run("registering already registered function", func(t *testing.T) {
-		err := RegisterStrFunc("len", func(s string, args ...interface{}) string {
+		err := RegisterStrFunc("len", func(s string, args ...any) string {
 			return "some output"
 		})
 
@@ -230,7 +230,7 @@ func TestCustomFunctions(t *testing.T) {
 		}
 
 		// Registering the same function again should return an error
-		err = RegisterStrFunc("len", func(s string, args ...interface{}) string {
+		err = RegisterStrFunc("len", func(s string, args ...any) string {
 			return "some output"
 		})
 
@@ -246,7 +246,7 @@ func TestCustomFunctions(t *testing.T) {
 	})
 
 	t.Run("redefining built-in function not working", func(t *testing.T) {
-		err := RegisterStrFunc("trim", func(s string, args ...interface{}) string {
+		err := RegisterStrFunc("trim", func(s string, args ...any) string {
 			return "some output"
 		})
 

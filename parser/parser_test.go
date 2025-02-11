@@ -44,7 +44,7 @@ func parseStatements(t *testing.T, inp string, stmtCount int, inserts map[string
 	return prog.Statements
 }
 
-func testInfixExp(t *testing.T, exp ast.Expression, left interface{}, operator string, right interface{}) bool {
+func testInfixExp(t *testing.T, exp ast.Expression, left any, operator string, right any) bool {
 	infix, ok := exp.(*ast.InfixExp)
 
 	if !ok {
@@ -192,7 +192,7 @@ func testIdentifier(t *testing.T, exp ast.Expression, value string) bool {
 func testLiteralExpression(
 	t *testing.T,
 	exp ast.Expression,
-	expected interface{},
+	expected any,
 ) bool {
 	switch v := expected.(type) {
 	case int:
@@ -214,7 +214,7 @@ func testLiteralExpression(
 	return false
 }
 
-func testConsequence(t *testing.T, stmt ast.Statement, condition interface{}, consequence string) bool {
+func testConsequence(t *testing.T, stmt ast.Statement, condition any, consequence string) bool {
 	ifStmt, ok := stmt.(*ast.IfStmt)
 
 	if !ok {
@@ -406,9 +406,9 @@ func TestGroupedExpression(t *testing.T) {
 func TestInfixExp(t *testing.T) {
 	tests := []struct {
 		inp      string
-		left     interface{}
+		left     any
 		operator string
-		right    interface{}
+		right    any
 	}{
 		{"{{ 5 + 8 }}", 5, "+", 8},
 		{"{{ 10 - 2 }}", 10, "-", 2},
@@ -463,7 +463,7 @@ func TestPrefixExp(t *testing.T) {
 	tests := []struct {
 		inp      string
 		operator string
-		value    interface{}
+		value    any
 	}{
 		{"{{ -5 }}", "-", 5},
 		{"{{ -10 }}", "-", 10},
@@ -792,7 +792,7 @@ func TestParseAssignStmt(t *testing.T) {
 	tests := []struct {
 		inp      string
 		varName  string
-		varValue interface{}
+		varValue any
 		str      string
 	}{
 		{`{{ name = "Anna" }}`, "name", "Anna", `name = "Anna"`},
