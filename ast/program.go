@@ -15,6 +15,7 @@ type Program struct {
 	Components []*ComponentStmt
 	Reserves   map[string]*ReserveStmt
 	Inserts    map[string]*InsertStmt
+	Pos        Position
 }
 
 func (p *Program) TokenLiteral() string {
@@ -42,6 +43,10 @@ func (p *Program) String() string {
 
 func (p *Program) Line() uint {
 	return p.Token.Line
+}
+
+func (p *Program) Position() Position {
+	return p.Pos
 }
 
 func (p *Program) ApplyInserts(inserts map[string]*InsertStmt, absPath string) *fail.Error {

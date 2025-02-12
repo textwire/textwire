@@ -12,6 +12,7 @@ type ComponentStmt struct {
 	Argument *ObjectLiteral
 	Block    *Program
 	Slots    []*SlotStmt
+	Pos      Position
 }
 
 func (cs *ComponentStmt) statementNode() {
@@ -55,4 +56,8 @@ func (cs *ComponentStmt) String() string {
 
 func (cs *ComponentStmt) Line() uint {
 	return cs.Token.Line
+}
+
+func (cs *ComponentStmt) Position() Position {
+	return cs.Pos
 }

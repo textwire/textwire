@@ -9,6 +9,7 @@ import (
 type FloatLiteral struct {
 	Token token.Token
 	Value float64
+	Pos   Position
 }
 
 func (fl *FloatLiteral) expressionNode() {
@@ -24,4 +25,8 @@ func (fl *FloatLiteral) String() string {
 
 func (fl *FloatLiteral) Line() uint {
 	return fl.Token.Line
+}
+
+func (fl *FloatLiteral) Position() Position {
+	return fl.Pos
 }

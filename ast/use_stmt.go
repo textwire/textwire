@@ -10,6 +10,7 @@ type UseStmt struct {
 	Token   token.Token    // The '@use' token
 	Name    *StringLiteral // The relative path to the layout like 'layouts/main'
 	Program *Program
+	Pos     Position
 }
 
 func (us *UseStmt) statementNode() {
@@ -25,4 +26,8 @@ func (us *UseStmt) String() string {
 
 func (us *UseStmt) Line() uint {
 	return us.Token.Line
+}
+
+func (us *UseStmt) Position() Position {
+	return us.Pos
 }

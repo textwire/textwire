@@ -10,6 +10,7 @@ type IndexExp struct {
 	Token token.Token // The '[' token
 	Left  Expression
 	Index Expression
+	Pos   Position
 }
 
 func (ie *IndexExp) expressionNode() {
@@ -25,4 +26,8 @@ func (ie *IndexExp) String() string {
 
 func (ie *IndexExp) Line() uint {
 	return ie.Token.Line
+}
+
+func (ie *IndexExp) Position() Position {
+	return ie.Pos
 }

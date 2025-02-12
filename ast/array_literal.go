@@ -9,6 +9,7 @@ import (
 type ArrayLiteral struct {
 	Token    token.Token
 	Elements []Expression
+	Pos      Position
 }
 
 func (al *ArrayLiteral) expressionNode() {
@@ -38,4 +39,8 @@ func (al *ArrayLiteral) String() string {
 
 func (al *ArrayLiteral) Line() uint {
 	return al.Token.Line
+}
+
+func (al *ArrayLiteral) Position() Position {
+	return al.Pos
 }

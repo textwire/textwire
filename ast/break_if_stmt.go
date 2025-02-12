@@ -1,10 +1,13 @@
 package ast
 
-import "github.com/textwire/textwire/v2/token"
+import (
+	"github.com/textwire/textwire/v2/token"
+)
 
 type BreakIfStmt struct {
 	Token     token.Token // The '@breakIf' token
 	Condition Expression
+	Pos       Position
 }
 
 func (bis *BreakIfStmt) statementNode() {
@@ -20,4 +23,8 @@ func (bis *BreakIfStmt) String() string {
 
 func (bis *BreakIfStmt) Line() uint {
 	return bis.Token.Line
+}
+
+func (bis *BreakIfStmt) Position() Position {
+	return bis.Pos
 }

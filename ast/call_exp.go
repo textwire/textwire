@@ -12,6 +12,7 @@ type CallExp struct {
 	Receiver  Expression  // Receiver of the call
 	Function  *Identifier // Function being called
 	Arguments []Expression
+	Pos       Position
 }
 
 func (ce *CallExp) expressionNode() {
@@ -38,4 +39,8 @@ func (ce *CallExp) String() string {
 
 func (ce *CallExp) Line() uint {
 	return ce.Token.Line
+}
+
+func (ce *CallExp) Position() Position {
+	return ce.Pos
 }

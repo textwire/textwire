@@ -5,6 +5,7 @@ import "github.com/textwire/textwire/v2/token"
 type ExpressionStmt struct {
 	Token      token.Token
 	Expression Expression
+	Pos        Position
 }
 
 func (es *ExpressionStmt) statementNode() {
@@ -24,4 +25,8 @@ func (es *ExpressionStmt) String() string {
 
 func (es *ExpressionStmt) Line() uint {
 	return es.Token.Line
+}
+
+func (es *ExpressionStmt) Position() Position {
+	return es.Pos
 }

@@ -1,10 +1,13 @@
 package ast
 
-import "github.com/textwire/textwire/v2/token"
+import (
+	"github.com/textwire/textwire/v2/token"
+)
 
 type BooleanLiteral struct {
 	Token token.Token // The 'true' or 'false' token
 	Value bool
+	Pos   Position
 }
 
 func (bl *BooleanLiteral) expressionNode() {
@@ -20,4 +23,8 @@ func (bl *BooleanLiteral) String() string {
 
 func (bl *BooleanLiteral) Line() uint {
 	return bl.Token.Line
+}
+
+func (bl *BooleanLiteral) Position() Position {
+	return bl.Pos
 }

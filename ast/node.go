@@ -4,4 +4,5 @@ type Node interface {
 	TokenLiteral() string
 	String() string
 	Line() uint
+	Position() Position
 }

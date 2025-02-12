@@ -1,9 +1,12 @@
 package ast
 
-import "github.com/textwire/textwire/v2/token"
+import (
+	"github.com/textwire/textwire/v2/token"
+)
 
 type BreakStmt struct {
 	Token token.Token // The '@break' token
+	Pos   Position
 }
 
 func (bs *BreakStmt) statementNode() {
@@ -19,4 +22,8 @@ func (bs *BreakStmt) String() string {
 
 func (bs *BreakStmt) Line() uint {
 	return bs.Token.Line
+}
+
+func (bs *BreakStmt) Position() Position {
+	return bs.Pos
 }
