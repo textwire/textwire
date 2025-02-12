@@ -25,7 +25,7 @@ func (rs *ReserveStmt) String() string {
 }
 
 func (rs *ReserveStmt) Line() uint {
-	return rs.Token.Line
+	return rs.Token.StartLine
 }
 
 func (rs *ReserveStmt) Position() Position {

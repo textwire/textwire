@@ -24,7 +24,7 @@ func (es *ExpressionStmt) String() string {
 }
 
 func (es *ExpressionStmt) Line() uint {
-	return es.Token.Line
+	return es.Token.StartLine
 }
 
 func (es *ExpressionStmt) Position() Position {

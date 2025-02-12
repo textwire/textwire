@@ -19,7 +19,7 @@ func (hs *HTMLStmt) String() string {
 }
 
 func (hs *HTMLStmt) Line() uint {
-	return hs.Token.Line
+	return hs.Token.StartLine
 }
 
 func (hs *HTMLStmt) Position() Position {

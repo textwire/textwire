@@ -23,7 +23,7 @@ func (as *AssignStmt) String() string {
 }
 
 func (as *AssignStmt) Line() uint {
-	return as.Token.Line
+	return as.Token.StartLine
 }
 
 func (as *AssignStmt) Position() Position {

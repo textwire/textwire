@@ -44,7 +44,7 @@ func (is *IfStmt) String() string {
 }
 
 func (is *IfStmt) Line() uint {
-	return is.Token.Line
+	return is.Token.StartLine
 }
 
 func (is *IfStmt) Position() Position {

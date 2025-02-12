@@ -30,7 +30,7 @@ func (eis *ElseIfStmt) String() string {
 }
 
 func (eis *ElseIfStmt) Line() uint {
-	return eis.Token.Line
+	return eis.Token.StartLine
 }
 
 func (eis *ElseIfStmt) Position() Position {

@@ -45,7 +45,7 @@ func (fs *ForStmt) String() string {
 }
 
 func (fs *ForStmt) Line() uint {
-	return fs.Token.Line
+	return fs.Token.StartLine
 }
 
 func (fs *ForStmt) Position() Position {

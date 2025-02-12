@@ -38,7 +38,7 @@ func (ds *DumpStmt) String() string {
 }
 
 func (ss *DumpStmt) Line() uint {
-	return ss.Token.Line
+	return ss.Token.StartLine
 }
 
 func (ss *DumpStmt) Position() Position {

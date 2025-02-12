@@ -20,7 +20,7 @@ func (i *Identifier) String() string {
 }
 
 func (i *Identifier) Line() uint {
-	return i.Token.Line
+	return i.Token.StartLine
 }
 
 func (i *Identifier) Position() Position {

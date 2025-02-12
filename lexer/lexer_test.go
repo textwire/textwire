@@ -315,8 +315,8 @@ func TestLineNumber(t *testing.T) {
 			lastTok = tok
 		}
 
-		if lastTok.Line != tc.line {
-			t.Errorf("Expected line number %d, got %d", tc.line, lastTok.Line)
+		if lastTok.StartLine != tc.line {
+			t.Errorf("Expected line number %d, got %d", tc.line, lastTok.StartLine)
 		}
 	}
 }

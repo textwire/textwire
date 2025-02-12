@@ -42,7 +42,7 @@ func (p *Program) String() string {
 }
 
 func (p *Program) Line() uint {
-	return p.Token.Line
+	return p.Token.StartLine
 }
 
 func (p *Program) Position() Position {

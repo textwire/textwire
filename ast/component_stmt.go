@@ -55,7 +55,7 @@ func (cs *ComponentStmt) String() string {
 }
 
 func (cs *ComponentStmt) Line() uint {
-	return cs.Token.Line
+	return cs.Token.StartLine
 }
 
 func (cs *ComponentStmt) Position() Position {

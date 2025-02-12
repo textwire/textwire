@@ -36,7 +36,7 @@ func (bs *BlockStmt) String() string {
 }
 
 func (bs *BlockStmt) Line() uint {
-	return bs.Token.Line
+	return bs.Token.StartLine
 }
 
 func (bs *BlockStmt) Position() Position {

@@ -26,7 +26,7 @@ func (te *TernaryExp) String() string {
 }
 
 func (te *TernaryExp) Line() uint {
-	return te.Token.Line
+	return te.Token.StartLine
 }
 
 func (te *TernaryExp) Position() Position {
