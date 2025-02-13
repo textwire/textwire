@@ -103,9 +103,13 @@ var directives = map[string]TokenType{
 }
 
 type Token struct {
-	Type    TokenType
-	Literal string
-	Line    uint
+	Type      TokenType
+	Literal   string
+	DebugLine uint // one-based
+	StartLine uint // zero-based
+	EndLine   uint // zero-based
+	StartChar uint // zero-based
+	EndChar   uint // zero-based
 }
 
 func LookupIdent(ident string) TokenType {

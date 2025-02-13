@@ -33,10 +33,14 @@ var tokensWithOptionalParens = map[token.TokenType]bool{
 
 type Lexer struct {
 	input                     string
-	position                  int
-	nextPosition              int
+	position                  int // zero-based
+	nextPosition              int // zero-based
 	char                      byte
-	line                      uint
+	debugLine                 uint // one-based. Starts from 1
+	startChar                 uint // zero-based
+	endChar                   uint // zero-based
+	startLine                 uint // zero-based
+	endLine                   uint // zero-based
 	isHTML                    bool
 	isDirective               bool
 	countDirectiveParentheses int
@@ -234,17 +238,25 @@ func (l *Lexer) rightParenthesesToken() token.Token {
 
 func (l *Lexer) newToken(tokType token.TokenType, literal string) token.Token {
 	return token.Token{
-		Type:    tokType,
-		Literal: literal,
-		Line:    l.line,
+		Type:      tokType,
+		Literal:   literal,
+		DebugLine: l.debugLine,
+		StartLine: l.startLine,
+		EndLine:   l.endLine,
+		StartChar: l.startChar,
+		EndChar:   l.endChar,
 	}
 }
 
 func (l *Lexer) newTokenAndAdvance(tokType token.TokenType, literal string) token.Token {
 	tok := token.Token{
-		Type:    tokType,
-		Literal: literal,
-		Line:    l.line,
+		Type:      tokType,
+		Literal:   literal,
+		DebugLine: l.debugLine,
+		StartLine: l.startLine,
+		EndLine:   l.endLine,
+		StartChar: l.startChar,
+		EndChar:   l.endChar,
 	}
 
 	l.advanceChar()
