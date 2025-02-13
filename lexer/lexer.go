@@ -98,8 +98,10 @@ func (l *Lexer) NextToken() token.Token {
 
 func (l *Lexer) bracesToken(tok token.TokenType, literal string) token.Token {
 	l.isHTML = tok != token.LBRACES
-	l.advanceChar() // skip "{" or "}"
-	l.advanceChar() // skip "{" or "}"
+
+	l.advanceChar() // skip first brace
+	l.advanceChar() // skip second brace
+
 	return l.newToken(tok, literal)
 }
 
