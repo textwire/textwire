@@ -21,7 +21,7 @@ func (bs *BreakStmt) String() string {
 }
 
 func (bs *BreakStmt) Line() uint {
-	return bs.Token.StartLine
+	return bs.Token.DebugLine
 }
 
 func (bs *BreakStmt) Position() Position {

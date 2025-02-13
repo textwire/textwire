@@ -22,7 +22,7 @@ func (bl *BooleanLiteral) String() string {
 }
 
 func (bl *BooleanLiteral) Line() uint {
-	return bl.Token.StartLine
+	return bl.Token.DebugLine
 }
 
 func (bl *BooleanLiteral) Position() Position {

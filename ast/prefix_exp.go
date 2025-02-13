@@ -25,7 +25,7 @@ func (pe *PrefixExp) String() string {
 }
 
 func (pe *PrefixExp) Line() uint {
-	return pe.Token.StartLine
+	return pe.Token.DebugLine
 }
 
 func (pe *PrefixExp) Position() Position {

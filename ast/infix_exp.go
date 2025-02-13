@@ -25,7 +25,7 @@ func (ie *InfixExp) String() string {
 }
 
 func (ie *InfixExp) Line() uint {
-	return ie.Token.StartLine
+	return ie.Token.DebugLine
 }
 
 func (ie *InfixExp) Position() Position {

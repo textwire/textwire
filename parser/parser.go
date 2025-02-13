@@ -128,7 +128,7 @@ func (p *Parser) ParseProgram() *ast.Program {
 
 		if p.curTokenIs(token.ILLEGAL) {
 			p.newError(
-				p.curToken.StartLine,
+				p.curToken.DebugLine,
 				fail.ErrIllegalToken,
 				p.curToken.Literal,
 			)
@@ -196,7 +196,7 @@ func (p *Parser) parseEmbeddedCode() ast.Statement {
 	p.nextToken() // skip "{{" or ";" or "("
 
 	if p.curTokenIs(token.RBRACES) {
-		p.newError(p.curToken.StartLine, fail.ErrEmptyBrackets)
+		p.newError(p.curToken.DebugLine, fail.ErrEmptyBrackets)
 		return nil
 	}
 
@@ -246,7 +246,7 @@ func (p *Parser) expectPeek(tok token.TokenType) bool {
 	}
 
 	p.newError(
-		p.peekToken.StartLine,
+		p.peekToken.DebugLine,
 		fail.ErrWrongNextToken,
 		token.String(tok),
 		token.String(p.peekToken.Type),
@@ -277,7 +277,7 @@ func (p *Parser) parseIntegerLiteral() ast.Expression {
 
 	if err != nil {
 		p.newError(
-			p.curToken.StartLine,
+			p.curToken.DebugLine,
 			fail.ErrCouldNotParseAs,
 			p.curToken.Literal,
 			"INT",
@@ -296,7 +296,7 @@ func (p *Parser) parseFloatLiteral() ast.Expression {
 
 	if err != nil {
 		p.newError(
-			p.curToken.StartLine,
+			p.curToken.DebugLine,
 			fail.ErrCouldNotParseAs,
 			p.curToken.Literal,
 			"FLOAT",
@@ -393,7 +393,7 @@ func (p *Parser) parseAssignStmt() ast.Statement {
 	p.nextToken() // skip "="
 
 	if p.curTokenIs(token.RBRACES) {
-		p.newError(p.curToken.StartLine, fail.ErrExpectedExpression)
+		p.newError(p.curToken.DebugLine, fail.ErrExpectedExpression)
 		return nil
 	}
 
@@ -478,7 +478,7 @@ func (p *Parser) parseComponentStmt() ast.Statement {
 		obj, ok := p.parseExpression(LOWEST).(*ast.ObjectLiteral)
 
 		if !ok {
-			p.newError(p.curToken.StartLine, fail.ErrExpectedObjectLiteral, p.curToken.Literal)
+			p.newError(p.curToken.DebugLine, fail.ErrExpectedObjectLiteral, p.curToken.Literal)
 			return nil
 		}
 
@@ -510,7 +510,7 @@ func (p *Parser) parseAliasPathShortcut(shortenTo string) string {
 	name := p.curToken.Literal
 
 	if name == "" {
-		p.newError(p.curToken.StartLine, fail.ErrExpectedComponentName)
+		p.newError(p.curToken.DebugLine, fail.ErrExpectedComponentName)
 		return ""
 	}
 
@@ -679,7 +679,7 @@ func (p *Parser) parseInsertStmt() ast.Statement {
 func (p *Parser) checkDuplicateInserts(stmt *ast.InsertStmt) bool {
 	if _, hasDuplicate := p.inserts[stmt.Name.Value]; hasDuplicate {
 		p.newError(
-			stmt.Token.StartLine,
+			stmt.Token.DebugLine,
 			fail.ErrDuplicateInserts,
 			stmt.Name.Value,
 		)
@@ -738,7 +738,7 @@ func (p *Parser) parseCallExp(receiver ast.Expression) ast.Expression {
 	ident, ok := p.parseIdentifier().(*ast.Identifier)
 
 	if !ok {
-		p.newError(p.curToken.StartLine, fail.ErrExpectedIdentifier, p.curToken.Literal)
+		p.newError(p.curToken.DebugLine, fail.ErrExpectedIdentifier, p.curToken.Literal)
 		return nil
 	}
 
@@ -767,7 +767,7 @@ func (p *Parser) parseInfixExp(left ast.Expression) ast.Expression {
 	p.nextToken() // skip operator
 
 	if p.curTokenIs(token.RBRACES) {
-		p.newError(p.curToken.StartLine, fail.ErrExpectedExpression)
+		p.newError(p.curToken.DebugLine, fail.ErrExpectedExpression)
 		return nil
 	}
 
@@ -871,7 +871,7 @@ func (p *Parser) parseAlternativeBlock() *ast.BlockStmt {
 	alt := p.parseBlockStmt()
 
 	if p.peekTokenIs(token.ELSE_IF) {
-		p.newError(p.peekToken.StartLine, fail.ErrElseifCannotFollowElse)
+		p.newError(p.peekToken.DebugLine, fail.ErrElseifCannotFollowElse)
 		return nil
 	}
 
@@ -1008,7 +1008,7 @@ func (p *Parser) parseExpression(precedence int) ast.Expression {
 
 	if prefix == nil {
 		p.newError(
-			p.curToken.StartLine,
+			p.curToken.DebugLine,
 			fail.ErrNoPrefixParseFunc,
 			token.String(p.curToken.Type),
 		)

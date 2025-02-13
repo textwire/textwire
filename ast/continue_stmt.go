@@ -19,7 +19,7 @@ func (cs *ContinueStmt) String() string {
 }
 
 func (cs *ContinueStmt) Line() uint {
-	return cs.Token.StartLine
+	return cs.Token.DebugLine
 }
 
 func (cs *ContinueStmt) Position() Position {

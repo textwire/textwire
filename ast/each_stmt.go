@@ -43,7 +43,7 @@ func (es *EachStmt) String() string {
 }
 
 func (es *EachStmt) Line() uint {
-	return es.Token.StartLine
+	return es.Token.DebugLine
 }
 
 func (es *EachStmt) Position() Position {

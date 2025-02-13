@@ -25,7 +25,7 @@ func (us *UseStmt) String() string {
 }
 
 func (us *UseStmt) Line() uint {
-	return us.Token.StartLine
+	return us.Token.DebugLine
 }
 
 func (us *UseStmt) Position() Position {

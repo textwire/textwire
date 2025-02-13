@@ -22,7 +22,7 @@ func (bis *BreakIfStmt) String() string {
 }
 
 func (bis *BreakIfStmt) Line() uint {
-	return bis.Token.StartLine
+	return bis.Token.DebugLine
 }
 
 func (bis *BreakIfStmt) Position() Position {

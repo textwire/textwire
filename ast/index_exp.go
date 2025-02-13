@@ -25,7 +25,7 @@ func (ie *IndexExp) String() string {
 }
 
 func (ie *IndexExp) Line() uint {
-	return ie.Token.StartLine
+	return ie.Token.DebugLine
 }
 
 func (ie *IndexExp) Position() Position {

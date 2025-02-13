@@ -45,12 +45,10 @@ type Lexer struct {
 
 func New(input string) *Lexer {
 	l := &Lexer{
-		input:                     input,
-		line:                      1,
-		isHTML:                    true,
-		isDirective:               false,
-		countDirectiveParentheses: 0,
-		countCurlyBraces:          0,
+		input:       input,
+		debugLine:   1,
+		isHTML:      true,
+		isDirective: false,
 	}
 
 	// set l.char to the first character
@@ -371,7 +369,7 @@ func (l *Lexer) readHTML() string {
 		}
 
 		if l.char == '\n' {
-			l.line += 1
+			l.debugLine += 1
 		}
 
 		if esc := l.escapeDirective(); esc != 0 {
@@ -445,7 +443,7 @@ func (l *Lexer) advanceChar() {
 func (l *Lexer) skipWhitespace() {
 	for l.char == ' ' || l.char == '\t' || l.char == '\n' || l.char == '\r' {
 		if l.char == '\n' {
-			l.line += 1
+			l.debugLine += 1
 		}
 
 		l.advanceChar()

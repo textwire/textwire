@@ -38,7 +38,7 @@ func (al *ArrayLiteral) String() string {
 }
 
 func (al *ArrayLiteral) Line() uint {
-	return al.Token.StartLine
+	return al.Token.DebugLine
 }
 
 func (al *ArrayLiteral) Position() Position {
