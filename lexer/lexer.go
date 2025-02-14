@@ -32,19 +32,39 @@ var tokensWithOptionalParens = map[token.TokenType]bool{
 }
 
 type Lexer struct {
-	input                     string
-	position                  int // zero-based
-	nextPosition              int // zero-based
-	char                      byte
-	debugLine                 uint // one-based. Starts from 1
-	startChar                 uint // zero-based
-	endChar                   uint // zero-based
-	startLine                 uint // zero-based
-	endLine                   uint // zero-based
-	isHTML                    bool
-	isDirective               bool
+	// The input string to be tokenized.
+	input string
+
+	// Zero-based current character position in the input.
+	position int
+
+	// Zero-based next character position in the input.
+	nextPosition int
+
+	// Current byte character in the input.
+	char byte
+
+	// Starts from 1. Increments when a new line is found.
+	// Is shown error messages.
+	debugLine uint
+
+	// Zero-based current character position in the line.
+	charLinePosition uint
+
+	// Determines if current character is in HTML or Textwire.
+	isHTML bool
+
+	// Determines if current character is a part of directive.
+	isDirective bool
+
+	// We increment it when we find "(" and decrement when we find ")".
+	// It helps to determine if we are lexing a directive.
 	countDirectiveParentheses int
-	countCurlyBraces          int
+
+	// If this is 0 and we find "}}" then it's the closing token.
+	// We increment it when we find "{" and decrement when we find "}".
+	// It helps to determine if we are in HTML or Textwire.
+	countCurlyBraces int
 }
 
 func New(input string) *Lexer {
