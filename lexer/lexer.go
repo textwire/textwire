@@ -482,8 +482,7 @@ func (l *Lexer) isNewLine() bool {
 
 func (l *Lexer) advanceLine() {
 	l.debugLine += 1
-	l.startChar = 0
-	l.endChar = 0
+	l.charLinePosition = 0
 }
 
 func (l *Lexer) skipComment() {
