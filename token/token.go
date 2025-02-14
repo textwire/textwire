@@ -106,6 +106,7 @@ type Token struct {
 	Type      TokenType
 	Literal   string
 	DebugLine uint // one-based
+	Pos       Position
 }
 
 func LookupIdent(ident string) TokenType {
