@@ -35,10 +35,10 @@ type Lexer struct {
 	// The input string to be tokenized.
 	input string
 
-	// Zero-based current character position in the input.
+	// Zero-based current character token.Position in the input.
 	position int
 
-	// Zero-based next character position in the input.
+	// Zero-based next character token.Position in the input.
 	nextPosition int
 
 	// Current byte character in the input.
@@ -48,7 +48,7 @@ type Lexer struct {
 	// Is shown error messages.
 	debugLine uint
 
-	// Zero-based current character position in the line.
+	// Zero-based current character token.Position in the line.
 	charLinePosition uint
 
 	// Determines if current character is in HTML or Textwire.
@@ -263,10 +263,6 @@ func (l *Lexer) newToken(tokType token.TokenType, literal string) token.Token {
 		Type:      tokType,
 		Literal:   literal,
 		DebugLine: l.debugLine,
-		StartLine: l.startLine,
-		EndLine:   l.endLine,
-		StartChar: l.startChar,
-		EndChar:   l.endChar,
 	}
 }
 
@@ -275,10 +271,6 @@ func (l *Lexer) newTokenAndAdvance(tokType token.TokenType, literal string) toke
 		Type:      tokType,
 		Literal:   literal,
 		DebugLine: l.debugLine,
-		StartLine: l.startLine,
-		EndLine:   l.endLine,
-		StartChar: l.startChar,
-		EndChar:   l.endChar,
 	}
 
 	l.advanceChar()
@@ -402,8 +394,8 @@ func (l *Lexer) readHTML() string {
 			break
 		}
 
-		if l.char == '\n' {
-			l.debugLine += 1
+		if l.isNewLine() {
+			l.advanceLine()
 		}
 
 		if esc := l.escapeDirective(); esc != 0 {
@@ -476,12 +468,22 @@ func (l *Lexer) advanceChar() {
 
 func (l *Lexer) skipWhitespace() {
 	for l.char == ' ' || l.char == '\t' || l.char == '\n' || l.char == '\r' {
-		if l.char == '\n' {
-			l.debugLine += 1
+		if l.isNewLine() {
+			l.advanceLine()
 		}
 
 		l.advanceChar()
 	}
+}
+
+func (l *Lexer) isNewLine() bool {
+	return l.char == '\n'
+}
+
+func (l *Lexer) advanceLine() {
+	l.debugLine += 1
+	l.startChar = 0
+	l.endChar = 0
 }
 
 func (l *Lexer) skipComment() {
