@@ -7,7 +7,7 @@ import (
 type BreakIfStmt struct {
 	Token     token.Token // The '@breakIf' token
 	Condition Expression
-	Pos       Position
+	Pos       token.Position
 }
 
 func (bis *BreakIfStmt) statementNode() {
@@ -25,6 +25,6 @@ func (bis *BreakIfStmt) Line() uint {
 	return bis.Token.DebugLine
 }
 
-func (bis *BreakIfStmt) Position() Position {
+func (bis *BreakIfStmt) Position() token.Position {
 	return bis.Pos
 }

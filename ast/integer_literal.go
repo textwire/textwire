@@ -5,7 +5,7 @@ import "github.com/textwire/textwire/v2/token"
 type IntegerLiteral struct {
 	Token token.Token
 	Value int64
-	Pos   Position
+	Pos   token.Position
 }
 
 func (il *IntegerLiteral) expressionNode() {
@@ -23,6 +23,6 @@ func (il *IntegerLiteral) Line() uint {
 	return il.Token.DebugLine
 }
 
-func (il *IntegerLiteral) Position() Position {
+func (il *IntegerLiteral) Position() token.Position {
 	return il.Pos
 }

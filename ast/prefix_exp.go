@@ -10,7 +10,7 @@ type PrefixExp struct {
 	Token    token.Token // The '!' or '-' token
 	Operator string
 	Right    Expression
-	Pos      Position
+	Pos      token.Position
 }
 
 func (pe *PrefixExp) expressionNode() {
@@ -28,6 +28,6 @@ func (pe *PrefixExp) Line() uint {
 	return pe.Token.DebugLine
 }
 
-func (pe *PrefixExp) Position() Position {
+func (pe *PrefixExp) Position() token.Position {
 	return pe.Pos
 }

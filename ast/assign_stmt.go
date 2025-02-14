@@ -8,7 +8,7 @@ type AssignStmt struct {
 	Token token.Token // The 'var' or identifier token
 	Name  *Identifier
 	Value Expression
-	Pos   Position
+	Pos   token.Position
 }
 
 func (as *AssignStmt) statementNode() {
@@ -26,6 +26,6 @@ func (as *AssignStmt) Line() uint {
 	return as.Token.DebugLine
 }
 
-func (as *AssignStmt) Position() Position {
+func (as *AssignStmt) Position() token.Position {
 	return as.Pos
 }

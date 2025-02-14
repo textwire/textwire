@@ -11,7 +11,7 @@ type TernaryExp struct {
 	Condition   Expression
 	Consequence Expression
 	Alternative Expression
-	Pos         Position
+	Pos         token.Position
 }
 
 func (te *TernaryExp) expressionNode() {
@@ -29,6 +29,6 @@ func (te *TernaryExp) Line() uint {
 	return te.Token.DebugLine
 }
 
-func (te *TernaryExp) Position() Position {
+func (te *TernaryExp) Position() token.Position {
 	return te.Pos
 }

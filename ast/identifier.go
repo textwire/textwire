@@ -5,7 +5,7 @@ import "github.com/textwire/textwire/v2/token"
 type Identifier struct {
 	Token token.Token
 	Value string
-	Pos   Position
+	Pos   token.Position
 }
 
 func (i *Identifier) expressionNode() {
@@ -23,6 +23,6 @@ func (i *Identifier) Line() uint {
 	return i.Token.DebugLine
 }
 
-func (i *Identifier) Position() Position {
+func (i *Identifier) Position() token.Position {
 	return i.Pos
 }

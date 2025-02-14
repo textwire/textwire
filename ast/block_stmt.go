@@ -9,7 +9,7 @@ import (
 type BlockStmt struct {
 	Token      token.Token
 	Statements []Statement
-	Pos        Position
+	Pos        token.Position
 }
 
 func (bs *BlockStmt) statementNode() {
@@ -39,6 +39,6 @@ func (bs *BlockStmt) Line() uint {
 	return bs.Token.DebugLine
 }
 
-func (bs *BlockStmt) Position() Position {
+func (bs *BlockStmt) Position() token.Position {
 	return bs.Pos
 }

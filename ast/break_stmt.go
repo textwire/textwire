@@ -6,7 +6,7 @@ import (
 
 type BreakStmt struct {
 	Token token.Token // The '@break' token
-	Pos   Position
+	Pos   token.Position
 }
 
 func (bs *BreakStmt) statementNode() {
@@ -24,6 +24,6 @@ func (bs *BreakStmt) Line() uint {
 	return bs.Token.DebugLine
 }
 
-func (bs *BreakStmt) Position() Position {
+func (bs *BreakStmt) Position() token.Position {
 	return bs.Pos
 }

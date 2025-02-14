@@ -7,7 +7,7 @@ import (
 type BooleanLiteral struct {
 	Token token.Token // The 'true' or 'false' token
 	Value bool
-	Pos   Position
+	Pos   token.Position
 }
 
 func (bl *BooleanLiteral) expressionNode() {
@@ -25,6 +25,6 @@ func (bl *BooleanLiteral) Line() uint {
 	return bl.Token.DebugLine
 }
 
-func (bl *BooleanLiteral) Position() Position {
+func (bl *BooleanLiteral) Position() token.Position {
 	return bl.Pos
 }

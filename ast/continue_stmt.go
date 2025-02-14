@@ -4,7 +4,7 @@ import "github.com/textwire/textwire/v2/token"
 
 type ContinueStmt struct {
 	Token token.Token // The '@continue' token
-	Pos   Position
+	Pos   token.Position
 }
 
 func (cs *ContinueStmt) statementNode() {
@@ -22,6 +22,6 @@ func (cs *ContinueStmt) Line() uint {
 	return cs.Token.DebugLine
 }
 
-func (cs *ContinueStmt) Position() Position {
+func (cs *ContinueStmt) Position() token.Position {
 	return cs.Pos
 }

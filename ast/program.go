@@ -15,7 +15,7 @@ type Program struct {
 	Components []*ComponentStmt
 	Reserves   map[string]*ReserveStmt
 	Inserts    map[string]*InsertStmt
-	Pos        Position
+	Pos        token.Position
 }
 
 func (p *Program) TokenLiteral() string {
@@ -45,7 +45,7 @@ func (p *Program) Line() uint {
 	return p.Token.DebugLine
 }
 
-func (p *Program) Position() Position {
+func (p *Program) Position() token.Position {
 	return p.Pos
 }
 

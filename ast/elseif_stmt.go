@@ -10,7 +10,7 @@ type ElseIfStmt struct {
 	Token       token.Token
 	Condition   Expression
 	Consequence *BlockStmt
-	Pos         Position
+	Pos         token.Position
 }
 
 func (eis *ElseIfStmt) statementNode() {
@@ -33,6 +33,6 @@ func (eis *ElseIfStmt) Line() uint {
 	return eis.Token.DebugLine
 }
 
-func (eis *ElseIfStmt) Position() Position {
+func (eis *ElseIfStmt) Position() token.Position {
 	return eis.Pos
 }

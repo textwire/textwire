@@ -13,7 +13,7 @@ type InsertStmt struct {
 	Argument Expression     // The argument to the insert statement; nil if has block
 	Block    *BlockStmt     // The block of the insert statement; nil if has argument
 	FilePath string         // The file path of the insert statement
-	Pos      Position
+	Pos      token.Position
 }
 
 func (is *InsertStmt) statementNode() {
@@ -42,6 +42,6 @@ func (is *InsertStmt) Line() uint {
 	return is.Token.DebugLine
 }
 
-func (is *InsertStmt) Position() Position {
+func (is *InsertStmt) Position() token.Position {
 	return is.Pos
 }

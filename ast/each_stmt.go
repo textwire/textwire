@@ -12,7 +12,7 @@ type EachStmt struct {
 	Array       Expression  // The array to loop over
 	Alternative *BlockStmt  // The @else block
 	Block       *BlockStmt
-	Pos         Position
+	Pos         token.Position
 }
 
 func (es *EachStmt) statementNode() {
@@ -46,6 +46,6 @@ func (es *EachStmt) Line() uint {
 	return es.Token.DebugLine
 }
 
-func (es *EachStmt) Position() Position {
+func (es *EachStmt) Position() token.Position {
 	return es.Pos
 }
