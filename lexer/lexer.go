@@ -35,8 +35,8 @@ type Lexer struct {
 	// The input string to be tokenized.
 	input string
 
-	// Zero-based current character token.Position in the input.
-	position int
+	// Zero-based current character position in the input.
+	pos int
 
 	// Zero-based next character token.Position in the input.
 	nextPosition int
@@ -279,13 +279,13 @@ func (l *Lexer) newTokenAndAdvance(tokType token.TokenType, literal string) toke
 }
 
 func (l *Lexer) readIdentifier() string {
-	position := l.position
+	pos := l.pos
 
 	for isIdent(l.char) || isNumber(l.char) {
 		l.advanceChar()
 	}
 
-	return l.input[position:l.position]
+	return l.input[pos:l.pos]
 }
 
 func (l *Lexer) readDirective() (token.TokenType, string) {
@@ -315,11 +315,11 @@ func (l *Lexer) isDirectiveStmt() bool {
 	longestDir := token.LongestDirective()
 
 	for i := 1; i <= longestDir; i++ {
-		if l.position+i > len(l.input) {
+		if l.pos+i > len(l.input) {
 			return false
 		}
 
-		keyword := l.input[l.position : l.position+i]
+		keyword := l.input[l.pos : l.pos+i]
 
 		tok := token.LookupDirective(keyword)
 
@@ -349,7 +349,7 @@ func (l *Lexer) readString() string {
 		return result
 	}
 
-	position := l.position
+	pos := l.pos
 
 	for {
 		prevChar := l.char
@@ -361,14 +361,14 @@ func (l *Lexer) readString() string {
 		}
 	}
 
-	result = l.input[position:l.position]
+	result = l.input[pos:l.pos]
 
 	// remove slashes before quotes
 	return strings.ReplaceAll(result, "\\"+string(quote), string(quote))
 }
 
 func (l *Lexer) readNumber() (string, bool) {
-	position := l.position
+	pos := l.pos
 	isInt := true
 
 	for isNumber(l.char) || l.char == '.' {
@@ -383,7 +383,7 @@ func (l *Lexer) readNumber() (string, bool) {
 		l.advanceChar()
 	}
 
-	return l.input[position:l.position], isInt
+	return l.input[pos:l.pos], isInt
 }
 
 func (l *Lexer) readHTML() string {
@@ -462,7 +462,7 @@ func (l *Lexer) advanceChar() {
 		l.char = l.input[l.nextPosition]
 	}
 
-	l.position = l.nextPosition
+	l.pos = l.nextPosition
 	l.nextPosition += 1
 }
 
