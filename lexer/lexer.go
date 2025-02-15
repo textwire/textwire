@@ -38,8 +38,8 @@ type Lexer struct {
 	// Zero-based current character position in the input.
 	pos int
 
-	// Zero-based next character token.Position in the input.
-	nextPosition int
+	// Zero-based next character position in the input.
+	nextPos int
 
 	// Current byte character in the input.
 	char byte
@@ -456,14 +456,14 @@ func (l *Lexer) escapeStatementStart() string {
 }
 
 func (l *Lexer) advanceChar() {
-	if l.nextPosition >= len(l.input) {
+	if l.nextPos >= len(l.input) {
 		l.char = 0
 	} else {
-		l.char = l.input[l.nextPosition]
+		l.char = l.input[l.nextPos]
 	}
 
-	l.pos = l.nextPosition
-	l.nextPosition += 1
+	l.pos = l.nextPos
+	l.nextPos += 1
 }
 
 func (l *Lexer) skipWhitespace() {
@@ -507,9 +507,9 @@ func (l *Lexer) skipComment() {
 }
 
 func (l *Lexer) peekChar() byte {
-	if l.nextPosition >= len(l.input) {
+	if l.nextPos >= len(l.input) {
 		return 0
 	}
 
-	return l.input[l.nextPosition]
+	return l.input[l.nextPos]
 }
