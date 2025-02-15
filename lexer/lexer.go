@@ -48,8 +48,8 @@ type Lexer struct {
 	// Is shown error messages.
 	debugLine uint
 
-	// Zero-based current character token.Position in the line.
-	charLinePosition uint
+	// Zero-based current column index on the line.
+	columnIndex uint
 
 	// Determines if current character is in HTML or Textwire.
 	isHTML bool
@@ -482,7 +482,7 @@ func (l *Lexer) isNewLine() bool {
 
 func (l *Lexer) advanceLine() {
 	l.debugLine += 1
-	l.charLinePosition = 0
+	l.columnIndex = 0
 }
 
 func (l *Lexer) skipComment() {
