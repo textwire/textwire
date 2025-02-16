@@ -17,6 +17,7 @@ var simpleTokens = map[byte]token.TokenType{
 	']': token.RBRACKET,
 	'.': token.DOT,
 	';': token.SEMI,
+	':': token.COLON,
 }
 
 var tokensWithoutParens = map[token.TokenType]bool{
@@ -45,11 +46,14 @@ type Lexer struct {
 	char byte
 
 	// Starts from 1. Increments when a new line is found.
-	// Is shown error messages.
+	// Is shown error messages. Don't confuse with lineIndex.
 	debugLine uint
 
 	// Zero-based current column index on the line.
-	columnIndex uint
+	colIndex uint
+
+	// Zero-based current index on the line.
+	lineIndex uint
 
 	// Determines if current character is in HTML or Textwire.
 	isHTML bool
