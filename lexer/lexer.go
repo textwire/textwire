@@ -403,14 +403,11 @@ func (l *Lexer) readNumber() (string, bool) {
 
 func (l *Lexer) readHTML() string {
 	var out bytes.Buffer
+	l.startCol = l.col
 
 	for l.isHTML && l.char != 0 {
 		if l.peekChar() == '{' && l.char != '\\' {
 			break
-		}
-
-		if l.isNewLine() {
-			l.advanceLine()
 		}
 
 		if esc := l.escapeDirective(); esc != 0 {
