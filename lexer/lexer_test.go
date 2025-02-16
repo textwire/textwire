@@ -278,7 +278,7 @@ func TestArray(t *testing.T) {
 	})
 }
 
-func TestLineNumber(t *testing.T) {
+func TestDebugLineNumber(t *testing.T) {
 	tests := []struct {
 		inp  string
 		line uint
