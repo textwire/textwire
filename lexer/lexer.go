@@ -267,12 +267,7 @@ func (l *Lexer) newToken(tokType token.TokenType, literal string) token.Token {
 }
 
 func (l *Lexer) newTokenAndAdvance(tokType token.TokenType, literal string) token.Token {
-	tok := token.Token{
-		Type:      tokType,
-		Literal:   literal,
-		DebugLine: l.debugLine,
-	}
-
+	tok := l.newToken(tokType, literal)
 	l.advanceChar()
 
 	return tok
