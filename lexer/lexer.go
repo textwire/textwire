@@ -242,7 +242,7 @@ func (l *Lexer) embeddedCodeToken() token.Token {
 		return l.newToken(token.FLOAT, num, startLine, startCol)
 	}
 
-	return l.newToken(token.ILLEGAL, string(l.char), l.lineIndex, l.colIndex)
+	return l.illegalToken()
 }
 
 func (l *Lexer) leftBraceToken() token.Token {
