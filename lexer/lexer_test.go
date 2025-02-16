@@ -321,6 +321,40 @@ func TestDebugLineNumber(t *testing.T) {
 	}
 }
 
+func TestTokenPosition(t *testing.T) {
+	tests := []struct {
+		pos        token.Position
+		tokenIndex int
+	}{
+		{
+			token.Position{
+				StartLine: 0,
+				EndLine:   0,
+				StartCol:  0,
+				EndCol:    3,
+			},
+			0,
+		},
+	}
+
+	inp := `<ul>
+    {{ age = 3 }}
+</ul>`
+
+	for _, tc := range tests {
+		l := New(inp)
+		var targetTok token.Token
+
+		for i := 0; i <= tc.tokenIndex; i++ {
+			targetTok = l.NextToken()
+		}
+
+		if targetTok.Pos != tc.pos {
+			t.Errorf("Expected token position %v, got %v", tc.pos, targetTok.Pos)
+		}
+	}
+}
+
 func TestIsDirectoryStart(t *testing.T) {
 	t.Run("Not a directive", func(t *testing.T) {
 		l := New(`test@email.com`)
