@@ -329,7 +329,7 @@ func TestTokenPosition(t *testing.T) {
 		{
 			token.Position{
 				StartLine: 0,
-				EndLine:   0,
+				EndLine:   1,
 				StartCol:  0,
 				EndCol:    3,
 			},
