@@ -87,7 +87,7 @@ func (l *Lexer) NextToken() token.Token {
 	}
 
 	if l.char == 0 {
-		return l.newToken(token.EOF, "")
+		return l.newToken(token.EOF, "", l.lineIndex, l.colIndex)
 	}
 
 	if l.char == '{' && l.peekChar() == '{' {
@@ -113,27 +113,34 @@ func (l *Lexer) NextToken() token.Token {
 		return l.directiveToken()
 	}
 
-	return l.newToken(token.HTML, l.readHTML())
+	startLine, startCol := l.lineIndex, l.colIndex
+	return l.newToken(token.HTML, l.readHTML(), startLine, startCol)
 }
 
 func (l *Lexer) bracesToken(tok token.TokenType, literal string) token.Token {
 	l.isHTML = tok != token.LBRACES
 
+	startLine, startCol := l.lineIndex, l.colIndex
 	l.advanceChar() // skip first brace
 	l.advanceChar() // skip second brace
 
-	return l.newToken(tok, literal)
+	return l.newToken(tok, literal, startLine, startCol)
+}
+
+func (l *Lexer) illegalToken() token.Token {
+	return l.newToken(token.ILLEGAL, string(l.char), l.lineIndex, l.colIndex)
 }
 
 func (l *Lexer) directiveToken() token.Token {
 	if l.char != '@' {
-		return l.newToken(token.ILLEGAL, string(l.char))
+		return l.illegalToken()
 	}
 
+	startLine, startCol := l.lineIndex, l.colIndex
 	tok, keyword := l.readDirective()
 
 	if tok == token.ILLEGAL {
-		return l.newToken(tok, string(l.char))
+		return l.illegalToken()
 	}
 
 	hasOptionalParens := tokensWithOptionalParens[tok] && l.char == '('
@@ -142,13 +149,13 @@ func (l *Lexer) directiveToken() token.Token {
 	l.isDirective = hasOptionalParens || !hasNoParens
 	l.isHTML = !l.isDirective
 
-	return l.newToken(tok, keyword)
+	return l.newToken(tok, keyword, startLine, startCol)
 }
 
 func (l *Lexer) embeddedCodeToken() token.Token {
 	// check simple tokens first
 	if tok, ok := simpleTokens[l.char]; ok {
-		return l.newTokenAndAdvance(tok, string(l.char))
+		return l.newTokenAndAdvance(tok, string(l.char), l.lineIndex, l.colIndex)
 	}
 
 	switch l.char {
@@ -161,80 +168,87 @@ func (l *Lexer) embeddedCodeToken() token.Token {
 	case ')':
 		return l.rightParenthesesToken()
 	case '"', '\'':
+		startLine, startCol := l.lineIndex, l.colIndex
 		str := l.readString()
-		return l.newTokenAndAdvance(token.STR, str)
+		return l.newTokenAndAdvance(token.STR, str, startLine, startCol)
 	case '<':
 		if l.peekChar() == '=' {
+			startLine, startCol := l.lineIndex, l.colIndex
 			l.advanceChar() // skip "="
-			return l.newTokenAndAdvance(token.LTHAN_EQ, "<=")
+			return l.newTokenAndAdvance(token.LTHAN_EQ, "<=", startLine, startCol)
 		}
 
-		return l.newTokenAndAdvance(token.LTHAN, "<")
+		return l.newTokenAndAdvance(token.LTHAN, "<", l.lineIndex, l.colIndex)
 	case '>':
 		if l.peekChar() == '=' {
+			startLine, startCol := l.lineIndex, l.colIndex
 			l.advanceChar() // skip "="
-			return l.newTokenAndAdvance(token.GTHAN_EQ, ">=")
+			return l.newTokenAndAdvance(token.GTHAN_EQ, ">=", startLine, startCol)
 		}
 
-		return l.newTokenAndAdvance(token.GTHAN, ">")
+		return l.newTokenAndAdvance(token.GTHAN, ">", l.lineIndex, l.colIndex)
 	case '!':
 		if l.peekChar() == '=' {
+			startLine, startCol := l.lineIndex, l.colIndex
 			l.advanceChar() // skip "="
-			return l.newTokenAndAdvance(token.NOT_EQ, "!=")
+			return l.newTokenAndAdvance(token.NOT_EQ, "!=", startLine, startCol)
 		}
 
-		return l.newTokenAndAdvance(token.NOT, "!")
+		return l.newTokenAndAdvance(token.NOT, "!", l.lineIndex, l.colIndex)
 	case '-':
 		if l.peekChar() == '-' {
+			startLine, startCol := l.lineIndex, l.colIndex
 			l.advanceChar() // skip "-"
-			return l.newTokenAndAdvance(token.DEC, "--")
+			return l.newTokenAndAdvance(token.DEC, "--", startLine, startCol)
 		}
 
-		return l.newTokenAndAdvance(token.SUB, "-")
+		return l.newTokenAndAdvance(token.SUB, "-", l.lineIndex, l.colIndex)
 	case '+':
 		if l.peekChar() == '+' {
+			startLine, startCol := l.lineIndex, l.colIndex
 			l.advanceChar() // skip "+"
-			return l.newTokenAndAdvance(token.INC, "++")
+			return l.newTokenAndAdvance(token.INC, "++", startLine, startCol)
 		}
 
-		return l.newTokenAndAdvance(token.ADD, "+")
+		return l.newTokenAndAdvance(token.ADD, "+", l.lineIndex, l.colIndex)
 	case '=':
 		if l.peekChar() == '=' {
+			startLine, startCol := l.lineIndex, l.colIndex
 			l.advanceChar() // skip "="
-			return l.newTokenAndAdvance(token.EQ, "==")
+			return l.newTokenAndAdvance(token.EQ, "==", startLine, startCol)
 		}
 
-		return l.newTokenAndAdvance(token.ASSIGN, "=")
-	case ':':
-		return l.newTokenAndAdvance(token.COLON, ":")
+		return l.newTokenAndAdvance(token.ASSIGN, "=", l.lineIndex, l.colIndex)
 	}
 
 	if isIdent(l.char) {
+		startLine, startCol := l.lineIndex, l.colIndex
 		ident := l.readIdentifier()
-		return l.newToken(token.LookupIdent(ident), ident)
+		return l.newToken(token.LookupIdent(ident), ident, startLine, startCol)
 	}
 
 	if isNumber(l.char) {
+		startLine, startCol := l.lineIndex, l.colIndex
 		num, isInt := l.readNumber()
 
 		if isInt {
-			return l.newToken(token.INT, num)
+			return l.newToken(token.INT, num, startLine, startCol)
 		}
 
-		return l.newToken(token.FLOAT, num)
+		return l.newToken(token.FLOAT, num, startLine, startCol)
 	}
 
-	return l.newToken(token.ILLEGAL, string(l.char))
+	return l.newToken(token.ILLEGAL, string(l.char), l.lineIndex, l.colIndex)
 }
 
 func (l *Lexer) leftBraceToken() token.Token {
 	l.countCurlyBraces += 1
-	return l.newTokenAndAdvance(token.LBRACE, "{")
+	return l.newTokenAndAdvance(token.LBRACE, "{", l.lineIndex, l.colIndex)
 }
 
 func (l *Lexer) rightBraceToken() token.Token {
 	l.countCurlyBraces -= 1
-	return l.newTokenAndAdvance(token.RBRACE, "}")
+	return l.newTokenAndAdvance(token.RBRACE, "}", l.lineIndex, l.colIndex)
 }
 
 func (l *Lexer) leftParenthesesToken() token.Token {
@@ -242,7 +256,7 @@ func (l *Lexer) leftParenthesesToken() token.Token {
 		l.countDirectiveParentheses += 1
 	}
 
-	return l.newTokenAndAdvance(token.LPAREN, "(")
+	return l.newTokenAndAdvance(token.LPAREN, "(", l.lineIndex, l.colIndex)
 }
 
 func (l *Lexer) rightParenthesesToken() token.Token {
@@ -255,19 +269,27 @@ func (l *Lexer) rightParenthesesToken() token.Token {
 		l.isHTML = true
 	}
 
-	return l.newTokenAndAdvance(token.RPAREN, ")")
+	return l.newTokenAndAdvance(token.RPAREN, ")", l.lineIndex, l.colIndex)
 }
 
-func (l *Lexer) newToken(tokType token.TokenType, literal string) token.Token {
+func (l *Lexer) newToken(tokType token.TokenType, literal string, startLine, startCol uint) token.Token {
+	pos := token.Position{
+		StartCol:  startCol,
+		EndCol:    l.colIndex,
+		StartLine: startLine,
+		EndLine:   l.lineIndex,
+	}
+
 	return token.Token{
 		Type:      tokType,
 		Literal:   literal,
 		DebugLine: l.debugLine,
+		Pos:       pos,
 	}
 }
 
-func (l *Lexer) newTokenAndAdvance(tokType token.TokenType, literal string) token.Token {
-	tok := l.newToken(tokType, literal)
+func (l *Lexer) newTokenAndAdvance(tokType token.TokenType, literal string, startLine, startCol uint) token.Token {
+	tok := l.newToken(tokType, literal, startLine, startCol)
 	l.advanceChar()
 
 	return tok
@@ -477,7 +499,8 @@ func (l *Lexer) isNewLine() bool {
 
 func (l *Lexer) advanceLine() {
 	l.debugLine += 1
-	l.columnIndex = 0
+	l.lineIndex += 1
+	l.colIndex = 0
 }
 
 func (l *Lexer) skipComment() {
