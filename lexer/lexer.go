@@ -37,10 +37,10 @@ type Lexer struct {
 	input string
 
 	// Zero-based current character position in the input.
-	pos int
+	cursor int
 
 	// Zero-based next character position in the input.
-	nextPos int
+	nextCursor int
 
 	// Current byte character in the input.
 	char byte
@@ -300,13 +300,13 @@ func (l *Lexer) newTokenAndAdvance(tokType token.TokenType, literal string, star
 }
 
 func (l *Lexer) readIdentifier() string {
-	pos := l.pos
+	cursor := l.cursor
 
 	for isIdent(l.char) || isNumber(l.char) {
 		l.advanceChar()
 	}
 
-	return l.input[pos:l.pos]
+	return l.input[cursor:l.cursor]
 }
 
 func (l *Lexer) readDirective() (token.TokenType, string) {
@@ -336,11 +336,11 @@ func (l *Lexer) isDirectiveStmt() bool {
 	longestDir := token.LongestDirective()
 
 	for i := 1; i <= longestDir; i++ {
-		if l.pos+i > len(l.input) {
+		if l.cursor+i > len(l.input) {
 			return false
 		}
 
-		keyword := l.input[l.pos : l.pos+i]
+		keyword := l.input[l.cursor : l.cursor+i]
 
 		tok := token.LookupDirective(keyword)
 
@@ -370,7 +370,7 @@ func (l *Lexer) readString() string {
 		return result
 	}
 
-	pos := l.pos
+	cursor := l.cursor
 
 	for {
 		prevChar := l.char
@@ -382,14 +382,14 @@ func (l *Lexer) readString() string {
 		}
 	}
 
-	result = l.input[pos:l.pos]
+	result = l.input[cursor:l.cursor]
 
 	// remove slashes before quotes
 	return strings.ReplaceAll(result, "\\"+string(quote), string(quote))
 }
 
 func (l *Lexer) readNumber() (string, bool) {
-	pos := l.pos
+	cursor := l.cursor
 	isInt := true
 
 	for isNumber(l.char) || l.char == '.' {
@@ -404,7 +404,7 @@ func (l *Lexer) readNumber() (string, bool) {
 		l.advanceChar()
 	}
 
-	return l.input[pos:l.pos], isInt
+	return l.input[cursor:l.cursor], isInt
 }
 
 func (l *Lexer) readHTML() string {
@@ -435,6 +435,8 @@ func (l *Lexer) readHTML() string {
 
 		l.advanceChar()
 	}
+
+	// todo: colIndex is 4 here
 
 	if l.char != 0 && l.char != '@' && l.char != '{' {
 		out.WriteByte(l.char)
@@ -477,14 +479,18 @@ func (l *Lexer) escapeStatementStart() string {
 }
 
 func (l *Lexer) advanceChar() {
-	if l.nextPos >= len(l.input) {
+	if l.nextCursor >= len(l.input) {
 		l.char = 0
 	} else {
-		l.char = l.input[l.nextPos]
+		l.char = l.input[l.nextCursor]
 	}
 
-	l.pos = l.nextPos
-	l.nextPos += 1
+	l.cursor = l.nextCursor
+	l.nextCursor += 1
+
+	if l.cursor > 0 {
+		l.colIndex += 1
+	}
 }
 
 func (l *Lexer) skipWhitespace() {
@@ -529,9 +535,9 @@ func (l *Lexer) skipComment() {
 }
 
 func (l *Lexer) peekChar() byte {
-	if l.nextPos >= len(l.input) {
+	if l.nextCursor >= len(l.input) {
 		return 0
 	}
 
-	return l.input[l.nextPos]
+	return l.input[l.nextCursor]
 }
