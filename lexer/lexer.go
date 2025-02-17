@@ -490,6 +490,14 @@ func (l *Lexer) readChar() {
 	}
 }
 
+func (l *Lexer) peekChar() byte {
+	if l.readPos >= len(l.input) {
+		return 0
+	}
+
+	return l.input[l.readPos]
+}
+
 func (l *Lexer) skipWhitespace() {
 	for l.char == ' ' || l.char == '\t' || l.char == '\n' || l.char == '\r' {
 		l.readChar()
@@ -515,12 +523,4 @@ func (l *Lexer) skipComment() {
 
 	l.readChar() // skip "}"
 	l.readChar() // skip "}"
-}
-
-func (l *Lexer) peekChar() byte {
-	if l.readPos >= len(l.input) {
-		return 0
-	}
-
-	return l.input[l.readPos]
 }
