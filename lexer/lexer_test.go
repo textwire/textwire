@@ -326,20 +326,15 @@ func TestTokenPosition(t *testing.T) {
 		pos        token.Position
 		tokenIndex int
 	}{
-		{
-			token.Position{
-				StartLine: 0,
-				EndLine:   1,
-				StartCol:  0,
-				EndCol:    3,
-			},
-			0,
-		},
+		{token.Position{StartLine: 0, EndLine: 1, StartCol: 0, EndCol: 3}, 0},
+		{token.Position{StartLine: 1, EndLine: 1, StartCol: 4, EndCol: 5}, 1},
+		{token.Position{StartLine: 1, EndLine: 1, StartCol: 7, EndCol: 9}, 2},
+		{token.Position{StartLine: 1, EndLine: 1, StartCol: 11, EndCol: 11}, 3},
 	}
 
-	inp := `<ul>
+	inp := `<div>
     {{ age = 3 }}
-</ul>`
+</div>`
 
 	for _, tc := range tests {
 		l := New(inp)

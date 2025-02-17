@@ -55,6 +55,9 @@ type Lexer struct {
 	// Start column index on the line.
 	startCol uint
 
+	// Determines if we should reset the column index to 0.
+	shouldResetCol bool
+
 	// Current index on the line.
 	line uint
 
@@ -97,6 +100,7 @@ func (l *Lexer) NextToken() token.Token {
 	}
 
 	if l.char == 0 {
+		l.tokenBegins()
 		return l.newToken(token.EOF, "")
 	}
 
@@ -129,6 +133,7 @@ func (l *Lexer) NextToken() token.Token {
 func (l *Lexer) bracesToken(tok token.TokenType, literal string) token.Token {
 	l.isHTML = tok != token.LBRACES
 
+	l.tokenBegins()
 	l.readChar() // skip first brace
 	l.readChar() // skip second brace
 
@@ -136,6 +141,7 @@ func (l *Lexer) bracesToken(tok token.TokenType, literal string) token.Token {
 }
 
 func (l *Lexer) illegalToken() token.Token {
+	l.tokenBegins()
 	return l.newToken(token.ILLEGAL, string(l.char))
 }
 
@@ -162,7 +168,8 @@ func (l *Lexer) directiveToken() token.Token {
 func (l *Lexer) embeddedCodeToken() token.Token {
 	// check simple tokens first
 	if tok, ok := simpleTokens[l.char]; ok {
-		return l.newTokenAndAdvance(tok, string(l.char))
+		l.readChar() // skip the l.char
+		return l.newToken(tok, string(l.char))
 	}
 
 	switch l.char {
@@ -175,50 +182,63 @@ func (l *Lexer) embeddedCodeToken() token.Token {
 	case ')':
 		return l.rightParenthesesToken()
 	case '"', '\'':
-		str := l.readString()
-		return l.newTokenAndAdvance(token.STR, str)
+		return l.newToken(token.STR, l.readString())
 	case '<':
 		if l.peekChar() == '=' {
+			l.tokenBegins()
+			l.readChar() // skip "<"
 			l.readChar() // skip "="
-			return l.newTokenAndAdvance(token.LTHAN_EQ, "<=")
+			return l.newToken(token.LTHAN_EQ, "<=")
 		}
 
-		return l.newTokenAndAdvance(token.LTHAN, "<")
+		l.tokenBegins()
+		l.readChar() // skip "<"
+		return l.newToken(token.LTHAN, "<")
 	case '>':
 		if l.peekChar() == '=' {
+			l.tokenBegins()
+			l.readChar() // skip ">"
 			l.readChar() // skip "="
-			return l.newTokenAndAdvance(token.GTHAN_EQ, ">=")
+			return l.newToken(token.GTHAN_EQ, ">=")
 		}
 
-		return l.newTokenAndAdvance(token.GTHAN, ">")
+		l.tokenBegins()
+		l.readChar() // skip ">"
+		return l.newToken(token.GTHAN, ">")
 	case '!':
 		if l.peekChar() == '=' {
+			l.tokenBegins()
 			l.readChar() // skip "="
-			return l.newTokenAndAdvance(token.NOT_EQ, "!=")
+			l.readChar() // skip "="
+			return l.newToken(token.NOT_EQ, "!=")
 		}
 
-		return l.newTokenAndAdvance(token.NOT, "!")
+		l.tokenBegins()
+		l.readChar() // skip "!"
+		return l.newToken(token.NOT, "!")
 	case '-':
 		if l.peekChar() == '-' {
+			l.tokenBegins()
 			l.readChar() // skip "-"
-			return l.newTokenAndAdvance(token.DEC, "--")
+			l.readChar() // skip "-"
+			return l.newToken(token.DEC, "--")
 		}
 
-		return l.newTokenAndAdvance(token.SUB, "-")
+		l.tokenBegins()
+		l.readChar() // skip "-"
+		return l.newToken(token.SUB, "-")
 	case '+':
 		if l.peekChar() == '+' {
-			l.readChar() // skip "+"
-			return l.newTokenAndAdvance(token.INC, "++")
+			return l.incrementToken()
 		}
 
-		return l.newTokenAndAdvance(token.ADD, "+")
+		return l.addToken()
 	case '=':
 		if l.peekChar() == '=' {
-			l.readChar() // skip "="
-			return l.newTokenAndAdvance(token.EQ, "==")
+			return l.equalToken()
 		}
 
-		return l.newTokenAndAdvance(token.ASSIGN, "=")
+		return l.assignToken()
 	}
 
 	if isIdent(l.char) {
@@ -227,26 +247,64 @@ func (l *Lexer) embeddedCodeToken() token.Token {
 	}
 
 	if isNumber(l.char) {
-		num, isInt := l.readNumber()
-
-		if isInt {
-			return l.newToken(token.INT, num)
-		}
-
-		return l.newToken(token.FLOAT, num)
+		return l.numberToken()
 	}
 
 	return l.illegalToken()
 }
 
+func (l *Lexer) incrementToken() token.Token {
+	l.tokenBegins()
+	l.readChar() // skip "+"
+	l.readChar() // skip "+"
+
+	return l.newToken(token.INC, "++")
+}
+
+func (l *Lexer) addToken() token.Token {
+	l.tokenBegins()
+	l.readChar() // skip "+"
+	return l.newToken(token.ADD, "+")
+}
+
+func (l *Lexer) assignToken() token.Token {
+	l.tokenBegins()
+	l.readChar() // skip "="
+	return l.newToken(token.ASSIGN, "=")
+}
+
+func (l *Lexer) equalToken() token.Token {
+	l.tokenBegins()
+	l.readChar() // skip "="
+	l.readChar() // skip "="
+
+	return l.newToken(token.EQ, "==")
+}
+
+func (l *Lexer) numberToken() token.Token {
+	num, isInt := l.readNumber()
+
+	if isInt {
+		return l.newToken(token.INT, num)
+	}
+
+	return l.newToken(token.FLOAT, num)
+}
+
 func (l *Lexer) leftBraceToken() token.Token {
 	l.countCurlyBraces += 1
-	return l.newTokenAndAdvance(token.LBRACE, "{")
+	l.tokenBegins()
+	l.readChar() // skip "{"
+
+	return l.newToken(token.LBRACE, "{")
 }
 
 func (l *Lexer) rightBraceToken() token.Token {
 	l.countCurlyBraces -= 1
-	return l.newTokenAndAdvance(token.RBRACE, "}")
+	l.tokenBegins()
+	l.readChar() // skip "}"
+
+	return l.newToken(token.RBRACE, "}")
 }
 
 func (l *Lexer) leftParenthesesToken() token.Token {
@@ -254,7 +312,10 @@ func (l *Lexer) leftParenthesesToken() token.Token {
 		l.countDirectiveParentheses += 1
 	}
 
-	return l.newTokenAndAdvance(token.LPAREN, "(")
+	l.tokenBegins()
+	l.readChar() // skip "("
+
+	return l.newToken(token.LPAREN, "(")
 }
 
 func (l *Lexer) rightParenthesesToken() token.Token {
@@ -267,13 +328,21 @@ func (l *Lexer) rightParenthesesToken() token.Token {
 		l.isHTML = true
 	}
 
-	return l.newTokenAndAdvance(token.RPAREN, ")")
+	l.tokenBegins()
+	l.readChar() // skip ")"
+
+	return l.newToken(token.RPAREN, ")")
 }
 
 func (l *Lexer) newToken(tokType token.TokenType, literal string) token.Token {
+	// We need to subtract 1 from the column index because
+	// we already read the last character and incremented
+	// the column index.
+	endCol := l.col - 1
+
 	pos := token.Position{
 		StartCol:  l.startCol,
-		EndCol:    l.col,
+		EndCol:    endCol,
 		StartLine: l.startLine,
 		EndLine:   l.line,
 	}
@@ -286,15 +355,10 @@ func (l *Lexer) newToken(tokType token.TokenType, literal string) token.Token {
 	}
 }
 
-func (l *Lexer) newTokenAndAdvance(tokType token.TokenType, literal string) token.Token {
-	tok := l.newToken(tokType, literal)
-	l.readChar()
-
-	return tok
-}
-
 func (l *Lexer) readIdentifier() string {
 	pos := l.pos
+
+	l.tokenBegins()
 
 	for isIdent(l.char) || isNumber(l.char) {
 		l.readChar()
@@ -358,6 +422,7 @@ func (l *Lexer) readString() string {
 	quote := l.char
 	result := ""
 
+	l.tokenBegins()
 	l.readChar() // skip the first quote
 
 	if l.char == quote {
@@ -378,6 +443,8 @@ func (l *Lexer) readString() string {
 
 	result = l.input[pos:l.pos]
 
+	l.readChar() // skip the last quote
+
 	// remove slashes before quotes
 	return strings.ReplaceAll(result, "\\"+string(quote), string(quote))
 }
@@ -385,6 +452,7 @@ func (l *Lexer) readString() string {
 func (l *Lexer) readNumber() (string, bool) {
 	pos := l.pos
 	isInt := true
+	l.tokenBegins()
 
 	for isNumber(l.char) || l.char == '.' {
 		if l.char == '.' {
@@ -401,33 +469,24 @@ func (l *Lexer) readNumber() (string, bool) {
 	return l.input[pos:l.pos], isInt
 }
 
+func (l *Lexer) isTextwireStart() bool {
+	return l.char == '{' && l.peekChar() == '{' && l.prevChar() != '\\'
+}
+
+func (l *Lexer) tokenBegins() {
+	l.startCol = l.col
+	l.startLine = l.line
+}
+
 func (l *Lexer) readHTML() string {
 	var out bytes.Buffer
-	l.startCol = l.col
+	l.tokenBegins()
 
 	for l.isHTML && l.char != 0 {
-		if l.peekChar() == '{' && l.char != '\\' {
+		if l.isTextwireStart() || l.isDirectiveStmt() {
 			break
 		}
 
-		if esc := l.escapeDirective(); esc != 0 {
-			out.WriteByte(esc)
-		}
-
-		if esc := l.escapeStatementStart(); esc != "" {
-			out.WriteString(esc)
-		}
-
-		if l.isDirectiveStmt() {
-			break
-		}
-
-		out.WriteByte(l.char)
-
-		l.readChar()
-	}
-
-	if l.char != 0 && l.char != '@' && l.char != '{' {
 		out.WriteByte(l.char)
 		l.readChar()
 	}
@@ -435,36 +494,12 @@ func (l *Lexer) readHTML() string {
 	return out.String()
 }
 
-func (l *Lexer) escapeDirective() byte {
-	if l.char != '\\' || l.peekChar() != '@' {
-		return 0
+func (l *Lexer) prevChar() byte {
+	if l.pos > 0 {
+		return l.input[l.pos-1]
 	}
 
-	l.readChar() // skip "\"
-
-	if l.isDirectiveStmt() {
-		l.readChar() // skip "@"
-		return '@'
-	}
-
-	return '\\'
-}
-
-func (l *Lexer) escapeStatementStart() string {
-	if l.char != '\\' || l.peekChar() != '{' {
-		return ""
-	}
-
-	l.readChar() // skip "\"
-
-	if l.peekChar() != '{' {
-		return "\\"
-	}
-
-	l.readChar() // skip "{"
-	l.readChar() // skip "{"
-
-	return "{{"
+	return 0
 }
 
 func (l *Lexer) readChar() {
@@ -483,11 +518,14 @@ func (l *Lexer) readChar() {
 		l.col += 1
 	}
 
-	if l.char == '\n' {
-		l.debugLine += 1
-		l.line += 1
+	if l.shouldResetCol {
+		l.shouldResetCol = false
 		l.col = 0
+		l.line += 1
+		l.debugLine += 1
 	}
+
+	l.shouldResetCol = l.char == '\n'
 }
 
 func (l *Lexer) peekChar() byte {
