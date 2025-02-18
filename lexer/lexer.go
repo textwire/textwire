@@ -123,7 +123,7 @@ func (l *Lexer) NextToken() token.Token {
 		return l.embeddedCodeToken()
 	}
 
-	if l.isDirectiveStmt() {
+	if isDirective, _ := l.isDirectiveToken(); isDirective {
 		return l.directiveToken()
 	}
 
@@ -168,8 +168,9 @@ func (l *Lexer) directiveToken() token.Token {
 func (l *Lexer) embeddedCodeToken() token.Token {
 	// check simple tokens first
 	if tok, ok := simpleTokens[l.char]; ok {
+		c := l.char
 		l.readChar() // skip the l.char
-		return l.newToken(tok, string(l.char))
+		return l.newToken(tok, string(c))
 	}
 
 	switch l.char {
@@ -386,19 +387,21 @@ func (l *Lexer) readDirective() (token.TokenType, string) {
 	return tok, keyword
 }
 
-func (l *Lexer) isDirectiveStmt() bool {
+func (l *Lexer) isDirectiveToken() (isDirectory bool, escapedDirectory bool) {
 	if l.char != '@' {
-		return false
+		return false, false
 	}
+
+	pos := l.pos
 
 	longestDir := token.LongestDirective()
 
 	for i := 1; i <= longestDir; i++ {
-		if l.pos+i > len(l.input) {
-			return false
+		if pos+i > len(l.input) {
+			return false, false
 		}
 
-		keyword := l.input[l.pos : l.pos+i]
+		keyword := l.input[pos : pos+i]
 
 		tok := token.LookupDirective(keyword)
 
@@ -406,10 +409,14 @@ func (l *Lexer) isDirectiveStmt() bool {
 			continue
 		}
 
-		return true
+		if l.prevChar() == '\\' {
+			return false, true
+		}
+
+		return true, false
 	}
 
-	return false
+	return false, false
 }
 
 func (l *Lexer) isPotentiallyLong(tok token.TokenType) bool {
@@ -470,8 +477,11 @@ func (l *Lexer) readNumber() (string, bool) {
 	return l.input[pos:l.pos], isInt
 }
 
-func (l *Lexer) isTextwireStart() bool {
-	return l.char == '{' && l.peekChar() == '{' && l.prevChar() != '\\'
+func (l *Lexer) areBracesToken() (areBraces bool, escapedBraces bool) {
+	braces := l.char == '{' && l.peekChar() == '{'
+	escapedBraces = l.prevChar() == '\\' && braces
+
+	return braces && l.prevChar() != '\\', escapedBraces
 }
 
 func (l *Lexer) tokenBegins() {
@@ -484,8 +494,15 @@ func (l *Lexer) readHTML() string {
 	l.tokenBegins()
 
 	for l.isHTML && l.char != 0 {
-		if l.isTextwireStart() || l.isDirectiveStmt() {
+		isDirective, escapedDir := l.isDirectiveToken()
+		areBraces, escapedBraces := l.areBracesToken()
+
+		if areBraces || isDirective {
 			break
+		}
+
+		if escapedDir || escapedBraces {
+			out.Truncate(out.Len() - 1)
 		}
 
 		out.WriteByte(l.char)
