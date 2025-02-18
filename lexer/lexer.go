@@ -169,6 +169,7 @@ func (l *Lexer) embeddedCodeToken() token.Token {
 	// check simple tokens first
 	if tok, ok := simpleTokens[l.char]; ok {
 		c := l.char
+		l.tokenBegins()
 		l.readChar() // skip the l.char
 		return l.newToken(tok, string(c))
 	}
