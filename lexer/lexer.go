@@ -426,12 +426,13 @@ func (l *Lexer) readString() string {
 	l.readChar() // skip the first quote
 
 	if l.char == quote {
+		l.readChar() // skip the last quote
 		return result
 	}
 
 	pos := l.pos
 
-	for {
+	for l.char != 0 {
 		prevChar := l.char
 
 		l.readChar()
@@ -543,7 +544,7 @@ func (l *Lexer) skipWhitespace() {
 }
 
 func (l *Lexer) skipComment() {
-	for {
+	for l.char != 0 {
 		if l.char != '-' || l.peekChar() != '-' {
 			l.readChar()
 			continue
