@@ -367,35 +367,35 @@ func TestTokenPosition(t *testing.T) {
 }
 
 func TestIsDirectoryToken(t *testing.T) {
-	t.Run("Not a directive", func(t *testing.T) {
+	t.Run("Not a directive token", func(t *testing.T) {
 		input := "test@email.com"
 		l := New(input)
 
 		isDir, escaped := l.isDirectiveToken()
 		if isDir {
-			t.Errorf("Expected %q not to be a directive", input)
+			t.Errorf("Expected %q not to be a directive token", input)
 		}
 
 		if escaped {
-			t.Errorf("Expected %q not to be escaped", input)
+			t.Errorf("Expected %q not to be escaped directive token", input)
 		}
 	})
 
-	t.Run("Directive", func(t *testing.T) {
+	t.Run("Directive token", func(t *testing.T) {
 		input := "@break"
 		l := New(input)
 
 		isDir, escaped := l.isDirectiveToken()
 		if !isDir {
-			t.Errorf("Expected %q to be a directive", input)
+			t.Errorf("Expected %q to be a directive token", input)
 		}
 
 		if escaped {
-			t.Errorf("Expected %q not to be an escaped directive", input)
+			t.Errorf("Expected %q not to be an escaped directive token", input)
 		}
 	})
 
-	t.Run("Escaped directive", func(t *testing.T) {
+	t.Run("Escaped directive token", func(t *testing.T) {
 		input := `\@break`
 		l := New(input)
 		l.readChar() // skip the backslash
@@ -407,6 +407,51 @@ func TestIsDirectoryToken(t *testing.T) {
 
 		if !escaped {
 			t.Errorf("Expected %q to be escaped directive", input)
+		}
+	})
+}
+
+func Test_areBracesToken(t *testing.T) {
+	t.Run("Not braces token", func(t *testing.T) {
+		input := "some {{ text"
+		l := New(input)
+
+		areBraces, escaped := l.areBracesToken()
+		if areBraces {
+			t.Errorf("Expected %q not to be braces", input)
+		}
+
+		if escaped {
+			t.Errorf("Expected %q not to be escaped braces", input)
+		}
+	})
+
+	t.Run("Braces token", func(t *testing.T) {
+		input := "{{ 123 }}"
+		l := New(input)
+
+		areBraces, escaped := l.areBracesToken()
+		if !areBraces {
+			t.Errorf("Expected %q to be braces token", input)
+		}
+
+		if escaped {
+			t.Errorf("Expected %q not to be escaped braces token", input)
+		}
+	})
+
+	t.Run("Escaped braces token", func(t *testing.T) {
+		input := `\{{ 234 }}`
+		l := New(input)
+		l.readChar() // skip the backslash
+
+		areBraces, escaped := l.areBracesToken()
+		if areBraces {
+			t.Errorf("Expected %q not to be braces token", input)
+		}
+
+		if !escaped {
+			t.Errorf("Expected %q to be escaped braces token", input)
 		}
 	})
 }
