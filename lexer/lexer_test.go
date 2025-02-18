@@ -9,17 +9,22 @@ import (
 func TokenizeString(t *testing.T, input string, expectTokens []token.Token) {
 	l := New(input)
 
-	for i, expectTok := range expectTokens {
+	for _, expectTok := range expectTokens {
 		tok := l.NextToken()
 
 		if tok.Literal != expectTok.Literal {
-			t.Fatalf("tests[%d] - literal wrong. expected='%s', got='%s'",
-				i, expectTok.Literal, tok.Literal)
+			t.Fatalf("token %q - literal wrong. expected='%s', got='%s'",
+				tok.Literal, expectTok.Literal, tok.Literal)
 		}
 
 		if tok.Type != expectTok.Type {
-			t.Fatalf("tests[%d] - tokentype wrong. expected='%s', got='%s'",
-				i, token.String(expectTok.Type), token.String(tok.Type))
+			t.Fatalf("token %q - tokentype wrong. expected='%s', got='%s'",
+				tok.Literal, token.String(expectTok.Type), token.String(tok.Type))
+		}
+
+		if tok.Pos != expectTok.Pos {
+			t.Fatalf("token %q - position wrong. expected='%v', got='%v'",
+				tok.Literal, expectTok.Pos, tok.Pos)
 		}
 	}
 }
@@ -28,8 +33,16 @@ func TestHTML(t *testing.T) {
 	inp := `<h2 class="container">The winter is test@mail.com</h2>`
 
 	TokenizeString(t, inp, []token.Token{
-		{Type: token.HTML, Literal: `<h2 class="container">The winter is test@mail.com</h2>`},
-		{Type: token.EOF, Literal: ""},
+		{
+			Type:    token.HTML,
+			Literal: `<h2 class="container">The winter is test@mail.com</h2>`,
+			Pos:     token.Position{EndCol: 53},
+		},
+		{
+			Type:    token.EOF,
+			Literal: "",
+			Pos:     token.Position{StartCol: 54, EndCol: 54},
+		},
 	})
 }
 
@@ -37,24 +50,24 @@ func TestIntegers(t *testing.T) {
 	inp := "<div>{{ 0 1 2 3 4 5 6 7 8 9 234 -41 }}</div>"
 
 	TokenizeString(t, inp, []token.Token{
-		{Type: token.HTML, Literal: "<div>"},
-		{Type: token.LBRACES, Literal: "{{"},
-		{Type: token.INT, Literal: "0"},
-		{Type: token.INT, Literal: "1"},
-		{Type: token.INT, Literal: "2"},
-		{Type: token.INT, Literal: "3"},
-		{Type: token.INT, Literal: "4"},
-		{Type: token.INT, Literal: "5"},
-		{Type: token.INT, Literal: "6"},
-		{Type: token.INT, Literal: "7"},
-		{Type: token.INT, Literal: "8"},
-		{Type: token.INT, Literal: "9"},
-		{Type: token.INT, Literal: "234"},
-		{Type: token.SUB, Literal: "-"},
-		{Type: token.INT, Literal: "41"},
-		{Type: token.RBRACES, Literal: "}}"},
-		{Type: token.HTML, Literal: "</div>"},
-		{Type: token.EOF, Literal: ""},
+		{Type: token.HTML, Literal: "<div>", Pos: token.Position{EndCol: 4}},
+		{Type: token.LBRACES, Literal: "{{", Pos: token.Position{StartCol: 5, EndCol: 6}},
+		{Type: token.INT, Literal: "0", Pos: token.Position{StartCol: 8, EndCol: 8}},
+		{Type: token.INT, Literal: "1", Pos: token.Position{StartCol: 10, EndCol: 10}},
+		{Type: token.INT, Literal: "2", Pos: token.Position{StartCol: 12, EndCol: 12}},
+		{Type: token.INT, Literal: "3", Pos: token.Position{StartCol: 14, EndCol: 14}},
+		{Type: token.INT, Literal: "4", Pos: token.Position{StartCol: 16, EndCol: 16}},
+		{Type: token.INT, Literal: "5", Pos: token.Position{StartCol: 18, EndCol: 18}},
+		{Type: token.INT, Literal: "6", Pos: token.Position{StartCol: 20, EndCol: 20}},
+		{Type: token.INT, Literal: "7", Pos: token.Position{StartCol: 22, EndCol: 22}},
+		{Type: token.INT, Literal: "8", Pos: token.Position{StartCol: 24, EndCol: 24}},
+		{Type: token.INT, Literal: "9", Pos: token.Position{StartCol: 26, EndCol: 26}},
+		{Type: token.INT, Literal: "234", Pos: token.Position{StartCol: 28, EndCol: 30}},
+		{Type: token.SUB, Literal: "-", Pos: token.Position{StartCol: 32, EndCol: 32}},
+		{Type: token.INT, Literal: "41", Pos: token.Position{StartCol: 33, EndCol: 34}},
+		{Type: token.RBRACES, Literal: "}}", Pos: token.Position{StartCol: 36, EndCol: 37}},
+		{Type: token.HTML, Literal: "</div>", Pos: token.Position{StartCol: 38, EndCol: 43}},
+		{Type: token.EOF, Literal: "", Pos: token.Position{StartCol: 44, EndCol: 44}},
 	})
 }
 
@@ -62,12 +75,12 @@ func TestFloats(t *testing.T) {
 	inp := "{{ 0.12 1.1111 9.1 }}"
 
 	TokenizeString(t, inp, []token.Token{
-		{Type: token.LBRACES, Literal: "{{"},
-		{Type: token.FLOAT, Literal: "0.12"},
-		{Type: token.FLOAT, Literal: "1.1111"},
-		{Type: token.FLOAT, Literal: "9.1"},
-		{Type: token.RBRACES, Literal: "}}"},
-		{Type: token.EOF, Literal: ""},
+		{Type: token.LBRACES, Literal: "{{", Pos: token.Position{EndCol: 1}},
+		{Type: token.FLOAT, Literal: "0.12", Pos: token.Position{StartCol: 3, EndCol: 6}},
+		{Type: token.FLOAT, Literal: "1.1111", Pos: token.Position{StartCol: 8, EndCol: 13}},
+		{Type: token.FLOAT, Literal: "9.1", Pos: token.Position{StartCol: 15, EndCol: 17}},
+		{Type: token.RBRACES, Literal: "}}", Pos: token.Position{StartCol: 19, EndCol: 20}},
+		{Type: token.EOF, Literal: "", Pos: token.Position{StartCol: 21, EndCol: 21}},
 	})
 }
 
@@ -75,15 +88,15 @@ func TestIdentifiers(t *testing.T) {
 	inp := "{{ testVar another_var12 nil false !true}}"
 
 	TokenizeString(t, inp, []token.Token{
-		{Type: token.LBRACES, Literal: "{{"},
-		{Type: token.IDENT, Literal: "testVar"},
-		{Type: token.IDENT, Literal: "another_var12"},
-		{Type: token.NIL, Literal: "nil"},
-		{Type: token.FALSE, Literal: "false"},
-		{Type: token.NOT, Literal: "!"},
-		{Type: token.TRUE, Literal: "true"},
-		{Type: token.RBRACES, Literal: "}}"},
-		{Type: token.EOF, Literal: ""},
+		{Type: token.LBRACES, Literal: "{{", Pos: token.Position{EndCol: 1}},
+		{Type: token.IDENT, Literal: "testVar", Pos: token.Position{StartCol: 3, EndCol: 9}},
+		{Type: token.IDENT, Literal: "another_var12", Pos: token.Position{StartCol: 11, EndCol: 23}},
+		{Type: token.NIL, Literal: "nil", Pos: token.Position{StartCol: 25, EndCol: 27}},
+		{Type: token.FALSE, Literal: "false", Pos: token.Position{StartCol: 29, EndCol: 33}},
+		{Type: token.NOT, Literal: "!", Pos: token.Position{StartCol: 35, EndCol: 35}},
+		{Type: token.TRUE, Literal: "true", Pos: token.Position{StartCol: 36, EndCol: 39}},
+		{Type: token.RBRACES, Literal: "}}", Pos: token.Position{StartCol: 40, EndCol: 41}},
+		{Type: token.EOF, Literal: "", Pos: token.Position{StartCol: 42, EndCol: 42}},
 	})
 }
 
@@ -91,26 +104,27 @@ func TestIfStmt(t *testing.T) {
 	inp := `@if(true(()))one@elseif(false){{ "nice" }}@elsethree@endfour`
 
 	TokenizeString(t, inp, []token.Token{
-		{Type: token.IF, Literal: "@if"},
-		{Type: token.LPAREN, Literal: "("},
-		{Type: token.TRUE, Literal: "true"},
-		{Type: token.LPAREN, Literal: "("},
-		{Type: token.LPAREN, Literal: "("},
-		{Type: token.RPAREN, Literal: ")"},
-		{Type: token.RPAREN, Literal: ")"},
-		{Type: token.RPAREN, Literal: ")"},
-		{Type: token.HTML, Literal: "one"},
-		{Type: token.ELSE_IF, Literal: "@elseif"},
-		{Type: token.LPAREN, Literal: "("},
-		{Type: token.FALSE, Literal: "false"},
-		{Type: token.RPAREN, Literal: ")"},
-		{Type: token.LBRACES, Literal: "{{"},
-		{Type: token.STR, Literal: "nice"},
-		{Type: token.RBRACES, Literal: "}}"},
-		{Type: token.ELSE, Literal: "@else"},
-		{Type: token.HTML, Literal: "three"},
-		{Type: token.END, Literal: "@end"},
-		{Type: token.HTML, Literal: "four"},
+		{Type: token.IF, Literal: "@if", Pos: token.Position{EndCol: 2}},
+		{Type: token.LPAREN, Literal: "(", Pos: token.Position{StartCol: 3, EndCol: 3}},
+		{Type: token.TRUE, Literal: "true", Pos: token.Position{StartCol: 4, EndCol: 7}},
+		{Type: token.LPAREN, Literal: "(", Pos: token.Position{StartCol: 8, EndCol: 8}},
+		{Type: token.LPAREN, Literal: "(", Pos: token.Position{StartCol: 9, EndCol: 9}},
+		{Type: token.RPAREN, Literal: ")", Pos: token.Position{StartCol: 10, EndCol: 10}},
+		{Type: token.RPAREN, Literal: ")", Pos: token.Position{StartCol: 11, EndCol: 11}},
+		{Type: token.RPAREN, Literal: ")", Pos: token.Position{StartCol: 12, EndCol: 12}},
+		{Type: token.HTML, Literal: "one", Pos: token.Position{StartCol: 13, EndCol: 15}},
+		{Type: token.ELSE_IF, Literal: "@elseif", Pos: token.Position{StartCol: 16, EndCol: 22}},
+		{Type: token.LPAREN, Literal: "(", Pos: token.Position{StartCol: 23, EndCol: 23}},
+		{Type: token.FALSE, Literal: "false", Pos: token.Position{StartCol: 24, EndCol: 28}},
+		{Type: token.RPAREN, Literal: ")", Pos: token.Position{StartCol: 29, EndCol: 29}},
+		{Type: token.LBRACES, Literal: "{{", Pos: token.Position{StartCol: 30, EndCol: 31}},
+		{Type: token.STR, Literal: "nice", Pos: token.Position{StartCol: 33, EndCol: 38}},
+		{Type: token.RBRACES, Literal: "}}", Pos: token.Position{StartCol: 40, EndCol: 41}},
+		{Type: token.ELSE, Literal: "@else", Pos: token.Position{StartCol: 42, EndCol: 46}},
+		{Type: token.HTML, Literal: "three", Pos: token.Position{StartCol: 47, EndCol: 51}},
+		{Type: token.END, Literal: "@end", Pos: token.Position{StartCol: 52, EndCol: 55}},
+		{Type: token.HTML, Literal: "four", Pos: token.Position{StartCol: 56, EndCol: 59}},
+		{Type: token.EOF, Literal: "", Pos: token.Position{StartCol: 60, EndCol: 60}},
 	})
 }
 
@@ -132,7 +146,7 @@ func TestReserveStmt(t *testing.T) {
 	inp := `<div>@reserve("title")</div>`
 
 	TokenizeString(t, inp, []token.Token{
-		{Type: token.HTML, Literal: "<div>"},
+		{Type: token.HTML, Literal: "<div>", Pos: token.Position{StartLine: 1, EndLine: 1, StartCol: 0, EndCol: 4}},
 		{Type: token.RESERVE, Literal: "@reserve"},
 		{Type: token.LPAREN, Literal: "("},
 		{Type: token.STR, Literal: "title"},

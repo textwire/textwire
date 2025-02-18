@@ -341,6 +341,11 @@ func (l *Lexer) newToken(tokType token.TokenType, literal string) token.Token {
 	// the column index.
 	endCol := l.col - 1
 
+	// For EOF we don't need to decrement the column index
+	if tokType == token.EOF {
+		endCol = l.col
+	}
+
 	pos := token.Position{
 		StartCol:  l.startCol,
 		EndCol:    endCol,
