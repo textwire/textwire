@@ -372,6 +372,8 @@ func (l *Lexer) readDirective() (token.TokenType, string) {
 	var keyword string
 	var tok token.TokenType
 
+	l.tokenBegins()
+
 	for isLetterWord(l.char) {
 		keyword += string(l.char)
 
