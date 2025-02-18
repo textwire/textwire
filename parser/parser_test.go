@@ -558,7 +558,7 @@ func TestErrorHandling(t *testing.T) {
 		},
 		{
 			"{{ }}",
-			fail.New(1, "", "parser", fail.ErrEmptyBrackets),
+			fail.New(1, "", "parser", fail.ErrEmptyBraces),
 		},
 		{
 			"{{ true ? 100 }}",

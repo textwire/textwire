@@ -8,7 +8,7 @@ import (
 
 const (
 	// Parser errors
-	ErrEmptyBrackets             = "bracket statement must contain an expression '{{ <expression> }}'"
+	ErrEmptyBraces               = "bracket statement must contain an expression '{{ <expression> }}'"
 	ErrWrongNextToken            = "expected next token to be '%s', got '%s' instead"
 	ErrExpectedExpression        = "expected expression, got '}}'"
 	ErrCouldNotParseAs           = "could not parse '%s' as '%s'"

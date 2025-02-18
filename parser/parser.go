@@ -196,7 +196,7 @@ func (p *Parser) parseEmbeddedCode() ast.Statement {
 	p.nextToken() // skip "{{" or ";" or "("
 
 	if p.curTokenIs(token.RBRACES) {
-		p.newError(p.curToken.DebugLine, fail.ErrEmptyBrackets)
+		p.newError(p.curToken.DebugLine, fail.ErrEmptyBraces)
 		return nil
 	}
 
