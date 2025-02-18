@@ -323,45 +323,63 @@ func TestDebugLineNumber(t *testing.T) {
 
 func TestTokenPosition(t *testing.T) {
 	tests := []struct {
-		pos        token.Position
-		tokenIndex int
+		startL uint
+		endL   uint
+		startC uint
+		endC   uint
 	}{
-		{token.Position{StartLine: 0, EndLine: 1, StartCol: 0, EndCol: 3}, 0},
-		{token.Position{StartLine: 1, EndLine: 1, StartCol: 4, EndCol: 5}, 1},
-		{token.Position{StartLine: 1, EndLine: 1, StartCol: 7, EndCol: 9}, 2},
-		{token.Position{StartLine: 1, EndLine: 1, StartCol: 11, EndCol: 11}, 3},
+		{startL: 0, endL: 1, startC: 0, endC: 3},   // <div>\n____
+		{startL: 1, endL: 1, startC: 4, endC: 5},   // {{
+		{startL: 1, endL: 1, startC: 7, endC: 9},   // age
+		{startL: 1, endL: 1, startC: 11, endC: 11}, // =
+		{startL: 1, endL: 1, startC: 13, endC: 18}, // 323.24
+		{startL: 1, endL: 1, startC: 20, endC: 21}, // }}
+		{startL: 1, endL: 2, startC: 22, endC: 3},  // \n____
+		{startL: 2, endL: 2, startC: 4, endC: 11},  // @reserve
+		{startL: 2, endL: 2, startC: 12, endC: 12}, // (
+		{startL: 2, endL: 2, startC: 13, endC: 19}, // "title"
+		{startL: 2, endL: 2, startC: 20, endC: 20}, // )
+		{startL: 2, endL: 3, startC: 21, endC: 5},  // \n</div>
 	}
 
 	inp := `<div>
-    {{ age = 3 }}
+    {{ age = 323.24 }}
+    @reserve("title")
 </div>`
 
-	for _, tc := range tests {
+	for tokenIdx, tc := range tests {
 		l := New(inp)
 		var targetTok token.Token
 
-		for i := 0; i <= tc.tokenIndex; i++ {
+		for i := 0; i <= tokenIdx; i++ {
 			targetTok = l.NextToken()
 		}
 
-		if targetTok.Pos.StartCol != tc.pos.StartCol {
+		pos := token.Position{
+			StartLine: tc.startL,
+			EndLine:   tc.endL,
+			StartCol:  tc.startC,
+			EndCol:    tc.endC,
+		}
+
+		if targetTok.Pos.StartCol != pos.StartCol {
 			t.Errorf("Expected token %q StartCol: %d, got %d",
-				targetTok.Literal, tc.pos.StartCol, targetTok.Pos.StartCol)
+				targetTok.Literal, pos.StartCol, targetTok.Pos.StartCol)
 		}
 
-		if targetTok.Pos.EndCol != tc.pos.EndCol {
+		if targetTok.Pos.EndCol != pos.EndCol {
 			t.Errorf("Expected token %q EndCol: %d, got: %d",
-				targetTok.Literal, tc.pos.EndCol, targetTok.Pos.EndCol)
+				targetTok.Literal, pos.EndCol, targetTok.Pos.EndCol)
 		}
 
-		if targetTok.Pos.EndLine != tc.pos.EndLine {
+		if targetTok.Pos.EndLine != pos.EndLine {
 			t.Errorf("Expected token %q EndLine: %d, got: %d",
-				targetTok.Literal, tc.pos.EndLine, targetTok.Pos.EndLine)
+				targetTok.Literal, pos.EndLine, targetTok.Pos.EndLine)
 		}
 
-		if targetTok.Pos.StartLine != tc.pos.StartLine {
+		if targetTok.Pos.StartLine != pos.StartLine {
 			t.Errorf("Expected token %q StartLine: %d, got %d",
-				targetTok.Literal, tc.pos.StartLine, targetTok.Pos.StartLine)
+				targetTok.Literal, pos.StartLine, targetTok.Pos.StartLine)
 		}
 	}
 }
