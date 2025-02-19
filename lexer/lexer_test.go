@@ -212,6 +212,17 @@ func TestStrings(test *testing.T) {
 		})
 	})
 
+	test.Run("String reads correctly with braces", func(t *testing.T) {
+		inp := `{{ "\{ {" }}`
+
+		TokenizeString(t, inp, []token.Token{
+			{Type: token.LBRACES, Literal: "{{", Pos: token.Position{EndCol: 1}},
+			{Type: token.STR, Literal: `\{ {`, Pos: token.Position{StartCol: 3, EndCol: 8}},
+			{Type: token.RBRACES, Literal: "}}", Pos: token.Position{StartCol: 10, EndCol: 11}},
+			{Type: token.EOF, Literal: "", Pos: token.Position{StartCol: 12, EndCol: 12}},
+		})
+	})
+
 	test.Run("Empty string", func(t *testing.T) {
 		inp := `{{ "" }}`
 
