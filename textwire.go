@@ -20,7 +20,6 @@ func NewTemplate(opt *config.Config) (*Template, error) {
 	Configure(opt)
 
 	paths, err := findTextwireFiles()
-
 	if err != nil {
 		return nil, fail.FromError(err, 0, "", "template").Error()
 	}
@@ -44,7 +43,6 @@ func EvaluateString(inp string, data map[string]interface{}) (string, error) {
 	}
 
 	env, err := object.EnvFromMap(data)
-
 	if err != nil {
 		return "", err.Error()
 	}
@@ -65,7 +63,6 @@ func EvaluateFile(absPath string, data map[string]interface{}) (string, error) {
 	usesTemplates = false
 
 	content, err := fileContent(absPath)
-
 	if err != nil {
 		return "", fail.FromError(err, 0, absPath, "template").Error()
 	}

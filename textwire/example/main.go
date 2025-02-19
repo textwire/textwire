@@ -87,7 +87,6 @@ func homeHandler(w http.ResponseWriter, r *http.Request) {
 		"showNames": true,
 		"books":     books,
 	})
-
 	if err != nil {
 		log.Println(err.Error())
 	}
@@ -99,7 +98,6 @@ func aboutHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	err := tpl.Response(w, "about", map[string]interface{}{})
-
 	if err != nil {
 		log.Println(err.Error())
 	}

@@ -26,7 +26,6 @@ func parseStr(text string) (*ast.Program, []*fail.Error) {
 // parseProgram returns program, Textwire error and native error
 func parseProgram(absPath string) (*ast.Program, *fail.Error, error) {
 	content, err := fileContent(absPath)
-
 	if err != nil {
 		return nil, nil, err
 	}
@@ -47,7 +46,6 @@ func parsePrograms(paths map[string]string) (map[string]*ast.Program, *fail.Erro
 
 	for name, absPath := range paths {
 		prog, failErr, parseErr := parseProgram(absPath)
-
 		if parseErr != nil {
 			return nil, fail.FromError(parseErr, 0, absPath, "template")
 		}
@@ -80,13 +78,11 @@ func applyLayoutToProgram(prog *ast.Program) *fail.Error {
 	layoutName := prog.UseStmt.Name.Value
 	stmt := prog.UseStmt
 	layoutAbsPath, err := getFullPath(layoutName, true)
-
 	if err != nil {
 		return fail.FromError(err, stmt.Line(), layoutAbsPath, "template")
 	}
 
 	layoutProg, failErr, parseErr := parseProgram(layoutAbsPath)
-
 	if parseErr != nil {
 		return fail.FromError(parseErr, stmt.Line(), layoutAbsPath, "template")
 	}
@@ -98,7 +94,6 @@ func applyLayoutToProgram(prog *ast.Program) *fail.Error {
 	layoutProg.IsLayout = true
 
 	layoutErr := layoutProg.ApplyInserts(prog.Inserts, layoutAbsPath)
-
 	if layoutErr != nil {
 		return layoutErr
 	}
@@ -112,7 +107,6 @@ func applyComponentToProgram(prog *ast.Program, progFilePath string) *fail.Error
 	for _, comp := range prog.Components {
 		compName := comp.Name.Value
 		compAbsPath, err := getFullPath(compName, true)
-
 		if err != nil {
 			return fail.FromError(err, 0, "", "template")
 		}

@@ -76,7 +76,6 @@ func TestEnvFromMap(t *testing.T) {
 	}
 
 	env, err := EnvFromMap(data)
-
 	if err != nil {
 		t.Fatalf("EnvFromMap returned an error: %s", err)
 	}

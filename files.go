@@ -17,7 +17,6 @@ func getFullPath(filename string, appendExt bool) (string, error) {
 	}
 
 	absPath, err := filepath.Abs(filename)
-
 	if err != nil {
 		return "", err
 	}

@@ -155,14 +155,12 @@ func TestNewTemplate(t *testing.T) {
 
 	for _, tc := range tests {
 		actual, evalErr := tpl.String(tc.fileName, tc.data)
-
 		if evalErr != nil {
 			t.Errorf("error evaluating template: %s", evalErr)
 			return
 		}
 
 		expected, err := readFile("textwire/testdata/good/expected/" + tc.fileName + ".html")
-
 		if err != nil {
 			t.Errorf("error reading expected file: %s", err)
 			return
@@ -177,7 +175,6 @@ func TestNewTemplate(t *testing.T) {
 
 func TestRegisteringCustomFunction(t *testing.T) {
 	fileName, err := getFullPath("", false)
-
 	if err != nil {
 		t.Errorf("unexpected error: %s", err)
 		return
@@ -203,14 +200,12 @@ func TestRegisteringCustomFunction(t *testing.T) {
 	}
 
 	expected, err := readFile("textwire/testdata/good/expected/12.with-custom-function.html")
-
 	if err != nil {
 		t.Errorf("error reading expected file: %s", err)
 		return
 	}
 
 	actual, evalErr := tpl.String("12.with-custom-function", nil)
-
 	if evalErr != nil {
 		t.Fatalf("error evaluating template: %s", evalErr)
 	}

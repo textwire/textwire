@@ -461,7 +461,6 @@ func TestErrorHandling(t *testing.T) {
 		}
 
 		expect := tc.err.String()
-
 		if errObj.String() != expect {
 			t.Fatalf("error message is not '%s', got '%s'", expect, errObj.String())
 		}

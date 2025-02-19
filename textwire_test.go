@@ -18,7 +18,6 @@ func readFile(fileName string) (string, error) {
 	defer file.Close()
 
 	bytes, err := io.ReadAll(file)
-
 	if err != nil {
 		return "", err
 	}
@@ -42,7 +41,6 @@ func TestEvaluateString(t *testing.T) {
 
 	for _, tc := range tests {
 		actual, err := EvaluateString(tc.inp, tc.data)
-
 		if err != nil {
 			t.Errorf("error evaluating template: %s", err)
 		}
@@ -70,7 +68,6 @@ func TestErrorHandlingEvaluatingString(t *testing.T) {
 
 	for _, tc := range tests {
 		_, err := EvaluateString(tc.inp, tc.data)
-
 		if err == nil {
 			t.Errorf("expected error but got none")
 			return
@@ -102,7 +99,6 @@ func TestEvaluateFile(t *testing.T) {
 	}
 
 	expected, err := readFile("textwire/testdata/good/expected/" + filename + ".html")
-
 	if err != nil {
 		t.Errorf("error reading expected file: %s", err)
 		return
@@ -124,7 +120,6 @@ func TestCustomFunctions(t *testing.T) {
 		}
 
 		actual, err := EvaluateString("{{ 3.double() }}", nil)
-
 		if err != nil {
 			t.Fatalf("error evaluating template: %s", err)
 		}
@@ -144,7 +139,6 @@ func TestCustomFunctions(t *testing.T) {
 		}
 
 		actual, err := EvaluateString("{{ 3.5.double() }}", nil)
-
 		if err != nil {
 			t.Fatalf("error evaluating template: %s", err)
 		}
@@ -166,7 +160,6 @@ func TestCustomFunctions(t *testing.T) {
 		}
 
 		actual, err := EvaluateString("{{ [1, 2].addNumber(3) }}", nil)
-
 		if err != nil {
 			t.Fatalf("error evaluating template: %s", err)
 		}
@@ -186,7 +179,6 @@ func TestCustomFunctions(t *testing.T) {
 		}
 
 		actual, err := EvaluateString("{{ true.negate() }}", nil)
-
 		if err != nil {
 			t.Fatalf("error evaluating template: %s", err)
 		}
@@ -209,7 +201,6 @@ func TestCustomFunctions(t *testing.T) {
 		}
 
 		actual, err := EvaluateString("{{ 'anna'.concat(' ', 'cho') }}", nil)
-
 		if err != nil {
 			t.Fatalf("error evaluating template: %s", err)
 		}
@@ -254,7 +245,6 @@ func TestCustomFunctions(t *testing.T) {
 		}
 
 		actual, err := EvaluateString("{{ ' anna '.trim() }}", nil)
-
 		if err != nil {
 			t.Fatalf("error registering function: %s", err)
 		}

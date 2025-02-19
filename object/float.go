@@ -46,7 +46,6 @@ func (f *Float) SubtractFromFloat(num uint) error {
 
 	// Parse the integer part
 	intPart, err := strconv.ParseUint(nums[0], 10, 64)
-
 	if err != nil {
 		return err
 	}
@@ -59,7 +58,6 @@ func (f *Float) SubtractFromFloat(num uint) error {
 
 	// Parse the result back to float64
 	result, err := strconv.ParseFloat(resultStr, 64)
-
 	if err != nil {
 		return err
 	}
