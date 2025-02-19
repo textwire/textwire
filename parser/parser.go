@@ -274,7 +274,6 @@ func (p *Parser) parseIdentifier() ast.Expression {
 
 func (p *Parser) parseIntegerLiteral() ast.Expression {
 	val, err := strconv.ParseInt(p.curToken.Literal, 10, 64)
-
 	if err != nil {
 		p.newError(
 			p.curToken.ErrorLine(),
@@ -293,7 +292,6 @@ func (p *Parser) parseIntegerLiteral() ast.Expression {
 
 func (p *Parser) parseFloatLiteral() ast.Expression {
 	val, err := strconv.ParseFloat(p.curToken.Literal, 64)
-
 	if err != nil {
 		p.newError(
 			p.curToken.ErrorLine(),

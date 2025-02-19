@@ -365,13 +365,11 @@ func TestGroupedExpression(t *testing.T) {
 
 	stmts := parseStatements(t, test, 1, nil)
 	stmt, ok := stmts[0].(*ast.ExpressionStmt)
-
 	if !ok {
 		t.Fatalf("stmts[0] is not an ExpressionStmt, got %T", stmts[0])
 	}
 
 	exp, ok := stmt.Expression.(*ast.InfixExp)
-
 	if !ok {
 		t.Fatalf("stmt is not an InfixExp, got %T", stmt.Expression)
 	}
@@ -385,7 +383,6 @@ func TestGroupedExpression(t *testing.T) {
 	}
 
 	infix, ok := exp.Left.(*ast.InfixExp)
-
 	if !ok {
 		t.Fatalf("exp.Left is not an InfixExp, got %T", exp.Left)
 	}
@@ -427,7 +424,6 @@ func TestInfixExp(t *testing.T) {
 	for _, tc := range tests {
 		stmts := parseStatements(t, tc.inp, 1, nil)
 		stmt, ok := stmts[0].(*ast.ExpressionStmt)
-
 		if !ok {
 			t.Fatalf("stmts[0] is not an ExpressionStmt, got %T", stmts[0])
 		}
@@ -448,7 +444,6 @@ func TestBooleanExpression(t *testing.T) {
 	for _, tc := range tests {
 		stmts := parseStatements(t, tc.inp, 1, nil)
 		stmt, ok := stmts[0].(*ast.ExpressionStmt)
-
 		if !ok {
 			t.Fatalf("stmts[0] is not an ExpressionStmt, got %T", stmts[0])
 		}
@@ -479,13 +474,11 @@ func TestPrefixExp(t *testing.T) {
 	for _, tc := range tests {
 		stmts := parseStatements(t, tc.inp, 1, nil)
 		stmt, ok := stmts[0].(*ast.ExpressionStmt)
-
 		if !ok {
 			t.Fatalf("stmts[0] is not an ExpressionStmt, got %T", stmts[0])
 		}
 
 		exp, ok := stmt.Expression.(*ast.PrefixExp)
-
 		if !ok {
 			t.Fatalf("stmt is not a PrefixExp, got %T", stmt.Expression)
 		}
@@ -589,7 +582,6 @@ func TestErrorHandling(t *testing.T) {
 		}
 
 		err := p.Errors()[0]
-
 		if err.String() != tc.err.String() {
 			t.Errorf("expected error message %q, got %q", tc.err, err.String())
 		}
@@ -607,7 +599,6 @@ func TestTernaryExp(t *testing.T) {
 	}
 
 	exp, ok := stmt.Expression.(*ast.TernaryExp)
-
 	if !ok {
 		t.Fatalf("stmt is not a TernaryExp, got %T", stmt.Expression)
 	}
@@ -622,7 +613,6 @@ func TestParseIfStmt(t *testing.T) {
 
 	stmts := parseStatements(t, inp, 1, nil)
 	stmt, ok := stmts[0].(*ast.IfStmt)
-
 	if !ok {
 		t.Fatalf("stmts[0] is not an IfStmt, got %T", stmts[0])
 	}
@@ -645,7 +635,6 @@ func TestParseIfElseStatement(t *testing.T) {
 
 	stmts := parseStatements(t, inp, 1, nil)
 	stmt, ok := stmts[0].(*ast.IfStmt)
-
 	if !ok {
 		t.Fatalf("stmts[0] is not an IfStmt, got %T", stmts[0])
 	}
@@ -685,7 +674,6 @@ func TestParseNestedIfElseStatement(t *testing.T) {
 	}
 
 	ifStmt, isNotIfStmt := stmts[1].(*ast.IfStmt)
-
 	if !isNotIfStmt {
 		t.Fatalf("stmts[1] is not an IfStmt, got %T", stmts[0])
 	}
@@ -747,7 +735,6 @@ func TestParseIfElseIfElseStatement(t *testing.T) {
 
 	stmts := parseStatements(t, inp, 1, nil)
 	stmt, ok := stmts[0].(*ast.IfStmt)
-
 	if !ok {
 		t.Fatalf("stmts[0] is not an IfStmt, got %T", stmts[0])
 	}

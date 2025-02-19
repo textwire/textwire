@@ -29,7 +29,6 @@ func main() {
 		ErrorPagePath: "error-page",
 		DebugMode:     true,
 	})
-
 	if err != nil {
 		log.Fatal(err)
 	}

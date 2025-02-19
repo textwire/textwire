@@ -71,7 +71,6 @@ func EvaluateFile(absPath string, data map[string]interface{}) (string, error) {
 	}
 
 	result, err := EvaluateString(content, data)
-
 	if err != nil {
 		return "", err
 	}

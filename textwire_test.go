@@ -11,7 +11,6 @@ import (
 
 func readFile(fileName string) (string, error) {
 	file, err := os.Open(fileName)
-
 	if err != nil {
 		return "", err
 	}
