@@ -10,6 +10,7 @@ type PostfixExp struct {
 	Token    token.Token // The '++' or '--' token
 	Operator string
 	Left     Expression
+	Pos      token.Position
 }
 
 func (pe *PostfixExp) expressionNode() {
@@ -24,5 +25,9 @@ func (pe *PostfixExp) String() string {
 }
 
 func (pe *PostfixExp) Line() uint {
-	return pe.Token.Line
+	return pe.Token.ErrorLine()
+}
+
+func (pe *PostfixExp) Position() token.Position {
+	return pe.Pos
 }

@@ -128,7 +128,7 @@ func (p *Parser) ParseProgram() *ast.Program {
 
 		if p.curTokenIs(token.ILLEGAL) {
 			p.newError(
-				p.curToken.Line,
+				p.curToken.ErrorLine(),
 				fail.ErrIllegalToken,
 				p.curToken.Literal,
 			)
@@ -196,7 +196,7 @@ func (p *Parser) parseEmbeddedCode() ast.Statement {
 	p.nextToken() // skip "{{" or ";" or "("
 
 	if p.curTokenIs(token.RBRACES) {
-		p.newError(p.curToken.Line, fail.ErrEmptyBrackets)
+		p.newError(p.curToken.ErrorLine(), fail.ErrEmptyBraces)
 		return nil
 	}
 
@@ -246,7 +246,7 @@ func (p *Parser) expectPeek(tok token.TokenType) bool {
 	}
 
 	p.newError(
-		p.peekToken.Line,
+		p.peekToken.ErrorLine(),
 		fail.ErrWrongNextToken,
 		token.String(tok),
 		token.String(p.peekToken.Type),
@@ -274,10 +274,9 @@ func (p *Parser) parseIdentifier() ast.Expression {
 
 func (p *Parser) parseIntegerLiteral() ast.Expression {
 	val, err := strconv.ParseInt(p.curToken.Literal, 10, 64)
-
 	if err != nil {
 		p.newError(
-			p.curToken.Line,
+			p.curToken.ErrorLine(),
 			fail.ErrCouldNotParseAs,
 			p.curToken.Literal,
 			"INT",
@@ -293,10 +292,9 @@ func (p *Parser) parseIntegerLiteral() ast.Expression {
 
 func (p *Parser) parseFloatLiteral() ast.Expression {
 	val, err := strconv.ParseFloat(p.curToken.Literal, 64)
-
 	if err != nil {
 		p.newError(
-			p.curToken.Line,
+			p.curToken.ErrorLine(),
 			fail.ErrCouldNotParseAs,
 			p.curToken.Literal,
 			"FLOAT",
@@ -393,7 +391,7 @@ func (p *Parser) parseAssignStmt() ast.Statement {
 	p.nextToken() // skip "="
 
 	if p.curTokenIs(token.RBRACES) {
-		p.newError(p.curToken.Line, fail.ErrExpectedExpression)
+		p.newError(p.curToken.ErrorLine(), fail.ErrExpectedExpression)
 		return nil
 	}
 
@@ -478,7 +476,7 @@ func (p *Parser) parseComponentStmt() ast.Statement {
 		obj, ok := p.parseExpression(LOWEST).(*ast.ObjectLiteral)
 
 		if !ok {
-			p.newError(p.curToken.Line, fail.ErrExpectedObjectLiteral, p.curToken.Literal)
+			p.newError(p.curToken.ErrorLine(), fail.ErrExpectedObjectLiteral, p.curToken.Literal)
 			return nil
 		}
 
@@ -510,7 +508,7 @@ func (p *Parser) parseAliasPathShortcut(shortenTo string) string {
 	name := p.curToken.Literal
 
 	if name == "" {
-		p.newError(p.curToken.Line, fail.ErrExpectedComponentName)
+		p.newError(p.curToken.ErrorLine(), fail.ErrExpectedComponentName)
 		return ""
 	}
 
@@ -679,7 +677,7 @@ func (p *Parser) parseInsertStmt() ast.Statement {
 func (p *Parser) checkDuplicateInserts(stmt *ast.InsertStmt) bool {
 	if _, hasDuplicate := p.inserts[stmt.Name.Value]; hasDuplicate {
 		p.newError(
-			stmt.Token.Line,
+			stmt.Token.ErrorLine(),
 			fail.ErrDuplicateInserts,
 			stmt.Name.Value,
 		)
@@ -738,7 +736,7 @@ func (p *Parser) parseCallExp(receiver ast.Expression) ast.Expression {
 	ident, ok := p.parseIdentifier().(*ast.Identifier)
 
 	if !ok {
-		p.newError(p.curToken.Line, fail.ErrExpectedIdentifier, p.curToken.Literal)
+		p.newError(p.curToken.ErrorLine(), fail.ErrExpectedIdentifier, p.curToken.Literal)
 		return nil
 	}
 
@@ -767,7 +765,7 @@ func (p *Parser) parseInfixExp(left ast.Expression) ast.Expression {
 	p.nextToken() // skip operator
 
 	if p.curTokenIs(token.RBRACES) {
-		p.newError(p.curToken.Line, fail.ErrExpectedExpression)
+		p.newError(p.curToken.ErrorLine(), fail.ErrExpectedExpression)
 		return nil
 	}
 
@@ -871,7 +869,7 @@ func (p *Parser) parseAlternativeBlock() *ast.BlockStmt {
 	alt := p.parseBlockStmt()
 
 	if p.peekTokenIs(token.ELSE_IF) {
-		p.newError(p.peekToken.Line, fail.ErrElseifCannotFollowElse)
+		p.newError(p.peekToken.ErrorLine(), fail.ErrElseifCannotFollowElse)
 		return nil
 	}
 
@@ -1008,7 +1006,7 @@ func (p *Parser) parseExpression(precedence int) ast.Expression {
 
 	if prefix == nil {
 		p.newError(
-			p.curToken.Line,
+			p.curToken.ErrorLine(),
 			fail.ErrNoPrefixParseFunc,
 			token.String(p.curToken.Type),
 		)

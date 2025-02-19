@@ -179,7 +179,6 @@ func (e *Evaluator) evalAssignStmt(node *ast.AssignStmt, env *object.Env) object
 	}
 
 	err := env.Set(node.Name.Value, val)
-
 	if err != nil {
 		return e.newError(node, "%s", err.Error())
 	}
@@ -294,7 +293,7 @@ func (e *Evaluator) evalForStmt(node *ast.ForStmt, env *object.Env) object.Objec
 		}
 	}
 
-	// evaluate alternative block if condition is false
+	// evaluate alternative block if user's condition is false
 	if node.Condition != nil {
 		cond := e.Eval(node.Condition, newEnv)
 
@@ -307,6 +306,7 @@ func (e *Evaluator) evalForStmt(node *ast.ForStmt, env *object.Env) object.Objec
 		}
 	}
 
+	// loop through the block until the user's condition is false
 	for {
 		cond := e.Eval(node.Condition, newEnv)
 
@@ -339,7 +339,6 @@ func (e *Evaluator) evalForStmt(node *ast.ForStmt, env *object.Env) object.Objec
 		varName := node.Init.(*ast.AssignStmt).Name.Value
 
 		err := newEnv.Set(varName, post)
-
 		if err != nil {
 			return e.newError(node, "%s", err.Error())
 		}
@@ -378,7 +377,6 @@ func (e *Evaluator) evalEachStmt(node *ast.EachStmt, env *object.Env) object.Obj
 
 	for i, elem := range elems {
 		err := newEnv.Set(varName, elem)
-
 		if err != nil {
 			return e.newError(node, "%s", err.Error())
 		}
@@ -716,7 +714,6 @@ func (e *Evaluator) evalCallExp(
 
 	if ok {
 		res, err := buitin.Fn(e.ctx, receiverObj, args...)
-
 		if err != nil {
 			return e.newError(node, "%s", err.Error())
 		}

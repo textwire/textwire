@@ -14,9 +14,8 @@ shell:
 	go run repl/repl.go
 
 .PHONE: push
-push:
+push: test
 	echo "🚀 Pushing to GitHub..."
-	make test
 	git push
 	echo "✅ Pushed to GitHub!"
 

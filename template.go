@@ -23,13 +23,11 @@ func (t *Template) String(filename string, data map[string]interface{}) (string,
 	}
 
 	absPath, err := getFullPath(filename, true)
-
 	if err != nil {
 		return "", fail.New(0, filename, "template", "%s", err.Error())
 	}
 
 	prog, ok := t.programs[filename]
-
 	if !ok {
 		return "", fail.New(0, absPath, "template", fail.ErrTemplateNotFound)
 	}
@@ -38,7 +36,6 @@ func (t *Template) String(filename string, data map[string]interface{}) (string,
 	eval := evaluator.New(ctx)
 
 	evaluated := eval.Eval(prog, env)
-
 	if evaluated.Is(object.ERR_OBJ) {
 		return "", evaluated.(*object.Error).Err
 	}
@@ -55,7 +52,6 @@ func (t *Template) Response(w http.ResponseWriter, filename string, data map[str
 	}
 
 	hasErrorPage := userConfig.ErrorPagePath != ""
-
 	if hasErrorPage && !userConfig.DebugMode {
 		if err := t.responseErrorPage(w); err != nil {
 			return err
@@ -65,7 +61,6 @@ func (t *Template) Response(w http.ResponseWriter, filename string, data map[str
 	}
 
 	out, err := errorPage(failErr)
-
 	if err != nil {
 		return err
 	}
@@ -77,7 +72,6 @@ func (t *Template) Response(w http.ResponseWriter, filename string, data map[str
 
 func (t *Template) responseErrorPage(w http.ResponseWriter) error {
 	evaluated, err := t.String(userConfig.ErrorPagePath, nil)
-
 	if err != nil {
 		return err.Error()
 	}

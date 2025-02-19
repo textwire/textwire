@@ -12,6 +12,7 @@ type IfStmt struct {
 	Consequence  *BlockStmt    // The 'then' block
 	Alternative  *BlockStmt    // The @else block
 	Alternatives []*ElseIfStmt // The @elseif blocks
+	Pos          token.Position
 }
 
 func (is *IfStmt) statementNode() {
@@ -43,5 +44,9 @@ func (is *IfStmt) String() string {
 }
 
 func (is *IfStmt) Line() uint {
-	return is.Token.Line
+	return is.Token.ErrorLine()
+}
+
+func (is *IfStmt) Position() token.Position {
+	return is.Pos
 }

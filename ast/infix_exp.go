@@ -11,6 +11,7 @@ type InfixExp struct {
 	Operator string      // The operator, e.g. +
 	Left     Expression
 	Right    Expression
+	Pos      token.Position
 }
 
 func (ie *InfixExp) expressionNode() {}
@@ -24,5 +25,9 @@ func (ie *InfixExp) String() string {
 }
 
 func (ie *InfixExp) Line() uint {
-	return ie.Token.Line
+	return ie.Token.ErrorLine()
+}
+
+func (ie *InfixExp) Position() token.Position {
+	return ie.Pos
 }

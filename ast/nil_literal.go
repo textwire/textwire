@@ -4,6 +4,7 @@ import "github.com/textwire/textwire/v2/token"
 
 type NilLiteral struct {
 	Token token.Token // The 'nil' token
+	Pos   token.Position
 }
 
 func (nl *NilLiteral) expressionNode() {
@@ -18,5 +19,9 @@ func (nl *NilLiteral) String() string {
 }
 
 func (nl *NilLiteral) Line() uint {
-	return nl.Token.Line
+	return nl.Token.ErrorLine()
+}
+
+func (nl *NilLiteral) Position() token.Position {
+	return nl.Pos
 }

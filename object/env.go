@@ -35,7 +35,6 @@ func EnvFromMap(data map[string]interface{}) (*Env, *fail.Error) {
 		}
 
 		err := env.Set(key, obj)
-
 		if err != nil {
 			return nil, fail.New(0, "", "evaluator", "%s", err.Error())
 		}

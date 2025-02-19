@@ -10,6 +10,7 @@ type SlotStmt struct {
 	Token token.Token    // The '@slot' token
 	Name  *StringLiteral // when empty string literal, it means default slot
 	Body  *BlockStmt     // optional block statement, can be nil
+	Pos   token.Position
 }
 
 func (ss *SlotStmt) statementNode() {
@@ -40,5 +41,9 @@ func (ss *SlotStmt) String() string {
 }
 
 func (ss *SlotStmt) Line() uint {
-	return ss.Token.Line
+	return ss.Token.ErrorLine()
+}
+
+func (ss *SlotStmt) Position() token.Position {
+	return ss.Pos
 }

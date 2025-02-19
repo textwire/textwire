@@ -7,7 +7,7 @@ import (
 func TestEnvFromMap(t *testing.T) {
 	var float32val float32 = 5.731
 
-	data := map[string]interface{}{
+	data := map[string]any{
 		"title":    "Hello, World!",
 		"n":        -1,
 		"num":      int8(-2),
@@ -37,7 +37,7 @@ func TestEnvFromMap(t *testing.T) {
 		"names":    []string{"John", "Jane"},
 		"statuses": []bool{false, true},
 		"rates64":  []float64{23.4, 56.7, 89.0},
-		"values":   []interface{}{23.4, 56.7, 89.0},
+		"values":   []any{23.4, 56.7, 89.0},
 		"rates32":  []float32{float32val, float32val, float32val},
 	}
 
@@ -76,7 +76,6 @@ func TestEnvFromMap(t *testing.T) {
 	}
 
 	env, err := EnvFromMap(data)
-
 	if err != nil {
 		t.Fatalf("EnvFromMap returned an error: %s", err)
 	}

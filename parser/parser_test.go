@@ -44,7 +44,7 @@ func parseStatements(t *testing.T, inp string, stmtCount int, inserts map[string
 	return prog.Statements
 }
 
-func testInfixExp(t *testing.T, exp ast.Expression, left interface{}, operator string, right interface{}) bool {
+func testInfixExp(t *testing.T, exp ast.Expression, left any, operator string, right any) bool {
 	infix, ok := exp.(*ast.InfixExp)
 
 	if !ok {
@@ -192,7 +192,7 @@ func testIdentifier(t *testing.T, exp ast.Expression, value string) bool {
 func testLiteralExpression(
 	t *testing.T,
 	exp ast.Expression,
-	expected interface{},
+	expected any,
 ) bool {
 	switch v := expected.(type) {
 	case int:
@@ -214,7 +214,7 @@ func testLiteralExpression(
 	return false
 }
 
-func testConsequence(t *testing.T, stmt ast.Statement, condition interface{}, consequence string) bool {
+func testConsequence(t *testing.T, stmt ast.Statement, condition any, consequence string) bool {
 	ifStmt, ok := stmt.(*ast.IfStmt)
 
 	if !ok {
@@ -365,13 +365,11 @@ func TestGroupedExpression(t *testing.T) {
 
 	stmts := parseStatements(t, test, 1, nil)
 	stmt, ok := stmts[0].(*ast.ExpressionStmt)
-
 	if !ok {
 		t.Fatalf("stmts[0] is not an ExpressionStmt, got %T", stmts[0])
 	}
 
 	exp, ok := stmt.Expression.(*ast.InfixExp)
-
 	if !ok {
 		t.Fatalf("stmt is not an InfixExp, got %T", stmt.Expression)
 	}
@@ -385,7 +383,6 @@ func TestGroupedExpression(t *testing.T) {
 	}
 
 	infix, ok := exp.Left.(*ast.InfixExp)
-
 	if !ok {
 		t.Fatalf("exp.Left is not an InfixExp, got %T", exp.Left)
 	}
@@ -406,9 +403,9 @@ func TestGroupedExpression(t *testing.T) {
 func TestInfixExp(t *testing.T) {
 	tests := []struct {
 		inp      string
-		left     interface{}
+		left     any
 		operator string
-		right    interface{}
+		right    any
 	}{
 		{"{{ 5 + 8 }}", 5, "+", 8},
 		{"{{ 10 - 2 }}", 10, "-", 2},
@@ -427,7 +424,6 @@ func TestInfixExp(t *testing.T) {
 	for _, tc := range tests {
 		stmts := parseStatements(t, tc.inp, 1, nil)
 		stmt, ok := stmts[0].(*ast.ExpressionStmt)
-
 		if !ok {
 			t.Fatalf("stmts[0] is not an ExpressionStmt, got %T", stmts[0])
 		}
@@ -448,7 +444,6 @@ func TestBooleanExpression(t *testing.T) {
 	for _, tc := range tests {
 		stmts := parseStatements(t, tc.inp, 1, nil)
 		stmt, ok := stmts[0].(*ast.ExpressionStmt)
-
 		if !ok {
 			t.Fatalf("stmts[0] is not an ExpressionStmt, got %T", stmts[0])
 		}
@@ -463,7 +458,7 @@ func TestPrefixExp(t *testing.T) {
 	tests := []struct {
 		inp      string
 		operator string
-		value    interface{}
+		value    any
 	}{
 		{"{{ -5 }}", "-", 5},
 		{"{{ -10 }}", "-", 10},
@@ -479,13 +474,11 @@ func TestPrefixExp(t *testing.T) {
 	for _, tc := range tests {
 		stmts := parseStatements(t, tc.inp, 1, nil)
 		stmt, ok := stmts[0].(*ast.ExpressionStmt)
-
 		if !ok {
 			t.Fatalf("stmts[0] is not an ExpressionStmt, got %T", stmts[0])
 		}
 
 		exp, ok := stmt.Expression.(*ast.PrefixExp)
-
 		if !ok {
 			t.Fatalf("stmt is not a PrefixExp, got %T", stmt.Expression)
 		}
@@ -558,7 +551,7 @@ func TestErrorHandling(t *testing.T) {
 		},
 		{
 			"{{ }}",
-			fail.New(1, "", "parser", fail.ErrEmptyBrackets),
+			fail.New(1, "", "parser", fail.ErrEmptyBraces),
 		},
 		{
 			"{{ true ? 100 }}",
@@ -589,7 +582,6 @@ func TestErrorHandling(t *testing.T) {
 		}
 
 		err := p.Errors()[0]
-
 		if err.String() != tc.err.String() {
 			t.Errorf("expected error message %q, got %q", tc.err, err.String())
 		}
@@ -607,7 +599,6 @@ func TestTernaryExp(t *testing.T) {
 	}
 
 	exp, ok := stmt.Expression.(*ast.TernaryExp)
-
 	if !ok {
 		t.Fatalf("stmt is not a TernaryExp, got %T", stmt.Expression)
 	}
@@ -622,7 +613,6 @@ func TestParseIfStmt(t *testing.T) {
 
 	stmts := parseStatements(t, inp, 1, nil)
 	stmt, ok := stmts[0].(*ast.IfStmt)
-
 	if !ok {
 		t.Fatalf("stmts[0] is not an IfStmt, got %T", stmts[0])
 	}
@@ -645,7 +635,6 @@ func TestParseIfElseStatement(t *testing.T) {
 
 	stmts := parseStatements(t, inp, 1, nil)
 	stmt, ok := stmts[0].(*ast.IfStmt)
-
 	if !ok {
 		t.Fatalf("stmts[0] is not an IfStmt, got %T", stmts[0])
 	}
@@ -685,7 +674,6 @@ func TestParseNestedIfElseStatement(t *testing.T) {
 	}
 
 	ifStmt, isNotIfStmt := stmts[1].(*ast.IfStmt)
-
 	if !isNotIfStmt {
 		t.Fatalf("stmts[1] is not an IfStmt, got %T", stmts[0])
 	}
@@ -747,7 +735,6 @@ func TestParseIfElseIfElseStatement(t *testing.T) {
 
 	stmts := parseStatements(t, inp, 1, nil)
 	stmt, ok := stmts[0].(*ast.IfStmt)
-
 	if !ok {
 		t.Fatalf("stmts[0] is not an IfStmt, got %T", stmts[0])
 	}
@@ -792,7 +779,7 @@ func TestParseAssignStmt(t *testing.T) {
 	tests := []struct {
 		inp      string
 		varName  string
-		varValue interface{}
+		varValue any
 		str      string
 	}{
 		{`{{ name = "Anna" }}`, "name", "Anna", `name = "Anna"`},

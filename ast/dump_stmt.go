@@ -9,6 +9,7 @@ import (
 type DumpStmt struct {
 	Token     token.Token // The '@dump' token
 	Arguments []Expression
+	Pos       token.Position
 }
 
 func (ds *DumpStmt) statementNode() {
@@ -37,5 +38,9 @@ func (ds *DumpStmt) String() string {
 }
 
 func (ss *DumpStmt) Line() uint {
-	return ss.Token.Line
+	return ss.Token.ErrorLine()
+}
+
+func (ss *DumpStmt) Position() token.Position {
+	return ss.Pos
 }

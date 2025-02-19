@@ -11,6 +11,7 @@ import (
 type ObjectLiteral struct {
 	Token token.Token           // The '{' token
 	Pairs map[string]Expression // The key-value pairs
+	Pos   token.Position
 }
 
 func (ol *ObjectLiteral) expressionNode() {
@@ -39,5 +40,9 @@ func (ol *ObjectLiteral) String() string {
 }
 
 func (os *ObjectLiteral) Line() uint {
-	return os.Token.Line
+	return os.Token.ErrorLine()
+}
+
+func (os *ObjectLiteral) Position() token.Position {
+	return os.Pos
 }

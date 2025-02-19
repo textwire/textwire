@@ -13,6 +13,7 @@ type ForStmt struct {
 	Post        Statement   // The post iteration statement; or nil
 	Alternative *BlockStmt  // The @else block
 	Block       *BlockStmt
+	Pos         token.Position
 }
 
 func (fs *ForStmt) statementNode() {
@@ -44,5 +45,9 @@ func (fs *ForStmt) String() string {
 }
 
 func (fs *ForStmt) Line() uint {
-	return fs.Token.Line
+	return fs.Token.ErrorLine()
+}
+
+func (fs *ForStmt) Position() token.Position {
+	return fs.Pos
 }

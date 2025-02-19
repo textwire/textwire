@@ -10,6 +10,7 @@ type ReserveStmt struct {
 	Token  token.Token // The '@reserve' token
 	Insert *InsertStmt // The insert statement; nil if not yet parsed
 	Name   *StringLiteral
+	Pos    token.Position
 }
 
 func (rs *ReserveStmt) statementNode() {
@@ -24,5 +25,9 @@ func (rs *ReserveStmt) String() string {
 }
 
 func (rs *ReserveStmt) Line() uint {
-	return rs.Token.Line
+	return rs.Token.ErrorLine()
+}
+
+func (rs *ReserveStmt) Position() token.Position {
+	return rs.Pos
 }

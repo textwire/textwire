@@ -105,7 +105,14 @@ var directives = map[string]TokenType{
 type Token struct {
 	Type    TokenType
 	Literal string
-	Line    uint
+	Pos     Position
+}
+
+// ErrorLine returns the start line position of the token.
+// It is used to display the error message and starts from 1.
+func (t *Token) ErrorLine() uint {
+	// add 1 because StartLine starts with 0
+	return t.Pos.EndLine + 1
 }
 
 func LookupIdent(ident string) TokenType {

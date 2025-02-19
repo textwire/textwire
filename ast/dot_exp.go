@@ -10,6 +10,7 @@ type DotExp struct {
 	Token token.Token // The dot token
 	Left  Expression  // -->x.y
 	Key   Expression  // x.y<--
+	Pos   token.Position
 }
 
 func (de *DotExp) expressionNode() {
@@ -24,5 +25,9 @@ func (de *DotExp) String() string {
 }
 
 func (de *DotExp) Line() uint {
-	return de.Token.Line
+	return de.Token.ErrorLine()
+}
+
+func (de *DotExp) Position() token.Position {
+	return de.Pos
 }

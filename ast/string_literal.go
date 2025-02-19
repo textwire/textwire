@@ -5,6 +5,7 @@ import "github.com/textwire/textwire/v2/token"
 type StringLiteral struct {
 	Token token.Token // The content of the string
 	Value string
+	Pos   token.Position
 }
 
 func (sl *StringLiteral) expressionNode() {
@@ -19,5 +20,9 @@ func (sl *StringLiteral) String() string {
 }
 
 func (sl *StringLiteral) Line() uint {
-	return sl.Token.Line
+	return sl.Token.ErrorLine()
+}
+
+func (sl *StringLiteral) Position() token.Position {
+	return sl.Pos
 }
