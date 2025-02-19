@@ -245,12 +245,12 @@ func TestVariableDeclaration(t *testing.T) {
 	inp := `{{ a = 1 }}`
 
 	TokenizeString(t, inp, []token.Token{
-		{Type: token.LBRACES, Literal: "{{"},
-		{Type: token.IDENT, Literal: "a"},
-		{Type: token.ASSIGN, Literal: "="},
-		{Type: token.INT, Literal: "1"},
-		{Type: token.RBRACES, Literal: "}}"},
-		{Type: token.EOF, Literal: ""},
+		{Type: token.LBRACES, Literal: "{{", Pos: token.Position{EndCol: 1}},
+		{Type: token.IDENT, Literal: "a", Pos: token.Position{StartCol: 3, EndCol: 3}},
+		{Type: token.ASSIGN, Literal: "=", Pos: token.Position{StartCol: 5, EndCol: 5}},
+		{Type: token.INT, Literal: "1", Pos: token.Position{StartCol: 7, EndCol: 7}},
+		{Type: token.RBRACES, Literal: "}}", Pos: token.Position{StartCol: 9, EndCol: 10}},
+		{Type: token.EOF, Literal: "", Pos: token.Position{StartCol: 11, EndCol: 11}},
 	})
 
 }
@@ -259,16 +259,16 @@ func TestOther(t *testing.T) {
 	inp := "{{ , == != <= >= > < }}"
 
 	TokenizeString(t, inp, []token.Token{
-		{Type: token.LBRACES, Literal: "{{"},
-		{Type: token.COMMA, Literal: ","},
-		{Type: token.EQ, Literal: "=="},
-		{Type: token.NOT_EQ, Literal: "!="},
-		{Type: token.LTHAN_EQ, Literal: "<="},
-		{Type: token.GTHAN_EQ, Literal: ">="},
-		{Type: token.GTHAN, Literal: ">"},
-		{Type: token.LTHAN, Literal: "<"},
-		{Type: token.RBRACES, Literal: "}}"},
-		{Type: token.EOF, Literal: ""},
+		{Type: token.LBRACES, Literal: "{{", Pos: token.Position{EndCol: 1}},
+		{Type: token.COMMA, Literal: ",", Pos: token.Position{StartCol: 3, EndCol: 3}},
+		{Type: token.EQ, Literal: "==", Pos: token.Position{StartCol: 5, EndCol: 6}},
+		{Type: token.NOT_EQ, Literal: "!=", Pos: token.Position{StartCol: 8, EndCol: 9}},
+		{Type: token.LTHAN_EQ, Literal: "<=", Pos: token.Position{StartCol: 11, EndCol: 12}},
+		{Type: token.GTHAN_EQ, Literal: ">=", Pos: token.Position{StartCol: 14, EndCol: 15}},
+		{Type: token.GTHAN, Literal: ">", Pos: token.Position{StartCol: 17, EndCol: 17}},
+		{Type: token.LTHAN, Literal: "<", Pos: token.Position{StartCol: 19, EndCol: 19}},
+		{Type: token.RBRACES, Literal: "}}", Pos: token.Position{StartCol: 21, EndCol: 22}},
+		{Type: token.EOF, Literal: "", Pos: token.Position{StartCol: 23, EndCol: 23}},
 	})
 }
 
@@ -276,19 +276,19 @@ func TestArray(t *testing.T) {
 	inp := `{{ ["one", "two", "three"][1] }}`
 
 	TokenizeString(t, inp, []token.Token{
-		{Type: token.LBRACES, Literal: "{{"},
-		{Type: token.LBRACKET, Literal: "["},
-		{Type: token.STR, Literal: "one"},
-		{Type: token.COMMA, Literal: ","},
-		{Type: token.STR, Literal: "two"},
-		{Type: token.COMMA, Literal: ","},
-		{Type: token.STR, Literal: "three"},
-		{Type: token.RBRACKET, Literal: "]"},
-		{Type: token.LBRACKET, Literal: "["},
-		{Type: token.INT, Literal: "1"},
-		{Type: token.RBRACKET, Literal: "]"},
-		{Type: token.RBRACES, Literal: "}}"},
-		{Type: token.EOF, Literal: ""},
+		{Type: token.LBRACES, Literal: "{{", Pos: token.Position{EndCol: 1}},
+		{Type: token.LBRACKET, Literal: "[", Pos: token.Position{StartCol: 3, EndCol: 3}},
+		{Type: token.STR, Literal: "one", Pos: token.Position{StartCol: 4, EndCol: 8}},
+		{Type: token.COMMA, Literal: ",", Pos: token.Position{StartCol: 9, EndCol: 9}},
+		{Type: token.STR, Literal: "two", Pos: token.Position{StartCol: 11, EndCol: 15}},
+		{Type: token.COMMA, Literal: ",", Pos: token.Position{StartCol: 16, EndCol: 16}},
+		{Type: token.STR, Literal: "three", Pos: token.Position{StartCol: 18, EndCol: 24}},
+		{Type: token.RBRACKET, Literal: "]", Pos: token.Position{StartCol: 25, EndCol: 25}},
+		{Type: token.LBRACKET, Literal: "[", Pos: token.Position{StartCol: 26, EndCol: 26}},
+		{Type: token.INT, Literal: "1", Pos: token.Position{StartCol: 27, EndCol: 27}},
+		{Type: token.RBRACKET, Literal: "]", Pos: token.Position{StartCol: 28, EndCol: 28}},
+		{Type: token.RBRACES, Literal: "}}", Pos: token.Position{StartCol: 30, EndCol: 31}},
+		{Type: token.EOF, Literal: "", Pos: token.Position{StartCol: 32, EndCol: 32}},
 	})
 }
 
@@ -493,14 +493,14 @@ func TestCallExp(t *testing.T) {
 		inp := `{{ "test".upper() }}`
 
 		TokenizeString(t, inp, []token.Token{
-			{Type: token.LBRACES, Literal: "{{"},
-			{Type: token.STR, Literal: "test"},
-			{Type: token.DOT, Literal: "."},
-			{Type: token.IDENT, Literal: "upper"},
-			{Type: token.LPAREN, Literal: "("},
-			{Type: token.RPAREN, Literal: ")"},
-			{Type: token.RBRACES, Literal: "}}"},
-			{Type: token.EOF, Literal: ""},
+			{Type: token.LBRACES, Literal: "{{", Pos: token.Position{EndCol: 1}},
+			{Type: token.STR, Literal: "test", Pos: token.Position{StartCol: 3, EndCol: 8}},
+			{Type: token.DOT, Literal: ".", Pos: token.Position{StartCol: 9, EndCol: 9}},
+			{Type: token.IDENT, Literal: "upper", Pos: token.Position{StartCol: 10, EndCol: 14}},
+			{Type: token.LPAREN, Literal: "(", Pos: token.Position{StartCol: 15, EndCol: 15}},
+			{Type: token.RPAREN, Literal: ")", Pos: token.Position{StartCol: 16, EndCol: 16}},
+			{Type: token.RBRACES, Literal: "}}", Pos: token.Position{StartCol: 18, EndCol: 19}},
+			{Type: token.EOF, Literal: "", Pos: token.Position{StartCol: 20, EndCol: 20}},
 		})
 	})
 
@@ -508,14 +508,14 @@ func TestCallExp(t *testing.T) {
 		inp := `{{ 3.int() }}`
 
 		TokenizeString(t, inp, []token.Token{
-			{Type: token.LBRACES, Literal: "{{"},
-			{Type: token.INT, Literal: "3"},
-			{Type: token.DOT, Literal: "."},
-			{Type: token.IDENT, Literal: "int"},
-			{Type: token.LPAREN, Literal: "("},
-			{Type: token.RPAREN, Literal: ")"},
-			{Type: token.RBRACES, Literal: "}}"},
-			{Type: token.EOF, Literal: ""},
+			{Type: token.LBRACES, Literal: "{{", Pos: token.Position{EndCol: 1}},
+			{Type: token.INT, Literal: "3", Pos: token.Position{StartCol: 3, EndCol: 3}},
+			{Type: token.DOT, Literal: ".", Pos: token.Position{StartCol: 4, EndCol: 4}},
+			{Type: token.IDENT, Literal: "int", Pos: token.Position{StartCol: 5, EndCol: 7}},
+			{Type: token.LPAREN, Literal: "(", Pos: token.Position{StartCol: 8, EndCol: 8}},
+			{Type: token.RPAREN, Literal: ")", Pos: token.Position{StartCol: 9, EndCol: 9}},
+			{Type: token.RBRACES, Literal: "}}", Pos: token.Position{StartCol: 11, EndCol: 12}},
+			{Type: token.EOF, Literal: "", Pos: token.Position{StartCol: 13, EndCol: 13}},
 		})
 	})
 }
@@ -524,20 +524,20 @@ func TestForLoopStatement(t *testing.T) {
 	inp := `@for(i = 0; i < 10; i++)`
 
 	TokenizeString(t, inp, []token.Token{
-		{Type: token.FOR, Literal: "@for"},
-		{Type: token.LPAREN, Literal: "("},
-		{Type: token.IDENT, Literal: "i"},
-		{Type: token.ASSIGN, Literal: "="},
-		{Type: token.INT, Literal: "0"},
-		{Type: token.SEMI, Literal: ";"},
-		{Type: token.IDENT, Literal: "i"},
-		{Type: token.LTHAN, Literal: "<"},
-		{Type: token.INT, Literal: "10"},
-		{Type: token.SEMI, Literal: ";"},
-		{Type: token.IDENT, Literal: "i"},
-		{Type: token.INC, Literal: "++"},
-		{Type: token.RPAREN, Literal: ")"},
-		{Type: token.EOF, Literal: ""},
+		{Type: token.FOR, Literal: "@for", Pos: token.Position{EndCol: 3}},
+		{Type: token.LPAREN, Literal: "(", Pos: token.Position{StartCol: 4, EndCol: 4}},
+		{Type: token.IDENT, Literal: "i", Pos: token.Position{StartCol: 5, EndCol: 5}},
+		{Type: token.ASSIGN, Literal: "=", Pos: token.Position{StartCol: 7, EndCol: 7}},
+		{Type: token.INT, Literal: "0", Pos: token.Position{StartCol: 9, EndCol: 9}},
+		{Type: token.SEMI, Literal: ";", Pos: token.Position{StartCol: 10, EndCol: 10}},
+		{Type: token.IDENT, Literal: "i", Pos: token.Position{StartCol: 12, EndCol: 12}},
+		{Type: token.LTHAN, Literal: "<", Pos: token.Position{StartCol: 14, EndCol: 14}},
+		{Type: token.INT, Literal: "10", Pos: token.Position{StartCol: 16, EndCol: 17}},
+		{Type: token.SEMI, Literal: ";", Pos: token.Position{StartCol: 18, EndCol: 18}},
+		{Type: token.IDENT, Literal: "i", Pos: token.Position{StartCol: 20, EndCol: 20}},
+		{Type: token.INC, Literal: "++", Pos: token.Position{StartCol: 21, EndCol: 22}},
+		{Type: token.RPAREN, Literal: ")", Pos: token.Position{StartCol: 23, EndCol: 23}},
+		{Type: token.EOF, Literal: "", Pos: token.Position{StartCol: 24, EndCol: 24}},
 	})
 }
 
@@ -545,31 +545,31 @@ func TestEachLoopStatement(t *testing.T) {
 	inp := `@each(n in [1, 2, 3])@if(n == 2)@break@end{{ n }}@end`
 
 	TokenizeString(t, inp, []token.Token{
-		{Type: token.EACH, Literal: "@each"},
-		{Type: token.LPAREN, Literal: "("},
-		{Type: token.IDENT, Literal: "n"},
-		{Type: token.IN, Literal: "in"},
-		{Type: token.LBRACKET, Literal: "["},
-		{Type: token.INT, Literal: "1"},
-		{Type: token.COMMA, Literal: ","},
-		{Type: token.INT, Literal: "2"},
-		{Type: token.COMMA, Literal: ","},
-		{Type: token.INT, Literal: "3"},
-		{Type: token.RBRACKET, Literal: "]"},
-		{Type: token.RPAREN, Literal: ")"},
-		{Type: token.IF, Literal: "@if"},
-		{Type: token.LPAREN, Literal: "("},
-		{Type: token.IDENT, Literal: "n"},
-		{Type: token.EQ, Literal: "=="},
-		{Type: token.INT, Literal: "2"},
-		{Type: token.RPAREN, Literal: ")"},
-		{Type: token.BREAK, Literal: "@break"},
-		{Type: token.END, Literal: "@end"},
-		{Type: token.LBRACES, Literal: "{{"},
-		{Type: token.IDENT, Literal: "n"},
-		{Type: token.RBRACES, Literal: "}}"},
-		{Type: token.END, Literal: "@end"},
-		{Type: token.EOF, Literal: ""},
+		{Type: token.EACH, Literal: "@each", Pos: token.Position{EndCol: 4}},
+		{Type: token.LPAREN, Literal: "(", Pos: token.Position{StartCol: 5, EndCol: 5}},
+		{Type: token.IDENT, Literal: "n", Pos: token.Position{StartCol: 6, EndCol: 6}},
+		{Type: token.IN, Literal: "in", Pos: token.Position{StartCol: 8, EndCol: 9}},
+		{Type: token.LBRACKET, Literal: "[", Pos: token.Position{StartCol: 11, EndCol: 11}},
+		{Type: token.INT, Literal: "1", Pos: token.Position{StartCol: 12, EndCol: 12}},
+		{Type: token.COMMA, Literal: ",", Pos: token.Position{StartCol: 13, EndCol: 13}},
+		{Type: token.INT, Literal: "2", Pos: token.Position{StartCol: 15, EndCol: 15}},
+		{Type: token.COMMA, Literal: ",", Pos: token.Position{StartCol: 16, EndCol: 16}},
+		{Type: token.INT, Literal: "3", Pos: token.Position{StartCol: 18, EndCol: 18}},
+		{Type: token.RBRACKET, Literal: "]", Pos: token.Position{StartCol: 19, EndCol: 19}},
+		{Type: token.RPAREN, Literal: ")", Pos: token.Position{StartCol: 20, EndCol: 20}},
+		{Type: token.IF, Literal: "@if", Pos: token.Position{StartCol: 21, EndCol: 23}},
+		{Type: token.LPAREN, Literal: "(", Pos: token.Position{StartCol: 24, EndCol: 24}},
+		{Type: token.IDENT, Literal: "n", Pos: token.Position{StartCol: 25, EndCol: 25}},
+		{Type: token.EQ, Literal: "==", Pos: token.Position{StartCol: 27, EndCol: 28}},
+		{Type: token.INT, Literal: "2", Pos: token.Position{StartCol: 30, EndCol: 30}},
+		{Type: token.RPAREN, Literal: ")", Pos: token.Position{StartCol: 31, EndCol: 31}},
+		{Type: token.BREAK, Literal: "@break", Pos: token.Position{StartCol: 32, EndCol: 37}},
+		{Type: token.END, Literal: "@end", Pos: token.Position{StartCol: 38, EndCol: 41}},
+		{Type: token.LBRACES, Literal: "{{", Pos: token.Position{StartCol: 42, EndCol: 43}},
+		{Type: token.IDENT, Literal: "n", Pos: token.Position{StartCol: 45, EndCol: 45}},
+		{Type: token.RBRACES, Literal: "}}", Pos: token.Position{StartCol: 47, EndCol: 48}},
+		{Type: token.END, Literal: "@end", Pos: token.Position{StartCol: 49, EndCol: 52}},
+		{Type: token.EOF, Literal: "", Pos: token.Position{StartCol: 53, EndCol: 53}},
 	})
 }
 
