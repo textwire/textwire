@@ -41,7 +41,7 @@ func (ss *SlotStmt) String() string {
 }
 
 func (ss *SlotStmt) Line() uint {
-	return ss.Token.DebugLine
+	return ss.Token.ErrorLine()
 }
 
 func (ss *SlotStmt) Position() token.Position {

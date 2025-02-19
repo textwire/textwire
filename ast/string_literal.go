@@ -20,7 +20,7 @@ func (sl *StringLiteral) String() string {
 }
 
 func (sl *StringLiteral) Line() uint {
-	return sl.Token.DebugLine
+	return sl.Token.ErrorLine()
 }
 
 func (sl *StringLiteral) Position() token.Position {

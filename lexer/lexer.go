@@ -45,10 +45,6 @@ type Lexer struct {
 	// Current byte character in the input.
 	char byte
 
-	// Starts from 1. Increments when a new line is found.
-	// Is shown error messages. Don't confuse with lineIndex.
-	debugLine uint
-
 	// Current column index on the line.
 	col uint
 
@@ -83,7 +79,6 @@ type Lexer struct {
 func New(input string) *Lexer {
 	l := &Lexer{
 		input:       input,
-		debugLine:   1,
 		isHTML:      true,
 		isDirective: false,
 	}
@@ -355,10 +350,9 @@ func (l *Lexer) newToken(tokType token.TokenType, literal string) token.Token {
 	}
 
 	return token.Token{
-		Type:      tokType,
-		Literal:   literal,
-		DebugLine: l.debugLine,
-		Pos:       pos,
+		Type:    tokType,
+		Literal: literal,
+		Pos:     pos,
 	}
 }
 
@@ -548,7 +542,6 @@ func (l *Lexer) readChar() {
 		l.shouldResetCol = false
 		l.col = 0
 		l.line += 1
-		l.debugLine += 1
 	}
 
 	l.shouldResetCol = l.char == '\n'

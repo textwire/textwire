@@ -292,12 +292,12 @@ func TestArray(t *testing.T) {
 	})
 }
 
-func TestDebugLineNumber(t *testing.T) {
+func TestErrorLineNumber(t *testing.T) {
 	tests := []struct {
 		inp  string
 		line uint
 	}{
-		{"", 0},
+		{"", 1},
 		{" ", 1},
 		{"\n", 2},
 		{"1\n2\n3\n4", 4},
@@ -329,8 +329,8 @@ func TestDebugLineNumber(t *testing.T) {
 			lastTok = tok
 		}
 
-		if lastTok.DebugLine != tc.line {
-			t.Errorf("Expected line number %d, got %d", tc.line, lastTok.DebugLine)
+		if lastTok.ErrorLine() != tc.line {
+			t.Errorf("Expected line number %d, got %d", tc.line, lastTok.ErrorLine())
 		}
 	}
 }

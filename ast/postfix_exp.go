@@ -25,7 +25,7 @@ func (pe *PostfixExp) String() string {
 }
 
 func (pe *PostfixExp) Line() uint {
-	return pe.Token.DebugLine
+	return pe.Token.ErrorLine()
 }
 
 func (pe *PostfixExp) Position() token.Position {

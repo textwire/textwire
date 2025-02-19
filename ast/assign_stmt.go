@@ -23,7 +23,7 @@ func (as *AssignStmt) String() string {
 }
 
 func (as *AssignStmt) Line() uint {
-	return as.Token.DebugLine
+	return as.Token.ErrorLine()
 }
 
 func (as *AssignStmt) Position() token.Position {

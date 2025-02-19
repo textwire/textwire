@@ -38,7 +38,7 @@ func (ce *CallExp) String() string {
 }
 
 func (ce *CallExp) Line() uint {
-	return ce.Token.DebugLine
+	return ce.Token.ErrorLine()
 }
 
 func (ce *CallExp) Position() token.Position {

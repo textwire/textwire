@@ -20,7 +20,7 @@ func (cis *ContinueIfStmt) String() string {
 }
 
 func (cis *ContinueIfStmt) Line() uint {
-	return cis.Token.DebugLine
+	return cis.Token.ErrorLine()
 }
 
 func (cis *ContinueIfStmt) Position() token.Position {

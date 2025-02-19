@@ -25,7 +25,7 @@ func (de *DotExp) String() string {
 }
 
 func (de *DotExp) Line() uint {
-	return de.Token.DebugLine
+	return de.Token.ErrorLine()
 }
 
 func (de *DotExp) Position() token.Position {

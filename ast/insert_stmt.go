@@ -39,7 +39,7 @@ func (is *InsertStmt) String() string {
 }
 
 func (is *InsertStmt) Line() uint {
-	return is.Token.DebugLine
+	return is.Token.ErrorLine()
 }
 
 func (is *InsertStmt) Position() token.Position {

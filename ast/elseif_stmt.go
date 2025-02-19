@@ -30,7 +30,7 @@ func (eis *ElseIfStmt) String() string {
 }
 
 func (eis *ElseIfStmt) Line() uint {
-	return eis.Token.DebugLine
+	return eis.Token.ErrorLine()
 }
 
 func (eis *ElseIfStmt) Position() token.Position {

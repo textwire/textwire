@@ -24,7 +24,7 @@ func (es *ExpressionStmt) String() string {
 }
 
 func (es *ExpressionStmt) Line() uint {
-	return es.Token.DebugLine
+	return es.Token.ErrorLine()
 }
 
 func (es *ExpressionStmt) Position() token.Position {

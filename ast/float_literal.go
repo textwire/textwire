@@ -24,7 +24,7 @@ func (fl *FloatLiteral) String() string {
 }
 
 func (fl *FloatLiteral) Line() uint {
-	return fl.Token.DebugLine
+	return fl.Token.ErrorLine()
 }
 
 func (fl *FloatLiteral) Position() token.Position {

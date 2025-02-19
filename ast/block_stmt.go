@@ -36,7 +36,7 @@ func (bs *BlockStmt) String() string {
 }
 
 func (bs *BlockStmt) Line() uint {
-	return bs.Token.DebugLine
+	return bs.Token.ErrorLine()
 }
 
 func (bs *BlockStmt) Position() token.Position {

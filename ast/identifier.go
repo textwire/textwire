@@ -20,7 +20,7 @@ func (i *Identifier) String() string {
 }
 
 func (i *Identifier) Line() uint {
-	return i.Token.DebugLine
+	return i.Token.ErrorLine()
 }
 
 func (i *Identifier) Position() token.Position {

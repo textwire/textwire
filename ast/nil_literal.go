@@ -19,7 +19,7 @@ func (nl *NilLiteral) String() string {
 }
 
 func (nl *NilLiteral) Line() uint {
-	return nl.Token.DebugLine
+	return nl.Token.ErrorLine()
 }
 
 func (nl *NilLiteral) Position() token.Position {

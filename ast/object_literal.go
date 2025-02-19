@@ -40,7 +40,7 @@ func (ol *ObjectLiteral) String() string {
 }
 
 func (os *ObjectLiteral) Line() uint {
-	return os.Token.DebugLine
+	return os.Token.ErrorLine()
 }
 
 func (os *ObjectLiteral) Position() token.Position {

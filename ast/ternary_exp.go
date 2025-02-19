@@ -26,7 +26,7 @@ func (te *TernaryExp) String() string {
 }
 
 func (te *TernaryExp) Line() uint {
-	return te.Token.DebugLine
+	return te.Token.ErrorLine()
 }
 
 func (te *TernaryExp) Position() token.Position {
