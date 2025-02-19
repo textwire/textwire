@@ -577,18 +577,18 @@ func TestObjectStatement(t *testing.T) {
 	inp := `{{ {"father": {"name": "John"}} }}`
 
 	TokenizeString(t, inp, []token.Token{
-		{Type: token.LBRACES, Literal: "{{"},
-		{Type: token.LBRACE, Literal: "{"},
-		{Type: token.STR, Literal: "father"},
-		{Type: token.COLON, Literal: ":"},
-		{Type: token.LBRACE, Literal: "{"},
-		{Type: token.STR, Literal: "name"},
-		{Type: token.COLON, Literal: ":"},
-		{Type: token.STR, Literal: "John"},
-		{Type: token.RBRACE, Literal: "}"},
-		{Type: token.RBRACE, Literal: "}"},
-		{Type: token.RBRACES, Literal: "}}"},
-		{Type: token.EOF, Literal: ""},
+		{Type: token.LBRACES, Literal: "{{", Pos: token.Position{EndCol: 1}},
+		{Type: token.LBRACE, Literal: "{", Pos: token.Position{StartCol: 3, EndCol: 3}},
+		{Type: token.STR, Literal: "father", Pos: token.Position{StartCol: 4, EndCol: 11}},
+		{Type: token.COLON, Literal: ":", Pos: token.Position{StartCol: 12, EndCol: 12}},
+		{Type: token.LBRACE, Literal: "{", Pos: token.Position{StartCol: 14, EndCol: 14}},
+		{Type: token.STR, Literal: "name", Pos: token.Position{StartCol: 15, EndCol: 20}},
+		{Type: token.COLON, Literal: ":", Pos: token.Position{StartCol: 21, EndCol: 21}},
+		{Type: token.STR, Literal: "John", Pos: token.Position{StartCol: 23, EndCol: 28}},
+		{Type: token.RBRACE, Literal: "}", Pos: token.Position{StartCol: 29, EndCol: 29}},
+		{Type: token.RBRACE, Literal: "}", Pos: token.Position{StartCol: 30, EndCol: 30}},
+		{Type: token.RBRACES, Literal: "}}", Pos: token.Position{StartCol: 32, EndCol: 33}},
+		{Type: token.EOF, Literal: "", Pos: token.Position{StartCol: 34, EndCol: 34}},
 	})
 }
 
@@ -596,20 +596,20 @@ func TestBreakDirectives(t *testing.T) {
 	inp := `@breakIf(true) @break @continue @continueIf(false)`
 
 	TokenizeString(t, inp, []token.Token{
-		{Type: token.BREAK_IF, Literal: "@breakIf"},
-		{Type: token.LPAREN, Literal: "("},
-		{Type: token.TRUE, Literal: "true"},
-		{Type: token.RPAREN, Literal: ")"},
-		{Type: token.HTML, Literal: " "},
-		{Type: token.BREAK, Literal: "@break"},
-		{Type: token.HTML, Literal: " "},
-		{Type: token.CONTINUE, Literal: "@continue"},
-		{Type: token.HTML, Literal: " "},
-		{Type: token.CONTINUE_IF, Literal: "@continueIf"},
-		{Type: token.LPAREN, Literal: "("},
-		{Type: token.FALSE, Literal: "false"},
-		{Type: token.RPAREN, Literal: ")"},
-		{Type: token.EOF, Literal: ""},
+		{Type: token.BREAK_IF, Literal: "@breakIf", Pos: token.Position{EndCol: 7}},
+		{Type: token.LPAREN, Literal: "(", Pos: token.Position{StartCol: 8, EndCol: 8}},
+		{Type: token.TRUE, Literal: "true", Pos: token.Position{StartCol: 9, EndCol: 12}},
+		{Type: token.RPAREN, Literal: ")", Pos: token.Position{StartCol: 13, EndCol: 13}},
+		{Type: token.HTML, Literal: " ", Pos: token.Position{StartCol: 14, EndCol: 14}},
+		{Type: token.BREAK, Literal: "@break", Pos: token.Position{StartCol: 15, EndCol: 20}},
+		{Type: token.HTML, Literal: " ", Pos: token.Position{StartCol: 21, EndCol: 21}},
+		{Type: token.CONTINUE, Literal: "@continue", Pos: token.Position{StartCol: 22, EndCol: 30}},
+		{Type: token.HTML, Literal: " ", Pos: token.Position{StartCol: 31, EndCol: 31}},
+		{Type: token.CONTINUE_IF, Literal: "@continueIf", Pos: token.Position{StartCol: 32, EndCol: 42}},
+		{Type: token.LPAREN, Literal: "(", Pos: token.Position{StartCol: 43, EndCol: 43}},
+		{Type: token.FALSE, Literal: "false", Pos: token.Position{StartCol: 44, EndCol: 48}},
+		{Type: token.RPAREN, Literal: ")", Pos: token.Position{StartCol: 49, EndCol: 49}},
+		{Type: token.EOF, Literal: "", Pos: token.Position{StartCol: 50, EndCol: 50}},
 	})
 }
 
@@ -617,17 +617,17 @@ func TestComponentDirective(t *testing.T) {
 	inp := `@component("components/book-card", { c: card })`
 
 	TokenizeString(t, inp, []token.Token{
-		{Type: token.COMPONENT, Literal: "@component"},
-		{Type: token.LPAREN, Literal: "("},
-		{Type: token.STR, Literal: "components/book-card"},
-		{Type: token.COMMA, Literal: ","},
-		{Type: token.LBRACE, Literal: "{"},
-		{Type: token.IDENT, Literal: "c"},
-		{Type: token.COLON, Literal: ":"},
-		{Type: token.IDENT, Literal: "card"},
-		{Type: token.RBRACE, Literal: "}"},
-		{Type: token.RPAREN, Literal: ")"},
-		{Type: token.EOF, Literal: ""},
+		{Type: token.COMPONENT, Literal: "@component", Pos: token.Position{EndCol: 9}},
+		{Type: token.LPAREN, Literal: "(", Pos: token.Position{StartCol: 10, EndCol: 10}},
+		{Type: token.STR, Literal: "components/book-card", Pos: token.Position{StartCol: 11, EndCol: 32}},
+		{Type: token.COMMA, Literal: ",", Pos: token.Position{StartCol: 33, EndCol: 33}},
+		{Type: token.LBRACE, Literal: "{", Pos: token.Position{StartCol: 35, EndCol: 35}},
+		{Type: token.IDENT, Literal: "c", Pos: token.Position{StartCol: 37, EndCol: 37}},
+		{Type: token.COLON, Literal: ":", Pos: token.Position{StartCol: 38, EndCol: 38}},
+		{Type: token.IDENT, Literal: "card", Pos: token.Position{StartCol: 40, EndCol: 43}},
+		{Type: token.RBRACE, Literal: "}", Pos: token.Position{StartCol: 45, EndCol: 45}},
+		{Type: token.RPAREN, Literal: ")", Pos: token.Position{StartCol: 46, EndCol: 46}},
+		{Type: token.EOF, Literal: "", Pos: token.Position{StartCol: 47, EndCol: 47}},
 	})
 }
 
@@ -636,18 +636,18 @@ func TestComponentSlotDirective(t *testing.T) {
 		inp := `@component("card")@slot("top")<h1>Hello</h1>@end@end`
 
 		TokenizeString(t, inp, []token.Token{
-			{Type: token.COMPONENT, Literal: "@component"},
-			{Type: token.LPAREN, Literal: "("},
-			{Type: token.STR, Literal: "card"},
-			{Type: token.RPAREN, Literal: ")"},
-			{Type: token.SLOT, Literal: "@slot"},
-			{Type: token.LPAREN, Literal: "("},
-			{Type: token.STR, Literal: "top"},
-			{Type: token.RPAREN, Literal: ")"},
-			{Type: token.HTML, Literal: "<h1>Hello</h1>"},
-			{Type: token.END, Literal: "@end"},
-			{Type: token.END, Literal: "@end"},
-			{Type: token.EOF, Literal: ""},
+			{Type: token.COMPONENT, Literal: "@component", Pos: token.Position{EndCol: 9}},
+			{Type: token.LPAREN, Literal: "(", Pos: token.Position{StartCol: 10, EndCol: 10}},
+			{Type: token.STR, Literal: "card", Pos: token.Position{StartCol: 11, EndCol: 16}},
+			{Type: token.RPAREN, Literal: ")", Pos: token.Position{StartCol: 17, EndCol: 17}},
+			{Type: token.SLOT, Literal: "@slot", Pos: token.Position{StartCol: 18, EndCol: 22}},
+			{Type: token.LPAREN, Literal: "(", Pos: token.Position{StartCol: 23, EndCol: 23}},
+			{Type: token.STR, Literal: "top", Pos: token.Position{StartCol: 24, EndCol: 28}},
+			{Type: token.RPAREN, Literal: ")", Pos: token.Position{StartCol: 29, EndCol: 29}},
+			{Type: token.HTML, Literal: "<h1>Hello</h1>", Pos: token.Position{StartCol: 30, EndCol: 43}},
+			{Type: token.END, Literal: "@end", Pos: token.Position{StartCol: 44, EndCol: 47}},
+			{Type: token.END, Literal: "@end", Pos: token.Position{StartCol: 48, EndCol: 51}},
+			{Type: token.EOF, Literal: "", Pos: token.Position{StartCol: 52, EndCol: 52}},
 		})
 	})
 
@@ -655,15 +655,15 @@ func TestComponentSlotDirective(t *testing.T) {
 		inp := `@component("card")@slotNICE@end@end`
 
 		TokenizeString(t, inp, []token.Token{
-			{Type: token.COMPONENT, Literal: "@component"},
-			{Type: token.LPAREN, Literal: "("},
-			{Type: token.STR, Literal: "card"},
-			{Type: token.RPAREN, Literal: ")"},
-			{Type: token.SLOT, Literal: "@slot"},
-			{Type: token.HTML, Literal: "NICE"},
-			{Type: token.END, Literal: "@end"},
-			{Type: token.END, Literal: "@end"},
-			{Type: token.EOF, Literal: ""},
+			{Type: token.COMPONENT, Literal: "@component", Pos: token.Position{EndCol: 9}},
+			{Type: token.LPAREN, Literal: "(", Pos: token.Position{StartCol: 10, EndCol: 10}},
+			{Type: token.STR, Literal: "card", Pos: token.Position{StartCol: 11, EndCol: 16}},
+			{Type: token.RPAREN, Literal: ")", Pos: token.Position{StartCol: 17, EndCol: 17}},
+			{Type: token.SLOT, Literal: "@slot", Pos: token.Position{StartCol: 18, EndCol: 22}},
+			{Type: token.HTML, Literal: "NICE", Pos: token.Position{StartCol: 23, EndCol: 26}},
+			{Type: token.END, Literal: "@end", Pos: token.Position{StartCol: 27, EndCol: 30}},
+			{Type: token.END, Literal: "@end", Pos: token.Position{StartCol: 31, EndCol: 34}},
+			{Type: token.EOF, Literal: "", Pos: token.Position{StartCol: 35, EndCol: 35}},
 		})
 	})
 }
@@ -674,9 +674,9 @@ func TestCommentStatement(t *testing.T) {
 		inp := `<div>{{-- This is a comment --}}</div>`
 
 		TokenizeString(t, inp, []token.Token{
-			{Type: token.HTML, Literal: "<div>"},
-			{Type: token.HTML, Literal: "</div>"},
-			{Type: token.EOF, Literal: ""},
+			{Type: token.HTML, Literal: "<div>", Pos: token.Position{EndCol: 4}},
+			{Type: token.HTML, Literal: "</div>", Pos: token.Position{StartCol: 32, EndCol: 37}},
+			{Type: token.EOF, Literal: "", Pos: token.Position{StartCol: 38, EndCol: 38}},
 		})
 	})
 
@@ -684,7 +684,7 @@ func TestCommentStatement(t *testing.T) {
 		inp := `{{-- @each(u in users){{ u }}@end --}}`
 
 		TokenizeString(t, inp, []token.Token{
-			{Type: token.EOF, Literal: ""},
+			{Type: token.EOF, Literal: "", Pos: token.Position{StartCol: 38, EndCol: 38}},
 		})
 	})
 }
