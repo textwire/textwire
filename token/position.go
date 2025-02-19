@@ -7,7 +7,22 @@ type Position struct {
 	EndCol    uint
 }
 
-func (p Position) Contains(line uint, char uint) bool {
-	return (line > p.StartLine || (line == p.StartLine && char >= p.StartCol)) &&
-		(line < p.EndLine || (line == p.EndLine && char <= p.EndCol))
+func (p Position) Contains(line uint, col uint) bool {
+	// Line is out of range
+	if line < p.StartLine || line > p.EndLine {
+		return false
+	}
+
+	// Before start column on start line
+	if line == p.StartLine && col < p.StartCol {
+		return false
+	}
+
+	// After end column on end line
+	if line == p.EndLine && col > p.EndCol {
+
+		return false
+	}
+
+	return true
 }
