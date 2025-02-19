@@ -294,7 +294,7 @@ func (e *Evaluator) evalForStmt(node *ast.ForStmt, env *object.Env) object.Objec
 		}
 	}
 
-	// evaluate alternative block if condition is false
+	// evaluate alternative block if user's condition is false
 	if node.Condition != nil {
 		cond := e.Eval(node.Condition, newEnv)
 
@@ -307,6 +307,7 @@ func (e *Evaluator) evalForStmt(node *ast.ForStmt, env *object.Env) object.Objec
 		}
 	}
 
+	// loop through the block until the user's condition is false
 	for {
 		cond := e.Eval(node.Condition, newEnv)
 
