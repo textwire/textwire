@@ -17,7 +17,9 @@ var TokenMeta = map[token.TokenType]string{
 	token.ELSE_IF: elseIf,
 }
 
-func GetTokenDoc(tok token.TokenType) string {
+// GetTokenMeta returns a hover description for the given token type.
+// If no description is found, an empty string is returned.
+func GetTokenMeta(tok token.TokenType) string {
 	meta, ok := TokenMeta[tok]
 	if !ok {
 		return ""
