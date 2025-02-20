@@ -115,6 +115,10 @@ func (t *Token) ErrorLine() uint {
 	return t.Pos.EndLine + 1
 }
 
+func (t *Token) Hover() []byte {
+	return []byte{}
+}
+
 func LookupIdent(ident string) TokenType {
 	if tok, ok := keywords[ident]; ok {
 		return tok
