@@ -1,5 +1,7 @@
 # Release notes
 
+## v2.5.3 (2025-02-20)
+
 ## v2.5.2 (2025-02-20)
 - Added `metadata` package to store metadata about tokens. This will help in LSP implementation to get the hover information
 

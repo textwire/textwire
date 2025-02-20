@@ -19,7 +19,7 @@ go get github.com/textwire/textwire/v2
 ```
 
 ## VSCode Extension
-If you use [VSCode](https://code.visualstudio.com/) as your primary editor, you can install the [Textwire extension](https://marketplace.visualstudio.com/items?itemName=SerhiiCho.textwire) to get syntax highlighting and other features for Textwire.
+If you use [VSCode](https://code.visualstudio.com/) as your primary editor, you can install the [Textwire extension](https://marketplace.visualstudio.com/items?itemName=SerhiiCho.textwire) to get syntax highlighting and other features for Textwire. Plugin for the best text editor [❤️ Neovim](https://neovim.io/) is coming soon.
 
 ## License
 The Textwire project is licensed under the [MIT License](https://github.com/textwire/textwire/blob/main/LICENSE)
