@@ -2,8 +2,8 @@ package lsp
 
 import (
 	"embed"
-	"errors"
 	"fmt"
+	"path"
 	"sync"
 
 	"github.com/textwire/textwire/v2/token"
@@ -15,45 +15,56 @@ import (
 type Locale string
 
 var (
-	NoMetadataError = errors.New("no metadata found for token")
-	FailToLoadMeta  = errors.New("failed to load metadata for a given file name")
-
 	//go:embed metadata/*
 	files embed.FS
 
-	// cacheMutex ensures thread-safe access to tokenMetaCache.
-	cacheMutex sync.RWMutex
+	fileNamesOnce sync.Once
+	fileNames     map[token.TokenType]string
+
+	validLocales = []Locale{"en"}
 )
 
-var fileNames = map[token.TokenType]string{
-	token.IF:      "if.md",
-	token.ELSE_IF: "ifelse.md",
-}
+// GetTokenMeta retrieves metadata for the given token type and locale.
+func GetTokenMeta(tok token.TokenType, locale Locale) (string, error) {
+	if !isValidLocale(locale) {
+		return "", fmt.Errorf("invalid locale: %s", locale)
+	}
 
-// GetTokenMeta returns a hover description for the given token type.
-// If no description is found, an empty string is returned.
-func GetTokenMeta(tok token.TokenType, locale Locale) ([]byte, error) {
+	fileNamesOnce.Do(initFileNames)
+
 	fileName, ok := fileNames[tok]
 	if !ok {
-		return []byte{}, NoMetadataError
+		return "", fmt.Errorf("no metadata found for token: %v", tok)
 	}
 
-	meta, err := loadMeta(locale, fileName)
-	if err != nil {
-		return []byte{}, NoMetadataError
-	}
-
-	return meta, nil
+	return loadMeta(locale, fileName)
 }
 
-// loadMeta loads metadata for a given file name and locale.
-func loadMeta(locale Locale, fileName string) ([]byte, error) {
-	filePath := fmt.Sprintf("meta/%s/%s", locale, fileName)
+func initFileNames() {
+	fileNames = map[token.TokenType]string{
+		token.IF:      "if.md",
+		token.ELSE_IF: "elseif.md",
+	}
+}
+
+// loadMeta loads metadata from the embedded files for the given locale and file name.
+func loadMeta(locale Locale, fileName string) (string, error) {
+	filePath := path.Join("meta", string(locale), fileName)
 
 	data, err := files.ReadFile(filePath)
 	if err != nil {
-		return []byte{}, FailToLoadMeta
+		return "", fmt.Errorf("failed to read file %s: %w", filePath, err)
 	}
 
-	return data, nil
+	return string(data), nil
+}
+
+func isValidLocale(locale Locale) bool {
+	for _, l := range validLocales {
+		if locale == l {
+			return true
+		}
+	}
+
+	return false
 }
