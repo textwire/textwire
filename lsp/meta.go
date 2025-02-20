@@ -2,8 +2,8 @@ package lsp
 
 import (
 	"embed"
+	"errors"
 	"fmt"
-	"log"
 	"sync"
 
 	"github.com/textwire/textwire/v2/token"
@@ -14,73 +14,46 @@ import (
 // Codes: https://en.wikipedia.org/wiki/List_of_ISO_639_language_codes
 type Locale string
 
-//go:embed meta/*
-var files embed.FS
+var (
+	NoMetadataError = errors.New("no metadata found for token")
+	FailToLoadMeta  = errors.New("failed to load metadata for a given file name")
 
-// tokenMetaCache caches metadata for tokens by locale.
-var tokenMetaCache = make(map[Locale]map[token.TokenType]string)
+	//go:embed metadata/*
+	files embed.FS
 
-// cacheMutex ensures thread-safe access to tokenMetaCache.
-var cacheMutex sync.RWMutex
+	// cacheMutex ensures thread-safe access to tokenMetaCache.
+	cacheMutex sync.RWMutex
+)
+
+var fileNames = map[token.TokenType]string{
+	token.IF:      "if.md",
+	token.ELSE_IF: "ifelse.md",
+}
 
 // GetTokenMeta returns a hover description for the given token type.
 // If no description is found, an empty string is returned.
-func GetTokenMeta(tok token.TokenType, locale Locale) string {
-	metaMap, ok := getMetaFromCache(locale)
-
+func GetTokenMeta(tok token.TokenType, locale Locale) ([]byte, error) {
+	fileName, ok := fileNames[tok]
 	if !ok {
-		metaMap = loadMetaFromFile(locale)
-		saveMeta(locale, metaMap)
+		return []byte{}, NoMetadataError
 	}
 
-	// Return the metadata for the token.
-	meta, ok := metaMap[tok]
-	if !ok {
-		log.Printf("no metadata found for token: %v in locale: %s", tok, locale)
-		return ""
+	meta, err := loadMeta(locale, fileName)
+	if err != nil {
+		return []byte{}, NoMetadataError
 	}
 
-	return meta
+	return meta, nil
 }
 
-func getMetaFromCache(locale Locale) (map[token.TokenType]string, bool) {
-	cacheMutex.RLock()
-	metaMap, ok := tokenMetaCache[locale]
-	cacheMutex.RUnlock()
+// loadMeta loads metadata for a given file name and locale.
+func loadMeta(locale Locale, fileName string) ([]byte, error) {
+	filePath := fmt.Sprintf("meta/%s/%s", locale, fileName)
 
-	return metaMap, ok
-}
-
-// loadMetaFromFile loads metadata for all tokens in the given locale.
-func loadMetaFromFile(locale Locale) map[token.TokenType]string {
-	metaMap := make(map[token.TokenType]string)
-
-	// Define the list of tokens and their corresponding file names.
-	tokens := []struct {
-		tok  token.TokenType
-		file string
-	}{
-		{token.IF, "if.md"},
-		{token.ELSE_IF, "ifelse.md"},
-		// Add more tokens here.
+	data, err := files.ReadFile(filePath)
+	if err != nil {
+		return []byte{}, FailToLoadMeta
 	}
 
-	// Load metadata for each token.
-	for _, t := range tokens {
-		filePath := fmt.Sprintf("meta/%s/%s", locale, t.file)
-		data, err := files.ReadFile(filePath)
-		if err != nil {
-			log.Printf("failed to load metadata for token %v in locale %s: %v", t.tok, locale, err)
-			continue
-		}
-		metaMap[t.tok] = string(data)
-	}
-
-	return metaMap
-}
-
-func saveMeta(locale Locale, metaMap map[token.TokenType]string) {
-	cacheMutex.Lock()
-	tokenMetaCache[locale] = metaMap
-	cacheMutex.Unlock()
+	return data, nil
 }
