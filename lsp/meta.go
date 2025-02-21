@@ -49,7 +49,7 @@ func initFileNames() {
 
 // loadMeta loads metadata from the embedded files for the given locale and file name.
 func loadMeta(locale Locale, fileName string) (string, error) {
-	filePath := path.Join("meta", string(locale), fileName)
+	filePath := path.Join("metadata", string(locale), fileName)
 
 	data, err := files.ReadFile(filePath)
 	if err != nil {

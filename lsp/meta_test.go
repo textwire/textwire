@@ -1,6 +1,7 @@
 package lsp
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/textwire/textwire/v2/token"
@@ -24,9 +25,17 @@ func TestGetTokenMeta(t *testing.T) {
 	t.Run("Valid @if token meta", func(t *testing.T) {
 		meta, err := GetTokenMeta(token.IF, "en")
 		if err != nil {
-			t.Error("expected nil, got error")
+			t.Errorf("expected err to be nil, got error %v", err)
 		}
 
-		expected := ""
+		expect := "@if(condition)"
+		if !strings.Contains(meta, expect) {
+			t.Errorf("expected %q in meta, got %q", expect, meta)
+		}
+
+		expect = "(directive)"
+		if !strings.Contains(meta, expect) {
+			t.Errorf("expected %q in meta, got %q", expect, meta)
+		}
 	})
 }
