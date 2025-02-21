@@ -49,6 +49,7 @@ func initFileNames() {
 		token.ELSE:    "else.md",
 		token.DUMP:    "dump.md",
 		token.USE:     "use.md",
+		token.INSERT:  "insert.md",
 	}
 }
 
