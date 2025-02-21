@@ -39,6 +39,11 @@ func TestGetTokenMeta(t *testing.T) {
 		{"@reserve token", token.RESERVE, "en", "@reserve('reservedName')"},
 		{"@component token", token.COMPONENT, "en", "@component('path/to', { prop })"},
 		{"@slot token", token.SLOT, "en", "@slot('name')"},
+		{"@end token", token.END, "en", "@end"},
+		{"@break token", token.BREAK, "en", "@break"},
+		{"@continue token", token.CONTINUE, "en", "@continue"},
+		{"@breakIf token", token.BREAK_IF, "en", "@breakIf(condition)"},
+		{"@continueIf token", token.CONTINUE_IF, "en", "@continueIf(condition)"},
 	}
 
 	for _, tc := range testCases {

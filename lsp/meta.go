@@ -42,17 +42,22 @@ func GetTokenMeta(tok token.TokenType, locale Locale) (string, error) {
 
 func initFileNames() {
 	fileNames = map[token.TokenType]string{
-		token.IF:        "if.md",
-		token.ELSE_IF:   "elseif.md",
-		token.EACH:      "each.md",
-		token.FOR:       "for.md",
-		token.ELSE:      "else.md",
-		token.DUMP:      "dump.md",
-		token.USE:       "use.md",
-		token.INSERT:    "insert.md",
-		token.RESERVE:   "reserve.md",
-		token.COMPONENT: "component.md",
-		token.SLOT:      "slot.md",
+		token.IF:          "if.md",
+		token.ELSE_IF:     "elseif.md",
+		token.EACH:        "each.md",
+		token.FOR:         "for.md",
+		token.ELSE:        "else.md",
+		token.DUMP:        "dump.md",
+		token.USE:         "use.md",
+		token.INSERT:      "insert.md",
+		token.RESERVE:     "reserve.md",
+		token.COMPONENT:   "component.md",
+		token.SLOT:        "slot.md",
+		token.END:         "end.md",
+		token.BREAK:       "break.md",
+		token.CONTINUE:    "continue.md",
+		token.BREAK_IF:    "breakif.md",
+		token.CONTINUE_IF: "continueif.md",
 	}
 }
 
