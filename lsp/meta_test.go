@@ -37,6 +37,8 @@ func TestGetTokenMeta(t *testing.T) {
 		{"@use token", token.USE, "en", "@use('layoutName')"},
 		{"@insert token", token.INSERT, "en", "@insert('reservedName')"},
 		{"@reserve token", token.RESERVE, "en", "@reserve('reservedName')"},
+		{"@component token", token.COMPONENT, "en", "@component('path/to', { prop })"},
+		{"@slot token", token.SLOT, "en", "@slot('name')"},
 	}
 
 	for _, tc := range testCases {
