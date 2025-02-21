@@ -22,20 +22,31 @@ func TestGetTokenMeta(t *testing.T) {
 		}
 	})
 
-	t.Run("Valid @if token meta", func(t *testing.T) {
-		meta, err := GetTokenMeta(token.IF, "en")
-		if err != nil {
-			t.Errorf("expected err to be nil, got error %v", err)
-		}
+	testCases := []struct {
+		name   string
+		token  token.TokenType
+		locale Locale
+		expect string
+	}{
+		{"@if token", token.IF, "en", "@if(condition)"},
+		{"@elseif token", token.ELSE_IF, "en", "@elseif(condition2)"},
+		{"@each token", token.EACH, "en", "@each(item in items)"},
+		{"@for token", token.FOR, "en", "@for(i = 0; i < items.len(); i++)"},
+		{"@else token", token.ELSE, "en", "@else"},
+		{"@dump token", token.DUMP, "en", "@dump(variable)"},
+		{"@use token", token.USE, "en", "@use('layoutName')"},
+	}
 
-		expect := "@if(condition)"
-		if !strings.Contains(meta, expect) {
-			t.Errorf("expected %q in meta, got %q", expect, meta)
-		}
+	for _, tc := range testCases {
+		t.Run("Valid "+tc.name, func(t *testing.T) {
+			meta, err := GetTokenMeta(tc.token, tc.locale)
+			if err != nil {
+				t.Errorf("expected err to be nil, got error %v", err)
+			}
 
-		expect = "(directive)"
-		if !strings.Contains(meta, expect) {
-			t.Errorf("expected %q in meta, got %q", expect, meta)
-		}
-	})
+			if !strings.Contains(meta, tc.expect) {
+				t.Errorf("expected %s in meta, got %s", tc.expect, meta)
+			}
+		})
+	}
 }

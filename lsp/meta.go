@@ -44,6 +44,11 @@ func initFileNames() {
 	fileNames = map[token.TokenType]string{
 		token.IF:      "if.md",
 		token.ELSE_IF: "elseif.md",
+		token.EACH:    "each.md",
+		token.FOR:     "for.md",
+		token.ELSE:    "else.md",
+		token.DUMP:    "dump.md",
+		token.USE:     "use.md",
 	}
 }
 
