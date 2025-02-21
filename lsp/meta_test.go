@@ -35,7 +35,8 @@ func TestGetTokenMeta(t *testing.T) {
 		{"@else token", token.ELSE, "en", "@else"},
 		{"@dump token", token.DUMP, "en", "@dump(variable)"},
 		{"@use token", token.USE, "en", "@use('layoutName')"},
-		{"@insert token", token.INSERT, "en", "@insert('reservedName', 'content')"},
+		{"@insert token", token.INSERT, "en", "@insert('reservedName')"},
+		{"@reserve token", token.RESERVE, "en", "@reserve('reservedName')"},
 	}
 
 	for _, tc := range testCases {

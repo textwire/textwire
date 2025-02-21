@@ -50,6 +50,7 @@ func initFileNames() {
 		token.DUMP:    "dump.md",
 		token.USE:     "use.md",
 		token.INSERT:  "insert.md",
+		token.RESERVE: "reserve.md",
 	}
 }
 
