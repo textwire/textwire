@@ -18,8 +18,8 @@ type CallExp struct {
 func (ce *CallExp) expressionNode() {
 }
 
-func (ce *CallExp) TokenLiteral() string {
-	return ce.Token.Literal
+func (ce *CallExp) Tok() *token.Token {
+	return &ce.Token
 }
 
 func (ce *CallExp) String() string {

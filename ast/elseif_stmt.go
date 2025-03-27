@@ -16,8 +16,8 @@ type ElseIfStmt struct {
 func (eis *ElseIfStmt) statementNode() {
 }
 
-func (eis *ElseIfStmt) TokenLiteral() string {
-	return eis.Token.Literal
+func (eis *ElseIfStmt) Tok() *token.Token {
+	return &eis.Token
 }
 
 func (eis *ElseIfStmt) String() string {

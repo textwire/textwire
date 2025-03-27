@@ -15,8 +15,8 @@ type DumpStmt struct {
 func (ds *DumpStmt) statementNode() {
 }
 
-func (ds *DumpStmt) TokenLiteral() string {
-	return ds.Token.Literal
+func (ds *DumpStmt) Tok() *token.Token {
+	return &ds.Token
 }
 
 func (ds *DumpStmt) String() string {

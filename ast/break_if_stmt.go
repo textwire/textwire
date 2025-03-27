@@ -13,8 +13,8 @@ type BreakIfStmt struct {
 func (bis *BreakIfStmt) statementNode() {
 }
 
-func (bis *BreakIfStmt) TokenLiteral() string {
-	return bis.Token.Literal
+func (bis *BreakIfStmt) Tok() *token.Token {
+	return &bis.Token
 }
 
 func (bis *BreakIfStmt) String() string {

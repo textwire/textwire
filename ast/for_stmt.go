@@ -19,8 +19,8 @@ type ForStmt struct {
 func (fs *ForStmt) statementNode() {
 }
 
-func (fs *ForStmt) TokenLiteral() string {
-	return fs.Token.Literal
+func (fs *ForStmt) Tok() *token.Token {
+	return &fs.Token
 }
 
 func (fs *ForStmt) String() string {

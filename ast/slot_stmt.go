@@ -16,8 +16,8 @@ type SlotStmt struct {
 func (ss *SlotStmt) statementNode() {
 }
 
-func (ss *SlotStmt) TokenLiteral() string {
-	return ss.Token.Literal
+func (ss *SlotStmt) Tok() *token.Token {
+	return &ss.Token
 }
 
 func (ss *SlotStmt) String() string {

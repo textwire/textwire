@@ -16,8 +16,8 @@ type UseStmt struct {
 func (us *UseStmt) statementNode() {
 }
 
-func (us *UseStmt) TokenLiteral() string {
-	return us.Token.Literal
+func (us *UseStmt) Tok() *token.Token {
+	return &us.Token
 }
 
 func (us *UseStmt) String() string {

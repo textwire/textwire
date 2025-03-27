@@ -10,8 +10,8 @@ type HTMLStmt struct {
 func (hs *HTMLStmt) statementNode() {
 }
 
-func (hs *HTMLStmt) TokenLiteral() string {
-	return hs.Token.Literal
+func (hs *HTMLStmt) Tok() *token.Token {
+	return &hs.Token
 }
 
 func (hs *HTMLStmt) String() string {

@@ -16,8 +16,8 @@ type DotExp struct {
 func (de *DotExp) expressionNode() {
 }
 
-func (de *DotExp) TokenLiteral() string {
-	return de.Token.Literal
+func (de *DotExp) Tok() *token.Token {
+	return &de.Token
 }
 
 func (de *DotExp) String() string {
