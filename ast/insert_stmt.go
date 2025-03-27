@@ -19,8 +19,8 @@ type InsertStmt struct {
 func (is *InsertStmt) statementNode() {
 }
 
-func (is *InsertStmt) TokenLiteral() string {
-	return is.Token.Literal
+func (is *InsertStmt) Tok() *token.Token {
+	return &is.Token
 }
 
 func (is *InsertStmt) String() string {

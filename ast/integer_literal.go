@@ -11,8 +11,8 @@ type IntegerLiteral struct {
 func (il *IntegerLiteral) expressionNode() {
 }
 
-func (il *IntegerLiteral) TokenLiteral() string {
-	return il.Token.Literal
+func (il *IntegerLiteral) Tok() *token.Token {
+	return &il.Token
 }
 
 func (il *IntegerLiteral) String() string {

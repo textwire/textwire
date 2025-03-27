@@ -12,8 +12,8 @@ type BreakStmt struct {
 func (bs *BreakStmt) statementNode() {
 }
 
-func (bs *BreakStmt) TokenLiteral() string {
-	return bs.Token.Literal
+func (bs *BreakStmt) Tok() *token.Token {
+	return &bs.Token
 }
 
 func (bs *BreakStmt) String() string {

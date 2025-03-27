@@ -10,8 +10,8 @@ type NilLiteral struct {
 func (nl *NilLiteral) expressionNode() {
 }
 
-func (nl *NilLiteral) TokenLiteral() string {
-	return nl.Token.Literal
+func (nl *NilLiteral) Tok() *token.Token {
+	return &nl.Token
 }
 
 func (nl *NilLiteral) String() string {

@@ -18,8 +18,8 @@ type IfStmt struct {
 func (is *IfStmt) statementNode() {
 }
 
-func (is *IfStmt) TokenLiteral() string {
-	return is.Token.Literal
+func (is *IfStmt) Tok() *token.Token {
+	return &is.Token
 }
 
 func (is *IfStmt) String() string {

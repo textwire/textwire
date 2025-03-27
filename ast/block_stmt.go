@@ -15,8 +15,8 @@ type BlockStmt struct {
 func (bs *BlockStmt) statementNode() {
 }
 
-func (bs *BlockStmt) TokenLiteral() string {
-	return bs.Token.Literal
+func (bs *BlockStmt) Tok() *token.Token {
+	return &bs.Token
 }
 
 func (bs *BlockStmt) String() string {

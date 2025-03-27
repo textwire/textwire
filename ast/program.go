@@ -18,12 +18,12 @@ type Program struct {
 	Pos        token.Position
 }
 
-func (p *Program) TokenLiteral() string {
+func (p *Program) Tok() *token.Token {
 	if len(p.Statements) > 0 {
-		return p.Statements[0].TokenLiteral()
+		return p.Statements[0].Tok()
 	}
 
-	return ""
+	return &p.Token
 }
 
 func (p *Program) String() string {

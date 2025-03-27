@@ -16,8 +16,8 @@ type IndexExp struct {
 func (ie *IndexExp) expressionNode() {
 }
 
-func (ie *IndexExp) TokenLiteral() string {
-	return ie.Token.Literal
+func (ie *IndexExp) Tok() *token.Token {
+	return &ie.Token
 }
 
 func (ie *IndexExp) String() string {

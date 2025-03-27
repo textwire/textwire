@@ -15,8 +15,8 @@ type ArrayLiteral struct {
 func (al *ArrayLiteral) expressionNode() {
 }
 
-func (al *ArrayLiteral) TokenLiteral() string {
-	return al.Token.Literal
+func (al *ArrayLiteral) Tok() *token.Token {
+	return &al.Token
 }
 
 func (al *ArrayLiteral) String() string {
