@@ -8,3 +8,8 @@ type Node interface {
 	Line() uint
 	Position() token.Position
 }
+
+// StatementsContainer helps to identify nodes that nest other statements.
+type StatementsContainer interface {
+	Stmts() []Statement
+}

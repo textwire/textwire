@@ -16,6 +16,10 @@ type ElseIfStmt struct {
 func (eis *ElseIfStmt) statementNode() {
 }
 
+func (eis *ElseIfStmt) Stmts() []Statement {
+	return eis.Consequence.Statements
+}
+
 func (eis *ElseIfStmt) Tok() *token.Token {
 	return &eis.Token
 }

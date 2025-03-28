@@ -15,7 +15,10 @@ type ComponentStmt struct {
 	Pos      token.Position
 }
 
-func (cs *ComponentStmt) statementNode() {
+func (cs *ComponentStmt) statementNode() {}
+
+func (cs *ComponentStmt) Stmts() []Statement {
+	return cs.Block.Statements
 }
 
 func (cs *ComponentStmt) Tok() *token.Token {

@@ -18,6 +18,10 @@ type EachStmt struct {
 func (es *EachStmt) statementNode() {
 }
 
+func (es *EachStmt) Stmts() []Statement {
+	return es.Block.Statements
+}
+
 func (es *EachStmt) Tok() *token.Token {
 	return &es.Token
 }

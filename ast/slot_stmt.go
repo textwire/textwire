@@ -16,6 +16,10 @@ type SlotStmt struct {
 func (ss *SlotStmt) statementNode() {
 }
 
+func (ss *SlotStmt) Stmts() []Statement {
+	return ss.Body.Statements
+}
+
 func (ss *SlotStmt) Tok() *token.Token {
 	return &ss.Token
 }

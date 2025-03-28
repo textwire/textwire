@@ -18,6 +18,12 @@ type Program struct {
 	Pos        token.Position
 }
 
+func (p *Program) statementNode() {}
+
+func (p *Program) Stmts() []Statement {
+	return p.Statements
+}
+
 func (p *Program) Tok() *token.Token {
 	if len(p.Statements) > 0 {
 		return p.Statements[0].Tok()
