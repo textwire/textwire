@@ -19,6 +19,10 @@ type InsertStmt struct {
 func (is *InsertStmt) statementNode() {
 }
 
+func (is *InsertStmt) Stmts() []Statement {
+	return is.Block.Statements
+}
+
 func (is *InsertStmt) Tok() *token.Token {
 	return &is.Token
 }

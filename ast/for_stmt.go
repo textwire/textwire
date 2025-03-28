@@ -19,6 +19,16 @@ type ForStmt struct {
 func (fs *ForStmt) statementNode() {
 }
 
+func (fs *ForStmt) Stmts() []Statement {
+	stmts := fs.Block.Statements
+
+	if fs.Alternative != nil {
+		stmts = append(stmts, fs.Alternative.Statements...)
+	}
+
+	return stmts
+}
+
 func (fs *ForStmt) Tok() *token.Token {
 	return &fs.Token
 }
