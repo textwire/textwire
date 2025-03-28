@@ -10,8 +10,7 @@ type BreakIfStmt struct {
 	Pos       token.Position
 }
 
-func (bis *BreakIfStmt) statementNode() {
-}
+func (bis *BreakIfStmt) statementNode() {}
 
 func (bis *BreakIfStmt) Tok() *token.Token {
 	return &bis.Token

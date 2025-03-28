@@ -12,8 +12,7 @@ type DumpStmt struct {
 	Pos       token.Position
 }
 
-func (ds *DumpStmt) statementNode() {
-}
+func (ds *DumpStmt) statementNode() {}
 
 func (ds *DumpStmt) Tok() *token.Token {
 	return &ds.Token

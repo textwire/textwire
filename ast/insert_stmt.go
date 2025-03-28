@@ -16,8 +16,7 @@ type InsertStmt struct {
 	Pos      token.Position
 }
 
-func (is *InsertStmt) statementNode() {
-}
+func (is *InsertStmt) statementNode() {}
 
 func (is *InsertStmt) Stmts() []Statement {
 	return is.Block.Statements

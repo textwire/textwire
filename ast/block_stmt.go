@@ -12,8 +12,7 @@ type BlockStmt struct {
 	Pos        token.Position
 }
 
-func (bs *BlockStmt) statementNode() {
-}
+func (bs *BlockStmt) statementNode() {}
 
 func (bs *BlockStmt) Tok() *token.Token {
 	return &bs.Token

@@ -9,8 +9,7 @@ type BreakStmt struct {
 	Pos   token.Position
 }
 
-func (bs *BreakStmt) statementNode() {
-}
+func (bs *BreakStmt) statementNode() {}
 
 func (bs *BreakStmt) Tok() *token.Token {
 	return &bs.Token

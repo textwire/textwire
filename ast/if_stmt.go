@@ -15,8 +15,7 @@ type IfStmt struct {
 	Pos          token.Position
 }
 
-func (is *IfStmt) statementNode() {
-}
+func (is *IfStmt) statementNode() {}
 
 func (is *IfStmt) Stmts() []Statement {
 	stmts := is.Consequence.Statements

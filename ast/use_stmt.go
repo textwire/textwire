@@ -13,8 +13,7 @@ type UseStmt struct {
 	Pos     token.Position
 }
 
-func (us *UseStmt) statementNode() {
-}
+func (us *UseStmt) statementNode() {}
 
 func (us *UseStmt) Tok() *token.Token {
 	return &us.Token

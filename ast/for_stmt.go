@@ -16,8 +16,7 @@ type ForStmt struct {
 	Pos         token.Position
 }
 
-func (fs *ForStmt) statementNode() {
-}
+func (fs *ForStmt) statementNode() {}
 
 func (fs *ForStmt) Stmts() []Statement {
 	stmts := fs.Block.Statements
