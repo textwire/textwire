@@ -1,5 +1,8 @@
 # Release notes
 
+## v2.5.4 (2025-03-28)
+- Add LSP logic for getting the token from the parsed program by the line and column numbers
+
 ## v2.5.3 (2025-02-21)
 - Added `meta` package for storing metadata about tokens. This will help in LSP implementation to get the hover information
 
