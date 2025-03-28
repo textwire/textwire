@@ -8,8 +8,7 @@ type Identifier struct {
 	Pos   token.Position
 }
 
-func (i *Identifier) expressionNode() {
-}
+func (i *Identifier) expressionNode() {}
 
 func (i *Identifier) Tok() *token.Token {
 	return &i.Token

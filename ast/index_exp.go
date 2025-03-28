@@ -13,8 +13,7 @@ type IndexExp struct {
 	Pos   token.Position
 }
 
-func (ie *IndexExp) expressionNode() {
-}
+func (ie *IndexExp) expressionNode() {}
 
 func (ie *IndexExp) Tok() *token.Token {
 	return &ie.Token
