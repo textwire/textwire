@@ -13,8 +13,7 @@ type DotExp struct {
 	Pos   token.Position
 }
 
-func (de *DotExp) expressionNode() {
-}
+func (de *DotExp) expressionNode() {}
 
 func (de *DotExp) Tok() *token.Token {
 	return &de.Token

@@ -14,8 +14,7 @@ type TernaryExp struct {
 	Pos         token.Position
 }
 
-func (te *TernaryExp) expressionNode() {
-}
+func (te *TernaryExp) expressionNode() {}
 
 func (te *TernaryExp) Tok() *token.Token {
 	return &te.Token

@@ -12,8 +12,7 @@ type FloatLiteral struct {
 	Pos   token.Position
 }
 
-func (fl *FloatLiteral) expressionNode() {
-}
+func (fl *FloatLiteral) expressionNode() {}
 
 func (fl *FloatLiteral) Tok() *token.Token {
 	return &fl.Token

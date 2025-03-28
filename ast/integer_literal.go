@@ -8,8 +8,7 @@ type IntegerLiteral struct {
 	Pos   token.Position
 }
 
-func (il *IntegerLiteral) expressionNode() {
-}
+func (il *IntegerLiteral) expressionNode() {}
 
 func (il *IntegerLiteral) Tok() *token.Token {
 	return &il.Token

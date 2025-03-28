@@ -14,8 +14,7 @@ type ObjectLiteral struct {
 	Pos   token.Position
 }
 
-func (ol *ObjectLiteral) expressionNode() {
-}
+func (ol *ObjectLiteral) expressionNode() {}
 
 func (ol *ObjectLiteral) Tok() *token.Token {
 	return &ol.Token
