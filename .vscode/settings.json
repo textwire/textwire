@@ -7,6 +7,7 @@
         "LTHAN",
         "RBRACES",
         "stmts",
-        "templating"
+        "templating",
+        "textwire"
     ]
 }
