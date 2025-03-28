@@ -8,8 +8,7 @@ type ContinueIfStmt struct {
 	Pos       token.Position
 }
 
-func (cis *ContinueIfStmt) statementNode() {
-}
+func (cis *ContinueIfStmt) statementNode() {}
 
 func (cis *ContinueIfStmt) Tok() *token.Token {
 	return &cis.Token

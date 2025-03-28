@@ -15,8 +15,7 @@ type EachStmt struct {
 	Pos         token.Position
 }
 
-func (es *EachStmt) statementNode() {
-}
+func (es *EachStmt) statementNode() {}
 
 func (es *EachStmt) Stmts() []Statement {
 	return es.Block.Statements

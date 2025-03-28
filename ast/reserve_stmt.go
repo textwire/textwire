@@ -13,8 +13,7 @@ type ReserveStmt struct {
 	Pos    token.Position
 }
 
-func (rs *ReserveStmt) statementNode() {
-}
+func (rs *ReserveStmt) statementNode() {}
 
 func (rs *ReserveStmt) Tok() *token.Token {
 	return &rs.Token

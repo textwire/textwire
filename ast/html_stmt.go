@@ -7,8 +7,7 @@ type HTMLStmt struct {
 	Pos   token.Position
 }
 
-func (hs *HTMLStmt) statementNode() {
-}
+func (hs *HTMLStmt) statementNode() {}
 
 func (hs *HTMLStmt) Tok() *token.Token {
 	return &hs.Token

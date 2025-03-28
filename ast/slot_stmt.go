@@ -13,8 +13,7 @@ type SlotStmt struct {
 	Pos   token.Position
 }
 
-func (ss *SlotStmt) statementNode() {
-}
+func (ss *SlotStmt) statementNode() {}
 
 func (ss *SlotStmt) Stmts() []Statement {
 	return ss.Body.Statements
