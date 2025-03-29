@@ -13,14 +13,13 @@ func (p Position) Contains(line uint, col uint) bool {
 		return false
 	}
 
-	// Before start column on start line
+	// On start line, check if cursor is after start column
 	if line == p.StartLine && col < p.StartCol {
 		return false
 	}
 
-	// After end column on end line
+	// On end line, check if cursor is before end column
 	if line == p.EndLine && col > p.EndCol {
-
 		return false
 	}
 
