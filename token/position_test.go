@@ -51,7 +51,7 @@ func TestContains(t *testing.T) {
 					StartLine: 0,
 					StartCol:  0,
 					EndLine:   0,
-					EndCol:    0,
+					EndCol:    2,
 				},
 			},
 			expect: true,
