@@ -33,11 +33,28 @@ func TestContains(t *testing.T) {
 		expect bool
 	}{
 		{
-			desc:   "Cusor is out of range",
+			desc:   "Cursor is out of range",
 			line:   3,
 			col:    6,
 			token:  tokenVar,
 			expect: false,
+		},
+		{
+			// (f)oo
+			desc: "Cursor is at the start of the file",
+			line: 0,
+			col:  0,
+			token: Token{
+				Type:    IDENT,
+				Literal: "foo",
+				Pos: Position{
+					StartLine: 0,
+					StartCol:  0,
+					EndLine:   0,
+					EndCol:    0,
+				},
+			},
+			expect: true,
 		},
 		{
 			// ( )foo

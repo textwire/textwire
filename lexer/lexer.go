@@ -332,14 +332,14 @@ func (l *Lexer) rightParenthesesToken() token.Token {
 }
 
 func (l *Lexer) newToken(tokType token.TokenType, literal string) token.Token {
+	endCol := l.col
+
 	// We need to subtract 1 from the column index because
 	// we already read the last character and incremented
 	// the column index.
-	endCol := l.col - 1
-
-	// For EOF we don't need to decrement the column index
-	if tokType == token.EOF {
-		endCol = l.col
+	// For EOF we don't need to decrement the column index.
+	if endCol > 0 && tokType != token.EOF {
+		endCol -= 1
 	}
 
 	pos := token.Position{
