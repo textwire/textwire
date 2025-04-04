@@ -23,8 +23,11 @@ func TokenizeString(t *testing.T, input string, expectTokens []token.Token) {
 		}
 
 		if tok.Pos != expectTok.Pos {
-			t.Fatalf("token %q - position wrong. expected='%v', got='%v'",
-				tok.Literal, expectTok.Pos, tok.Pos)
+			t.Fatalf("token %q - position wrong.\nexpected: {startCol=%d, endCol=%d, startLine=%d, endLine=%d}\ngot:      {startCol=%d, endCol=%d, startLine=%d, endLine=%d}",
+				tok.Literal, expectTok.Pos.StartCol, expectTok.Pos.EndCol,
+				expectTok.Pos.StartLine, expectTok.Pos.EndLine,
+				tok.Pos.StartCol, tok.Pos.EndCol, tok.Pos.StartLine,
+				tok.Pos.EndLine)
 		}
 	}
 }
@@ -364,13 +367,15 @@ func TestTokenPosition(t *testing.T) {
 		{startL: 2, endL: 2, startC: 12, endC: 12}, // (
 		{startL: 2, endL: 2, startC: 13, endC: 19}, // "title"
 		{startL: 2, endL: 2, startC: 20, endC: 20}, // )
-		{startL: 2, endL: 3, startC: 21, endC: 5},  // \n</div>
+		{startL: 2, endL: 3, startC: 21, endC: 6},  // \n</div>\n
+		{startL: 3, endL: 3, startC: 0, endC: 5},   // @break
 	}
 
 	inp := `<div>
     {{ age = 323.24 }}
     @reserve("title")
-</div>`
+</div>
+@break`
 
 	for tokenIdx, tc := range tests {
 		l := New(inp)

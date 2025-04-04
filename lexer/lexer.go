@@ -48,6 +48,9 @@ type Lexer struct {
 	// Current column index on the line.
 	col uint
 
+	// prevCol is the previous column index on the line.
+	prevCol uint
+
 	// Start column index on the line.
 	startCol uint
 
@@ -334,12 +337,11 @@ func (l *Lexer) rightParenthesesToken() token.Token {
 func (l *Lexer) newToken(tokType token.TokenType, literal string) token.Token {
 	endCol := l.col
 
-	// We need to subtract 1 from the column index because
-	// we already read the last character and incremented
-	// the column index.
+	// We need to set the end column to the previous column because we
+	// already read the last character and incremented the column index.
 	// For EOF we don't need to decrement the column index.
-	if endCol > 0 && tokType != token.EOF {
-		endCol -= 1
+	if tokType != token.EOF {
+		endCol = l.prevCol
 	}
 
 	pos := token.Position{
@@ -535,6 +537,7 @@ func (l *Lexer) readChar() {
 	// we don't need to increment this column on lexer
 	// initialization because it should be 0 when it starts
 	if l.pos > 0 {
+		l.prevCol = l.col
 		l.col += 1
 	}
 
