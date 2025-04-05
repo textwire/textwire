@@ -33,40 +33,43 @@ var tokensWithOptionalParens = map[token.TokenType]bool{
 }
 
 type Lexer struct {
-	// The input string to be tokenized.
+	// input is the input string to be tokenized.
 	input string
 
-	// Current character position in the input.
+	// pos is the current character position in the input.
 	pos int
 
-	// Next character position in the input.
+	// readPos is the next character position in the input.
 	readPos int
 
-	// Current byte character in the input.
+	// char is the current byte character in the input.
 	char byte
 
-	// Current column index on the line.
+	// col is the current column index on the line.
 	col uint
 
 	// prevCol is the previous column index on the line.
 	prevCol uint
 
-	// Start column index on the line.
+	// startCol is the start column index on the line.
 	startCol uint
 
-	// Determines if we should reset the column index to 0.
+	// shouldResetCol determines if we should reset the column index to 0.
 	shouldResetCol bool
 
-	// Current index on the line.
+	// line is the current index on the line.
 	line uint
 
-	// Start index on the line.
+	// prevLine is the previous index on the line.
+	prevLine uint
+
+	// startLine is the start index on the line.
 	startLine uint
 
-	// Determines if current character is in HTML or Textwire.
+	// isHTML determines if current character is in HTML or Textwire.
 	isHTML bool
 
-	// Determines if current character is a part of directive.
+	// isDirective determines if current character is a part of directive.
 	isDirective bool
 
 	// We increment it when we find "(" and decrement when we find ")".
@@ -336,19 +339,21 @@ func (l *Lexer) rightParenthesesToken() token.Token {
 
 func (l *Lexer) newToken(tokType token.TokenType, literal string) token.Token {
 	endCol := l.col
+	endLine := l.line
 
 	// We need to set the end column to the previous column because we
 	// already read the last character and incremented the column index.
 	// For EOF we don't need to decrement the column index.
 	if tokType != token.EOF {
 		endCol = l.prevCol
+		endLine = l.prevLine
 	}
 
 	pos := token.Position{
 		StartCol:  l.startCol,
 		EndCol:    endCol,
 		StartLine: l.startLine,
-		EndLine:   l.line,
+		EndLine:   endLine,
 	}
 
 	return token.Token{
@@ -544,6 +549,7 @@ func (l *Lexer) readChar() {
 	if l.shouldResetCol {
 		l.shouldResetCol = false
 		l.col = 0
+		l.prevLine = l.line
 		l.line += 1
 	}
 
