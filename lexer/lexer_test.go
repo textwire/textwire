@@ -368,7 +368,7 @@ func TestTokenPosition(t *testing.T) {
 		{startL: 2, endL: 2, startC: 13, endC: 19}, // "title"
 		{startL: 2, endL: 2, startC: 20, endC: 20}, // )
 		{startL: 2, endL: 3, startC: 21, endC: 6},  // \n</div>\n
-		{startL: 3, endL: 3, startC: 0, endC: 5},   // @break
+		{startL: 4, endL: 4, startC: 0, endC: 5},   // @break
 	}
 
 	inp := `<div>
