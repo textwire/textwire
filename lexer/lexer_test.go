@@ -313,7 +313,7 @@ func TestErrorLineNumber(t *testing.T) {
 	}{
 		{"", 1},
 		{" ", 1},
-		{"\n", 2},
+		{"\n", 1},
 		{"1\n2\n3\n4", 4},
 		{"{{ age := 3 }}", 1},
 		{`{{ age := 3; age }}`, 1},

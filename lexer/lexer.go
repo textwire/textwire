@@ -60,6 +60,10 @@ type Lexer struct {
 	// line is the current index on the line.
 	line uint
 
+	// prevLine is the line index of the previous character.
+	// NOT THE PREVIOUS LINE, BUT THE LINE OF THE PREVIOUS CHARACTER.
+	prevLine uint
+
 	// startLine is the start index on the line.
 	startLine uint
 
@@ -336,19 +340,22 @@ func (l *Lexer) rightParenthesesToken() token.Token {
 
 func (l *Lexer) newToken(tokType token.TokenType, literal string) token.Token {
 	endCol := l.col
+	endLine := l.line
 
-	// We need to set the end column to the previous column because we
-	// already read the last character and incremented the column index.
+	// We need to set the end column and line to the values of the previous
+	// character because we already read the last character and incremented
+	// the column index.
 	// For EOF we don't need to decrement the column index.
 	if tokType != token.EOF {
 		endCol = l.prevCol
+		endLine = l.prevLine
 	}
 
 	pos := token.Position{
 		StartCol:  l.startCol,
 		EndCol:    endCol,
 		StartLine: l.startLine,
-		EndLine:   l.line,
+		EndLine:   endLine,
 	}
 
 	return token.Token{
@@ -525,6 +532,8 @@ func (l *Lexer) prevChar() byte {
 }
 
 func (l *Lexer) readChar() {
+	l.prevLine = l.line
+
 	if l.readPos >= len(l.input) {
 		l.char = 0
 	} else {
