@@ -16,11 +16,14 @@ type InsertStmt struct {
 	Pos      token.Position
 }
 
-func (is *InsertStmt) statementNode() {
+func (is *InsertStmt) statementNode() {}
+
+func (is *InsertStmt) Stmts() []Statement {
+	return is.Block.Statements
 }
 
-func (is *InsertStmt) TokenLiteral() string {
-	return is.Token.Literal
+func (is *InsertStmt) Tok() *token.Token {
+	return &is.Token
 }
 
 func (is *InsertStmt) String() string {

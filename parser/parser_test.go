@@ -81,8 +81,8 @@ func testIntegerLiteral(t *testing.T, exp ast.Expression, value int64) bool {
 		return false
 	}
 
-	if integer.TokenLiteral() != strconv.FormatInt(value, 10) {
-		t.Errorf("integer.TokenLiteral() is not %d, got %s", value, integer.TokenLiteral())
+	if integer.Tok().Literal != strconv.FormatInt(value, 10) {
+		t.Errorf("integer.Tok().Literal is not %d, got %s", value, integer.Tok().Literal)
 		return false
 	}
 
@@ -118,8 +118,8 @@ func testNilLiteral(t *testing.T, exp ast.Expression) bool {
 		return false
 	}
 
-	if nilLit.TokenLiteral() != "nil" {
-		t.Errorf("nilLit.TokenLiteral() is not 'nil', got %s", nilLit.TokenLiteral())
+	if nilLit.Tok().Literal != "nil" {
+		t.Errorf("nilLit.Tok().Literal is not 'nil', got %s", nilLit.Tok().Literal)
 		return false
 	}
 
@@ -139,8 +139,8 @@ func testStringLiteral(t *testing.T, exp ast.Expression, value string) bool {
 		return false
 	}
 
-	if str.TokenLiteral() != value {
-		t.Errorf("str.TokenLiteral() is not %s, got %s", value, str.TokenLiteral())
+	if str.Tok().Literal != value {
+		t.Errorf("str.Tok().Literal is not %s, got %s", value, str.Tok().Literal)
 		return false
 	}
 
@@ -160,8 +160,8 @@ func testBooleanLiteral(t *testing.T, exp ast.Expression, value bool) bool {
 		return false
 	}
 
-	if boolean.TokenLiteral() != fmt.Sprintf("%t", value) {
-		t.Errorf("bo.TokenLiteral not %t. got=%s", value, boolean.TokenLiteral())
+	if boolean.Tok().Literal != fmt.Sprintf("%t", value) {
+		t.Errorf("bo.TokenLiteral not %t. got=%s", value, boolean.Tok().Literal)
 		return false
 	}
 
@@ -181,8 +181,8 @@ func testIdentifier(t *testing.T, exp ast.Expression, value string) bool {
 		return false
 	}
 
-	if ident.TokenLiteral() != value {
-		t.Errorf("ident.TokenLiteral() is not %s, got %s", value, ident.TokenLiteral())
+	if ident.Tok().Literal != value {
+		t.Errorf("ident.Tok().Literal is not %s, got %s", value, ident.Tok().Literal)
 		return false
 	}
 
@@ -347,7 +347,7 @@ func TestStringConcatenation(t *testing.T) {
 		t.Fatalf("stmt is not an InfixExp, got %T", stmt.Expression)
 	}
 
-	if exp.Left.TokenLiteral() != "Serhii" {
+	if exp.Left.Tok().Literal != "Serhii" {
 		t.Fatalf("exp.Left is not %s, got %s", "Serhii", exp.Left.String())
 	}
 
@@ -355,7 +355,7 @@ func TestStringConcatenation(t *testing.T) {
 		t.Fatalf("exp.Operator is not %s, got %s", "+", exp.Operator)
 	}
 
-	if exp.Right.TokenLiteral() != " Anna" {
+	if exp.Right.Tok().Literal != " Anna" {
 		t.Fatalf("exp.Right is not %s, got %s", " Anna", exp.Right.String())
 	}
 }

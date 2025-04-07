@@ -13,11 +13,14 @@ type ElseIfStmt struct {
 	Pos         token.Position
 }
 
-func (eis *ElseIfStmt) statementNode() {
+func (eis *ElseIfStmt) statementNode() {}
+
+func (eis *ElseIfStmt) Stmts() []Statement {
+	return eis.Consequence.Statements
 }
 
-func (eis *ElseIfStmt) TokenLiteral() string {
-	return eis.Token.Literal
+func (eis *ElseIfStmt) Tok() *token.Token {
+	return &eis.Token
 }
 
 func (eis *ElseIfStmt) String() string {

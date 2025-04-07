@@ -8,11 +8,10 @@ type StringLiteral struct {
 	Pos   token.Position
 }
 
-func (sl *StringLiteral) expressionNode() {
-}
+func (sl *StringLiteral) expressionNode() {}
 
-func (sl *StringLiteral) TokenLiteral() string {
-	return sl.Token.Literal
+func (sl *StringLiteral) Tok() *token.Token {
+	return &sl.Token
 }
 
 func (sl *StringLiteral) String() string {

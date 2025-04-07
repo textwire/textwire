@@ -15,11 +15,14 @@ type ComponentStmt struct {
 	Pos      token.Position
 }
 
-func (cs *ComponentStmt) statementNode() {
+func (cs *ComponentStmt) statementNode() {}
+
+func (cs *ComponentStmt) Stmts() []Statement {
+	return cs.Block.Statements
 }
 
-func (cs *ComponentStmt) TokenLiteral() string {
-	return cs.Token.Literal
+func (cs *ComponentStmt) Tok() *token.Token {
+	return &cs.Token
 }
 
 func (cs *ComponentStmt) ArgsString() string {

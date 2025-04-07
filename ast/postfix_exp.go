@@ -13,11 +13,10 @@ type PostfixExp struct {
 	Pos      token.Position
 }
 
-func (pe *PostfixExp) expressionNode() {
-}
+func (pe *PostfixExp) expressionNode() {}
 
-func (pe *PostfixExp) TokenLiteral() string {
-	return pe.Token.Literal
+func (pe *PostfixExp) Tok() *token.Token {
+	return &pe.Token
 }
 
 func (pe *PostfixExp) String() string {

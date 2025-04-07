@@ -14,11 +14,10 @@ type ObjectLiteral struct {
 	Pos   token.Position
 }
 
-func (ol *ObjectLiteral) expressionNode() {
-}
+func (ol *ObjectLiteral) expressionNode() {}
 
-func (ol *ObjectLiteral) TokenLiteral() string {
-	return ol.Token.Literal
+func (ol *ObjectLiteral) Tok() *token.Token {
+	return &ol.Token
 }
 
 func (ol *ObjectLiteral) String() string {

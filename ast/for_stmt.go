@@ -16,11 +16,20 @@ type ForStmt struct {
 	Pos         token.Position
 }
 
-func (fs *ForStmt) statementNode() {
+func (fs *ForStmt) statementNode() {}
+
+func (fs *ForStmt) Stmts() []Statement {
+	stmts := fs.Block.Statements
+
+	if fs.Alternative != nil {
+		stmts = append(stmts, fs.Alternative.Statements...)
+	}
+
+	return stmts
 }
 
-func (fs *ForStmt) TokenLiteral() string {
-	return fs.Token.Literal
+func (fs *ForStmt) Tok() *token.Token {
+	return &fs.Token
 }
 
 func (fs *ForStmt) String() string {

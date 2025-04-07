@@ -7,11 +7,10 @@ type NilLiteral struct {
 	Pos   token.Position
 }
 
-func (nl *NilLiteral) expressionNode() {
-}
+func (nl *NilLiteral) expressionNode() {}
 
-func (nl *NilLiteral) TokenLiteral() string {
-	return nl.Token.Literal
+func (nl *NilLiteral) Tok() *token.Token {
+	return &nl.Token
 }
 
 func (nl *NilLiteral) String() string {

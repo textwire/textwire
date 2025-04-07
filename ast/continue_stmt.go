@@ -7,11 +7,10 @@ type ContinueStmt struct {
 	Pos   token.Position
 }
 
-func (cs *ContinueStmt) statementNode() {
-}
+func (cs *ContinueStmt) statementNode() {}
 
-func (cs *ContinueStmt) TokenLiteral() string {
-	return cs.Token.Literal
+func (cs *ContinueStmt) Tok() *token.Token {
+	return &cs.Token
 }
 
 func (cs *ContinueStmt) String() string {

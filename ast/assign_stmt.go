@@ -11,11 +11,10 @@ type AssignStmt struct {
 	Pos   token.Position
 }
 
-func (as *AssignStmt) statementNode() {
-}
+func (as *AssignStmt) statementNode() {}
 
-func (as *AssignStmt) TokenLiteral() string {
-	return as.Token.Literal
+func (as *AssignStmt) Tok() *token.Token {
+	return &as.Token
 }
 
 func (as *AssignStmt) String() string {

@@ -16,8 +16,8 @@ type InfixExp struct {
 
 func (ie *InfixExp) expressionNode() {}
 
-func (ie *InfixExp) TokenLiteral() string {
-	return ie.Token.Literal
+func (ie *InfixExp) Tok() *token.Token {
+	return &ie.Token
 }
 
 func (ie *InfixExp) String() string {

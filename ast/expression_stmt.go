@@ -8,11 +8,10 @@ type ExpressionStmt struct {
 	Pos        token.Position
 }
 
-func (es *ExpressionStmt) statementNode() {
-}
+func (es *ExpressionStmt) statementNode() {}
 
-func (es *ExpressionStmt) TokenLiteral() string {
-	return es.Token.Literal
+func (es *ExpressionStmt) Tok() *token.Token {
+	return &es.Token
 }
 
 func (es *ExpressionStmt) String() string {

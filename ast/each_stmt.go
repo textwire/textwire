@@ -7,7 +7,7 @@ import (
 )
 
 type EachStmt struct {
-	Token       token.Token // The '@for' token
+	Token       token.Token // The '@each' token
 	Var         *Identifier // The variable name
 	Array       Expression  // The array to loop over
 	Alternative *BlockStmt  // The @else block
@@ -15,11 +15,14 @@ type EachStmt struct {
 	Pos         token.Position
 }
 
-func (es *EachStmt) statementNode() {
+func (es *EachStmt) statementNode() {}
+
+func (es *EachStmt) Stmts() []Statement {
+	return es.Block.Statements
 }
 
-func (es *EachStmt) TokenLiteral() string {
-	return es.Token.Literal
+func (es *EachStmt) Tok() *token.Token {
+	return &es.Token
 }
 
 func (es *EachStmt) String() string {

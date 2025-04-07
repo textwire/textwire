@@ -8,7 +8,7 @@ import (
 )
 
 func TestGetTokenMeta(t *testing.T) {
-	t.Run("Invlid locale", func(t *testing.T) {
+	t.Run("Invalid locale", func(t *testing.T) {
 		_, err := GetTokenMeta(token.IF, "invalid")
 		if err == nil {
 			t.Error("expected error, got nil")

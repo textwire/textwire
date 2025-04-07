@@ -15,11 +15,24 @@ type IfStmt struct {
 	Pos          token.Position
 }
 
-func (is *IfStmt) statementNode() {
+func (is *IfStmt) statementNode() {}
+
+func (is *IfStmt) Stmts() []Statement {
+	stmts := is.Consequence.Statements
+
+	if is.Alternative != nil {
+		stmts = append(stmts, is.Alternative.Statements...)
+	}
+
+	for _, e := range is.Alternatives {
+		stmts = append(stmts, e.Stmts()...)
+	}
+
+	return stmts
 }
 
-func (is *IfStmt) TokenLiteral() string {
-	return is.Token.Literal
+func (is *IfStmt) Tok() *token.Token {
+	return &is.Token
 }
 
 func (is *IfStmt) String() string {

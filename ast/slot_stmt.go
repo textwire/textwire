@@ -13,11 +13,14 @@ type SlotStmt struct {
 	Pos   token.Position
 }
 
-func (ss *SlotStmt) statementNode() {
+func (ss *SlotStmt) statementNode() {}
+
+func (ss *SlotStmt) Stmts() []Statement {
+	return ss.Body.Statements
 }
 
-func (ss *SlotStmt) TokenLiteral() string {
-	return ss.Token.Literal
+func (ss *SlotStmt) Tok() *token.Token {
+	return &ss.Token
 }
 
 func (ss *SlotStmt) String() string {

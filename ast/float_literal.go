@@ -12,11 +12,10 @@ type FloatLiteral struct {
 	Pos   token.Position
 }
 
-func (fl *FloatLiteral) expressionNode() {
-}
+func (fl *FloatLiteral) expressionNode() {}
 
-func (fl *FloatLiteral) TokenLiteral() string {
-	return fl.Token.Literal
+func (fl *FloatLiteral) Tok() *token.Token {
+	return &fl.Token
 }
 
 func (fl *FloatLiteral) String() string {
