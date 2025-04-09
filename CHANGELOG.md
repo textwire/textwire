@@ -1,5 +1,8 @@
 # Release notes
 
+## v2.5.5 (2025-04-09)
+- Added more hover information for LSP server
+
 ## v2.5.4 (2025-04-07)
 - Preparing Textwire for LSP server. Add improvements for better token search
 - Fixed wrong end line number for tokens in the lexer

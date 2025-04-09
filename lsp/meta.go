@@ -62,6 +62,7 @@ func initFileNames() {
 		token.CONTINUE_IF: "continueif.md",
 		token.TRUE:        "bool.md",
 		token.FALSE:       "bool.md",
+		token.NIL:         "nil.md",
 	}
 }
 
