@@ -6,6 +6,8 @@ import (
 	"path"
 	"sync"
 
+	"slices"
+
 	"github.com/textwire/textwire/v2/token"
 )
 
@@ -58,6 +60,8 @@ func initFileNames() {
 		token.CONTINUE:    "continue.md",
 		token.BREAK_IF:    "breakif.md",
 		token.CONTINUE_IF: "continueif.md",
+		token.TRUE:        "bool.md",
+		token.FALSE:       "bool.md",
 	}
 }
 
@@ -74,11 +78,5 @@ func loadMeta(locale Locale, fileName string) (string, error) {
 }
 
 func isValidLocale(locale Locale) bool {
-	for _, l := range validLocales {
-		if locale == l {
-			return true
-		}
-	}
-
-	return false
+	return slices.Contains(validLocales, locale)
 }
