@@ -1,5 +1,8 @@
 # Release notes
 
+## v2.5.6 (2025-04-14)
+- Added more data for LSP to handle auto completions
+
 ## v2.5.5 (2025-04-09)
 - Added more hover information for LSP server
 
