@@ -102,6 +102,10 @@ var directives = map[string]TokenType{
 	"@dump":       DUMP,
 }
 
+func GetDirectives() map[string]TokenType {
+	return directives
+}
+
 type Token struct {
 	Type    TokenType
 	Literal string
