@@ -24,29 +24,30 @@ var (
 	fileNames     map[token.TokenType]string
 
 	validLocales = []Locale{"en"}
+
+	ErrNoMetadataFound = "no metadata found for token: %v"
+	ErrInvalidLocale   = "invalid locale: %s"
 )
 
 // GetTokenMeta retrieves metadata for the given token type and locale.
 func GetTokenMeta(tok token.TokenType, locale Locale) (string, error) {
 	if !isValidLocale(locale) {
-		return "", fmt.Errorf("invalid locale: %s", locale)
+		return "", fmt.Errorf(ErrInvalidLocale, locale)
 	}
 
 	fileNamesOnce.Do(initFileNames)
 
 	fileName, ok := fileNames[tok]
 	if !ok {
-		return "", fmt.Errorf("no metadata found for token: %v", tok)
+		return "", fmt.Errorf(ErrNoMetadataFound, tok)
 	}
 
 	return loadMeta(locale, fileName)
 }
 
-func GetFiles() embed.FS {
-	return files
-}
-
 func initFileNames() {
+	fileNames = make(map[token.TokenType]string)
+
 	for dir, tok := range token.GetDirectives() {
 		fileNames[tok] = dir[1:] + ".md"
 	}
