@@ -1,6 +1,6 @@
 # Release notes
 
-## v2.5.6 (2025-04-14)
+## v2.5.6 (2025-04-15)
 - Added more data for LSP to handle auto completions
 
 ## v2.5.5 (2025-04-09)
