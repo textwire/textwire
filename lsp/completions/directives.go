@@ -6,8 +6,8 @@ import (
 )
 
 func GetDirectives(locale lsp.Locale) ([]Completion, error) {
-	completions := make([]Completion, 10)
 	directives := token.GetDirectives()
+	completions := make([]Completion, 0, len(directives))
 
 	for dir, tok := range directives {
 		meta, err := lsp.GetTokenMeta(tok, locale)
