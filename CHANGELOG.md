@@ -2,6 +2,7 @@
 
 ## v2.5.6 (2025-04-16)
 - Added more data for LSP to handle auto completions
+- Remove old Go version from the Github Actions file
 
 ## v2.5.5 (2025-04-09)
 - Added more hover information for LSP server
