@@ -4,6 +4,7 @@ import (
 	"embed"
 	"fmt"
 	"path"
+	"strings"
 	"sync"
 
 	"slices"
@@ -49,7 +50,8 @@ func initFileNames() {
 	fileNames = make(map[token.TokenType]string)
 
 	for dir, tok := range token.GetDirectives() {
-		fileNames[tok] = dir[1:] + ".md"
+		name := strings.ToLower(dir[1:])
+		fileNames[tok] = name + ".md"
 	}
 }
 
