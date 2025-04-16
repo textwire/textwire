@@ -16,7 +16,7 @@ func (h *HTML) Dump(ident int) string {
 	return h.Value
 }
 
-func (h *HTML) Val() interface{} {
+func (h *HTML) Val() any {
 	return h.Value
 }
 

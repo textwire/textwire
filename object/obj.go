@@ -61,8 +61,8 @@ func (o *Obj) Dump(ident int) string {
 	return out.String()
 }
 
-func (o *Obj) Val() interface{} {
-	result := make(map[string]interface{})
+func (o *Obj) Val() any {
+	result := make(map[string]any)
 
 	for k, v := range o.Pairs {
 		result[k] = v.Val()

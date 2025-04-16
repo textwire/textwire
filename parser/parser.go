@@ -255,7 +255,7 @@ func (p *Parser) expectPeek(tok token.TokenType) bool {
 	return false
 }
 
-func (p *Parser) newError(line uint, msg string, args ...interface{}) {
+func (p *Parser) newError(line uint, msg string, args ...any) {
 	newErr := fail.New(line, p.filepath, "parser", msg, args...)
 	p.errors = append(p.errors, newErr)
 }

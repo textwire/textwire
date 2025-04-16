@@ -14,7 +14,7 @@ var tpl *textwire.Template
 func main() {
 	var err error
 
-	textwire.RegisterStrFunc("reverse", func(s string, args ...interface{}) string {
+	textwire.RegisterStrFunc("reverse", func(s string, args ...any) string {
 		runes := []rune(s)
 
 		for i, j := 0, len(runes)-1; i < j; i, j = i+1, j-1 {
@@ -82,7 +82,7 @@ func homeHandler(w http.ResponseWriter, r *http.Request) {
 		},
 	}
 
-	err := tpl.Response(w, "home", map[string]interface{}{
+	err := tpl.Response(w, "home", map[string]any{
 		"names":     []string{"John", "Jane", "Jack", "Jill"},
 		"showNames": true,
 		"books":     books,
@@ -97,7 +97,7 @@ func aboutHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err := tpl.Response(w, "about", map[string]interface{}{})
+	err := tpl.Response(w, "about", map[string]any{})
 	if err != nil {
 		log.Println(err.Error())
 	}

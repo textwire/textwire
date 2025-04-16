@@ -20,7 +20,7 @@ func (i *Int) Dump(ident int) string {
 	return fmt.Sprintf("<span class='textwire-num'>%d</span>", i.Value)
 }
 
-func (i *Int) Val() interface{} {
+func (i *Int) Val() any {
 	return i.Value
 }
 

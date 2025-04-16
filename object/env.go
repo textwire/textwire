@@ -23,7 +23,7 @@ func NewEnclosedEnv(outer *Env) *Env {
 	return env
 }
 
-func EnvFromMap(data map[string]interface{}) (*Env, *fail.Error) {
+func EnvFromMap(data map[string]any) (*Env, *fail.Error) {
 	env := NewEnv()
 
 	for key, val := range data {

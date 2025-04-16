@@ -752,8 +752,8 @@ func (e *Evaluator) evalCallExp(
 	return e.newError(node, fail.ErrNoFuncForThisType, node.Function.Value, receiverObj.Type())
 }
 
-func (e *Evaluator) objectsToNativeType(args []object.Object) []interface{} {
-	var result []interface{}
+func (e *Evaluator) objectsToNativeType(args []object.Object) []any {
+	var result []any
 
 	for _, arg := range args {
 		result = append(result, arg.Val())
@@ -958,7 +958,7 @@ func (e *Evaluator) evalBangOperatorExp(
 func (e *Evaluator) newError(
 	node ast.Node,
 	format string,
-	a ...interface{},
+	a ...any,
 ) *object.Error {
 	err := fail.New(node.Line(), e.ctx.AbsPath, "evaluator", format, a...)
 	return &object.Error{Err: err}

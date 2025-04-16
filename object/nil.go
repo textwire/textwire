@@ -14,7 +14,7 @@ func (n *Nil) Dump(ident int) string {
 	return "<span class='textwire-keyword'>nil</span>"
 }
 
-func (n *Nil) Val() interface{} {
+func (n *Nil) Val() any {
 	return nil
 }
 

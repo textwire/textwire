@@ -14,7 +14,7 @@ func (b *Break) Dump(ident int) string {
 	return "break stmt"
 }
 
-func (b *Break) Val() interface{} {
+func (b *Break) Val() any {
 	return nil
 }
 
