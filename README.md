@@ -18,8 +18,8 @@ Textwire is a simple yet powerful templating language for Go. It is designed to 
 go get github.com/textwire/textwire/v2
 ```
 
-## VSCode Extension
-If you use [VSCode](https://code.visualstudio.com/) as your primary editor, you can install the [Textwire extension](https://marketplace.visualstudio.com/items?itemName=SerhiiCho.textwire) to get syntax highlighting and other features for Textwire. Plugin for the best text editor [❤️ Neovim](https://neovim.io/) is coming soon.
+## Neovim and VSCode Support
+If you use [Neovim](https://neovim.io/) or [VSCode](https://code.visualstudio.com/) as your primary editor, you can install the [Neovim Plugin](https://github.com/textwire/textwire.nvim) or [VSCode Extension](https://marketplace.visualstudio.com/items?itemName=SerhiiCho.textwire) to get syntax highlighting and other features for Textwire.
 
 ## License
 The Textwire project is licensed under the [MIT License](https://github.com/textwire/textwire/blob/master/LICENSE)
