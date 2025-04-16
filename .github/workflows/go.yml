@@ -23,4 +23,7 @@ jobs:
       run: go build -v ./...
 
     - name: Test
-      run: cd $(GITHUB_WORKSPACE) && go test ./...
+      run: |
+        pwd  # This will show us the current directory
+        cd $GITHUB_WORKSPACE
+        make test
