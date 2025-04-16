@@ -30,7 +30,7 @@ func (e *Error) Dump(ident int) string {
 	return out.String()
 }
 
-func (e *Error) Val() interface{} {
+func (e *Error) Val() any {
 	return e.Err.String()
 }
 

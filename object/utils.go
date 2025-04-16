@@ -4,7 +4,7 @@ import (
 	"reflect"
 )
 
-func NativeToObject(val interface{}) Object {
+func NativeToObject(val any) Object {
 	switch v := val.(type) {
 	case string:
 		return &Str{Value: v}
@@ -55,7 +55,7 @@ func NativeToObject(val interface{}) Object {
 	return nil
 }
 
-func nativeMapToObject(val interface{}) Object {
+func nativeMapToObject(val any) Object {
 	obj := &Obj{Pairs: make(map[string]Object)}
 
 	valValue := reflect.ValueOf(val)
@@ -67,14 +67,14 @@ func nativeMapToObject(val interface{}) Object {
 	return obj
 }
 
-func convertToInterfaceSlice(slice interface{}) []interface{} {
+func convertToInterfaceSlice(slice any) []any {
 	s := reflect.ValueOf(slice)
 
 	if s.Kind() != reflect.Slice {
 		panic("InterfaceSlice() given a non-slice type")
 	}
 
-	ret := make([]interface{}, s.Len())
+	ret := make([]any, s.Len())
 
 	for i := 0; i < s.Len(); i++ {
 		ret[i] = s.Index(i).Interface()
@@ -83,7 +83,7 @@ func convertToInterfaceSlice(slice interface{}) []interface{} {
 	return ret
 }
 
-func nativeStructToObject(val interface{}) Object {
+func nativeStructToObject(val any) Object {
 	obj := &Obj{Pairs: make(map[string]Object)}
 
 	valType := reflect.TypeOf(val)
@@ -103,7 +103,7 @@ func nativeStructToObject(val interface{}) Object {
 	return obj
 }
 
-func nativeSliceToArrayObject(slice []interface{}) *Array {
+func nativeSliceToArrayObject(slice []any) *Array {
 	arr := &Array{}
 
 	for _, val := range slice {

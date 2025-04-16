@@ -18,7 +18,7 @@ func (s *Str) Dump(ident int) string {
 	return fmt.Sprintf("<span class='textwire-str'>%q</span>", s.Value)
 }
 
-func (s *Str) Val() interface{} {
+func (s *Str) Val() any {
 	return s.Value
 }
 

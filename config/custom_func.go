@@ -1,10 +1,10 @@
 package config
 
-type StrCustomFunc func(s string, args ...interface{}) string
-type ArrayCustomFunc func(a []interface{}, args ...interface{}) []interface{}
-type IntCustomFunc func(i int, args ...interface{}) int
-type FloatCustomFunc func(f float64, args ...interface{}) float64
-type BoolCustomFunc func(b bool, args ...interface{}) bool
+type StrCustomFunc func(s string, args ...any) string
+type ArrayCustomFunc func(a []any, args ...any) []any
+type IntCustomFunc func(i int, args ...any) int
+type FloatCustomFunc func(f float64, args ...any) float64
+type BoolCustomFunc func(b bool, args ...any) bool
 
 type Func struct {
 	Str   map[string]StrCustomFunc

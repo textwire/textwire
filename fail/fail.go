@@ -75,7 +75,7 @@ type Error struct {
 }
 
 // New creates a new Error instance of Error
-func New(line uint, filepath, origin, msg string, args ...interface{}) *Error {
+func New(line uint, filepath, origin, msg string, args ...any) *Error {
 	return &Error{
 		line:     line,
 		origin:   origin,
@@ -144,7 +144,7 @@ func (e *Error) Error() error {
 	return errors.New(e.String())
 }
 
-func FromError(err error, line uint, absPath, origin string, args ...interface{}) *Error {
+func FromError(err error, line uint, absPath, origin string, args ...any) *Error {
 	if err == nil {
 		return nil
 	}

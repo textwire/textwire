@@ -29,7 +29,7 @@ func (f *Float) Dump(ident int) string {
 	return "<span class='textwire-num'>" + f.String() + "</span>"
 }
 
-func (f *Float) Val() interface{} {
+func (f *Float) Val() any {
 	return f.Value
 }
 

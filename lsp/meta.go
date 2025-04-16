@@ -4,7 +4,10 @@ import (
 	"embed"
 	"fmt"
 	"path"
+	"strings"
 	"sync"
+
+	"slices"
 
 	"github.com/textwire/textwire/v2/token"
 )
@@ -22,42 +25,33 @@ var (
 	fileNames     map[token.TokenType]string
 
 	validLocales = []Locale{"en"}
+
+	ErrNoMetadataFound = "no metadata found for token: %v"
+	ErrInvalidLocale   = "invalid locale: %s"
 )
 
 // GetTokenMeta retrieves metadata for the given token type and locale.
 func GetTokenMeta(tok token.TokenType, locale Locale) (string, error) {
 	if !isValidLocale(locale) {
-		return "", fmt.Errorf("invalid locale: %s", locale)
+		return "", fmt.Errorf(ErrInvalidLocale, locale)
 	}
 
 	fileNamesOnce.Do(initFileNames)
 
 	fileName, ok := fileNames[tok]
 	if !ok {
-		return "", fmt.Errorf("no metadata found for token: %v", tok)
+		return "", fmt.Errorf(ErrNoMetadataFound, tok)
 	}
 
 	return loadMeta(locale, fileName)
 }
 
 func initFileNames() {
-	fileNames = map[token.TokenType]string{
-		token.IF:          "if.md",
-		token.ELSE_IF:     "elseif.md",
-		token.EACH:        "each.md",
-		token.FOR:         "for.md",
-		token.ELSE:        "else.md",
-		token.DUMP:        "dump.md",
-		token.USE:         "use.md",
-		token.INSERT:      "insert.md",
-		token.RESERVE:     "reserve.md",
-		token.COMPONENT:   "component.md",
-		token.SLOT:        "slot.md",
-		token.END:         "end.md",
-		token.BREAK:       "break.md",
-		token.CONTINUE:    "continue.md",
-		token.BREAK_IF:    "breakif.md",
-		token.CONTINUE_IF: "continueif.md",
+	fileNames = make(map[token.TokenType]string)
+
+	for dir, tok := range token.GetDirectives() {
+		name := strings.ToLower(dir[1:])
+		fileNames[tok] = name + ".md"
 	}
 }
 
@@ -74,11 +68,5 @@ func loadMeta(locale Locale, fileName string) (string, error) {
 }
 
 func isValidLocale(locale Locale) bool {
-	for _, l := range validLocales {
-		if locale == l {
-			return true
-		}
-	}
-
-	return false
+	return slices.Contains(validLocales, locale)
 }

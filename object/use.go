@@ -17,7 +17,7 @@ func (u *Use) Dump(ident int) string {
 	return "use stmt"
 }
 
-func (u *Use) Val() interface{} {
+func (u *Use) Val() any {
 	return u.Content.Val()
 }
 

@@ -57,8 +57,8 @@ func (a *Array) Dump(ident int) string {
 	return res + spaces + "<span class='textwire-brace'>]</span>"
 }
 
-func (a *Array) Val() interface{} {
-	var result []interface{}
+func (a *Array) Val() any {
+	var result []any
 
 	for _, elem := range a.Elements {
 		result = append(result, elem.Val())

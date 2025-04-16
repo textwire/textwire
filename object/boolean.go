@@ -24,7 +24,7 @@ func (b *Bool) Dump(ident int) string {
 	return "<span class='textwire-keyword'>false</span>"
 }
 
-func (b *Bool) Val() interface{} {
+func (b *Bool) Val() any {
 	return b.Value
 }
 

@@ -33,7 +33,7 @@ func NewTemplate(opt *config.Config) (*Template, error) {
 	return &Template{programs: programs}, nil
 }
 
-func EvaluateString(inp string, data map[string]interface{}) (string, error) {
+func EvaluateString(inp string, data map[string]any) (string, error) {
 	usesTemplates = false
 
 	prog, errs := parseStr(inp)
@@ -59,7 +59,7 @@ func EvaluateString(inp string, data map[string]interface{}) (string, error) {
 	return evaluated.String(), nil
 }
 
-func EvaluateFile(absPath string, data map[string]interface{}) (string, error) {
+func EvaluateFile(absPath string, data map[string]any) (string, error) {
 	usesTemplates = false
 
 	content, err := fileContent(absPath)

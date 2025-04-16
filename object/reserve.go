@@ -22,7 +22,7 @@ func (r *Reserve) Dump(ident int) string {
 	return "reserve stmt"
 }
 
-func (r *Reserve) Val() interface{} {
+func (r *Reserve) Val() any {
 	return r.Content.Val()
 }
 

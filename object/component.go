@@ -17,7 +17,7 @@ func (c *Component) Dump(ident int) string {
 	return c.Content.Dump(ident)
 }
 
-func (c *Component) Val() interface{} {
+func (c *Component) Val() any {
 	return c.Content.Val()
 }
 

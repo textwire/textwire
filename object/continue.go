@@ -14,7 +14,7 @@ func (c *Continue) Dump(ident int) string {
 	return "continue stmt"
 }
 
-func (c *Continue) Val() interface{} {
+func (c *Continue) Val() any {
 	return nil
 }
 

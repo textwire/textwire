@@ -36,8 +36,8 @@ func (b *Block) Dump(ident int) string {
 	return out.String()
 }
 
-func (b *Block) Val() interface{} {
-	var result []interface{}
+func (b *Block) Val() any {
+	var result []any
 
 	for _, e := range b.Elements {
 		result = append(result, e.Val())

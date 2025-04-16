@@ -52,8 +52,8 @@ func (d *Dump) Dump(ident int) string {
 	return "dump stmt"
 }
 
-func (d *Dump) Val() interface{} {
-	var result []interface{}
+func (d *Dump) Val() any {
+	var result []any
 
 	for _, v := range d.Values {
 		result = append(result, v)

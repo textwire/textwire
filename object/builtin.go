@@ -20,6 +20,6 @@ func (b *Builtin) Dump(ident int) string {
 	return "builtin"
 }
 
-func (b *Builtin) Val() interface{} {
+func (b *Builtin) Val() any {
 	return b.Fn
 }

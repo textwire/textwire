@@ -15,7 +15,7 @@ type Template struct {
 	programs map[string]*ast.Program
 }
 
-func (t *Template) String(filename string, data map[string]interface{}) (string, *fail.Error) {
+func (t *Template) String(filename string, data map[string]any) (string, *fail.Error) {
 	env, envErr := object.EnvFromMap(data)
 
 	if envErr != nil {
@@ -43,7 +43,7 @@ func (t *Template) String(filename string, data map[string]interface{}) (string,
 	return evaluated.String(), nil
 }
 
-func (t *Template) Response(w http.ResponseWriter, filename string, data map[string]interface{}) error {
+func (t *Template) Response(w http.ResponseWriter, filename string, data map[string]any) error {
 	evaluated, failErr := t.String(filename, data)
 
 	if failErr == nil {

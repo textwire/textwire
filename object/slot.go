@@ -21,7 +21,7 @@ func (s *Slot) Dump(ident int) string {
 	return "slot stmt"
 }
 
-func (s *Slot) Val() interface{} {
+func (s *Slot) Val() any {
 	return s.Content.Val()
 }
 
