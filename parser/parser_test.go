@@ -280,6 +280,11 @@ func TestParseIntegerLiteral(t *testing.T) {
 	if !testIntegerLiteral(t, stmt.Expression, 234) {
 		return
 	}
+
+	checkPosition(t, stmt.Expression.Position(), token.Position{
+		StartCol: 3,
+		EndCol:   5,
+	})
 }
 
 func TestParseFloatLiteral(t *testing.T) {
@@ -293,6 +298,11 @@ func TestParseFloatLiteral(t *testing.T) {
 	if !testFloatLiteral(t, stmt.Expression, 2.34149) {
 		return
 	}
+
+	checkPosition(t, stmt.Expression.Position(), token.Position{
+		StartCol: 3,
+		EndCol:   9,
+	})
 }
 
 func TestParseNilLiteral(t *testing.T) {
@@ -304,6 +314,11 @@ func TestParseNilLiteral(t *testing.T) {
 	}
 
 	testNilLiteral(t, stmt.Expression)
+
+	checkPosition(t, stmt.Expression.Position(), token.Position{
+		StartCol: 3,
+		EndCol:   5,
+	})
 }
 
 func TestParseStringLiteral(t *testing.T) {
@@ -1111,17 +1126,14 @@ func TestParseForStmt(t *testing.T) {
 	}
 
 	checkPosition(t, stmt.Pos, token.Position{
-		StartLine: 0,
-		EndLine:   2,
-		StartCol:  0,
-		EndCol:    3,
+		EndLine: 2,
+		EndCol:  3,
 	})
 
 	checkPosition(t, stmt.Block.Pos, token.Position{
-		StartLine: 0,
-		EndLine:   1,
-		StartCol:  24,
-		EndCol:    6,
+		EndLine:  1,
+		StartCol: 24,
+		EndCol:   6,
 	})
 
 	if stmt.Init.String() != `i = 0` {
@@ -1226,17 +1238,14 @@ func TestParseEachStmt(t *testing.T) {
 	}
 
 	checkPosition(t, stmt.Pos, token.Position{
-		StartLine: 0,
-		EndLine:   2,
-		StartCol:  0,
-		EndCol:    3,
+		EndLine: 2,
+		EndCol:  3,
 	})
 
 	checkPosition(t, stmt.Block.Pos, token.Position{
-		StartLine: 0,
-		EndLine:   1,
-		StartCol:  33,
-		EndCol:    9,
+		EndLine:  1,
+		StartCol: 33,
+		EndCol:   9,
 	})
 
 	if stmt.Var.String() != `name` {

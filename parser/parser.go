@@ -282,6 +282,7 @@ func (p *Parser) parseIntegerLiteral() ast.Expression {
 
 	return &ast.IntegerLiteral{
 		Token: p.curToken,
+		Pos:   p.curToken.Pos,
 		Value: val,
 	}
 }
@@ -301,6 +302,14 @@ func (p *Parser) parseFloatLiteral() ast.Expression {
 	return &ast.FloatLiteral{
 		Token: p.curToken,
 		Value: val,
+		Pos:   p.curToken.Pos,
+	}
+}
+
+func (p *Parser) parseNilLiteral() ast.Expression {
+	return &ast.NilLiteral{
+		Token: p.curToken,
+		Pos:   p.curToken.Pos,
 	}
 }
 
@@ -309,10 +318,6 @@ func (p *Parser) parseStringLiteral() ast.Expression {
 		Token: p.curToken,
 		Value: p.curToken.Literal,
 	}
-}
-
-func (p *Parser) parseNilLiteral() ast.Expression {
-	return &ast.NilLiteral{Token: p.curToken}
 }
 
 func (p *Parser) parseBooleanLiteral() ast.Expression {
