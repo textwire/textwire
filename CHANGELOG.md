@@ -1,5 +1,8 @@
 # Release notes
 
+## v2.5.7 (2025-05-22)
+- Fixed typos in LSP completions
+
 ## v2.5.6 (2025-04-16)
 - Added more data for LSP to handle auto completions
 - Remove old Go version from the Github Actions file
