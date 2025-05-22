@@ -85,9 +85,7 @@ func New(lexer *lexer.Lexer, filepath string) *Parser {
 	// Prefix operators
 	p.prefixParseFns = make(map[token.TokenType]prefixParseFn)
 
-	p.registerPrefix(token.IDENT, func() ast.Expression {
-		return p.parseIdentifier()
-	})
+	p.registerPrefix(token.IDENT, p.parseIdentifier)
 	p.registerPrefix(token.INT, p.parseIntegerLiteral)
 	p.registerPrefix(token.FLOAT, p.parseFloatLiteral)
 	p.registerPrefix(token.STR, p.parseStringLiteral)
@@ -264,15 +262,16 @@ func (p *Parser) nextToken() {
 	p.peekToken = p.l.NextToken()
 }
 
-func (p *Parser) parseIdentifier() *ast.Identifier {
+func (p *Parser) identifier(value string) *ast.Identifier {
 	return &ast.Identifier{
 		Token: p.curToken,
-		Pos: token.Position{
-			StartLine: p.curToken.Pos.StartLine,
-			StartCol:  p.curToken.Pos.StartCol,
-		},
-		Value: p.curToken.Literal,
+		Pos:   p.curToken.Pos,
+		Value: value,
 	}
+}
+
+func (p *Parser) parseIdentifier() ast.Expression {
+	return p.identifier(p.curToken.Literal)
 }
 
 func (p *Parser) parseIntegerLiteral() ast.Expression {
@@ -320,12 +319,16 @@ func (p *Parser) parseNilLiteral() ast.Expression {
 	}
 }
 
-func (p *Parser) parseStringLiteral() ast.Expression {
+func (p *Parser) stringLiteral(value string) *ast.StringLiteral {
 	return &ast.StringLiteral{
 		Token: p.curToken,
 		Pos:   p.curToken.Pos,
-		Value: p.curToken.Literal,
+		Value: value,
 	}
+}
+
+func (p *Parser) parseStringLiteral() ast.Expression {
+	return p.stringLiteral(p.curToken.Literal)
 }
 
 func (p *Parser) parseBooleanLiteral() ast.Expression {
@@ -339,10 +342,7 @@ func (p *Parser) parseBooleanLiteral() ast.Expression {
 func (p *Parser) parseArrayLiteral() ast.Expression {
 	arr := &ast.ArrayLiteral{
 		Token: p.curToken, // "["
-		Pos: token.Position{
-			StartLine: p.curToken.Pos.StartLine,
-			StartCol:  p.curToken.Pos.StartCol,
-		},
+		Pos:   p.curToken.Pos,
 	}
 
 	arr.Elements = p.parseExpressionList(token.RBRACKET)
@@ -356,10 +356,7 @@ func (p *Parser) parseArrayLiteral() ast.Expression {
 func (p *Parser) parseObjectLiteral() ast.Expression {
 	obj := &ast.ObjectLiteral{
 		Token: p.curToken, // "{"
-		Pos: token.Position{
-			StartLine: p.curToken.Pos.StartLine,
-			StartCol:  p.curToken.Pos.StartCol,
-		},
+		Pos:   p.curToken.Pos,
 	}
 
 	obj.Pairs = make(map[string]ast.Expression)
@@ -409,15 +406,12 @@ func (p *Parser) parseHTMLStmt() *ast.HTMLStmt {
 }
 
 func (p *Parser) parseAssignStmt() ast.Statement {
-	ident := p.parseIdentifier()
+	ident := p.identifier(p.curToken.Literal)
 
 	stmt := &ast.AssignStmt{
 		Token: p.curToken, // identifier
-		Pos: token.Position{
-			StartLine: p.curToken.Pos.StartLine,
-			StartCol:  p.curToken.Pos.StartCol,
-		},
-		Name: ident,
+		Pos:   p.curToken.Pos,
+		Name:  ident,
 	}
 
 	if !p.expectPeek(token.ASSIGN) { // move to "="
@@ -450,11 +444,7 @@ func (p *Parser) parseUseStmt() ast.Statement {
 
 	p.nextToken() // skip "("
 
-	stmt.Name = &ast.StringLiteral{
-		Token: p.curToken,
-		Pos:   p.curToken.Pos,
-		Value: p.parseAliasPathShortcut("layouts"),
-	}
+	stmt.Name = p.stringLiteral(p.parseAliasPathShortcut("layouts"))
 
 	if !p.expectPeek(token.RPAREN) { // move to ")"
 		return nil
@@ -519,6 +509,7 @@ func (p *Parser) parseContinueIfStmt() ast.Statement {
 func (p *Parser) parseComponentStmt() ast.Statement {
 	stmt := &ast.ComponentStmt{
 		Token: p.curToken, // "@component"
+		Pos:   p.curToken.Pos,
 	}
 
 	if !p.expectPeek(token.LPAREN) { // move to "("
@@ -527,10 +518,7 @@ func (p *Parser) parseComponentStmt() ast.Statement {
 
 	p.nextToken() // skip "("
 
-	stmt.Name = &ast.StringLiteral{
-		Token: p.curToken,
-		Value: p.parseAliasPathShortcut("components"),
-	}
+	stmt.Name = p.stringLiteral(p.parseAliasPathShortcut("components"))
 
 	if p.peekTokenIs(token.COMMA) {
 		p.nextToken() // move to ","
@@ -564,6 +552,9 @@ func (p *Parser) parseComponentStmt() ast.Statement {
 
 	p.components = append(p.components, stmt)
 
+	stmt.Pos.EndLine = p.curToken.Pos.EndLine
+	stmt.Pos.EndCol = p.curToken.Pos.EndCol
+
 	return stmt
 }
 
@@ -590,17 +581,14 @@ func (p *Parser) parseSlotStmt() *ast.SlotStmt {
 	if !p.peekTokenIs(token.LPAREN) {
 		return &ast.SlotStmt{
 			Token: tok, // "@slot"
-			Name:  &ast.StringLiteral{Value: ""},
+			Name:  p.stringLiteral(""),
 		}
 	}
 
 	p.nextToken() // skip "@slot"
 	p.nextToken() // skip "("
 
-	slotName := &ast.StringLiteral{
-		Token: p.curToken,
-		Value: p.curToken.Literal,
-	}
+	slotName := p.stringLiteral(p.curToken.Literal)
 
 	if !p.expectPeek(token.RPAREN) { // move to ")"
 		return nil
@@ -633,7 +621,7 @@ func (p *Parser) parseSlots() []*ast.SlotStmt {
 	var slots []*ast.SlotStmt
 
 	for p.curTokenIs(token.SLOT) {
-		slotName := &ast.StringLiteral{Value: ""}
+		slotName := p.stringLiteral("")
 
 		tok := p.curToken
 
@@ -679,10 +667,7 @@ func (p *Parser) parseReserveStmt() ast.Statement {
 
 	p.nextToken() // skip "("
 
-	stmt.Name = &ast.StringLiteral{
-		Token: p.curToken,
-		Value: p.curToken.Literal,
-	}
+	stmt.Name = p.stringLiteral(p.curToken.Literal)
 
 	p.reserves[stmt.Name.Value] = stmt
 
@@ -701,10 +686,7 @@ func (p *Parser) parseInsertStmt() ast.Statement {
 
 	p.nextToken() // skip "("
 
-	stmt.Name = &ast.StringLiteral{
-		Token: p.curToken, // The name of the insert statement
-		Value: p.curToken.Literal,
-	}
+	stmt.Name = p.stringLiteral(p.curToken.Literal)
 
 	if hasDuplicates := p.checkDuplicateInserts(stmt); hasDuplicates {
 		return nil
@@ -796,7 +778,7 @@ func (p *Parser) parseDotExp(left ast.Expression) ast.Expression {
 }
 
 func (p *Parser) parseCallExp(receiver ast.Expression) ast.Expression {
-	ident := p.parseIdentifier()
+	ident := p.identifier(p.curToken.Literal)
 
 	exp := &ast.CallExp{
 		Token:    p.curToken, // identifier
@@ -937,10 +919,7 @@ func (p *Parser) parseAlternativeBlock() *ast.BlockStmt {
 func (p *Parser) parseForStmt() *ast.ForStmt {
 	stmt := &ast.ForStmt{
 		Token: p.curToken, // "@for"
-		Pos: token.Position{
-			StartLine: p.curToken.Pos.StartLine,
-			StartCol:  p.curToken.Pos.StartCol,
-		},
+		Pos:   p.curToken.Pos,
 	}
 
 	if !p.expectPeek(token.LPAREN) { // move to "("
@@ -997,10 +976,7 @@ func (p *Parser) parseForStmt() *ast.ForStmt {
 func (p *Parser) parseEachStmt() *ast.EachStmt {
 	stmt := &ast.EachStmt{
 		Token: p.curToken, // "@each"
-		Pos: token.Position{
-			StartLine: p.curToken.Pos.StartLine,
-			StartCol:  p.curToken.Pos.StartCol,
-		},
+		Pos:   p.curToken.Pos,
 	}
 
 	if !p.expectPeek(token.LPAREN) { // move to "("
@@ -1009,7 +985,7 @@ func (p *Parser) parseEachStmt() *ast.EachStmt {
 
 	p.nextToken() // skip "("
 
-	stmt.Var = p.parseIdentifier()
+	stmt.Var = p.identifier(p.curToken.Literal)
 
 	if !p.expectPeek(token.IN) { // move to "in"
 		return nil
@@ -1045,10 +1021,7 @@ func (p *Parser) parseEachStmt() *ast.EachStmt {
 func (p *Parser) parseBlockStmt() *ast.BlockStmt {
 	stmt := &ast.BlockStmt{
 		Token: p.curToken,
-		Pos: token.Position{
-			StartLine: p.curToken.Pos.StartLine,
-			StartCol:  p.curToken.Pos.StartCol,
-		},
+		Pos:   p.curToken.Pos,
 	}
 
 	for !p.curTokenIs(token.END) {

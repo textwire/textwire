@@ -1530,69 +1530,81 @@ func TestParseContinueIfDirective(t *testing.T) {
 
 func TestParseComponentDirective(t *testing.T) {
 	t.Run("@component without slots", func(t *testing.T) {
-		inp := `<ul>@component("components/book-card", { c: card })</ul>`
+		inp := "<ul>@component('components/book-card', { c: card })</ul>"
 		stmts := parseStatements(t, inp, 3, nil)
 
-		compStmt, ok := stmts[1].(*ast.ComponentStmt)
+		stmt, ok := stmts[1].(*ast.ComponentStmt)
 
 		if !ok {
 			t.Fatalf("stmts[1] is not a ComponentStmt, got %T", stmts[1])
 		}
 
-		testStringLiteral(t, compStmt.Name, "components/book-card")
+		testPosition(t, stmt.Position(), token.Position{
+			StartCol: 4,
+			EndCol:   50,
+		})
 
-		if len(compStmt.Argument.Pairs) != 1 {
-			t.Fatalf("len(compStmt.Arguments) is not 1, got %d", len(compStmt.Argument.Pairs))
+		testStringLiteral(t, stmt.Name, "components/book-card")
+
+		if len(stmt.Argument.Pairs) != 1 {
+			t.Fatalf("len(stmt.Arguments) is not 1, got %d", len(stmt.Argument.Pairs))
 		}
 
-		testIdentifier(t, compStmt.Argument.Pairs["c"], "card")
+		testIdentifier(t, stmt.Argument.Pairs["c"], "card")
 
-		if len(compStmt.Slots) != 0 {
-			t.Fatalf("len(compStmt.Slots) is not empty, got '%d' slots", len(compStmt.Slots))
+		if len(stmt.Slots) != 0 {
+			t.Fatalf("len(stmt.Slots) is not empty, got '%d' slots", len(stmt.Slots))
 		}
 
 		expect := `@component("components/book-card", {"c": card})`
 
-		if compStmt.String() != expect {
-			t.Fatalf(`compStmt.String() is not '%s', got %s`, expect, compStmt.String())
+		if stmt.String() != expect {
+			t.Fatalf(`stmt.String() is not '%s', got %s`, expect, stmt.String())
 		}
 	})
 
 	t.Run("@component with 1 slot", func(t *testing.T) {
 		inp := `<ul>
-			@component("components/book-card", { c: card })
-				@slot("header")<h1>Header</h1>@end
-				@slot("footer")<footer>Footer</footer>@end
-			@end
-		</ul>`
+    @component("components/book-card", { c: card })
+        @slot("header")<h1>Header</h1>@end
+        @slot("footer")<footer>Footer</footer>@end
+    @end
+</ul>`
 
 		stmts := parseStatements(t, inp, 3, nil)
 
-		compStmt, ok := stmts[1].(*ast.ComponentStmt)
+		stmt, ok := stmts[1].(*ast.ComponentStmt)
 
 		if !ok {
 			t.Fatalf("stmts[1] is not a ComponentStmt, got %T", stmts[1])
 		}
 
-		if len(compStmt.Slots) != 2 {
-			t.Fatalf("len(compStmt.Slots) is not 2, got %d", len(compStmt.Slots))
+		testPosition(t, stmt.Position(), token.Position{
+			StartLine: 1,
+			EndLine:   4,
+			StartCol:  4,
+			EndCol:    7,
+		})
+
+		if len(stmt.Slots) != 2 {
+			t.Fatalf("len(stmt.Slots) is not 2, got %d", len(stmt.Slots))
 		}
 
-		testStringLiteral(t, compStmt.Slots[0].Name, "header")
-		testStringLiteral(t, compStmt.Slots[1].Name, "footer")
+		testStringLiteral(t, stmt.Slots[0].Name, "header")
+		testStringLiteral(t, stmt.Slots[1].Name, "footer")
 
 		expect := "@slot(\"header\")\n<h1>Header</h1>\n@end"
 
-		if compStmt.Slots[0].String() != expect {
-			t.Fatalf("compStmt.Slots[0].String() is not '%s', got %s", expect,
-				compStmt.Slots[0].String())
+		if stmt.Slots[0].String() != expect {
+			t.Fatalf("stmt.Slots[0].String() is not '%s', got %s", expect,
+				stmt.Slots[0].String())
 		}
 
 		expect = "@slot(\"footer\")\n<footer>Footer</footer>\n@end"
 
-		if compStmt.Slots[1].String() != expect {
-			t.Fatalf("compStmt.Slots[0].String() is not '%s', got %s", expect,
-				compStmt.Slots[1].String())
+		if stmt.Slots[1].String() != expect {
+			t.Fatalf("stmt.Slots[0].String() is not '%s', got %s", expect,
+				stmt.Slots[1].String())
 		}
 	})
 
@@ -1600,18 +1612,18 @@ func TestParseComponentDirective(t *testing.T) {
 		inp := "@component('some')\n <b>Book</b>"
 		stmts := parseStatements(t, inp, 2, nil)
 
-		compStmt, ok := stmts[0].(*ast.ComponentStmt)
+		stmt, ok := stmts[0].(*ast.ComponentStmt)
 
 		if !ok {
 			t.Fatalf("stmts[0] is not a ComponentStmt, got %T", stmts[1])
 		}
 
-		testStringLiteral(t, compStmt.Name, "some")
+		testStringLiteral(t, stmt.Name, "some")
 
 		expect := "@component(\"some\")"
 
-		if compStmt.String() != expect {
-			t.Fatalf("compStmt.String() is not `%s`, got `%s`", expect, compStmt.String())
+		if stmt.String() != expect {
+			t.Fatalf("stmt.String() is not `%s`, got `%s`", expect, stmt.String())
 		}
 
 		htmlStmt, htmlOk := stmts[1].(*ast.HTMLStmt)
