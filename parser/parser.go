@@ -5,6 +5,8 @@ import (
 
 	"github.com/textwire/textwire/v2/token"
 
+	"slices"
+
 	"github.com/textwire/textwire/v2/ast"
 	"github.com/textwire/textwire/v2/fail"
 	"github.com/textwire/textwire/v2/lexer"
@@ -220,13 +222,7 @@ func (p *Parser) curTokenIs(tok token.TokenType) bool {
 }
 
 func (p *Parser) peekTokenIs(tokens ...token.TokenType) bool {
-	for _, tok := range tokens {
-		if p.peekToken.Type == tok {
-			return true
-		}
-	}
-
-	return false
+	return slices.Contains(tokens, p.peekToken.Type)
 }
 
 func (p *Parser) peekPrecedence() int {
