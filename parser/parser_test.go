@@ -1101,7 +1101,7 @@ func TestParseCallExpWithEmptyString(t *testing.T) {
 }
 
 func TestParseForStmt(t *testing.T) {
-	inp := `@for(i = 0; i < 10; i++){{ i }}@end`
+	inp := "@for(i = 0; i < 10; i++)\n{{ i }}\n@end"
 
 	stmts := parseStatements(t, inp, 1, nil)
 	stmt, ok := stmts[0].(*ast.ForStmt)
@@ -1109,6 +1109,20 @@ func TestParseForStmt(t *testing.T) {
 	if !ok {
 		t.Fatalf("stmts[0] is not a ForStmt, got %T", stmts[0])
 	}
+
+	checkPosition(t, stmt.Pos, token.Position{
+		StartLine: 0,
+		EndLine:   2,
+		StartCol:  0,
+		EndCol:    3,
+	})
+
+	checkPosition(t, stmt.Block.Pos, token.Position{
+		StartLine: 0,
+		EndLine:   1,
+		StartCol:  24,
+		EndCol:    6,
+	})
 
 	if stmt.Init.String() != `i = 0` {
 		t.Errorf("stmt.Init.String() is not 'i = 0', got %s", stmt.Init.String())
@@ -1123,8 +1137,8 @@ func TestParseForStmt(t *testing.T) {
 		t.Errorf("stmt.Post.String() is not '(i++)', got %s", stmt.Post.String())
 	}
 
-	if stmt.Block.String() != `{{ i }}` {
-		t.Errorf("stmt.Block.String() is not '{{ i }}', got %s", stmt.Block.String())
+	if stmt.Block.String() != "\n{{ i }}\n" {
+		t.Errorf("stmt.Block.String() is not '%q', got %q", "\n{{ i }}\n", stmt.Block.String())
 	}
 
 	if stmt.Alternative != nil {
@@ -1179,8 +1193,30 @@ func TestParseInfiniteForStmt(t *testing.T) {
 	}
 }
 
+func checkPosition(t *testing.T, actual, expect token.Position) {
+	if expect.StartLine != actual.StartLine {
+		t.Errorf("expect.StartLine is not %d, got %d", expect.StartLine,
+			actual.StartLine)
+	}
+
+	if expect.EndLine != actual.EndLine {
+		t.Errorf("expect.EndLine is not %d, got %d", expect.EndLine,
+			actual.EndLine)
+	}
+
+	if expect.StartCol != actual.StartCol {
+		t.Errorf("expect.StartCol is not %d, got %d", expect.StartCol,
+			actual.StartCol)
+	}
+
+	if expect.EndCol != actual.EndCol {
+		t.Errorf("expect.EndCol is not %d, got %d", expect.EndCol,
+			actual.EndCol)
+	}
+}
+
 func TestParseEachStmt(t *testing.T) {
-	inp := `@each(name in ["anna", "serhii"]){{ name }}@end`
+	inp := "@each(name in ['anna', 'serhii'])\n{{ name }}\n@end"
 
 	stmts := parseStatements(t, inp, 1, nil)
 	stmt, ok := stmts[0].(*ast.EachStmt)
@@ -1188,6 +1224,20 @@ func TestParseEachStmt(t *testing.T) {
 	if !ok {
 		t.Fatalf("stmts[0] is not a EachStmt, got %T", stmts[0])
 	}
+
+	checkPosition(t, stmt.Pos, token.Position{
+		StartLine: 0,
+		EndLine:   2,
+		StartCol:  0,
+		EndCol:    3,
+	})
+
+	checkPosition(t, stmt.Block.Pos, token.Position{
+		StartLine: 0,
+		EndLine:   1,
+		StartCol:  33,
+		EndCol:    9,
+	})
 
 	if stmt.Var.String() != `name` {
 		t.Errorf("stmt.Var.String() is not 'name', got %s", stmt.Var.String())
@@ -1198,8 +1248,8 @@ func TestParseEachStmt(t *testing.T) {
 			stmt.Array.String())
 	}
 
-	if stmt.Block.String() != `{{ name }}` {
-		t.Errorf("stmt.Block.String() is not '{{ name }}', got %s", stmt.Block.String())
+	if stmt.Block.String() != "\n{{ name }}\n" {
+		t.Errorf("stmt.Block.String() is not %q, got %q", "\n{{ name }}\n", stmt.Block.String())
 	}
 
 	if stmt.Alternative != nil {

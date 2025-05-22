@@ -877,7 +877,13 @@ func (p *Parser) parseAlternativeBlock() *ast.BlockStmt {
 }
 
 func (p *Parser) parseForStmt() *ast.ForStmt {
-	stmt := &ast.ForStmt{Token: p.curToken} // "@for"
+	stmt := &ast.ForStmt{
+		Token: p.curToken, // "@for"
+		Pos: token.Position{
+			StartLine: p.curToken.Pos.StartLine,
+			StartCol:  p.curToken.Pos.StartCol,
+		},
+	}
 
 	if !p.expectPeek(token.LPAREN) { // move to "("
 		return nil
@@ -924,11 +930,20 @@ func (p *Parser) parseForStmt() *ast.ForStmt {
 		return nil
 	}
 
+	stmt.Pos.EndLine = p.curToken.Pos.EndLine
+	stmt.Pos.EndCol = p.curToken.Pos.EndCol
+
 	return stmt
 }
 
 func (p *Parser) parseEachStmt() *ast.EachStmt {
-	stmt := &ast.EachStmt{Token: p.curToken} // "@each"
+	stmt := &ast.EachStmt{
+		Token: p.curToken, // "@each"
+		Pos: token.Position{
+			StartLine: p.curToken.Pos.StartLine,
+			StartCol:  p.curToken.Pos.StartCol,
+		},
+	}
 
 	if !p.expectPeek(token.LPAREN) { // move to "("
 		return nil
@@ -966,11 +981,20 @@ func (p *Parser) parseEachStmt() *ast.EachStmt {
 		return nil
 	}
 
+	stmt.Pos.EndLine = p.curToken.Pos.EndLine
+	stmt.Pos.EndCol = p.curToken.Pos.EndCol
+
 	return stmt
 }
 
 func (p *Parser) parseBlockStmt() *ast.BlockStmt {
-	stmt := &ast.BlockStmt{Token: p.curToken}
+	stmt := &ast.BlockStmt{
+		Token: p.curToken,
+		Pos: token.Position{
+			StartLine: p.curToken.Pos.StartLine,
+			StartCol:  p.curToken.Pos.StartCol,
+		},
+	}
 
 	for !p.curTokenIs(token.END) {
 		block := p.parseStatement()
@@ -982,6 +1006,9 @@ func (p *Parser) parseBlockStmt() *ast.BlockStmt {
 		if p.peekTokenIs(token.ELSE, token.ELSE_IF, token.END) {
 			break
 		}
+
+		stmt.Pos.EndLine = p.curToken.Pos.EndLine
+		stmt.Pos.EndCol = p.curToken.Pos.EndCol
 
 		p.nextToken() // skip statement
 	}
