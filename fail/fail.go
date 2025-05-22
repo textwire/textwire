@@ -15,7 +15,6 @@ const (
 	ErrNoPrefixParseFunc         = "no prefix parse function for '%s'"
 	ErrIllegalToken              = "illegal token '%s' found"
 	ErrElseifCannotFollowElse    = "'@elseif' directive cannot follow '@else'"
-	ErrExpectedIdentifier        = "expected identifier, got '%s' instead"
 	ErrExceptedComponentStmt     = "expected *ComponentStmt, got %T"
 	ErrComponentMustHaveBlock    = "the component '%s' must have a block"
 	ErrExpectedObjectLiteral     = "expected object literal, got '%s' instead"
