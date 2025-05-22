@@ -2,6 +2,7 @@ package completions
 
 import (
 	"github.com/textwire/textwire/v2/lsp"
+	"github.com/textwire/textwire/v2/lsp/utils"
 	"github.com/textwire/textwire/v2/token"
 )
 
@@ -13,7 +14,7 @@ func GetDirectives(locale lsp.Locale) ([]Completion, error) {
 		meta, err := lsp.GetTokenMeta(tok, locale)
 
 		if err != nil {
-			if err.Error() == lsp.ErrNoMetadataFound {
+			if err.Error() == utils.ErrNoMetadataFound {
 				continue
 			}
 
