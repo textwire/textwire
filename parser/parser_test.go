@@ -281,7 +281,7 @@ func TestParseIntegerLiteral(t *testing.T) {
 		return
 	}
 
-	checkPosition(t, stmt.Expression.Position(), token.Position{
+	testPosition(t, stmt.Expression.Position(), token.Position{
 		StartCol: 3,
 		EndCol:   5,
 	})
@@ -299,7 +299,7 @@ func TestParseFloatLiteral(t *testing.T) {
 		return
 	}
 
-	checkPosition(t, stmt.Expression.Position(), token.Position{
+	testPosition(t, stmt.Expression.Position(), token.Position{
 		StartCol: 3,
 		EndCol:   9,
 	})
@@ -315,7 +315,7 @@ func TestParseNilLiteral(t *testing.T) {
 
 	testNilLiteral(t, stmt.Expression)
 
-	checkPosition(t, stmt.Expression.Position(), token.Position{
+	testPosition(t, stmt.Expression.Position(), token.Position{
 		StartCol: 3,
 		EndCol:   5,
 	})
@@ -346,7 +346,7 @@ func TestParseStringLiteral(t *testing.T) {
 			return
 		}
 
-		checkPosition(t, stmt.Expression.Position(), token.Position{
+		testPosition(t, stmt.Expression.Position(), token.Position{
 			StartCol: tc.startCol,
 			EndCol:   tc.endCol,
 		})
@@ -476,7 +476,7 @@ func TestBooleanExpression(t *testing.T) {
 			return
 		}
 
-		checkPosition(t, stmt.Expression.Position(), token.Position{
+		testPosition(t, stmt.Expression.Position(), token.Position{
 			StartCol: tc.startCol,
 			EndCol:   tc.endCol,
 		})
@@ -847,7 +847,7 @@ func TestParseAssignStmt(t *testing.T) {
 			return
 		}
 
-		checkPosition(t, stmt.Position(), token.Position{
+		testPosition(t, stmt.Position(), token.Position{
 			StartCol: tc.startCol,
 			EndCol:   tc.endCol,
 		})
@@ -872,7 +872,7 @@ func TestParseUseStmt(t *testing.T) {
 		t.Errorf("stmt.Path.Value is not 'main', got %s", stmt.Name.Value)
 	}
 
-	checkPosition(t, stmt.Position(), token.Position{
+	testPosition(t, stmt.Position(), token.Position{
 		StartCol: 0,
 		EndCol:   11,
 	})
@@ -981,7 +981,7 @@ func TestParseArray(t *testing.T) {
 		t.Fatalf("stmt.Expression is not a ArrayLiteral, got %T", stmt.Expression)
 	}
 
-	checkPosition(t, arr.Position(), token.Position{
+	testPosition(t, arr.Position(), token.Position{
 		StartCol: 3,
 		EndCol:   12,
 	})
@@ -1170,12 +1170,12 @@ func TestParseForStmt(t *testing.T) {
 		t.Fatalf("stmts[0] is not a ForStmt, got %T", stmts[0])
 	}
 
-	checkPosition(t, stmt.Pos, token.Position{
+	testPosition(t, stmt.Pos, token.Position{
 		EndLine: 2,
 		EndCol:  3,
 	})
 
-	checkPosition(t, stmt.Block.Pos, token.Position{
+	testPosition(t, stmt.Block.Pos, token.Position{
 		EndLine:  1,
 		StartCol: 24,
 		EndCol:   6,
@@ -1250,7 +1250,7 @@ func TestParseInfiniteForStmt(t *testing.T) {
 	}
 }
 
-func checkPosition(t *testing.T, actual, expect token.Position) {
+func testPosition(t *testing.T, actual, expect token.Position) {
 	if expect.StartLine != actual.StartLine {
 		t.Errorf("expect.StartLine is not %d, got %d", expect.StartLine,
 			actual.StartLine)
@@ -1282,12 +1282,12 @@ func TestParseEachStmt(t *testing.T) {
 		t.Fatalf("stmts[0] is not a EachStmt, got %T", stmts[0])
 	}
 
-	checkPosition(t, stmt.Pos, token.Position{
+	testPosition(t, stmt.Pos, token.Position{
 		EndLine: 2,
 		EndCol:  3,
 	})
 
-	checkPosition(t, stmt.Block.Pos, token.Position{
+	testPosition(t, stmt.Block.Pos, token.Position{
 		EndLine:  1,
 		StartCol: 33,
 		EndCol:   9,
@@ -1343,7 +1343,7 @@ func TestParseObjectStatement(t *testing.T) {
 		t.Fatalf("stmts[0] is not a ExpressionStmt, got %T", stmts[0])
 	}
 
-	checkPosition(t, obj.Position(), token.Position{
+	testPosition(t, obj.Position(), token.Position{
 		StartCol: 3,
 		EndCol:   29,
 	})
@@ -1383,7 +1383,7 @@ func TestParseObjectWithShorthandPropertyNotation(t *testing.T) {
 		t.Fatalf("stmts[0] is not a ExpressionStmt, got %T", stmts[0])
 	}
 
-	checkPosition(t, obj.Position(), token.Position{
+	testPosition(t, obj.Position(), token.Position{
 		StartCol: 3,
 		EndCol:   15,
 	})
@@ -1403,7 +1403,7 @@ func TestHTMLStmt(t *testing.T) {
 		t.Fatalf("stmts[0] is not a HTMLStmt, got %T", stmts[0])
 	}
 
-	checkPosition(t, stmt.Position(), token.Position{
+	testPosition(t, stmt.Position(), token.Position{
 		StartCol: 0,
 		EndCol:   28,
 	})
@@ -1490,6 +1490,11 @@ func TestParseBreakIfDirective(t *testing.T) {
 		t.Fatalf("stmts[0] is not a BreakIfStmt, got %T", stmts[0])
 	}
 
+	testPosition(t, breakStmt.Position(), token.Position{
+		StartCol: 0,
+		EndCol:   13,
+	})
+
 	testBooleanLiteral(t, breakStmt.Condition, true)
 
 	expect := "@breakIf(true)"
@@ -1500,21 +1505,26 @@ func TestParseBreakIfDirective(t *testing.T) {
 }
 
 func TestParseContinueIfDirective(t *testing.T) {
-	inp := `@continueIf(false)`
+	inp := "@continueIf(false)"
 	stmts := parseStatements(t, inp, 1, nil)
 
-	contStmt, ok := stmts[0].(*ast.ContinueIfStmt)
+	stmt, ok := stmts[0].(*ast.ContinueIfStmt)
 
 	if !ok {
 		t.Fatalf("stmts[0] is not a ContinueIfStmt, got %T", stmts[0])
 	}
 
-	testBooleanLiteral(t, contStmt.Condition, false)
+	testPosition(t, stmt.Position(), token.Position{
+		StartCol: 0,
+		EndCol:   17,
+	})
+
+	testBooleanLiteral(t, stmt.Condition, false)
 
 	expect := "@continueIf(false)"
 
-	if contStmt.String() != expect {
-		t.Fatalf("contStmt.String() is not '%s', got %s", expect, contStmt.String())
+	if stmt.String() != expect {
+		t.Fatalf("stmt.String() is not '%s', got %s", expect, stmt.String())
 	}
 }
 

@@ -471,6 +471,7 @@ func (p *Parser) parseUseStmt() ast.Statement {
 func (p *Parser) parseBreakIfStmt() ast.Statement {
 	stmt := &ast.BreakIfStmt{
 		Token: p.curToken, // "@breakIf"
+		Pos:   p.curToken.Pos,
 	}
 
 	if !p.expectPeek(token.LPAREN) { // move to "("
@@ -480,6 +481,13 @@ func (p *Parser) parseBreakIfStmt() ast.Statement {
 	p.nextToken() // skip "("
 
 	stmt.Condition = p.parseExpression(LOWEST)
+
+	if !p.expectPeek(token.RPAREN) { // move to ")"
+		return nil
+	}
+
+	stmt.Pos.EndLine = p.curToken.Pos.EndLine
+	stmt.Pos.EndCol = p.curToken.Pos.EndCol
 
 	return stmt
 }
@@ -487,6 +495,7 @@ func (p *Parser) parseBreakIfStmt() ast.Statement {
 func (p *Parser) parseContinueIfStmt() ast.Statement {
 	stmt := &ast.ContinueIfStmt{
 		Token: p.curToken, // "@continueIf"
+		Pos:   p.curToken.Pos,
 	}
 
 	if !p.expectPeek(token.LPAREN) { // move to "("
@@ -496,6 +505,13 @@ func (p *Parser) parseContinueIfStmt() ast.Statement {
 	p.nextToken() // skip "("
 
 	stmt.Condition = p.parseExpression(LOWEST)
+
+	if !p.expectPeek(token.RPAREN) { // move to ")"
+		return nil
+	}
+
+	stmt.Pos.EndLine = p.curToken.Pos.EndLine
+	stmt.Pos.EndCol = p.curToken.Pos.EndCol
 
 	return stmt
 }
