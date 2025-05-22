@@ -323,13 +323,15 @@ func TestParseNilLiteral(t *testing.T) {
 
 func TestParseStringLiteral(t *testing.T) {
 	tests := []struct {
-		inp    string
-		expect string
+		inp      string
+		expect   string
+		startCol uint
+		endCol   uint
 	}{
-		{`{{ "Hello World" }}`, "Hello World"},
-		{`{{ "Serhii \"Cho\"" }}`, `Serhii "Cho"`},
-		{`{{ 'Hello World' }}`, "Hello World"},
-		{`{{ "" }}`, ""},
+		{`{{ "Hello World" }}`, "Hello World", 3, 15},
+		{`{{ "Serhii \"Cho\"" }}`, `Serhii "Cho"`, 3, 18},
+		{`{{ 'Hello World' }}`, "Hello World", 3, 15},
+		{`{{ "" }}`, "", 3, 4},
 	}
 
 	for _, tc := range tests {
@@ -343,6 +345,11 @@ func TestParseStringLiteral(t *testing.T) {
 		if !testStringLiteral(t, stmt.Expression, tc.expect) {
 			return
 		}
+
+		checkPosition(t, stmt.Expression.Position(), token.Position{
+			StartCol: tc.startCol,
+			EndCol:   tc.endCol,
+		})
 	}
 }
 
@@ -451,9 +458,11 @@ func TestBooleanExpression(t *testing.T) {
 	tests := []struct {
 		inp           string
 		expectBoolean bool
+		startCol      uint
+		endCol        uint
 	}{
-		{"{{ true }}", true},
-		{"{{ false }}", false},
+		{"{{ true }}", true, 3, 6},
+		{"{{ false }}", false, 3, 7},
 	}
 
 	for _, tc := range tests {
@@ -466,6 +475,11 @@ func TestBooleanExpression(t *testing.T) {
 		if !testBooleanLiteral(t, stmt.Expression, tc.expectBoolean) {
 			return
 		}
+
+		checkPosition(t, stmt.Expression.Position(), token.Position{
+			StartCol: tc.startCol,
+			EndCol:   tc.endCol,
+		})
 	}
 }
 
@@ -796,9 +810,25 @@ func TestParseAssignStmt(t *testing.T) {
 		varName  string
 		varValue any
 		str      string
+		startCol uint
+		endCol   uint
 	}{
-		{`{{ name = "Anna" }}`, "name", "Anna", `name = "Anna"`},
-		{`{{ myAge = 34 }}`, "myAge", 34, `myAge = 34`},
+		{
+			inp:      `{{ name = "Anna" }}`,
+			varName:  "name",
+			varValue: "Anna",
+			str:      `name = "Anna"`,
+			startCol: 3,
+			endCol:   15,
+		},
+		{
+			inp:      `{{ myAge = 34 }}`,
+			varName:  "myAge",
+			varValue: 34,
+			str:      `myAge = 34`,
+			startCol: 3,
+			endCol:   12,
+		},
 	}
 
 	for _, tc := range tests {
@@ -816,6 +846,11 @@ func TestParseAssignStmt(t *testing.T) {
 		if !testLiteralExpression(t, stmt.Value, tc.varValue) {
 			return
 		}
+
+		checkPosition(t, stmt.Position(), token.Position{
+			StartCol: tc.startCol,
+			EndCol:   tc.endCol,
+		})
 
 		if stmt.String() != tc.str {
 			t.Errorf("stmt.String() is not %s, got %s", tc.inp, stmt.String())
@@ -836,6 +871,11 @@ func TestParseUseStmt(t *testing.T) {
 	if stmt.Name.Value != "main" {
 		t.Errorf("stmt.Path.Value is not 'main', got %s", stmt.Name.Value)
 	}
+
+	checkPosition(t, stmt.Position(), token.Position{
+		StartCol: 0,
+		EndCol:   11,
+	})
 
 	if stmt.Program != nil {
 		t.Errorf("stmt.Program is not nil, got %T", stmt.Program)
@@ -940,6 +980,11 @@ func TestParseArray(t *testing.T) {
 	if !ok {
 		t.Fatalf("stmt.Expression is not a ArrayLiteral, got %T", stmt.Expression)
 	}
+
+	checkPosition(t, arr.Position(), token.Position{
+		StartCol: 3,
+		EndCol:   12,
+	})
 
 	if len(arr.Elements) != 2 {
 		t.Fatalf("len(arr.Elements) is not 2, got %d", len(arr.Elements))
@@ -1298,6 +1343,11 @@ func TestParseObjectStatement(t *testing.T) {
 		t.Fatalf("stmts[0] is not a ExpressionStmt, got %T", stmts[0])
 	}
 
+	checkPosition(t, obj.Position(), token.Position{
+		StartCol: 3,
+		EndCol:   29,
+	})
+
 	if len(obj.Pairs) != 1 {
 		t.Fatalf("len(obj.Pairs) is not 1, got %d", len(obj.Pairs))
 	}
@@ -1333,9 +1383,30 @@ func TestParseObjectWithShorthandPropertyNotation(t *testing.T) {
 		t.Fatalf("stmts[0] is not a ExpressionStmt, got %T", stmts[0])
 	}
 
+	checkPosition(t, obj.Position(), token.Position{
+		StartCol: 3,
+		EndCol:   15,
+	})
+
 	if len(obj.Pairs) != 2 {
 		t.Fatalf("len(obj.Pairs) is not 2, got %d", len(obj.Pairs))
 	}
+}
+
+func TestHTMLStmt(t *testing.T) {
+	inp := "<div><span>Hello</span></div>"
+
+	stmts := parseStatements(t, inp, 1, nil)
+	stmt, ok := stmts[0].(*ast.HTMLStmt)
+
+	if !ok {
+		t.Fatalf("stmts[0] is not a HTMLStmt, got %T", stmts[0])
+	}
+
+	checkPosition(t, stmt.Position(), token.Position{
+		StartCol: 0,
+		EndCol:   28,
+	})
 }
 
 func TestParseDotExp(t *testing.T) {
