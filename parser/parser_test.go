@@ -1565,11 +1565,11 @@ func TestParseComponentDirective(t *testing.T) {
 
 	t.Run("@component with 1 slot", func(t *testing.T) {
 		inp := `<ul>
-    @component("components/book-card", { c: card })
-        @slot("header")<h1>Header</h1>@end
-        @slot("footer")<footer>Footer</footer>@end
-    @end
-</ul>`
+			@component("components/book-card", { c: card })
+				@slot("header")<h1>Header</h1>@end
+				@slot("footer")<footer>Footer</footer>@end
+			@end
+		</ul>`
 
 		stmts := parseStatements(t, inp, 3, nil)
 
@@ -1582,8 +1582,8 @@ func TestParseComponentDirective(t *testing.T) {
 		testPosition(t, stmt.Position(), token.Position{
 			StartLine: 1,
 			EndLine:   4,
-			StartCol:  4,
-			EndCol:    7,
+			StartCol:  3, // because tabs before @component
+			EndCol:    6, // because tabs before @end
 		})
 
 		if len(stmt.Slots) != 2 {
@@ -1596,14 +1596,14 @@ func TestParseComponentDirective(t *testing.T) {
 		expect := "@slot(\"header\")\n<h1>Header</h1>\n@end"
 
 		if stmt.Slots[0].String() != expect {
-			t.Fatalf("stmt.Slots[0].String() is not '%s', got %s", expect,
+			t.Fatalf("stmt.Slots[0].String() is not '%q', got %q", expect,
 				stmt.Slots[0].String())
 		}
 
 		expect = "@slot(\"footer\")\n<footer>Footer</footer>\n@end"
 
 		if stmt.Slots[1].String() != expect {
-			t.Fatalf("stmt.Slots[0].String() is not '%s', got %s", expect,
+			t.Fatalf("stmt.Slots[0].String() is not '%q', got %q", expect,
 				stmt.Slots[1].String())
 		}
 	})
