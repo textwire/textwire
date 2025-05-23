@@ -529,7 +529,7 @@ func (p *Parser) parseSlotStmt() *ast.SlotStmt {
 	tok := p.curToken // "@slot"
 
 	if !p.peekTokenIs(token.LPAREN) {
-		return ast.NewSlotStmt(tok, ast.NewStringLiteral(p.curToken, ""), nil)
+		return ast.NewSlotStmt(tok, ast.NewStringLiteral(p.curToken, ""))
 	}
 
 	p.nextToken() // skip "@slot"
@@ -541,7 +541,11 @@ func (p *Parser) parseSlotStmt() *ast.SlotStmt {
 		return nil
 	}
 
-	return ast.NewSlotStmt(tok, slotName, nil)
+	stmt := ast.NewSlotStmt(tok, slotName)
+	stmt.Pos.EndLine = p.curToken.Pos.EndLine
+	stmt.Pos.EndCol = p.curToken.Pos.EndCol
+
+	return stmt
 }
 
 func (p *Parser) parseDumpStmt() *ast.DumpStmt {
@@ -555,7 +559,11 @@ func (p *Parser) parseDumpStmt() *ast.DumpStmt {
 
 	args = p.parseExpressionList(token.RPAREN)
 
-	return ast.NewDumpStmt(tok, args)
+	stmt := ast.NewDumpStmt(tok, args)
+	stmt.Pos.EndLine = p.curToken.Pos.EndLine
+	stmt.Pos.EndCol = p.curToken.Pos.EndCol
+
+	return stmt
 }
 
 func (p *Parser) parseSlots() []*ast.SlotStmt {
@@ -580,8 +588,12 @@ func (p *Parser) parseSlots() []*ast.SlotStmt {
 			p.nextToken() // skip ")"
 		}
 
-		slotStmt := ast.NewSlotStmt(tok, slotName, p.parseBlockStmt())
-		slots = append(slots, slotStmt)
+		stmt := ast.NewSlotStmt(tok, slotName)
+		stmt.Body = p.parseBlockStmt()
+		stmt.Pos.EndLine = p.curToken.Pos.EndLine
+		stmt.Pos.EndCol = p.curToken.Pos.EndCol
+
+		slots = append(slots, stmt)
 
 		p.nextToken() // skip block statement
 		p.nextToken() // skip "@end"

@@ -13,12 +13,11 @@ type SlotStmt struct {
 	Pos   token.Position
 }
 
-func NewSlotStmt(tok token.Token, name *StringLiteral, body *BlockStmt) *SlotStmt {
+func NewSlotStmt(tok token.Token, name *StringLiteral) *SlotStmt {
 	return &SlotStmt{
 		Token: tok, // "@slot"
 		Pos:   tok.Pos,
 		Name:  name,
-		Body:  body,
 	}
 }
 
