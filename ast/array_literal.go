@@ -12,6 +12,13 @@ type ArrayLiteral struct {
 	Pos      token.Position
 }
 
+func NewArrayLiteral(tok token.Token) *ArrayLiteral {
+	return &ArrayLiteral{
+		Token: tok, // "["
+		Pos:   tok.Pos,
+	}
+}
+
 func (al *ArrayLiteral) expressionNode() {}
 
 func (al *ArrayLiteral) Tok() *token.Token {

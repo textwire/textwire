@@ -12,6 +12,14 @@ type DumpStmt struct {
 	Pos       token.Position
 }
 
+func NewDumpStmt(tok token.Token, args []Expression) *DumpStmt {
+	return &DumpStmt{
+		Token:     tok, // "@dump"
+		Pos:       tok.Pos,
+		Arguments: args,
+	}
+}
+
 func (ds *DumpStmt) statementNode() {}
 
 func (ds *DumpStmt) Tok() *token.Token {

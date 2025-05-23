@@ -13,6 +13,13 @@ type UseStmt struct {
 	Pos     token.Position
 }
 
+func NewUseStmt(tok token.Token) *UseStmt {
+	return &UseStmt{
+		Token: tok, // "@use"
+		Pos:   tok.Pos,
+	}
+}
+
 func (us *UseStmt) statementNode() {}
 
 func (us *UseStmt) Tok() *token.Token {

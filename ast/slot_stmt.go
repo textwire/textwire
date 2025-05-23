@@ -13,6 +13,15 @@ type SlotStmt struct {
 	Pos   token.Position
 }
 
+func NewSlotStmt(tok token.Token, name *StringLiteral, body *BlockStmt) *SlotStmt {
+	return &SlotStmt{
+		Token: tok, // "@slot"
+		Pos:   tok.Pos,
+		Name:  name,
+		Body:  body,
+	}
+}
+
 func (ss *SlotStmt) statementNode() {}
 
 func (ss *SlotStmt) Stmts() []Statement {

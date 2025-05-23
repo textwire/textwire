@@ -12,6 +12,14 @@ type FloatLiteral struct {
 	Pos   token.Position
 }
 
+func NewFloatLiteral(tok token.Token, val float64) *FloatLiteral {
+	return &FloatLiteral{
+		Token: tok,
+		Pos:   tok.Pos,
+		Value: val,
+	}
+}
+
 func (fl *FloatLiteral) expressionNode() {}
 
 func (fl *FloatLiteral) Tok() *token.Token {

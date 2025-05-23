@@ -8,6 +8,14 @@ type StringLiteral struct {
 	Pos   token.Position
 }
 
+func NewStringLiteral(tok token.Token, val string) *StringLiteral {
+	return &StringLiteral{
+		Token: tok,
+		Pos:   tok.Pos,
+		Value: val,
+	}
+}
+
 func (sl *StringLiteral) expressionNode() {}
 
 func (sl *StringLiteral) Tok() *token.Token {

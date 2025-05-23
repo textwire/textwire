@@ -7,6 +7,20 @@ type ContinueStmt struct {
 	Pos   token.Position
 }
 
+func NewBreakStmt(tok token.Token) *BreakStmt {
+	return &BreakStmt{
+		Token: tok, // "@break"
+		Pos:   tok.Pos,
+	}
+}
+
+func NewContinueStmt(tok token.Token) *ContinueStmt {
+	return &ContinueStmt{
+		Token: tok, // "@continue"
+		Pos:   tok.Pos,
+	}
+}
+
 func (cs *ContinueStmt) statementNode() {}
 
 func (cs *ContinueStmt) Tok() *token.Token {

@@ -8,6 +8,14 @@ type Identifier struct {
 	Pos   token.Position
 }
 
+func NewIdentifier(tok token.Token, val string) *Identifier {
+	return &Identifier{
+		Token: tok,
+		Pos:   tok.Pos,
+		Value: val,
+	}
+}
+
 func (i *Identifier) expressionNode() {}
 
 func (i *Identifier) Tok() *token.Token {

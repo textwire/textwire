@@ -7,6 +7,13 @@ type HTMLStmt struct {
 	Pos   token.Position
 }
 
+func NewHTMLStmt(tok token.Token) *HTMLStmt {
+	return &HTMLStmt{
+		Token: tok,
+		Pos:   tok.Pos,
+	}
+}
+
 func (hs *HTMLStmt) statementNode() {}
 
 func (hs *HTMLStmt) Tok() *token.Token {

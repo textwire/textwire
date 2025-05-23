@@ -11,6 +11,14 @@ type AssignStmt struct {
 	Pos   token.Position
 }
 
+func NewAssignStmt(tok token.Token, name *Identifier) *AssignStmt {
+	return &AssignStmt{
+		Token: tok, // identifier
+		Pos:   tok.Pos,
+		Name:  name,
+	}
+}
+
 func (as *AssignStmt) statementNode() {}
 
 func (as *AssignStmt) Tok() *token.Token {

@@ -16,6 +16,14 @@ type InsertStmt struct {
 	Pos      token.Position
 }
 
+func NewInsertStmt(tok token.Token, filePath string) *InsertStmt {
+	return &InsertStmt{
+		Token:    tok, // "@insert"
+		Pos:      tok.Pos,
+		FilePath: filePath,
+	}
+}
+
 func (is *InsertStmt) statementNode() {}
 
 func (is *InsertStmt) Stmts() []Statement {

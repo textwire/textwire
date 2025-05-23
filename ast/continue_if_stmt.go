@@ -8,6 +8,13 @@ type ContinueIfStmt struct {
 	Pos       token.Position
 }
 
+func NewContinueIfStmt(tok token.Token) *ContinueIfStmt {
+	return &ContinueIfStmt{
+		Token: tok, // "@continueIf"
+		Pos:   tok.Pos,
+	}
+}
+
 func (cis *ContinueIfStmt) statementNode() {}
 
 func (cis *ContinueIfStmt) Tok() *token.Token {

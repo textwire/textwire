@@ -15,6 +15,13 @@ type ComponentStmt struct {
 	Pos      token.Position
 }
 
+func NewComponentStmt(tok token.Token) *ComponentStmt {
+	return &ComponentStmt{
+		Token: tok, // "@component"
+		Pos:   tok.Pos,
+	}
+}
+
 func (cs *ComponentStmt) statementNode() {}
 
 func (cs *ComponentStmt) Stmts() []Statement {

@@ -10,6 +10,14 @@ type BooleanLiteral struct {
 	Pos   token.Position
 }
 
+func NewBooleanLiteral(tok token.Token, val bool) *BooleanLiteral {
+	return &BooleanLiteral{
+		Token: tok,
+		Pos:   tok.Pos,
+		Value: val,
+	}
+}
+
 func (bl *BooleanLiteral) expressionNode() {}
 
 func (bl *BooleanLiteral) Tok() *token.Token {
