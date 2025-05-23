@@ -617,6 +617,13 @@ func (p *Parser) parseReserveStmt() ast.Statement {
 
 	stmt.Name = ast.NewStringLiteral(p.curToken, p.curToken.Literal)
 
+	if !p.expectPeek(token.RPAREN) { // skip string token
+		return nil
+	}
+
+	stmt.Pos.EndLine = p.curToken.Pos.EndLine
+	stmt.Pos.EndCol = p.curToken.Pos.EndCol
+
 	p.reserves[stmt.Name.Value] = stmt
 
 	return stmt
@@ -637,15 +644,20 @@ func (p *Parser) parseInsertStmt() ast.Statement {
 		return nil
 	}
 
-	hasBody := true
-
+	// Handle inline @insert without body
 	if p.peekTokenIs(token.COMMA) {
 		p.nextToken() // skip insert name
 		p.nextToken() // skip ","
 		stmt.Argument = p.parseExpression(LOWEST)
 
+		if !p.expectPeek(token.RPAREN) { // move to ")"
+			return nil
+		}
+
+		stmt.Pos.EndLine = p.curToken.Pos.EndLine
+		stmt.Pos.EndCol = p.curToken.Pos.EndCol
+
 		p.inserts[stmt.Name.Value] = stmt
-		hasBody = false
 
 		return stmt
 	}
@@ -654,10 +666,16 @@ func (p *Parser) parseInsertStmt() ast.Statement {
 		return nil
 	}
 
-	if hasBody {
-		p.nextToken() // skip ")"
-		stmt.Block = p.parseBlockStmt()
+	p.nextToken() // skip ")"
+	stmt.Block = p.parseBlockStmt()
+
+	// skip body block and move to @end
+	if !p.expectPeek(token.END) {
+		return nil
 	}
+
+	stmt.Pos.EndLine = p.curToken.Pos.EndLine
+	stmt.Pos.EndCol = p.curToken.Pos.EndCol
 
 	p.inserts[stmt.Name.Value] = stmt
 
@@ -688,6 +706,9 @@ func (p *Parser) parseIndexExp(left ast.Expression) ast.Expression {
 	if !p.expectPeek(token.RBRACKET) { // move to "]"
 		return nil
 	}
+
+	exp.Pos.EndLine = p.curToken.Pos.EndLine
+	exp.Pos.EndCol = p.curToken.Pos.EndCol
 
 	return exp
 }
@@ -722,6 +743,8 @@ func (p *Parser) parseCallExp(receiver ast.Expression) ast.Expression {
 	}
 
 	exp.Arguments = p.parseExpressionList(token.RPAREN)
+	exp.Pos.EndLine = p.curToken.Pos.EndLine
+	exp.Pos.EndCol = p.curToken.Pos.EndCol
 
 	return exp
 }

@@ -911,6 +911,11 @@ func TestParseReserveStmt(t *testing.T) {
 		t.Fatalf("stmts[0] is not a ReserveStmt, got %T", stmts[0])
 	}
 
+	testPosition(t, stmt.Position(), token.Position{
+		StartCol: 5,
+		EndCol:   23,
+	})
+
 	if stmt.Name.Value != "content" {
 		t.Errorf("stmt.Name.Value is not 'content', got %s", stmt.Name.Value)
 	}
@@ -931,6 +936,11 @@ func TestInsertStmt(t *testing.T) {
 			t.Fatalf("stmts[1] is not a InsertStmt, got %T", stmts[0])
 		}
 
+		testPosition(t, stmt.Position(), token.Position{
+			StartCol: 4,
+			EndCol:   46,
+		})
+
 		if stmt.Name.Value != "content" {
 			t.Errorf("stmt.Name.Value is not 'content', got %s", stmt.Name.Value)
 		}
@@ -950,6 +960,11 @@ func TestInsertStmt(t *testing.T) {
 		if !ok {
 			t.Fatalf("stmts[1] is not a InsertStmt, got %T", stmts[0])
 		}
+
+		testPosition(t, stmt.Position(), token.Position{
+			StartCol: 4,
+			EndCol:   37,
+		})
 
 		if stmt.Name.Value != "content" {
 			t.Errorf("stmt.Name.Value is not 'content', got %s", stmt.Name.Value)
@@ -1009,15 +1024,20 @@ func TestParseIndexExp(t *testing.T) {
 		t.Fatalf("stmts[0] is not a ExpressionStmt, got %T", stmts[0])
 	}
 
-	indexExp, ok := stmt.Expression.(*ast.IndexExp)
+	exp, ok := stmt.Expression.(*ast.IndexExp)
 
 	if !ok {
 		t.Fatalf("stmt.Expression is not a IndexExp, got %T", stmt.Expression)
 	}
 
-	if indexExp.String() != "((arr[(1 + 2)])[2])" {
+	testPosition(t, exp.Position(), token.Position{
+		StartCol: 6,
+		EndCol:   12,
+	})
+
+	if exp.String() != "((arr[(1 + 2)])[2])" {
 		t.Errorf("indexExp.String() is not '(arr[(1 + 2)])', got %s",
-			indexExp.String())
+			exp.String())
 	}
 }
 
@@ -1112,25 +1132,30 @@ func TestParseCallExp(t *testing.T) {
 		t.Fatalf("stmts[0] is not a ExpressionStmt, got %T", stmts[0])
 	}
 
-	callExp, ok := stmt.Expression.(*ast.CallExp)
+	exp, ok := stmt.Expression.(*ast.CallExp)
 
 	if !ok {
 		t.Fatalf("stmt.Expression is not a CallExp, got %T", stmt.Expression)
 	}
 
-	if !testStringLiteral(t, callExp.Receiver, "Serhii Cho") {
+	testPosition(t, stmt.Position(), token.Position{
+		StartCol: 21,
+		EndCol:   25,
+	})
+
+	if !testStringLiteral(t, exp.Receiver, "Serhii Cho") {
 		return
 	}
 
-	if !testIdentifier(t, callExp.Function, "split") {
+	if !testIdentifier(t, exp.Function, "split") {
 		return
 	}
 
-	if len(callExp.Arguments) != 1 {
-		t.Fatalf("len(callExp.Arguments) is not 1, got %d", len(callExp.Arguments))
+	if len(exp.Arguments) != 1 {
+		t.Fatalf("len(callExp.Arguments) is not 1, got %d", len(exp.Arguments))
 	}
 
-	if !testStringLiteral(t, callExp.Arguments[0], " ") {
+	if !testStringLiteral(t, exp.Arguments[0], " ") {
 		return
 	}
 }
@@ -1419,41 +1444,47 @@ func TestParseDotExp(t *testing.T) {
 		t.Fatalf("stmts[0] is not a ExpressionStmt, got %T", stmts[0])
 	}
 
-	dotExp, ok := stmt.Expression.(*ast.DotExp)
+	exp, ok := stmt.Expression.(*ast.DotExp)
 
 	if !ok {
 		t.Fatalf("stmt.Expression is not a DotExp, got %T", stmt.Expression)
 	}
 
-	if dotExp.String() != "((person.father).name)" {
+	// position of the last dot between "father" and "name"
+	testPosition(t, exp.Position(), token.Position{
+		StartCol: 16,
+		EndCol:   16,
+	})
+
+	if exp.String() != "((person.father).name)" {
 		t.Fatalf("dotExp.String() is not '((person.father).name)', got %s",
-			dotExp.String())
+			exp.String())
 	}
 
-	if !testIdentifier(t, dotExp.Key, "name") {
+	if !testIdentifier(t, exp.Key, "name") {
 		return
 	}
 
-	if dotExp.Left == nil {
+	if exp.Left == nil {
 		t.Fatalf("dotExp.Left is nil")
 	}
 
-	dotExp, ok = dotExp.Left.(*ast.DotExp)
+	exp, ok = exp.Left.(*ast.DotExp)
 
-	if dotExp == nil {
+	if exp == nil {
 		t.Fatalf("dotExp is nil")
 		return
 	}
 
 	if !ok {
-		t.Fatalf("dotExp.Left is not a DotExp, got %T", dotExp.Left)
+		t.Fatalf("dotExp.Left is not a DotExp, got %T", exp.Left)
 	}
 
-	if !testIdentifier(t, dotExp.Key, "father") {
+	if !testIdentifier(t, exp.Key, "father") {
 		return
 	}
 
-	if !testIdentifier(t, dotExp.Left, "person") {
+	if !testIdentifier(t, exp.Left, "person") {
 		return
 	}
 }
@@ -1645,18 +1676,23 @@ func TestParseSlotDirective(t *testing.T) {
 		inp := `<h2>@slot("header")</h2>`
 		stmts := parseStatements(t, inp, 3, nil)
 
-		slotStmt, ok := stmts[1].(*ast.SlotStmt)
+		stmt, ok := stmts[1].(*ast.SlotStmt)
 
 		if !ok {
 			t.Fatalf("stmts[1] is not a SlotStmt, got %T", stmts[1])
 		}
 
-		testStringLiteral(t, slotStmt.Name, "header")
+		testPosition(t, stmt.Position(), token.Position{
+			StartCol: 4,
+			EndCol:   18,
+		})
+
+		testStringLiteral(t, stmt.Name, "header")
 
 		expect := "@slot(\"header\")"
 
-		if slotStmt.String() != expect {
-			t.Fatalf("slotStmt.String() is not `%s`, got `%s`", expect, slotStmt.String())
+		if stmt.String() != expect {
+			t.Fatalf("stmt.String() is not `%s`, got `%s`", expect, stmt.String())
 		}
 	})
 
@@ -1665,16 +1701,20 @@ func TestParseSlotDirective(t *testing.T) {
 		inp := `<header>@slot</header>`
 		stmts := parseStatements(t, inp, 3, nil)
 
-		slotStmt, ok := stmts[1].(*ast.SlotStmt)
+		stmt, ok := stmts[1].(*ast.SlotStmt)
 
 		if !ok {
 			t.Fatalf("stmts[1] is not a SlotStmt, got %T", stmts[1])
 		}
 
-		testNilLiteral(t, slotStmt.Name)
+		testNilLiteral(t, stmt.Name)
+		testPosition(t, stmt.Position(), token.Position{
+			StartCol: 8,
+			EndCol:   12,
+		})
 
-		if slotStmt.String() != "@slot" {
-			t.Fatalf("slotStmt.String() is not @slot, got `%s`", slotStmt.String())
+		if stmt.String() != "@slot" {
+			t.Fatalf("slot.String() is not @slot, got `%s`", stmt.String())
 		}
 	})
 }
@@ -1692,6 +1732,11 @@ func TestParseDumpStmt(t *testing.T) {
 	if len(stmt.Arguments) != 3 {
 		t.Fatalf("len(stmt.Arguments) is not 3, got %d", len(stmt.Arguments))
 	}
+
+	testPosition(t, stmt.Position(), token.Position{
+		StartCol: 0,
+		EndCol:   26,
+	})
 
 	testStringLiteral(t, stmt.Arguments[0], "test")
 	testInfixExp(t, stmt.Arguments[1], 1, "+", 2)
