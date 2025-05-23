@@ -736,11 +736,11 @@ func (p *Parser) parseDotExp(left ast.Expression) ast.Expression {
 func (p *Parser) parseCallExp(receiver ast.Expression) ast.Expression {
 	ident := ast.NewIdentifier(p.curToken, p.curToken.Literal)
 
-	exp := ast.NewCallExp(p.curToken, receiver, ident)
-
 	if !p.expectPeek(token.LPAREN) { // move to "("
 		return nil
 	}
+
+	exp := ast.NewCallExp(p.curToken, receiver, ident)
 
 	exp.Arguments = p.parseExpressionList(token.RPAREN)
 	exp.Pos.EndLine = p.curToken.Pos.EndLine
@@ -750,7 +750,7 @@ func (p *Parser) parseCallExp(receiver ast.Expression) ast.Expression {
 }
 
 func (p *Parser) parseInfixExp(left ast.Expression) ast.Expression {
-	exp := ast.NewInfixExp(p.curToken, left, p.curToken.Literal)
+	exp := ast.NewInfixExp(*left.Tok(), left, p.curToken.Literal)
 
 	p.nextToken() // skip operator
 
@@ -760,12 +760,14 @@ func (p *Parser) parseInfixExp(left ast.Expression) ast.Expression {
 	}
 
 	exp.Right = p.parseExpression(SUM)
+	exp.Pos.EndLine = p.curToken.Pos.EndLine
+	exp.Pos.EndCol = p.curToken.Pos.EndCol
 
 	return exp
 }
 
 func (p *Parser) parseTernaryExp(left ast.Expression) ast.Expression {
-	exp := ast.NewTernaryExp(p.curToken, left)
+	exp := ast.NewTernaryExp(*left.Tok(), left)
 
 	p.nextToken() // skip "?"
 
@@ -778,6 +780,8 @@ func (p *Parser) parseTernaryExp(left ast.Expression) ast.Expression {
 	p.nextToken() // skip ":"
 
 	exp.Alternative = p.parseExpression(LOWEST)
+	exp.Pos.EndLine = p.curToken.Pos.EndLine
+	exp.Pos.EndCol = p.curToken.Pos.EndCol
 
 	return exp
 }
@@ -822,6 +826,9 @@ func (p *Parser) parseIfStmt() *ast.IfStmt {
 	if !p.expectPeek(token.END) { // move to "@end"
 		return nil
 	}
+
+	stmt.Pos.EndLine = p.curToken.Pos.EndLine
+	stmt.Pos.EndCol = p.curToken.Pos.EndCol
 
 	return stmt
 }
@@ -969,10 +976,10 @@ func (p *Parser) parseBlockStmt() *ast.BlockStmt {
 			break
 		}
 
+		p.nextToken() // skip statement
+
 		stmt.Pos.EndLine = p.curToken.Pos.EndLine
 		stmt.Pos.EndCol = p.curToken.Pos.EndCol
-
-		p.nextToken() // skip statement
 	}
 
 	return stmt

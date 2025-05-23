@@ -3,6 +3,7 @@ package parser
 import (
 	"fmt"
 	"strconv"
+	"strings"
 	"testing"
 
 	"github.com/textwire/textwire/v2/ast"
@@ -428,19 +429,20 @@ func TestInfixExp(t *testing.T) {
 		left     any
 		operator string
 		right    any
+		endCol   uint
 	}{
-		{"{{ 5 + 8 }}", 5, "+", 8},
-		{"{{ 10 - 2 }}", 10, "-", 2},
-		{"{{ 2 * 2 }}", 2, "*", 2},
-		{"{{ 44 / 4 }}", 44, "/", 4},
-		{"{{ 5 % 4 }}", 5, "%", 4},
-		{`{{ "me" + "her" }}`, "me", "+", "her"},
-		{`{{ 14 == 14 }}`, 14, "==", 14},
-		{`{{ 10 != 1 }}`, 10, "!=", 1},
-		{`{{ 19 > 31 }}`, 19, ">", 31},
-		{`{{ 20 < 11 }}`, 20, "<", 11},
-		{`{{ 19 >= 31 }}`, 19, ">=", 31},
-		{`{{ 20 <= 11 }}`, 20, "<=", 11},
+		{"{{ 5 + 8 }}", 5, "+", 8, 7},
+		{"{{ 10 - 2 }}", 10, "-", 2, 8},
+		{"{{ 2 * 2 }}", 2, "*", 2, 7},
+		{"{{ 44 / 4 }}", 44, "/", 4, 8},
+		{"{{ 5 % 4 }}", 5, "%", 4, 7},
+		{`{{ "me" + "her" }}`, "me", "+", "her", 14},
+		{`{{ 14 == 14 }}`, 14, "==", 14, 10},
+		{`{{ 10 != 1 }}`, 10, "!=", 1, 9},
+		{`{{ 19 > 31 }}`, 19, ">", 31, 9},
+		{`{{ 20 < 11 }}`, 20, "<", 11, 9},
+		{`{{ 19 >= 31 }}`, 19, ">=", 31, 10},
+		{`{{ 20 <= 11 }}`, 20, "<=", 11, 10},
 	}
 
 	for _, tc := range tests {
@@ -449,6 +451,11 @@ func TestInfixExp(t *testing.T) {
 		if !ok {
 			t.Fatalf("stmts[0] is not an ExpressionStmt, got %T", stmts[0])
 		}
+
+		testPosition(t, stmt.Expression.Position(), token.Position{
+			StartCol: 3,
+			EndCol:   tc.endCol,
+		})
 
 		testInfixExp(t, stmt.Expression, tc.left, tc.operator, tc.right)
 	}
@@ -632,6 +639,11 @@ func TestTernaryExp(t *testing.T) {
 		t.Fatalf("stmt is not a TernaryExp, got %T", stmt.Expression)
 	}
 
+	testPosition(t, exp.Position(), token.Position{
+		StartCol: 3,
+		EndCol:   28,
+	})
+
 	testBooleanLiteral(t, exp.Condition, true)
 	testIntegerLiteral(t, exp.Consequence, 100)
 	testStringLiteral(t, exp.Alternative, "Some string")
@@ -645,6 +657,11 @@ func TestParseIfStmt(t *testing.T) {
 	if !ok {
 		t.Fatalf("stmts[0] is not an IfStmt, got %T", stmts[0])
 	}
+
+	testPosition(t, stmt.Position(), token.Position{
+		StartCol: 0,
+		EndCol:   13,
+	})
 
 	if !testConsequence(t, stmt, true, "1") {
 		return
@@ -668,6 +685,11 @@ func TestParseIfElseStatement(t *testing.T) {
 		t.Fatalf("stmts[0] is not an IfStmt, got %T", stmts[0])
 	}
 
+	testPosition(t, stmt.Position(), token.Position{
+		StartCol: 0,
+		EndCol:   19,
+	})
+
 	if !testConsequence(t, stmt, true, "1") {
 		return
 	}
@@ -679,38 +701,47 @@ func TestParseIfElseStatement(t *testing.T) {
 
 func TestParseNestedIfElseStatement(t *testing.T) {
 	inp := `
-		@if(true)
-			@if(false)
-				James
-			@elseif(false)
-				John
-			@else
-				@if(true){{ "Marry" }}@end
-			@end
-		@else
-			@if(true)Anna@end
-		@end
-	`
+        @if(true)
+            @if(false)
+                James
+            @elseif(false)
+                John
+            @else
+                @if(true){{ "Marry" }}@end
+            @end
+        @else
+            @if(true)Anna@end
+        @end`
 
-	stmts := parseStatements(t, inp, 3, nil)
+	stmts := parseStatements(t, inp, 2, nil)
 
 	if _, ok := stmts[0].(*ast.HTMLStmt); !ok {
 		t.Fatalf("stmts[0] is not an HTMLStmt, got %T", stmts[0])
 	}
 
-	if _, ok := stmts[2].(*ast.HTMLStmt); !ok {
-		t.Fatalf("stmts[2] is not an HTMLStmt, got %T", stmts[0])
-	}
-
 	ifStmt, isNotIfStmt := stmts[1].(*ast.IfStmt)
 	if !isNotIfStmt {
-		t.Fatalf("stmts[1] is not an IfStmt, got %T", stmts[0])
+		t.Fatalf("stmts[1] is not an IfStmt, got %T", stmts[1])
 	}
 
 	if len(ifStmt.Consequence.Statements) != 3 {
 		t.Fatalf("ifStmt.Consequence.Statements does not contain 3 statement, got %d",
 			len(ifStmt.Consequence.Statements))
 	}
+
+	testPosition(t, ifStmt.Position(), token.Position{
+		StartLine: 1,
+		EndLine:   11,
+		StartCol:  8,
+		EndCol:    11,
+	})
+
+	testPosition(t, ifStmt.Consequence.Position(), token.Position{
+		StartLine: 1,
+		EndLine:   9,
+		StartCol:  17,
+		EndCol:    7,
+	})
 }
 
 func TestParseIfElseIfStmt(t *testing.T) {
@@ -1030,9 +1061,10 @@ func TestParseIndexExp(t *testing.T) {
 		t.Fatalf("stmt.Expression is not a IndexExp, got %T", stmt.Expression)
 	}
 
+	// testing the last index [2]
 	testPosition(t, exp.Position(), token.Position{
-		StartCol: 6,
-		EndCol:   12,
+		StartCol: 13,
+		EndCol:   15,
 	})
 
 	if exp.String() != "((arr[(1 + 2)])[2])" {
@@ -1138,7 +1170,7 @@ func TestParseCallExp(t *testing.T) {
 		t.Fatalf("stmt.Expression is not a CallExp, got %T", stmt.Expression)
 	}
 
-	testPosition(t, stmt.Position(), token.Position{
+	testPosition(t, exp.Position(), token.Position{
 		StartCol: 21,
 		EndCol:   25,
 	})
@@ -1186,7 +1218,9 @@ func TestParseCallExpWithEmptyString(t *testing.T) {
 }
 
 func TestParseForStmt(t *testing.T) {
-	inp := "@for(i = 0; i < 10; i++)\n{{ i }}\n@end"
+	inp := `@for(i = 0; i < 10; i++)
+        {{ i }}
+    @end`
 
 	stmts := parseStatements(t, inp, 1, nil)
 	stmt, ok := stmts[0].(*ast.ForStmt)
@@ -1197,13 +1231,13 @@ func TestParseForStmt(t *testing.T) {
 
 	testPosition(t, stmt.Pos, token.Position{
 		EndLine: 2,
-		EndCol:  3,
+		EndCol:  7,
 	})
 
 	testPosition(t, stmt.Block.Pos, token.Position{
-		EndLine:  1,
+		EndLine:  2,
 		StartCol: 24,
-		EndCol:   6,
+		EndCol:   3,
 	})
 
 	if stmt.Init.String() != `i = 0` {
@@ -1219,8 +1253,9 @@ func TestParseForStmt(t *testing.T) {
 		t.Errorf("stmt.Post.String() is not '(i++)', got %s", stmt.Post.String())
 	}
 
-	if stmt.Block.String() != "\n{{ i }}\n" {
-		t.Errorf("stmt.Block.String() is not '%q', got %q", "\n{{ i }}\n", stmt.Block.String())
+	actual := strings.Trim(stmt.Block.String(), " \n\t")
+	if actual != "{{ i }}" {
+		t.Errorf("actual is not '%q', got %q", "{{ i }}", actual)
 	}
 
 	if stmt.Alternative != nil {
@@ -1298,7 +1333,9 @@ func testPosition(t *testing.T, actual, expect token.Position) {
 }
 
 func TestParseEachStmt(t *testing.T) {
-	inp := "@each(name in ['anna', 'serhii'])\n{{ name }}\n@end"
+	inp := `@each(name in ['anna', 'serhii'])
+        {{ name }}
+    @end`
 
 	stmts := parseStatements(t, inp, 1, nil)
 	stmt, ok := stmts[0].(*ast.EachStmt)
@@ -1309,13 +1346,13 @@ func TestParseEachStmt(t *testing.T) {
 
 	testPosition(t, stmt.Pos, token.Position{
 		EndLine: 2,
-		EndCol:  3,
+		EndCol:  7,
 	})
 
 	testPosition(t, stmt.Block.Pos, token.Position{
-		EndLine:  1,
+		EndLine:  2,
 		StartCol: 33,
-		EndCol:   9,
+		EndCol:   3,
 	})
 
 	if stmt.Var.String() != `name` {
@@ -1327,8 +1364,9 @@ func TestParseEachStmt(t *testing.T) {
 			stmt.Array.String())
 	}
 
-	if stmt.Block.String() != "\n{{ name }}\n" {
-		t.Errorf("stmt.Block.String() is not %q, got %q", "\n{{ name }}\n", stmt.Block.String())
+	actual := strings.Trim(stmt.Block.String(), " \n\t")
+	if actual != "{{ name }}" {
+		t.Errorf("actual is not %q, got %q", "{{ name }}", actual)
 	}
 
 	if stmt.Alternative != nil {

@@ -16,7 +16,7 @@ type TernaryExp struct {
 
 func NewTernaryExp(tok token.Token, cond Expression) *TernaryExp {
 	return &TernaryExp{
-		Token:     tok, // "?"
+		Token:     tok, // boolean condition
 		Pos:       tok.Pos,
 		Condition: cond,
 	}
