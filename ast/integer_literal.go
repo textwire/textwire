@@ -8,6 +8,14 @@ type IntegerLiteral struct {
 	Pos   token.Position
 }
 
+func NewIntegerLiteral(tok token.Token, val int64) *IntegerLiteral {
+	return &IntegerLiteral{
+		Token: tok,
+		Pos:   tok.Pos,
+		Value: val,
+	}
+}
+
 func (il *IntegerLiteral) expressionNode() {}
 
 func (il *IntegerLiteral) Tok() *token.Token {

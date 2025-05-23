@@ -13,6 +13,15 @@ type PostfixExp struct {
 	Pos      token.Position
 }
 
+func NewPostfixExp(tok token.Token, left Expression, op string) *PostfixExp {
+	return &PostfixExp{
+		Token:    tok, // identifier
+		Pos:      tok.Pos,
+		Left:     left,
+		Operator: op, // "++" or "--"
+	}
+}
+
 func (pe *PostfixExp) expressionNode() {}
 
 func (pe *PostfixExp) Tok() *token.Token {

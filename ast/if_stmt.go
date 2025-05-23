@@ -15,6 +15,13 @@ type IfStmt struct {
 	Pos          token.Position
 }
 
+func NewIfStmt(tok token.Token) *IfStmt {
+	return &IfStmt{
+		Token: tok, // "@if"
+		Pos:   tok.Pos,
+	}
+}
+
 func (is *IfStmt) statementNode() {}
 
 func (is *IfStmt) Stmts() []Statement {

@@ -13,6 +13,15 @@ type ElseIfStmt struct {
 	Pos         token.Position
 }
 
+func NewElseIfStmt(tok token.Token, cond Expression, cons *BlockStmt) *ElseIfStmt {
+	return &ElseIfStmt{
+		Token:       tok, // "@elseif"
+		Pos:         tok.Pos,
+		Condition:   cond,
+		Consequence: cons,
+	}
+}
+
 func (eis *ElseIfStmt) statementNode() {}
 
 func (eis *ElseIfStmt) Stmts() []Statement {

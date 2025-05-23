@@ -18,6 +18,13 @@ type Program struct {
 	Pos        token.Position
 }
 
+func NewProgram(tok token.Token) *Program {
+	return &Program{
+		Token: tok,
+		Pos:   tok.Pos,
+	}
+}
+
 func (p *Program) statementNode() {}
 
 func (p *Program) Stmts() []Statement {

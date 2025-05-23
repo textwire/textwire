@@ -12,6 +12,13 @@ type BlockStmt struct {
 	Pos        token.Position
 }
 
+func NewBlockStmt(tok token.Token) *BlockStmt {
+	return &BlockStmt{
+		Token: tok,
+		Pos:   tok.Pos,
+	}
+}
+
 func (bs *BlockStmt) statementNode() {}
 
 func (bs *BlockStmt) Tok() *token.Token {

@@ -8,6 +8,14 @@ type ExpressionStmt struct {
 	Pos        token.Position
 }
 
+func NewExpressionStmt(tok token.Token, exp Expression) *ExpressionStmt {
+	return &ExpressionStmt{
+		Token:      tok,
+		Pos:        tok.Pos,
+		Expression: exp,
+	}
+}
+
 func (es *ExpressionStmt) statementNode() {}
 
 func (es *ExpressionStmt) Tok() *token.Token {

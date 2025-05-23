@@ -13,6 +13,14 @@ type DotExp struct {
 	Pos   token.Position
 }
 
+func NewDotExp(tok token.Token, left Expression) *DotExp {
+	return &DotExp{
+		Token: tok, // "."
+		Pos:   tok.Pos,
+		Left:  left,
+	}
+}
+
 func (de *DotExp) expressionNode() {}
 
 func (de *DotExp) Tok() *token.Token {

@@ -15,6 +15,15 @@ type CallExp struct {
 	Pos       token.Position
 }
 
+func NewCallExp(tok token.Token, receiver Expression, function *Identifier) *CallExp {
+	return &CallExp{
+		Token:    tok, // identifier
+		Pos:      tok.Pos,
+		Receiver: receiver,
+		Function: function,
+	}
+}
+
 func (ce *CallExp) expressionNode() {}
 
 func (ce *CallExp) Tok() *token.Token {

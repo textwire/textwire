@@ -14,6 +14,14 @@ type TernaryExp struct {
 	Pos         token.Position
 }
 
+func NewTernaryExp(tok token.Token, cond Expression) *TernaryExp {
+	return &TernaryExp{
+		Token:     tok, // "?"
+		Pos:       tok.Pos,
+		Condition: cond,
+	}
+}
+
 func (te *TernaryExp) expressionNode() {}
 
 func (te *TernaryExp) Tok() *token.Token {

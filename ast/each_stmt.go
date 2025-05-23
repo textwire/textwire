@@ -15,6 +15,13 @@ type EachStmt struct {
 	Pos         token.Position
 }
 
+func NewEachStmt(tok token.Token) *EachStmt {
+	return &EachStmt{
+		Token: tok, // "@each"
+		Pos:   tok.Pos,
+	}
+}
+
 func (es *EachStmt) statementNode() {}
 
 func (es *EachStmt) Stmts() []Statement {

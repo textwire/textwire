@@ -16,6 +16,13 @@ type ForStmt struct {
 	Pos         token.Position
 }
 
+func NewForStmt(tok token.Token) *ForStmt {
+	return &ForStmt{
+		Token: tok, // "@for"
+		Pos:   tok.Pos,
+	}
+}
+
 func (fs *ForStmt) statementNode() {}
 
 func (fs *ForStmt) Stmts() []Statement {

@@ -13,6 +13,14 @@ type PrefixExp struct {
 	Pos      token.Position
 }
 
+func NewPrefixExp(tok token.Token, op string) *PrefixExp {
+	return &PrefixExp{
+		Token:    tok, // prefix operator
+		Pos:      tok.Pos,
+		Operator: op,
+	}
+}
+
 func (pe *PrefixExp) expressionNode() {}
 
 func (pe *PrefixExp) Tok() *token.Token {

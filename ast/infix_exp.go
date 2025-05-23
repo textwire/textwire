@@ -14,6 +14,15 @@ type InfixExp struct {
 	Pos      token.Position
 }
 
+func NewInfixExp(tok token.Token, left Expression, op string) *InfixExp {
+	return &InfixExp{
+		Token:    tok, // operator
+		Pos:      tok.Pos,
+		Left:     left,
+		Operator: op,
+	}
+}
+
 func (ie *InfixExp) expressionNode() {}
 
 func (ie *InfixExp) Tok() *token.Token {

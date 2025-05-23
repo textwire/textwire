@@ -13,6 +13,14 @@ type IndexExp struct {
 	Pos   token.Position
 }
 
+func NewIndexExp(tok token.Token, left Expression) *IndexExp {
+	return &IndexExp{
+		Token: tok, // "["
+		Pos:   tok.Pos,
+		Left:  left,
+	}
+}
+
 func (ie *IndexExp) expressionNode() {}
 
 func (ie *IndexExp) Tok() *token.Token {
