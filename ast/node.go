@@ -12,12 +12,6 @@ type Node interface {
 	SetEndPosition(pos token.Position)
 }
 
-// TODO: See if you use it
-// StatementsContainer helps to identify nodes that nest other statements.
-type StatementsContainer interface {
-	Stmts() []Statement
-}
-
 type LoopStmt interface {
 	LoopBodyBlock() *BlockStmt
 }
