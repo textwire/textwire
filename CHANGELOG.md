@@ -1,7 +1,8 @@
 # Release notes
 
-## v2.5.7 (2025-05-22)
+## v2.5.7 (2025-05-25)
 - Fixed typos in LSP completions
+- Added `IsInLoop` function to `lsp` package to check if the current cursor position is inside a loop
 
 ## v2.5.6 (2025-04-16)
 - Added more data for LSP to handle auto completions
