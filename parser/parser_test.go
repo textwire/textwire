@@ -270,6 +270,20 @@ func TestParseIdentifier(t *testing.T) {
 	}
 }
 
+func TestParseExpressionStatement(t *testing.T) {
+	stmts := parseStatements(t, "{{ 3 / 2 }}", 1, nil)
+	stmt, ok := stmts[0].(*ast.ExpressionStmt)
+
+	if !ok {
+		t.Fatalf("stmts[0] is not an ExpressionStmt, got %T", stmts[0])
+	}
+
+	testPosition(t, stmt.Position(), token.Position{
+		StartCol: 3,
+		EndCol:   7,
+	})
+}
+
 func TestParseIntegerLiteral(t *testing.T) {
 	stmts := parseStatements(t, "{{ 234 }}", 1, nil)
 	stmt, ok := stmts[0].(*ast.ExpressionStmt)
@@ -1507,7 +1521,7 @@ func TestParseObjectWithShorthandPropertyNotation(t *testing.T) {
 	}
 }
 
-func TestHTMLStmt(t *testing.T) {
+func TestParseHTMLStmt(t *testing.T) {
 	inp := "<div><span>Hello</span></div>"
 
 	stmts := parseStatements(t, inp, 1, nil)

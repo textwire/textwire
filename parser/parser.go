@@ -969,15 +969,18 @@ func (p *Parser) parseBlockStmt() *ast.BlockStmt {
 }
 
 func (p *Parser) parseExpressionStmt() ast.Statement {
+	prevTok := p.curToken
+
 	exp := p.parseExpression(LOWEST)
 
-	result := ast.NewExpressionStmt(p.curToken, exp)
+	stmt := ast.NewExpressionStmt(prevTok, exp)
+	stmt.SetEndPosition(p.curToken.Pos)
 
 	if p.peekTokenIs(token.RBRACES) {
 		p.nextToken() // skip "}}"
 	}
 
-	return result
+	return stmt
 }
 
 func (p *Parser) parseExpression(precedence int) ast.Expression {
