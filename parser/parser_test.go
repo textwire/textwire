@@ -1398,9 +1398,7 @@ func testPosition(t *testing.T, actual, expect token.Position) {
 }
 
 func TestParseEachStmt(t *testing.T) {
-	inp := `@each(name in ['anna', 'serhii'])
-        {{ name }}
-    @end`
+	inp := "@each(name in ['anna', 'serhii']){{ name }}@end"
 
 	stmts := parseStatements(t, inp, 1, nil)
 	stmt, ok := stmts[0].(*ast.EachStmt)
@@ -1409,15 +1407,11 @@ func TestParseEachStmt(t *testing.T) {
 		t.Fatalf("stmts[0] is not a EachStmt, got %T", stmts[0])
 	}
 
-	testPosition(t, stmt.Pos, token.Position{
-		EndLine: 2,
-		EndCol:  7,
-	})
+	testPosition(t, stmt.Pos, token.Position{EndCol: 46})
 
 	testPosition(t, stmt.Block.Pos, token.Position{
-		EndLine:  2,
 		StartCol: 33,
-		EndCol:   3,
+		EndCol:   42,
 	})
 
 	if stmt.Var.String() != `name` {
@@ -1429,7 +1423,7 @@ func TestParseEachStmt(t *testing.T) {
 			stmt.Array.String())
 	}
 
-	actual := strings.Trim(stmt.Block.String(), " \n\t")
+	actual := stmt.Block.String()
 	if actual != "{{ name }}" {
 		t.Errorf("actual is not %q, got %q", "{{ name }}", actual)
 	}

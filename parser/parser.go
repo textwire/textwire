@@ -951,6 +951,7 @@ func (p *Parser) parseBlockStmt() *ast.BlockStmt {
 
 	for !p.curTokenIs(token.END) {
 		block := p.parseStatement()
+		stmt.SetEndPosition(p.curToken.Pos)
 
 		if block != nil {
 			stmt.Statements = append(stmt.Statements, block)
@@ -961,8 +962,6 @@ func (p *Parser) parseBlockStmt() *ast.BlockStmt {
 		}
 
 		p.nextToken() // skip statement
-
-		stmt.SetEndPosition(p.curToken.Pos)
 	}
 
 	return stmt
