@@ -7,18 +7,16 @@ import (
 )
 
 type ComponentStmt struct {
-	Token    token.Token // The '@component' token
+	BaseNode
 	Name     *StringLiteral
 	Argument *ObjectLiteral
 	Block    *Program
 	Slots    []*SlotStmt
-	Pos      token.Position
 }
 
 func NewComponentStmt(tok token.Token) *ComponentStmt {
 	return &ComponentStmt{
-		Token: tok, // "@component"
-		Pos:   tok.Pos,
+		BaseNode: NewBaseNode(tok),
 	}
 }
 
@@ -26,10 +24,6 @@ func (cs *ComponentStmt) statementNode() {}
 
 func (cs *ComponentStmt) Stmts() []Statement {
 	return cs.Block.Statements
-}
-
-func (cs *ComponentStmt) Tok() *token.Token {
-	return &cs.Token
 }
 
 func (cs *ComponentStmt) ArgsString() string {
@@ -62,12 +56,4 @@ func (cs *ComponentStmt) String() string {
 	}
 
 	return out.String()
-}
-
-func (cs *ComponentStmt) Line() uint {
-	return cs.Token.ErrorLine()
-}
-
-func (cs *ComponentStmt) Position() token.Position {
-	return cs.Pos
 }

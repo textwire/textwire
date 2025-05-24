@@ -7,18 +7,16 @@ import (
 )
 
 type EachStmt struct {
-	Token       token.Token // The '@each' token
+	BaseNode
 	Var         *Identifier // The variable name
 	Array       Expression  // The array to loop over
 	Alternative *BlockStmt  // The @else block
 	Block       *BlockStmt
-	Pos         token.Position
 }
 
 func NewEachStmt(tok token.Token) *EachStmt {
 	return &EachStmt{
-		Token: tok, // "@each"
-		Pos:   tok.Pos,
+		BaseNode: NewBaseNode(tok),
 	}
 }
 
@@ -26,10 +24,6 @@ func (es *EachStmt) statementNode() {}
 
 func (es *EachStmt) Stmts() []Statement {
 	return es.Block.Statements
-}
-
-func (es *EachStmt) Tok() *token.Token {
-	return &es.Token
 }
 
 func (es *EachStmt) String() string {
@@ -50,12 +44,4 @@ func (es *EachStmt) String() string {
 	out.WriteString("@end\n")
 
 	return out.String()
-}
-
-func (es *EachStmt) Line() uint {
-	return es.Token.ErrorLine()
-}
-
-func (es *EachStmt) Position() token.Position {
-	return es.Pos
 }

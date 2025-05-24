@@ -975,9 +975,11 @@ func TestParseReserveStmt(t *testing.T) {
 			Block: &ast.BlockStmt{
 				Statements: []ast.Statement{
 					&ast.HTMLStmt{
-						Token: token.Token{
-							Type:    token.HTML,
-							Literal: "<h1>Some content</h1>",
+						BaseNode: ast.BaseNode{
+							Token: token.Token{
+								Type:    token.HTML,
+								Literal: "<h1>Some content</h1>",
+							},
 						},
 					},
 				},

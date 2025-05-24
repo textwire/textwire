@@ -8,18 +8,16 @@ import (
 )
 
 type InsertStmt struct {
-	Token    token.Token    // The '@insert' token
+	BaseNode
 	Name     *StringLiteral // The name of the insert statement
 	Argument Expression     // The argument to the insert statement; nil if has block
 	Block    *BlockStmt     // The block of the insert statement; nil if has argument
 	FilePath string         // The file path of the insert statement
-	Pos      token.Position
 }
 
 func NewInsertStmt(tok token.Token, filePath string) *InsertStmt {
 	return &InsertStmt{
-		Token:    tok, // "@insert"
-		Pos:      tok.Pos,
+		BaseNode: NewBaseNode(tok),
 		FilePath: filePath,
 	}
 }
@@ -28,10 +26,6 @@ func (is *InsertStmt) statementNode() {}
 
 func (is *InsertStmt) Stmts() []Statement {
 	return is.Block.Statements
-}
-
-func (is *InsertStmt) Tok() *token.Token {
-	return &is.Token
 }
 
 func (is *InsertStmt) String() string {
@@ -47,12 +41,4 @@ func (is *InsertStmt) String() string {
 	out.WriteString(`@end`)
 
 	return out.String()
-}
-
-func (is *InsertStmt) Line() uint {
-	return is.Token.ErrorLine()
-}
-
-func (is *InsertStmt) Position() token.Position {
-	return is.Pos
 }

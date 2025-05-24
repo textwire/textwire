@@ -7,17 +7,15 @@ import (
 )
 
 type SlotStmt struct {
-	Token token.Token    // The '@slot' token
-	Name  *StringLiteral // when empty string literal, it means default slot
-	Body  *BlockStmt     // optional block statement, can be nil
-	Pos   token.Position
+	BaseNode
+	Name *StringLiteral // when empty string literal, it means default slot
+	Body *BlockStmt     // optional block statement, can be nil
 }
 
 func NewSlotStmt(tok token.Token, name *StringLiteral) *SlotStmt {
 	return &SlotStmt{
-		Token: tok, // "@slot"
-		Pos:   tok.Pos,
-		Name:  name,
+		BaseNode: NewBaseNode(tok),
+		Name:     name,
 	}
 }
 
@@ -25,10 +23,6 @@ func (ss *SlotStmt) statementNode() {}
 
 func (ss *SlotStmt) Stmts() []Statement {
 	return ss.Body.Statements
-}
-
-func (ss *SlotStmt) Tok() *token.Token {
-	return &ss.Token
 }
 
 func (ss *SlotStmt) String() string {
@@ -49,12 +43,4 @@ func (ss *SlotStmt) String() string {
 	}
 
 	return out.String()
-}
-
-func (ss *SlotStmt) Line() uint {
-	return ss.Token.ErrorLine()
-}
-
-func (ss *SlotStmt) Position() token.Position {
-	return ss.Pos
 }

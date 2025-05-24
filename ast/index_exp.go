@@ -7,34 +7,20 @@ import (
 )
 
 type IndexExp struct {
-	Token token.Token // The '[' token
+	BaseNode
 	Left  Expression
 	Index Expression
-	Pos   token.Position
 }
 
 func NewIndexExp(tok token.Token, left Expression) *IndexExp {
 	return &IndexExp{
-		Token: tok, // "["
-		Pos:   tok.Pos,
-		Left:  left,
+		BaseNode: NewBaseNode(tok),
+		Left:     left,
 	}
 }
 
 func (ie *IndexExp) expressionNode() {}
 
-func (ie *IndexExp) Tok() *token.Token {
-	return &ie.Token
-}
-
 func (ie *IndexExp) String() string {
 	return fmt.Sprintf("(%s[%s])", ie.Left, ie.Index.String())
-}
-
-func (ie *IndexExp) Line() uint {
-	return ie.Token.ErrorLine()
-}
-
-func (ie *IndexExp) Position() token.Position {
-	return ie.Pos
 }

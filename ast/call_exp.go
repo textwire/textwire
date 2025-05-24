@@ -8,27 +8,21 @@ import (
 )
 
 type CallExp struct {
-	Token     token.Token // Function identifier token
+	BaseNode
 	Receiver  Expression  // Receiver of the call
 	Function  *Identifier // Function being called
 	Arguments []Expression
-	Pos       token.Position
 }
 
 func NewCallExp(tok token.Token, receiver Expression, function *Identifier) *CallExp {
 	return &CallExp{
-		Token:    tok, // identifier
-		Pos:      tok.Pos,
+		BaseNode: NewBaseNode(tok),
 		Receiver: receiver,
 		Function: function,
 	}
 }
 
 func (ce *CallExp) expressionNode() {}
-
-func (ce *CallExp) Tok() *token.Token {
-	return &ce.Token
-}
 
 func (ce *CallExp) String() string {
 	var args bytes.Buffer
@@ -43,12 +37,4 @@ func (ce *CallExp) String() string {
 
 	return fmt.Sprintf("(%s.%s(%s))", ce.Receiver.String(),
 		ce.Function.String(), args.String())
-}
-
-func (ce *CallExp) Line() uint {
-	return ce.Token.ErrorLine()
-}
-
-func (ce *CallExp) Position() token.Position {
-	return ce.Pos
 }

@@ -7,33 +7,19 @@ import (
 )
 
 type FloatLiteral struct {
-	Token token.Token
+	BaseNode
 	Value float64
-	Pos   token.Position
 }
 
 func NewFloatLiteral(tok token.Token, val float64) *FloatLiteral {
 	return &FloatLiteral{
-		Token: tok,
-		Pos:   tok.Pos,
-		Value: val,
+		BaseNode: NewBaseNode(tok),
+		Value:    val,
 	}
 }
 
 func (fl *FloatLiteral) expressionNode() {}
 
-func (fl *FloatLiteral) Tok() *token.Token {
-	return &fl.Token
-}
-
 func (fl *FloatLiteral) String() string {
 	return fmt.Sprintf("%g", fl.Value)
-}
-
-func (fl *FloatLiteral) Line() uint {
-	return fl.Token.ErrorLine()
-}
-
-func (fl *FloatLiteral) Position() token.Position {
-	return fl.Pos
 }

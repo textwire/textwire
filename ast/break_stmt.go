@@ -5,24 +5,17 @@ import (
 )
 
 type BreakStmt struct {
-	Token token.Token // The '@break' token
-	Pos   token.Position
+	BaseNode
+}
+
+func NewBreakStmt(tok token.Token) *BreakStmt {
+	return &BreakStmt{
+		BaseNode: NewBaseNode(tok),
+	}
 }
 
 func (bs *BreakStmt) statementNode() {}
 
-func (bs *BreakStmt) Tok() *token.Token {
-	return &bs.Token
-}
-
 func (bs *BreakStmt) String() string {
 	return bs.Token.Literal
-}
-
-func (bs *BreakStmt) Line() uint {
-	return bs.Token.ErrorLine()
-}
-
-func (bs *BreakStmt) Position() token.Position {
-	return bs.Pos
 }

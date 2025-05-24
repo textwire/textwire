@@ -7,23 +7,17 @@ import (
 )
 
 type BlockStmt struct {
-	Token      token.Token
+	BaseNode
 	Statements []Statement
-	Pos        token.Position
 }
 
 func NewBlockStmt(tok token.Token) *BlockStmt {
 	return &BlockStmt{
-		Token: tok,
-		Pos:   tok.Pos,
+		BaseNode: NewBaseNode(tok),
 	}
 }
 
 func (bs *BlockStmt) statementNode() {}
-
-func (bs *BlockStmt) Tok() *token.Token {
-	return &bs.Token
-}
 
 func (bs *BlockStmt) String() string {
 	var out bytes.Buffer
@@ -39,12 +33,4 @@ func (bs *BlockStmt) String() string {
 	}
 
 	return out.String()
-}
-
-func (bs *BlockStmt) Line() uint {
-	return bs.Token.ErrorLine()
-}
-
-func (bs *BlockStmt) Position() token.Position {
-	return bs.Pos
 }

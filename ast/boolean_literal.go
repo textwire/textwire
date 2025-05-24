@@ -5,33 +5,19 @@ import (
 )
 
 type BooleanLiteral struct {
-	Token token.Token // The 'true' or 'false' token
+	BaseNode
 	Value bool
-	Pos   token.Position
 }
 
 func NewBooleanLiteral(tok token.Token, val bool) *BooleanLiteral {
 	return &BooleanLiteral{
-		Token: tok,
-		Pos:   tok.Pos,
-		Value: val,
+		BaseNode: NewBaseNode(tok),
+		Value:    val,
 	}
 }
 
 func (bl *BooleanLiteral) expressionNode() {}
 
-func (bl *BooleanLiteral) Tok() *token.Token {
-	return &bl.Token
-}
-
 func (bl *BooleanLiteral) String() string {
 	return bl.Token.Literal
-}
-
-func (bl *BooleanLiteral) Line() uint {
-	return bl.Token.ErrorLine()
-}
-
-func (bl *BooleanLiteral) Position() token.Position {
-	return bl.Pos
 }
