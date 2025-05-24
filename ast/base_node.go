@@ -27,11 +27,6 @@ func (bn *BaseNode) Position() token.Position {
 	return bn.Pos
 }
 
-func (bn *BaseNode) SetStartPosition(pos token.Position) {
-	bn.Pos.StartCol = pos.StartCol
-	bn.Pos.StartLine = pos.StartLine
-}
-
 func (bn *BaseNode) SetEndPosition(pos token.Position) {
 	bn.Pos.EndCol = pos.EndCol
 	bn.Pos.EndLine = pos.EndLine

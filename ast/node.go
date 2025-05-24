@@ -7,6 +7,7 @@ type Node interface {
 	String() string
 	Line() uint
 	Position() token.Position
+	SetEndPosition(pos token.Position)
 }
 
 // StatementsContainer helps to identify nodes that nest other statements.

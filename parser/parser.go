@@ -310,11 +310,8 @@ func (p *Parser) parseBooleanLiteral() ast.Expression {
 
 func (p *Parser) parseArrayLiteral() ast.Expression {
 	arr := ast.NewArrayLiteral(p.curToken)
-
 	arr.Elements = p.parseExpressionList(token.RBRACKET)
-
-	arr.Pos.EndLine = p.curToken.Pos.EndLine
-	arr.Pos.EndCol = p.curToken.Pos.EndCol
+	arr.SetEndPosition(p.curToken.Pos)
 
 	return arr
 }
@@ -327,8 +324,7 @@ func (p *Parser) parseObjectLiteral() ast.Expression {
 	p.nextToken() // skip "{"
 
 	if p.curTokenIs(token.RBRACE) {
-		obj.Pos.EndLine = p.curToken.Pos.EndLine
-		obj.Pos.EndCol = p.curToken.Pos.EndCol
+		obj.SetEndPosition(p.curToken.Pos)
 		return obj
 	}
 
@@ -355,8 +351,7 @@ func (p *Parser) parseObjectLiteral() ast.Expression {
 		}
 	}
 
-	obj.Pos.EndLine = p.curToken.Pos.EndLine
-	obj.Pos.EndCol = p.curToken.Pos.EndCol
+	obj.SetEndPosition(p.curToken.Pos)
 
 	return obj
 }
@@ -382,8 +377,7 @@ func (p *Parser) parseAssignStmt() ast.Statement {
 	}
 
 	stmt.Value = p.parseExpression(SUM)
-	stmt.Pos.EndLine = p.curToken.Pos.EndLine
-	stmt.Pos.EndCol = p.curToken.Pos.EndCol
+	stmt.SetEndPosition(p.curToken.Pos)
 
 	return stmt
 }
@@ -406,8 +400,7 @@ func (p *Parser) parseUseStmt() ast.Statement {
 		return nil
 	}
 
-	stmt.Pos.EndLine = p.curToken.Pos.EndLine
-	stmt.Pos.EndCol = p.curToken.Pos.EndCol
+	stmt.SetEndPosition(p.curToken.Pos)
 
 	p.useStmt = stmt
 
@@ -429,8 +422,7 @@ func (p *Parser) parseBreakIfStmt() ast.Statement {
 		return nil
 	}
 
-	stmt.Pos.EndLine = p.curToken.Pos.EndLine
-	stmt.Pos.EndCol = p.curToken.Pos.EndCol
+	stmt.SetEndPosition(p.curToken.Pos)
 
 	return stmt
 }
@@ -450,8 +442,7 @@ func (p *Parser) parseContinueIfStmt() ast.Statement {
 		return nil
 	}
 
-	stmt.Pos.EndLine = p.curToken.Pos.EndLine
-	stmt.Pos.EndCol = p.curToken.Pos.EndCol
+	stmt.SetEndPosition(p.curToken.Pos)
 
 	return stmt
 }
@@ -502,8 +493,7 @@ func (p *Parser) parseComponentStmt() ast.Statement {
 
 	p.components = append(p.components, stmt)
 
-	stmt.Pos.EndLine = p.curToken.Pos.EndLine
-	stmt.Pos.EndCol = p.curToken.Pos.EndCol
+	stmt.SetEndPosition(p.curToken.Pos)
 
 	return stmt
 }
@@ -542,8 +532,7 @@ func (p *Parser) parseSlotStmt() *ast.SlotStmt {
 	}
 
 	stmt := ast.NewSlotStmt(tok, slotName)
-	stmt.Pos.EndLine = p.curToken.Pos.EndLine
-	stmt.Pos.EndCol = p.curToken.Pos.EndCol
+	stmt.SetEndPosition(p.curToken.Pos)
 
 	return stmt
 }
@@ -560,8 +549,7 @@ func (p *Parser) parseDumpStmt() *ast.DumpStmt {
 	args = p.parseExpressionList(token.RPAREN)
 
 	stmt := ast.NewDumpStmt(tok, args)
-	stmt.Pos.EndLine = p.curToken.Pos.EndLine
-	stmt.Pos.EndCol = p.curToken.Pos.EndCol
+	stmt.SetEndPosition(p.curToken.Pos)
 
 	return stmt
 }
@@ -590,8 +578,7 @@ func (p *Parser) parseSlots() []*ast.SlotStmt {
 
 		stmt := ast.NewSlotStmt(tok, slotName)
 		stmt.Body = p.parseBlockStmt()
-		stmt.Pos.EndLine = p.curToken.Pos.EndLine
-		stmt.Pos.EndCol = p.curToken.Pos.EndCol
+		stmt.SetEndPosition(p.curToken.Pos)
 
 		slots = append(slots, stmt)
 
@@ -621,8 +608,7 @@ func (p *Parser) parseReserveStmt() ast.Statement {
 		return nil
 	}
 
-	stmt.Pos.EndLine = p.curToken.Pos.EndLine
-	stmt.Pos.EndCol = p.curToken.Pos.EndCol
+	stmt.SetEndPosition(p.curToken.Pos)
 
 	p.reserves[stmt.Name.Value] = stmt
 
@@ -654,8 +640,7 @@ func (p *Parser) parseInsertStmt() ast.Statement {
 			return nil
 		}
 
-		stmt.Pos.EndLine = p.curToken.Pos.EndLine
-		stmt.Pos.EndCol = p.curToken.Pos.EndCol
+		stmt.SetEndPosition(p.curToken.Pos)
 
 		p.inserts[stmt.Name.Value] = stmt
 
@@ -674,8 +659,7 @@ func (p *Parser) parseInsertStmt() ast.Statement {
 		return nil
 	}
 
-	stmt.Pos.EndLine = p.curToken.Pos.EndLine
-	stmt.Pos.EndCol = p.curToken.Pos.EndCol
+	stmt.SetEndPosition(p.curToken.Pos)
 
 	p.inserts[stmt.Name.Value] = stmt
 
@@ -707,8 +691,7 @@ func (p *Parser) parseIndexExp(left ast.Expression) ast.Expression {
 		return nil
 	}
 
-	exp.Pos.EndLine = p.curToken.Pos.EndLine
-	exp.Pos.EndCol = p.curToken.Pos.EndCol
+	exp.SetEndPosition(p.curToken.Pos)
 
 	return exp
 }
@@ -743,8 +726,7 @@ func (p *Parser) parseCallExp(receiver ast.Expression) ast.Expression {
 	exp := ast.NewCallExp(p.curToken, receiver, ident)
 
 	exp.Arguments = p.parseExpressionList(token.RPAREN)
-	exp.Pos.EndLine = p.curToken.Pos.EndLine
-	exp.Pos.EndCol = p.curToken.Pos.EndCol
+	exp.SetEndPosition(p.curToken.Pos)
 
 	return exp
 }
@@ -760,8 +742,7 @@ func (p *Parser) parseInfixExp(left ast.Expression) ast.Expression {
 	}
 
 	exp.Right = p.parseExpression(SUM)
-	exp.Pos.EndLine = p.curToken.Pos.EndLine
-	exp.Pos.EndCol = p.curToken.Pos.EndCol
+	exp.SetEndPosition(p.curToken.Pos)
 
 	return exp
 }
@@ -780,8 +761,7 @@ func (p *Parser) parseTernaryExp(left ast.Expression) ast.Expression {
 	p.nextToken() // skip ":"
 
 	exp.Alternative = p.parseExpression(LOWEST)
-	exp.Pos.EndLine = p.curToken.Pos.EndLine
-	exp.Pos.EndCol = p.curToken.Pos.EndCol
+	exp.SetEndPosition(p.curToken.Pos)
 
 	return exp
 }
@@ -827,8 +807,7 @@ func (p *Parser) parseIfStmt() *ast.IfStmt {
 		return nil
 	}
 
-	stmt.Pos.EndLine = p.curToken.Pos.EndLine
-	stmt.Pos.EndCol = p.curToken.Pos.EndCol
+	stmt.SetEndPosition(p.curToken.Pos)
 
 	return stmt
 }
@@ -852,9 +831,7 @@ func (p *Parser) parseElseIfStmt() *ast.ElseIfStmt {
 	p.nextToken() // skip ")"
 
 	stmt.Consequence = p.parseBlockStmt()
-
-	stmt.Pos.EndLine = p.curToken.Pos.EndLine
-	stmt.Pos.EndCol = p.curToken.Pos.EndCol
+	stmt.SetEndPosition(p.curToken.Pos)
 
 	return stmt
 }
@@ -870,8 +847,7 @@ func (p *Parser) parseAlternativeBlock() *ast.BlockStmt {
 		return nil
 	}
 
-	stmt.Pos.EndLine = p.curToken.Pos.EndLine
-	stmt.Pos.EndCol = p.curToken.Pos.EndCol
+	stmt.SetEndPosition(p.curToken.Pos)
 
 	return stmt
 }
@@ -924,8 +900,7 @@ func (p *Parser) parseForStmt() *ast.ForStmt {
 		return nil
 	}
 
-	stmt.Pos.EndLine = p.curToken.Pos.EndLine
-	stmt.Pos.EndCol = p.curToken.Pos.EndCol
+	stmt.SetEndPosition(p.curToken.Pos)
 
 	return stmt
 }
@@ -966,8 +941,7 @@ func (p *Parser) parseEachStmt() *ast.EachStmt {
 		return nil
 	}
 
-	stmt.Pos.EndLine = p.curToken.Pos.EndLine
-	stmt.Pos.EndCol = p.curToken.Pos.EndCol
+	stmt.SetEndPosition(p.curToken.Pos)
 
 	return stmt
 }
@@ -988,8 +962,7 @@ func (p *Parser) parseBlockStmt() *ast.BlockStmt {
 
 		p.nextToken() // skip statement
 
-		stmt.Pos.EndLine = p.curToken.Pos.EndLine
-		stmt.Pos.EndCol = p.curToken.Pos.EndCol
+		stmt.SetEndPosition(p.curToken.Pos)
 	}
 
 	return stmt
@@ -1042,8 +1015,7 @@ func (p *Parser) parsePrefixExp() ast.Expression {
 	p.nextToken() // skip prefix operator
 
 	exp.Right = p.parseExpression(PREFIX)
-	exp.Pos.EndLine = p.curToken.Pos.EndLine
-	exp.Pos.EndCol = p.curToken.Pos.EndCol
+	exp.SetEndPosition(p.curToken.Pos)
 
 	return exp
 }
