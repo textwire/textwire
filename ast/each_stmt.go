@@ -26,6 +26,10 @@ func (es *EachStmt) Stmts() []Statement {
 	return es.Block.Statements
 }
 
+func (es *EachStmt) LoopBodyBlock() *BlockStmt {
+	return es.Block
+}
+
 func (es *EachStmt) String() string {
 	var out bytes.Buffer
 

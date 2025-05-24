@@ -1,8 +1,6 @@
 package lsp
 
 import (
-	"fmt"
-
 	"github.com/textwire/textwire/v2/token"
 
 	"github.com/textwire/textwire/v2/ast"
@@ -28,17 +26,14 @@ func IsInLoop(doc, filePath string, line, char uint) bool {
 			continue
 		}
 
-		loopStmt := stmt.(*ast.EachStmt)
+		loopStmt := stmt.(ast.LoopStmt)
+		pos := loopStmt.LoopBodyBlock().Pos
 
-		if loopStmt.Block.Pos.StartLine > line || loopStmt.Block.Pos.EndLine < line {
-			fmt.Printf("continue in first")
+		if pos.StartLine > line || pos.EndLine < line {
 			continue
 		}
 
-		fmt.Printf("------->StartCol %d\n", loopStmt.Block.Pos.StartCol)
-		fmt.Printf("------->EndCol %d\n", loopStmt.Block.Pos.EndCol)
-		if loopStmt.Block.Pos.StartCol >= char || loopStmt.Block.Pos.EndCol <= char {
-			fmt.Printf("continue in second")
+		if pos.StartCol > char || pos.EndCol < char {
 			continue
 		}
 

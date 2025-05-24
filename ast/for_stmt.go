@@ -33,6 +33,10 @@ func (fs *ForStmt) Stmts() []Statement {
 	return stmts
 }
 
+func (fs *ForStmt) LoopBodyBlock() *BlockStmt {
+	return fs.Block
+}
+
 func (fs *ForStmt) String() string {
 	var out bytes.Buffer
 
