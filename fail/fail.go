@@ -108,7 +108,7 @@ func (e *Error) Meta() string {
 
 // String returns the full error message with all the details
 func (e *Error) String() string {
-	return fmt.Sprintf("[%s]:\n%s", e.Meta(), e.Message())
+	return fmt.Sprintf("[%s]: %s", e.Meta(), e.Message())
 }
 
 // FatalOnError calls log.Fatal if the error message is not empty
