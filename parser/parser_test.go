@@ -382,6 +382,37 @@ func TestStringConcatenation(t *testing.T) {
 		t.Fatalf("exp.Right is not %s, got %s", " Anna", exp.Right.String())
 	}
 }
+func TestExpression(t *testing.T) {
+	test := "{{ 5 + 2 }}"
+
+	stmts := parseStatements(t, test, 1, nil)
+	stmt, ok := stmts[0].(*ast.ExpressionStmt)
+	if !ok {
+		t.Fatalf("stmts[0] is not an ExpressionStmt, got %T", stmts[0])
+	}
+
+	exp, ok := stmt.Expression.(*ast.InfixExp)
+	if !ok {
+		t.Fatalf("stmt is not an InfixExp, got %T", stmt.Expression)
+	}
+
+	testPosition(t, exp.Position(), token.Position{
+		StartCol: 3,
+		EndCol:   7,
+	})
+
+	if !testIntegerLiteral(t, exp.Right, 2) {
+		return
+	}
+
+	if exp.Operator != "+" {
+		t.Fatalf("exp.Operator is not %s, got %s", "+", exp.Operator)
+	}
+
+	if !testIntegerLiteral(t, exp.Left, 5) {
+		return
+	}
+}
 
 func TestGroupedExpression(t *testing.T) {
 	test := "{{ (5 + 5) * 2 }}"
@@ -495,16 +526,17 @@ func TestPrefixExp(t *testing.T) {
 		inp      string
 		operator string
 		value    any
+		endCol   uint
 	}{
-		{"{{ -5 }}", "-", 5},
-		{"{{ -10 }}", "-", 10},
-		{"{{ !true }}", "!", true},
-		{"{{ !false }}", "!", false},
-		{`{{ !"" }}`, "!", ""},
-		{`{{ !0 }}`, "!", 0},
-		{`{{ -0 }}`, "-", 0},
-		{`{{ -0.0 }}`, "-", 0.0},
-		{`{{ !0.0 }}`, "!", 0.0},
+		{"{{ -5 }}", "-", 5, 4},
+		{"{{ -10 }}", "-", 10, 5},
+		{"{{ !true }}", "!", true, 7},
+		{"{{ !false }}", "!", false, 8},
+		{`{{ !"" }}`, "!", "", 5},
+		{`{{ !0 }}`, "!", 0, 4},
+		{`{{ -0 }}`, "-", 0, 4},
+		{`{{ -0.0 }}`, "-", 0.0, 6},
+		{`{{ !0.0 }}`, "!", 0.0, 6},
 	}
 
 	for _, tc := range tests {
@@ -518,6 +550,11 @@ func TestPrefixExp(t *testing.T) {
 		if !ok {
 			t.Fatalf("stmt is not a PrefixExp, got %T", stmt.Expression)
 		}
+
+		testPosition(t, exp.Position(), token.Position{
+			StartCol: 3,
+			EndCol:   tc.endCol,
+		})
 
 		if exp.Operator != tc.operator {
 			t.Fatalf("exp.Operator is not %s, got %s", tc.operator, exp.Operator)
@@ -740,6 +777,13 @@ func TestParseNestedIfElseStatement(t *testing.T) {
 		StartLine: 1,
 		EndLine:   9,
 		StartCol:  17,
+		EndCol:    7,
+	})
+
+	testPosition(t, ifStmt.Alternative.Position(), token.Position{
+		StartLine: 9,
+		EndLine:   11,
+		StartCol:  13,
 		EndCol:    7,
 	})
 }

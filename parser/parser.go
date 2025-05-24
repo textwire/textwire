@@ -863,14 +863,17 @@ func (p *Parser) parseAlternativeBlock() *ast.BlockStmt {
 	p.nextToken() // move to "@else"
 	p.nextToken() // skip "@else"
 
-	alt := p.parseBlockStmt()
+	stmt := p.parseBlockStmt()
 
 	if p.peekTokenIs(token.ELSE_IF) {
 		p.newError(p.peekToken.ErrorLine(), fail.ErrElseifCannotFollowElse)
 		return nil
 	}
 
-	return alt
+	stmt.Pos.EndLine = p.curToken.Pos.EndLine
+	stmt.Pos.EndCol = p.curToken.Pos.EndCol
+
+	return stmt
 }
 
 func (p *Parser) parseForStmt() *ast.ForStmt {
@@ -1039,6 +1042,8 @@ func (p *Parser) parsePrefixExp() ast.Expression {
 	p.nextToken() // skip prefix operator
 
 	exp.Right = p.parseExpression(PREFIX)
+	exp.Pos.EndLine = p.curToken.Pos.EndLine
+	exp.Pos.EndCol = p.curToken.Pos.EndCol
 
 	return exp
 }
