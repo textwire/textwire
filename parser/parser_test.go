@@ -745,7 +745,7 @@ func TestParseNestedIfElseStatement(t *testing.T) {
 }
 
 func TestParseIfElseIfStmt(t *testing.T) {
-	inp := `@if(true)1@elseif(false)2@end`
+	inp := `@if(true)first@elseif(false)second@end`
 
 	stmts := parseStatements(t, inp, 1, nil)
 	stmt, ok := stmts[0].(*ast.IfStmt)
@@ -754,7 +754,7 @@ func TestParseIfElseIfStmt(t *testing.T) {
 		t.Fatalf("stmts[0] is not an IfStmt, got %T", stmts[0])
 	}
 
-	if !testConsequence(t, stmt, true, "1") {
+	if !testConsequence(t, stmt, true, "first") {
 		return
 	}
 
@@ -767,26 +767,31 @@ func TestParseIfElseIfStmt(t *testing.T) {
 			len(stmt.Alternatives))
 	}
 
-	alternative := stmt.Alternatives[0]
+	alt := stmt.Alternatives[0]
 
-	if !testBooleanLiteral(t, alternative.Condition, false) {
+	testPosition(t, alt.Position(), token.Position{
+		StartCol: 14,
+		EndCol:   33,
+	})
+
+	if !testBooleanLiteral(t, alt.Condition, false) {
 		return
 	}
 
-	if len(alternative.Consequence.Statements) != 1 {
-		t.Errorf("alternative.Consequence.Statements does not contain 1 statement, got %d",
-			len(alternative.Consequence.Statements))
+	if len(alt.Consequence.Statements) != 1 {
+		t.Errorf("alt.Consequence.Statements does not contain 1 statement, got %d",
+			len(alt.Consequence.Statements))
 	}
 
-	consequence, ok := alternative.Consequence.Statements[0].(*ast.HTMLStmt)
+	cons, ok := alt.Consequence.Statements[0].(*ast.HTMLStmt)
 
 	if !ok {
-		t.Fatalf("alternative.Consequence.Statements[0] is not an HTMLStmt, got %T",
-			alternative.Consequence.Statements[0])
+		t.Fatalf("alt.Consequence.Statements[0] is not an HTMLStmt, got %T",
+			alt.Consequence.Statements[0])
 	}
 
-	if consequence.String() != "2" {
-		t.Errorf("consequence.String() is not %s, got %s", "2", consequence.String())
+	if cons.String() != "second" {
+		t.Errorf("cons.String() is not %q, got %q", "second", cons.String())
 	}
 }
 

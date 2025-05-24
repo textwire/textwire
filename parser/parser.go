@@ -838,10 +838,12 @@ func (p *Parser) parseElseIfStmt() *ast.ElseIfStmt {
 		return nil
 	}
 
+	stmt := ast.NewElseIfStmt(p.curToken)
+
 	p.nextToken() // skip "@elseif"
 	p.nextToken() // skip "("
 
-	cond := p.parseExpression(LOWEST)
+	stmt.Condition = p.parseExpression(LOWEST)
 
 	if !p.expectPeek(token.RPAREN) { // move to ")"
 		return nil
@@ -849,7 +851,12 @@ func (p *Parser) parseElseIfStmt() *ast.ElseIfStmt {
 
 	p.nextToken() // skip ")"
 
-	return ast.NewElseIfStmt(p.curToken, cond, p.parseBlockStmt())
+	stmt.Consequence = p.parseBlockStmt()
+
+	stmt.Pos.EndLine = p.curToken.Pos.EndLine
+	stmt.Pos.EndCol = p.curToken.Pos.EndCol
+
+	return stmt
 }
 
 func (p *Parser) parseAlternativeBlock() *ast.BlockStmt {

@@ -13,12 +13,10 @@ type ElseIfStmt struct {
 	Pos         token.Position
 }
 
-func NewElseIfStmt(tok token.Token, cond Expression, cons *BlockStmt) *ElseIfStmt {
+func NewElseIfStmt(tok token.Token) *ElseIfStmt {
 	return &ElseIfStmt{
-		Token:       tok, // "@elseif"
-		Pos:         tok.Pos,
-		Condition:   cond,
-		Consequence: cons,
+		Token: tok, // "@elseif"
+		Pos:   tok.Pos,
 	}
 }
 
