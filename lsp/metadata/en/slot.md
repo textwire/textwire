@@ -7,7 +7,7 @@ Define a default slot in a component to provide a placeholder for content.
 @end
 ```
 
-Alternatily, you can define a named slot in a component.
+Alternatively, you can define a named slot in a component.
 
 ```textwire
 @slot('name')

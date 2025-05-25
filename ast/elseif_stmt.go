@@ -7,20 +7,21 @@ import (
 )
 
 type ElseIfStmt struct {
-	Token       token.Token
+	BaseNode
 	Condition   Expression
 	Consequence *BlockStmt
-	Pos         token.Position
+}
+
+func NewElseIfStmt(tok token.Token) *ElseIfStmt {
+	return &ElseIfStmt{
+		BaseNode: NewBaseNode(tok),
+	}
 }
 
 func (eis *ElseIfStmt) statementNode() {}
 
 func (eis *ElseIfStmt) Stmts() []Statement {
 	return eis.Consequence.Statements
-}
-
-func (eis *ElseIfStmt) Tok() *token.Token {
-	return &eis.Token
 }
 
 func (eis *ElseIfStmt) String() string {
@@ -30,12 +31,4 @@ func (eis *ElseIfStmt) String() string {
 	out.WriteString(eis.Consequence.String())
 
 	return out.String()
-}
-
-func (eis *ElseIfStmt) Line() uint {
-	return eis.Token.ErrorLine()
-}
-
-func (eis *ElseIfStmt) Position() token.Position {
-	return eis.Pos
 }

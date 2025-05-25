@@ -7,13 +7,18 @@ import (
 )
 
 type ForStmt struct {
-	Token       token.Token // The '@for' token
-	Init        Statement   // The initialization statement; or nil
-	Condition   Expression  // The condition expression; or nil
-	Post        Statement   // The post iteration statement; or nil
-	Alternative *BlockStmt  // The @else block
+	BaseNode
+	Init        Statement  // The initialization statement; or nil
+	Condition   Expression // The condition expression; or nil
+	Post        Statement  // The post iteration statement; or nil
+	Alternative *BlockStmt // The @else block
 	Block       *BlockStmt
-	Pos         token.Position
+}
+
+func NewForStmt(tok token.Token) *ForStmt {
+	return &ForStmt{
+		BaseNode: NewBaseNode(tok),
+	}
 }
 
 func (fs *ForStmt) statementNode() {}
@@ -28,8 +33,8 @@ func (fs *ForStmt) Stmts() []Statement {
 	return stmts
 }
 
-func (fs *ForStmt) Tok() *token.Token {
-	return &fs.Token
+func (fs *ForStmt) LoopBodyBlock() *BlockStmt {
+	return fs.Block
 }
 
 func (fs *ForStmt) String() string {
@@ -51,12 +56,4 @@ func (fs *ForStmt) String() string {
 	out.WriteString("@end\n")
 
 	return out.String()
-}
-
-func (fs *ForStmt) Line() uint {
-	return fs.Token.ErrorLine()
-}
-
-func (fs *ForStmt) Position() token.Position {
-	return fs.Pos
 }

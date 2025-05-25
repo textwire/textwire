@@ -1,5 +1,5 @@
 (keyword)
-`nil` is a predeclared identifier representing the zero value
+`nil` is a pre-declared identifier representing the zero value
 
 ```textwire
 {{ nil }}

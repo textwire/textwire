@@ -7,16 +7,17 @@ import (
 )
 
 type ArrayLiteral struct {
-	Token    token.Token
+	BaseNode
 	Elements []Expression
-	Pos      token.Position
+}
+
+func NewArrayLiteral(tok token.Token) *ArrayLiteral {
+	return &ArrayLiteral{
+		BaseNode: NewBaseNode(tok),
+	}
 }
 
 func (al *ArrayLiteral) expressionNode() {}
-
-func (al *ArrayLiteral) Tok() *token.Token {
-	return &al.Token
-}
 
 func (al *ArrayLiteral) String() string {
 	var out bytes.Buffer
@@ -34,12 +35,4 @@ func (al *ArrayLiteral) String() string {
 	out.WriteString("]")
 
 	return out.String()
-}
-
-func (al *ArrayLiteral) Line() uint {
-	return al.Token.ErrorLine()
-}
-
-func (al *ArrayLiteral) Position() token.Position {
-	return al.Pos
 }

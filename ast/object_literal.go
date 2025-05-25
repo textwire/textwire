@@ -9,16 +9,17 @@ import (
 )
 
 type ObjectLiteral struct {
-	Token token.Token           // The '{' token
+	BaseNode
 	Pairs map[string]Expression // The key-value pairs
-	Pos   token.Position
+}
+
+func NewObjectLiteral(tok token.Token) *ObjectLiteral {
+	return &ObjectLiteral{
+		BaseNode: NewBaseNode(tok),
+	}
 }
 
 func (ol *ObjectLiteral) expressionNode() {}
-
-func (ol *ObjectLiteral) Tok() *token.Token {
-	return &ol.Token
-}
 
 func (ol *ObjectLiteral) String() string {
 	var out bytes.Buffer
@@ -36,12 +37,4 @@ func (ol *ObjectLiteral) String() string {
 
 	return out.String()
 
-}
-
-func (os *ObjectLiteral) Line() uint {
-	return os.Token.ErrorLine()
-}
-
-func (os *ObjectLiteral) Position() token.Position {
-	return os.Pos
 }

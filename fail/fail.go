@@ -15,7 +15,6 @@ const (
 	ErrNoPrefixParseFunc         = "no prefix parse function for '%s'"
 	ErrIllegalToken              = "illegal token '%s' found"
 	ErrElseifCannotFollowElse    = "'@elseif' directive cannot follow '@else'"
-	ErrExpectedIdentifier        = "expected identifier, got '%s' instead"
 	ErrExceptedComponentStmt     = "expected *ComponentStmt, got %T"
 	ErrComponentMustHaveBlock    = "the component '%s' must have a block"
 	ErrExpectedObjectLiteral     = "expected object literal, got '%s' instead"
@@ -109,7 +108,7 @@ func (e *Error) Meta() string {
 
 // String returns the full error message with all the details
 func (e *Error) String() string {
-	return fmt.Sprintf("[%s]:\n%s", e.Meta(), e.Message())
+	return fmt.Sprintf("[%s]: %s", e.Meta(), e.Message())
 }
 
 // FatalOnError calls log.Fatal if the error message is not empty

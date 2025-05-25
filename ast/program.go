@@ -8,28 +8,25 @@ import (
 )
 
 type Program struct {
-	Token      token.Token // The 'program' token
+	BaseNode
 	IsLayout   bool
 	UseStmt    *UseStmt
 	Statements []Statement
 	Components []*ComponentStmt
 	Reserves   map[string]*ReserveStmt
 	Inserts    map[string]*InsertStmt
-	Pos        token.Position
+}
+
+func NewProgram(tok token.Token) *Program {
+	return &Program{
+		BaseNode: NewBaseNode(tok),
+	}
 }
 
 func (p *Program) statementNode() {}
 
 func (p *Program) Stmts() []Statement {
 	return p.Statements
-}
-
-func (p *Program) Tok() *token.Token {
-	if len(p.Statements) > 0 {
-		return p.Statements[0].Tok()
-	}
-
-	return &p.Token
 }
 
 func (p *Program) String() string {
@@ -45,14 +42,6 @@ func (p *Program) String() string {
 	}
 
 	return out.String()
-}
-
-func (p *Program) Line() uint {
-	return p.Token.ErrorLine()
-}
-
-func (p *Program) Position() token.Position {
-	return p.Pos
 }
 
 func (p *Program) ApplyInserts(inserts map[string]*InsertStmt, absPath string) *fail.Error {
