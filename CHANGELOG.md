@@ -2,7 +2,8 @@
 
 ## v2.5.7 (2025-05-25)
 - Fixed typos in LSP completions
-- Added `IsInLoop` function to `lsp` package to check if the current cursor position is inside a loop
+- Added `IsInLoop` function to `lsp` API to check if the current cursor position is inside a loop
+- Added `GetLoopObjFields` function to `lsp` API to get all the loop object fields
 
 ## v2.5.6 (2025-04-16)
 - Added more data for LSP to handle auto completions
