@@ -9,7 +9,7 @@ import (
 )
 
 // IsInLoop checks if given position of the cursor is inside of a loop
-func IsInLoop(doc, filePath string, line, char uint) bool {
+func IsInLoop(doc, filePath string, line, col uint) bool {
 	l := lexer.New(doc)
 	p := parser.New(l, filePath)
 	program := p.ParseProgram()
@@ -29,16 +29,35 @@ func IsInLoop(doc, filePath string, line, char uint) bool {
 		loopStmt := stmt.(ast.LoopStmt)
 		pos := loopStmt.LoopBodyBlock().Pos
 
-		if pos.StartLine > line || pos.EndLine < line {
-			continue
+		if IsCursorInBody(line, col, pos) {
+			return true
 		}
-
-		if pos.StartCol > char || pos.EndCol < char {
-			continue
-		}
-
-		return true
 	}
 
 	return false
+}
+
+func IsCursorInBody(line, col uint, pos token.Position) bool {
+	// Line outside range
+	if line < pos.StartLine || line > pos.EndLine {
+		return false
+	}
+
+	// For inlined loops that are written in a single line
+	if line == pos.StartLine && line == pos.EndLine {
+		return col >= pos.StartCol && col <= pos.EndCol
+	}
+
+	// When cursor is on the start line
+	if line == pos.StartLine {
+		return col >= pos.StartCol
+	}
+
+	// When cursor is on the end line
+	if line == pos.EndLine {
+		return col <= pos.EndCol
+	}
+
+	// In middle lines any column is valid
+	return true
 }
