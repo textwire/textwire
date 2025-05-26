@@ -27,6 +27,80 @@ func TestIsInLoop(t *testing.T) {
 		{doc: `@for(;;)x@end`, linePos: 0, colPos: 9, expect: false},
 		{doc: `@for(;;)x@end`, linePos: 0, colPos: 8, expect: true},
 		{doc: `@for(;;)x@end`, linePos: 0, colPos: 7, expect: false},
+		{
+			doc: `
+            @each(name in names)
+            {{ loop. }}
+            @end`,
+			linePos: 2,
+			colPos:  20,
+			expect:  true,
+		},
+		{
+			doc: `
+            @each(name in names)
+            {{ loop. }}
+            @end`,
+			linePos: 1,
+			colPos:  32,
+			expect:  true,
+		},
+		{
+			doc: `
+            @each(name in names)
+            {{ loop. }}
+            @end`,
+			linePos: 1,
+			colPos:  31,
+			expect:  false,
+		},
+		{
+			doc: `
+            @each(name in names)
+            {{ loop. }}
+            @end`,
+			linePos: 3,
+			colPos:  11,
+			expect:  true,
+		},
+		{
+			doc: `
+            @each(name in names)
+                @each(name in names)
+                    {{ loop. }}
+                @end
+            @end`,
+			linePos: 3,
+			colPos:  28,
+			expect:  true,
+		},
+		{
+			doc: `
+            @each(name in names)
+            {{ loop. }}
+            @end`,
+			linePos: 3,
+			colPos:  16,
+			expect:  false,
+		},
+		{
+			doc:     `@each(name in names)x@end`,
+			linePos: 0,
+			colPos:  20,
+			expect:  true,
+		},
+		{
+			doc:     `@each(name in names)x@end`,
+			linePos: 0,
+			colPos:  19,
+			expect:  false,
+		},
+		{
+			doc:     `@each(name in names)x@end`,
+			linePos: 0,
+			colPos:  21,
+			expect:  false,
+		},
 	}
 
 	for _, tc := range tests {
