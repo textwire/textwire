@@ -1,5 +1,8 @@
 # Release notes
 
+## v2.5.8 (2025-05-26)
+- Fixed issue with `IsInLoop` function which wasn't working properly with multiline example
+
 ## v2.5.7 (2025-05-25)
 - Fixed typos in LSP completions
 - Added `IsInLoop` function to `lsp` API to check if the current cursor position is inside a loop
