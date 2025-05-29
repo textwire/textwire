@@ -2,6 +2,7 @@ package ast
 
 import (
 	"bytes"
+	"strings"
 
 	"github.com/textwire/textwire/v2/token"
 )
@@ -50,8 +51,9 @@ func (bs *BlockStmt) Stmts() []Statement {
 			continue
 		}
 
-		if nestedStmt, ok := stmt.(NodeWithStatements); ok {
-			res = append(res, nestedStmt.Stmts()...)
+		if s, ok := stmt.(NodeWithStatements); ok {
+			res = append(res, s.(Statement))
+			res = append(res, s.Stmts()...)
 		}
 	}
 
