@@ -52,10 +52,9 @@ func (p *Program) Stmts() []Statement {
 			continue
 		}
 
-		res = append(res, stmt)
-
-		if nestedStmt, ok := stmt.(NodeWithStatements); ok {
-			res = append(res, nestedStmt.Stmts()...)
+		if s, ok := stmt.(NodeWithStatements); ok {
+			res = append(res, s.(Statement))
+			res = append(res, s.Stmts()...)
 		}
 	}
 
