@@ -24,8 +24,11 @@ func (bs *BlockStmt) String() string {
 
 	for _, s := range bs.Statements {
 		_, isHTML := s.(*HTMLStmt)
+		str := s.String()
 
 		if isHTML {
+			out.WriteString(s.String())
+		} else if strings.HasPrefix(str, "@") {
 			out.WriteString(s.String())
 		} else {
 			out.WriteString("{{ " + s.String() + " }}")
