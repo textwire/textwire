@@ -22,20 +22,6 @@ func NewIfStmt(tok token.Token) *IfStmt {
 
 func (is *IfStmt) statementNode() {}
 
-func (is *IfStmt) Stmts() []Statement {
-	stmts := is.Consequence.Statements
-
-	if is.Alternative != nil {
-		stmts = append(stmts, is.Alternative.Statements...)
-	}
-
-	for _, e := range is.Alternatives {
-		stmts = append(stmts, e.Stmts()...)
-	}
-
-	return stmts
-}
-
 func (is *IfStmt) String() string {
 	var out bytes.Buffer
 
@@ -55,4 +41,22 @@ func (is *IfStmt) String() string {
 	out.WriteString("@end\n")
 
 	return out.String()
+}
+
+func (is *IfStmt) Stmts() []Statement {
+	res := make([]Statement, 0)
+
+	if is.Consequence != nil {
+		res = append(res, is.Consequence.Stmts()...)
+	}
+
+	if is.Alternative != nil {
+		res = append(res, is.Alternative.Stmts()...)
+	}
+
+	for _, e := range is.Alternatives {
+		res = append(res, e.Stmts()...)
+	}
+
+	return res
 }

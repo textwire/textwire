@@ -20,10 +20,6 @@ func NewElseIfStmt(tok token.Token) *ElseIfStmt {
 
 func (eis *ElseIfStmt) statementNode() {}
 
-func (eis *ElseIfStmt) Stmts() []Statement {
-	return eis.Consequence.Statements
-}
-
 func (eis *ElseIfStmt) String() string {
 	var out bytes.Buffer
 
@@ -31,4 +27,12 @@ func (eis *ElseIfStmt) String() string {
 	out.WriteString(eis.Consequence.String())
 
 	return out.String()
+}
+
+func (eis *ElseIfStmt) Stmts() []Statement {
+	if eis.Consequence == nil {
+		return []Statement{}
+	}
+
+	return eis.Consequence.Stmts()
 }

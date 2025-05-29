@@ -34,3 +34,23 @@ func (bs *BlockStmt) String() string {
 
 	return out.String()
 }
+
+func (bs *BlockStmt) Stmts() []Statement {
+	res := make([]Statement, 0)
+
+	if bs.Statements == nil {
+		return []Statement{}
+	}
+
+	for _, stmt := range bs.Statements {
+		if stmt == nil {
+			continue
+		}
+
+		if nestedStmt, ok := stmt.(NodeWithStatements); ok {
+			res = append(res, nestedStmt.Stmts()...)
+		}
+	}
+
+	return res
+}

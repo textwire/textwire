@@ -23,16 +23,6 @@ func NewForStmt(tok token.Token) *ForStmt {
 
 func (fs *ForStmt) statementNode() {}
 
-func (fs *ForStmt) Stmts() []Statement {
-	stmts := fs.Block.Statements
-
-	if fs.Alternative != nil {
-		stmts = append(stmts, fs.Alternative.Statements...)
-	}
-
-	return stmts
-}
-
 func (fs *ForStmt) LoopBodyBlock() *BlockStmt {
 	return fs.Block
 }
@@ -56,4 +46,18 @@ func (fs *ForStmt) String() string {
 	out.WriteString("@end\n")
 
 	return out.String()
+}
+
+func (fs *ForStmt) Stmts() []Statement {
+	res := make([]Statement, 0)
+
+	if fs.Block != nil {
+		res = append(res, fs.Block.Stmts()...)
+	}
+
+	if fs.Alternative != nil {
+		res = append(res, fs.Alternative.Stmts()...)
+	}
+
+	return res
 }

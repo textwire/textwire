@@ -23,3 +23,11 @@ func (us *UseStmt) statementNode() {}
 func (us *UseStmt) String() string {
 	return fmt.Sprintf(`@use(%s)`, us.Name.String())
 }
+
+func (us *UseStmt) Stmts() []Statement {
+	if us.Program == nil {
+		return []Statement{}
+	}
+
+	return us.Program.Stmts()
+}

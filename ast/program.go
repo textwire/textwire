@@ -25,10 +25,6 @@ func NewProgram(tok token.Token) *Program {
 
 func (p *Program) statementNode() {}
 
-func (p *Program) Stmts() []Statement {
-	return p.Statements
-}
-
 func (p *Program) String() string {
 	var out bytes.Buffer
 
@@ -42,6 +38,28 @@ func (p *Program) String() string {
 	}
 
 	return out.String()
+}
+
+func (p *Program) Stmts() []Statement {
+	res := make([]Statement, 0)
+
+	if p.Statements == nil {
+		return []Statement{}
+	}
+
+	for _, stmt := range p.Statements {
+		if stmt == nil {
+			continue
+		}
+
+		res = append(res, stmt)
+
+		if nestedStmt, ok := stmt.(NodeWithStatements); ok {
+			res = append(res, nestedStmt.Stmts()...)
+		}
+	}
+
+	return res
 }
 
 func (p *Program) ApplyInserts(inserts map[string]*InsertStmt, absPath string) *fail.Error {

@@ -15,3 +15,8 @@ type Node interface {
 type LoopStmt interface {
 	LoopBodyBlock() *BlockStmt
 }
+
+type NodeWithStatements interface {
+	Node
+	Stmts() []Statement
+}
