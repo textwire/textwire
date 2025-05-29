@@ -29,58 +29,58 @@ func TestIsInLoop(t *testing.T) {
 		{doc: `@for(;;)x@end`, linePos: 0, colPos: 7, expect: false},
 		{
 			doc: `
-            @each(name in names)
-            {{ loop. }}
-            @end`,
+		        @each(name in names)
+                {{ loop }}
+		        @end`,
 			linePos: 2,
-			colPos:  20,
+			colPos:  23,
 			expect:  true,
 		},
 		{
 			doc: `
-            @each(name in names)
-            {{ loop. }}
-            @end`,
-			linePos: 1,
-			colPos:  32,
+		        @each(name in names)
+                {{ loop }}
+		        @end`,
+			linePos: 2,
+			colPos:  23,
 			expect:  true,
 		},
 		{
 			doc: `
-            @each(name in names)
-            {{ loop. }}
-            @end`,
+		          @each(name in names)
+		          {{ loop }}
+		          @end`,
 			linePos: 1,
-			colPos:  31,
+			colPos:  30,
 			expect:  false,
 		},
 		{
 			doc: `
-            @each(name in names)
-            {{ loop. }}
-            @end`,
+		          @each(name in names)
+		          {{ loop }}
+		          @end`,
 			linePos: 3,
-			colPos:  11,
+			colPos:  10,
 			expect:  true,
 		},
 		{
 			doc: `
-            @each(name in names)
-                @each(name in names)
-                    {{ loop. }}
-                @end
-            @end`,
+		          @each(name in names)
+		              @each(name in names)
+		                  {{ loop }}
+		              @end
+		          @end`,
 			linePos: 3,
-			colPos:  28,
+			colPos:  27,
 			expect:  true,
 		},
 		{
 			doc: `
-            @each(name in names)
-            {{ loop. }}
-            @end`,
+		          @each(name in names)
+		          {{ loop }}
+		          @end`,
 			linePos: 3,
-			colPos:  16,
+			colPos:  15,
 			expect:  false,
 		},
 		{
@@ -101,10 +101,37 @@ func TestIsInLoop(t *testing.T) {
 			colPos:  21,
 			expect:  false,
 		},
+		{
+			doc: `@use('~main')
+
+@insert('title', "About Us")
+
+@insert('content')
+    @component('~header', {
+        title: "About Us",
+        description: "We have %n potatoes",
+    })
+
+    @each(name in names)
+        {{ loop }}
+    @end
+
+    <h2>{{ "Our Team" }}</h2>
+@end`,
+			linePos: 11,
+			colPos:  15,
+			expect:  true,
+		},
 	}
 
 	for _, tc := range tests {
-		actual := IsInLoop(tc.doc, "", tc.linePos, tc.colPos)
+		actual, errors := IsInLoop(tc.doc, "", tc.linePos, tc.colPos)
+
+		if len(errors) > 0 {
+			for _, msg := range errors {
+				t.Errorf("parser error: %q", msg.Error())
+			}
+		}
 
 		if actual != tc.expect {
 			t.Errorf("Expect IsInLoop to return %v, but got %v in %q, line %d, col %d",

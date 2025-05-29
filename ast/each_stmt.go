@@ -22,10 +22,6 @@ func NewEachStmt(tok token.Token) *EachStmt {
 
 func (es *EachStmt) statementNode() {}
 
-func (es *EachStmt) Stmts() []Statement {
-	return es.Block.Statements
-}
-
 func (es *EachStmt) LoopBodyBlock() *BlockStmt {
 	return es.Block
 }
@@ -48,4 +44,18 @@ func (es *EachStmt) String() string {
 	out.WriteString("@end\n")
 
 	return out.String()
+}
+
+func (es *EachStmt) Stmts() []Statement {
+	res := make([]Statement, 0)
+
+	if es.Block != nil {
+		res = append(res, es.Block.Stmts()...)
+	}
+
+	if es.Alternative != nil {
+		res = append(res, es.Alternative.Stmts()...)
+	}
+
+	return res
 }

@@ -24,10 +24,6 @@ func NewInsertStmt(tok token.Token, filePath string) *InsertStmt {
 
 func (is *InsertStmt) statementNode() {}
 
-func (is *InsertStmt) Stmts() []Statement {
-	return is.Block.Statements
-}
-
 func (is *InsertStmt) String() string {
 	var out bytes.Buffer
 
@@ -41,4 +37,12 @@ func (is *InsertStmt) String() string {
 	out.WriteString(`@end`)
 
 	return out.String()
+}
+
+func (is *InsertStmt) Stmts() []Statement {
+	if is.Block == nil {
+		return []Statement{}
+	}
+
+	return is.Block.Stmts()
 }

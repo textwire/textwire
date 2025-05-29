@@ -21,10 +21,6 @@ func NewSlotStmt(tok token.Token, name *StringLiteral) *SlotStmt {
 
 func (ss *SlotStmt) statementNode() {}
 
-func (ss *SlotStmt) Stmts() []Statement {
-	return ss.Body.Statements
-}
-
 func (ss *SlotStmt) String() string {
 	var out bytes.Buffer
 
@@ -43,4 +39,12 @@ func (ss *SlotStmt) String() string {
 	}
 
 	return out.String()
+}
+
+func (ss *SlotStmt) Stmts() []Statement {
+	if ss.Body == nil {
+		return []Statement{}
+	}
+
+	return ss.Body.Stmts()
 }

@@ -1,5 +1,9 @@
 # Release notes
 
+## v2.5.9 (2025-05-29)
+- Added more tests to test `IsInLoop` function
+- Fixed `IsInLoop` function
+
 ## v2.5.8 (2025-05-26)
 - Fixed issue with `IsInLoop` function which wasn't working properly with multiline example
 

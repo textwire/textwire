@@ -22,10 +22,6 @@ func NewComponentStmt(tok token.Token) *ComponentStmt {
 
 func (cs *ComponentStmt) statementNode() {}
 
-func (cs *ComponentStmt) Stmts() []Statement {
-	return cs.Block.Statements
-}
-
 func (cs *ComponentStmt) ArgsString() string {
 	var out bytes.Buffer
 
@@ -56,4 +52,12 @@ func (cs *ComponentStmt) String() string {
 	}
 
 	return out.String()
+}
+
+func (cs *ComponentStmt) Stmts() []Statement {
+	if cs.Block == nil {
+		return []Statement{}
+	}
+
+	return cs.Block.Stmts()
 }
