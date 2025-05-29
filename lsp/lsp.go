@@ -1,6 +1,7 @@
 package lsp
 
 import (
+	"github.com/textwire/textwire/v2/fail"
 	"github.com/textwire/textwire/v2/token"
 
 	"github.com/textwire/textwire/v2/ast"
@@ -9,16 +10,20 @@ import (
 )
 
 // IsInLoop checks if given position of the cursor is inside of a loop
-func IsInLoop(doc, filePath string, line, col uint) bool {
+func IsInLoop(doc, filePath string, line, col uint) (bool, []*fail.Error) {
 	l := lexer.New(doc)
 	p := parser.New(l, filePath)
 	program := p.ParseProgram()
 
 	if program == nil {
-		return false
+		return false, nil
 	}
 
-	for _, stmt := range program.Statements {
+	if p.HasErrors() {
+		return false, p.Errors()
+	}
+
+	for _, stmt := range program.Stmts() {
 		isEachLoop := stmt.Tok().Type == token.EACH
 		isForLoop := stmt.Tok().Type == token.FOR
 
@@ -30,11 +35,11 @@ func IsInLoop(doc, filePath string, line, col uint) bool {
 		pos := loopStmt.LoopBodyBlock().Pos
 
 		if IsCursorInBody(line, col, pos) {
-			return true
+			return true, nil
 		}
 	}
 
-	return false
+	return false, nil
 }
 
 func IsCursorInBody(line, col uint, pos token.Position) bool {
