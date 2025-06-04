@@ -64,7 +64,7 @@ func (e *Evaluator) Eval(node ast.Node, env *object.Env) object.Object {
 		return BREAK
 	case *ast.ContinueStmt:
 		return CONTINUE
-	case *ast.InsertStmt:
+	case *ast.IllegalNode, *ast.InsertStmt:
 		return NIL
 
 	// Expressions

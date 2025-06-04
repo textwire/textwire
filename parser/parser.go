@@ -129,18 +129,21 @@ func (p *Parser) ParseProgram() *ast.Program {
 	for !p.curTokenIs(token.EOF) {
 		stmt := p.parseStatement()
 
-		if p.curTokenIs(token.ILLEGAL) {
+		// if the end of the {{ expression }}
+		if p.curTokenIs(token.RBRACES) {
+			prog.Statements = append(prog.Statements, stmt)
+			p.nextToken()
+			continue
+		}
+
+		if (stmt == nil || p.curTokenIs(token.ILLEGAL)) && !p.curTokenIs(token.RBRACES) {
 			p.newError(
 				p.curToken.ErrorLine(),
 				fail.ErrIllegalToken,
 				p.curToken.Literal,
 			)
-			return nil
-		}
-
-		if stmt == nil {
+			stmt = ast.NewIllegalNode(p.curToken)
 			p.nextToken()
-			continue
 		}
 
 		prog.Statements = append(prog.Statements, stmt)
@@ -191,7 +194,7 @@ func (p *Parser) parseStatement() ast.Statement {
 	case token.CONTINUE:
 		return ast.NewContinueStmt(p.curToken)
 	default:
-		return nil
+		return ast.NewIllegalNode(p.curToken)
 	}
 }
 
@@ -356,7 +359,7 @@ func (p *Parser) parseObjectLiteral() ast.Expression {
 	return obj
 }
 
-func (p *Parser) parseHTMLStmt() *ast.HTMLStmt {
+func (p *Parser) parseHTMLStmt() ast.Statement {
 	return ast.NewHTMLStmt(p.curToken)
 }
 
@@ -378,6 +381,10 @@ func (p *Parser) parseAssignStmt() ast.Statement {
 
 	stmt.Value = p.parseExpression(SUM)
 	stmt.SetEndPosition(p.curToken.Pos)
+
+	if p.peekTokenIs(token.RBRACES) {
+		p.nextToken() // move to '}}'
+	}
 
 	return stmt
 }
@@ -515,7 +522,7 @@ func (p *Parser) parseAliasPathShortcut(shortenTo string) string {
 
 // parseSlotStmt parses a slot statement inside a component file.
 // Slots inside a component are parsed by other function
-func (p *Parser) parseSlotStmt() *ast.SlotStmt {
+func (p *Parser) parseSlotStmt() ast.Statement {
 	tok := p.curToken // "@slot"
 
 	if !p.peekTokenIs(token.LPAREN) {
@@ -537,7 +544,7 @@ func (p *Parser) parseSlotStmt() *ast.SlotStmt {
 	return stmt
 }
 
-func (p *Parser) parseDumpStmt() *ast.DumpStmt {
+func (p *Parser) parseDumpStmt() ast.Statement {
 	tok := p.curToken // "@dump"
 
 	var args []ast.Expression
@@ -766,7 +773,7 @@ func (p *Parser) parseTernaryExp(left ast.Expression) ast.Expression {
 	return exp
 }
 
-func (p *Parser) parseIfStmt() *ast.IfStmt {
+func (p *Parser) parseIfStmt() ast.Statement {
 	stmt := ast.NewIfStmt(p.curToken)
 
 	if !p.expectPeek(token.LPAREN) { // move to "("
@@ -852,7 +859,7 @@ func (p *Parser) parseAlternativeBlock() *ast.BlockStmt {
 	return stmt
 }
 
-func (p *Parser) parseForStmt() *ast.ForStmt {
+func (p *Parser) parseForStmt() ast.Statement {
 	stmt := ast.NewForStmt(p.curToken)
 
 	if !p.expectPeek(token.LPAREN) { // move to "("
@@ -892,6 +899,7 @@ func (p *Parser) parseForStmt() *ast.ForStmt {
 	stmt.Block = p.parseBlockStmt()
 
 	if p.peekTokenIs(token.ELSE) {
+		p.nextToken() // move to "@else"
 		p.nextToken() // skip "@else"
 		stmt.Alternative = p.parseBlockStmt()
 	}
@@ -905,7 +913,7 @@ func (p *Parser) parseForStmt() *ast.ForStmt {
 	return stmt
 }
 
-func (p *Parser) parseEachStmt() *ast.EachStmt {
+func (p *Parser) parseEachStmt() ast.Statement {
 	stmt := ast.NewEachStmt(p.curToken)
 
 	if !p.expectPeek(token.LPAREN) { // move to "("
@@ -933,6 +941,7 @@ func (p *Parser) parseEachStmt() *ast.EachStmt {
 	stmt.Block = p.parseBlockStmt()
 
 	if p.peekTokenIs(token.ELSE) {
+		p.nextToken() // move to "@else"
 		p.nextToken() // skip "@else"
 		stmt.Alternative = p.parseBlockStmt()
 	}
@@ -948,8 +957,9 @@ func (p *Parser) parseEachStmt() *ast.EachStmt {
 
 func (p *Parser) parseBlockStmt() *ast.BlockStmt {
 	stmt := ast.NewBlockStmt(p.curToken)
+	stmt.SetEndPosition(p.curToken.Pos)
 
-	for !p.curTokenIs(token.END) {
+	for !p.curTokenIs(token.END) && !p.curTokenIs(token.EOF) {
 		block := p.parseStatement()
 		stmt.SetEndPosition(p.curToken.Pos)
 
