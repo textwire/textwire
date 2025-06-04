@@ -2,6 +2,7 @@
 
 ## v2.6.0 (2025-06-04)
 - Improve parser implementation by making it more resilient to syntax errors. It now produces an IllegalNode ast token
+- Improve testing for the parser by adding more checks
 
 ## v2.5.9 (2025-05-29)
 - Added more tests to test `IsInLoop` function

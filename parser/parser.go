@@ -725,12 +725,11 @@ func (p *Parser) parseDotExp(left ast.Expression) ast.Expression {
 
 func (p *Parser) parseCallExp(receiver ast.Expression) ast.Expression {
 	ident := ast.NewIdentifier(p.curToken, p.curToken.Literal)
+	exp := ast.NewCallExp(p.curToken, receiver, ident)
 
 	if !p.expectPeek(token.LPAREN) { // move to "("
 		return nil
 	}
-
-	exp := ast.NewCallExp(p.curToken, receiver, ident)
 
 	exp.Arguments = p.parseExpressionList(token.RPAREN)
 	exp.SetEndPosition(p.curToken.Pos)
