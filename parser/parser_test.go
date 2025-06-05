@@ -1362,6 +1362,33 @@ func TestParseCallExp(t *testing.T) {
 	}
 }
 
+func TestParseCallExpWithExpressionList(t *testing.T) {
+	inp := `{{ "nice".replace("n", "") }}`
+
+	stmts := parseStatements(t, inp, defaultParseOpts)
+	stmt, ok := stmts[0].(*ast.ExpressionStmt)
+
+	if !ok {
+		t.Fatalf("stmts[0] is not a ExpressionStmt, got %T", stmts[0])
+	}
+
+	exp, ok := stmt.Expression.(*ast.CallExp)
+	if !ok {
+		t.Fatalf("stmt.Expression is not a CallExp, got %T", stmt.Expression)
+	}
+
+	testToken(t, exp, token.IDENT)
+
+	testPosition(t, exp.Position(), token.Position{
+		StartCol: 10,
+		EndCol:   25,
+	})
+
+	if len(exp.Arguments) != 2 {
+		t.Fatalf("len(callExp.Arguments) is not 2, got %d", len(exp.Arguments))
+	}
+}
+
 func TestParseCallExpWithEmptyString(t *testing.T) {
 	inp := `{{ "".len() }}`
 
