@@ -14,7 +14,8 @@ func NewIllegalNode(tok token.Token) *IllegalNode {
 	}
 }
 
-func (en *IllegalNode) statementNode() {}
+func (en *IllegalNode) statementNode()  {}
+func (en *IllegalNode) expressionNode() {}
 
 func (en *IllegalNode) String() string {
 	return ""
