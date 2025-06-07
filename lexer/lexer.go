@@ -121,12 +121,12 @@ func (l *Lexer) NextToken() token.Token {
 		return l.bracesToken(token.RBRACES, "}}")
 	}
 
-	if !l.isHTML {
-		return l.embeddedCodeToken()
-	}
-
 	if isDirective, _ := l.isDirectiveToken(); isDirective {
 		return l.directiveToken()
+	}
+
+	if !l.isHTML {
+		return l.embeddedCodeToken()
 	}
 
 	return l.newToken(token.HTML, l.readHTML())
