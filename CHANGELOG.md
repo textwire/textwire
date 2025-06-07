@@ -1,5 +1,10 @@
 # Release notes
 
+## v2.6.0 (2025-06-07)
+- Improve parser implementation by making it more resilient to syntax errors. It now produces an IllegalNode ast token. I'll be able to use it to detect illegal parts in a file and show it with a red squiggly line
+- Improve testing for the parser by adding more checks
+- Added validation for `@use` statement. Now, if you pass something other than type STR, it will print an error
+
 ## v2.5.9 (2025-05-29)
 - Added more tests to test `IsInLoop` function
 - Fixed `IsInLoop` function

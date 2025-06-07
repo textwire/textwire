@@ -64,7 +64,7 @@ func (e *Evaluator) Eval(node ast.Node, env *object.Env) object.Object {
 		return BREAK
 	case *ast.ContinueStmt:
 		return CONTINUE
-	case *ast.InsertStmt:
+	case *ast.IllegalNode, *ast.InsertStmt:
 		return NIL
 
 	// Expressions
@@ -133,14 +133,16 @@ func (e *Evaluator) evalIfStmt(node *ast.IfStmt, env *object.Env) object.Object 
 	}
 
 	for _, alt := range node.Alternatives {
-		condition = e.Eval(alt.Condition, env)
+		if ifStmt, ok := alt.(*ast.ElseIfStmt); ok {
+			condition = e.Eval(ifStmt.Condition, env)
 
-		if isError(condition) {
-			return condition
-		}
+			if isError(condition) {
+				return condition
+			}
 
-		if isTruthy(condition) {
-			return e.Eval(alt.Consequence, newEnv)
+			if isTruthy(condition) {
+				return e.Eval(ifStmt.Consequence, newEnv)
+			}
 		}
 	}
 

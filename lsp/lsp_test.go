@@ -17,7 +17,7 @@ func TestIsInLoop(t *testing.T) {
 		{doc: `@each(x in users){{x}}@end`, linePos: 0, colPos: 20, expect: true},
 		{doc: `@each(x in users){{x}}@end`, linePos: 0, colPos: 21, expect: true},
 		{doc: `@each(x in users){{x}}@end`, linePos: 0, colPos: 22, expect: false},
-		{doc: `@for(i = 0; i < 10; i++){{x}}@end`, linePos: 0, colPos: 23, expect: false},
+		{doc: `@for(i = 0; i < 10; i++){{x}}@end`, linePos: 0, colPos: 23, expect: false}, // <<<-- TODO: fix this
 		{doc: `@for(i = 0; i < 10; i++){{x}}@end`, linePos: 0, colPos: 24, expect: true},
 		{doc: `@for(i = 0; i < 10; i++){{x}}@end`, linePos: 0, colPos: 25, expect: true},
 		{doc: `@for(i = 0; i < 10; i++){{x}}@end`, linePos: 0, colPos: 26, expect: true},
@@ -29,56 +29,56 @@ func TestIsInLoop(t *testing.T) {
 		{doc: `@for(;;)x@end`, linePos: 0, colPos: 7, expect: false},
 		{
 			doc: `
-		        @each(name in names)
-                {{ loop }}
-		        @end`,
+				        @each(name in names)
+		                {{ loop }}
+				        @end`,
 			linePos: 2,
 			colPos:  23,
 			expect:  true,
 		},
 		{
 			doc: `
-		        @each(name in names)
-                {{ loop }}
-		        @end`,
+				        @each(name in names)
+		                {{ loop }}
+				        @end`,
 			linePos: 2,
 			colPos:  23,
 			expect:  true,
 		},
 		{
 			doc: `
-		          @each(name in names)
-		          {{ loop }}
-		          @end`,
+				          @each(name in names)
+				          {{ loop }}
+				          @end`,
 			linePos: 1,
 			colPos:  30,
 			expect:  false,
 		},
 		{
 			doc: `
-		          @each(name in names)
-		          {{ loop }}
-		          @end`,
+				          @each(name in names)
+				          {{ loop }}
+				          @end`,
 			linePos: 3,
 			colPos:  10,
 			expect:  true,
 		},
 		{
 			doc: `
-		          @each(name in names)
-		              @each(name in names)
-		                  {{ loop }}
-		              @end
-		          @end`,
+				          @each(name in names)
+				              @each(name in names)
+				                  {{ loop }}
+				              @end
+				          @end`,
 			linePos: 3,
 			colPos:  27,
 			expect:  true,
 		},
 		{
 			doc: `
-		          @each(name in names)
-		          {{ loop }}
-		          @end`,
+				          @each(name in names)
+				          {{ loop }}
+				          @end`,
 			linePos: 3,
 			colPos:  15,
 			expect:  false,
@@ -104,20 +104,20 @@ func TestIsInLoop(t *testing.T) {
 		{
 			doc: `@use('~main')
 
-@insert('title', "About Us")
+		@insert('title', "About Us")
 
-@insert('content')
-    @component('~header', {
-        title: "About Us",
-        description: "We have %n potatoes",
-    })
+		@insert('content')
+		    @component('~header', {
+		        title: "About Us",
+		        description: "We have %n potatoes",
+		    })
 
-    @each(name in names)
-        {{ loop }}
-    @end
+		    @each(name in names)
+		        {{ loop }}
+		    @end
 
-    <h2>{{ "Our Team" }}</h2>
-@end`,
+		    <h2>{{ "Our Team" }}</h2>
+		@end`,
 			linePos: 11,
 			colPos:  15,
 			expect:  true,

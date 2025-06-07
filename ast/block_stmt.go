@@ -28,11 +28,11 @@ func (bs *BlockStmt) String() string {
 		str := s.String()
 
 		if isHTML {
-			out.WriteString(s.String())
+			out.WriteString(str)
 		} else if strings.HasPrefix(str, "@") {
-			out.WriteString(s.String())
+			out.WriteString(str)
 		} else {
-			out.WriteString("{{ " + s.String() + " }}")
+			out.WriteString("{{ " + str + " }}")
 		}
 	}
 

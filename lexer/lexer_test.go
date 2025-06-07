@@ -704,3 +704,18 @@ func TestCommentStatement(t *testing.T) {
 		})
 	})
 }
+
+func TestLexerCanReadIllegalDirectives(t *testing.T) {
+	inp := `@if(false)@dump(@end`
+
+	TokenizeString(t, inp, []token.Token{
+		{Type: token.IF, Literal: "@if", Pos: token.Position{EndCol: 2}},
+		{Type: token.LPAREN, Literal: "(", Pos: token.Position{StartCol: 3, EndCol: 3}},
+		{Type: token.FALSE, Literal: "false", Pos: token.Position{StartCol: 4, EndCol: 8}},
+		{Type: token.RPAREN, Literal: ")", Pos: token.Position{StartCol: 9, EndCol: 9}},
+		{Type: token.DUMP, Literal: "@dump", Pos: token.Position{StartCol: 10, EndCol: 14}},
+		{Type: token.LPAREN, Literal: "(", Pos: token.Position{StartCol: 15, EndCol: 15}},
+		{Type: token.END, Literal: "@end", Pos: token.Position{StartCol: 16, EndCol: 19}},
+		{Type: token.EOF, Literal: "", Pos: token.Position{StartCol: 20, EndCol: 20}},
+	})
+}
