@@ -26,6 +26,7 @@ const (
 	ErrUndefinedComponent        = "component '%s' is not defined. Check if component exists"
 	ErrUndefinedInsert           = "insert with the name '%s' is not defined in layout. Check if you have a matching reserve statement with the same name"
 	ErrDuplicateInserts          = "duplicate insert statements with the name '%s' found"
+	ErrUseStmtFirstArgStr        = "the first argument of the 'use' statement must be a string, got '%s' instead"
 
 	// Evaluator (interpreter) errors
 	ErrUnknownNodeType         = "unknown node type '%T'"

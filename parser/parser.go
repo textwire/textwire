@@ -393,6 +393,14 @@ func (p *Parser) parseUseStmt() ast.Statement {
 
 	p.nextToken() // skip "("
 
+	if p.curToken.Type != token.STR {
+		p.newError(
+			p.curToken.ErrorLine(),
+			fail.ErrUseStmtFirstArgStr,
+			token.String(p.curToken.Type),
+		)
+	}
+
 	stmt.Name = ast.NewStringLiteral(
 		p.curToken,
 		p.parseAliasPathShortcut("layouts"),

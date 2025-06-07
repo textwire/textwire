@@ -724,6 +724,10 @@ func TestErrorHandling(t *testing.T) {
 			"@component('')",
 			fail.New(1, "", "parser", fail.ErrExpectedComponentName),
 		},
+		{
+			"@use(1)",
+			fail.New(1, "", "parser", fail.ErrUseStmtFirstArgStr, token.String(token.INT)),
+		},
 	}
 
 	for _, tc := range tests {
