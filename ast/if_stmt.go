@@ -8,10 +8,10 @@ import (
 
 type IfStmt struct {
 	BaseNode
-	Condition    Expression    // The truthy condition
-	Consequence  *BlockStmt    // The 'then' block
-	Alternative  *BlockStmt    // The @else block
-	Alternatives []*ElseIfStmt // The @elseif blocks
+	Condition    Expression  // The truthy condition
+	Consequence  *BlockStmt  // The 'then' block
+	Alternative  *BlockStmt  // The @else block
+	Alternatives []Statement // The @elseif blocks
 }
 
 func NewIfStmt(tok token.Token) *IfStmt {
@@ -55,7 +55,9 @@ func (is *IfStmt) Stmts() []Statement {
 	}
 
 	for _, e := range is.Alternatives {
-		res = append(res, e.Stmts()...)
+		if withStmts, ok := e.(NodeWithStatements); ok {
+			res = append(res, withStmts.Stmts()...)
+		}
 	}
 
 	return res

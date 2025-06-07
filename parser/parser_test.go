@@ -1969,13 +1969,22 @@ func TestIllegalNode(t *testing.T) {
 	}
 }
 
-// func TestIllegalNodeWithProperNodes(t *testing.T) {
-// 	inp := "@if(false)@dump(@end"
+func TestIllegalNodeWithProperNodes(t *testing.T) {
+	inp := "@if(false)@dump(@end"
 
-// 	stmts := parseStatements(t, inp, parseOpts{stmtCount: 1, checkErrors: false})
-// 	_, ok := stmts[0].(*ast.IfStmt)
+	stmts := parseStatements(t, inp, parseOpts{stmtCount: 1, checkErrors: false})
+	stmt, ok := stmts[0].(*ast.IfStmt)
+	if !ok {
+		t.Errorf("stmts[0] is not an IfStmt, got %T", stmt)
+	}
 
-// 	if !ok {
-// 		t.Errorf("stmts[0] is not an IfStmt, got %T", stmts[0])
-// 	}
-// }
+	dump, ok := stmt.Consequence.Statements[0].(*ast.DumpStmt)
+	if !ok {
+		t.Errorf("stmt.Consequence.Statements[0] is not an DumpStmt, got %T", dump)
+	}
+
+	illegal, ok := dump.Arguments[0].(*ast.IllegalNode)
+	if !ok {
+		t.Errorf("dump.Arguments[0] is not an IllegalNode, got %T", illegal)
+	}
+}
