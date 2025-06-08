@@ -489,16 +489,14 @@ func (p *Parser) parseComponentStmt() ast.Statement {
 		return p.illegalNode()
 	}
 
-	if p.peekTokenIs(token.SLOT) {
-		p.nextToken() // skip ")"
-		stmt.Slots = p.parseSlots()
-	} else if p.peekTokenIs(token.HTML) && isWhitespace(p.peekToken.Literal) {
+	if p.peekTokenIs(token.HTML) && isWhitespace(p.peekToken.Literal) {
 		p.nextToken() // skip ")"
 
-		if p.peekTokenIs(token.SLOT) {
-			p.nextToken() // skip whitespace
-			stmt.Slots = p.parseSlots()
-		}
+	}
+
+	if p.peekTokenIs(token.SLOT) {
+		p.nextToken() // skip whitespace
+		stmt.Slots = p.parseSlots()
 	}
 
 	p.components = append(p.components, stmt)
