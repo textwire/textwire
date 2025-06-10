@@ -588,21 +588,19 @@ func (p *Parser) parseSlots() []*ast.SlotStmt {
 		}
 
 		stmt := ast.NewSlotStmt(tok, slotName)
-		hasBody := !p.curTokenIs(token.END)
+		hasEmptyBody := p.curTokenIs(token.END)
 
-		if hasBody {
+		if hasEmptyBody {
+			p.nextToken() // skip "@end"
+			stmt.SetEndPosition(p.curToken.Pos)
+		} else {
 			stmt.Body = p.parseBlockStmt()
+			stmt.SetEndPosition(p.curToken.Pos)
+			p.nextToken() // skip block statement
+			p.nextToken() // skip "@end"
 		}
-
-		stmt.SetEndPosition(p.curToken.Pos)
 
 		slots = append(slots, stmt)
-
-		if hasBody {
-			p.nextToken() // skip block statement
-		}
-
-		p.nextToken() // skip "@end"
 
 		for p.curTokenIs(token.HTML) {
 			p.nextToken() // skip whitespace
