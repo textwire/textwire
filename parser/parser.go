@@ -491,7 +491,6 @@ func (p *Parser) parseComponentStmt() ast.Statement {
 
 	if p.peekTokenIs(token.HTML) && isWhitespace(p.peekToken.Literal) {
 		p.nextToken() // move to ")"
-
 	}
 
 	if p.peekTokenIs(token.END) {
