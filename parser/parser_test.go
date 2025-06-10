@@ -1973,7 +1973,7 @@ func TestIllegalNode(t *testing.T) {
 	}
 }
 
-func TestIllegalNodeWithProperNodes(t *testing.T) {
+func TestParseBodyAsIllegalNode(t *testing.T) {
 	inp := "@if(false)@dump(@end"
 
 	stmts := parseStatements(t, inp, parseOpts{stmtCount: 1, checkErrors: false})
