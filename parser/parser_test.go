@@ -1987,8 +1987,48 @@ func TestIllegalNodeWithProperNodes(t *testing.T) {
 		t.Errorf("stmt.Consequence.Statements[0] is not an DumpStmt, got %T", dump)
 	}
 
-	illegal, ok := dump.Arguments[0].(*ast.IllegalNode)
+	_, ok = dump.Arguments[0].(*ast.IllegalNode)
 	if !ok {
-		t.Errorf("dump.Arguments[0] is not an IllegalNode, got %T", illegal)
+		t.Errorf("dump.Arguments[0] is not an IllegalNode, got %T", dump.Arguments[0])
+	}
+}
+
+func TestParseIllegalNode(t *testing.T) {
+	cases := []struct {
+		inp       string
+		stmtCount int
+	}{
+		{"@if(loop. {{ 'nice' }}@end", 1},
+		{"@if {{ 'nice' }}@end", 1},
+		{"@if( {{ 'nice' }}@end", 1},
+		{"@each( {{ 'nice' }}@end", 1},
+		{"@each() {{ 'nice' }}@end", 1},
+		{"@each(loop. {{ 'nice' }}@end", 1},
+		{"@each(nice in []{{ 'nice' }}@end", 1},
+		{"@each(nice in {{ 'nice' }}@end", 1},
+		{"@for( {{ 'nice' }}@end", 1},
+		{"@for() {{ 'nice' }}@end", 1},
+		{"@for(i {{ 'nice' }}@end", 1},
+		{"@for(i = 0; i < []; i++{{ 'nice' }}@end", 1},
+		{"@for(i = 0; i < [] {{ 'nice' }}@end", 1},
+		{"@component('~user'", 1},
+		{"@component('", 1},
+		{"@component", 1},
+		{"@insert('nice", 1},
+		{"@insert('nice'", 1},
+		{"@insert('nice'@end", 1},
+		{"@insert('nice' {{ 'nice' }}@end", 1},
+	}
+
+	for _, tc := range cases {
+		stmts := parseStatements(t, tc.inp, parseOpts{
+			stmtCount:   tc.stmtCount,
+			checkErrors: false,
+		})
+
+		_, ok := stmts[0].(*ast.IllegalNode)
+		if !ok {
+			t.Errorf("stmts[0] is not an IllegalNode, got %T for %s", stmts[0], tc.inp)
+		}
 	}
 }
