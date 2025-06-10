@@ -39,7 +39,7 @@ func parseStatements(t *testing.T, inp string, opts parseOpts) []ast.Statement {
 	}
 
 	if len(prog.Statements) != opts.stmtCount {
-		t.Fatalf("prog must have %d statement, got %d", opts.stmtCount, len(prog.Statements))
+		t.Fatalf("prog must have %d statement, got %d for input: %q", opts.stmtCount, len(prog.Statements), inp)
 	}
 
 	return prog.Statements
@@ -1551,6 +1551,37 @@ func TestParseEachStmt(t *testing.T) {
 	}
 }
 
+func TestParseStmtCanHaveEmptyBody(t *testing.T) {
+	cases := []struct {
+		inp       string
+		endColPos uint
+		tok       token.TokenType
+	}{
+		{"@each(name in ['anna', 'serhii'])@end", 36, token.EACH},
+		{"@for(i = 0; i < 10; i++)@end", 27, token.FOR},
+		{"@if(true)@end", 12, token.IF},
+		{"@insert('content')@end", 21, token.INSERT},
+		{"@component('user')@slot('footer')@end@end", 40, token.COMPONENT},
+	}
+
+	for _, tc := range cases {
+		stmts := parseStatements(t, tc.inp, defaultParseOpts)
+
+		stmt, ok := stmts[0].(ast.NodeWithStatements)
+		if !ok {
+			t.Fatalf("stmts[0] is not a EachStmt, got %T", stmts[0])
+		}
+
+		testToken(t, stmt, tc.tok)
+		testPosition(t, stmt.Position(), token.Position{EndCol: tc.endColPos})
+
+		actual := len(stmt.Stmts())
+		if actual != 0 {
+			t.Errorf("len(stmt.Stmts()) has to be empty, got %d", actual)
+		}
+	}
+}
+
 func TestParseEachElseStatement(t *testing.T) {
 	inp := `@each(v in []){{ v }}@elseTest@end`
 
@@ -1973,7 +2004,7 @@ func TestIllegalNode(t *testing.T) {
 	}
 }
 
-func TestIllegalNodeWithProperNodes(t *testing.T) {
+func TestParseBodyAsIllegalNode(t *testing.T) {
 	inp := "@if(false)@dump(@end"
 
 	stmts := parseStatements(t, inp, parseOpts{stmtCount: 1, checkErrors: false})
@@ -1987,8 +2018,48 @@ func TestIllegalNodeWithProperNodes(t *testing.T) {
 		t.Errorf("stmt.Consequence.Statements[0] is not an DumpStmt, got %T", dump)
 	}
 
-	illegal, ok := dump.Arguments[0].(*ast.IllegalNode)
+	_, ok = dump.Arguments[0].(*ast.IllegalNode)
 	if !ok {
-		t.Errorf("dump.Arguments[0] is not an IllegalNode, got %T", illegal)
+		t.Errorf("dump.Arguments[0] is not an IllegalNode, got %T", dump.Arguments[0])
+	}
+}
+
+func TestParseIllegalNode(t *testing.T) {
+	cases := []struct {
+		inp       string
+		stmtCount int
+	}{
+		{"@if(loop. {{ 'nice' }}@end", 1},
+		{"@if {{ 'nice' }}@end", 1},
+		{"@if( {{ 'nice' }}@end", 1},
+		{"@each( {{ 'nice' }}@end", 1},
+		{"@each() {{ 'nice' }}@end", 1},
+		{"@each(loop. {{ 'nice' }}@end", 1},
+		{"@each(nice in []{{ 'nice' }}@end", 1},
+		{"@each(nice in {{ 'nice' }}@end", 1},
+		{"@for( {{ 'nice' }}@end", 1},
+		{"@for() {{ 'nice' }}@end", 1},
+		{"@for(i {{ 'nice' }}@end", 1},
+		{"@for(i = 0; i < []; i++{{ 'nice' }}@end", 1},
+		{"@for(i = 0; i < [] {{ 'nice' }}@end", 1},
+		{"@component('~user'", 1},
+		{"@component('", 1},
+		{"@component", 1},
+		{"@insert('nice", 1},
+		{"@insert('nice'", 1},
+		{"@insert('nice'@end", 1},
+		{"@insert('nice' {{ 'nice' }}@end", 1},
+	}
+
+	for _, tc := range cases {
+		stmts := parseStatements(t, tc.inp, parseOpts{
+			stmtCount:   tc.stmtCount,
+			checkErrors: false,
+		})
+
+		_, ok := stmts[0].(*ast.IllegalNode)
+		if !ok {
+			t.Errorf("stmts[0] is not an IllegalNode, got %T for %s", stmts[0], tc.inp)
+		}
 	}
 }

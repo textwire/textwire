@@ -461,7 +461,7 @@ func (p *Parser) parseComponentStmt() ast.Statement {
 	stmt := ast.NewComponentStmt(p.curToken)
 
 	if !p.expectPeek(token.LPAREN) { // move to "("
-		return p.illegalNode()
+		return p.illegalNodeUntil(token.RPAREN)
 	}
 
 	p.nextToken() // skip "("
@@ -486,19 +486,16 @@ func (p *Parser) parseComponentStmt() ast.Statement {
 	}
 
 	if !p.expectPeek(token.RPAREN) { // move to ")"
-		return p.illegalNode()
+		return p.illegalNodeUntil(token.HTML)
+	}
+
+	if p.peekTokenIs(token.HTML) && isWhitespace(p.peekToken.Literal) {
+		p.nextToken() // move to ")"
 	}
 
 	if p.peekTokenIs(token.SLOT) {
-		p.nextToken() // skip ")"
+		p.nextToken() // skip whitespace
 		stmt.Slots = p.parseSlots()
-	} else if p.peekTokenIs(token.HTML) && isWhitespace(p.peekToken.Literal) {
-		p.nextToken() // skip ")"
-
-		if p.peekTokenIs(token.SLOT) {
-			p.nextToken() // skip whitespace
-			stmt.Slots = p.parseSlots()
-		}
 	}
 
 	p.components = append(p.components, stmt)
@@ -538,7 +535,7 @@ func (p *Parser) parseSlotStmt() ast.Statement {
 	slotName := ast.NewStringLiteral(p.curToken, p.curToken.Literal)
 
 	if !p.expectPeek(token.RPAREN) { // move to ")"
-		return p.illegalNode()
+		return p.illegalNodeUntil(token.END)
 	}
 
 	stmt := ast.NewSlotStmt(tok, slotName)
@@ -587,13 +584,19 @@ func (p *Parser) parseSlots() []*ast.SlotStmt {
 		}
 
 		stmt := ast.NewSlotStmt(tok, slotName)
-		stmt.Body = p.parseBlockStmt()
-		stmt.SetEndPosition(p.curToken.Pos)
+		hasEmptyBody := p.curTokenIs(token.END)
+
+		if hasEmptyBody {
+			p.nextToken() // skip "@end"
+			stmt.SetEndPosition(p.curToken.Pos)
+		} else {
+			stmt.Body = p.parseBlockStmt()
+			stmt.SetEndPosition(p.curToken.Pos)
+			p.nextToken() // skip block statement
+			p.nextToken() // skip "@end"
+		}
 
 		slots = append(slots, stmt)
-
-		p.nextToken() // skip block statement
-		p.nextToken() // skip "@end"
 
 		for p.curTokenIs(token.HTML) {
 			p.nextToken() // skip whitespace
@@ -647,7 +650,7 @@ func (p *Parser) parseInsertStmt() ast.Statement {
 		stmt.Argument = p.parseExpression(LOWEST)
 
 		if !p.expectPeek(token.RPAREN) { // move to ")"
-			return p.illegalNode()
+			return p.illegalNodeUntil(token.RBRACE)
 		}
 
 		stmt.SetEndPosition(p.curToken.Pos)
@@ -658,7 +661,13 @@ func (p *Parser) parseInsertStmt() ast.Statement {
 	}
 
 	if !p.expectPeek(token.RPAREN) { // move to ")"
-		return p.illegalNode()
+		return p.illegalNodeUntil(token.END)
+	}
+
+	if p.peekTokenIs(token.END) {
+		p.nextToken() // move to "@end"
+		stmt.SetEndPosition(p.curToken.Pos)
+		return stmt
 	}
 
 	p.nextToken() // skip ")"
@@ -666,7 +675,7 @@ func (p *Parser) parseInsertStmt() ast.Statement {
 
 	// skip body block and move to @end
 	if !p.expectPeek(token.END) {
-		return p.illegalNode()
+		return p.illegalNodeUntil(token.END)
 	}
 
 	stmt.SetEndPosition(p.curToken.Pos)
@@ -779,7 +788,7 @@ func (p *Parser) parseIfStmt() ast.Statement {
 	stmt := ast.NewIfStmt(p.curToken)
 
 	if !p.expectPeek(token.LPAREN) { // move to "("
-		return p.illegalNode()
+		return p.illegalNodeUntil(token.END)
 	}
 
 	p.nextToken() // skip "("
@@ -787,12 +796,16 @@ func (p *Parser) parseIfStmt() ast.Statement {
 	stmt.Condition = p.parseExpression(LOWEST)
 
 	if !p.expectPeek(token.RPAREN) { // move to ")"
-		return p.illegalNode()
+		return p.illegalNodeUntil(token.END)
 	}
 
 	p.nextToken() // skip ")"
 
 	stmt.Consequence = p.parseBlockStmt()
+	if stmt.Consequence == nil {
+		stmt.SetEndPosition(p.curToken.Pos)
+		return stmt
+	}
 
 	for p.peekTokenIs(token.ELSE_IF) {
 		alt := p.parseElseIfStmt()
@@ -860,7 +873,7 @@ func (p *Parser) parseForStmt() ast.Statement {
 	stmt := ast.NewForStmt(p.curToken)
 
 	if !p.expectPeek(token.LPAREN) { // move to "("
-		return p.illegalNode()
+		return p.illegalNodeUntil(token.END)
 	}
 
 	// Parse Init
@@ -869,7 +882,7 @@ func (p *Parser) parseForStmt() ast.Statement {
 	}
 
 	if !p.expectPeek(token.SEMI) { // move to ";"
-		return p.illegalNode()
+		return p.illegalNodeUntil(token.END)
 	}
 
 	// Parse Condition
@@ -879,7 +892,7 @@ func (p *Parser) parseForStmt() ast.Statement {
 	}
 
 	if !p.expectPeek(token.SEMI) { // move to ";"
-		return p.illegalNode()
+		return p.illegalNodeUntil(token.END)
 	}
 
 	// Parse Post statement
@@ -888,12 +901,16 @@ func (p *Parser) parseForStmt() ast.Statement {
 	}
 
 	if !p.expectPeek(token.RPAREN) { // move to ")"
-		return p.illegalNode()
+		return p.illegalNodeUntil(token.END)
 	}
 
 	p.nextToken() // skip ")"
 
 	stmt.Block = p.parseBlockStmt()
+	if stmt.Block == nil {
+		stmt.SetEndPosition(p.curToken.Pos)
+		return stmt
+	}
 
 	if p.peekTokenIs(token.ELSE) {
 		p.nextToken() // move to "@else"
@@ -902,7 +919,7 @@ func (p *Parser) parseForStmt() ast.Statement {
 	}
 
 	if !p.expectPeek(token.END) { // move to "@end"
-		return p.illegalNode()
+		return p.illegalNodeUntil(token.END)
 	}
 
 	stmt.SetEndPosition(p.curToken.Pos)
@@ -914,7 +931,7 @@ func (p *Parser) parseEachStmt() ast.Statement {
 	stmt := ast.NewEachStmt(p.curToken)
 
 	if !p.expectPeek(token.LPAREN) { // move to "("
-		return p.illegalNode()
+		return p.illegalNodeUntil(token.END)
 	}
 
 	p.nextToken() // skip "("
@@ -922,7 +939,7 @@ func (p *Parser) parseEachStmt() ast.Statement {
 	stmt.Var = ast.NewIdentifier(p.curToken, p.curToken.Literal)
 
 	if !p.expectPeek(token.IN) { // move to "in"
-		return p.illegalNode()
+		return p.illegalNodeUntil(token.END)
 	}
 
 	p.nextToken() // skip "in"
@@ -930,12 +947,16 @@ func (p *Parser) parseEachStmt() ast.Statement {
 	stmt.Array = p.parseExpression(LOWEST)
 
 	if !p.expectPeek(token.RPAREN) { // move to ")"
-		return p.illegalNode()
+		return p.illegalNodeUntil(token.END)
 	}
 
 	p.nextToken() // skip ")"
 
 	stmt.Block = p.parseBlockStmt()
+	if stmt.Block == nil {
+		stmt.SetEndPosition(p.curToken.Pos)
+		return stmt
+	}
 
 	if p.peekTokenIs(token.ELSE) {
 		p.nextToken() // move to "@else"
@@ -944,7 +965,7 @@ func (p *Parser) parseEachStmt() ast.Statement {
 	}
 
 	if !p.expectPeek(token.END) { // move to "@end"
-		return p.illegalNode()
+		return p.illegalNodeUntil(token.END)
 	}
 
 	stmt.SetEndPosition(p.curToken.Pos)
@@ -953,6 +974,10 @@ func (p *Parser) parseEachStmt() ast.Statement {
 }
 
 func (p *Parser) parseBlockStmt() *ast.BlockStmt {
+	if p.curTokenIs(token.END) {
+		return nil
+	}
+
 	stmt := ast.NewBlockStmt(p.curToken)
 	stmt.SetEndPosition(p.curToken.Pos)
 
@@ -1086,4 +1111,12 @@ func (p *Parser) illegalNode() *ast.IllegalNode {
 	)
 
 	return ast.NewIllegalNode(p.curToken)
+}
+
+func (p *Parser) illegalNodeUntil(tok token.TokenType) *ast.IllegalNode {
+	for !p.curTokenIs(tok) && !p.curTokenIs(token.EOF) {
+		p.nextToken()
+	}
+
+	return p.illegalNode()
 }
