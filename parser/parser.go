@@ -495,6 +495,9 @@ func (p *Parser) parseComponentStmt() ast.Statement {
 	}
 
 	if p.peekTokenIs(token.END) {
+		p.nextToken() // move to "@end"
+		stmt.SetEndPosition(p.curToken.Pos)
+		return stmt
 	}
 
 	if p.peekTokenIs(token.SLOT) {
@@ -660,6 +663,12 @@ func (p *Parser) parseInsertStmt() ast.Statement {
 
 	if !p.expectPeek(token.RPAREN) { // move to ")"
 		return p.illegalNodeUntil(token.END)
+	}
+
+	if p.peekTokenIs(token.END) {
+		p.nextToken() // move to "@end"
+		stmt.SetEndPosition(p.curToken.Pos)
+		return stmt
 	}
 
 	p.nextToken() // skip ")"
