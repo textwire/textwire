@@ -39,7 +39,7 @@ func parseStatements(t *testing.T, inp string, opts parseOpts) []ast.Statement {
 	}
 
 	if len(prog.Statements) != opts.stmtCount {
-		t.Fatalf("prog must have %d statement, got %d", opts.stmtCount, len(prog.Statements))
+		t.Fatalf("prog must have %d statement, got %d for input: %q", opts.stmtCount, len(prog.Statements), inp)
 	}
 
 	return prog.Statements
