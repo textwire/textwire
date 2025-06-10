@@ -495,8 +495,6 @@ func (p *Parser) parseComponentStmt() ast.Statement {
 
 	if p.peekTokenIs(token.END) {
 		p.nextToken() // move to "@end"
-		stmt.SetEndPosition(p.curToken.Pos)
-		return stmt
 	}
 
 	if p.peekTokenIs(token.SLOT) {
@@ -541,7 +539,7 @@ func (p *Parser) parseSlotStmt() ast.Statement {
 	slotName := ast.NewStringLiteral(p.curToken, p.curToken.Literal)
 
 	if !p.expectPeek(token.RPAREN) { // move to ")"
-		return p.illegalNode()
+		return p.illegalNodeUntil(token.END)
 	}
 
 	stmt := ast.NewSlotStmt(tok, slotName)
@@ -590,12 +588,20 @@ func (p *Parser) parseSlots() []*ast.SlotStmt {
 		}
 
 		stmt := ast.NewSlotStmt(tok, slotName)
-		stmt.Body = p.parseBlockStmt()
+		hasBody := !p.curTokenIs(token.END)
+
+		if hasBody {
+			stmt.Body = p.parseBlockStmt()
+		}
+
 		stmt.SetEndPosition(p.curToken.Pos)
 
 		slots = append(slots, stmt)
 
-		p.nextToken() // skip block statement
+		if hasBody {
+			p.nextToken() // skip block statement
+		}
+
 		p.nextToken() // skip "@end"
 
 		for p.curTokenIs(token.HTML) {

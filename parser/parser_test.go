@@ -1551,6 +1551,38 @@ func TestParseEachStmt(t *testing.T) {
 	}
 }
 
+func TestParseStmtCanHaveEmptyBody(t *testing.T) {
+	cases := []struct {
+		inp       string
+		endColPos uint
+		tok       token.TokenType
+	}{
+		{"@each(name in ['anna', 'serhii'])@end", 36, token.EACH},
+		{"@for(i = 0; i < 10; i++)@end", 27, token.FOR},
+		{"@if(true)@end", 12, token.IF},
+		{"@component('person')@end", 23, token.COMPONENT},
+		{"@insert('content')@end", 21, token.INSERT},
+		{"@component('user')@slot('footer')@end@end", 40, token.COMPONENT},
+	}
+
+	for _, tc := range cases {
+		stmts := parseStatements(t, tc.inp, defaultParseOpts)
+
+		stmt, ok := stmts[0].(ast.NodeWithStatements)
+		if !ok {
+			t.Fatalf("stmts[0] is not a EachStmt, got %T", stmts[0])
+		}
+
+		testToken(t, stmt, tc.tok)
+		testPosition(t, stmt.Position(), token.Position{EndCol: tc.endColPos})
+
+		actual := len(stmt.Stmts())
+		if actual != 0 {
+			t.Errorf("len(stmt.Stmts()) has to be empty, got %d", actual)
+		}
+	}
+}
+
 func TestParseEachElseStatement(t *testing.T) {
 	inp := `@each(v in []){{ v }}@elseTest@end`
 
