@@ -2,7 +2,7 @@
 
 ## v2.6.1 (2025-06-10)
 - Improve illegal token detection
-- The body of @each, @for, @if, @insert, @slot and @components statements now can be empty
+- The body of @each, @for, @if, @insert and @slot statements now can be empty
 
 ## v2.6.0 (2025-06-07)
 - Improve parser implementation by making it more resilient to syntax errors. It now produces an IllegalNode ast token. I'll be able to use it to detect illegal parts in a file and show it with a red squiggly line

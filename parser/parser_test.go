@@ -1560,7 +1560,6 @@ func TestParseStmtCanHaveEmptyBody(t *testing.T) {
 		{"@each(name in ['anna', 'serhii'])@end", 36, token.EACH},
 		{"@for(i = 0; i < 10; i++)@end", 27, token.FOR},
 		{"@if(true)@end", 12, token.IF},
-		{"@component('person')@end", 23, token.COMPONENT},
 		{"@insert('content')@end", 21, token.INSERT},
 		{"@component('user')@slot('footer')@end@end", 40, token.COMPONENT},
 	}

@@ -493,10 +493,6 @@ func (p *Parser) parseComponentStmt() ast.Statement {
 		p.nextToken() // move to ")"
 	}
 
-	if p.peekTokenIs(token.END) {
-		p.nextToken() // move to "@end"
-	}
-
 	if p.peekTokenIs(token.SLOT) {
 		p.nextToken() // skip whitespace
 		stmt.Slots = p.parseSlots()
