@@ -1,5 +1,8 @@
 # Release notes
 
+## v2.6.2 (2025-06-11)
+- The `IsInLoop` function now always return result even when it found parsing errors
+
 ## v2.6.1 (2025-06-10)
 - Improve illegal token detection
 - The body of @each, @for, @if, @insert and @slot statements now can be empty

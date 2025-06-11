@@ -29,59 +29,70 @@ func TestIsInLoop(t *testing.T) {
 		{doc: `@for(;;)x@end`, linePos: 0, colPos: 7, expect: false},
 		{
 			doc: `
-				        @each(name in names)
-		                {{ loop }}
-				        @end`,
+            @each(name in names)
+                {{ loop }}
+            @end`,
 			linePos: 2,
 			colPos:  23,
 			expect:  true,
 		},
 		{
 			doc: `
-				        @each(name in names)
-		                {{ loop }}
-				        @end`,
+            @each(name in names)
+                {{ loop }}
+            @end`,
 			linePos: 2,
 			colPos:  23,
 			expect:  true,
 		},
 		{
 			doc: `
-				          @each(name in names)
-				          {{ loop }}
-				          @end`,
+            @each(name in names)
+                {{ loop }}
+            @end`,
 			linePos: 1,
 			colPos:  30,
 			expect:  false,
 		},
 		{
 			doc: `
-				          @each(name in names)
-				          {{ loop }}
-				          @end`,
+            @each(name in names)
+                {{ loop }}
+            @end`,
 			linePos: 3,
 			colPos:  10,
 			expect:  true,
 		},
 		{
 			doc: `
-				          @each(name in names)
-				              @each(name in names)
-				                  {{ loop }}
-				              @end
-				          @end`,
+            @each(name in names)
+                @each(name in names)
+                    {{ loop }}
+                @end
+            @end`,
 			linePos: 3,
 			colPos:  27,
 			expect:  true,
 		},
 		{
 			doc: `
-				          @each(name in names)
-				          {{ loop }}
-				          @end`,
+            @each(name in names)
+                {{ loop }}
+            @end`,
 			linePos: 3,
 			colPos:  15,
 			expect:  false,
+		},
+		{
+			doc: `
+            @each(name in names)
+                @if(loop.
+                    {{ loop.first }}
+                @end
+            @end`,
+			linePos: 2,
+			colPos:  25,
+			expect:  true,
 		},
 		{
 			doc:     `@each(name in names)x@end`,
@@ -129,7 +140,7 @@ func TestIsInLoop(t *testing.T) {
 
 		if len(errors) > 0 {
 			for _, msg := range errors {
-				t.Errorf("parser error: %q", msg.Error())
+				t.Logf("parser error: %q", msg.Error())
 			}
 		}
 

@@ -1993,17 +1993,6 @@ func TestParseDumpStmt(t *testing.T) {
 	testBooleanLiteral(t, stmt.Arguments[2], false)
 }
 
-func TestIllegalNode(t *testing.T) {
-	inp := "@if(false"
-
-	stmts := parseStatements(t, inp, parseOpts{stmtCount: 1, checkErrors: false})
-
-	_, ok := stmts[0].(*ast.IllegalNode)
-	if !ok {
-		t.Errorf("stmts[0] is not an IllegalNode, got %T", stmts[0])
-	}
-}
-
 func TestParseBodyAsIllegalNode(t *testing.T) {
 	inp := "@if(false)@dump(@end"
 
@@ -2029,6 +2018,7 @@ func TestParseIllegalNode(t *testing.T) {
 		inp       string
 		stmtCount int
 	}{
+		{"@if(false", 1},
 		{"@if(loop. {{ 'nice' }}@end", 1},
 		{"@if {{ 'nice' }}@end", 1},
 		{"@if( {{ 'nice' }}@end", 1},
@@ -2049,6 +2039,10 @@ func TestParseIllegalNode(t *testing.T) {
 		{"@insert('nice'", 1},
 		{"@insert('nice'@end", 1},
 		{"@insert('nice' {{ 'nice' }}@end", 1},
+		{`@if(loop.
+            {{ loop.first }}
+            Iteration number is {{ loop.iter }}
+        @end`, 1},
 	}
 
 	for _, tc := range cases {
