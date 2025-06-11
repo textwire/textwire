@@ -29,56 +29,56 @@ func TestIsInLoop(t *testing.T) {
 		{doc: `@for(;;)x@end`, linePos: 0, colPos: 7, expect: false},
 		{
 			doc: `
-				        @each(name in names)
-		                {{ loop }}
-				        @end`,
+            @each(name in names)
+                {{ loop }}
+            @end`,
 			linePos: 2,
 			colPos:  23,
 			expect:  true,
 		},
 		{
 			doc: `
-				        @each(name in names)
-		                {{ loop }}
-				        @end`,
+            @each(name in names)
+                {{ loop }}
+            @end`,
 			linePos: 2,
 			colPos:  23,
 			expect:  true,
 		},
 		{
 			doc: `
-				          @each(name in names)
-				          {{ loop }}
-				          @end`,
+            @each(name in names)
+                {{ loop }}
+            @end`,
 			linePos: 1,
 			colPos:  30,
 			expect:  false,
 		},
 		{
 			doc: `
-				          @each(name in names)
-				          {{ loop }}
-				          @end`,
+            @each(name in names)
+                {{ loop }}
+            @end`,
 			linePos: 3,
 			colPos:  10,
 			expect:  true,
 		},
 		{
 			doc: `
-				          @each(name in names)
-				              @each(name in names)
-				                  {{ loop }}
-				              @end
-				          @end`,
+            @each(name in names)
+                @each(name in names)
+                    {{ loop }}
+                @end
+            @end`,
 			linePos: 3,
 			colPos:  27,
 			expect:  true,
 		},
 		{
 			doc: `
-				          @each(name in names)
-				          {{ loop }}
-				          @end`,
+            @each(name in names)
+                {{ loop }}
+            @end`,
 			linePos: 3,
 			colPos:  15,
 			expect:  false,
