@@ -84,6 +84,17 @@ func TestIsInLoop(t *testing.T) {
 			expect:  false,
 		},
 		{
+			doc: `
+            @each(name in names)
+                @if(loop.
+                    {{ loop.first }}
+                @end
+            @end`,
+			linePos: 2,
+			colPos:  25,
+			expect:  true,
+		},
+		{
 			doc:     `@each(name in names)x@end`,
 			linePos: 0,
 			colPos:  20,
@@ -129,7 +140,7 @@ func TestIsInLoop(t *testing.T) {
 
 		if len(errors) > 0 {
 			for _, msg := range errors {
-				t.Errorf("parser error: %q", msg.Error())
+				t.Logf("parser error: %q", msg.Error())
 			}
 		}
 

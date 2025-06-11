@@ -16,10 +16,6 @@ func IsInLoop(doc, filePath string, line, col uint) (bool, []*fail.Error) {
 	program := p.ParseProgram()
 
 	if program == nil {
-		return false, nil
-	}
-
-	if p.HasErrors() {
 		return false, p.Errors()
 	}
 
@@ -35,11 +31,11 @@ func IsInLoop(doc, filePath string, line, col uint) (bool, []*fail.Error) {
 		pos := loopStmt.LoopBodyBlock().Pos
 
 		if IsCursorInBody(line, col, pos) {
-			return true, nil
+			return true, p.Errors()
 		}
 	}
 
-	return false, nil
+	return false, p.Errors()
 }
 
 func IsCursorInBody(line, col uint, pos token.Position) bool {
