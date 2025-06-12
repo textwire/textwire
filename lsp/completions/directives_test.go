@@ -28,7 +28,6 @@ func TestGetDirectives(t *testing.T) {
 	}
 
 	directivesCount := len(token.GetDirectives())
-
 	if directivesCount != len(directives) {
 		t.Fatalf("GetDirectives() should return %d directives, got %d",
 			directivesCount, len(directives))
