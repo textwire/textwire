@@ -2,7 +2,6 @@ package lsp
 
 import (
 	"embed"
-	"fmt"
 	"path"
 	"strings"
 	"sync"
@@ -22,6 +21,9 @@ var (
 	//go:embed metadata/*
 	files embed.FS
 
+	//go:embed inserts/*
+	insertFiles embed.FS
+
 	fileNamesOnce sync.Once
 	fileNames     map[token.TokenType]string
 
@@ -31,17 +33,44 @@ var (
 // GetTokenMeta retrieves metadata for the given token type and locale.
 func GetTokenMeta(tok token.TokenType, locale Locale) (string, error) {
 	if !isValidLocale(locale) {
-		return "", fmt.Errorf(utils.ErrInvalidLocale, locale)
+		return "", utils.ErrInvalidLocale(string(locale))
 	}
 
 	fileNamesOnce.Do(initFileNames)
 
 	fileName, ok := fileNames[tok]
 	if !ok {
-		return "", fmt.Errorf(utils.ErrNoMetadataFound, tok)
+		return "", utils.ErrNoMetadataFound(tok)
 	}
 
-	return loadMeta(locale, fileName)
+	filePath := path.Join("metadata", string(locale), fileName)
+
+	data, err := files.ReadFile(filePath)
+	if err != nil {
+		return "", utils.FailedToReadFile("meta", filePath, err)
+	}
+
+	return string(data), nil
+}
+
+// GetTokenInsert retrieves insert string for the given token type. This
+// insert is used for autocompletion.
+func GetTokenInsert(tok token.TokenType) (string, error) {
+	fileNamesOnce.Do(initFileNames)
+
+	fileName, ok := fileNames[tok]
+	if !ok {
+		return "", utils.ErrNoMetadataFound(tok)
+	}
+
+	filePath := path.Join("inserts", fileName)
+
+	data, err := insertFiles.ReadFile(filePath)
+	if err != nil {
+		return "", utils.FailedToReadFile("insert", filePath, err)
+	}
+
+	return string(data), nil
 }
 
 func initFileNames() {
@@ -51,18 +80,6 @@ func initFileNames() {
 		name := strings.ToLower(dir[1:])
 		fileNames[tok] = name + ".md"
 	}
-}
-
-// loadMeta loads metadata from the embedded files for the given locale and file name.
-func loadMeta(locale Locale, fileName string) (string, error) {
-	filePath := path.Join("metadata", string(locale), fileName)
-
-	data, err := files.ReadFile(filePath)
-	if err != nil {
-		return "", fmt.Errorf("failed to read file %s: %w", filePath, err)
-	}
-
-	return string(data), nil
 }
 
 func isValidLocale(locale Locale) bool {
