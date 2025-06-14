@@ -1,5 +1,8 @@
 # Release notes
 
+## v2.6.6 (2025-06-14)
+- Fixed incorrect snippet for `@break` autocomplete
+
 ## v2.6.5 (2025-06-14)
 - Fixed not working autocomplete snippets
 
