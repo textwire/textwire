@@ -4,10 +4,10 @@ type Completion struct {
 	// Label is text that is shown in the dropdown suggestions list.
 	Label string
 
-	// Insert is text that should be inserted into the editor after
-	// the confirmation. Can be an empty string, in which case the
-	// Label will be used for insertion.
-	Insert string
+	// InsertText is a string that should be inserted into a document when
+	// selecting this completion. When omitted the label is used as the
+	// insert text for this item.
+	InsertText string
 
 	// Documentation is a full description of the item.
 	Documentation string

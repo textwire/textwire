@@ -1,6 +1,9 @@
 # Release notes
 
-## v2.6.4 (2025-06-13)
+## v2.6.5 (2025-06-14)
+- Fixed not working autocomplete snippets
+
+## v2.6.4 (2025-06-14)
 - Update completion item structure for LSP to make it treat completion inserts as snippets, not just as text
 
 ## v2.6.3 (2025-06-13)

@@ -31,7 +31,7 @@ func GetDirectives(locale lsp.Locale) ([]Completion, error) {
 
 		completions = append(completions, Completion{
 			Label:            dir,
-			Insert:           insert[1:],
+			InsertText:       insert[1:],
 			InsertTextFormat: 2, // 2 = Snippet
 			Documentation:    meta,
 		})
