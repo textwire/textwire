@@ -17,5 +17,5 @@ type Completion struct {
 	// 1 stands for text format
 	// 2 stands for snippet where you can include `${3:foo}` and just `$1`
 	// special symbols to tell where to place the cursor
-	InsertTextFormat int `json:"insertTextFormat"`
+	InsertTextFormat int
 }
