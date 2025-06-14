@@ -11,29 +11,29 @@ func GetLoopObjFields(locale lsp.Locale) ([]Completion, error) {
 	completions := map[lsp.Locale][]Completion{
 		"en": {
 			{
-				Label:  "index",
-				Insert: "index",
+				Label:      "index",
+				InsertText: "index",
 				Documentation: fmt.Sprintf("%s\n%s",
 					"(property) index: int",
 					"The current iteration of the loop. Starts with 0"),
 			},
 			{
-				Label:  "first",
-				Insert: "first",
+				Label:      "first",
+				InsertText: "first",
 				Documentation: fmt.Sprintf("%s\n%s",
 					"(property) first: bool",
 					"Returns `true` if this is the first iteration of the loop."),
 			},
 			{
-				Label:  "last",
-				Insert: "last",
+				Label:      "last",
+				InsertText: "last",
 				Documentation: fmt.Sprintf("%s\n%s",
 					"(property) last: bool",
 					"Returns `true` if this is the last iteration of the loop."),
 			},
 			{
-				Label:  "iter",
-				Insert: "iter",
+				Label:      "iter",
+				InsertText: "iter",
 				Documentation: fmt.Sprintf("%s\n%s",
 					"(property) iter: int",
 					"The current iteration of the loop. Starts with 1"),
