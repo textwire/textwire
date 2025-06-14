@@ -1,5 +1,8 @@
 # Release notes
 
+## v2.6.4 (2025-06-13)
+- Update completion item structure for LSP to make it treat completion inserts as snippets, not just as text
+
 ## v2.6.3 (2025-06-13)
 - Code refactoring and improving error handling for lsp package
 - For LSP part, textwire now returns full insert text for autocompletion. E.g. instead of `@dump` it will autocomplete to `@dump()` and put the cursor inside `()`
