@@ -1,7 +1,7 @@
 # Release notes
 
 ## v2.6.8 (2025-06-19)
-- Added Docker to the project.
+- Added Docker to the project
 
 ## v2.6.7 (2025-06-14)
 - Fixed incorrect snippet for `@break` autocomplete
