@@ -23,3 +23,25 @@ If you use [Neovim](https://neovim.io/) or [VSCode](https://code.visualstudio.co
 
 ## License
 The Textwire project is licensed under the [MIT License](https://github.com/textwire/textwire/blob/master/LICENSE)
+
+## Development
+### Without Docker
+You'll need to have Go installed on your machine.
+
+### With Docker
+#### Build an image
+To build an image, navigate to the root of the project that contains `Dockerfile` and run this command:
+```bash
+docker compose build
+```
+
+#### Run the container
+To run a container, navigate to the root of the project that contains `Dockerfile` and run this command:
+```bash
+docker compose run --rm app
+```
+
+If you want to be able to run `make run` in your container to check Textwire page in your browser, then you need to run this:
+```bash
+docker compose run --rm -p 8080:8080 app
+```
