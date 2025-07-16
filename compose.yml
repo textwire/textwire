@@ -4,6 +4,7 @@ services:
     app:
         build:
             context: .
+            dockerfile: Containerfile
         image: serhii-textwire
         volumes:
-            - .:/app
+            - .:/app:z
