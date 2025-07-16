@@ -25,31 +25,23 @@ If you use [Neovim](https://neovim.io/) or [VSCode](https://code.visualstudio.co
 The Textwire project is licensed under the [MIT License](https://github.com/textwire/textwire/blob/master/LICENSE)
 
 ## Contribute
-### Without Container Engine
-You'll need to have Go installed on your machine.
-
 ### With Container Engine
-If you use a container engine like [🦦 Podman](https://podman.io/) or [🐳 Docker](https://app.docker.com/), here are the steps that you can make:
+> [!NOTE]
+> If you use [🐳 Docker](https://app.docker.com/) instead of [🦦 Podman](https://podman.io/), just replace `podman-compose` with `docker compose` in code examples below.
 
 #### Build an image
 To build an image, navigate to the root of the project and run this command:
 ```bash
-docker compose build
-# for Podman, use:
 podman-compose build
 ```
 
-#### Run the container
+#### Run the Container
 To run a container, navigate to the root of the project and run this command:
 ```bash
-docker compose run --rm app
-# for Podman, use:
 podman-compose run --rm app
 ```
 
 Optionally, if you want to be able to run `make run` in your container to check Textwire page in your browser (for manual testing purposes), then you need to run this:
 ```bash
-docker compose run --rm -p 8080:8080 app
-# for Podman, use:
 podman-compose run --rm -p 8080:8080 app
 ```
