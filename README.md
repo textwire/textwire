@@ -24,9 +24,6 @@ If you use [Neovim](https://neovim.io/) or [VSCode](https://code.visualstudio.co
 ## License
 The Textwire project is licensed under the [MIT License](https://github.com/textwire/textwire/blob/master/LICENSE)
 
-## Star History
-[![Star History Chart](https://api.star-history.com/svg?repos=textwire/textwire&type=Date)](https://www.star-history.com/#textwire/textwire&Date)
-
 ## Contribute
 ### With Container Engine
 > [!NOTE]
