@@ -2,9 +2,7 @@ name: serhii-textwire
 
 services:
     app:
-        build:
-            context: .
-            dockerfile: Containerfile
+        build: .
         image: serhii-textwire
         volumes:
             - .:/app:z

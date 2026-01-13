@@ -26,22 +26,40 @@ The Textwire project is licensed under the [MIT License](https://github.com/text
 
 ## Contribute
 ### With Container Engine
-> [!NOTE]
-> If you use [🐳 Docker](https://app.docker.com/) instead of [🦦 Podman](https://podman.io/), just replace `podman-compose` with `docker compose` in code examples below.
-
 #### Build an image
-To build an image, navigate to the root of the project and run this command:
+To build an image, navigate to the root of the project and run this command.
+
+With Podman:
 ```bash
 podman-compose build
 ```
 
+With Docker:
+```bash
+docker compose build
+```
+
 #### Run the Container
-To run a container, navigate to the root of the project and run this command:
+To run a container, navigate to the root of the project and run this command.
+
+With Podman:
 ```bash
 podman-compose run --rm app
 ```
 
-Optionally, if you want to be able to run `make run` in your container to check Textwire page in your browser (for manual testing purposes), then you need to run this:
+With Docker:
+```bash
+docker compose run --rm app
+```
+
+Optionally, if you want to be able to run `make run` in your container to check Textwire page in your browser (for manual testing purposes), then you need to run this.
+
+With Podman:
 ```bash
 podman-compose run --rm -p 8080:8080 app
+```
+
+With Docker:
+```bash
+docker compose run --rm -p 8080:8080 app
 ```
