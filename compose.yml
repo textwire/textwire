@@ -1,8 +1,10 @@
-name: serhii-textwire
+name: textwire
 
 services:
     app:
         build: .
         image: serhii-textwire
+        working_dir: /app
         volumes:
-            - .:/app:z
+            - .:/app:Z
+
