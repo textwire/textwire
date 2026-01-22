@@ -189,10 +189,7 @@ func (l *Lexer) embeddedCodeToken() token.Token {
 		return l.newToken(token.STR, l.readString())
 	case '<':
 		if l.peekChar() == '=' {
-			l.tokenBegins()
-			l.readChar() // skip "<"
-			l.readChar() // skip "="
-			return l.newToken(token.LTHAN_EQ, "<=")
+			return l.twoCharToken(token.LTHAN_EQ, "<=")
 		}
 
 		l.tokenBegins()
@@ -200,10 +197,7 @@ func (l *Lexer) embeddedCodeToken() token.Token {
 		return l.newToken(token.LTHAN, "<")
 	case '>':
 		if l.peekChar() == '=' {
-			l.tokenBegins()
-			l.readChar() // skip ">"
-			l.readChar() // skip "="
-			return l.newToken(token.GTHAN_EQ, ">=")
+			return l.twoCharToken(token.GTHAN_EQ, ">=")
 		}
 
 		l.tokenBegins()
@@ -211,10 +205,7 @@ func (l *Lexer) embeddedCodeToken() token.Token {
 		return l.newToken(token.GTHAN, ">")
 	case '!':
 		if l.peekChar() == '=' {
-			l.tokenBegins()
-			l.readChar() // skip "="
-			l.readChar() // skip "="
-			return l.newToken(token.NOT_EQ, "!=")
+			return l.twoCharToken(token.NOT_EQ, "!=")
 		}
 
 		l.tokenBegins()
@@ -222,10 +213,7 @@ func (l *Lexer) embeddedCodeToken() token.Token {
 		return l.newToken(token.NOT, "!")
 	case '-':
 		if l.peekChar() == '-' {
-			l.tokenBegins()
-			l.readChar() // skip "-"
-			l.readChar() // skip "-"
-			return l.newToken(token.DEC, "--")
+			return l.twoCharToken(token.DEC, "--")
 		}
 
 		l.tokenBegins()
@@ -243,15 +231,13 @@ func (l *Lexer) embeddedCodeToken() token.Token {
 		fallthrough
 	case '+':
 		if l.peekChar() == '+' {
-			return l.incrementToken()
+			return l.twoCharToken(token.INC, "++")
 		}
-
 		return l.addToken()
 	case '=':
 		if l.peekChar() == '=' {
-			return l.equalToken()
+			return l.twoCharToken(token.EQ, "==")
 		}
-
 		return l.assignToken()
 	}
 
@@ -267,14 +253,6 @@ func (l *Lexer) embeddedCodeToken() token.Token {
 	return l.illegalToken()
 }
 
-func (l *Lexer) incrementToken() token.Token {
-	l.tokenBegins()
-	l.readChar() // skip "+"
-	l.readChar() // skip "+"
-
-	return l.newToken(token.INC, "++")
-}
-
 func (l *Lexer) addToken() token.Token {
 	l.tokenBegins()
 	l.readChar() // skip "+"
@@ -285,14 +263,6 @@ func (l *Lexer) assignToken() token.Token {
 	l.tokenBegins()
 	l.readChar() // skip "="
 	return l.newToken(token.ASSIGN, "=")
-}
-
-func (l *Lexer) equalToken() token.Token {
-	l.tokenBegins()
-	l.readChar() // skip "="
-	l.readChar() // skip "="
-
-	return l.newToken(token.EQ, "==")
 }
 
 func (l *Lexer) numberToken() token.Token {
