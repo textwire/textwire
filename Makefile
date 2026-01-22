@@ -1,21 +1,25 @@
-.PHONY: test
+CONTAINER := $(podman-compose run --rm)
+
+.PHONY: test testp run runp shell shellp
+
 test:
 	echo "🚀 Running tests..."
 	go test ./...
 	echo "✅ Tests passed!"
 
-.PHONE: run
-run:
-	@cd textwire/example && go run main.go
+testp:
+	$(CONTAINER) make test
 
-.PHONE: shell
+run:
+	cd textwire/example && go run main.go
+
+runp:
+	$(CONTAINER) make run
+
 shell:
 	go run repl/repl.go
 
-.PHONE: push
-push: test
-	echo "🚀 Pushing to GitHub..."
-	git push
-	echo "✅ Pushed to GitHub!"
+shellp:
+	$(CONTAINER) make shell
 
 .DEFAULT_GOAL := test
