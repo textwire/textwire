@@ -266,7 +266,32 @@ func TestVariableDeclaration(t *testing.T) {
 		{Type: token.RBRACES, Literal: "}}", Pos: token.Position{StartCol: 9, EndCol: 10}},
 		{Type: token.EOF, Literal: "", Pos: token.Position{StartCol: 11, EndCol: 11}},
 	})
+}
 
+func TestLogicalOperatorAnd(t *testing.T) {
+	inp := `{{ true && false }}`
+
+	TokenizeString(t, inp, []token.Token{
+		{Type: token.LBRACES, Literal: "{{", Pos: token.Position{EndCol: 1}},
+		{Type: token.TRUE, Literal: "true", Pos: token.Position{StartCol: 3, EndCol: 6}},
+		{Type: token.AND, Literal: "&&", Pos: token.Position{StartCol: 8, EndCol: 9}},
+		{Type: token.FALSE, Literal: "false", Pos: token.Position{StartCol: 11, EndCol: 15}},
+		{Type: token.RBRACES, Literal: "}}", Pos: token.Position{StartCol: 17, EndCol: 18}},
+		{Type: token.EOF, Literal: "", Pos: token.Position{StartCol: 19, EndCol: 19}},
+	})
+}
+
+func TestLogicalOperatorOr(t *testing.T) {
+	inp := `{{ true || false }}`
+
+	TokenizeString(t, inp, []token.Token{
+		{Type: token.LBRACES, Literal: "{{", Pos: token.Position{EndCol: 1}},
+		{Type: token.TRUE, Literal: "true", Pos: token.Position{StartCol: 3, EndCol: 6}},
+		{Type: token.OR, Literal: "||", Pos: token.Position{StartCol: 8, EndCol: 9}},
+		{Type: token.FALSE, Literal: "false", Pos: token.Position{StartCol: 11, EndCol: 15}},
+		{Type: token.RBRACES, Literal: "}}", Pos: token.Position{StartCol: 17, EndCol: 18}},
+		{Type: token.EOF, Literal: "", Pos: token.Position{StartCol: 19, EndCol: 19}},
+	})
 }
 
 func TestOther(t *testing.T) {

@@ -14,6 +14,10 @@ const (
 	FLOAT // Float
 	STR   // String
 
+	// Logical Operators
+	AND // &&
+	OR  // ||
+
 	// Operators
 	ADD // +
 	SUB // -

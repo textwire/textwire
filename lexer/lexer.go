@@ -231,6 +231,16 @@ func (l *Lexer) embeddedCodeToken() token.Token {
 		l.tokenBegins()
 		l.readChar() // skip "-"
 		return l.newToken(token.SUB, "-")
+	case '&':
+		if l.peekChar() == '&' {
+			return l.twoCharToken(token.AND, "&&")
+		}
+		fallthrough
+	case '|':
+		if l.peekChar() == '|' {
+			return l.twoCharToken(token.OR, "||")
+		}
+		fallthrough
 	case '+':
 		if l.peekChar() == '+' {
 			return l.incrementToken()
@@ -336,6 +346,13 @@ func (l *Lexer) rightParenthesesToken() token.Token {
 	l.readChar() // skip ")"
 
 	return l.newToken(token.RPAREN, ")")
+}
+
+func (l *Lexer) twoCharToken(tokType token.TokenType, literal string) token.Token {
+	l.tokenBegins()
+	l.readChar() // skip first char
+	l.readChar() // skip second car
+	return l.newToken(tokType, literal)
 }
 
 func (l *Lexer) newToken(tokType token.TokenType, literal string) token.Token {
