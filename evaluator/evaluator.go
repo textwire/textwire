@@ -268,7 +268,10 @@ func (e *Evaluator) evalComponentStmt(node *ast.ComponentStmt, env *object.Env) 
 				return val
 			}
 
-			newEnv.Set(key, val)
+			err := newEnv.Set(key, val)
+			if err != nil {
+				return e.newError(node, "%s", err.Error())
+			}
 		}
 	}
 
@@ -790,7 +793,13 @@ func (e *Evaluator) evalPostfixOperatorExp(
 		if left.Is(object.FLOAT_OBJ) {
 			value := left.(*object.Float).Value
 			float := &object.Float{Value: value}
-			float.SubtractFromFloat(1)
+
+			err := float.SubtractFromFloat(1)
+			if err != nil {
+				return e.newError(node, fail.ErrCannotSubFromFloat,
+					float.String())
+			}
+
 			return float
 		}
 	}

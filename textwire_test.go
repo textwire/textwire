@@ -2,6 +2,7 @@ package textwire
 
 import (
 	"io"
+	"log"
 	"os"
 	"testing"
 
@@ -15,7 +16,11 @@ func readFile(fileName string) (string, error) {
 		return "", err
 	}
 
-	defer file.Close()
+	defer func() {
+		if err := file.Close(); err != nil {
+			log.Printf("readFile: failed to close %s: %v", fileName, err)
+		}
+	}()
 
 	bytes, err := io.ReadAll(file)
 	if err != nil {
@@ -173,7 +178,6 @@ func TestCustomFunctions(t *testing.T) {
 		err := RegisterBoolFunc("negate", func(b bool, args ...any) bool {
 			return !b
 		})
-
 		if err != nil {
 			t.Fatalf("error registering function: %s", err)
 		}
