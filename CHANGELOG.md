@@ -1,5 +1,8 @@
 # Release notes
 
+## v2.7.0 (2026-01-22)
+- Remove Container Engine support
+
 ## v2.6.8 (2025-06-19)
 - Added Container Engine support to the project
 
