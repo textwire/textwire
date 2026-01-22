@@ -1,25 +1,26 @@
-CONTAINER := $(podman-compose run --rm)
+.PHONY: web test shell fmt lint check
 
-.PHONY: test testp run runp shell shellp
+web:
+	cd textwire/example && go run main.go
+
+shell:
+	go run repl/repl.go
 
 test:
 	echo "🚀 Running tests..."
 	go test ./...
 	echo "✅ Tests passed!"
 
-testp:
-	$(CONTAINER) make test
+fmt:
+	echo "🔧 Formatting code..."
+	go fmt ./...
+	echo "✅ Code formatted!"
 
-run:
-	cd textwire/example && go run main.go
+lint:
+	echo "🔍 Running linter..."
+	golangci-lint run
+	echo "✅ Linting passed!"
 
-runp:
-	$(CONTAINER) make run
-
-shell:
-	go run repl/repl.go
-
-shellp:
-	$(CONTAINER) make shell
+check: fmt lint test
 
 .DEFAULT_GOAL := test
