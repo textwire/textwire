@@ -549,6 +549,8 @@ func TestInfixExp(t *testing.T) {
 		{`{{ 20 < 11 }}`, 20, "<", 11, 9, token.INT},
 		{`{{ 19 >= 31 }}`, 19, ">=", 31, 10, token.INT},
 		{`{{ 20 <= 11 }}`, 20, "<=", 11, 10, token.INT},
+		{`{{ true && true }}`, true, "&&", true, 14, token.TRUE},
+		{`{{ false || false }}`, false, "||", false, 16, token.FALSE},
 	}
 
 	for _, tc := range tests {
@@ -677,6 +679,10 @@ func TestOperatorPrecedenceParsing(t *testing.T) {
 		{
 			"{{ -obj.test }}",
 			"{{ ((-obj).test) }}",
+		},
+		{
+			"{{ true && true || false }}",
+			"{{ ((true && true) || false) }}",
 		},
 	}
 
