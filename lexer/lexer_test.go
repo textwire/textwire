@@ -484,7 +484,7 @@ func TestIsDirectoryToken(t *testing.T) {
 	})
 }
 
-func Test_areBracesToken(t *testing.T) {
+func TestAreBracesToken(t *testing.T) {
 	t.Run("Not braces token", func(t *testing.T) {
 		input := "some {{ text"
 		l := New(input)

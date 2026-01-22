@@ -17,6 +17,7 @@ const (
 	// Logical Operators
 	AND // &&
 	OR  // ||
+	NOT // !
 
 	// Operators
 	ADD // +
@@ -28,7 +29,6 @@ const (
 	INC // ++
 	DEC // --
 
-	NOT    // !
 	ASSIGN // =
 
 	// Comparison operators
