@@ -424,30 +424,21 @@ func TestEvalComments(t *testing.T) {
 	}
 }
 
-func TestErrorHandling(t *testing.T) {
+func TestDifferentErrorMessages(t *testing.T) {
 	cases := []struct {
 		inp string
 		err *fail.Error
 	}{
 		{
 			inp: "{{ 5.somefunction() }}",
-			err: fail.New(
-				1,
-				"/path/to/file",
-				"evaluator",
+			err: fail.New(1, "/path/to/file", "evaluator",
 				fail.ErrNoFuncForThisType,
-				"somefunction",
-				object.INT_OBJ,
-			),
+				"somefunction", object.INT_OBJ),
 		},
 		{
 			inp: "{{ 3 / 0 }}",
-			err: fail.New(
-				1,
-				"/path/to/file",
-				"evaluator",
-				fail.ErrDivisionByZero,
-			),
+			err: fail.New(1, "/path/to/file", "evaluator",
+				fail.ErrDivisionByZero),
 		},
 	}
 
@@ -461,6 +452,91 @@ func TestErrorHandling(t *testing.T) {
 		}
 
 		expect := tc.err.String()
+		if errObj.String() != expect {
+			t.Fatalf("error message is not '%s', got '%s'", expect, errObj.String())
+		}
+	}
+}
+
+func TestTypeMismatchErrors(t *testing.T) {
+	cases := []struct {
+		inp      string
+		objL     object.ObjectType
+		operator string
+		objR     object.ObjectType
+	}{
+		{"{{ 3 + 2.0 }}", object.INT_OBJ, "+", object.FLOAT_OBJ},
+		{"{{ 2.0 + 3 }}", object.FLOAT_OBJ, "+", object.INT_OBJ},
+		{"{{ 'nice' - [] }}", object.STR_OBJ, "-", object.ARR_OBJ},
+		{"{{ {} - 'bad' }}", object.OBJ_OBJ, "-", object.STR_OBJ},
+		{"{{ 5 * 'bad' }}", object.INT_OBJ, "*", object.STR_OBJ},
+		{"{{ 'nice' / 2 }}", object.STR_OBJ, "/", object.INT_OBJ},
+		{"{{ true + 5 }}", object.BOOL_OBJ, "+", object.INT_OBJ},
+		{"{{ false - 2.0 }}", object.BOOL_OBJ, "-", object.FLOAT_OBJ},
+		{"{{ [] * {} }}", object.ARR_OBJ, "*", object.OBJ_OBJ},
+		{"{{ {} / [] }}", object.OBJ_OBJ, "/", object.ARR_OBJ},
+		{"{{ 3 && 'bad' }}", object.INT_OBJ, "&&", object.STR_OBJ},
+		{"{{ false || 2.5 }}", object.BOOL_OBJ, "||", object.FLOAT_OBJ},
+		{"{{ 1 || true }}", object.INT_OBJ, "||", object.BOOL_OBJ},
+		{"{{ 'nice' && 0 }}", object.STR_OBJ, "&&", object.INT_OBJ},
+		{"{{ nil && 5 }}", object.NIL_OBJ, "&&", object.INT_OBJ},
+		{"{{ 5 && nil }}", object.INT_OBJ, "&&", object.NIL_OBJ},
+		{"{{ nil || false }}", object.NIL_OBJ, "||", object.BOOL_OBJ},
+		{"{{ true || nil }}", object.BOOL_OBJ, "||", object.NIL_OBJ},
+		{"{{ nil || 3.5 }}", object.NIL_OBJ, "||", object.FLOAT_OBJ},
+		{"{{ 2.5 || nil }}", object.FLOAT_OBJ, "||", object.NIL_OBJ},
+	}
+
+	for _, tc := range cases {
+		evaluated := testEval(tc.inp)
+
+		errObj, ok := evaluated.(*object.Error)
+
+		if !ok {
+			t.Fatalf("evaluation failed: %s", errObj.String())
+		}
+
+		expect := fail.New(1, "/path/to/file", "evaluator", fail.ErrTypeMismatch,
+			tc.objL, tc.operator, tc.objR).String()
+
+		if errObj.String() != expect {
+			t.Fatalf("error message is not '%s', got '%s'", expect, errObj.String())
+		}
+	}
+}
+
+func TestLogicalOperatorUnknownTypeError(t *testing.T) {
+	cases := []struct {
+		inp      string
+		obj      object.ObjectType
+		operator string
+	}{
+		{"{{ 3 && 0 }}", object.INT_OBJ, "&&"},
+		{"{{ [] && [] }}", object.ARR_OBJ, "&&"},
+		{"{{ {} && {} }}", object.OBJ_OBJ, "&&"},
+		{"{{ 0.2 && 2.3 }}", object.FLOAT_OBJ, "&&"},
+		{"{{ 'a' && 'b' }}", object.STR_OBJ, "&&"},
+		{"{{ nil && nil }}", object.NIL_OBJ, "&&"},
+		{"{{ 3 || 0 }}", object.INT_OBJ, "||"},
+		{"{{ [] || [] }}", object.ARR_OBJ, "||"},
+		{"{{ {} || {} }}", object.OBJ_OBJ, "||"},
+		{"{{ 0.2 || 2.3 }}", object.FLOAT_OBJ, "||"},
+		{"{{ 'a' || 'b' }}", object.STR_OBJ, "||"},
+		{"{{ nil || nil }}", object.NIL_OBJ, "||"},
+	}
+
+	for _, tc := range cases {
+		evaluated := testEval(tc.inp)
+
+		errObj, ok := evaluated.(*object.Error)
+
+		if !ok {
+			t.Fatalf("evaluation failed: %s", errObj.String())
+		}
+
+		expect := fail.New(1, "/path/to/file", "evaluator",
+			fail.ErrUnknownTypeForOperator, tc.obj, tc.operator).String()
+
 		if errObj.String() != expect {
 			t.Fatalf("error message is not '%s', got '%s'", expect, errObj.String())
 		}
