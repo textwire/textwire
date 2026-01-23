@@ -72,6 +72,7 @@ func TestErrorHandling(t *testing.T) {
 		{`{{ {}.test }}`, fail.New(1, "", "evaluator", fail.ErrPropertyNotFound, "test", object.OBJ_OBJ), nil},
 		{`{{ 5.somefunction() }}`, fail.New(1, "", "evaluator", fail.ErrNoFuncForThisType, "somefunction", object.INT_OBJ), nil},
 		{`{{ 3 / 0 }}`, fail.New(1, "", "evaluator", fail.ErrDivisionByZero), nil},
+		{`{{ 1 ~ 8 }}`, fail.New(1, "", "parser", fail.ErrIllegalToken, "~"), nil},
 	}
 
 	for _, tc := range tests {

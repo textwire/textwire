@@ -144,7 +144,9 @@ func (l *Lexer) bracesToken(tok token.TokenType, literal string) token.Token {
 
 func (l *Lexer) illegalToken() token.Token {
 	l.tokenBegins()
-	return l.newToken(token.ILLEGAL, string(l.char))
+	tok := l.newToken(token.ILLEGAL, string(l.char))
+	l.readChar()
+	return tok
 }
 
 func (l *Lexer) directiveToken() token.Token {
