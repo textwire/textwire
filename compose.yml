@@ -1,8 +1,0 @@
-name: serhii-textwire
-
-services:
-    app:
-        build: .
-        image: serhii-textwire
-        volumes:
-            - .:/app:z

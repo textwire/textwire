@@ -47,7 +47,10 @@ func (t *Template) Response(w http.ResponseWriter, filename string, data map[str
 	evaluated, failErr := t.String(filename, data)
 
 	if failErr == nil {
-		fmt.Fprint(w, evaluated)
+		_, err := fmt.Fprint(w, evaluated)
+		if err != nil {
+			return err
+		}
 		return nil
 	}
 
@@ -65,18 +68,24 @@ func (t *Template) Response(w http.ResponseWriter, filename string, data map[str
 		return err
 	}
 
-	fmt.Fprint(w, out)
+	_, err = fmt.Fprint(w, out)
+	if err != nil {
+		return err
+	}
 
 	return failErr.Error()
 }
 
 func (t *Template) responseErrorPage(w http.ResponseWriter) error {
-	evaluated, err := t.String(userConfig.ErrorPagePath, nil)
-	if err != nil {
-		return err.Error()
+	evaluated, failErr := t.String(userConfig.ErrorPagePath, nil)
+	if failErr != nil {
+		return failErr.Error()
 	}
 
-	fmt.Fprint(w, evaluated)
+	_, err := fmt.Fprint(w, evaluated)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }

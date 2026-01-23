@@ -174,29 +174,23 @@ func TestNewTemplate(t *testing.T) {
 }
 
 func TestRegisteringCustomFunction(t *testing.T) {
-	fileName, err := getFullPath("", false)
-	if err != nil {
-		t.Errorf("unexpected error: %s", err)
-		return
-	}
-
-	fileName += "/textwire/testdata/good/12.with-custom-function"
-
-	tpl, tplErr := NewTemplate(&config.Config{
+	tpl, err := NewTemplate(&config.Config{
 		TemplateExt: ".tw",
 		TemplateDir: "textwire/testdata/good/before/",
 	})
+	if err != nil {
+		t.Fatalf("unexpected error: %s", err)
+	}
 
-	RegisterStrFunc("secondLetterUppercase", func(s string, args ...any) string {
+	err = RegisterStrFunc("secondLetterUppercase", func(s string, args ...any) string {
 		if len(s) < 2 {
 			return s
 		}
 
 		return string(s[0]) + string(s[1]-32) + s[2:]
 	})
-
-	if tplErr != nil {
-		t.Fatalf("unexpected error: %s", tplErr)
+	if err != nil {
+		t.Fatalf("unexpected error: %s", err)
 	}
 
 	expected, err := readFile("textwire/testdata/good/expected/12.with-custom-function.html")

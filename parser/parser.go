@@ -21,6 +21,8 @@ const (
 	_ int = iota
 	LOWEST
 	TERNARY       // a ? b : c
+	LOGICAL_OR    // ||
+	LOGICAL_AND   // &&
 	EQ            // ==
 	LESS_GREATER  // > or <
 	SUM           // +
@@ -33,6 +35,8 @@ const (
 )
 
 var precedences = map[token.TokenType]int{
+	token.OR:       LOGICAL_OR,
+	token.AND:      LOGICAL_AND,
 	token.QUESTION: TERNARY,
 	token.EQ:       EQ,
 	token.NOT_EQ:   EQ,
@@ -112,6 +116,8 @@ func New(lexer *lexer.Lexer, filepath string) *Parser {
 	p.registerInfix(token.GTHAN, p.parseInfixExp)
 	p.registerInfix(token.LTHAN_EQ, p.parseInfixExp)
 	p.registerInfix(token.GTHAN_EQ, p.parseInfixExp)
+	p.registerInfix(token.AND, p.parseInfixExp)
+	p.registerInfix(token.OR, p.parseInfixExp)
 
 	p.registerInfix(token.QUESTION, p.parseTernaryExp)
 	p.registerInfix(token.LBRACKET, p.parseIndexExp)
