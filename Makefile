@@ -1,4 +1,4 @@
-.PHONY: web test shell fmt lint check
+.PHONY: web test shell fmt lint check test-count
 
 web:
 	cd textwire/example && go run main.go
@@ -9,7 +9,7 @@ shell:
 test:
 	echo "🚀 Running tests..."
 	go test ./...
-	echo "✅ Tests passed!"
+	@echo "✅ $$(make -s test-count) tests pass"
 
 fmt:
 	echo "🔧 Formatting code..."
@@ -22,5 +22,8 @@ lint:
 	echo "✅ Linting passed!"
 
 check: fmt lint test
+
+test-count:
+	@go test -json ./... | jq -s '[.[] | select(.Action == "run" and .Test != null)] | length'
 
 .DEFAULT_GOAL := check
