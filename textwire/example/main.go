@@ -14,7 +14,7 @@ var tpl *textwire.Template
 func main() {
 	var err error
 
-	textwire.RegisterStrFunc("reverse", func(s string, args ...any) string {
+	err = textwire.RegisterStrFunc("reverse", func(s string, args ...any) string {
 		runes := []rune(s)
 
 		for i, j := 0, len(runes)-1; i < j; i, j = i+1, j-1 {
@@ -23,6 +23,9 @@ func main() {
 
 		return string(runes)
 	})
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	tpl, err = textwire.NewTemplate(&config.Config{
 		TemplateExt:   ".tw",

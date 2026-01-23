@@ -17,11 +17,6 @@ func (f *Float) Type() ObjectType {
 }
 
 func (f *Float) String() string {
-	// if decimal is zero, still print the zero
-	if f.Value == float64(int(f.Value)) {
-		return fmt.Sprintf("%.1f", f.Value)
-	}
-
 	return utils.FloatToStr(f.Value)
 }
 

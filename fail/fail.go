@@ -34,6 +34,7 @@ const (
 	ErrIdentifierNotFound      = "identifier '%s' not found"
 	ErrIndexNotSupported       = "index operator '%s' is not supported"
 	ErrUnknownOperator         = "unknown operator '%s%s'"
+	ErrCannotSubFromFloat      = "cannot decrement from float %s due to unknown error"
 	ErrTypeMismatch            = "type mismatch '%s %s %s'"
 	ErrUnknownTypeForOperator  = "unknown type '%s' for '%s' operator"
 	ErrPrefixOperatorIsWrong   = "prefix operator '%s' cannot be applied to '%s'"

@@ -10,6 +10,7 @@ import (
 	"github.com/textwire/textwire/v2/fail"
 	"github.com/textwire/textwire/v2/lexer"
 	"github.com/textwire/textwire/v2/token"
+	"github.com/textwire/textwire/v2/utils"
 )
 
 type parseOpts struct {
@@ -139,7 +140,7 @@ func testFloatLiteral(t *testing.T, exp ast.Expression, value float64) bool {
 		return false
 	}
 
-	if float.String() != fmt.Sprintf("%g", value) {
+	if float.String() != utils.FloatToStr(value) {
 		t.Errorf("float.String() is not %f, got %s", value, float.String())
 		return false
 	}
@@ -549,6 +550,8 @@ func TestInfixExp(t *testing.T) {
 		{`{{ 20 < 11 }}`, 20, "<", 11, 9, token.INT},
 		{`{{ 19 >= 31 }}`, 19, ">=", 31, 10, token.INT},
 		{`{{ 20 <= 11 }}`, 20, "<=", 11, 10, token.INT},
+		{`{{ true && true }}`, true, "&&", true, 14, token.TRUE},
+		{`{{ false || false }}`, false, "||", false, 16, token.FALSE},
 	}
 
 	for _, tc := range tests {
@@ -675,8 +678,32 @@ func TestOperatorPrecedenceParsing(t *testing.T) {
 			"{{ ((-2).float()) }}",
 		},
 		{
+			"{{ -5.0.int() }}",
+			"{{ ((-5.0).int()) }}",
+		},
+		{
 			"{{ -obj.test }}",
 			"{{ ((-obj).test) }}",
+		},
+		{
+			"{{ true && true || false }}",
+			"{{ ((true && true) || false) }}",
+		},
+		{
+			"{{ true ? 1 : 0 }}",
+			"{{ (true ? 1 : 0) }}",
+		},
+		{
+			"{{ true && false ? 1 : 0 }}",
+			"{{ ((true && false) ? 1 : 0) }}",
+		},
+		{
+			"{{ true && false || 1 ? 1 : 0 }}",
+			"{{ (((true && false) || 1) ? 1 : 0) }}",
+		},
+		{
+			"{{ -2.float() && -2.0.int() ? 1 : 0 }}",
+			"{{ ((((-2).float()) && ((-2.0).int())) ? 1 : 0) }}",
 		},
 	}
 

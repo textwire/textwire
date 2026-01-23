@@ -23,5 +23,5 @@ func NewTernaryExp(tok token.Token, cond Expression) *TernaryExp {
 func (te *TernaryExp) expressionNode() {}
 
 func (te *TernaryExp) String() string {
-	return fmt.Sprintf("(%s ? %s : %s)", te.Condition, te.Condition, te.Alternative)
+	return fmt.Sprintf("(%s ? %s : %s)", te.Condition, te.Consequence, te.Alternative)
 }

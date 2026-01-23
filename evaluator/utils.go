@@ -92,9 +92,10 @@ func hasCustomFunc(customFunc *config.Func, t object.ObjectType, funcName string
 func addDecimals(receiver object.Object, objType object.ObjectType, args ...object.Object) (object.Object, error) {
 	var val string
 
-	if objType == object.STR_OBJ {
+	switch objType {
+	case object.STR_OBJ:
 		val = receiver.(*object.Str).Value
-	} else if objType == object.INT_OBJ {
+	case object.INT_OBJ:
 		val = receiver.(*object.Int).String()
 	}
 

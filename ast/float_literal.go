@@ -1,9 +1,8 @@
 package ast
 
 import (
-	"fmt"
-
 	"github.com/textwire/textwire/v2/token"
+	"github.com/textwire/textwire/v2/utils"
 )
 
 type FloatLiteral struct {
@@ -21,5 +20,5 @@ func NewFloatLiteral(tok token.Token, val float64) *FloatLiteral {
 func (fl *FloatLiteral) expressionNode() {}
 
 func (fl *FloatLiteral) String() string {
-	return fmt.Sprintf("%g", fl.Value)
+	return utils.FloatToStr(fl.Value)
 }

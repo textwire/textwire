@@ -1,9 +1,0 @@
-name: serhii-textwire
-
-services:
-    app:
-        build:
-            context: .
-        image: serhii-textwire
-        volumes:
-            - .:/app

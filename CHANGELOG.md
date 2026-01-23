@@ -1,44 +1,51 @@
 # Release notes
 
+## v2.7.0 (2026-01-23)
+- 🧑‍💻 Remove Container Engine support
+- ✨ Added support for logical operators `&&` and `||`
+- 🐛 Fixed float convertion to string where 0 float was converted to 0.0. Now, float convertion to string works perfectly
+- 🐛 Fixed wrong convertion of ternary expression to string
+- 🐛 Fixed infinite loop bug that whould appear when you have an illegal token like `{{ 4 ~ 3 }}`
+
 ## v2.6.8 (2025-06-19)
-- Added Docker to the project
+- ✨ Added Container Engine support to the project
 
 ## v2.6.7 (2025-06-14)
-- Fixed incorrect snippet for `@break` autocomplete
+- 🐛 Fixed incorrect snippet for `@break` autocomplete
 
 ## v2.6.5 (2025-06-14)
-- Fixed not working autocomplete snippets
+- 🐛 Fixed not working autocomplete snippets
 
 ## v2.6.4 (2025-06-14)
-- Update completion item structure for LSP to make it treat completion inserts as snippets, not just as text
+- 🧑‍💻 Update completion item structure for LSP to make it treat completion inserts as snippets, not just as text
 
 ## v2.6.3 (2025-06-13)
-- Code refactoring and improving error handling for lsp package
-- For LSP part, textwire now returns full insert text for autocompletion. E.g. instead of `@dump` it will autocomplete to `@dump()` and put the cursor inside `()`
+- ♻️ Code refactoring and improving error handling for lsp package
+- 🧑‍💻 For LSP part, textwire now returns full insert text for autocompletion. E.g. instead of `@dump` it will autocomplete to `@dump()` and put the cursor inside `()`
 
 ## v2.6.2 (2025-06-11)
-- The `IsInLoop` function now always return result even when it found parsing errors
+- 🧑‍💻 The `IsInLoop` function now always return result even when it found parsing errors
 
 ## v2.6.1 (2025-06-10)
-- Improve illegal token detection
-- The body of @each, @for, @if, @insert and @slot statements now can be empty
+- 🧑‍💻 Improve illegal token detection
+- 🧑‍💻 The body of `@each`, `@for`, `@if`, `@insert` and `@slot` statements now can be empty
 
 ## v2.6.0 (2025-06-07)
-- Improve parser implementation by making it more resilient to syntax errors. It now produces an IllegalNode ast token. I'll be able to use it to detect illegal parts in a file and show it with a red squiggly line
-- Improve testing for the parser by adding more checks
-- Added validation for `@use` statement. Now, if you pass something other than type STR, it will print an error
+- 🧑‍💻 Improve parser implementation by making it more resilient to syntax errors. It now produces an IllegalNode ast token. I'll be able to use it to detect illegal parts in a file and show it with a red squiggly line
+- 🧑‍💻 Improve testing for the parser by adding more checks
+- 🧑‍💻 Added validation for `@use` statement. Now, if you pass something other than type STR, it will print an error
 
 ## v2.5.9 (2025-05-29)
-- Added more tests to test `IsInLoop` function
-- Fixed `IsInLoop` function
+- 🧑‍💻 Added more tests to test `IsInLoop` function
+- 🐛 Fixed `IsInLoop` function
 
 ## v2.5.8 (2025-05-26)
-- Fixed issue with `IsInLoop` function which wasn't working properly with multiline example
+- 🐛 Fixed issue with `IsInLoop` function which wasn't working properly with multiline example
 
 ## v2.5.7 (2025-05-25)
-- Fixed typos in LSP completions
-- Added `IsInLoop` function to `lsp` API to check if the current cursor position is inside a loop
-- Added `GetLoopObjFields` function to `lsp` API to get all the loop object fields
+- 🐛 Fixed typos in LSP completions
+- ✨ Added `IsInLoop` function to `lsp` API to check if the current cursor position is inside a loop
+- ✨ Added `GetLoopObjFields` function to `lsp` API to get all the loop object fields
 
 ## v2.5.6 (2025-04-16)
 - Added more data for LSP to handle auto completions

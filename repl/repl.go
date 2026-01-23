@@ -18,10 +18,12 @@ const PROMPT = ">>> "
 func main() {
 	fmt.Print("Interactive shell\n\n")
 
-	Start(os.Stdin, os.Stdout)
+	if err := Start(os.Stdin, os.Stdout); err != nil {
+		fmt.Println("ERROR: ", err)
+	}
 }
 
-func Start(in io.Reader, out io.Writer) {
+func Start(in io.Reader, out io.Writer) error {
 	scanner := bufio.NewScanner(in)
 	env := object.NewEnv()
 
@@ -31,7 +33,7 @@ func Start(in io.Reader, out io.Writer) {
 		scanned := scanner.Scan()
 
 		if !scanned {
-			return
+			return nil
 		}
 
 		l := lexer.New(scanner.Text())
@@ -40,24 +42,35 @@ func Start(in io.Reader, out io.Writer) {
 		prog := p.ParseProgram()
 
 		if len(p.Errors()) != 0 {
-			printParserErrors(out, p.Errors())
+			if err := printParserErrors(out, p.Errors()); err != nil {
+				return err
+			}
 			continue
 		}
 
 		evaluator := evaluator.New(nil)
 		evaluated := evaluator.Eval(prog, env)
 
-		if evaluated != nil {
-			io.WriteString(out, evaluated.String())
-			io.WriteString(out, "\n")
+		if evaluated == nil {
+			continue
+		}
+
+		if _, err := io.WriteString(out, evaluated.String()+"\n"); err != nil {
+			return err
 		}
 	}
 }
 
-func printParserErrors(out io.Writer, errors []*fail.Error) {
-	io.WriteString(out, "Textwire errors:\n")
+func printParserErrors(out io.Writer, errors []*fail.Error) error {
+	if _, err := io.WriteString(out, "Textwire errors:\n"); err != nil {
+		return err
+	}
 
 	for _, err := range errors {
-		io.WriteString(out, "\t"+err.String()+"\n")
+		if _, err := io.WriteString(out, "\t"+err.String()+"\n"); err != nil {
+			return err
+		}
 	}
+
+	return nil
 }

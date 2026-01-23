@@ -144,7 +144,9 @@ func (l *Lexer) bracesToken(tok token.TokenType, literal string) token.Token {
 
 func (l *Lexer) illegalToken() token.Token {
 	l.tokenBegins()
-	return l.newToken(token.ILLEGAL, string(l.char))
+	tok := l.newToken(token.ILLEGAL, string(l.char))
+	l.readChar()
+	return tok
 }
 
 func (l *Lexer) directiveToken() token.Token {
@@ -189,10 +191,7 @@ func (l *Lexer) embeddedCodeToken() token.Token {
 		return l.newToken(token.STR, l.readString())
 	case '<':
 		if l.peekChar() == '=' {
-			l.tokenBegins()
-			l.readChar() // skip "<"
-			l.readChar() // skip "="
-			return l.newToken(token.LTHAN_EQ, "<=")
+			return l.twoCharToken(token.LTHAN_EQ, "<=")
 		}
 
 		l.tokenBegins()
@@ -200,10 +199,7 @@ func (l *Lexer) embeddedCodeToken() token.Token {
 		return l.newToken(token.LTHAN, "<")
 	case '>':
 		if l.peekChar() == '=' {
-			l.tokenBegins()
-			l.readChar() // skip ">"
-			l.readChar() // skip "="
-			return l.newToken(token.GTHAN_EQ, ">=")
+			return l.twoCharToken(token.GTHAN_EQ, ">=")
 		}
 
 		l.tokenBegins()
@@ -211,10 +207,7 @@ func (l *Lexer) embeddedCodeToken() token.Token {
 		return l.newToken(token.GTHAN, ">")
 	case '!':
 		if l.peekChar() == '=' {
-			l.tokenBegins()
-			l.readChar() // skip "="
-			l.readChar() // skip "="
-			return l.newToken(token.NOT_EQ, "!=")
+			return l.twoCharToken(token.NOT_EQ, "!=")
 		}
 
 		l.tokenBegins()
@@ -222,26 +215,31 @@ func (l *Lexer) embeddedCodeToken() token.Token {
 		return l.newToken(token.NOT, "!")
 	case '-':
 		if l.peekChar() == '-' {
-			l.tokenBegins()
-			l.readChar() // skip "-"
-			l.readChar() // skip "-"
-			return l.newToken(token.DEC, "--")
+			return l.twoCharToken(token.DEC, "--")
 		}
 
 		l.tokenBegins()
 		l.readChar() // skip "-"
 		return l.newToken(token.SUB, "-")
+	case '&':
+		if l.peekChar() == '&' {
+			return l.twoCharToken(token.AND, "&&")
+		}
+		fallthrough
+	case '|':
+		if l.peekChar() == '|' {
+			return l.twoCharToken(token.OR, "||")
+		}
+		fallthrough
 	case '+':
 		if l.peekChar() == '+' {
-			return l.incrementToken()
+			return l.twoCharToken(token.INC, "++")
 		}
-
 		return l.addToken()
 	case '=':
 		if l.peekChar() == '=' {
-			return l.equalToken()
+			return l.twoCharToken(token.EQ, "==")
 		}
-
 		return l.assignToken()
 	}
 
@@ -257,14 +255,6 @@ func (l *Lexer) embeddedCodeToken() token.Token {
 	return l.illegalToken()
 }
 
-func (l *Lexer) incrementToken() token.Token {
-	l.tokenBegins()
-	l.readChar() // skip "+"
-	l.readChar() // skip "+"
-
-	return l.newToken(token.INC, "++")
-}
-
 func (l *Lexer) addToken() token.Token {
 	l.tokenBegins()
 	l.readChar() // skip "+"
@@ -275,14 +265,6 @@ func (l *Lexer) assignToken() token.Token {
 	l.tokenBegins()
 	l.readChar() // skip "="
 	return l.newToken(token.ASSIGN, "=")
-}
-
-func (l *Lexer) equalToken() token.Token {
-	l.tokenBegins()
-	l.readChar() // skip "="
-	l.readChar() // skip "="
-
-	return l.newToken(token.EQ, "==")
 }
 
 func (l *Lexer) numberToken() token.Token {
@@ -336,6 +318,13 @@ func (l *Lexer) rightParenthesesToken() token.Token {
 	l.readChar() // skip ")"
 
 	return l.newToken(token.RPAREN, ")")
+}
+
+func (l *Lexer) twoCharToken(tokType token.TokenType, literal string) token.Token {
+	l.tokenBegins()
+	l.readChar() // skip first char
+	l.readChar() // skip second car
+	return l.newToken(tokType, literal)
 }
 
 func (l *Lexer) newToken(tokType token.TokenType, literal string) token.Token {

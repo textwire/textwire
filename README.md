@@ -8,7 +8,7 @@
 
 <p align="center"><img src="https://textwire.github.io/img/logo.png" width="150" height="150" /></p>
 
-Textwire is a simple yet powerful templating language for Go. It is designed to easily inject variables from Go code into a template file or just a regular string. It is inspired by Go's syntax and has a similar syntax to make it easier for Go developers to learn and use it.
+Textwire is a simple yet powerful templating language for Go. It is designed to easily inject variables from Go code into a template file or just a regular string.
 
 ### [Read Official Documentation](https://textwire.github.io)
 
@@ -23,25 +23,3 @@ If you use [Neovim](https://neovim.io/) or [VSCode](https://code.visualstudio.co
 
 ## License
 The Textwire project is licensed under the [MIT License](https://github.com/textwire/textwire/blob/master/LICENSE)
-
-## Development
-### Without Docker
-You'll need to have Go installed on your machine.
-
-### With Docker
-#### Build an image
-To build an image, navigate to the root of the project that contains `Dockerfile` and run this command:
-```bash
-docker compose build
-```
-
-#### Run the container
-To run a container, navigate to the root of the project that contains `Dockerfile` and run this command:
-```bash
-docker compose run --rm app
-```
-
-If you want to be able to run `make run` in your container to check Textwire page in your browser, then you need to run this:
-```bash
-docker compose run --rm -p 8080:8080 app
-```

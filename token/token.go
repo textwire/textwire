@@ -14,6 +14,11 @@ const (
 	FLOAT // Float
 	STR   // String
 
+	// Logical Operators
+	AND // &&
+	OR  // ||
+	NOT // !
+
 	// Operators
 	ADD // +
 	SUB // -
@@ -24,7 +29,6 @@ const (
 	INC // ++
 	DEC // --
 
-	NOT    // !
 	ASSIGN // =
 
 	// Comparison operators
@@ -117,10 +121,6 @@ type Token struct {
 func (t *Token) ErrorLine() uint {
 	// add 1 because StartLine starts with 0
 	return t.Pos.EndLine + 1
-}
-
-func (t *Token) Hover() []byte {
-	return []byte{}
 }
 
 func LookupIdent(ident string) TokenType {

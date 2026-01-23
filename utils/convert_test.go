@@ -10,9 +10,17 @@ func TestFloatToStr(t *testing.T) {
 	}{
 		{name: "Positive float", input: 3.14159, expected: "3.14159"},
 		{name: "Negative float", input: -3.14159, expected: "-3.14159"},
-		{name: "Zero as float", input: 0.0, expected: "0"},
-		{name: "Negative zero as float", input: -0.0, expected: "0"},
+		{name: "Zero as float", input: 0.0, expected: "0.0"},
+		{name: "Negative zero as float", input: 0.0, expected: "0.0"},
 		{name: "Float with fraction", input: 123.23, expected: "123.23"},
+		{name: "Zero at the end is present", input: 1.0, expected: "1.0"},
+		{name: "Zero at the end is present", input: 1.000, expected: "1.0"},
+		{name: "Medium float", input: 1234567890.1234567, expected: "1234567890.1234567"},
+		{name: "Large float", input: 1.234567890123456e+30, expected: "1.234567890123456e+30"},
+		{name: "Very small float", input: 0.00000123456789, expected: "0.00000123456789"},
+		{name: "Negative medium float", input: -987654321.9876543, expected: "-987654321.9876543"},
+		{name: "Float with many trailing zeros", input: 42.0000000000, expected: "42.0"},
+		{name: "Very large decimal", input: 999999999999999.999, expected: "1000000000000000.0"},
 	}
 
 	for _, tt := range tc {
