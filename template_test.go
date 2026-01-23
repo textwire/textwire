@@ -75,6 +75,12 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 				fail.ErrVariableIsUndefined, "undefinedVar"),
 			nil,
 		},
+		{
+			"use-stmt-error",
+			fail.New(8, path+"use-stmt-error/base.tw", "parser",
+				fail.ErrVariableIsUndefined, "undefinedVar"),
+			nil,
+		},
 	}
 
 	for _, tc := range tests {
