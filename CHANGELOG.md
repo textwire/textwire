@@ -1,7 +1,9 @@
 # Release notes
 
-## v2.7.0 (2026-01-22)
+## v2.7.0 (2026-01-23)
 - 🧑‍💻 Remove Container Engine support
+- ✨ Added support for logical operators `&&` and `||`
+- 🐛 Fixed float convertion to string where 0 float was converted to 0.0. Now, float convertion to string works perfectly
 
 ## v2.6.8 (2025-06-19)
 - ✨ Added Container Engine support to the project
