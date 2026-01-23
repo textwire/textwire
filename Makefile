@@ -23,4 +23,4 @@ lint:
 
 check: fmt lint test
 
-.DEFAULT_GOAL := test
+.DEFAULT_GOAL := check
