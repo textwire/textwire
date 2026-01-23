@@ -108,7 +108,6 @@ func (e *Evaluator) evalProgram(prog *ast.Program, env *object.Env) object.Objec
 
 	for _, statement := range prog.Statements {
 		stmtObj := e.Eval(statement, env)
-
 		if isError(stmtObj) {
 			return stmtObj
 		}
@@ -121,13 +120,11 @@ func (e *Evaluator) evalProgram(prog *ast.Program, env *object.Env) object.Objec
 
 func (e *Evaluator) evalIfStmt(node *ast.IfStmt, env *object.Env) object.Object {
 	condition := e.Eval(node.Condition, env)
-
 	if isError(condition) {
 		return condition
 	}
 
 	newEnv := object.NewEnclosedEnv(env)
-
 	if isTruthy(condition) {
 		return e.Eval(node.Consequence, newEnv)
 	}
@@ -135,7 +132,6 @@ func (e *Evaluator) evalIfStmt(node *ast.IfStmt, env *object.Env) object.Object 
 	for _, alt := range node.Alternatives {
 		if ifStmt, ok := alt.(*ast.ElseIfStmt); ok {
 			condition = e.Eval(ifStmt.Condition, env)
-
 			if isError(condition) {
 				return condition
 			}
@@ -158,13 +154,11 @@ func (e *Evaluator) evalBlockStmt(block *ast.BlockStmt, env *object.Env) object.
 
 	for _, stmt := range block.Statements {
 		obj := e.Eval(stmt, env)
-
 		if isError(obj) {
 			return obj
 		}
 
 		elems = append(elems, obj)
-
 		if hasBreakStmt(obj) || hasContinueStmt(obj) {
 			break
 		}
@@ -175,7 +169,6 @@ func (e *Evaluator) evalBlockStmt(block *ast.BlockStmt, env *object.Env) object.
 
 func (e *Evaluator) evalAssignStmt(node *ast.AssignStmt, env *object.Env) object.Object {
 	val := e.Eval(node.Value, env)
-
 	if isError(val) {
 		return val
 	}
@@ -198,7 +191,6 @@ func (e *Evaluator) evalUseStmt(node *ast.UseStmt, env *object.Env) object.Objec
 	}
 
 	layoutContent := e.Eval(node.Program, env)
-
 	if isError(layoutContent) {
 		return layoutContent
 	}
@@ -220,7 +212,6 @@ func (e *Evaluator) evalReserveStmt(node *ast.ReserveStmt, env *object.Env) obje
 
 	if node.Insert.Block != nil {
 		result := e.Eval(node.Insert.Block, env)
-
 		if isError(result) {
 			return result
 		}
@@ -235,7 +226,6 @@ func (e *Evaluator) evalReserveStmt(node *ast.ReserveStmt, env *object.Env) obje
 	}
 
 	firstArg := e.Eval(node.Insert.Argument, env)
-
 	if isError(firstArg) {
 		return firstArg
 	}
@@ -247,7 +237,6 @@ func (e *Evaluator) evalReserveStmt(node *ast.ReserveStmt, env *object.Env) obje
 
 func (e *Evaluator) evalComponentStmt(node *ast.ComponentStmt, env *object.Env) object.Object {
 	name := e.Eval(node.Name, env)
-
 	if isError(name) {
 		return name
 	}
@@ -263,7 +252,6 @@ func (e *Evaluator) evalComponentStmt(node *ast.ComponentStmt, env *object.Env) 
 	if node.Argument != nil {
 		for key, arg := range node.Argument.Pairs {
 			val := e.Eval(arg, env)
-
 			if isError(val) {
 				return val
 			}
@@ -276,7 +264,6 @@ func (e *Evaluator) evalComponentStmt(node *ast.ComponentStmt, env *object.Env) 
 	}
 
 	content := e.Eval(node.Block, newEnv)
-
 	if isError(content) {
 		return content
 	}
@@ -301,7 +288,6 @@ func (e *Evaluator) evalForStmt(node *ast.ForStmt, env *object.Env) object.Objec
 	// evaluate alternative block if user's condition is false
 	if node.Condition != nil {
 		cond := e.Eval(node.Condition, newEnv)
-
 		if isError(cond) {
 			return cond
 		}
@@ -314,7 +300,6 @@ func (e *Evaluator) evalForStmt(node *ast.ForStmt, env *object.Env) object.Objec
 	// loop through the block until the user's condition is false
 	for {
 		cond := e.Eval(node.Condition, newEnv)
-
 		if isError(cond) {
 			return cond
 		}
@@ -324,7 +309,6 @@ func (e *Evaluator) evalForStmt(node *ast.ForStmt, env *object.Env) object.Objec
 		}
 
 		block := e.Eval(node.Block, newEnv)
-
 		if isError(block) {
 			return block
 		}
@@ -332,7 +316,6 @@ func (e *Evaluator) evalForStmt(node *ast.ForStmt, env *object.Env) object.Objec
 		blocks.WriteString(block.String())
 
 		post := e.Eval(node.Post, newEnv)
-
 		if isError(post) {
 			return post
 		}
@@ -367,7 +350,6 @@ func (e *Evaluator) evalEachStmt(node *ast.EachStmt, env *object.Env) object.Obj
 
 	varName := node.Var.Value
 	arrObj := e.Eval(node.Array, newEnv)
-
 	if isError(arrObj) {
 		return arrObj
 	}
@@ -394,13 +376,11 @@ func (e *Evaluator) evalEachStmt(node *ast.EachStmt, env *object.Env) object.Obj
 		})
 
 		block := e.Eval(node.Block, newEnv)
-
 		if isError(block) {
 			return block
 		}
 
 		blocks.WriteString(block.String())
-
 		if hasBreakStmt(block) {
 			break
 		}
@@ -435,7 +415,6 @@ func (e *Evaluator) evalContinueIfStmt(
 	env *object.Env,
 ) object.Object {
 	condition := e.Eval(node.Condition, env)
-
 	if isError(condition) {
 		return condition
 	}
@@ -455,7 +434,6 @@ func (e *Evaluator) evalSlotStmt(
 
 	if node.Body != nil {
 		body = e.Eval(node.Body, env)
-
 		if isError(body) {
 			return body
 		}
@@ -493,13 +471,11 @@ func (e *Evaluator) evalIndexExp(
 	env *object.Env,
 ) object.Object {
 	left := e.Eval(node.Left, env)
-
 	if isError(left) {
 		return left
 	}
 
 	idx := e.Eval(node.Index, env)
-
 	if isError(idx) {
 		return idx
 	}
@@ -536,7 +512,6 @@ func (e *Evaluator) evalObjectIndexExp(
 ) object.Object {
 	objObj := obj.(*object.Obj)
 	pair, ok := objObj.Pairs[idx]
-
 	if ok {
 		return pair
 	}
@@ -553,7 +528,6 @@ func (e *Evaluator) evalObjectIndexExp(
 
 func (e *Evaluator) evalDotExp(node *ast.DotExp, env *object.Env) object.Object {
 	left := e.Eval(node.Left, env)
-
 	if isError(left) {
 		return left
 	}
@@ -575,7 +549,6 @@ func (e *Evaluator) evalString(node *ast.StringLiteral, _ *object.Env) object.Ob
 
 func (e *Evaluator) evalPrefixExp(node *ast.PrefixExp, env *object.Env) object.Object {
 	right := e.Eval(node.Right, env)
-
 	if isError(right) {
 		return right
 	}
@@ -596,7 +569,6 @@ func (e *Evaluator) evalTernaryExp(
 	env *object.Env,
 ) object.Object {
 	condition := e.Eval(node.Condition, env)
-
 	if isError(condition) {
 		return condition
 	}
@@ -613,7 +585,6 @@ func (e *Evaluator) evalArrayLiteral(
 	env *object.Env,
 ) object.Object {
 	elems := e.evalExpressions(node.Elements, env)
-
 	if len(elems) == 1 && isError(elems[0]) {
 		return elems[0]
 	}
@@ -626,7 +597,6 @@ func (e *Evaluator) evalObjectLiteral(node *ast.ObjectLiteral, env *object.Env) 
 
 	for key, value := range node.Pairs {
 		valueObj := e.Eval(value, env)
-
 		if isError(valueObj) {
 			return valueObj
 		}
@@ -645,7 +615,6 @@ func (e *Evaluator) evalExpressions(
 
 	for _, expr := range exps {
 		evaluated := e.Eval(expr, env)
-
 		if isError(evaluated) {
 			return []object.Object{evaluated}
 		}
@@ -663,13 +632,11 @@ func (e *Evaluator) evalInfixExp(
 	env *object.Env,
 ) object.Object {
 	leftObj := e.Eval(left, env)
-
 	if isError(leftObj) {
 		return leftObj
 	}
 
 	rightObj := e.Eval(right, env)
-
 	if isError(rightObj) {
 		return rightObj
 	}
@@ -682,7 +649,6 @@ func (e *Evaluator) evalPostfixExp(
 	env *object.Env,
 ) object.Object {
 	leftObj := e.Eval(node.Left, env)
-
 	if isError(leftObj) {
 		return leftObj
 	}
@@ -695,7 +661,6 @@ func (e *Evaluator) evalCallExp(
 	env *object.Env,
 ) object.Object {
 	receiverObj := e.Eval(node.Receiver, env)
-
 	if isError(receiverObj) {
 		return receiverObj
 	}
@@ -704,13 +669,11 @@ func (e *Evaluator) evalCallExp(
 	funcName := node.Function.Value
 
 	typeFuncs, ok := functions[receiverType]
-
 	if !ok {
 		return e.newError(node, fail.ErrNoFuncForThisType, funcName, receiverType)
 	}
 
 	args := e.evalExpressions(node.Arguments, env)
-
 	if len(args) == 1 && isError(args[0]) {
 		return args[0]
 	}
