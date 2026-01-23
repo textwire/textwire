@@ -10,6 +10,7 @@ import (
 type Program struct {
 	BaseNode
 	IsLayout   bool
+	Filepath   string
 	UseStmt    *UseStmt
 	Statements []Statement
 	Components []*ComponentStmt

@@ -5,7 +5,6 @@ import (
 	"net/http"
 
 	"github.com/textwire/textwire/v2/ast"
-	"github.com/textwire/textwire/v2/ctx"
 	"github.com/textwire/textwire/v2/evaluator"
 	"github.com/textwire/textwire/v2/fail"
 	"github.com/textwire/textwire/v2/object"
@@ -17,7 +16,6 @@ type Template struct {
 
 func (t *Template) String(filename string, data map[string]any) (string, *fail.Error) {
 	env, envErr := object.EnvFromMap(data)
-
 	if envErr != nil {
 		return "", envErr
 	}
@@ -32,10 +30,10 @@ func (t *Template) String(filename string, data map[string]any) (string, *fail.E
 		return "", fail.New(0, absPath, "template", fail.ErrTemplateNotFound)
 	}
 
-	ctx := ctx.NewContext(absPath, customFunc, userConfig)
-	eval := evaluator.New(ctx)
+	prog.Filepath = absPath
+	eval := evaluator.New(customFunc, userConfig)
 
-	evaluated := eval.Eval(prog, env)
+	evaluated := eval.Eval(prog, env, prog.Filepath)
 	if evaluated.Is(object.ERR_OBJ) {
 		return "", evaluated.(*object.Error).Err
 	}

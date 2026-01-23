@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/textwire/textwire/v2/ctx"
+	"github.com/textwire/textwire/v2/config"
 	"github.com/textwire/textwire/v2/fail"
 	"github.com/textwire/textwire/v2/lexer"
 	"github.com/textwire/textwire/v2/object"
@@ -13,15 +13,13 @@ import (
 
 func testEval(inp string) object.Object {
 	l := lexer.New(inp)
-	p := parser.New(l, "")
+	p := parser.New(l, "/path/to/file")
 	prog := p.ParseProgram()
 	env := object.NewEnv()
 
-	eval := New(&ctx.EvalCtx{
-		AbsPath: "/path/to/file",
-	})
+	eval := New(&config.Func{}, &config.Config{})
 
-	return eval.Eval(prog, env)
+	return eval.Eval(prog, env, prog.Filepath)
 }
 
 func evaluationExpected(t *testing.T, inp, expect string) {

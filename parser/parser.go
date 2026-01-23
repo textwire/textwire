@@ -156,6 +156,7 @@ func (p *Parser) ParseProgram() *ast.Program {
 	prog.Inserts = p.inserts
 	prog.UseStmt = p.useStmt
 	prog.Reserves = p.reserves
+	prog.Filepath = p.filepath
 
 	return prog
 }

@@ -112,7 +112,6 @@ func applyComponentToProgram(prog *ast.Program, progFilePath string) *fail.Error
 		}
 
 		compProg, failErr, parseErr := parseProgram(compAbsPath)
-
 		if parseErr != nil {
 			if errors.Is(parseErr, os.ErrNotExist) {
 				return fail.New(comp.Line(), progFilePath, "template",

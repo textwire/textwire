@@ -1,8 +1,6 @@
 package object
 
-import "github.com/textwire/textwire/v2/ctx"
-
-type BuiltinFunction func(ctx *ctx.EvalCtx, receiver Object, args ...Object) (Object, error)
+type BuiltinFunction func(receiver Object, args ...Object) (Object, error)
 
 type Builtin struct {
 	Fn BuiltinFunction

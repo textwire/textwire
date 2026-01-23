@@ -31,7 +31,6 @@ const (
 	// Evaluator (interpreter) errors
 	ErrUnknownNodeType         = "unknown node type '%T'"
 	ErrInsertMustHaveContent   = "insert statement must have a content or a text argument"
-	ErrIdentifierNotFound      = "identifier '%s' not found"
 	ErrIndexNotSupported       = "index operator '%s' is not supported"
 	ErrUnknownOperator         = "unknown operator '%s%s'"
 	ErrCannotSubFromFloat      = "cannot decrement from float %s due to unknown error"
@@ -39,6 +38,7 @@ const (
 	ErrUnknownTypeForOperator  = "unknown type '%s' for '%s' operator"
 	ErrPrefixOperatorIsWrong   = "prefix operator '%s' cannot be applied to '%s'"
 	ErrUseStmtMustHaveProgram  = "use statement must have a program attached"
+	ErrVariableIsUndefined     = "variable '%s' is undefined"
 	ErrLoopVariableIsReserved  = "loop variable is reserved. You cannot use it as a variable name"
 	ErrVariableTypeMismatch    = "cannot assign variable '%s' of type '%s' to type '%s'"
 	ErrDotOperatorNotSupported = "the dot operator is not supported for type '%s'"
