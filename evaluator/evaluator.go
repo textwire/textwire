@@ -824,8 +824,30 @@ func (e *Evaluator) evalInfixOperatorExp(
 		return e.evalIntegerInfixExp(operator, right, left, leftNode)
 	case object.FLOAT_OBJ:
 		return e.evalFloatInfixExp(operator, right, left, leftNode)
+	case object.BOOL_OBJ:
+		return e.evalBooleanInfixExp(operator, right, left, leftNode)
 	case object.STR_OBJ:
 		return e.evalStringInfixExp(operator, right, left, leftNode)
+	}
+
+	return e.newError(leftNode, fail.ErrUnknownTypeForOperator,
+		left.Type(), operator)
+}
+
+func (e *Evaluator) evalBooleanInfixExp(
+	operator string,
+	right,
+	left object.Object,
+	leftNode ast.Node,
+) object.Object {
+	leftVal := left.(*object.Bool).Value
+	rightVal := right.(*object.Bool).Value
+
+	switch operator {
+	case "&&":
+		return &object.Bool{Value: leftVal && rightVal}
+	case "||":
+		return &object.Bool{Value: leftVal || rightVal}
 	}
 
 	return e.newError(leftNode, fail.ErrUnknownTypeForOperator,
