@@ -17,7 +17,7 @@ func TestIsInLoop(t *testing.T) {
 		{doc: `@each(x in users){{x}}@end`, linePos: 0, colPos: 20, expect: true},
 		{doc: `@each(x in users){{x}}@end`, linePos: 0, colPos: 21, expect: true},
 		{doc: `@each(x in users){{x}}@end`, linePos: 0, colPos: 22, expect: false},
-		{doc: `@for(i = 0; i < 10; i++){{x}}@end`, linePos: 0, colPos: 23, expect: false}, // <<<-- TODO: fix this
+		{doc: `@for(i = 0; i < 10; i++){{x}}@end`, linePos: 0, colPos: 23, expect: false},
 		{doc: `@for(i = 0; i < 10; i++){{x}}@end`, linePos: 0, colPos: 24, expect: true},
 		{doc: `@for(i = 0; i < 10; i++){{x}}@end`, linePos: 0, colPos: 25, expect: true},
 		{doc: `@for(i = 0; i < 10; i++){{x}}@end`, linePos: 0, colPos: 26, expect: true},
