@@ -4,7 +4,6 @@ import (
 	"strings"
 
 	"github.com/textwire/textwire/v2/config"
-	"github.com/textwire/textwire/v2/ctx"
 	"github.com/textwire/textwire/v2/evaluator"
 	"github.com/textwire/textwire/v2/fail"
 	"github.com/textwire/textwire/v2/object"
@@ -45,10 +44,9 @@ func EvaluateString(inp string, data map[string]any) (string, error) {
 		return "", err.Error()
 	}
 
-	ctx := ctx.NewContext("", customFunc, userConfig)
-	eval := evaluator.New(ctx)
+	eval := evaluator.New(customFunc, userConfig)
 
-	evaluated := eval.Eval(prog, env)
+	evaluated := eval.Eval(prog, env, prog.Filepath)
 	if evaluated.Is(object.ERR_OBJ) {
 		return "", evaluated.(*object.Error).Err.Error()
 	}

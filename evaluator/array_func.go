@@ -7,20 +7,19 @@ import (
 	"reflect"
 	"time"
 
-	"github.com/textwire/textwire/v2/ctx"
 	"github.com/textwire/textwire/v2/fail"
 	"github.com/textwire/textwire/v2/object"
 )
 
 // arrayLenFunc returns the length of the given array
-func arrayLenFunc(_ *ctx.EvalCtx, receiver object.Object, _ ...object.Object) (object.Object, error) {
+func arrayLenFunc(receiver object.Object, _ ...object.Object) (object.Object, error) {
 	elems := receiver.(*object.Array).Elements
 	length := len(elems)
 	return &object.Int{Value: int64(length)}, nil
 }
 
 // arrayJoinFunc joins the elements of the given array with the given separator
-func arrayJoinFunc(_ *ctx.EvalCtx, receiver object.Object, args ...object.Object) (object.Object, error) {
+func arrayJoinFunc(receiver object.Object, args ...object.Object) (object.Object, error) {
 	var separator string
 
 	if len(args) == 0 {
@@ -51,7 +50,7 @@ func arrayJoinFunc(_ *ctx.EvalCtx, receiver object.Object, args ...object.Object
 }
 
 // arrayRandFunc returns a random element from the given array
-func arrayRandFunc(_ *ctx.EvalCtx, receiver object.Object, _ ...object.Object) (object.Object, error) {
+func arrayRandFunc(receiver object.Object, _ ...object.Object) (object.Object, error) {
 	elems := receiver.(*object.Array).Elements
 	length := len(elems)
 
@@ -63,7 +62,7 @@ func arrayRandFunc(_ *ctx.EvalCtx, receiver object.Object, _ ...object.Object) (
 }
 
 // arrayReverseFunc reverses the elements of the given array
-func arrayReverseFunc(_ *ctx.EvalCtx, receiver object.Object, _ ...object.Object) (object.Object, error) {
+func arrayReverseFunc(receiver object.Object, _ ...object.Object) (object.Object, error) {
 	elems := receiver.(*object.Array).Elements
 	length := len(elems)
 
@@ -81,7 +80,7 @@ func arrayReverseFunc(_ *ctx.EvalCtx, receiver object.Object, _ ...object.Object
 }
 
 // arraySliceFunc returns a slice of the given array
-func arraySliceFunc(_ *ctx.EvalCtx, receiver object.Object, args ...object.Object) (object.Object, error) {
+func arraySliceFunc(receiver object.Object, args ...object.Object) (object.Object, error) {
 	elems := receiver.(*object.Array).Elements
 
 	argsLen := len(args)
@@ -130,7 +129,7 @@ func arraySliceFunc(_ *ctx.EvalCtx, receiver object.Object, args ...object.Objec
 }
 
 // arrayShuffleFunc shuffles the elements of the given array
-func arrayShuffleFunc(_ *ctx.EvalCtx, receiver object.Object, _ ...object.Object) (object.Object, error) {
+func arrayShuffleFunc(receiver object.Object, _ ...object.Object) (object.Object, error) {
 	elems := receiver.(*object.Array).Elements
 	length := len(elems)
 
@@ -155,7 +154,7 @@ func arrayShuffleFunc(_ *ctx.EvalCtx, receiver object.Object, _ ...object.Object
 }
 
 // arrayContainsFunc checks if the given array contains the given element
-func arrayContainsFunc(_ *ctx.EvalCtx, receiver object.Object, args ...object.Object) (object.Object, error) {
+func arrayContainsFunc(receiver object.Object, args ...object.Object) (object.Object, error) {
 	if len(args) == 0 {
 		msg := fmt.Sprintf(fail.ErrFuncRequiresOneArg, "contains", object.ARR_OBJ)
 		return nil, errors.New(msg)
@@ -190,7 +189,7 @@ func arrayContainsFunc(_ *ctx.EvalCtx, receiver object.Object, args ...object.Ob
 }
 
 // arrayAppendFunc appends the given elements to the given array
-func arrayAppendFunc(_ *ctx.EvalCtx, receiver object.Object, args ...object.Object) (object.Object, error) {
+func arrayAppendFunc(receiver object.Object, args ...object.Object) (object.Object, error) {
 	if len(args) == 0 {
 		msg := fmt.Sprintf(fail.ErrFuncRequiresOneArg, "append", object.ARR_OBJ)
 		return nil, errors.New(msg)
@@ -209,7 +208,7 @@ func arrayAppendFunc(_ *ctx.EvalCtx, receiver object.Object, args ...object.Obje
 }
 
 // arrayPrependFunc prepends the given elements to the given array
-func arrayPrependFunc(_ *ctx.EvalCtx, receiver object.Object, args ...object.Object) (object.Object, error) {
+func arrayPrependFunc(receiver object.Object, args ...object.Object) (object.Object, error) {
 	argsLen := len(args)
 
 	if argsLen == 0 {

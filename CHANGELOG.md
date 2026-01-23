@@ -1,5 +1,8 @@
 # Release notes
 
+## v2.7.1 (2026-01-23)
+- 🐛 Fixed incorrect file path in error messages when error happens inside of components
+
 ## v2.7.0 (2026-01-23)
 - 🧑‍💻 Remove Container Engine support
 - ✨ Added support for logical operators `&&` and `||`

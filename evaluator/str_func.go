@@ -7,7 +7,6 @@ import (
 	"strings"
 	"unicode/utf8"
 
-	"github.com/textwire/textwire/v2/ctx"
 	"github.com/textwire/textwire/v2/fail"
 	"github.com/textwire/textwire/v2/object"
 )
@@ -15,14 +14,14 @@ import (
 const defaultCharTrim = "\t \n\r"
 
 // strLenFunc returns the length of the given string
-func strLenFunc(_ *ctx.EvalCtx, receiver object.Object, _ ...object.Object) (object.Object, error) {
+func strLenFunc(receiver object.Object, _ ...object.Object) (object.Object, error) {
 	val := receiver.(*object.Str).Value
 	chars := []rune(val)
 	return &object.Int{Value: int64(len(chars))}, nil
 }
 
 // strSplitFunc returns a list of strings split by the given separator
-func strSplitFunc(_ *ctx.EvalCtx, receiver object.Object, args ...object.Object) (object.Object, error) {
+func strSplitFunc(receiver object.Object, args ...object.Object) (object.Object, error) {
 	separator := " "
 
 	if len(args) > 0 {
@@ -49,13 +48,13 @@ func strSplitFunc(_ *ctx.EvalCtx, receiver object.Object, args ...object.Object)
 }
 
 // strRawFunc prevents escaping HTML tags in a string
-func strRawFunc(_ *ctx.EvalCtx, receiver object.Object, _ ...object.Object) (object.Object, error) {
+func strRawFunc(receiver object.Object, _ ...object.Object) (object.Object, error) {
 	val := receiver.(*object.Str).Value
 	return &object.Str{Value: html.UnescapeString(val)}, nil
 }
 
 // strTrimFunc returns a string with leading and trailing whitespace removed
-func strTrimFunc(_ *ctx.EvalCtx, receiver object.Object, args ...object.Object) (object.Object, error) {
+func strTrimFunc(receiver object.Object, args ...object.Object) (object.Object, error) {
 	chars := defaultCharTrim
 
 	if len(args) > 0 {
@@ -75,19 +74,19 @@ func strTrimFunc(_ *ctx.EvalCtx, receiver object.Object, args ...object.Object) 
 }
 
 // strUpperFunc returns a string with all characters in uppercase
-func strUpperFunc(_ *ctx.EvalCtx, receiver object.Object, _ ...object.Object) (object.Object, error) {
+func strUpperFunc(receiver object.Object, _ ...object.Object) (object.Object, error) {
 	val := receiver.(*object.Str).Value
 	return &object.Str{Value: strings.ToUpper(val)}, nil
 }
 
 // strLowerFunc returns a string with all characters in lowercase
-func strLowerFunc(_ *ctx.EvalCtx, receiver object.Object, _ ...object.Object) (object.Object, error) {
+func strLowerFunc(receiver object.Object, _ ...object.Object) (object.Object, error) {
 	str := receiver.(*object.Str)
 	return &object.Str{Value: strings.ToLower(str.Value)}, nil
 }
 
 // strCapitalizeFunc returns a string with the first character capitalized
-func strCapitalizeFunc(_ *ctx.EvalCtx, receiver object.Object, _ ...object.Object) (object.Object, error) {
+func strCapitalizeFunc(receiver object.Object, _ ...object.Object) (object.Object, error) {
 	val := receiver.(*object.Str).Value
 
 	if len(val) == 0 {
@@ -100,7 +99,7 @@ func strCapitalizeFunc(_ *ctx.EvalCtx, receiver object.Object, _ ...object.Objec
 }
 
 // strReverseFunc returns a string with the characters reversed
-func strReverseFunc(_ *ctx.EvalCtx, receiver object.Object, _ ...object.Object) (object.Object, error) {
+func strReverseFunc(receiver object.Object, _ ...object.Object) (object.Object, error) {
 	val := receiver.(*object.Str).Value
 
 	runes := []rune(val)
@@ -115,7 +114,7 @@ func strReverseFunc(_ *ctx.EvalCtx, receiver object.Object, _ ...object.Object) 
 }
 
 // strContainsFunc returns true if the string contains the given substring, false otherwise
-func strContainsFunc(_ *ctx.EvalCtx, receiver object.Object, args ...object.Object) (object.Object, error) {
+func strContainsFunc(receiver object.Object, args ...object.Object) (object.Object, error) {
 	if len(args) == 0 {
 		msg := fmt.Sprintf(fail.ErrFuncRequiresOneArg, "contains", object.STR_OBJ)
 		return nil, errors.New(msg)
@@ -135,7 +134,7 @@ func strContainsFunc(_ *ctx.EvalCtx, receiver object.Object, args ...object.Obje
 }
 
 // strTruncateFunc returns a string truncated to the given length
-func strTruncateFunc(_ *ctx.EvalCtx, receiver object.Object, args ...object.Object) (object.Object, error) {
+func strTruncateFunc(receiver object.Object, args ...object.Object) (object.Object, error) {
 	if len(args) == 0 {
 		msg := fmt.Sprintf(fail.ErrFuncRequiresOneArg, "truncate", object.STR_OBJ)
 		return nil, errors.New(msg)
@@ -174,12 +173,12 @@ func strTruncateFunc(_ *ctx.EvalCtx, receiver object.Object, args ...object.Obje
 }
 
 // strDecimalFunc returns a string formatted as a decimal number
-func strDecimalFunc(_ *ctx.EvalCtx, receiver object.Object, args ...object.Object) (object.Object, error) {
+func strDecimalFunc(receiver object.Object, args ...object.Object) (object.Object, error) {
 	return addDecimals(receiver, object.STR_OBJ, args...)
 }
 
 // strAtFunc returns the character at the given index in the string
-func strAtFunc(_ *ctx.EvalCtx, receiver object.Object, args ...object.Object) (object.Object, error) {
+func strAtFunc(receiver object.Object, args ...object.Object) (object.Object, error) {
 	index := 0
 
 	if len(args) != 0 {
@@ -212,17 +211,17 @@ func strAtFunc(_ *ctx.EvalCtx, receiver object.Object, args ...object.Object) (o
 }
 
 // strFirstFunc returns the first character in the string
-func strFirstFunc(c *ctx.EvalCtx, receiver object.Object, _ ...object.Object) (object.Object, error) {
-	return strAtFunc(c, receiver, &object.Int{Value: 0})
+func strFirstFunc(receiver object.Object, _ ...object.Object) (object.Object, error) {
+	return strAtFunc(receiver, &object.Int{Value: 0})
 }
 
 // strLastFunc returns the last character in the string
-func strLastFunc(c *ctx.EvalCtx, receiver object.Object, _ ...object.Object) (object.Object, error) {
-	return strAtFunc(c, receiver, &object.Int{Value: -1})
+func strLastFunc(receiver object.Object, _ ...object.Object) (object.Object, error) {
+	return strAtFunc(receiver, &object.Int{Value: -1})
 }
 
 // strTrimRightFunc returns a string with trailing whitespace removed from the right
-func strTrimRightFunc(_ *ctx.EvalCtx, receiver object.Object, args ...object.Object) (object.Object, error) {
+func strTrimRightFunc(receiver object.Object, args ...object.Object) (object.Object, error) {
 	chars := defaultCharTrim
 
 	if len(args) > 0 {
@@ -242,7 +241,7 @@ func strTrimRightFunc(_ *ctx.EvalCtx, receiver object.Object, args ...object.Obj
 }
 
 // strTrimLeftFunc returns a string with trailing whitespace removed from the left
-func strTrimLeftFunc(_ *ctx.EvalCtx, receiver object.Object, args ...object.Object) (object.Object, error) {
+func strTrimLeftFunc(receiver object.Object, args ...object.Object) (object.Object, error) {
 	chars := defaultCharTrim
 
 	if len(args) > 0 {
@@ -262,7 +261,7 @@ func strTrimLeftFunc(_ *ctx.EvalCtx, receiver object.Object, args ...object.Obje
 }
 
 // strRepeatFunc returns a string repeated n times
-func strRepeatFunc(_ *ctx.EvalCtx, receiver object.Object, args ...object.Object) (object.Object, error) {
+func strRepeatFunc(receiver object.Object, args ...object.Object) (object.Object, error) {
 	if len(args) == 0 {
 		msg := fmt.Sprintf(fail.ErrFuncRequiresOneArg, "repeat", object.STR_OBJ)
 		return nil, errors.New(msg)
