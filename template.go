@@ -17,7 +17,6 @@ type Template struct {
 
 func (t *Template) String(filename string, data map[string]any) (string, *fail.Error) {
 	env, envErr := object.EnvFromMap(data)
-
 	if envErr != nil {
 		return "", envErr
 	}

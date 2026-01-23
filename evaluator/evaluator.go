@@ -246,7 +246,6 @@ func (e *Evaluator) evalComponentStmt(node *ast.ComponentStmt, env *object.Env) 
 	}
 
 	stmt := &object.Component{Name: name.String()}
-
 	newEnv := object.NewEnclosedEnv(env)
 
 	if node.Argument != nil {
@@ -463,7 +462,7 @@ func (e *Evaluator) evalIdentifier(
 		return val
 	}
 
-	return e.newError(node, fail.ErrIdentifierNotFound, node.Value)
+	return e.newError(node, fail.ErrVariableIsUndefined, node.Value)
 }
 
 func (e *Evaluator) evalIndexExp(
@@ -951,11 +950,7 @@ func (e *Evaluator) evalBangOperatorExp(
 		"!", right.Type())
 }
 
-func (e *Evaluator) newError(
-	node ast.Node,
-	format string,
-	a ...any,
-) *object.Error {
+func (e *Evaluator) newError(node ast.Node, format string, a ...any) *object.Error {
 	err := fail.New(node.Line(), e.ctx.AbsPath, "evaluator", format, a...)
 	return &object.Error{Err: err}
 }

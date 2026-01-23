@@ -25,7 +25,6 @@ func NewTemplate(opt *config.Config) (*Template, error) {
 	}
 
 	programs, parseErr := parsePrograms(paths)
-
 	if parseErr != nil {
 		return nil, parseErr.Error()
 	}
@@ -37,7 +36,6 @@ func EvaluateString(inp string, data map[string]any) (string, error) {
 	usesTemplates = false
 
 	prog, errs := parseStr(inp)
-
 	if len(errs) != 0 {
 		return "", errs[0].Error()
 	}
@@ -51,7 +49,6 @@ func EvaluateString(inp string, data map[string]any) (string, error) {
 	eval := evaluator.New(ctx)
 
 	evaluated := eval.Eval(prog, env)
-
 	if evaluated.Is(object.ERR_OBJ) {
 		return "", evaluated.(*object.Error).Err.Error()
 	}
