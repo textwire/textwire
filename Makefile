@@ -26,4 +26,4 @@ check: fmt lint test
 test-count:
 	@go test -json ./... | jq -s '[.[] | select(.Action == "run" and .Test != null)] | length'
 
-.DEFAULT_GOAL := check
+.DEFAULT_GOAL := test

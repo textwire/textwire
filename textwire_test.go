@@ -57,7 +57,7 @@ func TestEvaluateString(t *testing.T) {
 	}
 }
 
-func TestErrorHandlingEvaluatingString(t *testing.T) {
+func TestErrorHandling(t *testing.T) {
 	tests := []struct {
 		inp  string
 		err  *fail.Error
@@ -69,6 +69,9 @@ func TestErrorHandlingEvaluatingString(t *testing.T) {
 		{`{{ loop }}`, fail.New(0, "", "evaluator", fail.ErrLoopVariableIsReserved), map[string]any{"loop": "test"}},
 		{`{{ n = 1; n = "test" }}`, fail.New(1, "", "evaluator", fail.ErrVariableTypeMismatch, "n", object.INT_OBJ, object.STR_OBJ), nil},
 		{`{{ obj = {}; obj.name }}`, fail.New(1, "", "evaluator", fail.ErrPropertyNotFound, "name", object.OBJ_OBJ), nil},
+		{`{{ {}.test }}`, fail.New(1, "", "evaluator", fail.ErrPropertyNotFound, "test", object.OBJ_OBJ), nil},
+		{`{{ 5.somefunction() }}`, fail.New(1, "", "evaluator", fail.ErrNoFuncForThisType, "somefunction", object.INT_OBJ), nil},
+		{`{{ 3 / 0 }}`, fail.New(1, "", "evaluator", fail.ErrDivisionByZero), nil},
 	}
 
 	for _, tc := range tests {

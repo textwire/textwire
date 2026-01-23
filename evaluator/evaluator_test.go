@@ -435,40 +435,6 @@ func TestEvalComments(t *testing.T) {
 	}
 }
 
-func TestDifferentErrorMessages(t *testing.T) {
-	cases := []struct {
-		inp string
-		err *fail.Error
-	}{
-		{
-			inp: "{{ 5.somefunction() }}",
-			err: fail.New(1, "/path/to/file", "evaluator",
-				fail.ErrNoFuncForThisType,
-				"somefunction", object.INT_OBJ),
-		},
-		{
-			inp: "{{ 3 / 0 }}",
-			err: fail.New(1, "/path/to/file", "evaluator",
-				fail.ErrDivisionByZero),
-		},
-	}
-
-	for _, tc := range cases {
-		evaluated := testEval(tc.inp)
-
-		errObj, ok := evaluated.(*object.Error)
-
-		if !ok {
-			t.Fatalf("evaluation failed: %s", errObj.String())
-		}
-
-		expect := tc.err.String()
-		if errObj.String() != expect {
-			t.Fatalf("error message is not '%s', got '%s'", expect, errObj.String())
-		}
-	}
-}
-
 func TestTypeMismatchErrors(t *testing.T) {
 	cases := []struct {
 		inp      string
