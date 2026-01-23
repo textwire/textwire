@@ -9,7 +9,7 @@ shell:
 test:
 	echo "🚀 Running tests..."
 	go test ./...
-	@echo "✅ $$(make -s test-count) tests pass"
+	@echo "✅ All tests passed!"
 
 fmt:
 	echo "🔧 Formatting code..."
@@ -22,8 +22,5 @@ lint:
 	echo "✅ Linting passed!"
 
 check: fmt lint test
-
-test-count:
-	@go test -json ./... | jq -s '[.[] | select(.Action == "run" and .Test != null)] | length'
 
 .DEFAULT_GOAL := test
