@@ -11,11 +11,11 @@ var defaultErrorPage string
 
 // errorPage returns HTML that's displayed when an error
 // occurs while rendering a template
-func errorPage(failErr *fail.Error) (string, error) {
+func errorPage(failure *fail.Error) (string, error) {
 	data := map[string]any{
-		"path":      failErr.Filepath(),
-		"line":      failErr.Line(),
-		"message":   failErr.Message(),
+		"path":      failure.Filepath(),
+		"line":      failure.Line(),
+		"message":   failure.Message(),
 		"debugMode": userConfig.DebugMode,
 	}
 

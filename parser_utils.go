@@ -45,13 +45,13 @@ func parsePrograms(paths map[string]string) (map[string]*ast.Program, *fail.Erro
 	var result = map[string]*ast.Program{}
 
 	for name, absPath := range paths {
-		prog, failErr, parseErr := parseProgram(absPath)
+		prog, failure, parseErr := parseProgram(absPath)
 		if parseErr != nil {
 			return nil, fail.FromError(parseErr, 0, absPath, "template")
 		}
 
-		if failErr != nil {
-			return nil, failErr
+		if failure != nil {
+			return nil, failure
 		}
 
 		if err := applyLayoutToProgram(prog); err != nil {
@@ -82,13 +82,13 @@ func applyLayoutToProgram(prog *ast.Program) *fail.Error {
 		return fail.FromError(err, stmt.Line(), layoutAbsPath, "template")
 	}
 
-	layoutProg, failErr, parseErr := parseProgram(layoutAbsPath)
+	layoutProg, failure, parseErr := parseProgram(layoutAbsPath)
 	if parseErr != nil {
 		return fail.FromError(parseErr, stmt.Line(), layoutAbsPath, "template")
 	}
 
-	if failErr != nil {
-		return failErr
+	if failure != nil {
+		return failure
 	}
 
 	layoutProg.IsLayout = true
@@ -111,7 +111,7 @@ func applyComponentToProgram(prog *ast.Program, progFilePath string) *fail.Error
 			return fail.FromError(err, 0, "", "template")
 		}
 
-		compProg, failErr, parseErr := parseProgram(compAbsPath)
+		compProg, failure, parseErr := parseProgram(compAbsPath)
 		if parseErr != nil {
 			if errors.Is(parseErr, os.ErrNotExist) {
 				return fail.New(comp.Line(), progFilePath, "template",
@@ -121,8 +121,8 @@ func applyComponentToProgram(prog *ast.Program, progFilePath string) *fail.Error
 			return fail.FromError(parseErr, comp.Line(), compAbsPath, "template")
 		}
 
-		if failErr != nil {
-			return failErr
+		if failure != nil {
+			return failure
 		}
 
 		if err := prog.ApplyComponent(compName, compProg, progFilePath); err != nil {
