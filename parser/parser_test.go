@@ -390,7 +390,7 @@ func TestParseNilLiteral(t *testing.T) {
 }
 
 func TestParseStringLiteral(t *testing.T) {
-	tests := []struct {
+	cases := []struct {
 		inp      string
 		expect   string
 		startCol uint
@@ -402,7 +402,7 @@ func TestParseStringLiteral(t *testing.T) {
 		{`{{ "" }}`, "", 3, 4},
 	}
 
-	for _, tc := range tests {
+	for _, tc := range cases {
 		stmts := parseStatements(t, tc.inp, defaultParseOpts)
 		stmt, ok := stmts[0].(*ast.ExpressionStmt)
 
@@ -530,7 +530,7 @@ func TestGroupedExpression(t *testing.T) {
 }
 
 func TestInfixExp(t *testing.T) {
-	tests := []struct {
+	cases := []struct {
 		inp      string
 		left     any
 		operator string
@@ -554,7 +554,7 @@ func TestInfixExp(t *testing.T) {
 		{`{{ false || false }}`, false, "||", false, 16, token.FALSE},
 	}
 
-	for _, tc := range tests {
+	for _, tc := range cases {
 		stmts := parseStatements(t, tc.inp, defaultParseOpts)
 		stmt, ok := stmts[0].(*ast.ExpressionStmt)
 		if !ok {
@@ -573,7 +573,7 @@ func TestInfixExp(t *testing.T) {
 }
 
 func TestBooleanExpression(t *testing.T) {
-	tests := []struct {
+	cases := []struct {
 		inp           string
 		expectBoolean bool
 		startCol      uint
@@ -584,7 +584,7 @@ func TestBooleanExpression(t *testing.T) {
 		{"{{ false }}", false, 3, 7, token.FALSE},
 	}
 
-	for _, tc := range tests {
+	for _, tc := range cases {
 		stmts := parseStatements(t, tc.inp, defaultParseOpts)
 		stmt, ok := stmts[0].(*ast.ExpressionStmt)
 		if !ok {
@@ -605,7 +605,7 @@ func TestBooleanExpression(t *testing.T) {
 }
 
 func TestPrefixExp(t *testing.T) {
-	tests := []struct {
+	cases := []struct {
 		inp      string
 		operator string
 		value    any
@@ -623,7 +623,7 @@ func TestPrefixExp(t *testing.T) {
 		{`{{ !0.0 }}`, "!", 0.0, 6, token.NOT},
 	}
 
-	for _, tc := range tests {
+	for _, tc := range cases {
 		stmts := parseStatements(t, tc.inp, defaultParseOpts)
 		stmt, ok := stmts[0].(*ast.ExpressionStmt)
 		if !ok {
@@ -653,7 +653,7 @@ func TestPrefixExp(t *testing.T) {
 }
 
 func TestOperatorPrecedenceParsing(t *testing.T) {
-	tests := []struct {
+	cases := []struct {
 		inp      string
 		expected string
 	}{
@@ -707,7 +707,7 @@ func TestOperatorPrecedenceParsing(t *testing.T) {
 		},
 	}
 
-	for _, tc := range tests {
+	for _, tc := range cases {
 		l := lexer.New(tc.inp)
 		p := New(l, "")
 
@@ -724,7 +724,7 @@ func TestOperatorPrecedenceParsing(t *testing.T) {
 }
 
 func TestErrorHandling(t *testing.T) {
-	tests := []struct {
+	cases := []struct {
 		inp string
 		err *fail.Error
 	}{
@@ -757,7 +757,7 @@ func TestErrorHandling(t *testing.T) {
 		},
 	}
 
-	for _, tc := range tests {
+	for _, tc := range cases {
 		l := lexer.New(tc.inp)
 		p := New(l, "")
 
@@ -1012,7 +1012,7 @@ func TestParseIfElseIfElseStatement(t *testing.T) {
 }
 
 func TestParseAssignStmt(t *testing.T) {
-	tests := []struct {
+	cases := []struct {
 		inp      string
 		varName  string
 		varValue any
@@ -1038,7 +1038,7 @@ func TestParseAssignStmt(t *testing.T) {
 		},
 	}
 
-	for _, tc := range tests {
+	for _, tc := range cases {
 		stmts := parseStatements(t, tc.inp, defaultParseOpts)
 
 		stmt, ok := stmts[0].(*ast.AssignStmt)
@@ -1267,7 +1267,7 @@ func TestParseIndexExp(t *testing.T) {
 }
 
 func TestParsePostfixExp(t *testing.T) {
-	tests := []struct {
+	cases := []struct {
 		inp      string
 		ident    string
 		operator string
@@ -1278,7 +1278,7 @@ func TestParsePostfixExp(t *testing.T) {
 		{`{{ num-- }}`, "num", "--", "(num--)", token.DEC},
 	}
 
-	for _, tc := range tests {
+	for _, tc := range cases {
 		stmts := parseStatements(t, tc.inp, defaultParseOpts)
 
 		stmt, ok := stmts[0].(*ast.ExpressionStmt)

@@ -3,7 +3,7 @@ package evaluator
 import "testing"
 
 func TestEvalFloatFunctions(t *testing.T) {
-	tests := []struct {
+	cases := []struct {
 		inp      string
 		expected string
 	}{
@@ -59,7 +59,7 @@ func TestEvalFloatFunctions(t *testing.T) {
 		{`{{ -5.125.round() }}`, "-5"},
 	}
 
-	for _, tc := range tests {
+	for _, tc := range cases {
 		evaluationExpected(t, tc.inp, tc.expected)
 	}
 }

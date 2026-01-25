@@ -3,7 +3,7 @@ package evaluator
 import "testing"
 
 func TestEvalBinaryFunctions(t *testing.T) {
-	tests := []struct {
+	cases := []struct {
 		inp      string
 		expected string
 	}{
@@ -30,7 +30,7 @@ func TestEvalBinaryFunctions(t *testing.T) {
 		{`{{ false.then(1.121, 4.2141) }}`, "4.2141"},
 	}
 
-	for _, tc := range tests {
+	for _, tc := range cases {
 		evaluationExpected(t, tc.inp, tc.expected)
 	}
 }

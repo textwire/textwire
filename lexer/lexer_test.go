@@ -332,7 +332,7 @@ func TestArray(t *testing.T) {
 }
 
 func TestErrorLineNumber(t *testing.T) {
-	tests := []struct {
+	cases := []struct {
 		inp  string
 		line uint
 	}{
@@ -360,7 +360,7 @@ func TestErrorLineNumber(t *testing.T) {
 		},
 	}
 
-	for _, tc := range tests {
+	for _, tc := range cases {
 		l := New(tc.inp)
 		var lastTok token.Token
 
@@ -375,7 +375,7 @@ func TestErrorLineNumber(t *testing.T) {
 }
 
 func TestTokenPosition(t *testing.T) {
-	tests := []struct {
+	cases := []struct {
 		startL uint
 		endL   uint
 		startC uint
@@ -402,7 +402,7 @@ func TestTokenPosition(t *testing.T) {
 </div>
 @break`
 
-	for tokenIdx, tc := range tests {
+	for tokenIdx, tc := range cases {
 		l := New(inp)
 		var targetTok token.Token
 

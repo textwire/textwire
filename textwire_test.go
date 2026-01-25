@@ -31,7 +31,7 @@ func readFile(fileName string) (string, error) {
 }
 
 func TestEvaluateString(t *testing.T) {
-	tests := []struct {
+	cases := []struct {
 		inp    string
 		expect string
 		data   map[string]any
@@ -44,7 +44,7 @@ func TestEvaluateString(t *testing.T) {
 		}{Name: struct{ FirstName string }{"Ann"}, Age: 20}}},
 	}
 
-	for _, tc := range tests {
+	for _, tc := range cases {
 		actual, err := EvaluateString(tc.inp, tc.data)
 		if err != nil {
 			t.Errorf("error evaluating template: %s", err)
@@ -58,7 +58,7 @@ func TestEvaluateString(t *testing.T) {
 }
 
 func TestErrorHandling(t *testing.T) {
-	tests := []struct {
+	cases := []struct {
 		inp  string
 		err  *fail.Error
 		data map[string]any
@@ -76,7 +76,7 @@ func TestErrorHandling(t *testing.T) {
 		{`{{ 1 ~ 8 }}`, fail.New(1, "", "parser", fail.ErrIllegalToken, "~"), nil},
 	}
 
-	for _, tc := range tests {
+	for _, tc := range cases {
 		_, err := EvaluateString(tc.inp, tc.data)
 		if err == nil {
 			t.Errorf("expected error but got none")

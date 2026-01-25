@@ -3,7 +3,7 @@ package evaluator
 import "testing"
 
 func TestEvalStringFunctions(t *testing.T) {
-	tests := []struct {
+	cases := []struct {
 		inp      string
 		expected string
 	}{
@@ -127,7 +127,7 @@ func TestEvalStringFunctions(t *testing.T) {
 		{`{{ "".last() }}`, ""},
 	}
 
-	for _, tc := range tests {
+	for _, tc := range cases {
 		evaluationExpected(t, tc.inp, tc.expected)
 	}
 }

@@ -8,7 +8,7 @@ import (
 )
 
 func TestFunctionGivesError(t *testing.T) {
-	tests := []struct {
+	cases := []struct {
 		inp string
 		err *fail.Error
 	}{
@@ -107,7 +107,7 @@ func TestFunctionGivesError(t *testing.T) {
 		{`{{ [1, 2].prepend() }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncRequiresOneArg, "prepend", object.ARR_OBJ)},
 	}
 
-	for _, tc := range tests {
+	for _, tc := range cases {
 		evaluated := testEval(tc.inp)
 		errObj, ok := evaluated.(*object.Error)
 

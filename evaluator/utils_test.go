@@ -7,7 +7,7 @@ import (
 )
 
 func TestIsTruthy(t *testing.T) {
-	tests := []struct {
+	cases := []struct {
 		inp      object.Object
 		expected bool
 	}{
@@ -27,7 +27,7 @@ func TestIsTruthy(t *testing.T) {
 		{&object.Array{Elements: nil}, true},
 	}
 
-	for _, tc := range tests {
+	for _, tc := range cases {
 		result := isTruthy(tc.inp)
 
 		if result != tc.expected {
@@ -37,7 +37,7 @@ func TestIsTruthy(t *testing.T) {
 }
 
 func TestNativeToBooleanObject(t *testing.T) {
-	tests := []struct {
+	cases := []struct {
 		inp      bool
 		expected object.Object
 	}{
@@ -45,7 +45,7 @@ func TestNativeToBooleanObject(t *testing.T) {
 		{false, FALSE},
 	}
 
-	for _, tc := range tests {
+	for _, tc := range cases {
 		result := nativeBoolToBooleanObject(tc.inp)
 
 		if result != tc.expected {

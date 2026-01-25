@@ -5,7 +5,7 @@ import (
 )
 
 func TestEvalArrayFunctions(t *testing.T) {
-	tests := []struct {
+	cases := []struct {
 		inp      string
 		expected string
 	}{
@@ -75,7 +75,7 @@ func TestEvalArrayFunctions(t *testing.T) {
 		{`{{ [1, 2].prepend([3, 4]).len() }}`, "3"},
 	}
 
-	for _, tc := range tests {
+	for _, tc := range cases {
 		evaluationExpected(t, tc.inp, tc.expected)
 	}
 }

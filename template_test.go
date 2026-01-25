@@ -16,7 +16,7 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 		return
 	}
 
-	tests := []struct {
+	cases := []struct {
 		dirName string
 		err     *fail.Error
 		data    map[string]any
@@ -83,7 +83,7 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 		},
 	}
 
-	for _, tc := range tests {
+	for _, tc := range cases {
 		t.Run(tc.dirName, func(t *testing.T) {
 			tpl, tplErr := NewTemplate(&config.Config{
 				TemplateDir: "textwire/testdata/bad/" + tc.dirName,
@@ -112,7 +112,7 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 }
 
 func TestNewTemplate(t *testing.T) {
-	tests := []struct {
+	cases := []struct {
 		fileName string
 		data     map[string]any
 	}{
@@ -148,7 +148,7 @@ func TestNewTemplate(t *testing.T) {
 		return
 	}
 
-	for _, tc := range tests {
+	for _, tc := range cases {
 		actual, evalErr := tpl.String(tc.fileName, tc.data)
 		if evalErr != nil {
 			t.Errorf("error evaluating template: %s", evalErr)

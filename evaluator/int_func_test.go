@@ -3,7 +3,7 @@ package evaluator
 import "testing"
 
 func TestEvalIntFunctions(t *testing.T) {
-	tests := []struct {
+	cases := []struct {
 		inp      string
 		expected string
 	}{
@@ -41,7 +41,7 @@ func TestEvalIntFunctions(t *testing.T) {
 		{`{{ 1.decimal(',') }}`, "1,00"},
 	}
 
-	for _, tc := range tests {
+	for _, tc := range cases {
 		evaluationExpected(t, tc.inp, tc.expected)
 	}
 }
