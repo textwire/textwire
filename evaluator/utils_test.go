@@ -8,8 +8,8 @@ import (
 
 func TestIsTruthy(t *testing.T) {
 	cases := []struct {
-		inp      object.Object
-		expected bool
+		inp    object.Object
+		expect bool
 	}{
 		{nil, false},
 		{NIL, false},
@@ -30,16 +30,16 @@ func TestIsTruthy(t *testing.T) {
 	for _, tc := range cases {
 		result := isTruthy(tc.inp)
 
-		if result != tc.expected {
-			t.Errorf("isTruthy(%v) returned %t, expected %t", tc.inp, result, tc.expected)
+		if result != tc.expect {
+			t.Errorf("isTruthy(%v) returned %t, expect %t", tc.inp, result, tc.expect)
 		}
 	}
 }
 
 func TestNativeToBooleanObject(t *testing.T) {
 	cases := []struct {
-		inp      bool
-		expected object.Object
+		inp    bool
+		expect object.Object
 	}{
 		{true, TRUE},
 		{false, FALSE},
@@ -48,8 +48,8 @@ func TestNativeToBooleanObject(t *testing.T) {
 	for _, tc := range cases {
 		result := nativeBoolToBooleanObject(tc.inp)
 
-		if result != tc.expected {
-			t.Errorf("nativeBoolToBooleanObject(%t) returned %s, expected %s", tc.inp, result, tc.expected)
+		if result != tc.expect {
+			t.Errorf("nativeBoolToBooleanObject(%t) returned %s, expect %s", tc.inp, result, tc.expect)
 		}
 	}
 }

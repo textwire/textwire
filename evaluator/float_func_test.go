@@ -4,8 +4,8 @@ import "testing"
 
 func TestEvalFloatFunctions(t *testing.T) {
 	cases := []struct {
-		inp      string
-		expected string
+		inp    string
+		expect string
 	}{
 		// int
 		{`{{ 13.999.int() }}`, "13"},
@@ -60,6 +60,6 @@ func TestEvalFloatFunctions(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		evaluationExpected(t, tc.inp, tc.expected)
+		evaluationExpected(t, tc.inp, tc.expect)
 	}
 }

@@ -38,10 +38,19 @@ func TestEvaluateString(t *testing.T) {
 	}{
 		{"{{ 1 + 2 }}", "3", nil},
 		{"{{ n1 * n2 }}", "2", map[string]any{"n1": 1, "n2": 2}},
-		{"{{ user.name.firstName }}", "Ann", map[string]any{"user": struct {
-			Name struct{ FirstName string }
-			Age  int
-		}{Name: struct{ FirstName string }{"Ann"}, Age: 20}}},
+		{
+			inp:    "{{ user.name.firstName }}",
+			expect: "Ann",
+			data: map[string]any{
+				"user": struct {
+					Name struct{ FirstName string }
+					Age  int
+				}{
+					Name: struct{ FirstName string }{"Ann"},
+					Age:  20,
+				},
+			},
+		},
 	}
 
 	for _, tc := range cases {
@@ -51,7 +60,7 @@ func TestEvaluateString(t *testing.T) {
 		}
 
 		if actual != tc.expect {
-			t.Errorf("wrong result. EXPECTED:\n\"%s\"\nGOT:\n\"%s\"",
+			t.Errorf("wrong result. expect:\n\"%s\"\ngot:\n\"%s\"",
 				tc.expect, actual)
 		}
 	}
@@ -79,12 +88,12 @@ func TestErrorHandling(t *testing.T) {
 	for _, tc := range cases {
 		_, err := EvaluateString(tc.inp, tc.data)
 		if err == nil {
-			t.Errorf("expected error but got none")
+			t.Errorf("expect error but got none")
 			return
 		}
 
 		if err.Error() != tc.err.String() {
-			t.Errorf("wrong error message. EXPECTED:\n%q\nGOT:\n%q",
+			t.Errorf("wrong error message. expected:\n%q\ngot:\n%q",
 				tc.err, err)
 		}
 	}
@@ -108,14 +117,14 @@ func TestEvaluateFile(t *testing.T) {
 		t.Errorf("error evaluating file:\n%s", err)
 	}
 
-	expected, err := readFile("textwire/testdata/good/expected/" + filename + ".html")
+	expect, err := readFile("textwire/testdata/good/expected/" + filename + ".html")
 	if err != nil {
 		t.Errorf("error reading expected file: %s", err)
 		return
 	}
 
-	if out != expected {
-		t.Errorf("wrong output. EXPECTED:\n%s\nGOT:\n%s", expected, out)
+	if out != expect {
+		t.Errorf("wrong output. expect:\n%s\ngot:\n%s", expect, out)
 	}
 }
 
@@ -135,7 +144,7 @@ func TestCustomFunctions(t *testing.T) {
 		}
 
 		if actual != "6" {
-			t.Errorf("wrong result. EXPECTED: '6' GOT: '%s'", actual)
+			t.Errorf("wrong result. expect: '6' got: '%s'", actual)
 		}
 	})
 
@@ -154,7 +163,7 @@ func TestCustomFunctions(t *testing.T) {
 		}
 
 		if actual != "7.0" {
-			t.Fatalf("wrong result. EXPECTED: '7.0' GOT: '%s'", actual)
+			t.Fatalf("wrong result. expect: '7.0' got: '%s'", actual)
 		}
 	})
 
@@ -175,7 +184,7 @@ func TestCustomFunctions(t *testing.T) {
 		}
 
 		if actual != "1, 2, 3" {
-			t.Fatalf("wrong result. EXPECTED: '1, 2, 3' GOT: '%s'", actual)
+			t.Fatalf("wrong result. expect: '1, 2, 3' got: '%s'", actual)
 		}
 	})
 
@@ -193,7 +202,7 @@ func TestCustomFunctions(t *testing.T) {
 		}
 
 		if actual != "0" {
-			t.Fatalf("wrong result. EXPECTED: '0' GOT '%s'", actual)
+			t.Fatalf("wrong result. expect: '0' got '%s'", actual)
 		}
 	})
 
@@ -215,7 +224,7 @@ func TestCustomFunctions(t *testing.T) {
 		}
 
 		if actual != "anna cho" {
-			t.Fatalf("wrong result. EXPECTED: 'anna cho' GOT: '%s'", actual)
+			t.Fatalf("wrong result. expect: 'anna cho' got: '%s'", actual)
 		}
 	})
 
@@ -234,13 +243,13 @@ func TestCustomFunctions(t *testing.T) {
 		})
 
 		if err == nil {
-			t.Fatalf("expected error but got none")
+			t.Fatalf("expect error but got none")
 		}
 
 		expect := fail.New(0, "", "API", fail.ErrFuncAlreadyDefined, "len", "strings")
 
 		if err.Error() != expect.Error().Error() {
-			t.Fatalf("wrong error message. EXPECTED: %q GOT: %q", expect, err)
+			t.Fatalf("wrong error message. expect: %q got: %q", expect, err)
 		}
 	})
 
@@ -260,7 +269,7 @@ func TestCustomFunctions(t *testing.T) {
 
 		// the output should be the same as the built-in function even though we redefined it
 		if actual != "anna" {
-			t.Fatalf("wrong output. EXPECTED: 'anna' GOT: '%s'", actual)
+			t.Fatalf("wrong output. expect: 'anna' got: '%s'", actual)
 		}
 	})
 }

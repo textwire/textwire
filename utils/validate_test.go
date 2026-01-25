@@ -4,9 +4,9 @@ import "testing"
 
 func TestStrIsInt(t *testing.T) {
 	tc := []struct {
-		name     string
-		inp      string
-		expected bool
+		name   string
+		inp    string
+		expect bool
 	}{
 		{"Non-integer string", "anna", false},
 		{"Positive integer", "123", true},
@@ -21,8 +21,8 @@ func TestStrIsInt(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			got := StrIsInt(tt.inp)
 
-			if got != tt.expected {
-				t.Errorf("expected %v, got %v", tt.expected, got)
+			if got != tt.expect {
+				t.Errorf("expect %v, got %v", tt.expect, got)
 			}
 		})
 	}

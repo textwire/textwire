@@ -11,14 +11,14 @@ func TestGetTokenMeta(t *testing.T) {
 	t.Run("Invalid locale", func(t *testing.T) {
 		_, err := GetTokenMeta(token.IF, "invalid")
 		if err == nil {
-			t.Error("expected error, got nil")
+			t.Error("expect error, got nil")
 		}
 	})
 
 	t.Run("Token missing docs", func(t *testing.T) {
 		_, err := GetTokenMeta(token.EOF, "en")
 		if err == nil {
-			t.Error("expected error, got nil")
+			t.Error("expect error, got nil")
 		}
 	})
 
@@ -50,11 +50,11 @@ func TestGetTokenMeta(t *testing.T) {
 		t.Run("Valid "+tc.name, func(t *testing.T) {
 			meta, err := GetTokenMeta(tc.token, tc.locale)
 			if err != nil {
-				t.Errorf("expected err to be nil, got error %v", err)
+				t.Errorf("expect err to be nil, got error %v", err)
 			}
 
 			if !strings.Contains(meta, tc.expect) {
-				t.Errorf("expected %s in meta, got %s", tc.expect, meta)
+				t.Errorf("expect %s in meta, got %s", tc.expect, meta)
 			}
 		})
 	}

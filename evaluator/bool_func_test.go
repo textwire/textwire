@@ -4,8 +4,8 @@ import "testing"
 
 func TestEvalBinaryFunctions(t *testing.T) {
 	cases := []struct {
-		inp      string
-		expected string
+		inp    string
+		expect string
 	}{
 		// binary
 		{`{{ true.binary() }}`, "1"},
@@ -31,6 +31,6 @@ func TestEvalBinaryFunctions(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		evaluationExpected(t, tc.inp, tc.expected)
+		evaluationExpected(t, tc.inp, tc.expect)
 	}
 }

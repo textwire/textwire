@@ -230,9 +230,9 @@ func testIdentifier(t *testing.T, exp ast.Expression, value string) bool {
 func testLiteralExpression(
 	t *testing.T,
 	exp ast.Expression,
-	expected any,
+	expect any,
 ) bool {
-	switch v := expected.(type) {
+	switch v := expect.(type) {
 	case int:
 		return testIntegerLiteral(t, exp, int64(v))
 	case int64:
@@ -654,56 +654,56 @@ func TestPrefixExp(t *testing.T) {
 
 func TestOperatorPrecedenceParsing(t *testing.T) {
 	cases := []struct {
-		inp      string
-		expected string
+		inp    string
+		expect string
 	}{
 		{
-			"{{ 1 * 2 }}",
-			"{{ (1 * 2) }}",
+			inp:    "{{ 1 * 2 }}",
+			expect: "{{ (1 * 2) }}",
 		},
 		{
-			"<h2>{{ -2 + 3 }}</h2>",
-			"<h2>{{ ((-2) + 3) }}</h2>",
+			inp:    "<h2>{{ -2 + 3 }}</h2>",
+			expect: "<h2>{{ ((-2) + 3) }}</h2>",
 		},
 		{
-			"{{ a + b + c }}",
-			"{{ ((a + b) + c) }}",
+			inp:    "{{ a + b + c }}",
+			expect: "{{ ((a + b) + c) }}",
 		},
 		{
-			"{{ a + b / c }}",
-			"{{ (a + (b / c)) }}",
+			inp:    "{{ a + b / c }}",
+			expect: "{{ (a + (b / c)) }}",
 		},
 		{
-			"{{ -2.float() }}",
-			"{{ ((-2).float()) }}",
+			inp:    "{{ -2.float() }}",
+			expect: "{{ ((-2).float()) }}",
 		},
 		{
-			"{{ -5.0.int() }}",
-			"{{ ((-5.0).int()) }}",
+			inp:    "{{ -5.0.int() }}",
+			expect: "{{ ((-5.0).int()) }}",
 		},
 		{
-			"{{ -obj.test }}",
-			"{{ ((-obj).test) }}",
+			inp:    "{{ -obj.test }}",
+			expect: "{{ ((-obj).test) }}",
 		},
 		{
-			"{{ true && true || false }}",
-			"{{ ((true && true) || false) }}",
+			inp:    "{{ true && true || false }}",
+			expect: "{{ ((true && true) || false) }}",
 		},
 		{
-			"{{ true ? 1 : 0 }}",
-			"{{ (true ? 1 : 0) }}",
+			inp:    "{{ true ? 1 : 0 }}",
+			expect: "{{ (true ? 1 : 0) }}",
 		},
 		{
-			"{{ true && false ? 1 : 0 }}",
-			"{{ ((true && false) ? 1 : 0) }}",
+			inp:    "{{ true && false ? 1 : 0 }}",
+			expect: "{{ ((true && false) ? 1 : 0) }}",
 		},
 		{
-			"{{ true && false || 1 ? 1 : 0 }}",
-			"{{ (((true && false) || 1) ? 1 : 0) }}",
+			inp:    "{{ true && false || 1 ? 1 : 0 }}",
+			expect: "{{ (((true && false) || 1) ? 1 : 0) }}",
 		},
 		{
-			"{{ -2.float() && -2.0.int() ? 1 : 0 }}",
-			"{{ ((((-2).float()) && ((-2.0).int())) ? 1 : 0) }}",
+			inp:    "{{ -2.float() && -2.0.int() ? 1 : 0 }}",
+			expect: "{{ ((((-2).float()) && ((-2.0).int())) ? 1 : 0) }}",
 		},
 	}
 
@@ -717,8 +717,8 @@ func TestOperatorPrecedenceParsing(t *testing.T) {
 
 		actual := prog.String()
 
-		if actual != tc.expected {
-			t.Errorf("expected=%q, got=%q", tc.expected, actual)
+		if actual != tc.expect {
+			t.Errorf("expect=%q, got=%q", tc.expect, actual)
 		}
 	}
 }
@@ -770,7 +770,7 @@ func TestErrorHandling(t *testing.T) {
 
 		err := p.Errors()[0]
 		if err.String() != tc.err.String() {
-			t.Errorf("expected error message %q, got %q", tc.err, err.String())
+			t.Errorf("expect error message %q, got %q", tc.err, err.String())
 		}
 	}
 }

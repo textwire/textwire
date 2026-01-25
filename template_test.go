@@ -92,7 +92,7 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 
 			if tplErr != nil {
 				if tplErr.Error() != tc.err.String() {
-					t.Errorf("wrong error message. EXPECTED:\n\"%s\"\nGOT:\n\"%s\"", tc.err, tplErr)
+					t.Errorf("wrong error message. expect:\n\"%s\"\ngot:\n\"%s\"", tc.err, tplErr)
 				}
 				return
 			}
@@ -105,7 +105,7 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 			}
 
 			if err.String() != tc.err.String() {
-				t.Errorf("wrong error message. EXPECTED:\n\"%s\"\nGOT:\n\"%s\"", tc.err, err)
+				t.Errorf("wrong error message. expect:\n\"%s\"\ngot:\n\"%s\"", tc.err, err)
 			}
 		})
 	}
@@ -155,15 +155,15 @@ func TestNewTemplate(t *testing.T) {
 			return
 		}
 
-		expected, err := readFile("textwire/testdata/good/expected/" + tc.fileName + ".html")
+		expect, err := readFile("textwire/testdata/good/expected/" + tc.fileName + ".html")
 		if err != nil {
 			t.Errorf("error reading expected file: %s", err)
 			return
 		}
 
-		if actual != expected {
-			t.Errorf("wrong result. EXPECTED:\n\"%s\"\nGOT:\n\"%s\"",
-				expected, actual)
+		if actual != expect {
+			t.Errorf("wrong result. expect:\n\"%s\"\ngot:\n\"%s\"",
+				expect, actual)
 		}
 	}
 }
@@ -188,7 +188,7 @@ func TestRegisteringCustomFunction(t *testing.T) {
 		t.Fatalf("unexpected error: %s", err)
 	}
 
-	expected, err := readFile("textwire/testdata/good/expected/12.with-custom-function.html")
+	expect, err := readFile("textwire/testdata/good/expected/12.with-custom-function.html")
 	if err != nil {
 		t.Errorf("error reading expected file: %s", err)
 		return
@@ -199,7 +199,7 @@ func TestRegisteringCustomFunction(t *testing.T) {
 		t.Fatalf("error evaluating template: %s", evalErr)
 	}
 
-	if actual != expected {
-		t.Errorf("wrong result. EXPECTED: '%s' GOT: '%s'", expected, actual)
+	if actual != expect {
+		t.Errorf("wrong result. expect: '%s' got: '%s'", expect, actual)
 	}
 }

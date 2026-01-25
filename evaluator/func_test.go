@@ -116,11 +116,11 @@ func TestFunctionGivesError(t *testing.T) {
 		}
 
 		if evaluated.Type() != object.ERR_OBJ {
-			t.Fatalf("expected object.ERR_OBJ, got=%T", evaluated)
+			t.Fatalf("expect object.ERR_OBJ, got=%T", evaluated)
 		}
 
 		if errObj.String() != tc.err.String() {
-			t.Fatalf("expected error message=%q, got=%q", tc.err.String(), errObj.String())
+			t.Fatalf("expect error message=%q, got=%q", tc.err.String(), errObj.String())
 		}
 	}
 }

@@ -13,7 +13,7 @@ func TestFindSlotStmtIndex(t *testing.T) {
 		idx := findSlotStmtIndex(stmts, "city")
 
 		if idx != 1 {
-			t.Errorf("expected index 1 but got %d", idx)
+			t.Errorf("expect index 1 but got %d", idx)
 		}
 	})
 
@@ -27,7 +27,7 @@ func TestFindSlotStmtIndex(t *testing.T) {
 		idx := findSlotStmtIndex(stmts, "name")
 
 		if idx != -1 {
-			t.Errorf("expected index -1 but got %d", idx)
+			t.Errorf("expect index -1 but got %d", idx)
 		}
 	})
 }

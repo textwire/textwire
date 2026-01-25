@@ -13,17 +13,17 @@ func TokenizeString(t *testing.T, input string, expectTokens []token.Token) {
 		tok := l.NextToken()
 
 		if tok.Literal != expectTok.Literal {
-			t.Fatalf("token %q - literal wrong. expected='%s', got='%s'",
+			t.Fatalf("token %q - literal wrong. expect='%s', got='%s'",
 				tok.Literal, expectTok.Literal, tok.Literal)
 		}
 
 		if tok.Type != expectTok.Type {
-			t.Fatalf("token %q - tokentype wrong. expected='%s', got='%s'",
+			t.Fatalf("token %q - tokentype wrong. expect='%s', got='%s'",
 				tok.Literal, token.String(expectTok.Type), token.String(tok.Type))
 		}
 
 		if tok.Pos != expectTok.Pos {
-			t.Fatalf("token %q - position wrong.\nexpected: {startCol=%d, endCol=%d, startLine=%d, endLine=%d}\ngot:      {startCol=%d, endCol=%d, startLine=%d, endLine=%d}",
+			t.Fatalf("token %q - position wrong.\nexpect: {startCol=%d, endCol=%d, startLine=%d, endLine=%d}\ngot:      {startCol=%d, endCol=%d, startLine=%d, endLine=%d}",
 				tok.Literal, expectTok.Pos.StartCol, expectTok.Pos.EndCol,
 				expectTok.Pos.StartLine, expectTok.Pos.EndLine,
 				tok.Pos.StartCol, tok.Pos.EndCol, tok.Pos.StartLine,

@@ -38,8 +38,8 @@ func evaluationExpected(t *testing.T, inp, expect string) {
 
 func TestEvalHTML(t *testing.T) {
 	cases := []struct {
-		inp      string
-		expected string
+		inp    string
+		expect string
 	}{
 		{"<h1>Hello World</h1>", "<h1>Hello World</h1>"},
 		{"<ul><li><span>Email: anna@protonmail.com</span></li></ul>",
@@ -58,14 +58,14 @@ func TestEvalHTML(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		evaluationExpected(t, tc.inp, tc.expected)
+		evaluationExpected(t, tc.inp, tc.expect)
 	}
 }
 
 func TestEvalNumericExp(t *testing.T) {
 	cases := []struct {
-		inp      string
-		expected string
+		inp    string
+		expect string
 	}{
 		{"{{ 5; 5 }}", "55"},
 		{"{{ 5 }}", "5"},
@@ -96,14 +96,14 @@ func TestEvalNumericExp(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		evaluationExpected(t, tc.inp, tc.expected)
+		evaluationExpected(t, tc.inp, tc.expect)
 	}
 }
 
 func TestEvalBooleanExp(t *testing.T) {
 	cases := []struct {
-		inp      string
-		expected string
+		inp    string
+		expect string
 	}{
 		// Booleans
 		{"{{ true }}", "1"},
@@ -156,8 +156,8 @@ func TestEvalBooleanExp(t *testing.T) {
 
 		result := evaluated.String()
 
-		if result != tc.expected {
-			t.Errorf("result is not %s, got %s", tc.expected, result)
+		if result != tc.expect {
+			t.Errorf("result is not %s, got %s", tc.expect, result)
 		}
 	}
 }
@@ -169,8 +169,8 @@ func TestEvalNilExp(t *testing.T) {
 
 func TestEvalStringExp(t *testing.T) {
 	cases := []struct {
-		inp      string
-		expected string
+		inp    string
+		expect string
 	}{
 		{`{{ "Hello World" }}`, "Hello World"},
 		{`<div {{ 'data-attr="Test"' }}></div>`, `<div data-attr="Test"></div>`},
@@ -183,14 +183,14 @@ func TestEvalStringExp(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		evaluationExpected(t, tc.inp, tc.expected)
+		evaluationExpected(t, tc.inp, tc.expect)
 	}
 }
 
 func TestEvalTernaryExp(t *testing.T) {
 	cases := []struct {
-		inp      string
-		expected string
+		inp    string
+		expect string
 	}{
 		{`{{ true ? "Yes" : "No" }}`, "Yes"},
 		{`{{ false ? "Yes" : "No" }}`, "No"},
@@ -205,7 +205,7 @@ func TestEvalTernaryExp(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		evaluationExpected(t, tc.inp, tc.expected)
+		evaluationExpected(t, tc.inp, tc.expect)
 	}
 }
 
@@ -260,8 +260,8 @@ func TestEvalIfStmt(t *testing.T) {
 
 func TestEvalArray(t *testing.T) {
 	cases := []struct {
-		inp      string
-		expected string
+		inp    string
+		expect string
 	}{
 		{`{{ [] }}`, ""},
 		{`{{ [[[[[]]]]] }}`, ""},
@@ -272,14 +272,14 @@ func TestEvalArray(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		evaluationExpected(t, tc.inp, tc.expected)
+		evaluationExpected(t, tc.inp, tc.expect)
 	}
 }
 
 func TestEvalIndexExp(t *testing.T) {
 	cases := []struct {
-		inp      string
-		expected string
+		inp    string
+		expect string
 	}{
 		{`{{ [1, 2, 3][0] }}`, "1"},
 		{`{{ [1, 2, 3][1] }}`, "2"},
@@ -289,14 +289,14 @@ func TestEvalIndexExp(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		evaluationExpected(t, tc.inp, tc.expected)
+		evaluationExpected(t, tc.inp, tc.expect)
 	}
 }
 
 func TestEvalAssignVariable(t *testing.T) {
 	cases := []struct {
-		inp      string
-		expected string
+		inp    string
+		expect string
 	}{
 		{`{{ age = 18 }}`, ""},
 		{`{{ age = 18; age }}`, "18"},
@@ -315,14 +315,14 @@ func TestEvalAssignVariable(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		evaluationExpected(t, tc.inp, tc.expected)
+		evaluationExpected(t, tc.inp, tc.expect)
 	}
 }
 
 func TestEvalForStmt(t *testing.T) {
 	cases := []struct {
-		inp      string
-		expected string
+		inp    string
+		expect string
 	}{
 		{`@for(i = 0; i < 2; i++){{ i }}@end`, "01"},
 		{`@for(i = 1; i <= 3; i++){{ i }}@end`, "123"},
@@ -350,14 +350,14 @@ func TestEvalForStmt(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		evaluationExpected(t, tc.inp, tc.expected)
+		evaluationExpected(t, tc.inp, tc.expect)
 	}
 }
 
 func TestEvalEachStmt(t *testing.T) {
 	cases := []struct {
-		inp      string
-		expected string
+		inp    string
+		expect string
 	}{
 		{`@each(name in ["anna", "serhii"]){{ name }} @end`, "anna serhii "},
 		{`@each(num in [1, 2, 3]){{ num }}@end`, "123"},
@@ -391,14 +391,14 @@ func TestEvalEachStmt(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		evaluationExpected(t, tc.inp, tc.expected)
+		evaluationExpected(t, tc.inp, tc.expect)
 	}
 }
 
 func TestEvalObjectLiteral(t *testing.T) {
 	cases := []struct {
-		inp      string
-		expected string
+		inp    string
+		expect string
 	}{
 		{`{{ {"name": "John"}['name'] }}`, "John"},
 		{`{{ {"name": "John"}.name }}`, "John"},
@@ -412,14 +412,14 @@ func TestEvalObjectLiteral(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		evaluationExpected(t, tc.inp, tc.expected)
+		evaluationExpected(t, tc.inp, tc.expect)
 	}
 }
 
 func TestEvalComments(t *testing.T) {
 	cases := []struct {
-		inp      string
-		expected string
+		inp    string
+		expect string
 	}{
 		{"{{-- This is a comment --}}", ""},
 		{"<section>{{-- This is a comment --}}</section>", "<section></section>"},
@@ -428,7 +428,7 @@ func TestEvalComments(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		evaluationExpected(t, tc.inp, tc.expected)
+		evaluationExpected(t, tc.inp, tc.expect)
 	}
 }
 
