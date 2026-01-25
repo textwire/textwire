@@ -33,24 +33,28 @@ func readFile(fileName string) (string, error) {
 
 func TestEvaluateString(t *testing.T) {
 	cases := []struct {
+		name   string
 		inp    string
 		expect string
 		data   map[string]any
 		config *config.Config
 	}{
 		{
+			name:   "Simple math operation with integers",
 			inp:    "{{ 1 + 2 }}",
 			expect: "3",
 			data:   nil,
 			config: nil,
 		},
 		{
+			name:   "Simple math operation with identifiers",
 			inp:    "{{ n1 * n2 }}",
 			expect: "2",
 			data:   map[string]any{"n1": 1, "n2": 2},
 			config: nil,
 		},
 		{
+			name:   "Accessing user.name.firstName property",
 			inp:    "{{ user.name.firstName }}",
 			expect: "Ann",
 			data: map[string]any{
@@ -65,6 +69,14 @@ func TestEvaluateString(t *testing.T) {
 			config: nil,
 		},
 		{
+			name:   "Empty global object is defined",
+			inp:    "<span>{{ global }}</span>",
+			expect: "<span>{}</span>",
+			data:   nil,
+			config: nil,
+		},
+		{
+			name:   "Getting 'env' value from global object",
 			inp:    "<span>{{ global.env }}</span>",
 			expect: "<span>development</span>",
 			data:   nil,
@@ -77,19 +89,21 @@ func TestEvaluateString(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		if tc.config != nil {
-			Configure(tc.config)
-		}
+		t.Run(tc.name, func(t *testing.T) {
+			if tc.config != nil {
+				Configure(tc.config)
+			}
 
-		actual, err := EvaluateString(tc.inp, tc.data)
-		if err != nil {
-			t.Errorf("error evaluating template: %s", err)
-		}
+			actual, err := EvaluateString(tc.inp, tc.data)
+			if err != nil {
+				t.Errorf("error evaluating template: %s", err)
+			}
 
-		if actual != tc.expect {
-			t.Errorf("wrong result. expect:\n\"%s\"\ngot:\n\"%s\"",
-				tc.expect, actual)
-		}
+			if actual != tc.expect {
+				t.Errorf("wrong result. expect:\n\"%s\"\ngot:\n\"%s\"",
+					tc.expect, actual)
+			}
+		})
 	}
 }
 
