@@ -497,7 +497,7 @@ func (e *Evaluator) evalIndexExp(
 	case left.Is(object.ARR_OBJ) && idx.Is(object.INT_OBJ):
 		return e.evalArrayIndexExp(left, idx)
 	case left.Is(object.OBJ_OBJ) && idx.Is(object.STR_OBJ):
-		return e.evalObjectIndexExp(left.(*object.Obj),
+		return e.evalObjectKeyExp(left.(*object.Obj),
 			idx.(*object.Str).Value, node.Index, path)
 	}
 
@@ -519,23 +519,23 @@ func (e *Evaluator) evalArrayIndexExp(
 	return arrObj.Elements[index]
 }
 
-func (e *Evaluator) evalObjectIndexExp(
+func (e *Evaluator) evalObjectKeyExp(
 	obj object.Object,
-	idx string,
+	key string,
 	node ast.Node,
 	path string,
 ) object.Object {
 	objObj := obj.(*object.Obj)
-	pair, ok := objObj.Pairs[idx]
+	pair, ok := objObj.Pairs[key]
 	if ok {
 		return pair
 	}
 
-	// make first letter lowercase on idx
-	idxUpper := strings.ToUpper(idx[:1]) + idx[1:]
+	// make first letter lowercase on key
+	keyUpper := strings.ToUpper(key[:1]) + key[1:]
 
-	if pair, ok = objObj.Pairs[idxUpper]; !ok {
-		return e.newError(node, path, fail.ErrPropertyNotFound, idx, object.OBJ_OBJ)
+	if pair, ok = objObj.Pairs[keyUpper]; !ok {
+		return e.newError(node, path, fail.ErrPropertyNotFound, key, object.OBJ_OBJ)
 	}
 
 	return pair
@@ -549,7 +549,7 @@ func (e *Evaluator) evalDotExp(node *ast.DotExp, env *object.Env, path string) o
 
 	key := node.Key.(*ast.Identifier)
 
-	return e.evalObjectIndexExp(left.(*object.Obj), key.Value, node, path)
+	return e.evalObjectKeyExp(left.(*object.Obj), key.Value, node, path)
 }
 
 func (e *Evaluator) evalString(node *ast.StringLiteral, _ *object.Env) object.Object {
