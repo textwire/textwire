@@ -23,8 +23,8 @@ func (e *Error) Dump(ident int) string {
 	var out bytes.Buffer
 
 	out.WriteString("<span class='textwire-meta'>error\"\"\"</span>\n")
-	out.WriteString(fmt.Sprintf("<span class='textwire-key'>%s</span>\n\n", e.Err.Meta()))
-	out.WriteString(fmt.Sprintf("<span class='textwire-str'>%s</span>\n", e.Err.Message()))
+	fmt.Fprintf(&out, "<span class='textwire-key'>%s</span>\n\n", e.Err.Meta())
+	fmt.Fprintf(&out, "<span class='textwire-str'>%s</span>\n", e.Err.Message())
 	out.WriteString("<span class='textwire-meta'>\"\"\"</span>")
 
 	return out.String()

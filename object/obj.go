@@ -43,7 +43,7 @@ func (o *Obj) Dump(ident int) string {
 
 	var out bytes.Buffer
 
-	out.WriteString(fmt.Sprintf("<span class='textwire-meta'>object:%d </span>", len(o.Pairs)))
+	fmt.Fprintf(&out, "<span class='textwire-meta'>object:%d </span>", len(o.Pairs))
 	out.WriteString("<span class='textwire-brace'>{</span>\n")
 
 	insideSpaces := strings.Repeat("  ", ident)
