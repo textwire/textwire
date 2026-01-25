@@ -215,7 +215,7 @@ func (e *Evaluator) evalReserveStmt(node *ast.ReserveStmt, env *object.Env, path
 	}
 
 	if node.Insert.Block != nil {
-		result := e.Eval(node.Insert.Block, env, path)
+		result := e.Eval(node.Insert.Block, env, node.Insert.FilePath)
 		if isError(result) {
 			return result
 		}
