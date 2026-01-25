@@ -79,8 +79,8 @@ func homeHandler(w http.ResponseWriter, r *http.Request) {
 			Title: "The Rust Programming Language",
 			Author: &Author{
 				ID:        2,
-				FirstName: "Steve",
-				LastName:  "Klabnik",
+				FirstName: "Amy",
+				LastName:  "Adams",
 			},
 		},
 	}
