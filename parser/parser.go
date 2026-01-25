@@ -87,7 +87,7 @@ func New(lexer *lexer.Lexer, filepath string) *Parser {
 	p.nextToken() // fill peekToken
 
 	// Prefix operators
-	p.prefixParseFns = make(map[token.TokenType]prefixParseFn)
+	p.prefixParseFns = map[token.TokenType]prefixParseFn{}
 
 	p.registerPrefix(token.IDENT, p.parseIdentifier)
 	p.registerPrefix(token.INT, p.parseIntegerLiteral)
@@ -103,7 +103,7 @@ func New(lexer *lexer.Lexer, filepath string) *Parser {
 	p.registerPrefix(token.LBRACE, p.parseObjectLiteral)
 
 	// Infix operators
-	p.infixParseFns = make(map[token.TokenType]infixParseFn)
+	p.infixParseFns = map[token.TokenType]infixParseFn{}
 	p.registerInfix(token.ADD, p.parseInfixExp)
 	p.registerInfix(token.SUB, p.parseInfixExp)
 	p.registerInfix(token.MUL, p.parseInfixExp)
@@ -324,7 +324,7 @@ func (p *Parser) parseArrayLiteral() ast.Expression {
 func (p *Parser) parseObjectLiteral() ast.Expression {
 	obj := ast.NewObjectLiteral(p.curToken)
 
-	obj.Pairs = make(map[string]ast.Expression)
+	obj.Pairs = map[string]ast.Expression{}
 
 	p.nextToken() // skip "{"
 

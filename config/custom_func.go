@@ -16,10 +16,10 @@ type Func struct {
 
 func NewFunc() *Func {
 	return &Func{
-		Str:   make(map[string]StrCustomFunc),
-		Arr:   make(map[string]ArrayCustomFunc),
-		Int:   make(map[string]IntCustomFunc),
-		Float: make(map[string]FloatCustomFunc),
-		Bool:  make(map[string]BoolCustomFunc),
+		Str:   map[string]StrCustomFunc{},
+		Arr:   map[string]ArrayCustomFunc{},
+		Int:   map[string]IntCustomFunc{},
+		Float: map[string]FloatCustomFunc{},
+		Bool:  map[string]BoolCustomFunc{},
 	}
 }

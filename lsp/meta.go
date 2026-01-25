@@ -74,7 +74,7 @@ func GetTokenInsert(tok token.TokenType) (string, error) {
 }
 
 func initFileNames() {
-	fileNames = make(map[token.TokenType]string)
+	fileNames = map[token.TokenType]string{}
 
 	for dir, tok := range token.GetDirectives() {
 		name := strings.ToLower(dir[1:])

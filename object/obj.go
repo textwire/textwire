@@ -12,7 +12,7 @@ type Obj struct {
 
 func NewObj(pairs map[string]Object) *Obj {
 	if pairs == nil {
-		pairs = make(map[string]Object)
+		pairs = map[string]Object{}
 	}
 	return &Obj{Pairs: pairs}
 }
@@ -81,7 +81,7 @@ func (o *Obj) Dump(ident int) string {
 }
 
 func (o *Obj) Val() any {
-	result := make(map[string]any)
+	result := map[string]any{}
 
 	for k, v := range o.Pairs {
 		result[k] = v.Val()

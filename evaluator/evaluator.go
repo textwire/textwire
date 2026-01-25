@@ -605,7 +605,7 @@ func (e *Evaluator) evalArrayLiteral(
 }
 
 func (e *Evaluator) evalObjectLiteral(node *ast.ObjectLiteral, env *object.Env, path string) object.Object {
-	pairs := make(map[string]object.Object)
+	pairs := map[string]object.Object{}
 
 	for key, value := range node.Pairs {
 		valueObj := e.Eval(value, env, path)
