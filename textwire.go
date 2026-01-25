@@ -12,7 +12,7 @@ import (
 var userConfig = config.New("templates", ".tw.html", "", false)
 var customFunc = config.NewFunc()
 
-// usesTemplates is a flag to check if user uses Textwire templates or not
+// usesTemplates is a flag to check if user uses Textwire templates
 var usesTemplates = false
 
 func NewTemplate(opt *config.Config) (*Template, error) {
@@ -72,7 +72,8 @@ func EvaluateFile(absPath string, data map[string]any) (string, error) {
 
 func RegisterStrFunc(name string, fn config.StrCustomFunc) error {
 	if _, ok := customFunc.Str[name]; ok {
-		return fail.New(0, "", "API", fail.ErrFuncAlreadyDefined, name, "strings").Error()
+		return fail.New(0, "", "API", fail.ErrFuncAlreadyDefined,
+			name, "strings").Error()
 	}
 
 	customFunc.Str[name] = fn
@@ -82,7 +83,8 @@ func RegisterStrFunc(name string, fn config.StrCustomFunc) error {
 
 func RegisterArrFunc(name string, fn config.ArrayCustomFunc) error {
 	if _, ok := customFunc.Arr[name]; ok {
-		return fail.New(0, "", "API", fail.ErrFuncAlreadyDefined, name, "arrays").Error()
+		return fail.New(0, "", "API", fail.ErrFuncAlreadyDefined,
+			name, "arrays").Error()
 	}
 
 	customFunc.Arr[name] = fn
@@ -92,7 +94,8 @@ func RegisterArrFunc(name string, fn config.ArrayCustomFunc) error {
 
 func RegisterIntFunc(name string, fn config.IntCustomFunc) error {
 	if _, ok := customFunc.Int[name]; ok {
-		return fail.New(0, "", "API", fail.ErrFuncAlreadyDefined, name, "integers").Error()
+		return fail.New(0, "", "API", fail.ErrFuncAlreadyDefined,
+			name, "integers").Error()
 	}
 
 	customFunc.Int[name] = fn
@@ -102,7 +105,8 @@ func RegisterIntFunc(name string, fn config.IntCustomFunc) error {
 
 func RegisterFloatFunc(name string, fn config.FloatCustomFunc) error {
 	if _, ok := customFunc.Float[name]; ok {
-		return fail.New(0, "", "API", fail.ErrFuncAlreadyDefined, name, "floats").Error()
+		return fail.New(0, "", "API", fail.ErrFuncAlreadyDefined,
+			name, "floats").Error()
 	}
 
 	customFunc.Float[name] = fn
@@ -112,7 +116,8 @@ func RegisterFloatFunc(name string, fn config.FloatCustomFunc) error {
 
 func RegisterBoolFunc(name string, fn config.BoolCustomFunc) error {
 	if _, ok := customFunc.Bool[name]; ok {
-		return fail.New(0, "", "API", fail.ErrFuncAlreadyDefined, name, "booleans").Error()
+		return fail.New(0, "", "API", fail.ErrFuncAlreadyDefined,
+			name, "booleans").Error()
 	}
 
 	customFunc.Bool[name] = fn

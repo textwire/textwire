@@ -19,6 +19,8 @@
         </ul>
     @end
 
+    <h3>Env is {{ global.env }}</h3>
+
     <h3>Books:</h3>
 
     <div>
