@@ -3,6 +3,7 @@ package object
 import (
 	"bytes"
 	"fmt"
+	"sort"
 	"strings"
 )
 
@@ -28,15 +29,8 @@ func (o *Obj) String() string {
 
 	keys := o.sortedKeys()
 
-	// Estimate size: { + keys + values + commas + quotes
-	estimatedSize := 2 + len(keys)*10
-	for _, k := range keys {
-		estimatedSize += len(k) + len(o.Pairs[k].String())
-	}
-
 	var out strings.Builder
 
-	out.Grow(estimatedSize)
 	out.WriteString("{")
 
 	for i, k := range keys {
@@ -92,4 +86,13 @@ func (o *Obj) Val() any {
 
 func (o *Obj) Is(t ObjectType) bool {
 	return t == o.Type()
+}
+
+func (o *Obj) sortedKeys() []string {
+	keys := make([]string, 0, len(o.Pairs))
+	for k := range o.Pairs {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+	return keys
 }
