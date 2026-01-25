@@ -520,13 +520,12 @@ func (e *Evaluator) evalArrayIndexExp(
 }
 
 func (e *Evaluator) evalObjectKeyExp(
-	obj object.Object,
+	obj *object.Obj,
 	key string,
 	node ast.Node,
 	path string,
 ) object.Object {
-	objObj := obj.(*object.Obj)
-	pair, ok := objObj.Pairs[key]
+	pair, ok := obj.Pairs[key]
 	if ok {
 		return pair
 	}
@@ -534,7 +533,7 @@ func (e *Evaluator) evalObjectKeyExp(
 	// make first letter lowercase on key
 	keyUpper := strings.ToUpper(key[:1]) + key[1:]
 
-	if pair, ok = objObj.Pairs[keyUpper]; !ok {
+	if pair, ok = obj.Pairs[keyUpper]; !ok {
 		return e.newError(node, path, fail.ErrPropertyNotFound, key, object.OBJ_OBJ)
 	}
 
