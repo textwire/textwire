@@ -22,6 +22,12 @@ type Config struct {
 	// DebugMode is a flag to enable the debug mode. When enabled,
 	// you can see error messages in the browser. Default is `false`
 	DebugMode bool
+
+	// GlobalData contains data shared throughout all of you templates,
+	// including components, layouts, etc. It's good for storing
+	//  configurations like env variables. You can access shared data
+	// using global object `global`. For example: `global.authUser`
+	GlobalData map[string]any
 }
 
 func New(dir, ext, errPagePath string, debug bool) *Config {
@@ -30,5 +36,6 @@ func New(dir, ext, errPagePath string, debug bool) *Config {
 		TemplateExt:   ext,
 		ErrorPagePath: errPagePath,
 		DebugMode:     debug,
+		GlobalData:    map[string]any{},
 	}
 }

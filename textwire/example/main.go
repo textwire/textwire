@@ -31,6 +31,9 @@ func main() {
 		TemplateExt:   ".tw",
 		ErrorPagePath: "error-page",
 		DebugMode:     true,
+		GlobalData: map[string]any{
+			"env": "development",
+		},
 	})
 	if err != nil {
 		log.Fatal(err)

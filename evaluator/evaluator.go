@@ -466,7 +466,12 @@ func (e *Evaluator) evalIdentifier(
 	env *object.Env,
 	path string,
 ) object.Object {
-	if val, ok := env.Get(node.Value); ok {
+	varName := node.Value
+	if varName == "global" && e.Config.GlobalData != nil {
+		return object.NativeToObject(e.Config.GlobalData)
+	}
+
+	if val, ok := env.Get(varName); ok {
 		return val
 	}
 

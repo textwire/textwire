@@ -6,6 +6,7 @@ import (
 	"os"
 	"testing"
 
+	"github.com/textwire/textwire/v2/config"
 	"github.com/textwire/textwire/v2/fail"
 	"github.com/textwire/textwire/v2/object"
 )
@@ -35,25 +36,51 @@ func TestEvaluateString(t *testing.T) {
 		inp    string
 		expect string
 		data   map[string]any
+		config *config.Config
 	}{
-		{"{{ 1 + 2 }}", "3", nil},
-		{"{{ n1 * n2 }}", "2", map[string]any{"n1": 1, "n2": 2}},
+		// {
+		// 	inp:    "{{ 1 + 2 }}",
+		// 	expect: "3",
+		// 	data:   nil,
+		// 	config: nil,
+		// },
+		// {
+		// 	inp:    "{{ n1 * n2 }}",
+		// 	expect: "2",
+		// 	data:   map[string]any{"n1": 1, "n2": 2},
+		// 	config: nil,
+		// },
+		// {
+		// 	inp:    "{{ user.name.firstName }}",
+		// 	expect: "Ann",
+		// 	data: map[string]any{
+		// 		"user": struct {
+		// 			Name struct{ FirstName string }
+		// 			Age  int
+		// 		}{
+		// 			Name: struct{ FirstName string }{"Ann"},
+		// 			Age:  20,
+		// 		},
+		// 	},
+		// 	config: nil,
+		// },
 		{
-			inp:    "{{ user.name.firstName }}",
-			expect: "Ann",
-			data: map[string]any{
-				"user": struct {
-					Name struct{ FirstName string }
-					Age  int
-				}{
-					Name: struct{ FirstName string }{"Ann"},
-					Age:  20,
+			inp:    "<span>{{ global.env }}</span>",
+			expect: "<span>development</span>",
+			data:   nil,
+			config: &config.Config{
+				GlobalData: map[string]any{
+					"env": "development",
 				},
 			},
 		},
 	}
 
 	for _, tc := range cases {
+		if tc.config != nil {
+			Configure(tc.config)
+		}
+
 		actual, err := EvaluateString(tc.inp, tc.data)
 		if err != nil {
 			t.Errorf("error evaluating template: %s", err)

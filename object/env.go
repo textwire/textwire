@@ -13,8 +13,10 @@ type Env struct {
 }
 
 func NewEnv() *Env {
-	s := make(map[string]Object)
-	return &Env{store: s}
+	store := map[string]Object{}
+	store["global"] = NewObj(nil)
+
+	return &Env{store: store}
 }
 
 func NewEnclosedEnv(outer *Env) *Env {
@@ -71,6 +73,26 @@ func (e *Env) SetLoopVar(pairs map[string]Object) {
 	e.store["loop"] = NewObj(pairs)
 }
 
+func (e *Env) AddGlobalVar(key string, val any) {
+	var globalObj *Obj
+
+	switch v := e.store["global"].(type) {
+	case *Obj:
+		globalObj = v
+	case nil:
+		globalObj = NewObj(nil)
+		e.store["global"] = globalObj
+	default:
+		globalObj = NewObj(nil)
+		e.store["global"] = globalObj
+	}
+
+	// Ensure Pairs map is initialized
+	if globalObj.Pairs == nil {
+		globalObj.Pairs = map[string]Object{}
+	}
+
+	globalObj.Pairs[key] = NativeToObject(val)
 }
 
 func (e *Env) isTypeMismatch(key string, val Object) (Object, bool) {

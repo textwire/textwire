@@ -144,5 +144,9 @@ func Configure(opt *config.Config) {
 		userConfig.ErrorPagePath = opt.ErrorPagePath
 	}
 
+	if opt.GlobalData != nil {
+		userConfig.GlobalData = opt.GlobalData
+	}
+
 	userConfig.DebugMode = opt.DebugMode
 }

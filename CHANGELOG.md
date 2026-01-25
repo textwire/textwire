@@ -4,6 +4,7 @@
 - 🐛 Fixed incorrect file path in error messages when error happens inside of `@insert` directive.
 - ⚠️ BREAKING CHANGE! variable `global` is now reserved.
 - ✨ Improve memory and performance.
+- ✨ Added global object. You can now add `GlobalData` to your configurations and access this data in your templates using `globals` object. For example: `globals.env`.
 
 ## v2.7.1 (2026-01-23)
 - 🐛 Fixed incorrect file path in error messages when error happens inside of components
