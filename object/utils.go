@@ -56,10 +56,9 @@ func NativeToObject(val any) Object {
 }
 
 func nativeMapToObject(val any) Object {
-	obj := &Obj{Pairs: make(map[string]Object)}
+	obj := NewObj(nil)
 
 	valValue := reflect.ValueOf(val)
-
 	for _, key := range valValue.MapKeys() {
 		obj.Pairs[key.String()] = NativeToObject(valValue.MapIndex(key).Interface())
 	}
@@ -84,7 +83,7 @@ func convertToInterfaceSlice(slice any) []any {
 }
 
 func nativeStructToObject(val any) Object {
-	obj := &Obj{Pairs: make(map[string]Object)}
+	obj := NewObj(nil)
 
 	valType := reflect.TypeOf(val)
 

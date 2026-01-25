@@ -10,6 +10,13 @@ type Obj struct {
 	Pairs map[string]Object
 }
 
+func NewObj(pairs map[string]Object) *Obj {
+	if pairs == nil {
+		pairs = make(map[string]Object)
+	}
+	return &Obj{Pairs: pairs}
+}
+
 func (o *Obj) Type() ObjectType {
 	return OBJ_OBJ
 }

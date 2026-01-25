@@ -616,7 +616,7 @@ func (e *Evaluator) evalObjectLiteral(node *ast.ObjectLiteral, env *object.Env, 
 		pairs[key] = valueObj
 	}
 
-	return &object.Obj{Pairs: pairs}
+	return object.NewObj(pairs)
 }
 
 func (e *Evaluator) evalExpressions(
