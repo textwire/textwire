@@ -15,25 +15,37 @@ func (o *Obj) Type() ObjectType {
 }
 
 func (o *Obj) String() string {
-	var out bytes.Buffer
+	if o.Pairs == nil {
+		return "{}"
+	}
 
+	keys := o.sortedKeys()
+
+	// Estimate size: { + keys + values + commas + quotes
+	estimatedSize := 2 + len(keys)*10
+	for _, k := range keys {
+		estimatedSize += len(k) + len(o.Pairs[k].String())
+	}
+
+	var out strings.Builder
+
+	out.Grow(estimatedSize)
 	out.WriteString("{")
 
-	idx := 0
-	last := len(o.Pairs) - 1
-
-	for key, pair := range o.Pairs {
-		out.WriteString(key + ": " + pair.String())
-
-		if idx != last {
+	for i, k := range keys {
+		pair := o.Pairs[k]
+		if i > 0 {
 			out.WriteString(", ")
 		}
 
-		idx++
+		if _, isStr := pair.(*Str); isStr {
+			out.WriteString(k + `: "` + pair.String() + `"`)
+		} else {
+			out.WriteString(k + ": " + pair.String())
+		}
 	}
 
 	out.WriteString("}")
-
 	return out.String()
 }
 
