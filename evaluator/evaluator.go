@@ -475,7 +475,7 @@ func (e *Evaluator) evalIdentifier(
 		return val
 	}
 
-	return e.newError(node, path, fail.ErrVariableIsUndefined, node.Value)
+	return e.newError(node, path, fail.ErrIdentifierIsUndefined, node.Value)
 }
 
 func (e *Evaluator) evalIndexExp(

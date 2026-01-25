@@ -57,11 +57,11 @@ func (e *Env) Get(name string) (Object, bool) {
 
 func (e *Env) Set(key string, val Object) error {
 	if key == "loop" || key == "global" {
-		return errors.New(fail.ErrReservedVariables)
+		return errors.New(fail.ErrReservedIdentifiers)
 	}
 
 	if oldVar, ok := e.isTypeMismatch(key, val); ok {
-		return e.variableMismatchError(key, oldVar, val)
+		return e.identifierMismatchError(key, oldVar, val)
 	}
 
 	e.store[key] = val
@@ -73,7 +73,7 @@ func (e *Env) SetLoopVar(pairs map[string]Object) {
 	e.store["loop"] = NewObj(pairs)
 }
 
-func (e *Env) AddGlobalVar(key string, val any) {
+func (e *Env) AddGlobalData(key string, val any) {
 	var globalObj *Obj
 
 	switch v := e.store["global"].(type) {
@@ -100,7 +100,7 @@ func (e *Env) isTypeMismatch(key string, val Object) (Object, bool) {
 	return oldVar, (ok && oldVar != nil && oldVar.Type() != val.Type())
 }
 
-func (e *Env) variableMismatchError(key string, oldVar, val Object) error {
-	msg := fmt.Sprintf(fail.ErrVariableTypeMismatch, key, oldVar.Type(), val.Type())
+func (e *Env) identifierMismatchError(key string, oldVar, val Object) error {
+	msg := fmt.Sprintf(fail.ErrIdentifierTypeMismatch, key, oldVar.Type(), val.Type())
 	return errors.New(msg)
 }

@@ -33,7 +33,7 @@ func TestGetTokenMeta(t *testing.T) {
 		{"@each token", token.EACH, "en", "@each(item in items)"},
 		{"@for token", token.FOR, "en", "@for(i = 0; i < items.len(); i++)"},
 		{"@else token", token.ELSE, "en", "@else"},
-		{"@dump token", token.DUMP, "en", "@dump(variable)"},
+		{"@dump token", token.DUMP, "en", "@dump(identifier)"},
 		{"@use token", token.USE, "en", "@use('layoutName')"},
 		{"@insert token", token.INSERT, "en", "@insert('reservedName')"},
 		{"@reserve token", token.RESERVE, "en", "@reserve('reservedName')"},

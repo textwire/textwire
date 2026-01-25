@@ -97,7 +97,7 @@ func TestEnvFromMap(t *testing.T) {
 	}
 }
 
-func TestAddGlobalVar(t *testing.T) {
+func TestAddGlobalData(t *testing.T) {
 	cases := []struct {
 		name      string
 		key       string
@@ -106,70 +106,70 @@ func TestAddGlobalVar(t *testing.T) {
 		expectVal Object
 	}{
 		{
-			name:      "add string global variable",
+			name:      "add string global identifier",
 			key:       "name",
 			val:       "Amy Adams",
 			expectKey: "name",
 			expectVal: &Str{Value: "Amy Adams"},
 		},
 		{
-			name:      "add integer global variable",
+			name:      "add integer global identifier",
 			key:       "age",
 			val:       25,
 			expectKey: "age",
 			expectVal: &Int{Value: 25},
 		},
 		{
-			name:      "add negative integer global variable",
+			name:      "add negative integer global identifier",
 			key:       "score",
 			val:       -10,
 			expectKey: "score",
 			expectVal: &Int{Value: -10},
 		},
 		{
-			name:      "add float global variable",
+			name:      "add float global identifier",
 			key:       "height",
 			val:       5.7,
 			expectKey: "height",
 			expectVal: &Float{Value: 5.7},
 		},
 		{
-			name:      "add negative float global variable",
+			name:      "add negative float global identifier",
 			key:       "temperature",
 			val:       -2.5,
 			expectKey: "temperature",
 			expectVal: &Float{Value: -2.5},
 		},
 		{
-			name:      "add boolean true global variable",
+			name:      "add boolean true global identifier",
 			key:       "isActive",
 			val:       true,
 			expectKey: "isActive",
 			expectVal: &Bool{Value: true},
 		},
 		{
-			name:      "add boolean false global variable",
+			name:      "add boolean false global identifier",
 			key:       "isComplete",
 			val:       false,
 			expectKey: "isComplete",
 			expectVal: &Bool{Value: false},
 		},
 		{
-			name:      "add empty string global variable",
+			name:      "add empty string global identifier",
 			key:       "empty",
 			val:       "",
 			expectKey: "empty",
 			expectVal: &Str{Value: ""},
 		},
 		{
-			name:      "add zero integer global variable",
+			name:      "add zero integer global identifier",
 			key:       "zero",
 			val:       0,
 			expectKey: "zero",
 			expectVal: &Int{Value: 0},
 		},
 		{
-			name:      "add zero float global variable",
+			name:      "add zero float global identifier",
 			key:       "zeroFloat",
 			val:       0.0,
 			expectKey: "zeroFloat",
@@ -183,14 +183,14 @@ func TestAddGlobalVar(t *testing.T) {
 			expectVal: &Str{Value: "Hello, World! @#$%"},
 		},
 		{
-			name:      "add large integer global variable",
+			name:      "add large integer global identifier",
 			key:       "bigNumber",
 			val:       999999999,
 			expectKey: "bigNumber",
 			expectVal: &Int{Value: 999999999},
 		},
 		{
-			name:      "add integer slice global variable",
+			name:      "add integer slice global identifier",
 			key:       "numbers",
 			val:       []int{1, 2, 3},
 			expectKey: "numbers",
@@ -201,7 +201,7 @@ func TestAddGlobalVar(t *testing.T) {
 			}},
 		},
 		{
-			name:      "add string slice global variable",
+			name:      "add string slice global identifier",
 			key:       "names",
 			val:       []string{"Alice", "Bob", "Charlie"},
 			expectKey: "names",
@@ -212,7 +212,7 @@ func TestAddGlobalVar(t *testing.T) {
 			}},
 		},
 		{
-			name:      "add mixed type slice global variable",
+			name:      "add mixed type slice global identifier",
 			key:       "mixed",
 			val:       []any{"hello", 42, true},
 			expectKey: "mixed",
@@ -223,14 +223,14 @@ func TestAddGlobalVar(t *testing.T) {
 			}},
 		},
 		{
-			name:      "add empty slice global variable",
+			name:      "add empty slice global identifier",
 			key:       "emptySlice",
 			val:       []int{},
 			expectKey: "emptySlice",
 			expectVal: &Array{Elements: []Object{}},
 		},
 		{
-			name:      "add object/map global variable",
+			name:      "add object/map global identifier",
 			key:       "user",
 			val:       map[string]any{"name": "John", "age": 30},
 			expectKey: "user",
@@ -240,7 +240,7 @@ func TestAddGlobalVar(t *testing.T) {
 			}),
 		},
 		{
-			name: "add nested object global variable",
+			name: "add nested object global identifier",
 			key:  "config",
 			val: map[string]any{
 				"database": map[string]any{
@@ -257,7 +257,7 @@ func TestAddGlobalVar(t *testing.T) {
 			}),
 		},
 		{
-			name:      "add object with slice global variable",
+			name:      "add object with slice global identifier",
 			key:       "data",
 			val:       map[string]any{"tags": []string{"go", "test", "unit"}, "count": 3},
 			expectKey: "data",
@@ -271,7 +271,7 @@ func TestAddGlobalVar(t *testing.T) {
 			}),
 		},
 		{
-			name: "add slice of objects global variable",
+			name: "add slice of objects global identifier",
 			key:  "users",
 			val: []map[string]any{
 				{"name": "Alice", "age": 25},
@@ -290,14 +290,14 @@ func TestAddGlobalVar(t *testing.T) {
 			}},
 		},
 		{
-			name:      "add nil slice global variable",
+			name:      "add nil slice global identifier",
 			key:       "nilSlice",
 			val:       []any(nil),
 			expectKey: "nilSlice",
 			expectVal: &Array{Elements: []Object{}},
 		},
 		{
-			name:      "add empty object global variable",
+			name:      "add empty object global identifier",
 			key:       "emptyObj",
 			val:       map[string]any{},
 			expectKey: "emptyObj",
@@ -308,7 +308,7 @@ func TestAddGlobalVar(t *testing.T) {
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
 			env := NewEnv()
-			env.AddGlobalVar(tc.key, tc.val)
+			env.AddGlobalData(tc.key, tc.val)
 
 			global, exists := env.store["global"]
 			if !exists {

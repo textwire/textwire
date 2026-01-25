@@ -72,13 +72,13 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 		{
 			"component-error",
 			fail.New(1, path+"component-error/hero.tw", "parser",
-				fail.ErrVariableIsUndefined, "undefinedVar"),
+				fail.ErrIdentifierIsUndefined, "undefinedVar"),
 			nil,
 		},
 		{
 			"use-stmt-error",
 			fail.New(8, path+"use-stmt-error/base.tw", "parser",
-				fail.ErrVariableIsUndefined, "undefinedVar"),
+				fail.ErrIdentifierIsUndefined, "undefinedVar"),
 			nil,
 		},
 	}
