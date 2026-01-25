@@ -86,6 +86,18 @@ func TestEvaluateString(t *testing.T) {
 				},
 			},
 		},
+		{
+			name:   "Getting multiple values from global object",
+			inp:    "<h1>{{ global.first + ' ' + global.last }}</h1>",
+			expect: "<h1>Amy Adams</h1>",
+			data:   nil,
+			config: &config.Config{
+				GlobalData: map[string]any{
+					"first": "Amy",
+					"last":  "Adams",
+				},
+			},
+		},
 	}
 
 	for _, tc := range cases {
