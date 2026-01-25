@@ -38,32 +38,32 @@ func TestEvaluateString(t *testing.T) {
 		data   map[string]any
 		config *config.Config
 	}{
-		// {
-		// 	inp:    "{{ 1 + 2 }}",
-		// 	expect: "3",
-		// 	data:   nil,
-		// 	config: nil,
-		// },
-		// {
-		// 	inp:    "{{ n1 * n2 }}",
-		// 	expect: "2",
-		// 	data:   map[string]any{"n1": 1, "n2": 2},
-		// 	config: nil,
-		// },
-		// {
-		// 	inp:    "{{ user.name.firstName }}",
-		// 	expect: "Ann",
-		// 	data: map[string]any{
-		// 		"user": struct {
-		// 			Name struct{ FirstName string }
-		// 			Age  int
-		// 		}{
-		// 			Name: struct{ FirstName string }{"Ann"},
-		// 			Age:  20,
-		// 		},
-		// 	},
-		// 	config: nil,
-		// },
+		{
+			inp:    "{{ 1 + 2 }}",
+			expect: "3",
+			data:   nil,
+			config: nil,
+		},
+		{
+			inp:    "{{ n1 * n2 }}",
+			expect: "2",
+			data:   map[string]any{"n1": 1, "n2": 2},
+			config: nil,
+		},
+		{
+			inp:    "{{ user.name.firstName }}",
+			expect: "Ann",
+			data: map[string]any{
+				"user": struct {
+					Name struct{ FirstName string }
+					Age  int
+				}{
+					Name: struct{ FirstName string }{"Ann"},
+					Age:  20,
+				},
+			},
+			config: nil,
+		},
 		{
 			inp:    "<span>{{ global.env }}</span>",
 			expect: "<span>development</span>",
