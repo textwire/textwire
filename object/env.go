@@ -54,8 +54,8 @@ func (e *Env) Get(name string) (Object, bool) {
 }
 
 func (e *Env) Set(key string, val Object) error {
-	if key == "loop" {
-		return errors.New(fail.ErrLoopVariableIsReserved)
+	if key == "loop" || key == "global" {
+		return errors.New(fail.ErrReservedVariables)
 	}
 
 	if oldVar, ok := e.isTypeMismatch(key, val); ok {

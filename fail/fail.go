@@ -39,7 +39,7 @@ const (
 	ErrPrefixOperatorIsWrong   = "prefix operator '%s' cannot be applied to '%s'"
 	ErrUseStmtMustHaveProgram  = "use statement must have a program attached"
 	ErrVariableIsUndefined     = "variable '%s' is undefined"
-	ErrLoopVariableIsReserved  = "loop variable is reserved. You cannot use it as a variable name"
+	ErrReservedVariables       = "'loop' and 'global' variables are reserved. You cannot use these variable names"
 	ErrVariableTypeMismatch    = "cannot assign variable '%s' of type '%s' to type '%s'"
 	ErrDotOperatorNotSupported = "the dot operator is not supported for type '%s'"
 	ErrPropertyNotFound        = "property '%s' not found in type '%s'"

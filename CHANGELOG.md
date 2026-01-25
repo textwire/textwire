@@ -1,7 +1,8 @@
 # Release notes
 
 ## v2.8.0 (2026-01-25)
-- 🐛 Fixed incorrect file path in error messages when error happens inside of `@insert` directive
+- 🐛 Fixed incorrect file path in error messages when error happens inside of `@insert` directive.
+- ⚠️ Variable `global` is now reserved. Potential breaking change.
 
 ## v2.7.1 (2026-01-23)
 - 🐛 Fixed incorrect file path in error messages when error happens inside of components
