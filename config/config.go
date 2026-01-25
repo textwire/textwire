@@ -16,7 +16,7 @@ type Config struct {
 	// ErrorPagePath is the relative path to the custom error page
 	// that will be displayed when an error occurs while
 	// rendering a template. Default is an internal error page.
-	// It's relative to the `TemplateDi`r directory
+	// It's relative to the `TemplateDir` directory
 	ErrorPagePath string
 
 	// DebugMode is a flag to enable the debug mode. When enabled,
