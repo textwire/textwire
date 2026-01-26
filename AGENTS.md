@@ -1,6 +1,17 @@
 ## Description
 Textwire is a templating language for Go. It is designed to easily inject variables from Go code into a template file or just a regular string. It uses directives like `@if()`, `@for()`, `@each()`, and expressions like `{{ x + y }}` and `{{ "Hello, World!".lower() }}`.
 
+### Globals
+You can pass globals to `Configure` or `NewTemplate` function like this:
+```go
+tpl, err = textwire.NewTemplate(&config.Config{
+    GlobalData: map[string]any{
+        "env": "development",
+    },
+})
+```
+In template files you can use globals like this `{{ globals.env }}`.
+
 ## Project Overview
 - **Module**: `github.com/textwire/textwire/v2`
 - **Template Extensions**: `.tw` and `.tw.html`

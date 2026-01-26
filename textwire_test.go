@@ -98,6 +98,17 @@ func TestEvaluateString(t *testing.T) {
 				},
 			},
 		},
+		{
+			name:   "Accessing string array in global object by index",
+			inp:    "<span>{{ global.tags[0] }}</span>",
+			expect: "<span>go</span>",
+			data:   nil,
+			config: &config.Config{
+				GlobalData: map[string]any{
+					"tags": []string{"go", "programming", "templates"},
+				},
+			},
+		},
 	}
 
 	for _, tc := range cases {
