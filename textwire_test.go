@@ -109,6 +109,20 @@ func TestEvaluateString(t *testing.T) {
 				},
 			},
 		},
+		{
+			name:   "Accessing string array in global object by index",
+			inp:    "@if(myVar.binary())NICE@end",
+			expect: "NICE",
+			data:   map[string]any{"myVar": true},
+			config: nil,
+		},
+		{
+			name:   "Accessing string array in global object by index",
+			inp:    "@if(myVar.binary())NICE@end",
+			expect: "",
+			data:   map[string]any{"myVar": false},
+			config: nil,
+		},
 	}
 
 	for _, tc := range cases {
