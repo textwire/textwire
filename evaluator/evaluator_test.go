@@ -215,6 +215,8 @@ func TestEvalIfStmt(t *testing.T) {
 		expect string
 	}{
 		{`@if(true)Hello@end`, "Hello"},
+		{`@if(true.binary())Hello@end`, "Hello"},
+		{`@if(false.binary())Hello@end`, ""},
 		{`@if(false)Hello@end`, ""},
 		{`@if(true)Anna@elseif(true)Lili@end`, "Anna"},
 		{`@if(false)Alan@elseif(true)Serhii@end`, "Serhii"},
