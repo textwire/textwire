@@ -366,8 +366,7 @@ func (p *Parser) parseHTMLStmt() ast.Statement {
 }
 
 func (p *Parser) parseAssignStmt() ast.Statement {
-	ident := ast.NewIdentifier(p.curToken, p.curToken.Literal)
-
+	ident := p.parseIdentifier().(*ast.Identifier)
 	stmt := ast.NewAssignStmt(p.curToken, ident)
 
 	if !p.expectPeek(token.ASSIGN) { // move to "="
@@ -743,7 +742,7 @@ func (p *Parser) parseDotExp(left ast.Expression) ast.Expression {
 }
 
 func (p *Parser) parseCallExp(receiver ast.Expression) ast.Expression {
-	ident := ast.NewIdentifier(p.curToken, p.curToken.Literal)
+	ident := p.parseIdentifier().(*ast.Identifier)
 	exp := ast.NewCallExp(p.curToken, receiver, ident)
 
 	if !p.expectPeek(token.LPAREN) { // move to "("
@@ -943,7 +942,7 @@ func (p *Parser) parseEachStmt() ast.Statement {
 
 	p.nextToken() // skip "("
 
-	stmt.Var = ast.NewIdentifier(p.curToken, p.curToken.Literal)
+	stmt.Var = p.parseIdentifier().(*ast.Identifier)
 
 	if !p.expectPeek(token.IN) { // move to "in"
 		return p.illegalNodeUntil(token.END)
