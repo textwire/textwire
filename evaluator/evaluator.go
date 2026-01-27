@@ -683,19 +683,18 @@ func (e *Evaluator) evalCallExp(
 	env *object.Env,
 	path string,
 ) object.Object {
-	receiverObj := e.Eval(node.Receiver, env, path)
-
-	receiverType := receiverObj.Type()
+	receiver := e.Eval(node.Receiver, env, path)
 	funcName := node.Function.Name
 
 	if funcName == "isDefined" {
-		return e.handleIsDefinedCall(receiverObj)
+		return e.handleIsDefinedCall(receiver)
 	}
 
-	if isError(receiverObj) {
-		return receiverObj
+	if isError(receiver) {
+		return receiver
 	}
 
+	receiverType := receiver.Type()
 	typeFuncs, ok := functions[receiverType]
 	if !ok {
 		return e.newError(node, path, fail.ErrNoFuncForThisType,
@@ -710,7 +709,7 @@ func (e *Evaluator) evalCallExp(
 	buitin, ok := typeFuncs[node.Function.Name]
 
 	if ok {
-		res, err := buitin.Fn(receiverObj, args...)
+		res, err := buitin.Fn(receiver, args...)
 		if err != nil {
 			return e.newError(node, path, "%s", err.Error())
 		}
@@ -724,30 +723,30 @@ func (e *Evaluator) evalCallExp(
 		switch receiverType {
 		case object.STR_OBJ:
 			fun := e.CustomFunc.Str[funcName]
-			res := fun(receiverObj.String(), nativeArgs...)
+			res := fun(receiver.String(), nativeArgs...)
 			return object.NativeToObject(res)
 		case object.ARR_OBJ:
 			fun := e.CustomFunc.Arr[funcName]
-			nativeElems := e.objectsToNativeType(receiverObj.(*object.Array).Elements)
+			nativeElems := e.objectsToNativeType(receiver.(*object.Array).Elements)
 			res := fun(nativeElems, nativeArgs...)
 			return object.NativeToObject(res)
 		case object.INT_OBJ:
 			fun := e.CustomFunc.Int[funcName]
-			res := fun(int(receiverObj.(*object.Int).Value), nativeArgs...)
+			res := fun(int(receiver.(*object.Int).Value), nativeArgs...)
 			return object.NativeToObject(res)
 		case object.FLOAT_OBJ:
 			fun := e.CustomFunc.Float[funcName]
-			res := fun(receiverObj.(*object.Float).Value, nativeArgs...)
+			res := fun(receiver.(*object.Float).Value, nativeArgs...)
 			return object.NativeToObject(res)
 		case object.BOOL_OBJ:
 			fun := e.CustomFunc.Bool[funcName]
-			res := fun(receiverObj.(*object.Bool).Value, nativeArgs...)
+			res := fun(receiver.(*object.Bool).Value, nativeArgs...)
 			return object.NativeToObject(res)
 		}
 	}
 
 	return e.newError(node, path, fail.ErrNoFuncForThisType,
-		node.Function.Name, receiverObj.Type())
+		node.Function.Name, receiver.Type())
 }
 
 func (e *Evaluator) handleIsDefinedCall(receiver object.Object) object.Object {
