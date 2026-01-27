@@ -35,9 +35,9 @@ const (
 )
 
 var precedences = map[token.TokenType]int{
+	token.QUESTION: TERNARY,
 	token.OR:       LOGICAL_OR,
 	token.AND:      LOGICAL_AND,
-	token.QUESTION: TERNARY,
 	token.EQ:       EQ,
 	token.NOT_EQ:   EQ,
 	token.LTHAN:    LESS_GREATER,
@@ -49,11 +49,11 @@ var precedences = map[token.TokenType]int{
 	token.DIV:      PRODUCT,
 	token.MOD:      PRODUCT,
 	token.MUL:      PRODUCT,
-	token.LPAREN:   CALL,
-	token.DOT:      MEMBER_ACCESS,
 	token.LBRACKET: INDEX,
 	token.INC:      POSTFIX,
 	token.DEC:      POSTFIX,
+	token.DOT:      MEMBER_ACCESS,
+	token.LPAREN:   CALL,
 }
 
 type Parser struct {
