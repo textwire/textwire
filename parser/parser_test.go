@@ -208,7 +208,6 @@ func testBooleanLiteral(t *testing.T, exp ast.Expression, value bool) bool {
 
 func testIdentifier(t *testing.T, exp ast.Expression, value string) bool {
 	ident, ok := exp.(*ast.Identifier)
-
 	if !ok {
 		t.Errorf("exp is not an Identifier, got %T", exp)
 		return false
