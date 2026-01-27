@@ -38,7 +38,6 @@ func nativeBoolToBooleanObject(input bool) object.Object {
 	if input {
 		return TRUE
 	}
-
 	return FALSE
 }
 
@@ -52,7 +51,6 @@ func hasContinueStmt(obj object.Object) bool {
 
 func hasControlStmt(obj object.Object, controlType object.ObjectType) bool {
 	block, isBlock := obj.(*object.Block)
-
 	if !isBlock {
 		return obj.Is(controlType)
 	}
@@ -134,7 +132,6 @@ func addDecimals(receiver object.Object, objType object.ObjectType, args ...obje
 	}
 
 	zeros := strings.Repeat("0", decimals)
-
 	if decimals == 0 {
 		return &object.Str{Value: val}, nil
 	}

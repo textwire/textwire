@@ -26,7 +26,6 @@ func arrayJoinFunc(receiver object.Object, args ...object.Object) (object.Object
 		separator = ","
 	} else {
 		str, ok := args[0].(*object.Str)
-
 		if !ok {
 			msg := fmt.Sprintf(fail.ErrFuncFirstArgStr, "join", object.ARR_OBJ)
 			return nil, errors.New(msg)
@@ -52,9 +51,7 @@ func arrayJoinFunc(receiver object.Object, args ...object.Object) (object.Object
 // arrayRandFunc returns a random element from the given array
 func arrayRandFunc(receiver object.Object, _ ...object.Object) (object.Object, error) {
 	elems := receiver.(*object.Array).Elements
-	length := len(elems)
-
-	if length == 0 {
+	if len(elems) == 0 {
 		return &object.Nil{}, nil
 	}
 
@@ -64,16 +61,14 @@ func arrayRandFunc(receiver object.Object, _ ...object.Object) (object.Object, e
 // arrayReverseFunc reverses the elements of the given array
 func arrayReverseFunc(receiver object.Object, _ ...object.Object) (object.Object, error) {
 	elems := receiver.(*object.Array).Elements
-	length := len(elems)
-
-	if length == 0 {
+	if len(elems) == 0 {
 		return receiver, nil
 	}
 
-	reversed := make([]object.Object, length)
+	reversed := make([]object.Object, len(elems))
 
 	for i, el := range elems {
-		reversed[length-i-1] = el
+		reversed[len(elems)-i-1] = el
 	}
 
 	return &object.Array{Elements: reversed}, nil
@@ -85,21 +80,18 @@ func arraySliceFunc(receiver object.Object, args ...object.Object) (object.Objec
 
 	argsLen := len(args)
 	elemsLen := len(elems)
-
 	if argsLen == 0 {
 		msg := fmt.Sprintf(fail.ErrFuncRequiresOneArg, "slice", object.ARR_OBJ)
 		return nil, errors.New(msg)
 	}
 
 	startFrom, ok := args[0].(*object.Int)
-
 	if !ok {
 		msg := fmt.Sprintf(fail.ErrFuncFirstArgInt, "slice", object.ARR_OBJ)
 		return nil, errors.New(msg)
 	}
 
 	start := int(startFrom.Value)
-
 	if start < 0 {
 		start = 0
 	}
@@ -113,14 +105,12 @@ func arraySliceFunc(receiver object.Object, args ...object.Object) (object.Objec
 	}
 
 	endAt, ok := args[1].(*object.Int)
-
 	if !ok {
 		msg := fmt.Sprintf(fail.ErrFuncSecondArgInt, "slice", object.ARR_OBJ)
 		return nil, errors.New(msg)
 	}
 
 	end := int(endAt.Value)
-
 	if end < 0 || end > elemsLen {
 		end = elemsLen
 	}
@@ -131,8 +121,8 @@ func arraySliceFunc(receiver object.Object, args ...object.Object) (object.Objec
 // arrayShuffleFunc shuffles the elements of the given array
 func arrayShuffleFunc(receiver object.Object, _ ...object.Object) (object.Object, error) {
 	elems := receiver.(*object.Array).Elements
-	length := len(elems)
 
+	length := len(elems)
 	if length == 0 {
 		return receiver, nil
 	}
@@ -161,7 +151,6 @@ func arrayContainsFunc(receiver object.Object, args ...object.Object) (object.Ob
 	}
 
 	elems := receiver.(*object.Array).Elements
-
 	if len(elems) == 0 {
 		return &object.Bool{Value: false}, nil
 	}
@@ -210,7 +199,6 @@ func arrayAppendFunc(receiver object.Object, args ...object.Object) (object.Obje
 // arrayPrependFunc prepends the given elements to the given array
 func arrayPrependFunc(receiver object.Object, args ...object.Object) (object.Object, error) {
 	argsLen := len(args)
-
 	if argsLen == 0 {
 		msg := fmt.Sprintf(fail.ErrFuncRequiresOneArg, "prepend", object.ARR_OBJ)
 		return nil, errors.New(msg)
