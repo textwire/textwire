@@ -213,8 +213,8 @@ func testIdentifier(t *testing.T, exp ast.Expression, value string) bool {
 		return false
 	}
 
-	if ident.Value != value {
-		t.Errorf("ident.Value is not %s, got %s", value, ident.Value)
+	if ident.Name != value {
+		t.Errorf("ident.Name is not %s, got %s", value, ident.Name)
 		return false
 	}
 
@@ -1045,11 +1045,11 @@ func TestParseAssignStmt(t *testing.T) {
 			t.Fatalf("stmts[0] is not a AssignStmt, got %T", stmts[0])
 		}
 
-		if stmt.Name.Value != tc.varName {
-			t.Errorf("stmt.Name.Value is not %s, got %s", tc.varName, stmt.Name.Value)
+		if stmt.Left.Name != tc.varName {
+			t.Errorf("stmt.Left.Name is not %s, got %s", tc.varName, stmt.Left.Name)
 		}
 
-		if !testLiteralExpression(t, stmt.Value, tc.varValue) {
+		if !testLiteralExpression(t, stmt.Right, tc.varValue) {
 			return
 		}
 
@@ -1312,12 +1312,12 @@ func TestParseTwoStatements(t *testing.T) {
 
 	stmts := parseStatements(t, inp, parseOpts{stmtCount: 2, checkErrors: true})
 
-	if !testIdentifier(t, stmts[0].(*ast.AssignStmt).Name, "name") {
+	if !testIdentifier(t, stmts[0].(*ast.AssignStmt).Left, "name") {
 		return
 	}
 
 	testToken(t, stmts[0], token.IDENT)
-	if !testStringLiteral(t, stmts[0].(*ast.AssignStmt).Value, "Anna") {
+	if !testStringLiteral(t, stmts[0].(*ast.AssignStmt).Right, "Anna") {
 		return
 	}
 

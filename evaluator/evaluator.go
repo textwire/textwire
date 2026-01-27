@@ -172,12 +172,12 @@ func (e *Evaluator) evalBlockStmt(block *ast.BlockStmt, env *object.Env, path st
 }
 
 func (e *Evaluator) evalAssignStmt(node *ast.AssignStmt, env *object.Env, path string) object.Object {
-	val := e.Eval(node.Value, env, path)
+	val := e.Eval(node.Right, env, path)
 	if isError(val) {
 		return val
 	}
 
-	err := env.Set(node.Name.Value, val)
+	err := env.Set(node.Left.Name, val)
 	if err != nil {
 		return e.newError(node, path, "%s", err.Error())
 	}
@@ -327,8 +327,7 @@ func (e *Evaluator) evalForStmt(node *ast.ForStmt, env *object.Env, path string)
 			continue
 		}
 
-		varName := node.Init.(*ast.AssignStmt).Name.Value
-
+		varName := node.Init.(*ast.AssignStmt).Left.Name
 		err := newEnv.Set(varName, post)
 		if err != nil {
 			return e.newError(node, path, "%s", err.Error())
@@ -346,12 +345,16 @@ func (e *Evaluator) evalForStmt(node *ast.ForStmt, env *object.Env, path string)
 	return &object.HTML{Value: blocks.String()}
 }
 
-func (e *Evaluator) evalEachStmt(node *ast.EachStmt, env *object.Env, path string) object.Object {
+func (e *Evaluator) evalEachStmt(
+	node *ast.EachStmt,
+	env *object.Env,
+	path string,
+) object.Object {
 	newEnv := object.NewEnclosedEnv(env)
 
 	var blocks bytes.Buffer
 
-	varName := node.Var.Value
+	varName := node.Var.Name
 	arrObj := e.Eval(node.Array, newEnv, path)
 	if isError(arrObj) {
 		return arrObj
@@ -466,7 +469,7 @@ func (e *Evaluator) evalIdentifier(
 	env *object.Env,
 	path string,
 ) object.Object {
-	varName := node.Value
+	varName := node.Name
 	if varName == "global" && e.Config.GlobalData != nil {
 		return object.NativeToObject(e.Config.GlobalData)
 	}
@@ -475,7 +478,7 @@ func (e *Evaluator) evalIdentifier(
 		return val
 	}
 
-	return e.newError(node, path, fail.ErrIdentifierIsUndefined, node.Value)
+	return e.newError(node, path, fail.ErrIdentifierIsUndefined, node.Name)
 }
 
 func (e *Evaluator) evalIndexExp(
@@ -548,7 +551,7 @@ func (e *Evaluator) evalDotExp(node *ast.DotExp, env *object.Env, path string) o
 
 	key := node.Key.(*ast.Identifier)
 
-	return e.evalObjectKeyExp(left.(*object.Obj), key.Value, node, path)
+	return e.evalObjectKeyExp(left.(*object.Obj), key.Name, node, path)
 }
 
 func (e *Evaluator) evalString(node *ast.StringLiteral, _ *object.Env) object.Object {
@@ -686,7 +689,7 @@ func (e *Evaluator) evalCallExp(
 	}
 
 	receiverType := receiverObj.Type()
-	funcName := node.Function.Value
+	funcName := node.Function.Name
 
 	typeFuncs, ok := functions[receiverType]
 	if !ok {
@@ -698,7 +701,7 @@ func (e *Evaluator) evalCallExp(
 		return args[0]
 	}
 
-	buitin, ok := typeFuncs[node.Function.Value]
+	buitin, ok := typeFuncs[node.Function.Name]
 
 	if ok {
 		res, err := buitin.Fn(receiverObj, args...)
@@ -738,7 +741,7 @@ func (e *Evaluator) evalCallExp(
 	}
 
 	return e.newError(node, path, fail.ErrNoFuncForThisType,
-		node.Function.Value, receiverObj.Type())
+		node.Function.Name, receiverObj.Type())
 }
 
 func (e *Evaluator) objectsToNativeType(args []object.Object) []any {

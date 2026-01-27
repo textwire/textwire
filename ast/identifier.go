@@ -4,18 +4,18 @@ import "github.com/textwire/textwire/v2/token"
 
 type Identifier struct {
 	BaseNode
-	Value string
+	Name string
 }
 
-func NewIdentifier(tok token.Token, val string) *Identifier {
+func NewIdentifier(tok token.Token, name string) *Identifier {
 	return &Identifier{
 		BaseNode: NewBaseNode(tok),
-		Value:    val,
+		Name:     name,
 	}
 }
 
 func (i *Identifier) expressionNode() {}
 
 func (i *Identifier) String() string {
-	return i.Value
+	return i.Name
 }
