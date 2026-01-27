@@ -144,6 +144,31 @@ func TestEvaluateString(t *testing.T) {
 	}
 }
 
+func TestIsDefinedCallExpression(t *testing.T) {
+	cases := []struct {
+		inp    string
+		expect string
+		data   map[string]any
+	}{
+		{`{{ definedVar }}`, "nice", map[string]any{"definedVar": "nice"}},
+		{`{{ definedVar.isDefined() }}`, "1", map[string]any{"definedVar": "nice"}},
+		{`{{ undefinedVar.isDefined() }}`, "0", nil},
+		{`@if(definedVar.isDefined())YES@end`, "YES", map[string]any{"definedVar": "nice"}},
+		{`@if(!definedVar.isDefined())YES@end`, "YES", nil},
+	}
+
+	for _, tc := range cases {
+		res, err := EvaluateString(tc.inp, tc.data)
+		if err != nil {
+			t.Fatalf("we don't expect error but got %s", err)
+		}
+
+		if tc.expect != res {
+			t.Errorf("wrong result. expect: %q got: %q", tc.expect, res)
+		}
+	}
+}
+
 func TestErrorHandling(t *testing.T) {
 	cases := []struct {
 		inp  string
@@ -162,13 +187,13 @@ func TestErrorHandling(t *testing.T) {
 		{`{{ 5.someFunction() }}`, fail.New(1, "", "evaluator", fail.ErrNoFuncForThisType, "someFunction", object.INT_OBJ), nil},
 		{`{{ 3 / 0 }}`, fail.New(1, "", "evaluator", fail.ErrDivisionByZero), nil},
 		{`{{ 1 ~ 8 }}`, fail.New(1, "", "parser", fail.ErrIllegalToken, "~"), nil},
+		{`{{ undefinedVar }}`, fail.New(1, "", "parser", fail.ErrIdentifierIsUndefined, "undefinedVar"), nil},
 	}
 
 	for _, tc := range cases {
 		_, err := EvaluateString(tc.inp, tc.data)
 		if err == nil {
-			t.Errorf("expect error but got none")
-			return
+			t.Fatalf("expect error but got none")
 		}
 
 		if err.Error() != tc.err.String() {

@@ -6,6 +6,8 @@ import (
 	"log"
 )
 
+// Each string constant here is also an ErrorID on Error object.
+// It helps to identify error by checking if ErrorID == fail.ErrEmptyBraces.
 const (
 	// Parser errors
 	ErrEmptyBraces               = "bracket statement must contain an expression '{{ <expression> }}'"

@@ -684,12 +684,17 @@ func (e *Evaluator) evalCallExp(
 	path string,
 ) object.Object {
 	receiverObj := e.Eval(node.Receiver, env, path)
-	if isError(receiverObj) {
-		return receiverObj
-	}
 
 	receiverType := receiverObj.Type()
 	funcName := node.Function.Name
+
+	if funcName == "isDefined" {
+		return e.handleIsDefinedCall(receiverObj)
+	}
+
+	if isError(receiverObj) {
+		return receiverObj
+	}
 
 	typeFuncs, ok := functions[receiverType]
 	if !ok {
@@ -743,6 +748,19 @@ func (e *Evaluator) evalCallExp(
 
 	return e.newError(node, path, fail.ErrNoFuncForThisType,
 		node.Function.Name, receiverObj.Type())
+}
+
+func (e *Evaluator) handleIsDefinedCall(receiver object.Object) object.Object {
+	errObj, ok := receiver.(*object.Error)
+	if !ok {
+		return TRUE
+	}
+
+	if errObj.ErrorID == fail.ErrIdentifierIsUndefined {
+		return FALSE
+	}
+
+	return errObj
 }
 
 func (e *Evaluator) objectsToNativeType(args []object.Object) []any {
@@ -984,6 +1002,8 @@ func (e *Evaluator) evalBangOperatorExp(
 }
 
 func (e *Evaluator) newError(node ast.Node, path, format string, a ...any) *object.Error {
-	err := fail.New(node.Line(), path, "evaluator", format, a...)
-	return &object.Error{Err: err}
+	return &object.Error{
+		Err:     fail.New(node.Line(), path, "evaluator", format, a...),
+		ErrorID: format,
+	}
 }

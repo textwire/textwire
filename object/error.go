@@ -9,6 +9,9 @@ import (
 
 type Error struct {
 	Err *fail.Error
+
+	// ErrorID is a raw error message with %s characters instead of values
+	ErrorID string
 }
 
 func (e *Error) Type() ObjectType {
