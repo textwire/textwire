@@ -75,7 +75,7 @@ func TestEvalArrayFunctions(t *testing.T) {
 		{`{{ [1, 2].prepend([3, 4]).len() }}`, "3"},
 	}
 
-	for _, tc := range cases {
-		evaluationExpected(t, tc.inp, tc.expect)
+	for i, tc := range cases {
+		evaluationExpected(t, tc.inp, tc.expect, i)
 	}
 }

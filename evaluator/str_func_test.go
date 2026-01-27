@@ -127,7 +127,7 @@ func TestEvalStringFunctions(t *testing.T) {
 		{`{{ "".last() }}`, ""},
 	}
 
-	for _, tc := range cases {
-		evaluationExpected(t, tc.inp, tc.expect)
+	for i, tc := range cases {
+		evaluationExpected(t, tc.inp, tc.expect, i)
 	}
 }

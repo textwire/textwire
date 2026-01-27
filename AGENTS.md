@@ -17,6 +17,7 @@ In template files you can use globals like this `{{ globals.env }}`.
 - **Template Extensions**: `.tw` and `.tw.html`
 - **Architecture**: Modular design with separate packages for lexer, parser, evaluator, AST, token, and object handling
 - **LSP Support**: Full Language Server Protocol implementation for editor integration
+- **Precedence**: All the precedence defined in `./parser/parser.go:20-70`
 
 ## Development Environment & Commands
 ### Available Commands

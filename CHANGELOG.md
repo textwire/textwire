@@ -1,10 +1,12 @@
 # Release notes
 
-## v2.8.0 (2026-01-25)
+## v3.0.0 (2026-01-30)
 - 🐛 Fixed incorrect file path in error messages when error happens inside of `@insert` directive.
 - ⚠️ BREAKING CHANGE! variable `global` is now reserved.
+- ⚠️ BREAKING CHANGE! Fixed precedence for prefix expressions. Instead of `((!var).func())` we now have `(!(var.func()))`.
 - ✨ Improve memory and performance.
 - ✨ Added global object. You can now add `GlobalData` to your configurations and access this data in your templates using `globals` object. For example: `globals.env`.
+- ✨ Added `isDefined()` function which is available for all types. It returns true if variable is defined. [#56](https://github.com/textwire/textwire/issues/56)
 
 ## v2.7.1 (2026-01-23)
 - 🐛 Fixed incorrect file path in error messages when error happens inside of components

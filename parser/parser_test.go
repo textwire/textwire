@@ -674,15 +674,15 @@ func TestOperatorPrecedenceParsing(t *testing.T) {
 		},
 		{
 			inp:    "{{ -2.float() }}",
-			expect: "{{ ((-2).float()) }}",
+			expect: "{{ (-(2.float())) }}",
 		},
 		{
 			inp:    "{{ -5.0.int() }}",
-			expect: "{{ ((-5.0).int()) }}",
+			expect: "{{ (-(5.0.int())) }}",
 		},
 		{
 			inp:    "{{ -obj.test }}",
-			expect: "{{ ((-obj).test) }}",
+			expect: "{{ (-(obj.test)) }}",
 		},
 		{
 			inp:    "{{ true && true || false }}",
@@ -702,7 +702,7 @@ func TestOperatorPrecedenceParsing(t *testing.T) {
 		},
 		{
 			inp:    "{{ -2.float() && -2.0.int() ? 1 : 0 }}",
-			expect: "{{ ((((-2).float()) && ((-2.0).int())) ? 1 : 0) }}",
+			expect: "{{ (((-(2.float())) && (-(2.0.int()))) ? 1 : 0) }}",
 		},
 	}
 

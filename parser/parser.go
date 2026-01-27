@@ -27,11 +27,11 @@ const (
 	LESS_GREATER  // > or <
 	SUM           // +
 	PRODUCT       // *
-	MEMBER_ACCESS // <expr>.<ident>
 	PREFIX        // -X or !X
-	CALL          // myFunction(X)
 	INDEX         // array[index]
 	POSTFIX       // X++ or X--
+	MEMBER_ACCESS // <expr>.<ident>
+	CALL          // myFunction(X)
 )
 
 var precedences = map[token.TokenType]int{

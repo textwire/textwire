@@ -10,8 +10,6 @@ func TestEvalBinaryFunctions(t *testing.T) {
 		// binary
 		{`{{ true.binary() }}`, "1"},
 		{`{{ false.binary() }}`, "0"},
-		{`{{ !true.binary() }}`, "0"},
-		{`{{ !false.binary() }}`, "1"},
 		{`{{ true.binary().float() }}`, "1.0"},
 		{`{{ false.binary().float() }}`, "0.0"},
 		// then
@@ -30,7 +28,7 @@ func TestEvalBinaryFunctions(t *testing.T) {
 		{`{{ false.then(1.121, 4.2141) }}`, "4.2141"},
 	}
 
-	for _, tc := range cases {
-		evaluationExpected(t, tc.inp, tc.expect)
+	for i, tc := range cases {
+		evaluationExpected(t, tc.inp, tc.expect, i)
 	}
 }
