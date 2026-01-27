@@ -693,7 +693,8 @@ func (e *Evaluator) evalCallExp(
 
 	typeFuncs, ok := functions[receiverType]
 	if !ok {
-		return e.newError(node, path, fail.ErrNoFuncForThisType, funcName, receiverType)
+		return e.newError(node, path, fail.ErrNoFuncForThisType,
+			funcName, receiverType)
 	}
 
 	args := e.evalExpressions(node.Arguments, env, path)
