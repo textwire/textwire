@@ -155,6 +155,64 @@ func TestIsDefinedCallExpression(t *testing.T) {
 		{`{{ undefinedVar.isDefined() }}`, "0", nil},
 		{`@if(definedVar.isDefined())YES@end`, "YES", map[string]any{"definedVar": "nice"}},
 		{`@if(!definedVar.isDefined())YES@end`, "YES", nil},
+
+		// Variables with falsy but defined values like nil, false, ""
+		{`{{ nilVar.isDefined() }}`, "1", map[string]any{"nilVar": nil}},
+		{`@if(nilVar.isDefined())YES@end`, "YES", map[string]any{"nilVar": nil}},
+		{`{{ emptyStr.isDefined() }}`, "1", map[string]any{"emptyStr": ""}},
+		{`@if(emptyStr.isDefined())YES@end`, "YES", map[string]any{"emptyStr": ""}},
+		{`{{ falseVar.isDefined() }}`, "1", map[string]any{"falseVar": false}},
+		{`@if(falseVar.isDefined())YES@end`, "YES", map[string]any{"falseVar": false}},
+		{`{{ zeroInt.isDefined() }}`, "1", map[string]any{"zeroInt": 0}},
+		{`@if(zeroInt.isDefined())YES@end`, "YES", map[string]any{"zeroInt": 0}},
+		{`{{ zeroFloat.isDefined() }}`, "1", map[string]any{"zeroFloat": 0.0}},
+
+		// Complex data structures with nested objects
+		{
+			inp:    `{{ obj.prop.isDefined() }}`,
+			expect: "1",
+			data:   map[string]any{"obj": map[string]any{"prop": "value"}},
+		},
+		{
+			inp:    `{{ obj.nested.prop.isDefined() }}`,
+			expect: "1",
+			data: map[string]any{
+				"obj": map[string]any{
+					"nested": map[string]any{"prop": "value"},
+				},
+			},
+		},
+		{
+			inp:    `{{ arr[0].isDefined() }}`,
+			expect: "1",
+			data:   map[string]any{"arr": []any{"first", "second"}}},
+
+		// More conditional logic tests
+		{
+			inp:    `@if(obj.prop.isDefined())YES@end`,
+			expect: "YES",
+			data:   map[string]any{"obj": map[string]any{"prop": "value"}},
+		},
+		{
+			inp:    `@if(definedVar.isDefined() && nilVar.isDefined())YES@end`,
+			expect: "YES",
+			data:   map[string]any{"definedVar": "nice", "nilVar": nil},
+		},
+		{
+			inp:    `@if(definedVar.isDefined() || undefinedVar.isDefined())YES@end`,
+			expect: "YES",
+			data:   map[string]any{"definedVar": "nice"},
+		},
+		{
+			inp:    `@if(obj.prop.isDefined() && obj.nested.prop.isDefined())YES@end`,
+			expect: "YES",
+			data: map[string]any{
+				"obj": map[string]any{
+					"prop":   "value",
+					"nested": map[string]any{"prop": "value"},
+				},
+			},
+		},
 	}
 
 	for _, tc := range cases {
