@@ -160,7 +160,7 @@ Always test error conditions:
 func parseStatements(t *testing.T, inp string, opts parseOpts) []ast.Statement {
     l := lexer.New(inp)
     p := New(l, "")
-    prog := p.ParseProgram()
+    prog := p.Parse()
     
     if opts.checkErrors {
         checkParserErrors(t, p)
@@ -172,7 +172,7 @@ func parseStatements(t *testing.T, inp string, opts parseOpts) []ast.Statement {
 
 ### Test Data
 - Store template examples in `textwire/testdata/`
-- Use `.tw` and `.tw.html` extensions
+- Use `.tw` extension
 - Include both valid and invalid examples for testing
 - Name test files descriptively (e.g., `if-statements.tw`)
 

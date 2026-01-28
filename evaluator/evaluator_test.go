@@ -14,7 +14,7 @@ import (
 func testEval(inp string) object.Object {
 	l := lexer.New(inp)
 	p := parser.New(l, "/path/to/file")
-	prog := p.ParseProgram()
+	prog := p.Parse()
 	env := object.NewEnv()
 
 	eval := New(&config.Func{}, &config.Config{})

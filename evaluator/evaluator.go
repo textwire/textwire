@@ -186,15 +186,15 @@ func (e *Evaluator) evalAssignStmt(node *ast.AssignStmt, env *object.Env, path s
 }
 
 func (e *Evaluator) evalUseStmt(node *ast.UseStmt, env *object.Env, path string) object.Object {
-	if node.Program == nil {
-		return e.newError(node, path, fail.ErrUseStmtMustHaveProgram)
+	if node.Layout == nil {
+		return e.newError(node, path, fail.ErrUseStmtMissingLayout)
 	}
 
-	if node.Program.IsLayout && node.Program.HasUseStmt() {
+	if node.Layout.IsLayout && node.Layout.HasUseStmt() {
 		return e.newError(node, path, fail.ErrUseStmtNotAllowed)
 	}
 
-	layoutContent := e.Eval(node.Program, env, node.Program.Filepath)
+	layoutContent := e.Eval(node.Layout, env, node.Layout.Filepath)
 	if isError(layoutContent) {
 		return layoutContent
 	}

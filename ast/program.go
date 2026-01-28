@@ -78,8 +78,8 @@ func (p *Program) ApplyInserts(inserts map[string]*InsertStmt, absPath string) *
 	return nil
 }
 
-func (p *Program) ApplyLayout(prog *Program) {
-	p.UseStmt.Program = prog
+func (p *Program) ApplyLayout(layoutProg *Program) {
+	p.UseStmt.Layout = layoutProg
 	p.Statements = []Statement{p.UseStmt}
 }
 

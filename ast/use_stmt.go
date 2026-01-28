@@ -8,8 +8,8 @@ import (
 
 type UseStmt struct {
 	BaseNode
-	Name    *StringLiteral // The relative path to the layout like 'layouts/main'
-	Program *Program
+	Name   *StringLiteral // The relative path to the layout like 'layouts/main'
+	Layout *Program       // Pointer to the layout program
 }
 
 func NewUseStmt(tok token.Token) *UseStmt {
@@ -25,9 +25,9 @@ func (us *UseStmt) String() string {
 }
 
 func (us *UseStmt) Stmts() []Statement {
-	if us.Program == nil {
+	if us.Layout == nil {
 		return []Statement{}
 	}
 
-	return us.Program.Stmts()
+	return us.Layout.Stmts()
 }

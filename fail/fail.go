@@ -39,7 +39,7 @@ const (
 	ErrTypeMismatch            = "type mismatch '%s %s %s'"
 	ErrUnknownTypeForOperator  = "unknown type '%s' for '%s' operator"
 	ErrPrefixOperatorIsWrong   = "prefix operator '%s' cannot be applied to '%s'"
-	ErrUseStmtMustHaveProgram  = "use statement must have a program attached"
+	ErrUseStmtMissingLayout    = "use statement is missing a layout"
 	ErrIdentifierIsUndefined   = "identifier '%s' is undefined"
 	ErrReservedIdentifiers     = "'loop' and 'global' identifiers are reserved. You cannot use these names"
 	ErrIdentifierTypeMismatch  = "cannot assign identifier '%s' of type '%s' to type '%s'"
