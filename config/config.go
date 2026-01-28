@@ -7,8 +7,8 @@ type Config struct {
 	TemplateDir string
 
 	// TemplateExt is the extension of the Textwire
-	// template files. Default is `.tw.html`, recommended to use`.tw`.
-	// If you use a different extension other then ".tw.html",
+	// template files. Default is `.tw`.
+	// If you use a different extension other then ".tw",
 	// you will loose syntax highlighting in VSCode editor
 	// if you use the Textwire extension
 	TemplateExt string

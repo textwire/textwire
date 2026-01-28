@@ -1,12 +1,14 @@
 # Release notes
 
 ## v3.0.0 (2026-01-30)
-- 🐛 Fixed incorrect file path in error messages when error happens inside of `@insert` directive.
-- ⚠️ BREAKING CHANGE! variable `global` is now reserved.
+- ⚠️ BREAKING CHANGE! Variable `global` is now reserved.
 - ⚠️ BREAKING CHANGE! Fixed precedence for prefix expressions. Instead of `((!var).func())` we now have `(!(var.func()))`.
+- ⚠️ BREAKING CHANGE! Changed default file extension from `.tw.html` to `.tw`. If you still want to support it, go to you configurations in `NewTemplate` or `Configure` and add field `TemplateExt:   ".tw.html"` to it.
+- 🐛 Fixed incorrect file path in error messages when error happens inside of `@insert` directive.
 - ✨ Improve memory and performance.
 - ✨ Added global object. You can now add `GlobalData` to your configurations and access this data in your templates using `globals` object. For example: `globals.env`.
 - ✨ Added `isDefined()` function which is available for all types. It returns true if variable is defined. [#56](https://github.com/textwire/textwire/issues/56)
+- ⚠️ BREAKING CHANGE! Rename functions inside a parser.
 
 ## v2.7.1 (2026-01-23)
 - 🐛 Fixed incorrect file path in error messages when error happens inside of components
@@ -143,7 +145,7 @@ For more details, read the [blog post](https://textwire.github.io/blog/2025/01/1
 
 ### 🧑‍💻 Improvements
 - **Enhanced Error Handling for Built-in Functions**: Improved error messages when an incorrect argument type is passed to a built-in function. Users will now receive clear error messages indicating the type mismatch
-- **Enhanced Error Handling for Custom Functions**: If a function is called on a type where it doesn’t exist, Textwire now provides a detailed error message specifying that the function is undefined for that type. For example, an error message might read: `[Textwire ERROR in /var/www/html/templates/home.tw.html:3]: function 'some' doesn't exist for type 'STRING'`
+- **Enhanced Error Handling for Custom Functions**: If a function is called on a type where it doesn’t exist, Textwire now provides a detailed error message specifying that the function is undefined for that type. For example, an error message might read: `[Textwire ERROR in /var/www/html/templates/home.tw:3]: function 'some' doesn't exist for type 'STRING'`
 - **Enhanced Error Handling for Division by Zero**: Improved error messages for division-by-zero cases, replacing previous vague messages with more meaningful ones
 - Remove `CONTRIBUTING.md` file
 

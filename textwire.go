@@ -9,7 +9,7 @@ import (
 	"github.com/textwire/textwire/v2/object"
 )
 
-var userConfig = config.New("templates", ".tw.html", "", false)
+var userConfig = config.New("templates", ".tw", "", false)
 var customFunc = config.NewFunc()
 
 // usesTemplates is a flag to check if user uses Textwire templates

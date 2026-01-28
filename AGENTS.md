@@ -14,7 +14,7 @@ In template files you can use globals like this `{{ globals.env }}`.
 
 ## Project Overview
 - **Module**: `github.com/textwire/textwire/v2`
-- **Template Extensions**: `.tw` and `.tw.html`
+- **Template Extensions**: `.tw`
 - **Architecture**: Modular design with separate packages for lexer, parser, evaluator, AST, token, and object handling
 - **LSP Support**: Full Language Server Protocol implementation for editor integration
 - **Precedence**: All the precedence defined in `./parser/parser.go:20-70`
