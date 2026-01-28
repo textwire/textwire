@@ -295,7 +295,7 @@ func TestEvaluateFile(t *testing.T) {
 
 func TestCustomFunctions(t *testing.T) {
 	t.Run("register for integer receiver", func(t *testing.T) {
-		err := RegisterIntFunc("double", func(num int, args ...any) any {
+		err := RegisterIntFunc("_double", func(num int, args ...any) any {
 			return num * 2
 		})
 
@@ -303,7 +303,7 @@ func TestCustomFunctions(t *testing.T) {
 			t.Fatalf("error registering function: %s", err)
 		}
 
-		actual, err := EvaluateString("{{ 3.double() }}", nil)
+		actual, err := EvaluateString("{{ 3._double() }}", nil)
 		if err != nil {
 			t.Fatalf("error evaluating template: %s", err)
 		}
@@ -314,7 +314,7 @@ func TestCustomFunctions(t *testing.T) {
 	})
 
 	t.Run("register for float receiver", func(t *testing.T) {
-		err := RegisterFloatFunc("double", func(num float64, args ...any) any {
+		err := RegisterFloatFunc("_double", func(num float64, args ...any) any {
 			return num * 2
 		})
 
@@ -322,7 +322,7 @@ func TestCustomFunctions(t *testing.T) {
 			t.Fatalf("error registering function: %s", err)
 		}
 
-		actual, err := EvaluateString("{{ 3.5.double() }}", nil)
+		actual, err := EvaluateString("{{ 3.5._double() }}", nil)
 		if err != nil {
 			t.Fatalf("error evaluating template: %s", err)
 		}
@@ -333,7 +333,7 @@ func TestCustomFunctions(t *testing.T) {
 	})
 
 	t.Run("register for array receiver", func(t *testing.T) {
-		err := RegisterArrFunc("addNumber", func(arr []any, args ...any) any {
+		err := RegisterArrFunc("_addNumber", func(arr []any, args ...any) any {
 			firstArg := args[0].(int64)
 			arr = append(arr, firstArg)
 			return arr
@@ -343,7 +343,7 @@ func TestCustomFunctions(t *testing.T) {
 			t.Fatalf("error registering function: %s", err)
 		}
 
-		actual, err := EvaluateString("{{ [1, 2].addNumber(3) }}", nil)
+		actual, err := EvaluateString("{{ [1, 2]._addNumber(3) }}", nil)
 		if err != nil {
 			t.Fatalf("error evaluating template: %s", err)
 		}
@@ -376,14 +376,14 @@ func TestCustomFunctions(t *testing.T) {
 	})
 
 	t.Run("register for boolean receiver", func(t *testing.T) {
-		err := RegisterBoolFunc("negate", func(b bool, args ...any) any {
+		err := RegisterBoolFunc("_negate", func(b bool, args ...any) any {
 			return !b
 		})
 		if err != nil {
 			t.Fatalf("error registering function: %s", err)
 		}
 
-		actual, err := EvaluateString("{{ true.negate() }}", nil)
+		actual, err := EvaluateString("{{ true._negate() }}", nil)
 		if err != nil {
 			t.Fatalf("error evaluating template: %s", err)
 		}
@@ -394,7 +394,7 @@ func TestCustomFunctions(t *testing.T) {
 	})
 
 	t.Run("register for string receiver", func(t *testing.T) {
-		err := RegisterStrFunc("concat", func(s string, args ...any) any {
+		err := RegisterStrFunc("_concat", func(s string, args ...any) any {
 			arg1Value := args[0].(string)
 			arg2Value := args[1].(string)
 
@@ -405,7 +405,7 @@ func TestCustomFunctions(t *testing.T) {
 			t.Fatalf("error registering function: %s", err)
 		}
 
-		actual, err := EvaluateString("{{ 'anna'.concat(' ', 'cho') }}", nil)
+		actual, err := EvaluateString("{{ 'anna'._concat(' ', 'cho') }}", nil)
 		if err != nil {
 			t.Fatalf("error evaluating template: %s", err)
 		}
@@ -416,7 +416,7 @@ func TestCustomFunctions(t *testing.T) {
 	})
 
 	t.Run("registering already registered function", func(t *testing.T) {
-		err := RegisterStrFunc("len", func(s string, args ...any) any {
+		err := RegisterStrFunc("_len", func(s string, args ...any) any {
 			return "some output"
 		})
 
@@ -425,7 +425,7 @@ func TestCustomFunctions(t *testing.T) {
 		}
 
 		// Registering the same function again should return an error
-		err = RegisterStrFunc("len", func(s string, args ...any) any {
+		err = RegisterStrFunc("_len", func(s string, args ...any) any {
 			return "some output"
 		})
 
@@ -433,7 +433,7 @@ func TestCustomFunctions(t *testing.T) {
 			t.Fatalf("expect error but got none")
 		}
 
-		expect := fail.New(0, "", "API", fail.ErrFuncAlreadyDefined, "len", "strings")
+		expect := fail.New(0, "", "API", fail.ErrFuncAlreadyDefined, "_len", "strings")
 
 		if err.Error() != expect.Error().Error() {
 			t.Fatalf("wrong error message. expect: %q got: %q", expect, err)
