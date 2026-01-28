@@ -2,17 +2,19 @@
 
 ## v3.0.0 (2026-01-30)
 - 🐛 Fixed incorrect file path in error messages when error happens inside of `@insert` directive.
-- ✨ Improve memory and performance.
-- ✨ Added global object. You can now add `GlobalData` to your configurations and access this data in your templates using `globals` object. For example: `globals.env`.
-- ✨ Added `isDefined()` function which is available for all types. It returns true if variable is defined. [#56](https://github.com/textwire/textwire/issues/56)
-- ⚠️ BREAKING CHANGE! Variable `global` is now reserved.
-- ⚠️ BREAKING CHANGE! Fixed precedence for prefix expressions. Instead of `((!var).func())` we now have `(!(var.func()))`.
-- ⚠️ BREAKING CHANGE! Changed default file extension from `.tw.html` to `.tw`. If you still want to support it, go to you configurations in `NewTemplate` or `Configure` and add field `TemplateExt:   ".tw.html"` to it.
-- ⚠️ BREAKING CHANGE! Rename functions inside a parser. It should not be a breaking change unless you use Parser directly in some rare cases.
-- ⚠️ BREAKING CHANGE! Minimal Go version support is version `1.25`.
 - 🧑‍💻 Improve error handling when trying to use `@use`, `@insert`, `@reserve` or `@component` directives in simple `EvaluateString` or `EvaluateFile` function calls. These directives are only allowed inside template files with `textwire.NewTemplate`.
-- ✨ Now you can add custom functions to objects as well with `RegisterObjFunc`.
-- ⚠️ BREAKING CHANGE! When you defined a custom function, now it returns type `any`. If you register any custom functions make sure to change return type to `any`.
+- ✨ Improvements and features
+    - Improve memory and performance.
+    - Added global object. You can now add `GlobalData` to your configurations and access this data in your templates using `globals` object. For example: `globals.env`.
+    - Added `isDefined()` function which is available for all types. It returns true if variable is defined. [#56](https://github.com/textwire/textwire/issues/56)
+    - Now you can add custom functions to objects as well with `RegisterObjFunc`.
+- ⚠️ ♻️ BREAKING CHANGES
+    - When you defined a custom function, now it returns type `any`. If you register any custom functions make sure to change return type to `any`.
+    - Variable `global` is now reserved.
+    - Fixed precedence for prefix expressions. Instead of `((!var).func())` we now have `(!(var.func()))`.
+    - Changed default file extension from `.tw.html` to `.tw`. If you still want to support it, go to you configurations in `NewTemplate` or `Configure` and add field `TemplateExt:   ".tw.html"` to it.
+    - Rename functions inside a parser. It should not be a breaking change unless you use Parser directly in some rare cases.
+    - Minimal Go version support is version `1.25`.
 
 ## v2.7.1 (2026-01-23)
 - 🐛 Fixed incorrect file path in error messages when error happens inside of components
