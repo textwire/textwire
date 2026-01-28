@@ -767,6 +767,11 @@ func (e *Evaluator) evalCallExp(
 			fun := e.CustomFunc.Bool[funcName]
 			res := fun(receiver.(*object.Bool).Value, nativeArgs...)
 			return object.NativeToObject(res)
+		case object.OBJ_OBJ:
+			fun := e.CustomFunc.Obj[funcName]
+			firstArg := receiver.(*object.Obj).Val()
+			res := fun(firstArg.(map[string]any), nativeArgs...)
+			return object.NativeToObject(res)
 		}
 	}
 

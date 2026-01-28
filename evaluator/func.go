@@ -54,4 +54,5 @@ var functions = map[object.ObjectType]map[string]*object.Builtin{
 		"binary": {Fn: boolBinaryFunc},
 		"then":   {Fn: boolThenFunc},
 	},
+	object.OBJ_OBJ: {},
 }

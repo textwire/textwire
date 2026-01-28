@@ -353,6 +353,28 @@ func TestCustomFunctions(t *testing.T) {
 		}
 	})
 
+	t.Run("register for object receiver", func(t *testing.T) {
+		err := RegisterObjFunc("_addProp", func(obj map[string]any, args ...any) any {
+			key := args[0].(string)
+			value := args[1]
+			obj[key] = value
+			return obj
+		})
+
+		if err != nil {
+			t.Fatalf("error registering function: %s", err)
+		}
+
+		actual, err := EvaluateString(`{{ obj = {name: "Anna"}; obj = obj._addProp("age", 25); obj.age }}`, nil)
+		if err != nil {
+			t.Fatalf("error evaluating template: %s", err)
+		}
+
+		if actual != "25" {
+			t.Fatalf("wrong result. expect: '25' got: '%s'", actual)
+		}
+	})
+
 	t.Run("register for boolean receiver", func(t *testing.T) {
 		err := RegisterBoolFunc("negate", func(b bool, args ...any) bool {
 			return !b

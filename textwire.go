@@ -90,6 +90,17 @@ func RegisterArrFunc(name string, fn config.ArrayCustomFunc) error {
 	return nil
 }
 
+func RegisterObjFunc(name string, fn config.ObjectCustomFunc) error {
+	if _, ok := customFunc.Obj[name]; ok {
+		return fail.New(0, "", "API", fail.ErrFuncAlreadyDefined,
+			name, "objects").Error()
+	}
+
+	customFunc.Obj[name] = fn
+
+	return nil
+}
+
 func RegisterIntFunc(name string, fn config.IntCustomFunc) error {
 	if _, ok := customFunc.Int[name]; ok {
 		return fail.New(0, "", "API", fail.ErrFuncAlreadyDefined,

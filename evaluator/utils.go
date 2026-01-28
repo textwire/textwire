@@ -82,6 +82,8 @@ func hasCustomFunc(customFunc *config.Func, t object.ObjectType, funcName string
 		return customFunc.Float[funcName] != nil
 	case object.BOOL_OBJ:
 		return customFunc.Bool[funcName] != nil
+	case object.OBJ_OBJ:
+		return customFunc.Obj[funcName] != nil
 	default:
 		return false
 	}
