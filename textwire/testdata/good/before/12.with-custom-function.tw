@@ -1,1 +1,1 @@
-<h1>{{ "my name"._secondLetterUppercase() }}</h1>
+<h1>{{ "amyadams"._secondLetterUpper() }}</h1>
