@@ -87,7 +87,6 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 		t.Run(tc.dirName, func(t *testing.T) {
 			tpl, tplErr := NewTemplate(&config.Config{
 				TemplateDir: "textwire/testdata/bad/" + tc.dirName,
-				TemplateExt: ".tw",
 			})
 
 			if tplErr != nil {
@@ -140,7 +139,6 @@ func TestNewTemplate(t *testing.T) {
 
 	tpl, err := NewTemplate(&config.Config{
 		TemplateDir: "textwire/testdata/good/before",
-		TemplateExt: ".tw",
 	})
 
 	if err != nil {
@@ -170,7 +168,6 @@ func TestNewTemplate(t *testing.T) {
 
 func TestRegisteringCustomFunction(t *testing.T) {
 	tpl, err := NewTemplate(&config.Config{
-		TemplateExt: ".tw",
 		TemplateDir: "textwire/testdata/good/before/",
 	})
 	if err != nil {

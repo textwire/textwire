@@ -28,7 +28,6 @@ func main() {
 	}
 
 	tpl, err = textwire.NewTemplate(&config.Config{
-		TemplateExt:   ".tw",
 		ErrorPagePath: "error-page",
 		DebugMode:     true,
 		GlobalData: map[string]any{
