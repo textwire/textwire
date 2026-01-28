@@ -174,7 +174,7 @@ func TestRegisteringCustomFunction(t *testing.T) {
 		t.Fatalf("unexpected error: %s", err)
 	}
 
-	err = RegisterStrFunc("secondLetterUppercase", func(s string, args ...any) any {
+	err = RegisterStrFunc("_secondLetterUppercase", func(s string, args ...any) any {
 		if len(s) < 2 {
 			return s
 		}
