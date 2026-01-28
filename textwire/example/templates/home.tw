@@ -27,8 +27,9 @@
         @each(book in books)
             <div>
                 <h4>Title: {{ book.title }}</h4>
-                <p>ISBN: {{ book.isbn.reverse() }}</p>
+                <p>ISBN: {{ book.isbn }}</p>
                 <p>Author: {{ book.author.firstName }}</p>
+                <p>John Wick is {{ "John Wick"._isCool() ? 'cool' : 'not cool' }}</p>
             </div>
         @end
     </div>

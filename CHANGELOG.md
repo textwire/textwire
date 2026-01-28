@@ -12,6 +12,7 @@
 - ⚠️ BREAKING CHANGE! Minimal Go version support is version `1.25`.
 - 🧑‍💻 Improve error handling when trying to use `@use`, `@insert`, `@reserve` or `@component` directives in simple `EvaluateString` or `EvaluateFile` function calls. These directives are only allowed inside template files with `textwire.NewTemplate`.
 - ✨ Now you can add custom functions to objects as well with `RegisterObjFunc`.
+- ⚠️ BREAKING CHANGE! When you defined a custom function, now it returns type `any`. If you register any custom functions make sure to change return type to `any`.
 
 ## v2.7.1 (2026-01-23)
 - 🐛 Fixed incorrect file path in error messages when error happens inside of components

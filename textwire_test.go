@@ -295,7 +295,7 @@ func TestEvaluateFile(t *testing.T) {
 
 func TestCustomFunctions(t *testing.T) {
 	t.Run("register for integer receiver", func(t *testing.T) {
-		err := RegisterIntFunc("double", func(num int, args ...any) int {
+		err := RegisterIntFunc("double", func(num int, args ...any) any {
 			return num * 2
 		})
 
@@ -314,7 +314,7 @@ func TestCustomFunctions(t *testing.T) {
 	})
 
 	t.Run("register for float receiver", func(t *testing.T) {
-		err := RegisterFloatFunc("double", func(num float64, args ...any) float64 {
+		err := RegisterFloatFunc("double", func(num float64, args ...any) any {
 			return num * 2
 		})
 
@@ -333,7 +333,7 @@ func TestCustomFunctions(t *testing.T) {
 	})
 
 	t.Run("register for array receiver", func(t *testing.T) {
-		err := RegisterArrFunc("addNumber", func(arr []any, args ...any) []any {
+		err := RegisterArrFunc("addNumber", func(arr []any, args ...any) any {
 			firstArg := args[0].(int64)
 			arr = append(arr, firstArg)
 			return arr
@@ -376,7 +376,7 @@ func TestCustomFunctions(t *testing.T) {
 	})
 
 	t.Run("register for boolean receiver", func(t *testing.T) {
-		err := RegisterBoolFunc("negate", func(b bool, args ...any) bool {
+		err := RegisterBoolFunc("negate", func(b bool, args ...any) any {
 			return !b
 		})
 		if err != nil {
@@ -394,7 +394,7 @@ func TestCustomFunctions(t *testing.T) {
 	})
 
 	t.Run("register for string receiver", func(t *testing.T) {
-		err := RegisterStrFunc("concat", func(s string, args ...any) string {
+		err := RegisterStrFunc("concat", func(s string, args ...any) any {
 			arg1Value := args[0].(string)
 			arg2Value := args[1].(string)
 
@@ -416,7 +416,7 @@ func TestCustomFunctions(t *testing.T) {
 	})
 
 	t.Run("registering already registered function", func(t *testing.T) {
-		err := RegisterStrFunc("len", func(s string, args ...any) string {
+		err := RegisterStrFunc("len", func(s string, args ...any) any {
 			return "some output"
 		})
 
@@ -425,7 +425,7 @@ func TestCustomFunctions(t *testing.T) {
 		}
 
 		// Registering the same function again should return an error
-		err = RegisterStrFunc("len", func(s string, args ...any) string {
+		err = RegisterStrFunc("len", func(s string, args ...any) any {
 			return "some output"
 		})
 
@@ -441,7 +441,7 @@ func TestCustomFunctions(t *testing.T) {
 	})
 
 	t.Run("redefining built-in function not working", func(t *testing.T) {
-		err := RegisterStrFunc("trim", func(s string, args ...any) string {
+		err := RegisterStrFunc("trim", func(s string, args ...any) any {
 			return "some output"
 		})
 
