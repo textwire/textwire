@@ -233,8 +233,11 @@ func TestErrorHandling(t *testing.T) {
 		err  *fail.Error
 		data map[string]any
 	}{
+		{`@use("someTemplate")`, fail.New(1, "", "evaluator", fail.ErrSomeDirsOnlyInTemplates), nil},
+		{`@insert("title", "hi")`, fail.New(1, "", "evaluator", fail.ErrSomeDirsOnlyInTemplates), nil},
+		{`@reserve("content")`, fail.New(1, "", "evaluator", fail.ErrSomeDirsOnlyInTemplates), nil},
+		{`@component("~header")`, fail.New(1, "", "evaluator", fail.ErrSomeDirsOnlyInTemplates), nil},
 		{`{{ 1 + "a" }}`, fail.New(1, "", "evaluator", fail.ErrTypeMismatch, object.INT_OBJ, "+", object.STR_OBJ), nil},
-		{`@use("someTemplate")`, fail.New(1, "", "evaluator", fail.ErrUseStmtMissingLayout), nil},
 		{`{{ loop = "test" }}`, fail.New(1, "", "evaluator", fail.ErrReservedIdentifiers), nil},
 		{`{{ global = "test" }}`, fail.New(1, "", "evaluator", fail.ErrReservedIdentifiers), nil},
 		{`{{ loop }}`, fail.New(0, "", "evaluator", fail.ErrReservedIdentifiers), map[string]any{"loop": "test"}},

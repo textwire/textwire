@@ -12,8 +12,8 @@ import (
 var userConfig = config.New("templates", ".tw", "", false)
 var customFunc = config.NewFunc()
 
-// usesTemplates is a flag to check if user uses Textwire templates
-var usesTemplates = false
+// usingTemplates is a flag to check if user uses Textwire templates
+var usingTemplates = false
 
 func NewTemplate(opt *config.Config) (*Template, error) {
 	Configure(opt)
@@ -32,7 +32,7 @@ func NewTemplate(opt *config.Config) (*Template, error) {
 }
 
 func EvaluateString(inp string, data map[string]any) (string, error) {
-	usesTemplates = false
+	usingTemplates = false
 
 	prog, errs := parseStr(inp)
 	if len(errs) != 0 {
@@ -44,7 +44,7 @@ func EvaluateString(inp string, data map[string]any) (string, error) {
 		return "", err.Error()
 	}
 
-	eval := evaluator.New(customFunc, userConfig)
+	eval := evaluator.New(customFunc, userConfig, usingTemplates)
 
 	evaluated := eval.Eval(prog, env, prog.Filepath)
 	if evaluated.Is(object.ERR_OBJ) {
@@ -55,8 +55,6 @@ func EvaluateString(inp string, data map[string]any) (string, error) {
 }
 
 func EvaluateFile(absPath string, data map[string]any) (string, error) {
-	usesTemplates = false
-
 	content, err := fileContent(absPath)
 	if err != nil {
 		return "", fail.FromError(err, 0, absPath, "template").Error()
@@ -126,7 +124,7 @@ func RegisterBoolFunc(name string, fn config.BoolCustomFunc) error {
 }
 
 func Configure(opt *config.Config) {
-	usesTemplates = true
+	usingTemplates = true
 
 	if opt == nil {
 		return

@@ -8,7 +8,7 @@ import (
 )
 
 func getFullPath(filename string, appendExt bool) (string, error) {
-	if usesTemplates {
+	if usingTemplates {
 		filename = joinPaths(userConfig.TemplateDir, filename)
 	}
 

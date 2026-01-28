@@ -20,14 +20,16 @@ var (
 )
 
 type Evaluator struct {
-	CustomFunc *config.Func
-	Config     *config.Config
+	CustomFunc     *config.Func
+	Config         *config.Config
+	UsingTemplates bool
 }
 
-func New(customFunc *config.Func, conf *config.Config) *Evaluator {
+func New(customFunc *config.Func, conf *config.Config, usingTemplates bool) *Evaluator {
 	return &Evaluator{
-		CustomFunc: customFunc,
-		Config:     conf,
+		CustomFunc:     customFunc,
+		Config:         conf,
+		UsingTemplates: usingTemplates,
 	}
 }
 
@@ -64,11 +66,13 @@ func (e *Evaluator) Eval(node ast.Node, env *object.Env, path string) object.Obj
 		return e.evalSlotStmt(node, env, path)
 	case *ast.DumpStmt:
 		return e.evalDumpStmt(node, env, path)
-	case *ast.BreakStmt:
-		return BREAK
+	case *ast.InsertStmt:
+		return e.evalInsertStmt(node, path)
 	case *ast.ContinueStmt:
 		return CONTINUE
-	case *ast.IllegalNode, *ast.InsertStmt:
+	case *ast.BreakStmt:
+		return BREAK
+	case *ast.IllegalNode:
 		return NIL
 
 	// Expressions
@@ -187,7 +191,10 @@ func (e *Evaluator) evalAssignStmt(node *ast.AssignStmt, env *object.Env, path s
 
 func (e *Evaluator) evalUseStmt(node *ast.UseStmt, env *object.Env, path string) object.Object {
 	if node.Layout == nil {
-		return e.newError(node, path, fail.ErrUseStmtMissingLayout)
+		if e.UsingTemplates {
+			return e.newError(node, path, fail.ErrUseStmtMissingLayout)
+		}
+		return e.newError(node, path, fail.ErrSomeDirsOnlyInTemplates)
 	}
 
 	if node.Layout.IsLayout && node.Layout.HasUseStmt() {
@@ -206,6 +213,10 @@ func (e *Evaluator) evalUseStmt(node *ast.UseStmt, env *object.Env, path string)
 }
 
 func (e *Evaluator) evalReserveStmt(node *ast.ReserveStmt, env *object.Env, path string) object.Object {
+	if !e.UsingTemplates {
+		return e.newError(node, path, fail.ErrSomeDirsOnlyInTemplates)
+	}
+
 	stmt := &object.Reserve{Name: node.Name.Value}
 
 	// Inserts are optional statements.
@@ -240,6 +251,10 @@ func (e *Evaluator) evalReserveStmt(node *ast.ReserveStmt, env *object.Env, path
 }
 
 func (e *Evaluator) evalComponentStmt(node *ast.ComponentStmt, env *object.Env, path string) object.Object {
+	if !e.UsingTemplates {
+		return e.newError(node, path, fail.ErrSomeDirsOnlyInTemplates)
+	}
+
 	name := e.Eval(node.Name, env, path)
 	if isError(name) {
 		return name
@@ -451,6 +466,16 @@ func (e *Evaluator) evalSlotStmt(
 	}
 
 	return &object.Slot{Name: node.Name.Value, Content: body}
+}
+
+func (e *Evaluator) evalInsertStmt(node *ast.InsertStmt, path string) object.Object {
+	if !e.UsingTemplates {
+		return e.newError(node, path, fail.ErrSomeDirsOnlyInTemplates)
+	}
+
+	// we do not evaluate inserts, they are getting attached
+	// to @reserve directive.
+	return NIL
 }
 
 func (e *Evaluator) evalDumpStmt(node *ast.DumpStmt, env *object.Env, path string) object.Object {

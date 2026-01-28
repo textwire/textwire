@@ -10,6 +10,7 @@
 - ⚠️ BREAKING CHANGE! Changed default file extension from `.tw.html` to `.tw`. If you still want to support it, go to you configurations in `NewTemplate` or `Configure` and add field `TemplateExt:   ".tw.html"` to it.
 - ⚠️ BREAKING CHANGE! Rename functions inside a parser. It should not be a breaking change unless you use Parser directly in some rare cases.
 - ⚠️ BREAKING CHANGE! Minimal Go version support is version `1.25`.
+- 🧑‍💻 Improve error handling when trying to use `@use`, `@insert`, `@reserve` or `@component` directives in simple `EvaluateString` or `EvaluateFile` function calls. These directives are only allowed inside template files with `textwire.NewTemplate`.
 
 ## v2.7.1 (2026-01-23)
 - 🐛 Fixed incorrect file path in error messages when error happens inside of components

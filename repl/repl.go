@@ -48,7 +48,7 @@ func Start(in io.Reader, out io.Writer) error {
 			continue
 		}
 
-		evaluator := evaluator.New(nil, nil)
+		evaluator := evaluator.New(nil, nil, false)
 		evaluated := evaluator.Eval(prog, env, prog.Filepath)
 
 		if evaluated == nil {

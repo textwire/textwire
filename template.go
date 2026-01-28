@@ -31,7 +31,7 @@ func (t *Template) String(filename string, data map[string]any) (string, *fail.E
 	}
 
 	prog.Filepath = absPath
-	eval := evaluator.New(customFunc, userConfig)
+	eval := evaluator.New(customFunc, userConfig, usingTemplates)
 
 	evaluated := eval.Eval(prog, env, prog.Filepath)
 	if evaluated.Is(object.ERR_OBJ) {
