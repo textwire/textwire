@@ -175,20 +175,82 @@ func TestErrorHandling(t *testing.T) {
 		err  *fail.Error
 		data map[string]any
 	}{
-		{`@use("someTemplate")`, fail.New(1, "", "evaluator", fail.ErrSomeDirsOnlyInTemplates), nil},
-		{`@insert("title", "hi")`, fail.New(1, "", "evaluator", fail.ErrSomeDirsOnlyInTemplates), nil},
-		{`@reserve("content")`, fail.New(1, "", "evaluator", fail.ErrSomeDirsOnlyInTemplates), nil},
-		{`@component("~header")`, fail.New(1, "", "evaluator", fail.ErrSomeDirsOnlyInTemplates), nil},
-		{`{{ 1 + "a" }}`, fail.New(1, "", "evaluator", fail.ErrTypeMismatch, object.INT_OBJ, "+", object.STR_OBJ), nil},
-		{`{{ loop = "test" }}`, fail.New(1, "", "evaluator", fail.ErrReservedIdentifiers), nil},
-		{`{{ global = "test" }}`, fail.New(1, "", "evaluator", fail.ErrReservedIdentifiers), nil},
-		{`{{ loop }}`, fail.New(0, "", "evaluator", fail.ErrReservedIdentifiers), map[string]any{"loop": "test"}},
-		{`{{ n = 1; n = "test" }}`, fail.New(1, "", "evaluator", fail.ErrIdentifierTypeMismatch, "n", object.INT_OBJ, object.STR_OBJ), nil},
-		{`{{ obj = {}; obj.name }}`, fail.New(1, "", "evaluator", fail.ErrPropertyNotFound, "name", object.OBJ_OBJ), nil},
-		{`{{ {}.test }}`, fail.New(1, "", "evaluator", fail.ErrPropertyNotFound, "test", object.OBJ_OBJ), nil},
-		{`{{ 5.someFunction() }}`, fail.New(1, "", "evaluator", fail.ErrNoFuncForThisType, "someFunction", object.INT_OBJ), nil},
-		{`{{ 3 / 0 }}`, fail.New(1, "", "evaluator", fail.ErrDivisionByZero), nil},
-		{`{{ undefinedVar }}`, fail.New(1, "", "parser", fail.ErrIdentifierIsUndefined, "undefinedVar"), nil},
+		{
+			inp:  `@use("someTemplate")`,
+			err:  fail.New(1, "", "evaluator", fail.ErrSomeDirsOnlyInTemplates),
+			data: nil,
+		},
+		{
+			inp:  `@insert("title", "hi")`,
+			err:  fail.New(1, "", "evaluator", fail.ErrSomeDirsOnlyInTemplates),
+			data: nil,
+		},
+		{
+			inp:  `@reserve("content")`,
+			err:  fail.New(1, "", "evaluator", fail.ErrSomeDirsOnlyInTemplates),
+			data: nil,
+		},
+		{
+			inp:  `@component("~header")`,
+			err:  fail.New(1, "", "evaluator", fail.ErrSomeDirsOnlyInTemplates),
+			data: nil,
+		},
+		{
+			inp: `{{ 1 + "a" }}`,
+			err: fail.New(1, "", "evaluator", fail.ErrTypeMismatch,
+				object.INT_OBJ, "+", object.STR_OBJ),
+			data: nil,
+		},
+		{
+			inp:  `{{ loop = "test" }}`,
+			err:  fail.New(1, "", "evaluator", fail.ErrReservedIdentifiers),
+			data: nil,
+		},
+		{
+			inp:  `{{ global = "test" }}`,
+			err:  fail.New(1, "", "evaluator", fail.ErrReservedIdentifiers),
+			data: nil,
+		},
+		{
+			inp:  `{{ loop }}`,
+			err:  fail.New(0, "", "evaluator", fail.ErrReservedIdentifiers),
+			data: map[string]any{"loop": "test"},
+		},
+		{
+			inp: `{{ n = 1; n = "test" }}`,
+			err: fail.New(1, "", "evaluator", fail.ErrIdentifierTypeMismatch,
+				"n", object.INT_OBJ, object.STR_OBJ),
+			data: nil,
+		},
+		{
+			inp: `{{ obj = {}; obj.name }}`,
+			err: fail.New(1, "", "evaluator", fail.ErrPropertyNotFound,
+				"name", object.OBJ_OBJ),
+			data: nil,
+		},
+		{
+			inp: `{{ {}.test }}`,
+			err: fail.New(1, "", "evaluator", fail.ErrPropertyNotFound,
+				"test", object.OBJ_OBJ),
+			data: nil,
+		},
+		{
+			inp: `{{ 5.someFunction() }}`,
+			err: fail.New(1, "", "evaluator", fail.ErrNoFuncForThisType,
+				"someFunction", object.INT_OBJ),
+			data: nil,
+		},
+		{
+			inp:  `{{ 3 / 0 }}`,
+			err:  fail.New(1, "", "evaluator", fail.ErrDivisionByZero),
+			data: nil,
+		},
+		{
+			inp: `{{ undefinedVar }}`,
+			err: fail.New(1, "", "evaluator", fail.ErrIdentifierIsUndefined,
+				"undefinedVar"),
+			data: nil,
+		},
 	}
 
 	for _, tc := range cases {
@@ -305,7 +367,8 @@ func TestCustomFunctions(t *testing.T) {
 			t.Fatalf("error registering function: %s", err)
 		}
 
-		actual, err := EvaluateString(`{{ obj = {name: "Anna"}; obj = obj._addProp("age", 25); obj.age }}`, nil)
+		inp := `{{ obj = {name: "Anna"}; obj = obj._addProp("age", 25); obj.age }}`
+		actual, err := EvaluateString(inp, nil)
 		if err != nil {
 			t.Fatalf("error evaluating template: %s", err)
 		}

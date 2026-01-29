@@ -741,8 +741,7 @@ func TestErrorHandling(t *testing.T) {
 		{
 			inp: "{{ true ? 100 }}",
 			err: fail.New(1, "", "parser", fail.ErrWrongNextToken,
-				token.String(token.COLON),
-				token.String(token.RBRACES)),
+				token.String(token.COLON), token.String(token.RBRACES)),
 		},
 		{
 			inp: "{{ ) }}",
