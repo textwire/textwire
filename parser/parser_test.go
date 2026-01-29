@@ -727,31 +727,35 @@ func TestErrorHandling(t *testing.T) {
 		err *fail.Error
 	}{
 		{
-			"{{ 5 + }}",
-			fail.New(1, "", "parser", fail.ErrExpectedExpression),
+			inp: "{{ 5 + }}",
+			err: fail.New(1, "", "parser", fail.ErrExpectedExpression),
 		},
 		{
-			"{{ }}",
-			fail.New(1, "", "parser", fail.ErrEmptyBraces),
+			inp: "{{ }}",
+			err: fail.New(1, "", "parser", fail.ErrEmptyBraces),
 		},
 		{
-			"{{ true ? 100 }}",
-			fail.New(1, "", "parser", fail.ErrWrongNextToken,
+			inp: `{{ 1 ~ 8 }}`,
+			err: fail.New(1, "", "parser", fail.ErrIllegalToken, "~"),
+		},
+		{
+			inp: "{{ true ? 100 }}",
+			err: fail.New(1, "", "parser", fail.ErrWrongNextToken,
 				token.String(token.COLON),
 				token.String(token.RBRACES)),
 		},
 		{
-			"{{ ) }}",
-			fail.New(1, "", "parser", fail.ErrNoPrefixParseFunc,
+			inp: "{{ ) }}",
+			err: fail.New(1, "", "parser", fail.ErrNoPrefixParseFunc,
 				token.String(token.RPAREN)),
 		},
 		{
-			"@component('')",
-			fail.New(1, "", "parser", fail.ErrExpectedComponentName),
+			inp: "@component('')",
+			err: fail.New(1, "", "parser", fail.ErrExpectedComponentName),
 		},
 		{
-			"@use(1)",
-			fail.New(1, "", "parser", fail.ErrUseStmtFirstArgStr, token.String(token.INT)),
+			inp: "@use(1)",
+			err: fail.New(1, "", "parser", fail.ErrUseStmtFirstArgStr, token.String(token.INT)),
 		},
 	}
 

@@ -188,7 +188,6 @@ func TestErrorHandling(t *testing.T) {
 		{`{{ {}.test }}`, fail.New(1, "", "evaluator", fail.ErrPropertyNotFound, "test", object.OBJ_OBJ), nil},
 		{`{{ 5.someFunction() }}`, fail.New(1, "", "evaluator", fail.ErrNoFuncForThisType, "someFunction", object.INT_OBJ), nil},
 		{`{{ 3 / 0 }}`, fail.New(1, "", "evaluator", fail.ErrDivisionByZero), nil},
-		{`{{ 1 ~ 8 }}`, fail.New(1, "", "parser", fail.ErrIllegalToken, "~"), nil},
 		{`{{ undefinedVar }}`, fail.New(1, "", "parser", fail.ErrIdentifierIsUndefined, "undefinedVar"), nil},
 	}
 
