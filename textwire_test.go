@@ -92,7 +92,13 @@ func TestIsDefinedCallExpression(t *testing.T) {
 		expect string
 		data   map[string]any
 	}{
-		{`{{ definedVar }}`, "nice", map[string]any{"definedVar": "nice"}},
+		{`{{ "".isDefined() }}`, "1", nil},
+		{`{{ 0.isDefined() }}`, "1", nil},
+		{`{{ 1.isDefined() }}`, "1", nil},
+		{`{{ {}.isDefined() }}`, "1", nil},
+		{`{{ [].isDefined() }}`, "1", nil},
+		{`{{ nil.isDefined() }}`, "1", nil},
+		{`{{ 1.2.isDefined() }}`, "1", nil},
 		{`{{ definedVar.isDefined() }}`, "1", map[string]any{"definedVar": "nice"}},
 		{`{{ undefinedVar.isDefined() }}`, "0", nil},
 		{`@if(definedVar.isDefined())YES@end`, "YES", map[string]any{"definedVar": "nice"}},
