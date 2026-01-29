@@ -17,7 +17,7 @@ func testEval(inp string) object.Object {
 	prog := p.Parse()
 	env := object.NewEnv()
 
-	eval := New(&config.Func{}, &config.Config{}, false)
+	eval := New(&config.Func{}, nil)
 
 	return eval.Eval(prog, env, prog.Filepath)
 }

@@ -44,7 +44,7 @@ func EvaluateString(inp string, data map[string]any) (string, error) {
 		return "", err.Error()
 	}
 
-	eval := evaluator.New(customFunc, userConfig, usingTemplates)
+	eval := evaluator.New(customFunc, nil)
 
 	evaluated := eval.Eval(prog, env, prog.Filepath)
 	if evaluated.Is(object.ERR_OBJ) {

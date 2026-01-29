@@ -6,7 +6,7 @@
 - 🐛 Bug Fixes
     1. Fixed incorrect file path in error messages when error happens inside of `@insert` directive.
     2. Fixed `contains` function for strings, `{{ !"aaa".contains("a") }}` now returns correct result.
-    2. Fixed `contains` function for arrays, `{{ ![{}, 21].contains({age: 21}) }}` now returns correct result.
+    3. Fixed `contains` function for arrays, `{{ ![{}, 21].contains({age: 21}) }}` now returns correct result.
 - ✨ New Features
     1. Improve memory and performance.
     2. Added `global` object. You can now add `GlobalData` to your configurations and access this data in your templates using `globals` object. For example: `globals.env`.

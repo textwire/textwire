@@ -21,15 +21,18 @@ var (
 
 type Evaluator struct {
 	CustomFunc     *config.Func
-	Config         *config.Config
 	UsingTemplates bool
+
+	// Config can be nil when Textwire is used for simple string and
+	// file evaluation. If config is not nil, it means we use templates.
+	Config *config.Config
 }
 
-func New(customFunc *config.Func, conf *config.Config, usingTemplates bool) *Evaluator {
+func New(customFunc *config.Func, conf *config.Config) *Evaluator {
 	return &Evaluator{
 		CustomFunc:     customFunc,
 		Config:         conf,
-		UsingTemplates: usingTemplates,
+		UsingTemplates: conf != nil,
 	}
 }
 
@@ -495,7 +498,7 @@ func (e *Evaluator) evalIdentifier(
 	path string,
 ) object.Object {
 	varName := node.Name
-	if varName == "global" && e.Config.GlobalData != nil {
+	if varName == "global" && e.Config != nil && e.Config.GlobalData != nil {
 		return object.NativeToObject(e.Config.GlobalData)
 	}
 
