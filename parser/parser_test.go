@@ -28,7 +28,7 @@ var defaultParseOpts = parseOpts{
 func parseStatements(t *testing.T, inp string, opts parseOpts) []ast.Statement {
 	l := lexer.New(inp)
 	p := New(l, "")
-	prog := p.Parse()
+	prog := p.ParseProgram()
 	err := prog.ApplyInserts(opts.inserts, "")
 
 	if err != nil {
@@ -710,7 +710,7 @@ func TestOperatorPrecedenceParsing(t *testing.T) {
 		l := lexer.New(tc.inp)
 		p := New(l, "")
 
-		prog := p.Parse()
+		prog := p.ParseProgram()
 
 		checkParserErrors(t, p)
 
@@ -760,7 +760,7 @@ func TestErrorHandling(t *testing.T) {
 		l := lexer.New(tc.inp)
 		p := New(l, "")
 
-		p.Parse()
+		p.ParseProgram()
 
 		if len(p.Errors()) == 0 {
 			t.Errorf("no errors found in input %q", tc.inp)

@@ -132,11 +132,7 @@ func New(lexer *lexer.Lexer, filepath string) *Parser {
 	return p
 }
 
-func (p *Parser) Parse() *ast.Program {
-	return p.program()
-}
-
-func (p *Parser) program() *ast.Program {
+func (p *Parser) ParseProgram() *ast.Program {
 	prog := ast.NewProgram(p.curToken)
 	prog.Statements = []ast.Statement{}
 

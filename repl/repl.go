@@ -39,7 +39,7 @@ func Start(in io.Reader, out io.Writer) error {
 		l := lexer.New(scanner.Text())
 		p := parser.New(l, "")
 
-		prog := p.Parse()
+		prog := p.ParseProgram()
 
 		if len(p.Errors()) != 0 {
 			if err := printParserErrors(out, p.Errors()); err != nil {

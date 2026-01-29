@@ -17,8 +17,7 @@
     2. Variable `global` is now reserved.
     3. Fixed precedence for prefix expressions. Instead of `((!var).func())` we now have `(!(var.func()))`.
     4. Changed default file extension from `.tw.html` to `.tw`. If you still want to support it, go to you configurations in `NewTemplate` or `Configure` and add field `TemplateExt:   ".tw.html"` to it.
-    5. Rename functions inside a parser. It should not be a breaking change unless you use Parser directly in some rare cases.
-    6. Minimal Go version support is version `1.25`.
+    5. Minimal Go version support is version `1.25`.
 
 ## v2.7.1 (2026-01-23)
 - 🐛 Fixed incorrect file path in error messages when error happens inside of components

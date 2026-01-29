@@ -13,7 +13,7 @@ import (
 func IsInLoop(doc, filePath string, line, col uint) (bool, []*fail.Error) {
 	l := lexer.New(doc)
 	p := parser.New(l, filePath)
-	program := p.Parse()
+	program := p.ParseProgram()
 
 	if program == nil {
 		return false, p.Errors()

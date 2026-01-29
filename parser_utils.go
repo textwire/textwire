@@ -14,7 +14,7 @@ func parseStr(text string) (*ast.Program, []*fail.Error) {
 	lex := lexer.New(text)
 	pars := parser.New(lex, "")
 
-	prog := pars.Parse()
+	prog := pars.ParseProgram()
 
 	if pars.HasErrors() {
 		return nil, pars.Errors()
@@ -32,7 +32,7 @@ func parseProgram(absPath string) (*ast.Program, *fail.Error, error) {
 
 	lex := lexer.New(content)
 	pars := parser.New(lex, absPath)
-	prog := pars.Parse()
+	prog := pars.ParseProgram()
 
 	if len(pars.Errors()) != 0 {
 		return nil, pars.Errors()[0], nil
