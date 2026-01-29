@@ -797,7 +797,6 @@ func (e *Evaluator) handleIsDefinedCall(receiver object.Object) object.Object {
 
 func (e *Evaluator) objectsToNativeType(args []object.Object) []any {
 	var result []any
-
 	for _, arg := range args {
 		result = append(result, arg.Val())
 	}
