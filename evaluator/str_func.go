@@ -126,7 +126,7 @@ func strContainsFunc(receiver object.Object, args ...object.Object) (object.Obje
 	val := receiver.(*object.Str).Value
 	substr := firstArg.Value
 
-	return &object.Bool{Value: strings.Contains(val, substr)}, nil
+	return nativeBoolToBooleanObject(strings.Contains(val, substr)), nil
 }
 
 // strTruncateFunc returns a string truncated to the given length

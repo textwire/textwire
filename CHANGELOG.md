@@ -1,9 +1,13 @@
 # Release notes
 
 ## v3.0.0 (2026-01-30)
-- 🐛 Fixed incorrect file path in error messages when error happens inside of `@insert` directive.
-- 🧑‍💻 Improve error handling when trying to use `@use`, `@insert`, `@reserve` or `@component` directives in simple `EvaluateString` or `EvaluateFile` function calls. These directives are only allowed inside template files with `textwire.NewTemplate`.
-- ✨ Improvements and features
+- 🧑‍💻 Improvements
+    - Improve error handling when trying to use `@use`, `@insert`, `@reserve` or `@component` directives in simple `EvaluateString` or `EvaluateFile` function calls. These directives are only allowed inside template files with `textwire.NewTemplate`.
+- 🐛 Bug Fixes
+    1. Fixed incorrect file path in error messages when error happens inside of `@insert` directive.
+    2. Fixed `contains` function for strings, `{{ !"aaa".contains("a") }}` now returns correct result.
+    2. Fixed `contains` function for arrays, `{{ ![{}, 21].contains({age: 21}) }}` now returns correct result.
+- ✨ New Features
     1. Improve memory and performance.
     2. Added `global` object. You can now add `GlobalData` to your configurations and access this data in your templates using `globals` object. For example: `globals.env`.
     3. Added `isDefined()` function which is available for all types. It returns true if variable is defined. [#56](https://github.com/textwire/textwire/issues/56)

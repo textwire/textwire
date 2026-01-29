@@ -77,6 +77,8 @@ func TestEvalStringFunctions(t *testing.T) {
 		{`{{ "".contains("") }}`, "1"},
 		{`{{ "some".contains("") }}`, "1"},
 		{`{{ "Hello, World!".lower().contains("world") }}`, "1"},
+		{`{{ !"aaa".contains("a") }}`, "0"},
+		{`{{ !"aaa".contains("b") }}`, "1"},
 		// truncate
 		{`{{ "Hello World".truncate(5) }}`, "Hello..."},
 		{`{{ "谢尔盖".truncate(3) }}`, "谢尔盖"},

@@ -59,6 +59,8 @@ func TestEvalArrayFunctions(t *testing.T) {
 		{`{{ [1, 2].contains({}) }}`, "0"},
 		{`{{ [{}, 21].contains({age: 21}) }}`, "0"},
 		{`{{ [[], [1], [2]].contains([2]) }}`, "1"},
+		{`{{ ![{}, 21].contains({age: 21}) }}`, "1"},
+		{`{{ ![[], [1], [2]].contains([2]) }}`, "0"},
 		// append
 		{`{{ [].append(1) }}`, "1"},
 		{`{{ [1, 2, 3].append(4) }}`, "1, 2, 3, 4"},

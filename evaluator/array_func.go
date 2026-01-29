@@ -152,7 +152,7 @@ func arrayContainsFunc(receiver object.Object, args ...object.Object) (object.Ob
 
 	elems := receiver.(*object.Array).Elements
 	if len(elems) == 0 {
-		return &object.Bool{Value: false}, nil
+		return FALSE, nil
 	}
 
 	target := args[0]
@@ -163,18 +163,18 @@ func arrayContainsFunc(receiver object.Object, args ...object.Object) (object.Ob
 
 		if isObj || isArr {
 			if reflect.DeepEqual(el, target) {
-				return &object.Bool{Value: true}, nil
+				return TRUE, nil
 			}
 
 			continue
 		}
 
 		if el.Val() == target.Val() {
-			return &object.Bool{Value: true}, nil
+			return TRUE, nil
 		}
 	}
 
-	return &object.Bool{Value: false}, nil
+	return FALSE, nil
 }
 
 // arrayAppendFunc appends the given elements to the given array
