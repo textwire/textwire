@@ -270,7 +270,7 @@ func (p *Parser) nextToken() {
 }
 
 func (p *Parser) identifier() ast.Expression {
-	return ast.NewIdentifier(p.curToken, p.curToken.Literal)
+	ident := ast.NewIdentifier(p.curToken, p.curToken.Literal)
 }
 
 func (p *Parser) integerLiteral() ast.Expression {
@@ -368,7 +368,7 @@ func (p *Parser) htmlStmt() ast.Statement {
 }
 
 func (p *Parser) assignStmt() ast.Statement {
-	ident := p.identifier().(*ast.Identifier)
+	ident := ast.NewIdentifier(p.curToken, p.curToken.Literal)
 	stmt := ast.NewAssignStmt(p.curToken, ident)
 
 	if !p.expectPeek(token.ASSIGN) { // move to "="
@@ -738,13 +738,13 @@ func (p *Parser) dotExp(left ast.Expression) ast.Expression {
 		return p.callExp(left)
 	}
 
-	exp.Key = p.identifier()
+	exp.Key = ast.NewIdentifier(p.curToken, p.curToken.Literal)
 
 	return exp
 }
 
 func (p *Parser) callExp(receiver ast.Expression) ast.Expression {
-	ident := p.identifier().(*ast.Identifier)
+	ident := ast.NewIdentifier(p.curToken, p.curToken.Literal)
 	exp := ast.NewCallExp(p.curToken, receiver, ident)
 
 	if !p.expectPeek(token.LPAREN) { // move to "("
@@ -944,7 +944,7 @@ func (p *Parser) eachStmt() ast.Statement {
 
 	p.nextToken() // skip "("
 
-	stmt.Var = p.identifier().(*ast.Identifier)
+	stmt.Var = ast.NewIdentifier(p.curToken, p.curToken.Literal)
 
 	if !p.expectPeek(token.IN) { // move to "in"
 		return p.illegalNodeUntil(token.END)
