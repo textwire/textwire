@@ -173,9 +173,7 @@ func (p *Parser) statement() ast.Statement {
 	switch p.curToken.Type {
 	case token.HTML:
 		return p.htmlStmt()
-	case token.LBRACES:
-		return p.embeddedCode()
-	case token.SEMI:
+	case token.LBRACES, token.SEMI:
 		return p.embeddedCode()
 	case token.IF:
 		return p.ifStmt()
