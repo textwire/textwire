@@ -63,6 +63,12 @@ func TestEvaluateString(t *testing.T) {
 				},
 			},
 		},
+		{
+			name:   "Empty global object is defined",
+			inp:    "<span>{{ global }}</span>",
+			expect: "<span>{}</span>",
+			data:   nil,
+		},
 	}
 
 	for _, tc := range cases {
