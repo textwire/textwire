@@ -302,6 +302,8 @@ func TestEvalGlobalFunc(t *testing.T) {
 	}{
 		{`{{ defined(user) }}`, "0"},
 		{`{{ user = {}; defined(user) }}`, "1"},
+		{`{{ user = {}; defined(user.name) }}`, "0"},
+		{`{{ user = {name:"s"}; defined(user.name) }}`, "1"},
 	}
 
 	for i, tc := range cases {
