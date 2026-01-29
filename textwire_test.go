@@ -100,6 +100,7 @@ func TestIsDefinedCallExpression(t *testing.T) {
 		{`{{ nil.isDefined() }}`, "1", nil},
 		{`{{ 1.2.isDefined() }}`, "1", nil},
 		{`{{ definedVar.isDefined() }}`, "1", map[string]any{"definedVar": "nice"}},
+		{`{{ definedVar.isDefined().then("Yes", "No") }}`, "Yes", map[string]any{"definedVar": "nice"}},
 		{`{{ undefinedVar.isDefined() }}`, "0", nil},
 		{`@if(definedVar.isDefined())YES@end`, "YES", map[string]any{"definedVar": "nice"}},
 		{`@if(!definedVar.isDefined())YES@end`, "YES", nil},
