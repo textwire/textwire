@@ -107,6 +107,8 @@ func (e *Evaluator) Eval(node ast.Node, env *object.Env, path string) object.Obj
 		return e.evalPostfixExp(node, env, path)
 	case *ast.CallExp:
 		return e.evalCallExp(node, env, path)
+	case *ast.GlobalCallExp:
+		return e.evalGlobalCallExp(node, env, path)
 	case *ast.NilLiteral:
 		return NIL
 	}
@@ -713,11 +715,6 @@ func (e *Evaluator) evalCallExp(
 ) object.Object {
 	receiver := e.Eval(node.Receiver, env, path)
 	funcName := node.Function.Name
-
-	if funcName == "isDefined" {
-		return e.handleIsDefinedCall(receiver)
-	}
-
 	if isError(receiver) {
 		return receiver
 	}
@@ -782,17 +779,38 @@ func (e *Evaluator) evalCallExp(
 		node.Function.Name, receiver.Type())
 }
 
-func (e *Evaluator) handleIsDefinedCall(receiver object.Object) object.Object {
-	errObj, ok := receiver.(*object.Error)
-	if !ok {
-		return TRUE
+func (e *Evaluator) evalGlobalCallExp(
+	node *ast.GlobalCallExp,
+	env *object.Env,
+	path string,
+) object.Object {
+	funcName := node.Function.Name
+	switch funcName {
+	case "defined":
+		return e.evalGlobalFuncDefined(node, env, path)
+	default:
+		return e.newError(node, path, fail.ErrGlobalFuncMissing, funcName)
+	}
+}
+
+func (e *Evaluator) evalGlobalFuncDefined(
+	node *ast.GlobalCallExp,
+	env *object.Env,
+	path string,
+) object.Object {
+	var definedVars []bool
+	for _, expr := range node.Arguments {
+		evaluated := e.Eval(expr, env, path)
+		definedVars = append(definedVars, !isError(evaluated))
 	}
 
-	if errObj.ErrorID == fail.ErrIdentifierIsUndefined {
-		return FALSE
+	for _, defined := range definedVars {
+		if !defined {
+			return FALSE
+		}
 	}
 
-	return errObj
+	return TRUE
 }
 
 func (e *Evaluator) objectsToNativeType(args []object.Object) []any {

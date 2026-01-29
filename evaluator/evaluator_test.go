@@ -295,6 +295,20 @@ func TestEvalIndexExp(t *testing.T) {
 	}
 }
 
+func TestEvalGlobalFunc(t *testing.T) {
+	cases := []struct {
+		inp    string
+		expect string
+	}{
+		{`{{ defined(user) }}`, "0"},
+		{`{{ user = {}; defined(user) }}`, "1"},
+	}
+
+	for i, tc := range cases {
+		evaluationExpected(t, tc.inp, tc.expect, i)
+	}
+}
+
 func TestEvalAssignVariable(t *testing.T) {
 	cases := []struct {
 		inp    string

@@ -47,6 +47,7 @@ const (
 	ErrPropertyNotFound        = "property '%s' not found in type '%s'"
 	ErrDivisionByZero          = "division by zero error. The right-hand side of the division operator must not be zero"
 	ErrSomeDirsOnlyInTemplates = "you cannot use @use, @insert, @reserve and @component in simple file or string execution, only in templates"
+	ErrGlobalFuncMissing       = "global function '%s' doesn't exist"
 
 	// Functions
 	ErrNoFuncForThisType  = "function '%s' doesn't exist for type '%s'"

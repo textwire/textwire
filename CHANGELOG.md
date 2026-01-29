@@ -2,16 +2,16 @@
 
 ## v3.0.0 (2026-01-30)
 - 🧑‍💻 Improvements
-    - Improve error handling when trying to use `@use`, `@insert`, `@reserve` or `@component` directives in simple `EvaluateString` or `EvaluateFile` function calls. These directives are only allowed inside template files with `textwire.NewTemplate`.
+    1. Improve error handling when trying to use `@use`, `@insert`, `@reserve` or `@component` directives in simple `EvaluateString` or `EvaluateFile` function calls. These directives are only allowed inside template files with `textwire.NewTemplate`.
+    2. Improve memory and performance.
 - 🐛 Bug Fixes
     1. Fixed incorrect file path in error messages when error happens inside of `@insert` directive.
     2. Fixed `contains` function for strings, `{{ !"aaa".contains("a") }}` now returns correct result.
     3. Fixed `contains` function for arrays, `{{ ![{}, 21].contains({age: 21}) }}` now returns correct result.
 - ✨ New Features
-    1. Improve memory and performance.
-    2. Added `global` object. You can now add `GlobalData` to your configurations and access this data in your templates using `globals` object. For example: `globals.env`.
-    3. Added `isDefined()` function which is available for all types. It returns true if variable is defined. [#56](https://github.com/textwire/textwire/issues/56)
-    4. Now you can add custom functions to objects as well with `RegisterObjFunc`.
+    1. Added `global` object. You can now add `GlobalData` to your configurations and access this data in your templates using `globals` object. For example: `globals.env`.
+    2. Added `defined()` global function. It returns true if variable is defined. [#56](https://github.com/textwire/textwire/issues/56)
+    3. Now you can add custom functions to objects as well with `RegisterObjFunc`.
 - ⚠️ BREAKING CHANGES
     1. When you defined a custom function, now it returns type `any`. If you register any custom functions make sure to change return type to `any`.
     2. Variable `global` is now reserved.

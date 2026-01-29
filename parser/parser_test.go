@@ -715,7 +715,6 @@ func TestOperatorPrecedenceParsing(t *testing.T) {
 		checkParserErrors(t, p)
 
 		actual := prog.String()
-
 		if actual != tc.expect {
 			t.Errorf("expect=%q, got=%q", tc.expect, actual)
 		}
@@ -1346,6 +1345,36 @@ func TestParseTwoExpression(t *testing.T) {
 
 	if !testIntegerLiteral(t, stmts[1].(*ast.ExpressionStmt).Expression, 2) {
 		return
+	}
+}
+
+func TestParseGlobalCallExp(t *testing.T) {
+	inp := `{{ defined(var1, var2) }}`
+
+	stmts := parseStatements(t, inp, defaultParseOpts)
+
+	stmt, ok := stmts[0].(*ast.ExpressionStmt)
+	if !ok {
+		t.Fatalf("stmts[0] is not a ExpressionStmt, got %T", stmts[0])
+	}
+
+	exp, ok := stmt.Expression.(*ast.GlobalCallExp)
+	if !ok {
+		t.Fatalf("stmt.Expression is not a GlobalCallExp, got %T", stmt.Expression)
+	}
+
+	testToken(t, exp, token.IDENT)
+	testIdentifier(t, exp.Function, "defined")
+	testIdentifier(t, exp.Arguments[0], "var1")
+	testIdentifier(t, exp.Arguments[1], "var2")
+
+	testPosition(t, exp.Position(), token.Position{
+		StartCol: 3,
+		EndCol:   21,
+	})
+
+	if len(exp.Arguments) != 2 {
+		t.Fatalf("len(callExp.Arguments) is not 2, got %d", len(exp.Arguments))
 	}
 }
 

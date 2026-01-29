@@ -271,6 +271,11 @@ func (p *Parser) nextToken() {
 
 func (p *Parser) identifier() ast.Expression {
 	ident := ast.NewIdentifier(p.curToken, p.curToken.Literal)
+	if p.peekTokenIs(token.LPAREN) {
+		return p.globalCallExp(ident)
+	}
+
+	return ident
 }
 
 func (p *Parser) integerLiteral() ast.Expression {
@@ -739,6 +744,19 @@ func (p *Parser) dotExp(left ast.Expression) ast.Expression {
 	}
 
 	exp.Key = ast.NewIdentifier(p.curToken, p.curToken.Literal)
+
+	return exp
+}
+
+func (p *Parser) globalCallExp(ident *ast.Identifier) ast.Expression {
+	exp := ast.NewGlobalCallExp(p.curToken, ident)
+
+	if !p.expectPeek(token.LPAREN) { // move to "("
+		return p.illegalNode()
+	}
+
+	exp.Arguments = p.expressionList(token.RPAREN)
+	exp.SetEndPosition(p.curToken.Pos)
 
 	return exp
 }

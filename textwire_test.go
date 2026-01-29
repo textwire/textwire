@@ -86,44 +86,37 @@ func TestEvaluateString(t *testing.T) {
 	}
 }
 
-func TestIsDefinedCallExpression(t *testing.T) {
+func TestDefinedCallExpression(t *testing.T) {
 	cases := []struct {
 		inp    string
 		expect string
 		data   map[string]any
 	}{
-		{`{{ "".isDefined() }}`, "1", nil},
-		{`{{ 0.isDefined() }}`, "1", nil},
-		{`{{ 1.isDefined() }}`, "1", nil},
-		{`{{ {}.isDefined() }}`, "1", nil},
-		{`{{ [].isDefined() }}`, "1", nil},
-		{`{{ nil.isDefined() }}`, "1", nil},
-		{`{{ 1.2.isDefined() }}`, "1", nil},
-		{`{{ definedVar.isDefined() }}`, "1", map[string]any{"definedVar": "nice"}},
-		{`{{ definedVar.isDefined().then("Yes", "No") }}`, "Yes", map[string]any{"definedVar": "nice"}},
-		{`{{ undefinedVar.isDefined() }}`, "0", nil},
-		{`@if(definedVar.isDefined())YES@end`, "YES", map[string]any{"definedVar": "nice"}},
-		{`@if(!definedVar.isDefined())YES@end`, "YES", nil},
+		{`{{ defined(definedVar) }}`, "1", map[string]any{"definedVar": "nice"}},
+		{`{{ defined(definedVar).then("Yes", "No") }}`, "Yes", map[string]any{"definedVar": "nice"}},
+		{`{{ defined(undefinedVar) }}`, "0", nil},
+		{`@if(defined(definedVar))YES@end`, "YES", map[string]any{"definedVar": "nice"}},
+		{`@if(!defined(definedVar))YES@end`, "YES", nil},
 
 		// Variables with falsy but defined values like nil, false, ""
-		{`{{ nilVar.isDefined() }}`, "1", map[string]any{"nilVar": nil}},
-		{`@if(nilVar.isDefined())YES@end`, "YES", map[string]any{"nilVar": nil}},
-		{`{{ emptyStr.isDefined() }}`, "1", map[string]any{"emptyStr": ""}},
-		{`@if(emptyStr.isDefined())YES@end`, "YES", map[string]any{"emptyStr": ""}},
-		{`{{ falseVar.isDefined() }}`, "1", map[string]any{"falseVar": false}},
-		{`@if(falseVar.isDefined())YES@end`, "YES", map[string]any{"falseVar": false}},
-		{`{{ zeroInt.isDefined() }}`, "1", map[string]any{"zeroInt": 0}},
-		{`@if(zeroInt.isDefined())YES@end`, "YES", map[string]any{"zeroInt": 0}},
-		{`{{ zeroFloat.isDefined() }}`, "1", map[string]any{"zeroFloat": 0.0}},
+		{`{{ defined(nilVar) }}`, "1", map[string]any{"nilVar": nil}},
+		{`@if(defined(nilVar))YES@end`, "YES", map[string]any{"nilVar": nil}},
+		{`{{ defined(emptyStr) }}`, "1", map[string]any{"emptyStr": ""}},
+		{`@if(defined(emptyStr))YES@end`, "YES", map[string]any{"emptyStr": ""}},
+		{`{{ defined(falseVar) }}`, "1", map[string]any{"falseVar": false}},
+		{`@if(defined(falseVar))YES@end`, "YES", map[string]any{"falseVar": false}},
+		{`{{ defined(zeroInt) }}`, "1", map[string]any{"zeroInt": 0}},
+		{`@if(defined(zeroInt))YES@end`, "YES", map[string]any{"zeroInt": 0}},
+		{`{{ defined(zeroFloat) }}`, "1", map[string]any{"zeroFloat": 0.0}},
 
 		// Complex data structures with nested objects
 		{
-			inp:    `{{ obj.prop.isDefined() }}`,
+			inp:    `{{ defined(obj.prop) }}`,
 			expect: "1",
 			data:   map[string]any{"obj": map[string]any{"prop": "value"}},
 		},
 		{
-			inp:    `{{ obj.nested.prop.isDefined() }}`,
+			inp:    `{{ defined(obj.nested.prop) }}`,
 			expect: "1",
 			data: map[string]any{
 				"obj": map[string]any{
@@ -132,28 +125,28 @@ func TestIsDefinedCallExpression(t *testing.T) {
 			},
 		},
 		{
-			inp:    `{{ arr[0].isDefined() }}`,
+			inp:    `{{ defined(arr[0]) }}`,
 			expect: "1",
 			data:   map[string]any{"arr": []any{"first", "second"}}},
 
 		// More conditional logic tests
 		{
-			inp:    `@if(obj.prop.isDefined())YES@end`,
+			inp:    `@if(defined(obj.prop))YES@end`,
 			expect: "YES",
 			data:   map[string]any{"obj": map[string]any{"prop": "value"}},
 		},
 		{
-			inp:    `@if(definedVar.isDefined() && nilVar.isDefined())YES@end`,
+			inp:    `@if(defined(definedVar) && defined(nilVar))YES@end`,
 			expect: "YES",
 			data:   map[string]any{"definedVar": "nice", "nilVar": nil},
 		},
 		{
-			inp:    `@if(definedVar.isDefined() || undefinedVar.isDefined())YES@end`,
+			inp:    `@if(defined(definedVar) || defined(undefinedVar))YES@end`,
 			expect: "YES",
 			data:   map[string]any{"definedVar": "nice"},
 		},
 		{
-			inp:    `@if(obj.prop.isDefined() && obj.nested.prop.isDefined())YES@end`,
+			inp:    `@if(defined(obj.prop, obj.nested.prop))YES@end`,
 			expect: "YES",
 			data: map[string]any{
 				"obj": map[string]any{
