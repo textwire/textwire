@@ -4,17 +4,17 @@
 - 🐛 Fixed incorrect file path in error messages when error happens inside of `@insert` directive.
 - 🧑‍💻 Improve error handling when trying to use `@use`, `@insert`, `@reserve` or `@component` directives in simple `EvaluateString` or `EvaluateFile` function calls. These directives are only allowed inside template files with `textwire.NewTemplate`.
 - ✨ Improvements and features
-    - Improve memory and performance.
-    - Added global object. You can now add `GlobalData` to your configurations and access this data in your templates using `globals` object. For example: `globals.env`.
-    - Added `isDefined()` function which is available for all types. It returns true if variable is defined. [#56](https://github.com/textwire/textwire/issues/56)
-    - Now you can add custom functions to objects as well with `RegisterObjFunc`.
-- ⚠️ ♻️ BREAKING CHANGES
-    - When you defined a custom function, now it returns type `any`. If you register any custom functions make sure to change return type to `any`.
-    - Variable `global` is now reserved.
-    - Fixed precedence for prefix expressions. Instead of `((!var).func())` we now have `(!(var.func()))`.
-    - Changed default file extension from `.tw.html` to `.tw`. If you still want to support it, go to you configurations in `NewTemplate` or `Configure` and add field `TemplateExt:   ".tw.html"` to it.
-    - Rename functions inside a parser. It should not be a breaking change unless you use Parser directly in some rare cases.
-    - Minimal Go version support is version `1.25`.
+    1. Improve memory and performance.
+    2. Added `global` object. You can now add `GlobalData` to your configurations and access this data in your templates using `globals` object. For example: `globals.env`.
+    3. Added `isDefined()` function which is available for all types. It returns true if variable is defined. [#56](https://github.com/textwire/textwire/issues/56)
+    4. Now you can add custom functions to objects as well with `RegisterObjFunc`.
+- ⚠️ BREAKING CHANGES
+    1. When you defined a custom function, now it returns type `any`. If you register any custom functions make sure to change return type to `any`.
+    2. Variable `global` is now reserved.
+    3. Fixed precedence for prefix expressions. Instead of `((!var).func())` we now have `(!(var.func()))`.
+    4. Changed default file extension from `.tw.html` to `.tw`. If you still want to support it, go to you configurations in `NewTemplate` or `Configure` and add field `TemplateExt:   ".tw.html"` to it.
+    5. Rename functions inside a parser. It should not be a breaking change unless you use Parser directly in some rare cases.
+    6. Minimal Go version support is version `1.25`.
 
 ## v2.7.1 (2026-01-23)
 - 🐛 Fixed incorrect file path in error messages when error happens inside of components
@@ -161,7 +161,7 @@ For more details, read the [blog post](https://textwire.github.io/blog/2025/01/1
 For more detailed information about this release, read the [Textwire v2.1.0 Release Notes](https://textwire.github.io/blog/2024/10/24/textwire-v2.1.0-release-notes)
 
 ## v2.0.0 (2024-10-18)
-- ♻️ [BREAKING CHANGE!] Moved `textwire.Config` to a separate package `config.Config`
+- ⚠️ [BREAKING CHANGE!] Moved `textwire.Config` to a separate package `config.Config`
 - ✨ [suggested by @joeyjurjens](https://github.com/joeyjurjens) Added the ability to register your own custom functions for specific types and use them in your Textwire code like built-in functions. If you are upgrading from version 1, make these changes:
     1. Change all the imports from `github.com/textwire/textwire` to `github.com/textwire/textwire/v2`
     2. Run `go mod tidy` to update the dependencies
