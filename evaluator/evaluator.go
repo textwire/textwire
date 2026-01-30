@@ -623,8 +623,7 @@ func (e *Evaluator) evalPrefixExp(node *ast.PrefixExp, env *object.Env, path str
 		return e.evalBangOperatorExp(right, node, path)
 	}
 
-	return e.newError(node, path, fail.ErrUnknownOperator,
-		node.Operator, right.Type())
+	return e.newError(node, path, fail.ErrUnknownOperator, node.Operator, right.Type())
 }
 
 func (e *Evaluator) evalTernaryExp(
@@ -742,8 +741,7 @@ func (e *Evaluator) evalCallExp(
 	receiverType := receiver.Type()
 	typeFuncs, ok := functions[receiverType]
 	if !ok {
-		return e.newError(node, path, fail.ErrNoFuncForThisType,
-			funcName, receiverType)
+		return e.newError(node, path, fail.ErrNoFuncForThisType, funcName, receiverType)
 	}
 
 	args := e.evalExpressions(node.Arguments, env, path)
@@ -795,8 +793,7 @@ func (e *Evaluator) evalCallExp(
 		}
 	}
 
-	return e.newError(node, path, fail.ErrNoFuncForThisType,
-		node.Function.Name, receiver.Type())
+	return e.newError(node, path, fail.ErrNoFuncForThisType, node.Function.Name, receiver.Type())
 }
 
 func (e *Evaluator) evalGlobalCallExp(
@@ -872,16 +869,14 @@ func (e *Evaluator) evalPostfixOperatorExp(
 
 			err := float.SubtractFromFloat(1)
 			if err != nil {
-				return e.newError(node, path, fail.ErrCannotSubFromFloat,
-					float.String())
+				return e.newError(node, path, fail.ErrCannotSubFromFloat, float, err)
 			}
 
 			return float
 		}
 	}
 
-	return e.newError(node, path, fail.ErrUnknownOperator,
-		left.Type(), operator)
+	return e.newError(node, path, fail.ErrUnknownOperator, left.Type(), operator)
 }
 
 func (e *Evaluator) evalInfixOperatorExp(
@@ -892,8 +887,7 @@ func (e *Evaluator) evalInfixOperatorExp(
 	path string,
 ) object.Object {
 	if left.Type() != right.Type() {
-		return e.newError(leftNode, path, fail.ErrTypeMismatch,
-			left.Type(), operator, right.Type())
+		return e.newError(leftNode, path, fail.ErrTypeMismatch, left.Type(), operator, right.Type())
 	}
 
 	switch left.Type() {
@@ -907,8 +901,7 @@ func (e *Evaluator) evalInfixOperatorExp(
 		return e.evalStringInfixExp(operator, right, left, leftNode, path)
 	}
 
-	return e.newError(leftNode, path, fail.ErrUnknownTypeForOperator,
-		left.Type(), operator)
+	return e.newError(leftNode, path, fail.ErrUnknownTypeForOperator, left.Type(), operator)
 }
 
 func (e *Evaluator) evalBooleanInfixExp(
@@ -928,8 +921,7 @@ func (e *Evaluator) evalBooleanInfixExp(
 		return &object.Bool{Value: leftVal || rightVal}
 	}
 
-	return e.newError(leftNode, path, fail.ErrUnknownTypeForOperator,
-		left.Type(), operator)
+	return e.newError(leftNode, path, fail.ErrUnknownTypeForOperator, left.Type(), operator)
 }
 
 func (e *Evaluator) evalIntegerInfixExp(
@@ -971,8 +963,7 @@ func (e *Evaluator) evalIntegerInfixExp(
 		return nativeBoolToBooleanObject(leftVal <= rightVal)
 	}
 
-	return e.newError(leftNode, path, fail.ErrUnknownTypeForOperator,
-		left.Type(), operator)
+	return e.newError(leftNode, path, fail.ErrUnknownTypeForOperator, left.Type(), operator)
 }
 
 func (e *Evaluator) evalStringInfixExp(
@@ -994,8 +985,7 @@ func (e *Evaluator) evalStringInfixExp(
 		return &object.Str{Value: leftVal + rightVal}
 	}
 
-	return e.newError(leftNode, path, fail.ErrUnknownTypeForOperator,
-		left.Type(), operator)
+	return e.newError(leftNode, path, fail.ErrUnknownTypeForOperator, left.Type(), operator)
 }
 
 func (e *Evaluator) evalFloatInfixExp(
@@ -1031,8 +1021,7 @@ func (e *Evaluator) evalFloatInfixExp(
 		return nativeBoolToBooleanObject(leftVal <= rightVal)
 	}
 
-	return e.newError(leftNode, path, fail.ErrUnknownTypeForOperator,
-		left.Type(), operator)
+	return e.newError(leftNode, path, fail.ErrUnknownTypeForOperator, left.Type(), operator)
 }
 
 func (e *Evaluator) evalMinusPrefixOperatorExp(
@@ -1049,8 +1038,7 @@ func (e *Evaluator) evalMinusPrefixOperatorExp(
 		return &object.Float{Value: -value}
 	}
 
-	return e.newError(node, path, fail.ErrPrefixOperatorIsWrong,
-		"-", right.Type())
+	return e.newError(node, path, fail.ErrPrefixOperatorIsWrong, "-", right.Type())
 }
 
 func (e *Evaluator) evalBangOperatorExp(
