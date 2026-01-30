@@ -821,7 +821,7 @@ func (e *Evaluator) evalGlobalFuncDefined(
 	var definedVars []bool
 	for _, expr := range node.Arguments {
 		evaluated := e.Eval(expr, env, path)
-		definedVars = append(definedVars, !isError(evaluated))
+		definedVars = append(definedVars, !isUndefinedVarError(evaluated))
 	}
 
 	for _, defined := range definedVars {

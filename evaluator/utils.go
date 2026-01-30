@@ -144,3 +144,9 @@ func addDecimals(
 
 	return &object.Str{Value: val + separator + zeros}, nil
 }
+
+func isUndefinedVarError(obj object.Object) bool {
+	err, isErr := obj.(*object.Error)
+	return isErr &&
+		(err.ErrorID == fail.ErrIdentifierIsUndefined || err.ErrorID == fail.ErrPropertyNotFound)
+}

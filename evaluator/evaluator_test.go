@@ -288,6 +288,7 @@ func TestEvalIndexExp(t *testing.T) {
 		{`{{ [1, 2, 3][2] }}`, "3"},
 		{`{{ ["Some string"][0] }}`, "Some string"},
 		{`{{ [[[11]]][0][0][0] }}`, "11"},
+		{`{{ [][2] }}`, ""},
 	}
 
 	for i, tc := range cases {
