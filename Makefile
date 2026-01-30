@@ -10,29 +10,25 @@ shell:
 
 .PHONY: test
 test:
-	echo "🚀 Running tests..."
 	go test ./...
 	@echo "✅ All tests passed!"
 
 .PHONY: fmt
 fmt:
-	echo "🔧 Formatting code..."
-	go fmt ./...
+	@go fmt ./...
 	echo "✅ Code formatted!"
 
 .PHONY: line
 line:
-	echo "🔧 Limiting lines to 100 characters..."
-	golines -w -m $(MAX_LINE_LENGTH) .
+	@golines -w -m $(MAX_LINE_LENGTH) .
 	echo "✅ Lines limited!"
 
 .PHONY: lint
 lint:
-	echo "🔍 Running linter..."
-	golangci-lint run
+	@golangci-lint run
 	echo "✅ Linting passed!"
 
 .PHONY: check
-check: fmt lint test line
+check: test line fmt lint
 
 .DEFAULT_GOAL := test
