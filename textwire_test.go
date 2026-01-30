@@ -92,6 +92,17 @@ func TestDefinedCallExpression(t *testing.T) {
 		expect string
 		data   map[string]any
 	}{
+		{`{{ defined('') }}`, "1", nil},
+		{`{{ defined("") }}`, "1", nil},
+		{`{{ defined(0) }}`, "1", nil},
+		{`{{ defined(1) }}`, "1", nil},
+		{`{{ defined(0.0) }}`, "1", nil},
+		{`{{ defined(1.0) }}`, "1", nil},
+		{`{{ defined({}) }}`, "1", nil},
+		{`{{ defined([]) }}`, "1", nil},
+		{`{{ defined(true) }}`, "1", nil},
+		{`{{ defined(false) }}`, "1", nil},
+		{`{{ defined(nil) }}`, "1", nil},
 		{`{{ defined(definedVar) }}`, "1", map[string]any{"definedVar": "nice"}},
 		{`{{ defined(definedVar).then("Yes", "No") }}`, "Yes", map[string]any{"definedVar": "nice"}},
 		{`{{ defined(undefinedVar) }}`, "0", nil},
