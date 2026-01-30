@@ -162,7 +162,11 @@ func (e *Evaluator) evalIfStmt(node *ast.IfStmt, env *object.Env, path string) o
 	return NIL
 }
 
-func (e *Evaluator) evalBlockStmt(block *ast.BlockStmt, env *object.Env, path string) object.Object {
+func (e *Evaluator) evalBlockStmt(
+	block *ast.BlockStmt,
+	env *object.Env,
+	path string,
+) object.Object {
 	var elems []object.Object
 
 	for _, stmt := range block.Statements {
@@ -180,7 +184,11 @@ func (e *Evaluator) evalBlockStmt(block *ast.BlockStmt, env *object.Env, path st
 	return &object.Block{Elements: elems}
 }
 
-func (e *Evaluator) evalAssignStmt(node *ast.AssignStmt, env *object.Env, path string) object.Object {
+func (e *Evaluator) evalAssignStmt(
+	node *ast.AssignStmt,
+	env *object.Env,
+	path string,
+) object.Object {
 	val := e.Eval(node.Right, env, path)
 	if isError(val) {
 		return val
@@ -217,7 +225,11 @@ func (e *Evaluator) evalUseStmt(node *ast.UseStmt, env *object.Env, path string)
 	}
 }
 
-func (e *Evaluator) evalReserveStmt(node *ast.ReserveStmt, env *object.Env, path string) object.Object {
+func (e *Evaluator) evalReserveStmt(
+	node *ast.ReserveStmt,
+	env *object.Env,
+	path string,
+) object.Object {
 	if !e.UsingTemplates {
 		return e.newError(node, path, fail.ErrSomeDirsOnlyInTemplates)
 	}
@@ -255,7 +267,11 @@ func (e *Evaluator) evalReserveStmt(node *ast.ReserveStmt, env *object.Env, path
 	return stmt
 }
 
-func (e *Evaluator) evalComponentStmt(node *ast.ComponentStmt, env *object.Env, path string) object.Object {
+func (e *Evaluator) evalComponentStmt(
+	node *ast.ComponentStmt,
+	env *object.Env,
+	path string,
+) object.Object {
 	if !e.UsingTemplates {
 		return e.newError(node, path, fail.ErrSomeDirsOnlyInTemplates)
 	}
@@ -641,7 +657,11 @@ func (e *Evaluator) evalArrayLiteral(
 	return &object.Array{Elements: elems}
 }
 
-func (e *Evaluator) evalObjectLiteral(node *ast.ObjectLiteral, env *object.Env, path string) object.Object {
+func (e *Evaluator) evalObjectLiteral(
+	node *ast.ObjectLiteral,
+	env *object.Env,
+	path string,
+) object.Object {
 	pairs := map[string]object.Object{}
 
 	for key, value := range node.Pairs {

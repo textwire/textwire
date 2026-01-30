@@ -40,7 +40,12 @@ func parseStatements(t *testing.T, inp string, opts parseOpts) []ast.Statement {
 	}
 
 	if len(prog.Statements) != opts.stmtCount {
-		t.Fatalf("prog must have %d statement, got %d for input: %q", opts.stmtCount, len(prog.Statements), inp)
+		t.Fatalf(
+			"prog must have %d statement, got %d for input: %q",
+			opts.stmtCount,
+			len(prog.Statements),
+			inp,
+		)
 	}
 
 	return prog.Statements
@@ -295,7 +300,11 @@ func testAlternative(t *testing.T, alt *ast.BlockStmt, altValue string) bool {
 
 func testToken(t *testing.T, tok ast.Node, expect token.TokenType) {
 	if tok.Tok().Type != expect {
-		t.Errorf("Token type is not %q, got %q", token.String(expect), token.String(tok.Tok().Type))
+		t.Errorf(
+			"Token type is not %q, got %q",
+			token.String(expect),
+			token.String(tok.Tok().Type),
+		)
 	}
 }
 
@@ -946,15 +955,19 @@ func TestParseIfElseIfStmt(t *testing.T) {
 		}
 
 		if len(elseIfStmt.Consequence.Statements) != 1 {
-			t.Errorf("elseIfStmt.Consequence.Statements does not contain 1 statement, got %d",
-				len(elseIfStmt.Consequence.Statements))
+			t.Errorf(
+				"elseIfStmt.Consequence.Statements does not contain 1 statement, got %d",
+				len(elseIfStmt.Consequence.Statements),
+			)
 		}
 
 		cons, ok := elseIfStmt.Consequence.Statements[0].(*ast.HTMLStmt)
 
 		if !ok {
-			t.Fatalf("elseIfStmt.Consequence.Statements[0] is not an HTMLStmt, got %T",
-				elseIfStmt.Consequence.Statements[0])
+			t.Fatalf(
+				"elseIfStmt.Consequence.Statements[0] is not an HTMLStmt, got %T",
+				elseIfStmt.Consequence.Statements[0],
+			)
 		}
 
 		if cons.String() != "second" {
@@ -985,8 +998,10 @@ func TestParseIfElseIfElseStatement(t *testing.T) {
 	}
 
 	if len(stmt.Alternatives) != 1 {
-		t.Errorf("ifStmt.Alternatives does not contain 1 statement, got %d",
-			len(stmt.Alternatives))
+		t.Errorf(
+			"ifStmt.Alternatives does not contain 1 statement, got %d",
+			len(stmt.Alternatives),
+		)
 	}
 
 	if elseIfAlt, ok := stmt.Alternatives[0].(*ast.ElseIfStmt); ok {
@@ -995,15 +1010,19 @@ func TestParseIfElseIfElseStatement(t *testing.T) {
 		}
 
 		if len(elseIfAlt.Consequence.Statements) != 1 {
-			t.Errorf("alternative.Consequence.Statements does not contain 1 statement, got %d",
-				len(elseIfAlt.Consequence.Statements))
+			t.Errorf(
+				"alternative.Consequence.Statements does not contain 1 statement, got %d",
+				len(elseIfAlt.Consequence.Statements),
+			)
 		}
 
 		consequence, ok := elseIfAlt.Consequence.Statements[0].(*ast.HTMLStmt)
 
 		if !ok {
-			t.Fatalf("alternative.Consequence.Statements[0] is not an HTMLStmt, got %T",
-				elseIfAlt.Consequence.Statements[0])
+			t.Fatalf(
+				"alternative.Consequence.Statements[0] is not an HTMLStmt, got %T",
+				elseIfAlt.Consequence.Statements[0],
+			)
 		}
 
 		if consequence.String() != "2" {
@@ -1167,8 +1186,10 @@ func TestInsertStmt(t *testing.T) {
 		}
 
 		if stmt.Block.String() != "<h1>Some content</h1>" {
-			t.Errorf("stmt.Block.String() is not '<h1>Some content</h1>', got %s",
-				stmt.Block.String())
+			t.Errorf(
+				"stmt.Block.String() is not '<h1>Some content</h1>', got %s",
+				stmt.Block.String(),
+			)
 		}
 	})
 
@@ -1198,7 +1219,10 @@ func TestInsertStmt(t *testing.T) {
 		}
 
 		if stmt.Argument.String() != `"Some content"` {
-			t.Errorf("stmt.Argument.String() is not 'Some content', got %s", stmt.Argument.String())
+			t.Errorf(
+				"stmt.Argument.String() is not 'Some content', got %s",
+				stmt.Argument.String(),
+			)
 		}
 	})
 }

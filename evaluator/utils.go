@@ -89,7 +89,11 @@ func hasCustomFunc(customFunc *config.Func, t object.ObjectType, funcName string
 	}
 }
 
-func addDecimals(receiver object.Object, objType object.ObjectType, args ...object.Object) (object.Object, error) {
+func addDecimals(
+	receiver object.Object,
+	objType object.ObjectType,
+	args ...object.Object,
+) (object.Object, error) {
 	var val string
 
 	switch objType {

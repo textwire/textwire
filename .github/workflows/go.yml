@@ -19,8 +19,11 @@ jobs:
     - name: Set up Go
       uses: actions/setup-go@v4
 
+    - name: Install line length checker
+      uses: go install github.com/segmentio/golines@latest
+
     - name: Build
       run: go build -v ./...
 
     - name: Test
-      run: make test
+      run: make check

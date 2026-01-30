@@ -103,11 +103,22 @@ func TestDefinedCallExpression(t *testing.T) {
 		{`{{ defined(true) }}`, "1", nil},
 		{`{{ defined(false) }}`, "1", nil},
 		{`{{ defined(nil) }}`, "1", nil},
-		{`{{ defined(definedVar) }}`, "1", map[string]any{"definedVar": "nice"}},
-		{`{{ defined(definedVar).then("Yes", "No") }}`, "Yes", map[string]any{"definedVar": "nice"}},
 		{`{{ defined(undefinedVar) }}`, "0", nil},
-		{`@if(defined(definedVar))YES@end`, "YES", map[string]any{"definedVar": "nice"}},
 		{`@if(!defined(definedVar))YES@end`, "YES", nil},
+		{
+			inp:    `{{ defined(definedVar) }}`,
+			expect: "1",
+			data:   map[string]any{"definedVar": "nice"},
+		},
+		{
+			inp:    `@if(defined(definedVar))YES@end`,
+			expect: "YES",
+			data:   map[string]any{"definedVar": "nice"},
+		},
+		{
+			inp:    `{{ defined(definedVar).then("Yes", "No") }}`,
+			expect: "Yes",
+			data:   map[string]any{"definedVar": "nice"}},
 
 		// Variables with falsy but defined values like nil, false, ""
 		{`{{ defined(nilVar) }}`, "1", map[string]any{"nilVar": nil}},
@@ -378,7 +389,7 @@ func TestCustomFunctions(t *testing.T) {
 			t.Fatalf("error registering function: %s", err)
 		}
 
-		inp := `{{ obj = {name: "Anna"}; obj = obj._addProp("age", 25); obj.age }}`
+		inp := "{{ obj = {name: 'Anna'}; obj = obj._addProp('age', 25); obj.age }}"
 		actual, err := EvaluateString(inp, nil)
 		if err != nil {
 			t.Fatalf("error evaluating template: %s", err)
@@ -447,7 +458,8 @@ func TestCustomFunctions(t *testing.T) {
 			t.Fatalf("expect error but got none")
 		}
 
-		expect := fail.New(0, "", "API", fail.ErrFuncAlreadyDefined, "_len", "strings")
+		expect := fail.New(0, "", "API", fail.ErrFuncAlreadyDefined,
+			"_len", "strings")
 
 		if err.Error() != expect.Error().Error() {
 			t.Fatalf("wrong error message. expect: %q got: %q", expect, err)
@@ -468,7 +480,8 @@ func TestCustomFunctions(t *testing.T) {
 			t.Fatalf("error registering function: %s", err)
 		}
 
-		// the output should be the same as the built-in function even though we redefined it
+		// the output should be the same as the built-in function
+		// even though we redefined it.
 		if actual != "anna" {
 			t.Fatalf("wrong output. expect: 'anna' got: '%s'", actual)
 		}

@@ -49,7 +49,12 @@ func TestNativeToBooleanObject(t *testing.T) {
 		result := nativeBoolToBooleanObject(tc.inp)
 
 		if result != tc.expect {
-			t.Errorf("nativeBoolToBooleanObject(%t) returned %s, expect %s", tc.inp, result, tc.expect)
+			t.Errorf(
+				"nativeBoolToBooleanObject(%t) returned %s, expect %s",
+				tc.inp,
+				result,
+				tc.expect,
+			)
 		}
 	}
 }

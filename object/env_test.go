@@ -70,9 +70,19 @@ func TestEnvFromMap(t *testing.T) {
 		"nums8":    &Array{Elements: []Object{&Int{Value: 1}, &Int{Value: 2}, &Int{Value: 3}}},
 		"names":    &Array{Elements: []Object{&Str{Value: "John"}, &Str{Value: "Jane"}}},
 		"statuses": &Array{Elements: []Object{&Bool{Value: false}, &Bool{Value: true}}},
-		"rates64":  &Array{Elements: []Object{&Float{Value: 23.4}, &Float{Value: 56.7}, &Float{Value: 89.0}}},
-		"values":   &Array{Elements: []Object{&Float{Value: 23.4}, &Float{Value: 56.7}, &Float{Value: 89.0}}},
-		"rates32":  &Array{Elements: []Object{&Float{Value: float64(float32val)}, &Float{Value: float64(float32val)}, &Float{Value: float64(float32val)}}},
+		"rates64": &Array{
+			Elements: []Object{&Float{Value: 23.4}, &Float{Value: 56.7}, &Float{Value: 89.0}},
+		},
+		"values": &Array{
+			Elements: []Object{&Float{Value: 23.4}, &Float{Value: 56.7}, &Float{Value: 89.0}},
+		},
+		"rates32": &Array{
+			Elements: []Object{
+				&Float{Value: float64(float32val)},
+				&Float{Value: float64(float32val)},
+				&Float{Value: float64(float32val)},
+			},
+		},
 	}
 
 	env, err := EnvFromMap(data)

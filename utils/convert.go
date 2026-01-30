@@ -12,7 +12,8 @@ func FloatToStr(f float64) string {
 	floatStr := strconv.FormatFloat(f, 'g', -1, 64)
 
 	// If 'floatStr' format uses scientific notation and the number is very large, use it
-	if (strings.Contains(floatStr, "e") || strings.Contains(floatStr, "E")) && (f > 1e20 || f < -1e20) {
+	if (strings.Contains(floatStr, "e") || strings.Contains(floatStr, "E")) &&
+		(f > 1e20 || f < -1e20) {
 		return floatStr
 	}
 

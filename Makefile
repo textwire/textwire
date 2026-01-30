@@ -1,3 +1,5 @@
+MAX_LINE_LENGTH := 100
+
 .PHONY: web
 web:
 	cd textwire/example && go run main.go
@@ -18,6 +20,12 @@ fmt:
 	go fmt ./...
 	echo "✅ Code formatted!"
 
+.PHONY: line
+line:
+	echo "🔧 Limiting lines to 100 characters..."
+	golines -w -m $(MAX_LINE_LENGTH) .
+	echo "✅ Lines limited!"
+
 .PHONY: lint
 lint:
 	echo "🔍 Running linter..."
@@ -25,5 +33,6 @@ lint:
 	echo "✅ Linting passed!"
 
 .PHONY: check
-check: fmt lint test
+check: fmt lint test line
+
 .DEFAULT_GOAL := test
