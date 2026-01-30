@@ -1,7 +1,7 @@
 # Release notes
 
 ## v3.0.0 (2026-01-30) - Major Release
-📖 [Migration Guide](https://textwire.github.io/docs/v3/upgrade) | [Announcement](https://textwire.github.io/blog/2026/01/30/textwire-v3)
+📖 [Migration Guide](https://textwire.github.io/docs/v3/upgrade) | [Announcement](https://textwire.github.io/blog/2026/02/01/textwire-v3)
 
 ### 🧑‍💻 Improvements
 1. Improve error handling when trying to use `@use`, `@insert`, `@reserve` or `@component` directives in simple `EvaluateString` or `EvaluateFile` function calls. These directives are only allowed inside template files with `textwire.NewTemplate`.
