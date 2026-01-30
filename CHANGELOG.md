@@ -1,23 +1,26 @@
 # Release notes
 
-## v3.0.0 (2026-01-30)
-- 🧑‍💻 Improvements
-    1. Improve error handling when trying to use `@use`, `@insert`, `@reserve` or `@component` directives in simple `EvaluateString` or `EvaluateFile` function calls. These directives are only allowed inside template files with `textwire.NewTemplate`.
-    2. Improve memory and performance.
-- 🐛 Bug Fixes
-    1. Fixed incorrect file path in error messages when error happens inside of `@insert` directive.
-    2. Fixed `contains` function for strings, `{{ !"aaa".contains("a") }}` now returns correct result.
-    3. Fixed `contains` function for arrays, `{{ ![{}, 21].contains({age: 21}) }}` now returns correct result.
-- ✨ New Features
-    1. Added `global` object. You can now add `GlobalData` to your configurations and access this data in your templates using `globals` object. For example: `globals.env`.
-    2. Added `defined()` global function. It returns true if variable is defined. [#56](https://github.com/textwire/textwire/issues/56)
-    3. Now you can add custom functions to objects as well with `RegisterObjFunc`.
-- ⚠️ BREAKING CHANGES
-    1. When you defined a custom function, now it returns type `any`. If you register any custom functions make sure to change return type to `any`.
-    2. Variable `global` is now reserved.
-    3. Fixed precedence for prefix expressions. Instead of `((!var).func())` we now have `(!(var.func()))`.
-    4. Changed default file extension from `.tw.html` to `.tw`. If you still want to support it, go to you configurations in `NewTemplate` or `Configure` and add field `TemplateExt:   ".tw.html"` to it.
-    5. Minimal Go version support is version `1.25`.
+## v3.0.0 (2026-01-30) - Major Release
+📖 [Migration Guide](https://textwire.github.io/docs/v3/upgrade) | [Announcement](https://textwire.github.io/blog/2026/01/30/textwire-v3)
+
+### 🧑‍💻 Improvements
+1. Improve error handling when trying to use `@use`, `@insert`, `@reserve` or `@component` directives in simple `EvaluateString` or `EvaluateFile` function calls. These directives are only allowed inside template files with `textwire.NewTemplate`.
+2. Improve memory and performance.
+3. Improve error messages. Now they are more clear.
+### 🐛 Bug Fixes
+1. Fixed incorrect file path in error messages when error happens inside of `@insert` directive.
+2. Fixed `contains` function for strings, `{{ !"aaa".contains("a") }}` now returns correct result.
+3. Fixed `contains` function for arrays, `{{ ![{}, 21].contains({age: 21}) }}` now returns correct result.
+### ✨ New Features
+1. Added `globals` object. You can now add `GlobalData` to your configurations and access this data in your templates using `globals` object. For example: `globals.env`.
+2. Added `defined()` global function. It returns true if variable is defined. [docs](https://textwire.github.io/docs/v3/functions/global#defined)
+3. Now you can add custom functions to objects as well with `RegisterObjFunc`.
+### ⚠️ BREAKING CHANGES
+1. When you defined a custom function, now it returns type `any`. If you register any custom functions make sure to change return type to `any`.
+2. Variable `global` is now reserved.
+3. Fixed precedence for prefix expressions. Instead of `((!var).func())` we now have `(!(var.func()))`.
+4. Changed default file extension from `.tw.html` to `.tw`. If you still want to support it, go to your configurations in `NewTemplate` or `Configure` and add field `TemplateExt: ".tw.html"` to it.
+5. Minimal Go version support is version `1.25`.
 
 ## v2.7.1 (2026-01-23)
 - 🐛 Fixed incorrect file path in error messages when error happens inside of components
