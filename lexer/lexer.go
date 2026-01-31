@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"strings"
 
-	token "github.com/textwire/textwire/v3/token"
+	"github.com/textwire/textwire/v3/token"
 )
 
 var simpleTokens = map[byte]token.TokenType{
@@ -367,15 +367,15 @@ func (l *Lexer) readIdentifier() string {
 }
 
 func (l *Lexer) readDirective() (token.TokenType, string) {
-	var keyword string
+	var keyword strings.Builder
 	var tok token.TokenType
 
 	l.tokenBegins()
 
 	for isLetterWord(l.char) {
-		keyword += string(l.char)
+		keyword.WriteByte(l.char)
 
-		tok = token.LookupDirective(keyword)
+		tok = token.LookupDirective(keyword.String())
 
 		l.readChar()
 
@@ -384,7 +384,7 @@ func (l *Lexer) readDirective() (token.TokenType, string) {
 		}
 	}
 
-	return tok, keyword
+	return tok, keyword.String()
 }
 
 func (l *Lexer) isDirectiveToken() (isDirectory bool, escapedDirectory bool) {
