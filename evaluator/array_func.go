@@ -91,14 +91,8 @@ func arraySliceFunc(receiver object.Object, args ...object.Object) (object.Objec
 		return nil, errors.New(msg)
 	}
 
-	start := int(startFrom.Value)
-	if start < 0 {
-		start = 0
-	}
-
-	if start > elemsLen {
-		start = elemsLen
-	}
+	start := max(int(startFrom.Value), 0)
+	start = min(start, elemsLen)
 
 	if argsLen == 1 {
 		return &object.Array{Elements: elems[start:]}, nil
