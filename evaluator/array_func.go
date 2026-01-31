@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math/rand"
 	"reflect"
+	"strings"
 	"time"
 
 	"github.com/textwire/textwire/v3/fail"
@@ -36,16 +37,18 @@ func arrayJoinFunc(receiver object.Object, args ...object.Object) (object.Object
 
 	elems := receiver.(*object.Array).Elements
 
-	var result string
+	var out strings.Builder
+	out.Grow(len(elems))
 
-	for i, el := range elems {
+	for i := range elems {
 		if i > 0 {
-			result += separator
+			out.WriteString(separator)
 		}
-		result += el.String()
+
+		out.WriteString(elems[i].String())
 	}
 
-	return &object.Str{Value: result}, nil
+	return &object.Str{Value: out.String()}, nil
 }
 
 // arrayRandFunc returns a random element from the given array
