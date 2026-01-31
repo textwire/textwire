@@ -178,13 +178,16 @@ func arrayAppendFunc(receiver object.Object, args ...object.Object) (object.Obje
 		return nil, errors.New(msg)
 	}
 
-	elems := receiver.(*object.Array).Elements
-	newElems := make([]object.Object, len(elems)+len(args))
+	arr := receiver.(*object.Array)
+	newElems := make(
+		[]object.Object,
+		len(arr.Elements)+len(args),
+	)
 
-	copy(newElems, elems)
+	copy(newElems, arr.Elements)
 
-	for i, arg := range args {
-		newElems[len(elems)+i] = arg
+	for i := range args {
+		newElems[len(arr.Elements)+i] = args[i]
 	}
 
 	return &object.Array{Elements: newElems}, nil
@@ -203,8 +206,8 @@ func arrayPrependFunc(receiver object.Object, args ...object.Object) (object.Obj
 
 	copy(newElems, args)
 
-	for i, el := range elems {
-		newElems[argsLen+i] = el
+	for i := range elems {
+		newElems[argsLen+i] = elems[i]
 	}
 
 	return &object.Array{Elements: newElems}, nil
