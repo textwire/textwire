@@ -1,6 +1,6 @@
 package parser
 
-import "github.com/textwire/textwire/v2/fail"
+import "github.com/textwire/textwire/v3/fail"
 
 func (p *Parser) Errors() []*fail.Error {
 	return p.errors

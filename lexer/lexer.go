@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"strings"
 
-	token "github.com/textwire/textwire/v2/token"
+	token "github.com/textwire/textwire/v3/token"
 )
 
 var simpleTokens = map[byte]token.TokenType{

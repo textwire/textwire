@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/textwire/textwire/v2/ast"
-	"github.com/textwire/textwire/v2/evaluator"
-	"github.com/textwire/textwire/v2/fail"
-	"github.com/textwire/textwire/v2/object"
+	"github.com/textwire/textwire/v3/ast"
+	"github.com/textwire/textwire/v3/evaluator"
+	"github.com/textwire/textwire/v3/fail"
+	"github.com/textwire/textwire/v3/object"
 )
 
 type Template struct {

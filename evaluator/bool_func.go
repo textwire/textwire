@@ -4,8 +4,8 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/textwire/textwire/v2/fail"
-	"github.com/textwire/textwire/v2/object"
+	"github.com/textwire/textwire/v3/fail"
+	"github.com/textwire/textwire/v3/object"
 )
 
 // boolBinaryFunc returns an integer 1 if the receiver is true, 0 otherwise

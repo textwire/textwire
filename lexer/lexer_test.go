@@ -3,7 +3,7 @@ package lexer
 import (
 	"testing"
 
-	token "github.com/textwire/textwire/v2/token"
+	token "github.com/textwire/textwire/v3/token"
 )
 
 func TokenizeString(t *testing.T, input string, expectTokens []token.Token) {

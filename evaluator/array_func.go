@@ -7,8 +7,8 @@ import (
 	"reflect"
 	"time"
 
-	"github.com/textwire/textwire/v2/fail"
-	"github.com/textwire/textwire/v2/object"
+	"github.com/textwire/textwire/v3/fail"
+	"github.com/textwire/textwire/v3/object"
 )
 
 // arrayLenFunc returns the length of the given array

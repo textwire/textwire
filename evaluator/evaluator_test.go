@@ -4,11 +4,11 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/textwire/textwire/v2/config"
-	"github.com/textwire/textwire/v2/fail"
-	"github.com/textwire/textwire/v2/lexer"
-	"github.com/textwire/textwire/v2/object"
-	"github.com/textwire/textwire/v2/parser"
+	"github.com/textwire/textwire/v3/config"
+	"github.com/textwire/textwire/v3/fail"
+	"github.com/textwire/textwire/v3/lexer"
+	"github.com/textwire/textwire/v3/object"
+	"github.com/textwire/textwire/v3/parser"
 )
 
 func testEval(inp string) object.Object {

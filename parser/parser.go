@@ -3,13 +3,13 @@ package parser
 import (
 	"strconv"
 
-	"github.com/textwire/textwire/v2/token"
+	"github.com/textwire/textwire/v3/token"
 
 	"slices"
 
-	"github.com/textwire/textwire/v2/ast"
-	"github.com/textwire/textwire/v2/fail"
-	"github.com/textwire/textwire/v2/lexer"
+	"github.com/textwire/textwire/v3/ast"
+	"github.com/textwire/textwire/v3/fail"
+	"github.com/textwire/textwire/v3/lexer"
 )
 
 type (

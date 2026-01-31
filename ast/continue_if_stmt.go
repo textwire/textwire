@@ -1,6 +1,6 @@
 package ast
 
-import "github.com/textwire/textwire/v2/token"
+import "github.com/textwire/textwire/v3/token"
 
 type ContinueIfStmt struct {
 	BaseNode

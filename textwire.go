@@ -3,10 +3,10 @@ package textwire
 import (
 	"strings"
 
-	"github.com/textwire/textwire/v2/config"
-	"github.com/textwire/textwire/v2/evaluator"
-	"github.com/textwire/textwire/v2/fail"
-	"github.com/textwire/textwire/v2/object"
+	"github.com/textwire/textwire/v3/config"
+	"github.com/textwire/textwire/v3/evaluator"
+	"github.com/textwire/textwire/v3/fail"
+	"github.com/textwire/textwire/v3/object"
 )
 
 var userConfig = config.New("templates", ".tw", "", false)

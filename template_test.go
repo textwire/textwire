@@ -3,8 +3,8 @@ package textwire
 import (
 	"testing"
 
-	"github.com/textwire/textwire/v2/config"
-	"github.com/textwire/textwire/v2/fail"
+	"github.com/textwire/textwire/v3/config"
+	"github.com/textwire/textwire/v3/fail"
 )
 
 func TestErrorHandlingEvaluatingTemplate(t *testing.T) {

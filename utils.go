@@ -3,7 +3,7 @@ package textwire
 import (
 	_ "embed"
 
-	"github.com/textwire/textwire/v2/fail"
+	"github.com/textwire/textwire/v3/fail"
 )
 
 //go:embed textwire/default-error-page.tw

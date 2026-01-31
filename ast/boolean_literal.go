@@ -1,7 +1,7 @@
 package ast
 
 import (
-	"github.com/textwire/textwire/v2/token"
+	"github.com/textwire/textwire/v3/token"
 )
 
 type BooleanLiteral struct {

@@ -13,7 +13,7 @@ tpl, err = textwire.NewTemplate(&config.Config{
 In template files you can use globals like this `{{ globals.env }}`.
 
 ## Project Overview
-- **Module**: `github.com/textwire/textwire/v2`
+- **Module**: `github.com/textwire/textwire/v3`
 - **Template Extensions**: `.tw`
 - **Architecture**: Modular design with separate packages for lexer, parser, evaluator, AST, token, and object handling
 - **LSP Support**: Full Language Server Protocol implementation for editor integration
@@ -98,7 +98,7 @@ func NewIdentifier(tok token.Token, val string) *Identifier {
 
 ### Import Organization
 - Group imports: standard library, third-party, local packages
-- Local packages use `github.com/textwire/textwire/v2/` prefix
+- Local packages use `github.com/textwire/textwire/v3/` prefix
 - Keep imports sorted and remove unused imports
 
 ### Formatting Requirements
@@ -109,7 +109,7 @@ func NewIdentifier(tok token.Token, val string) *Identifier {
 ### Fail Package Usage
 Import the fail package for structured error handling:
 ```go
-import "github.com/textwire/textwire/v2/fail"
+import "github.com/textwire/textwire/v3/fail"
 ```
 
 ### Error Constants

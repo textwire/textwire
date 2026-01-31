@@ -3,7 +3,7 @@ package completions
 import (
 	"testing"
 
-	"github.com/textwire/textwire/v2/token"
+	"github.com/textwire/textwire/v3/token"
 )
 
 func TestGetDirectives(t *testing.T) {

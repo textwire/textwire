@@ -3,8 +3,8 @@ package evaluator
 import (
 	"math"
 
-	"github.com/textwire/textwire/v2/object"
-	"github.com/textwire/textwire/v2/utils"
+	"github.com/textwire/textwire/v3/object"
+	"github.com/textwire/textwire/v3/utils"
 )
 
 // floatIntFunc returns the integer part of the given float

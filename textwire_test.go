@@ -6,8 +6,8 @@ import (
 	"os"
 	"testing"
 
-	"github.com/textwire/textwire/v2/fail"
-	"github.com/textwire/textwire/v2/object"
+	"github.com/textwire/textwire/v3/fail"
+	"github.com/textwire/textwire/v3/object"
 )
 
 func readFile(fileName string) (string, error) {

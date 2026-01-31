@@ -6,11 +6,11 @@ import (
 	"io"
 	"os"
 
-	"github.com/textwire/textwire/v2/evaluator"
-	"github.com/textwire/textwire/v2/fail"
-	"github.com/textwire/textwire/v2/lexer"
-	"github.com/textwire/textwire/v2/object"
-	"github.com/textwire/textwire/v2/parser"
+	"github.com/textwire/textwire/v3/evaluator"
+	"github.com/textwire/textwire/v3/fail"
+	"github.com/textwire/textwire/v3/lexer"
+	"github.com/textwire/textwire/v3/object"
+	"github.com/textwire/textwire/v3/parser"
 )
 
 const PROMPT = ">>> "

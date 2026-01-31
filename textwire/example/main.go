@@ -5,8 +5,8 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/textwire/textwire/v2"
-	"github.com/textwire/textwire/v2/config"
+	"github.com/textwire/textwire/v3"
+	"github.com/textwire/textwire/v3/config"
 )
 
 var tpl *textwire.Template

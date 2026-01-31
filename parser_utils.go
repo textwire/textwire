@@ -4,10 +4,10 @@ import (
 	"errors"
 	"os"
 
-	"github.com/textwire/textwire/v2/ast"
-	"github.com/textwire/textwire/v2/fail"
-	"github.com/textwire/textwire/v2/lexer"
-	"github.com/textwire/textwire/v2/parser"
+	"github.com/textwire/textwire/v3/ast"
+	"github.com/textwire/textwire/v3/fail"
+	"github.com/textwire/textwire/v3/lexer"
+	"github.com/textwire/textwire/v3/parser"
 )
 
 func parseStr(text string) (*ast.Program, []*fail.Error) {

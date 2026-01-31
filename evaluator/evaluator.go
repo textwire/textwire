@@ -5,10 +5,10 @@ import (
 	"html"
 	"strings"
 
-	"github.com/textwire/textwire/v2/ast"
-	"github.com/textwire/textwire/v2/config"
-	"github.com/textwire/textwire/v2/fail"
-	"github.com/textwire/textwire/v2/object"
+	"github.com/textwire/textwire/v3/ast"
+	"github.com/textwire/textwire/v3/config"
+	"github.com/textwire/textwire/v3/fail"
+	"github.com/textwire/textwire/v3/object"
 )
 
 var (
