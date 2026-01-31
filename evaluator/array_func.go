@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math/rand"
 	"reflect"
+	"slices"
 	"strings"
 	"time"
 
@@ -68,13 +69,9 @@ func arrayReverseFunc(receiver object.Object, _ ...object.Object) (object.Object
 		return receiver, nil
 	}
 
-	reversed := make([]object.Object, len(elems))
+	slices.Reverse(elems)
 
-	for i, el := range elems {
-		reversed[len(elems)-i-1] = el
-	}
-
-	return &object.Array{Elements: reversed}, nil
+	return &object.Array{Elements: elems}, nil
 }
 
 // arraySliceFunc returns a slice of the given array
