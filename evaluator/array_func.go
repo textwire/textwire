@@ -195,19 +195,18 @@ func arrayAppendFunc(receiver object.Object, args ...object.Object) (object.Obje
 
 // arrayPrependFunc prepends the given elements to the given array
 func arrayPrependFunc(receiver object.Object, args ...object.Object) (object.Object, error) {
-	argsLen := len(args)
-	if argsLen == 0 {
+	if len(args) == 0 {
 		msg := fmt.Sprintf(fail.ErrFuncRequiresOneArg, "prepend", object.ARR_OBJ)
 		return nil, errors.New(msg)
 	}
 
-	elems := receiver.(*object.Array).Elements
-	newElems := make([]object.Object, len(elems)+argsLen)
+	arr := receiver.(*object.Array)
+	newElems := make([]object.Object, len(arr.Elements)+len(args))
 
 	copy(newElems, args)
 
-	for i := range elems {
-		newElems[argsLen+i] = elems[i]
+	for i := range arr.Elements {
+		newElems[len(args)+i] = arr.Elements[i]
 	}
 
 	return &object.Array{Elements: newElems}, nil
