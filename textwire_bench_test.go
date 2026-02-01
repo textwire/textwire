@@ -11,7 +11,7 @@ func BenchmarkArrayJoinFunc(b *testing.B) {
 	b.ResetTimer()
 
 	for b.Loop() {
-		EvaluateString(code, map[string]any{"arr": arr})
+		_, _ = EvaluateString(code, map[string]any{"arr": arr})
 	}
 }
 
@@ -26,7 +26,7 @@ func BenchmarkArrayAppendFunc(b *testing.B) {
 	b.ResetTimer()
 
 	for b.Loop() {
-		EvaluateString(code, map[string]any{
+		_, _ = EvaluateString(code, map[string]any{
 			"arr": arr,
 			"o1":  o1,
 			"o2":  o2,
@@ -47,7 +47,7 @@ func BenchmarkArrayPrependFunc(b *testing.B) {
 	b.ResetTimer()
 
 	for b.Loop() {
-		EvaluateString(code, map[string]any{
+		_, _ = EvaluateString(code, map[string]any{
 			"arr": arr,
 			"o1":  o1,
 			"o2":  o2,
