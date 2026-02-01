@@ -2,6 +2,7 @@ MAX_LINE_LENGTH := 100
 
 .PHONY: web
 web:
+	clear
 	cd textwire/example && go run main.go
 
 .PHONY: shell
@@ -31,5 +32,6 @@ lint:
 
 .PHONY: check
 check: test line fmt lint
+	grep -r TODO .
 
 .DEFAULT_GOAL := test
