@@ -1,7 +1,8 @@
 package ast
 
 import (
-	"bytes"
+	"fmt"
+	"strings"
 
 	"github.com/textwire/textwire/v3/token"
 )
@@ -23,11 +24,10 @@ func NewIfStmt(tok token.Token) *IfStmt {
 func (is *IfStmt) statementNode() {}
 
 func (is *IfStmt) String() string {
-	var out bytes.Buffer
+	var out strings.Builder
+	out.Grow(20 + len(is.Alternatives)*2)
 
-	out.WriteString("@if(" + is.Condition.String() + ")\n")
-
-	out.WriteString(is.Consequence.String())
+	fmt.Fprintf(&out, "@if(%s)\n%s", is.Condition, is.Consequence)
 
 	for _, e := range is.Alternatives {
 		out.WriteString(e.String())

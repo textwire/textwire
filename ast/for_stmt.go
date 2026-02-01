@@ -1,7 +1,8 @@
 package ast
 
 import (
-	"bytes"
+	"fmt"
+	"strings"
 
 	"github.com/textwire/textwire/v3/token"
 )
@@ -28,13 +29,10 @@ func (fs *ForStmt) LoopBodyBlock() *BlockStmt {
 }
 
 func (fs *ForStmt) String() string {
-	var out bytes.Buffer
+	var out strings.Builder
+	out.Grow(20)
 
-	out.WriteString("@for(")
-	out.WriteString(fs.Init.String() + "; ")
-	out.WriteString(fs.Condition.String() + "; ")
-	out.WriteString(fs.Post.String())
-	out.WriteString(")\n")
+	fmt.Fprintf(&out, "@for(%s; %s; %s)\n", fs.Init, fs.Condition, fs.Post)
 
 	out.WriteString(fs.Block.String() + "\n")
 

@@ -1,7 +1,8 @@
 package ast
 
 import (
-	"bytes"
+	"fmt"
+	"strings"
 
 	"github.com/textwire/textwire/v3/token"
 )
@@ -27,14 +28,10 @@ func (es *EachStmt) LoopBodyBlock() *BlockStmt {
 }
 
 func (es *EachStmt) String() string {
-	var out bytes.Buffer
+	var out strings.Builder
+	out.Grow(26)
 
-	out.WriteString("@each(")
-	out.WriteString(es.Var.String())
-	out.WriteString(" in ")
-	out.WriteString(es.Array.String())
-	out.WriteString(")\n")
-	out.WriteString(es.Block.String() + "\n")
+	fmt.Fprintf(&out, "@each(%s in %s)\n%s\n", es.Var, es.Array, es.Block)
 
 	if es.Alternative != nil {
 		out.WriteString("@else\n")
