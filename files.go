@@ -30,7 +30,6 @@ func joinPaths(path1, path2 string) string {
 
 func fileContent(absPath string) (string, error) {
 	content, err := os.ReadFile(absPath)
-
 	if err != nil && err != io.EOF {
 		return "", err
 	}
@@ -55,7 +54,6 @@ func findTextwireFiles() (map[string]string, error) {
 			}
 
 			absPath, err := filepath.Abs(path)
-
 			if err != nil {
 				return err
 			}
