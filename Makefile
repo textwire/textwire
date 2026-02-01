@@ -10,6 +10,7 @@ shell:
 
 .PHONY: test
 test:
+	clear
 	go test ./...
 	@echo "✅ All tests passed!"
 

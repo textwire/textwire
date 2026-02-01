@@ -7,7 +7,6 @@
 1. Improve error handling when trying to use `@use`, `@insert`, `@reserve` or `@component` directives in simple `EvaluateString` or `EvaluateFile` function calls. These directives are only allowed inside template files with `textwire.NewTemplate`.
 2. Improve memory and performance. Read improvements [here](https://textwire.github.io/blog/2026/02/05/textwire-v3#memory-performance).
 3. Improve error messages. Now they are more clear.
-4. Textwire files that are not a part of the program are now ignored. If you have something like `book.tw` and you don't include it anywhere, it will be ignored in Textwire v3.
 
 ### 🐛 Bug Fixes
 1. Fixed incorrect file path in error messages when error happens inside of `@insert` directive.
