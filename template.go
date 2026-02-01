@@ -14,13 +14,14 @@ type Template struct {
 	programs map[string]*ast.Program
 }
 
-func (t *Template) String(filename string, data map[string]any) (string, *fail.Error) {
+func (t *Template) String(name string, data map[string]any) (string, *fail.Error) {
+	filename := nameToRelPath(name)
 	env, envErr := object.EnvFromMap(data)
 	if envErr != nil {
 		return "", envErr
 	}
 
-	absPath, err := getFullPath(filename, true)
+	absPath, err := getFullPath(filename)
 	if err != nil {
 		return "", fail.New(0, filename, "template", "%s", err.Error())
 	}
@@ -41,8 +42,8 @@ func (t *Template) String(filename string, data map[string]any) (string, *fail.E
 	return evaluated.String(), nil
 }
 
-func (t *Template) Response(w http.ResponseWriter, filename string, data map[string]any) error {
-	evaluated, failure := t.String(filename, data)
+func (t *Template) Response(w http.ResponseWriter, name string, data map[string]any) error {
+	evaluated, failure := t.String(name, data)
 	if failure == nil {
 		_, err := fmt.Fprint(w, evaluated)
 		if err != nil {

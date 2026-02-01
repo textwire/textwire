@@ -17,6 +17,7 @@
 1. Added `globals` object. You can now add `GlobalData` to your configurations and access this data in your templates using `globals` object. For example: `globals.env`.
 2. Added `defined()` global function. It returns true if variable is defined. [docs](https://textwire.github.io/docs/v3/functions/global#defined)
 3. Now you can add custom functions to objects as well with `RegisterObjFunc`.
+4. Now you can use Go's embeded package to embed Textwire template files into a final binary.
 
 ### ⚠️ BREAKING CHANGES
 1. When you defined a custom function, now it returns type `any`. If you register any custom functions make sure to change return type to `any`.

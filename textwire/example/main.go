@@ -1,6 +1,7 @@
 package main
 
 import (
+	"embed"
 	"fmt"
 	"log"
 	"net/http"
@@ -9,7 +10,12 @@ import (
 	"github.com/textwire/textwire/v3/config"
 )
 
-var tpl *textwire.Template
+var (
+	tpl *textwire.Template
+
+	//go:embed templates/*
+	templateFS embed.FS
+)
 
 func main() {
 	var err error
@@ -22,6 +28,8 @@ func main() {
 	}
 
 	tpl, err = textwire.NewTemplate(&config.Config{
+		TemplateFS:    templateFS,
+		TemplateDir:   "templates",
 		ErrorPagePath: "error-page",
 		DebugMode:     true,
 		GlobalData: map[string]any{

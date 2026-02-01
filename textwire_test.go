@@ -290,7 +290,7 @@ func TestErrorHandling(t *testing.T) {
 
 func TestEvaluateFile(t *testing.T) {
 	filename := "14.two-vars-no-layout"
-	absPath, fileErr := getFullPath("textwire/testdata/good/before/"+filename+".tw", false)
+	absPath, fileErr := getFullPath("textwire/testdata/good/before/" + filename + ".tw")
 
 	if fileErr != nil {
 		t.Errorf("error getting full path: %s", fileErr)

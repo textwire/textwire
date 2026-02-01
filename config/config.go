@@ -6,15 +6,15 @@ import "io/fs"
 type Config struct {
 	// TemplateDir specifies the directory containing Textwire template files.
 	// Default: "templates"
-	// Note: If TemplatesFS is provided, it will be used for templates path
-	// instead of TemplateDir.
+	// Note: If TemplatesFS is provided, TemplateDir is ignored because there
+	// are no absolute paths for embeded files.
 	TemplateDir string
 
-	// TemplatesFS provides an optional fs.FS filesystem for template access.
+	// TemplateFS provides an optional fs.FS filesystem for template access.
 	// Default: os.DirFS(TemplateDir)
 	// Use this field to embed templates into your binary using Go's embed package.
 	// When provided, TemplateDir is not used for file access.
-	TemplatesFS fs.FS
+	TemplateFS fs.FS
 
 	// TemplateExt defines the file extension for Textwire template files.
 	// Default: ".tw"

@@ -1,6 +1,7 @@
 package textwire
 
 import (
+	"os"
 	"strings"
 
 	"github.com/textwire/textwire/v3/config"
@@ -9,11 +10,13 @@ import (
 	"github.com/textwire/textwire/v3/object"
 )
 
-var userConfig = config.New("templates", ".tw", "", false)
-var customFunc = config.NewFunc()
+var (
+	userConfig = config.New("templates", ".tw", "", false)
+	customFunc = config.NewFunc()
 
-// usingTemplates is a flag to check if user uses Textwire templates
-var usingTemplates = false
+	// usingTemplates is a flag to check if user uses Textwire templates
+	usingTemplates = false
+)
 
 func NewTemplate(opt *config.Config) (*Template, error) {
 	Configure(opt)
@@ -147,6 +150,12 @@ func Configure(opt *config.Config) {
 
 	if opt.TemplateExt != "" {
 		userConfig.TemplateExt = opt.TemplateExt
+	}
+
+	if opt.TemplateFS == nil {
+		userConfig.TemplateFS = os.DirFS(userConfig.TemplateDir)
+	} else {
+		userConfig.TemplateFS = opt.TemplateFS
 	}
 
 	if opt.ErrorPagePath != "" {

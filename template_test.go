@@ -8,7 +8,7 @@ import (
 )
 
 func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
-	path, err := getFullPath("", false)
+	path, err := getFullPath("")
 	path += "/textwire/testdata/bad/"
 
 	if err != nil {
@@ -23,63 +23,53 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 	}{
 		{
 			dirName: "use-inside-tpl",
-			err: fail.New(1, path+"use-inside-tpl/index.tw", "evaluator",
-				fail.ErrUseStmtNotAllowed),
-			data: nil,
+			err:     fail.New(1, path+"use-inside-tpl/index.tw", "evaluator", fail.ErrUseStmtNotAllowed),
+			data:    nil,
 		},
 		{
 			dirName: "unknown-slot",
-			err: fail.New(2, path+"unknown-slot/index.tw", "parser",
-				fail.ErrSlotNotDefined, "unknown", "user"),
-			data: nil,
+			err:     fail.New(2, path+"unknown-slot/index.tw", "parser", fail.ErrSlotNotDefined, "unknown", "user"),
+			data:    nil,
 		},
 		{
 			dirName: "unknown-default-slot",
-			err: fail.New(2, path+"unknown-default-slot/index.tw", "parser",
-				fail.ErrDefaultSlotNotDefined, "book"),
-			data: nil,
+			err:     fail.New(2, path+"unknown-default-slot/index.tw", "parser", fail.ErrDefaultSlotNotDefined, "book"),
+			data:    nil,
 		},
 		{
 			dirName: "duplicate-slot",
-			err: fail.New(2, path+"duplicate-slot/index.tw", "parser",
-				fail.ErrDuplicateSlotUsage, "content", 2, "user"),
-			data: nil,
+			err:     fail.New(2, path+"duplicate-slot/index.tw", "parser", fail.ErrDuplicateSlotUsage, "content", 2, "user"),
+			data:    nil,
 		},
 		{
 			dirName: "duplicate-default-slot",
-			err: fail.New(2, path+"duplicate-default-slot/index.tw", "parser",
-				fail.ErrDuplicateSlotUsage, "", 2, "user"),
-			data: nil,
+			err:     fail.New(2, path+"duplicate-default-slot/index.tw", "parser", fail.ErrDuplicateSlotUsage, "", 2, "user"),
+			data:    nil,
 		},
 		{
 			dirName: "unknown-component",
-			err: fail.New(9, path+"unknown-component/index.tw", "template",
-				fail.ErrUndefinedComponent, "unknown-name"),
-			data: nil,
+			err:     fail.New(9, path+"unknown-component/index.tw", "template", fail.ErrUndefinedComponent, "unknown-name"),
+			data:    nil,
 		},
 		{
 			dirName: "undefined-insert",
-			err: fail.New(5, path+"undefined-insert/index.tw", "parser",
-				fail.ErrUndefinedInsert, "some-name"),
-			data: nil,
+			err:     fail.New(5, path+"undefined-insert/index.tw", "parser", fail.ErrUndefinedInsert, "some-name"),
+			data:    nil,
 		},
 		{
 			dirName: "duplicate-inserts",
-			err: fail.New(4, path+"duplicate-inserts/index.tw", "parser",
-				fail.ErrDuplicateInserts, "title"),
-			data: nil,
+			err:     fail.New(4, path+"duplicate-inserts/index.tw", "parser", fail.ErrDuplicateInserts, "title"),
+			data:    nil,
 		},
 		{
 			dirName: "component-error",
-			err: fail.New(1, path+"component-error/hero.tw", "parser",
-				fail.ErrIdentifierIsUndefined, "undefinedVar"),
-			data: nil,
+			err:     fail.New(1, path+"component-error/hero.tw", "parser", fail.ErrIdentifierIsUndefined, "undefinedVar"),
+			data:    nil,
 		},
 		{
 			dirName: "use-stmt-error",
-			err: fail.New(8, path+"use-stmt-error/base.tw", "parser",
-				fail.ErrIdentifierIsUndefined, "undefinedVar"),
-			data: nil,
+			err:     fail.New(8, path+"use-stmt-error/base.tw", "parser", fail.ErrIdentifierIsUndefined, "undefinedVar"),
+			data:    nil,
 		},
 	}
 
@@ -97,7 +87,6 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 			}
 
 			_, err := tpl.String("index", tc.data)
-
 			if err == nil {
 				t.Errorf("expected error but got none")
 				return

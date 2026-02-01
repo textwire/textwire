@@ -80,12 +80,12 @@ func (p *Program) ApplyInserts(inserts map[string]*InsertStmt, absPath string) *
 	return nil
 }
 
-func (p *Program) ApplyLayout(layoutProg *Program) {
-	p.UseStmt.Layout = layoutProg
+func (p *Program) ApplyLayout(prog *Program) {
+	p.UseStmt.Layout = prog
 	p.Statements = []Statement{p.UseStmt}
 }
 
-func (p *Program) ApplyComponent(name string, prog *Program, progFilePath string) *fail.Error {
+func (p *Program) ApplyComponent(name string, prog *Program, progAbsPath string) *fail.Error {
 	for _, comp := range p.Components {
 		if comp.Name.Value != name {
 			continue
@@ -95,12 +95,25 @@ func (p *Program) ApplyComponent(name string, prog *Program, progFilePath string
 
 		if times > 0 {
 			if name == "" {
-				return fail.New(prog.Line(), progFilePath, "parser",
-					fail.ErrDuplicateDefaultSlotUsage, times, name)
+				return fail.New(
+					prog.Line(),
+					progAbsPath,
+					"parser",
+					fail.ErrDuplicateDefaultSlotUsage,
+					times,
+					name,
+				)
 			}
 
-			return fail.New(prog.Line(), progFilePath, "parser",
-				fail.ErrDuplicateSlotUsage, duplicateName, times, name)
+			return fail.New(
+				prog.Line(),
+				progAbsPath,
+				"parser",
+				fail.ErrDuplicateSlotUsage,
+				duplicateName,
+				times,
+				name,
+			)
 		}
 
 		for _, slot := range comp.Slots {
@@ -108,12 +121,23 @@ func (p *Program) ApplyComponent(name string, prog *Program, progFilePath string
 
 			if idx == -1 {
 				if slot.Name.Value == "" {
-					return fail.New(prog.Line(), progFilePath, "parser",
-						fail.ErrDefaultSlotNotDefined, name)
+					return fail.New(
+						prog.Line(),
+						progAbsPath,
+						"parser",
+						fail.ErrDefaultSlotNotDefined,
+						name,
+					)
 				}
 
-				return fail.New(prog.Line(), progFilePath, "parser",
-					fail.ErrSlotNotDefined, slot.Name.Value, name)
+				return fail.New(
+					prog.Line(),
+					progAbsPath,
+					"parser",
+					fail.ErrSlotNotDefined,
+					slot.Name.Value,
+					name,
+				)
 			}
 
 			prog.Statements[idx].(*SlotStmt).Body = slot.Body

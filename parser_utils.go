@@ -24,8 +24,8 @@ func parseStr(text string) (*ast.Program, []*fail.Error) {
 }
 
 // parseProgram returns program, Textwire error and native error
-func parseProgram(absPath string) (*ast.Program, *fail.Error, error) {
-	content, err := fileContent(absPath)
+func parseProgram(absPath, relPath string) (*ast.Program, *fail.Error, error) {
+	content, err := fileContent(relPath)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -44,10 +44,10 @@ func parseProgram(absPath string) (*ast.Program, *fail.Error, error) {
 func parsePrograms(paths map[string]string) (map[string]*ast.Program, *fail.Error) {
 	var result = map[string]*ast.Program{}
 
-	for name, absPath := range paths {
-		prog, failure, parseErr := parseProgram(absPath)
+	for progRelPath, progAbsPath := range paths {
+		prog, failure, parseErr := parseProgram(progAbsPath, progRelPath)
 		if parseErr != nil {
-			return nil, fail.FromError(parseErr, 0, absPath, "template")
+			return nil, fail.FromError(parseErr, 0, progAbsPath, "template")
 		}
 
 		if failure != nil {
@@ -58,12 +58,12 @@ func parsePrograms(paths map[string]string) (map[string]*ast.Program, *fail.Erro
 			return nil, err
 		}
 
-		if err := applyComponentToProgram(prog, absPath); err != nil {
+		if err := applyComponentToProgram(prog, progAbsPath); err != nil {
 			return nil, err
 		}
 
 		if !prog.HasReserveStmt() {
-			result[name] = prog
+			result[progRelPath] = prog
 		}
 	}
 
@@ -75,16 +75,17 @@ func applyLayoutToProgram(prog *ast.Program) *fail.Error {
 		return nil
 	}
 
-	layoutName := prog.UseStmt.Name.Value
+	relPath := nameToRelPath(prog.UseStmt.Name.Value)
+
 	stmt := prog.UseStmt
-	layoutAbsPath, err := getFullPath(layoutName, true)
+	absPath, err := getFullPath(relPath)
 	if err != nil {
-		return fail.FromError(err, stmt.Line(), layoutAbsPath, "template")
+		return fail.FromError(err, stmt.Line(), absPath, "template")
 	}
 
-	layoutProg, failure, parseErr := parseProgram(layoutAbsPath)
+	layoutProg, failure, parseErr := parseProgram(absPath, relPath)
 	if parseErr != nil {
-		return fail.FromError(parseErr, stmt.Line(), layoutAbsPath, "template")
+		return fail.FromError(parseErr, stmt.Line(), absPath, "template")
 	}
 
 	if failure != nil {
@@ -93,7 +94,7 @@ func applyLayoutToProgram(prog *ast.Program) *fail.Error {
 
 	layoutProg.IsLayout = true
 
-	layoutErr := layoutProg.ApplyInserts(prog.Inserts, layoutAbsPath)
+	layoutErr := layoutProg.ApplyInserts(prog.Inserts, absPath)
 	if layoutErr != nil {
 		return layoutErr
 	}
@@ -103,29 +104,35 @@ func applyLayoutToProgram(prog *ast.Program) *fail.Error {
 	return nil
 }
 
-func applyComponentToProgram(prog *ast.Program, progFilePath string) *fail.Error {
+func applyComponentToProgram(prog *ast.Program, progAbsPath string) *fail.Error {
 	for _, comp := range prog.Components {
-		compName := comp.Name.Value
-		compAbsPath, err := getFullPath(compName, true)
+		relPath := nameToRelPath(comp.Name.Value)
+
+		absPath, err := getFullPath(relPath)
 		if err != nil {
 			return fail.FromError(err, 0, "", "template")
 		}
 
-		compProg, failure, parseErr := parseProgram(compAbsPath)
+		compProg, failure, parseErr := parseProgram(absPath, relPath)
 		if parseErr != nil {
 			if errors.Is(parseErr, os.ErrNotExist) {
-				return fail.New(comp.Line(), progFilePath, "template",
-					fail.ErrUndefinedComponent, comp.Name.Value)
+				return fail.New(
+					comp.Line(),
+					progAbsPath,
+					"template",
+					fail.ErrUndefinedComponent,
+					comp.Name.Value,
+				)
 			}
 
-			return fail.FromError(parseErr, comp.Line(), compAbsPath, "template")
+			return fail.FromError(parseErr, comp.Line(), absPath, "template")
 		}
 
 		if failure != nil {
 			return failure
 		}
 
-		if err := prog.ApplyComponent(compName, compProg, progFilePath); err != nil {
+		if err := prog.ApplyComponent(comp.Name.Value, compProg, progAbsPath); err != nil {
 			return err
 		}
 	}

@@ -1,20 +1,20 @@
 package textwire
 
 import (
+	"fmt"
 	"io"
+	"io/fs"
 	"os"
 	"path/filepath"
 	"strings"
 )
 
-func getFullPath(filename string, appendExt bool) (string, error) {
+func getFullPath(filename string) (string, error) {
 	if usingTemplates {
 		filename = joinPaths(userConfig.TemplateDir, filename)
 	}
 
-	if appendExt {
-		filename += userConfig.TemplateExt
-	}
+	addTwExtension(filename)
 
 	absPath, err := filepath.Abs(filename)
 	if err != nil {
@@ -28,8 +28,18 @@ func joinPaths(path1, path2 string) string {
 	return strings.TrimRight(path1, "/") + "/" + strings.TrimLeft(path2, "/")
 }
 
-func fileContent(absPath string) (string, error) {
-	content, err := os.ReadFile(absPath)
+func fileContent(path string) (string, error) {
+	var content []byte
+	var err error
+
+	isAbsPath := path[0] == '/'
+
+	if isAbsPath {
+		content, err = os.ReadFile(path)
+	} else {
+		content, err = fs.ReadFile(userConfig.TemplateFS, path)
+	}
+
 	if err != nil && err != io.EOF {
 		return "", err
 	}
@@ -42,23 +52,24 @@ func fileContent(absPath string) (string, error) {
 func findTextwireFiles() (map[string]string, error) {
 	var result = map[string]string{}
 
-	err := filepath.Walk(
-		userConfig.TemplateDir,
-		func(path string, info os.FileInfo, err error) error {
+	err := fs.WalkDir(
+		userConfig.TemplateFS,
+		".",
+		func(path string, d fs.DirEntry, err error) error {
 			if err != nil {
 				return err
 			}
 
-			if info.IsDir() || !strings.Contains(path, userConfig.TemplateExt) {
+			if d.IsDir() || !strings.Contains(path, userConfig.TemplateExt) {
 				return nil
 			}
 
-			absPath, err := filepath.Abs(path)
+			absPath, err := filepath.Abs(fmt.Sprintf("%s/%s", userConfig.TemplateDir, path))
 			if err != nil {
 				return err
 			}
 
-			result[nameFromPath(path)] = absPath
+			result[path] = absPath
 
 			return nil
 		},
@@ -71,8 +82,19 @@ func findTextwireFiles() (map[string]string, error) {
 	return result, nil
 }
 
-func nameFromPath(path string) string {
-	name := strings.Replace(path, userConfig.TemplateDir+"/", "", 1)
-	name = strings.Replace(name, userConfig.TemplateExt, "", 1)
-	return name
+// addTwExtension adds Textwire file extension to the end of the file if needed.
+// It will ignore adding if extension already exist.
+func addTwExtension(path string) string {
+	if path == "" || strings.HasSuffix(path, userConfig.TemplateExt) {
+		return path
+	}
+
+	return path + userConfig.TemplateExt
+}
+
+// nameToRelPath turns component and use statement names to relative path
+// e.g. layouts/main will be converted to templates/layouts/main.tw
+// e.g. components/book will be converted to templates/components/book.tw
+func nameToRelPath(name string) string {
+	return userConfig.TemplateDir + "/" + addTwExtension(name)
 }
