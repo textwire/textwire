@@ -8,10 +8,10 @@ import (
 
 type ForStmt struct {
 	BaseNode
-	Init        Statement  // The initialization statement; or nil
-	Condition   Expression // The condition expression; or nil
-	Post        Statement  // The post iteration statement; or nil
-	Alternative *BlockStmt // The @else block
+	Init        Statement  // initialization statement; or nil
+	Condition   Expression // condition expression; or nil
+	Post        Statement  // post iteration statement; or nil
+	Alternative *BlockStmt // @else block
 	Block       *BlockStmt
 }
 

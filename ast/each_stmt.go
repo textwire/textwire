@@ -47,15 +47,15 @@ func (es *EachStmt) String() string {
 }
 
 func (es *EachStmt) Stmts() []Statement {
-	res := make([]Statement, 0)
+	stmts := make([]Statement, 0)
 
 	if es.Block != nil {
-		res = append(res, es.Block.Stmts()...)
+		stmts = append(stmts, es.Block.Stmts()...)
 	}
 
 	if es.Alternative != nil {
-		res = append(res, es.Alternative.Stmts()...)
+		stmts = append(stmts, es.Alternative.Stmts()...)
 	}
 
-	return res
+	return stmts
 }

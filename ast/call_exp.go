@@ -1,8 +1,8 @@
 package ast
 
 import (
-	"bytes"
 	"fmt"
+	"strings"
 
 	"github.com/textwire/textwire/v3/token"
 )
@@ -25,7 +25,8 @@ func NewCallExp(tok token.Token, receiver Expression, function *Identifier) *Cal
 func (ce *CallExp) expressionNode() {}
 
 func (ce *CallExp) String() string {
-	var args bytes.Buffer
+	var args strings.Builder
+	args.Grow(len(ce.Arguments) + (2 * len(ce.Arguments)))
 
 	for i, arg := range ce.Arguments {
 		args.WriteString(arg.String())
@@ -35,6 +36,5 @@ func (ce *CallExp) String() string {
 		}
 	}
 
-	return fmt.Sprintf("(%s.%s(%s))", ce.Receiver, ce.Function,
-		args.String())
+	return fmt.Sprintf("(%s.%s(%s))", ce.Receiver, ce.Function, args.String())
 }

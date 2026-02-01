@@ -1,7 +1,7 @@
 package ast
 
 import (
-	"bytes"
+	"strings"
 
 	"github.com/textwire/textwire/v3/token"
 )
@@ -22,7 +22,8 @@ func NewSlotStmt(tok token.Token, name *StringLiteral) *SlotStmt {
 func (ss *SlotStmt) statementNode() {}
 
 func (ss *SlotStmt) String() string {
-	var out bytes.Buffer
+	var out strings.Builder
+	out.Grow(6)
 
 	if ss.Name.Value == "" {
 		out.WriteString("@slot")

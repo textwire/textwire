@@ -1,7 +1,8 @@
 package ast
 
 import (
-	"bytes"
+	"fmt"
+	"strings"
 
 	fail "github.com/textwire/textwire/v3/fail"
 	token "github.com/textwire/textwire/v3/token"
@@ -27,11 +28,12 @@ func NewProgram(tok token.Token) *Program {
 func (p *Program) statementNode() {}
 
 func (p *Program) String() string {
-	var out bytes.Buffer
+	var out strings.Builder
+	out.Grow(len(p.Statements))
 
 	for _, stmt := range p.Statements {
 		if _, ok := stmt.(*ExpressionStmt); ok {
-			out.WriteString("{{ " + stmt.String() + " }}")
+			fmt.Fprintf(&out, "{{ %s }}", stmt)
 			continue
 		}
 

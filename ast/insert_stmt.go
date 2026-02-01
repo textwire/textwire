@@ -1,8 +1,8 @@
 package ast
 
 import (
-	"bytes"
 	"fmt"
+	"strings"
 
 	"github.com/textwire/textwire/v3/token"
 )
@@ -25,15 +25,15 @@ func NewInsertStmt(tok token.Token, filePath string) *InsertStmt {
 func (is *InsertStmt) statementNode() {}
 
 func (is *InsertStmt) String() string {
-	var out bytes.Buffer
+	var out strings.Builder
+	out.Grow(30)
 
 	if is.Argument != nil {
-		fmt.Fprintf(&out, `@insert("%s", %s)`, is.Name.String(), is.Argument.String())
+		fmt.Fprintf(&out, `@insert("%s", %s)`, is.Name, is.Argument)
 		return out.String()
 	}
 
-	fmt.Fprintf(&out, `@insert("%s")`, is.Name.String())
-
+	fmt.Fprintf(&out, `@insert("%s")`, is.Name)
 	out.WriteString(is.Block.String())
 	out.WriteString(`@end`)
 

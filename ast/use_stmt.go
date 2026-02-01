@@ -21,7 +21,7 @@ func NewUseStmt(tok token.Token) *UseStmt {
 func (us *UseStmt) statementNode() {}
 
 func (us *UseStmt) String() string {
-	return fmt.Sprintf(`@use(%s)`, us.Name.String())
+	return fmt.Sprintf(`@use(%s)`, us.Name)
 }
 
 func (us *UseStmt) Stmts() []Statement {

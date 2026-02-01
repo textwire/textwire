@@ -22,5 +22,5 @@ func NewIndexExp(tok token.Token, left Expression) *IndexExp {
 func (ie *IndexExp) expressionNode() {}
 
 func (ie *IndexExp) String() string {
-	return fmt.Sprintf("(%s[%s])", ie.Left, ie.Index.String())
+	return fmt.Sprintf("(%s[%s])", ie.Left, ie.Index)
 }

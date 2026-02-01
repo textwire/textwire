@@ -1,7 +1,7 @@
 package ast
 
 import (
-	"bytes"
+	"strings"
 
 	"github.com/textwire/textwire/v3/token"
 )
@@ -23,7 +23,8 @@ func NewComponentStmt(tok token.Token) *ComponentStmt {
 func (cs *ComponentStmt) statementNode() {}
 
 func (cs *ComponentStmt) ArgsString() string {
-	var out bytes.Buffer
+	var out strings.Builder
+	out.Grow(10)
 
 	out.WriteString(cs.Name.String())
 
@@ -36,7 +37,8 @@ func (cs *ComponentStmt) ArgsString() string {
 }
 
 func (cs *ComponentStmt) String() string {
-	var out bytes.Buffer
+	var out strings.Builder
+	out.Grow(len(cs.Slots) + 20)
 
 	out.WriteString("@component(")
 	out.WriteString(cs.ArgsString())

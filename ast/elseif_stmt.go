@@ -1,7 +1,8 @@
 package ast
 
 import (
-	"bytes"
+	"fmt"
+	"strings"
 
 	"github.com/textwire/textwire/v3/token"
 )
@@ -21,9 +22,9 @@ func NewElseIfStmt(tok token.Token) *ElseIfStmt {
 func (eis *ElseIfStmt) statementNode() {}
 
 func (eis *ElseIfStmt) String() string {
-	var out bytes.Buffer
+	var out strings.Builder
 
-	out.WriteString("@elseif(" + eis.Condition.String() + ")\n")
+	fmt.Fprintf(&out, "@elseif(%s)\n", eis.Condition)
 	out.WriteString(eis.Consequence.String())
 
 	return out.String()

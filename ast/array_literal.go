@@ -21,6 +21,7 @@ func (al *ArrayLiteral) expressionNode() {}
 
 func (al *ArrayLiteral) String() string {
 	var out bytes.Buffer
+	out.Grow(len(al.Elements) + (2 * len(al.Elements)))
 
 	out.WriteString("[")
 

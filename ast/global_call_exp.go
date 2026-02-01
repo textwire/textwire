@@ -1,8 +1,8 @@
 package ast
 
 import (
-	"bytes"
 	"fmt"
+	"strings"
 
 	"github.com/textwire/textwire/v3/token"
 )
@@ -23,10 +23,11 @@ func NewGlobalCallExp(tok token.Token, function *Identifier) *GlobalCallExp {
 func (gce *GlobalCallExp) expressionNode() {}
 
 func (gce *GlobalCallExp) String() string {
-	var args bytes.Buffer
+	var args strings.Builder
+	args.Grow(len(gce.Arguments))
 
-	for i, arg := range gce.Arguments {
-		args.WriteString(arg.String())
+	for i := range gce.Arguments {
+		args.WriteString(gce.Arguments[i].String())
 
 		if i < len(gce.Arguments)-1 {
 			args.WriteString(", ")

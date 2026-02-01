@@ -21,5 +21,5 @@ func NewReserveStmt(tok token.Token) *ReserveStmt {
 func (rs *ReserveStmt) statementNode() {}
 
 func (rs *ReserveStmt) String() string {
-	return fmt.Sprintf(`@reserve("%s")`, rs.Name.String())
+	return fmt.Sprintf(`@reserve("%s")`, rs.Name)
 }

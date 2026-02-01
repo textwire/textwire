@@ -1,6 +1,10 @@
 package ast
 
-import "github.com/textwire/textwire/v3/token"
+import (
+	"fmt"
+
+	"github.com/textwire/textwire/v3/token"
+)
 
 type StringLiteral struct {
 	BaseNode
@@ -17,5 +21,5 @@ func NewStringLiteral(tok token.Token, val string) *StringLiteral {
 func (sl *StringLiteral) expressionNode() {}
 
 func (sl *StringLiteral) String() string {
-	return `"` + sl.Token.Literal + `"`
+	return fmt.Sprintf(`"%s"`, sl.Token.Literal)
 }

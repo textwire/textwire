@@ -1,7 +1,6 @@
 package ast
 
 import (
-	"bytes"
 	"strings"
 
 	"github.com/textwire/textwire/v3/token"
@@ -21,13 +20,12 @@ func NewBlockStmt(tok token.Token) *BlockStmt {
 func (bs *BlockStmt) statementNode() {}
 
 func (bs *BlockStmt) String() string {
-	var out bytes.Buffer
+	var out strings.Builder
 
 	for _, s := range bs.Statements {
-		_, isHTML := s.(*HTMLStmt)
 		str := s.String()
 
-		if isHTML {
+		if s.Tok().Type == token.HTML {
 			out.WriteString(str)
 		} else if strings.HasPrefix(str, "@") {
 			out.WriteString(str)
@@ -40,11 +38,11 @@ func (bs *BlockStmt) String() string {
 }
 
 func (bs *BlockStmt) Stmts() []Statement {
-	res := make([]Statement, 0)
-
 	if bs.Statements == nil {
 		return []Statement{}
 	}
+
+	stmts := make([]Statement, 0, len(bs.Statements))
 
 	for _, stmt := range bs.Statements {
 		if stmt == nil {
@@ -52,10 +50,10 @@ func (bs *BlockStmt) Stmts() []Statement {
 		}
 
 		if s, ok := stmt.(NodeWithStatements); ok {
-			res = append(res, s.(Statement))
-			res = append(res, s.Stmts()...)
+			stmts = append(stmts, s.(Statement))
+			stmts = append(stmts, s.Stmts()...)
 		}
 	}
 
-	return res
+	return stmts
 }
