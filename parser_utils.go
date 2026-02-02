@@ -23,87 +23,65 @@ func parseStr(text string) (*ast.Program, []*fail.Error) {
 	return prog, nil
 }
 
-// parseProgram returns program, Textwire error and native error
-func parseProgram(absPath, relPath string) (*ast.Program, *fail.Error, error) {
-	content, err := fileContent(relPath)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	lex := lexer.New(content)
-	pars := parser.New(lex, absPath)
-	prog := pars.ParseProgram()
-
-	if len(pars.Errors()) != 0 {
-		return nil, pars.Errors()[0], nil
-	}
-
-	return prog, nil, nil
-}
-
-func parsePrograms(paths map[string]string) (map[string]*ast.Program, *fail.Error) {
-	var result = map[string]*ast.Program{}
-
-	for progRelPath, progAbsPath := range paths {
-		prog, failure, parseErr := parseProgram(progAbsPath, progRelPath)
+func parsePrograms(twFiles []*twFile) *fail.Error {
+	for _, twFile := range twFiles {
+		failure, parseErr := twFile.parseProgram()
 		if parseErr != nil {
-			return nil, fail.FromError(parseErr, 0, progAbsPath, "template")
+			return fail.FromError(parseErr, 0, twFile.Abs, "template")
 		}
 
 		if failure != nil {
-			return nil, failure
+			return failure
 		}
 
-		if err := applyLayoutToProgram(prog); err != nil {
-			return nil, err
+		if err := applyLayoutToProgram(twFile); err != nil {
+			return err
 		}
 
-		if err := applyComponentToProgram(prog, progAbsPath); err != nil {
-			return nil, err
-		}
-
-		if !prog.HasReserveStmt() {
-			result[progRelPath] = prog
+		if err := applyComponentToProgram(twFile); err != nil {
+			return err
 		}
 	}
 
-	return result, nil
+	return nil
 }
 
-func applyLayoutToProgram(prog *ast.Program) *fail.Error {
-	if !prog.HasUseStmt() {
+func applyLayoutToProgram(progTwFile *twFile) *fail.Error {
+	if !progTwFile.Prog.HasUseStmt() {
 		return nil
 	}
 
-	relPath := nameToRelPath(prog.UseStmt.Name.Value)
-	absPath, err := getFullPath(relPath)
+	layoutRelPath := nameToRelPath(progTwFile.Prog.UseStmt.Name.Value)
+	layoutAbsPath, err := getFullPath(layoutRelPath)
 	if err != nil {
-		return fail.FromError(err, prog.UseStmt.Line(), absPath, "template")
+		return fail.FromError(err, progTwFile.Prog.UseStmt.Line(), layoutAbsPath, "template")
 	}
 
-	layoutProg, failure, parseErr := parseProgram(absPath, relPath)
+	layoutTwFile := NewTwFile(layoutRelPath, layoutAbsPath)
+
+	failure, parseErr := layoutTwFile.parseProgram()
 	if parseErr != nil {
-		return fail.FromError(parseErr, prog.UseStmt.Line(), absPath, "template")
+		return fail.FromError(parseErr, progTwFile.Prog.UseStmt.Line(), layoutAbsPath, "template")
 	}
 
 	if failure != nil {
 		return failure
 	}
 
-	layoutProg.IsLayout = true
+	layoutTwFile.Prog.IsLayout = true
 
-	layoutErr := layoutProg.ApplyInserts(prog.Inserts, absPath)
+	layoutErr := layoutTwFile.Prog.ApplyInserts(progTwFile.Prog.Inserts, layoutAbsPath)
 	if layoutErr != nil {
 		return layoutErr
 	}
 
-	prog.ApplyLayout(layoutProg)
+	progTwFile.Prog.ApplyLayout(layoutTwFile.Prog)
 
 	return nil
 }
 
-func applyComponentToProgram(prog *ast.Program, progAbsPath string) *fail.Error {
-	for _, comp := range prog.Components {
+func applyComponentToProgram(progTwFile *twFile) *fail.Error {
+	for _, comp := range progTwFile.Prog.Components {
 		relPath := nameToRelPath(comp.Name.Value)
 
 		absPath, err := getFullPath(relPath)
@@ -111,12 +89,14 @@ func applyComponentToProgram(prog *ast.Program, progAbsPath string) *fail.Error 
 			return fail.FromError(err, 0, "", "template")
 		}
 
-		compProg, failure, parseErr := parseProgram(absPath, relPath)
+		compTwFile := NewTwFile(relPath, absPath)
+
+		failure, parseErr := compTwFile.parseProgram()
 		if parseErr != nil {
 			if errors.Is(parseErr, os.ErrNotExist) {
 				return fail.New(
 					comp.Line(),
-					progAbsPath,
+					progTwFile.Abs,
 					"template",
 					fail.ErrUndefinedComponent,
 					comp.Name.Value,
@@ -130,7 +110,7 @@ func applyComponentToProgram(prog *ast.Program, progAbsPath string) *fail.Error 
 			return failure
 		}
 
-		if err := prog.ApplyComponent(comp.Name.Value, compProg, progAbsPath); err != nil {
+		if err := progTwFile.Prog.ApplyComponent(comp.Name.Value, compTwFile.Prog, progTwFile.Abs); err != nil {
 			return err
 		}
 	}

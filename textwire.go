@@ -1,9 +1,6 @@
 package textwire
 
 import (
-	"os"
-	"strings"
-
 	"github.com/textwire/textwire/v3/config"
 	"github.com/textwire/textwire/v3/evaluator"
 	"github.com/textwire/textwire/v3/fail"
@@ -18,17 +15,17 @@ var (
 func NewTemplate(opt *config.Config) (*Template, error) {
 	Configure(opt)
 
-	paths, err := findTextwireFiles()
+	twFiles, err := findTwFiles()
 	if err != nil {
 		return nil, fail.FromError(err, 0, "", "template").Error()
 	}
 
-	programs, parseErr := parsePrograms(paths)
+	parseErr := parsePrograms(twFiles)
 	if parseErr != nil {
 		return nil, parseErr.Error()
 	}
 
-	return &Template{programs: programs}, nil
+	return &Template{twFiles: twFiles}, nil
 }
 
 func EvaluateString(inp string, data map[string]any) (string, error) {
@@ -53,7 +50,9 @@ func EvaluateString(inp string, data map[string]any) (string, error) {
 }
 
 func EvaluateFile(absPath string, data map[string]any) (string, error) {
-	content, err := fileContent(absPath)
+	twFile := NewTwFile("", absPath)
+
+	content, err := fileContent(twFile)
 	if err != nil {
 		return "", fail.FromError(err, 0, absPath, "template").Error()
 	}

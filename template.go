@@ -4,37 +4,29 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/textwire/textwire/v3/ast"
 	"github.com/textwire/textwire/v3/evaluator"
 	"github.com/textwire/textwire/v3/fail"
 	"github.com/textwire/textwire/v3/object"
 )
 
 type Template struct {
-	programs map[string]*ast.Program
+	twFiles []*twFile
 }
 
 func (t *Template) String(name string, data map[string]any) (string, *fail.Error) {
-	filename := nameToRelPath(name)
 	env, envErr := object.EnvFromMap(data)
 	if envErr != nil {
 		return "", envErr
 	}
 
-	absPath, err := getFullPath(filename)
-	if err != nil {
-		return "", fail.New(0, filename, "template", "%s", err.Error())
+	relPath := nameToRelPath(name)
+	twFile := t.findTwFile(relPath)
+	if twFile == nil {
+		return "", fail.New(0, relPath, "template", fail.ErrTemplateNotFound)
 	}
 
-	prog, ok := t.programs[filename]
-	if !ok {
-		return "", fail.New(0, absPath, "template", fail.ErrTemplateNotFound)
-	}
-
-	prog.Filepath = absPath
-	eval := evaluator.New(customFunc, userConfig)
-
-	evaluated := eval.Eval(prog, env, prog.Filepath)
+	e := evaluator.New(customFunc, userConfig)
+	evaluated := e.Eval(twFile.Prog, env, twFile.Prog.Filepath)
 	if evaluated.Is(object.ERR_OBJ) {
 		return "", evaluated.(*object.Error).Err
 	}
@@ -86,5 +78,14 @@ func (t *Template) responseErrorPage(w http.ResponseWriter) error {
 		return err
 	}
 
+	return nil
+}
+
+func (t *Template) findTwFile(relPath string) *twFile {
+	for i := range t.twFiles {
+		if t.twFiles[i].Rel == relPath {
+			return t.twFiles[i]
+		}
+	}
 	return nil
 }
