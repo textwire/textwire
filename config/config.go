@@ -56,6 +56,7 @@ func New(dir, ext, errPagePath string, debug bool) *Config {
 	}
 }
 
+// UsesFS returns value of usesFS field since that field is private.
 func (c *Config) UsesFS() bool {
 	return c.usesFS
 }

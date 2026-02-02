@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/textwire/textwire/v3/config"
 	"github.com/textwire/textwire/v3/evaluator"
 	"github.com/textwire/textwire/v3/fail"
 	"github.com/textwire/textwire/v3/object"
@@ -11,6 +12,33 @@ import (
 
 type Template struct {
 	twFiles []*twFile
+}
+
+// NewTemplate returns a new Template instance with parsed Textwire files
+// provided by configuration options. The Template instance should be used
+// for evaluating Textwire in your handlers.
+//
+//	out, failure := tpl.String("views/home", map[string]any{
+//	    "names": []string{"John", "Jane", "Jack", "Jill"},
+//	})
+//
+//	err := tpl.Response(w, "views/home", map[string]interface{}{
+//	    "names": []string{"John", "Jane", "Jack", "Jill"},
+//	})
+func NewTemplate(opt *config.Config) (*Template, error) {
+	Configure(opt)
+
+	twFiles, err := findTwFiles()
+	if err != nil {
+		return nil, fail.FromError(err, 0, "", "template").Error()
+	}
+
+	parseErr := parsePrograms(twFiles)
+	if parseErr != nil {
+		return nil, parseErr.Error()
+	}
+
+	return &Template{twFiles: twFiles}, nil
 }
 
 func (t *Template) String(name string, data map[string]any) (string, *fail.Error) {
