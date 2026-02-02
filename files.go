@@ -9,14 +9,10 @@ import (
 	"strings"
 )
 
-func getFullPath(filename string) (string, error) {
-	if usingTemplates {
-		filename = joinPaths(userConfig.TemplateDir, filename)
-	}
+func getFullPath(relPath string) (string, error) {
+	addTwExtension(relPath)
 
-	addTwExtension(filename)
-
-	absPath, err := filepath.Abs(filename)
+	absPath, err := filepath.Abs(relPath)
 	if err != nil {
 		return "", err
 	}
@@ -24,10 +20,12 @@ func getFullPath(filename string) (string, error) {
 	return absPath, nil
 }
 
+// joinPaths safely joins 2 paths together treating slashes correctly.
 func joinPaths(path1, path2 string) string {
 	return strings.TrimRight(path1, "/") + "/" + strings.TrimLeft(path2, "/")
 }
 
+// fileContent returns the content of the provided file path.
 func fileContent(path string) (string, error) {
 	var content []byte
 	var err error
@@ -96,5 +94,5 @@ func addTwExtension(path string) string {
 // e.g. layouts/main will be converted to templates/layouts/main.tw
 // e.g. components/book will be converted to templates/components/book.tw
 func nameToRelPath(name string) string {
-	return userConfig.TemplateDir + "/" + addTwExtension(name)
+	return joinPaths(userConfig.TemplateDir, addTwExtension(name))
 }

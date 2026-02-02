@@ -13,9 +13,6 @@ import (
 var (
 	userConfig = config.New("templates", ".tw", "", false)
 	customFunc = config.NewFunc()
-
-	// usingTemplates is a flag to check if user uses Textwire templates
-	usingTemplates = false
 )
 
 func NewTemplate(opt *config.Config) (*Template, error) {
@@ -35,8 +32,6 @@ func NewTemplate(opt *config.Config) (*Template, error) {
 }
 
 func EvaluateString(inp string, data map[string]any) (string, error) {
-	usingTemplates = false
-
 	prog, errs := parseStr(inp)
 	if len(errs) != 0 {
 		return "", errs[0].Error()
@@ -138,8 +133,6 @@ func RegisterBoolFunc(name string, fn config.BoolCustomFunc) error {
 }
 
 func Configure(opt *config.Config) {
-	usingTemplates = true
-
 	if opt == nil {
 		return
 	}
