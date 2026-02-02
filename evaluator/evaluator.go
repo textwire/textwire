@@ -597,7 +597,12 @@ func (e *Evaluator) evalDotExp(node *ast.DotExp, env *object.Env, path string) o
 
 	key := node.Key.(*ast.Identifier)
 
-	return e.evalObjectKeyExp(left.(*object.Obj), key.Name, node, path)
+	obj, isObj := left.(*object.Obj)
+	if !isObj {
+		return e.newError(node, path, fail.ErrProperyOnNonObject, key, left.Type())
+	}
+
+	return e.evalObjectKeyExp(obj, key.Name, node, path)
 }
 
 func (e *Evaluator) evalString(node *ast.StringLiteral, _ *object.Env) object.Object {

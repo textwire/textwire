@@ -12,6 +12,7 @@
 1. Fixed incorrect file path in error messages when error happens inside of `@insert` directive.
 2. Fixed `contains` function for strings, `{{ !"aaa".contains("a") }}` now returns correct result.
 3. Fixed `contains` function for arrays, `{{ ![{}, 21].contains({age: 21}) }}` now returns correct result.
+4. Now you will get a proper error when trying to access propery on non object type like `{{ "str".nice }}`. Before, you would get a panic.
 
 ### ✨ New Features
 1. Added `globals` object. You can now add `GlobalData` to your configurations and access this data in your templates using `globals` object. For example: `globals.env`.

@@ -295,8 +295,8 @@ func TestErrorHandling(t *testing.T) {
 			data: nil,
 		},
 		{
-			inp:  `{{ obj = {}; obj.name.upper() }}`,
-			err:  fail.New(1, "", "evaluator", fail.ErrPropertyNotFound, "name", object.OBJ_OBJ),
+			inp:  `{{ obj = {name: "Amy"}; obj.name.id }}`,
+			err:  fail.New(1, "", "evaluator", fail.ErrProperyOnNonObject, "id", object.STR_OBJ),
 			data: nil,
 		},
 	}
