@@ -76,16 +76,14 @@ func applyLayoutToProgram(prog *ast.Program) *fail.Error {
 	}
 
 	relPath := nameToRelPath(prog.UseStmt.Name.Value)
-
-	stmt := prog.UseStmt
 	absPath, err := getFullPath(relPath)
 	if err != nil {
-		return fail.FromError(err, stmt.Line(), absPath, "template")
+		return fail.FromError(err, prog.UseStmt.Line(), absPath, "template")
 	}
 
 	layoutProg, failure, parseErr := parseProgram(absPath, relPath)
 	if parseErr != nil {
-		return fail.FromError(parseErr, stmt.Line(), absPath, "template")
+		return fail.FromError(parseErr, prog.UseStmt.Line(), absPath, "template")
 	}
 
 	if failure != nil {
