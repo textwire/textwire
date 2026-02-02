@@ -89,7 +89,7 @@ func homeHandler(w http.ResponseWriter, r *http.Request) {
 		},
 	}
 
-	err := tpl.Response(w, "home", map[string]any{
+	err := tpl.Response(w, "views/home", map[string]any{
 		"names":     []string{"John", "Jane", "Jack", "Jill"},
 		"showNames": true,
 		"books":     books,
@@ -104,7 +104,7 @@ func aboutHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err := tpl.Response(w, "about", map[string]any{})
+	err := tpl.Response(w, "views/about", map[string]any{})
 	if err != nil {
 		log.Println(err.Error())
 	}
