@@ -11,7 +11,7 @@ import (
 )
 
 type Template struct {
-	twFiles []*twFile
+	twFiles []*textwireFile
 }
 
 // NewTemplate returns a new Template instance with parsed Textwire files
@@ -109,7 +109,7 @@ func (t *Template) responseErrorPage(w http.ResponseWriter) error {
 	return nil
 }
 
-func (t *Template) findTwFile(relPath string) *twFile {
+func (t *Template) findTwFile(relPath string) *textwireFile {
 	for i := range t.twFiles {
 		if t.twFiles[i].Rel == relPath {
 			return t.twFiles[i]

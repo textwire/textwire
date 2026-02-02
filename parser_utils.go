@@ -23,7 +23,7 @@ func parseStr(text string) (*ast.Program, []*fail.Error) {
 	return prog, nil
 }
 
-func parsePrograms(twFiles []*twFile) *fail.Error {
+func parsePrograms(twFiles []*textwireFile) *fail.Error {
 	for _, twFile := range twFiles {
 		failure, parseErr := twFile.parseProgram()
 		if parseErr != nil {
@@ -46,7 +46,7 @@ func parsePrograms(twFiles []*twFile) *fail.Error {
 	return nil
 }
 
-func applyLayoutToProgram(progTwFile *twFile) *fail.Error {
+func applyLayoutToProgram(progTwFile *textwireFile) *fail.Error {
 	if !progTwFile.Prog.HasUseStmt() {
 		return nil
 	}
@@ -57,7 +57,7 @@ func applyLayoutToProgram(progTwFile *twFile) *fail.Error {
 		return fail.FromError(err, progTwFile.Prog.UseStmt.Line(), layoutAbsPath, "template")
 	}
 
-	layoutTwFile := NewTwFile(layoutRelPath, layoutAbsPath)
+	layoutTwFile := NewTextwireFile(layoutRelPath, layoutAbsPath)
 
 	failure, parseErr := layoutTwFile.parseProgram()
 	if parseErr != nil {
@@ -80,7 +80,7 @@ func applyLayoutToProgram(progTwFile *twFile) *fail.Error {
 	return nil
 }
 
-func applyComponentToProgram(progTwFile *twFile) *fail.Error {
+func applyComponentToProgram(progTwFile *textwireFile) *fail.Error {
 	for _, comp := range progTwFile.Prog.Components {
 		relPath := nameToRelPath(comp.Name.Value)
 
@@ -89,7 +89,7 @@ func applyComponentToProgram(progTwFile *twFile) *fail.Error {
 			return fail.FromError(err, 0, "", "template")
 		}
 
-		compTwFile := NewTwFile(relPath, absPath)
+		compTwFile := NewTextwireFile(relPath, absPath)
 
 		failure, parseErr := compTwFile.parseProgram()
 		if parseErr != nil {
