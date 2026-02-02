@@ -132,32 +132,7 @@ func RegisterBoolFunc(name string, fn config.BoolCustomFunc) error {
 	return nil
 }
 
+// Configure passes given options to user configurations.
 func Configure(opt *config.Config) {
-	if opt == nil {
-		return
-	}
-
-	if opt.TemplateDir != "" {
-		userConfig.TemplateDir = strings.Trim(opt.TemplateDir, "/")
-	}
-
-	if opt.TemplateExt != "" {
-		userConfig.TemplateExt = opt.TemplateExt
-	}
-
-	if opt.TemplateFS == nil {
-		userConfig.TemplateFS = os.DirFS(userConfig.TemplateDir)
-	} else {
-		userConfig.TemplateFS = opt.TemplateFS
-	}
-
-	if opt.ErrorPagePath != "" {
-		userConfig.ErrorPagePath = opt.ErrorPagePath
-	}
-
-	if opt.GlobalData != nil {
-		userConfig.GlobalData = opt.GlobalData
-	}
-
-	userConfig.DebugMode = opt.DebugMode
+	userConfig.Configure(opt)
 }

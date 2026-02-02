@@ -1,6 +1,10 @@
 package config
 
-import "io/fs"
+import (
+	"io/fs"
+	"os"
+	"strings"
+)
 
 // Config holds the configuration settings for Textwire template engine.
 type Config struct {
@@ -37,6 +41,9 @@ type Config struct {
 	// Access these values in templates using the `global` object (e.g., `global.authUser`).
 	// Useful for storing environment variables, configuration, or common data.
 	GlobalData map[string]any
+
+	// usesFS is a flag to determine if user uses TemplateFS or not.
+	usesFS bool
 }
 
 func New(dir, ext, errPagePath string, debug bool) *Config {
@@ -47,4 +54,39 @@ func New(dir, ext, errPagePath string, debug bool) *Config {
 		DebugMode:     debug,
 		GlobalData:    map[string]any{},
 	}
+}
+
+func (c *Config) UsesFS() bool {
+	return c.usesFS
+}
+
+func (c *Config) Configure(opt *Config) {
+	if opt == nil {
+		return
+	}
+
+	if opt.TemplateDir != "" {
+		c.TemplateDir = strings.Trim(opt.TemplateDir, "/")
+	}
+
+	if opt.TemplateExt != "" {
+		c.TemplateExt = opt.TemplateExt
+	}
+
+	if opt.TemplateFS == nil {
+		c.TemplateFS = os.DirFS(c.TemplateDir)
+	} else {
+		c.TemplateFS = opt.TemplateFS
+	}
+
+	if opt.ErrorPagePath != "" {
+		c.ErrorPagePath = opt.ErrorPagePath
+	}
+
+	if opt.GlobalData != nil {
+		c.GlobalData = opt.GlobalData
+	}
+
+	c.usesFS = opt.TemplateFS != nil
+	c.DebugMode = opt.DebugMode
 }
