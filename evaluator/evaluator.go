@@ -574,19 +574,19 @@ func (e *Evaluator) evalObjectKeyExp(
 	node ast.Node,
 	path string,
 ) object.Object {
-	pair, ok := obj.Pairs[key]
-	if ok {
+	// First, try to get key as it is with regular case.
+	if pair, ok := obj.Pairs[key]; ok {
 		return pair
 	}
 
-	// make first letter lowercase on key
-	keyUpper := strings.ToUpper(key[:1]) + key[1:]
+	// Makes the first letter uppercase.
+	upperFirstCharKey := strings.ToUpper(key[:1]) + key[1:]
 
-	if pair, ok = obj.Pairs[keyUpper]; !ok {
-		return e.newError(node, path, fail.ErrPropertyNotFound, key, object.OBJ_OBJ)
+	if pair, ok := obj.Pairs[upperFirstCharKey]; ok {
+		return pair
 	}
 
-	return pair
+	return e.newError(node, path, fail.ErrPropertyNotFound, key, object.OBJ_OBJ)
 }
 
 func (e *Evaluator) evalDotExp(node *ast.DotExp, env *object.Env, path string) object.Object {

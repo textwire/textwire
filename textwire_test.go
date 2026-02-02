@@ -50,16 +50,21 @@ func TestEvaluateString(t *testing.T) {
 			data:   map[string]any{"n1": 1, "n2": 2},
 		},
 		{
+			name:   "First letter of the object property is case insensitive",
+			inp:    "{{ user.iD.str() + ' ' + user.ID.str() }}",
+			expect: "1 1",
+			data: map[string]any{
+				"user": struct{ ID uint }{1}},
+		},
+		{
 			name:   "Accessing user.name.firstName property",
 			inp:    "{{ user.name.firstName }}",
 			expect: "Ann",
 			data: map[string]any{
 				"user": struct {
 					Name struct{ FirstName string }
-					Age  int
 				}{
 					Name: struct{ FirstName string }{"Ann"},
-					Age:  20,
 				},
 			},
 		},
