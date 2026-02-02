@@ -1,7 +1,7 @@
 MAX_LINE_LENGTH := 100
 
-.PHONY: web
-web:
+.PHONY: dev
+dev:
 	clear
 	cd textwire/example && go run main.go
 
@@ -30,8 +30,14 @@ lint:
 	@golangci-lint run
 	echo "✅ Linting passed!"
 
+.PHONY: todo
+todo:
+	@if grep --exclude="Makefile" -r TODO .; then \
+		echo "❌ Found TODOs" >&2; \
+		exit 1; \
+	fi
+
 .PHONY: check
-check: test line fmt lint
-	grep -r TODO .
+check: test line fmt lint todo
 
 .DEFAULT_GOAL := test
