@@ -3,12 +3,12 @@ package evaluator
 import (
 	"errors"
 	"fmt"
+	"strconv"
 	"strings"
 
 	"github.com/textwire/textwire/v3/config"
 	"github.com/textwire/textwire/v3/fail"
 	"github.com/textwire/textwire/v3/object"
-	"github.com/textwire/textwire/v3/utils"
 )
 
 func isTruthy(obj object.Object) bool {
@@ -103,7 +103,7 @@ func addDecimals(
 		val = receiver.(*object.Int).String()
 	}
 
-	if !utils.StrIsInt(val) {
+	if !strIsInt(val) {
 		return &object.Str{Value: val}, nil
 	}
 
@@ -149,4 +149,9 @@ func isUndefinedVarError(obj object.Object) bool {
 	err, isErr := obj.(*object.Error)
 	return isErr &&
 		(err.ErrorID == fail.ErrIdentifierIsUndefined || err.ErrorID == fail.ErrPropertyNotFound)
+}
+
+func strIsInt(s string) bool {
+	_, err := strconv.Atoi(s)
+	return err == nil
 }
