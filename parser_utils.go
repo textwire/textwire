@@ -15,7 +15,6 @@ func parseStr(text string) (*ast.Program, []*fail.Error) {
 	pars := parser.New(lex, "")
 
 	prog := pars.ParseProgram()
-
 	if pars.HasErrors() {
 		return nil, pars.Errors()
 	}

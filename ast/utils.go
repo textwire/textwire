@@ -2,9 +2,8 @@ package ast
 
 func findSlotStmtIndex(stmts []Statement, slotName string) int {
 	for i, stmt := range stmts {
-		slot, isSlot := stmt.(*SlotStmt)
-
-		if !isSlot {
+		slot, ok := stmt.(*SlotStmt)
+		if !ok {
 			continue
 		}
 
@@ -18,7 +17,6 @@ func findSlotStmtIndex(stmts []Statement, slotName string) int {
 
 func findDuplicateSlot(slots []*SlotStmt) (string, int) {
 	counts := map[string]int{}
-
 	for _, slot := range slots {
 		counts[slot.Name.Value]++
 	}

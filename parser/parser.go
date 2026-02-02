@@ -489,7 +489,6 @@ func (p *Parser) componentStmt() ast.Statement {
 		p.nextToken() // skip ","
 
 		obj, ok := p.expression(LOWEST).(*ast.ObjectLiteral)
-
 		if !ok {
 			p.newError(p.curToken.ErrorLine(), fail.ErrExpectedObjectLiteral, p.curToken.Literal)
 			return nil

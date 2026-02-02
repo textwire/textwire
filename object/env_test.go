@@ -92,7 +92,6 @@ func TestEnvFromMap(t *testing.T) {
 
 	for key, val := range expect {
 		obj, ok := env.Get(key)
-
 		if !ok {
 			t.Fatalf("Env.Get(%s) returned !ok", key)
 		}

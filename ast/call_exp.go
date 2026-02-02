@@ -28,8 +28,8 @@ func (ce *CallExp) String() string {
 	var args strings.Builder
 	args.Grow(len(ce.Arguments) + (2 * len(ce.Arguments)))
 
-	for i, arg := range ce.Arguments {
-		args.WriteString(arg.String())
+	for i := range ce.Arguments {
+		args.WriteString(ce.Arguments[i].String())
 
 		if i < len(ce.Arguments)-1 {
 			args.WriteString(", ")

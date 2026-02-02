@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"strings"
 
-	fail "github.com/textwire/textwire/v3/fail"
-	token "github.com/textwire/textwire/v3/token"
+	"github.com/textwire/textwire/v3/fail"
+	"github.com/textwire/textwire/v3/token"
 )
 
 type Program struct {
@@ -70,9 +70,8 @@ func (p *Program) ApplyInserts(inserts map[string]*InsertStmt, absPath string) *
 	}
 
 	for _, reserve := range p.Reserves {
-		insert, hasInsert := inserts[reserve.Name.Value]
-
-		if hasInsert {
+		insert, ok := inserts[reserve.Name.Value]
+		if ok {
 			reserve.Insert = insert
 		}
 	}
@@ -92,7 +91,6 @@ func (p *Program) ApplyComponent(name string, prog *Program, progAbsPath string)
 		}
 
 		duplicateName, times := findDuplicateSlot(comp.Slots)
-
 		if times > 0 {
 			if name == "" {
 				return fail.New(
@@ -118,7 +116,6 @@ func (p *Program) ApplyComponent(name string, prog *Program, progAbsPath string)
 
 		for _, slot := range comp.Slots {
 			idx := findSlotStmtIndex(prog.Statements, slot.Name.Value)
-
 			if idx == -1 {
 				if slot.Name.Value == "" {
 					return fail.New(

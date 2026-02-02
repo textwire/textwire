@@ -42,7 +42,6 @@ func GetLoopObjFields(locale lsp.Locale) ([]Completion, error) {
 	}
 
 	_, ok := completions[locale]
-
 	if !ok {
 		return []Completion{}, utils.ErrInvalidLocale(string(locale))
 	}
