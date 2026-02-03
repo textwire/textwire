@@ -19,7 +19,9 @@ go get github.com/textwire/textwire/v3
 ```
 
 ## Neovim and VSCode Support
+
 If you use [Neovim](https://neovim.io/) or [VSCode](https://code.visualstudio.com/) as your primary editor, you can install the [Neovim Plugin](https://github.com/textwire/textwire.nvim) or [VSCode Extension](https://marketplace.visualstudio.com/items?itemName=SerhiiCho.textwire) to get syntax highlighting and other features for Textwire.
 
 ## License
+
 The Textwire project is licensed under the [MIT License](https://github.com/textwire/textwire/blob/master/LICENSE)
