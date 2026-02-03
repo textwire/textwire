@@ -317,6 +317,17 @@ func TestErrorHandling(t *testing.T) {
 			),
 			data: nil,
 		},
+		{
+			inp: `@each(v in {}){{ v }}@end`,
+			err: fail.New(
+				1,
+				"",
+				"evaluator",
+				fail.ErrEachDirWithNonArrArg,
+				object.OBJ_OBJ,
+			),
+			data: nil,
+		},
 	}
 
 	for _, tc := range cases {

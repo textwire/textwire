@@ -389,16 +389,20 @@ func (e *Evaluator) evalEachStmt(
 	newEnv := object.NewEnclosedEnv(env)
 
 	varName := node.Var.Name
-	arrObj := e.Eval(node.Array, newEnv, path)
-	if isError(arrObj) {
-		return arrObj
+	obj := e.Eval(node.Array, newEnv, path)
+	if isError(obj) {
+		return obj
 	}
 
-	elems := arrObj.(*object.Array).Elements
-	elemsLen := len(elems)
+	arr, ok := obj.(*object.Array)
+	if !ok {
+		return e.newError(node, path, fail.ErrEachDirWithNonArrArg, obj.Type())
+	}
 
-	// evaluate alternative block if array is empty
-	if elemsLen == 0 && node.Alternative != nil {
+	arrElems := arr.Elements
+
+	// evaluate alternative block when array is empty
+	if len(arrElems) == 0 && node.Alternative != nil {
 		return e.Eval(node.Alternative, newEnv, path)
 	}
 
