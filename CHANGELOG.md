@@ -26,7 +26,7 @@
 2. Variable `global` is now reserved.
 3. Fixed precedence for prefix expressions. Instead of `((!var).func())` we now have `(!(var.func()))`.
 4. Changed default file extension from `.tw.html` to `.tw`. If you still want to support it, go to your configurations in `NewTemplate` or `Configure` and add field `TemplateExt: ".tw.html"` to it.
-5. Minimal Go version support is version `1.25`.
+5. Minimal Go version support is version `1.25.0`.
 
 ## [Release Notes V1](.github/CHANGELOG-V1.md)
 ## [Release Notes V2](.github/CHANGELOG-V2.md)
