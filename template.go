@@ -17,14 +17,6 @@ type Template struct {
 // NewTemplate returns a new Template instance with parsed Textwire files
 // provided by configuration options. The Template instance should be used
 // for evaluating Textwire in your handlers.
-//
-//	out, failure := tpl.String("views/home", map[string]any{
-//	    "names": []string{"John", "Jane", "Jack", "Jill"},
-//	})
-//
-//	err := tpl.Response(w, "views/home", map[string]interface{}{
-//	    "names": []string{"John", "Jane", "Jack", "Jill"},
-//	})
 func NewTemplate(opt *config.Config) (*Template, error) {
 	Configure(opt)
 
