@@ -388,8 +388,6 @@ func (e *Evaluator) evalEachStmt(
 ) object.Object {
 	newEnv := object.NewEnclosedEnv(env)
 
-	var blocks bytes.Buffer
-
 	varName := node.Var.Name
 	arrObj := e.Eval(node.Array, newEnv, path)
 	if isError(arrObj) {
@@ -404,9 +402,11 @@ func (e *Evaluator) evalEachStmt(
 		return e.Eval(node.Alternative, newEnv, path)
 	}
 
-	for i, elem := range elems {
-		err := newEnv.Set(varName, elem)
-		if err != nil {
+	var blocks strings.Builder
+	blocks.Grow(len(elems))
+
+	for i := range elems {
+		if err := newEnv.Set(varName, elems[i]); err != nil {
 			return e.newError(node, path, "%s", err.Error())
 		}
 
