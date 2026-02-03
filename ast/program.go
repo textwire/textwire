@@ -116,28 +116,29 @@ func (p *Program) ApplyComponent(name string, prog *Program, progAbsPath string)
 
 		for _, slot := range comp.Slots {
 			idx := findSlotStmtIndex(prog.Statements, slot.Name.Value)
-			if idx == -1 {
-				if slot.Name.Value == "" {
-					return fail.New(
-						prog.Line(),
-						progAbsPath,
-						"parser",
-						fail.ErrDefaultSlotNotDefined,
-						name,
-					)
-				}
+			if idx != -1 {
+				prog.Statements[idx].(*SlotStmt).Body = slot.Body
+				continue
+			}
 
+			if slot.Name.Value == "" {
 				return fail.New(
 					prog.Line(),
 					progAbsPath,
 					"parser",
-					fail.ErrSlotNotDefined,
-					slot.Name.Value,
+					fail.ErrDefaultSlotNotDefined,
 					name,
 				)
 			}
 
-			prog.Statements[idx].(*SlotStmt).Body = slot.Body
+			return fail.New(
+				prog.Line(),
+				progAbsPath,
+				"parser",
+				fail.ErrSlotNotDefined,
+				slot.Name.Value,
+				name,
+			)
 		}
 
 		comp.Block = prog
