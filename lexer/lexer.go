@@ -160,7 +160,7 @@ func (l *Lexer) directiveToken() token.Token {
 		return l.illegalToken()
 	}
 
-	hasOptionalParens := tokensWithOptionalParens[tok] && l.char == '('
+	hasOptionalParens := tokensWithOptionalParens[tok] && (l.char == '(' || l.peekCharIs('('))
 	hasNoParens := tokensWithoutParens[tok]
 
 	l.isDirective = hasOptionalParens || !hasNoParens
@@ -557,12 +557,23 @@ func (l *Lexer) peekChar() byte {
 	return l.input[l.readPos]
 }
 
-func (l *Lexer) isWhitespace() bool {
-	return l.char == ' ' || l.char == '\t' || l.char == '\n' || l.char == '\r'
+// peekCharIs returns true if the next non-whitespace character matches
+// the given character. Advances past any whitespace (spaces, tabs, newlines)
+// without consuming characters.
+func (l *Lexer) peekCharIs(char byte) bool {
+	pos := l.readPos
+	for pos < len(l.input) && l.isWhitespace(l.input[pos]) {
+		pos++
+	}
+	return pos < len(l.input) && l.input[pos] == char
+}
+
+func (l *Lexer) isWhitespace(char byte) bool {
+	return char == ' ' || char == '\t' || char == '\n' || char == '\r'
 }
 
 func (l *Lexer) skipWhitespace() {
-	for l.isWhitespace() {
+	for l.isWhitespace(l.char) {
 		l.readChar()
 	}
 }

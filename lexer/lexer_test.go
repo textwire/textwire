@@ -748,18 +748,18 @@ func TestComponentSlotDirective(t *testing.T) {
 	})
 
 	t.Run("slots without parentheses", func(t *testing.T) {
-		inp := `@component("card")@slotNICE@end@end`
+		inp := `@component ("card")@slotNICE@end@end`
 
 		TokenizeString(t, inp, []token.Token{
 			{Type: token.COMPONENT, Literal: "@component", Pos: token.Position{EndCol: 9}},
-			{Type: token.LPAREN, Literal: "(", Pos: token.Position{StartCol: 10, EndCol: 10}},
-			{Type: token.STR, Literal: "card", Pos: token.Position{StartCol: 11, EndCol: 16}},
-			{Type: token.RPAREN, Literal: ")", Pos: token.Position{StartCol: 17, EndCol: 17}},
-			{Type: token.SLOT, Literal: "@slot", Pos: token.Position{StartCol: 18, EndCol: 22}},
-			{Type: token.HTML, Literal: "NICE", Pos: token.Position{StartCol: 23, EndCol: 26}},
-			{Type: token.END, Literal: "@end", Pos: token.Position{StartCol: 27, EndCol: 30}},
-			{Type: token.END, Literal: "@end", Pos: token.Position{StartCol: 31, EndCol: 34}},
-			{Type: token.EOF, Literal: "", Pos: token.Position{StartCol: 35, EndCol: 35}},
+			{Type: token.LPAREN, Literal: "(", Pos: token.Position{StartCol: 11, EndCol: 11}},
+			{Type: token.STR, Literal: "card", Pos: token.Position{StartCol: 12, EndCol: 17}},
+			{Type: token.RPAREN, Literal: ")", Pos: token.Position{StartCol: 18, EndCol: 18}},
+			{Type: token.SLOT, Literal: "@slot", Pos: token.Position{StartCol: 19, EndCol: 23}},
+			{Type: token.HTML, Literal: "NICE", Pos: token.Position{StartCol: 24, EndCol: 27}},
+			{Type: token.END, Literal: "@end", Pos: token.Position{StartCol: 28, EndCol: 31}},
+			{Type: token.END, Literal: "@end", Pos: token.Position{StartCol: 32, EndCol: 35}},
+			{Type: token.EOF, Literal: "", Pos: token.Position{StartCol: 36, EndCol: 36}},
 		})
 	})
 }
