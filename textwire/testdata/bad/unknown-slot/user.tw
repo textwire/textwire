@@ -1,4 +1,4 @@
 <div class="user">
     <h2>{{ name }}</h2>
-    @slot("content")
+    @slot ("content")
 </div>

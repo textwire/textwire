@@ -1,5 +1,5 @@
-@use('layout')
+@use ('layout')
 
-@insert('content')
+@insert ('content')
 <h1>Some title is here</h1>
 @end

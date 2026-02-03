@@ -1,4 +1,4 @@
-@component("book", { title: "Harry Potter" })
+@component ("book", { title: "Harry Potter" })
     @slot
         <p>Some content is here</p>
     @end

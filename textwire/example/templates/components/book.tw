@@ -1,0 +1,6 @@
+<div>
+    <h4>ID: {{ book.ID }}</h4>
+    <h4>Title: {{ book.title.upper() }}</h4>
+    <p>ISBN: {{ book.isbn }}</p>
+    <p>Author: {{ book.author.firstName }} {{ book.author.lastName }}</p>
+</div>

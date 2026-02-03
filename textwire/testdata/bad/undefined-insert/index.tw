@@ -1,7 +1,7 @@
-@use('layout')
+@use ('layout')
 
-@insert('title', 'Some title')
+@insert ('title', 'Some title')
 
-@insert('some-name')
+@insert ('some-name')
 <h1>Some title is here</h1>
 @end
