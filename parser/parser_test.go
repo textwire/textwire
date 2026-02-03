@@ -713,6 +713,14 @@ func TestOperatorPrecedenceParsing(t *testing.T) {
 			inp:    "{{ -2.float() && -2.0.int() ? 1 : 0 }}",
 			expect: "{{ (((-(2.float())) && (-(2.0.int()))) ? 1 : 0) }}",
 		},
+		{
+			inp:    "{{ !defined(age) || !defined(name) ? 1 : 0 }}",
+			expect: "{{ (((!(defined(age))) || (!(defined(name)))) ? 1 : 0) }}",
+		},
+		{
+			inp:    "{{ defined(name) }}",
+			expect: "{{ (defined(name)) }}",
+		},
 	}
 
 	for _, tc := range cases {

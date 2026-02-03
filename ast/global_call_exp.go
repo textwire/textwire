@@ -34,5 +34,5 @@ func (gce *GlobalCallExp) String() string {
 		}
 	}
 
-	return fmt.Sprintf("%s(%s))", gce.Function, args.String())
+	return fmt.Sprintf("(%s(%s))", gce.Function, args.String())
 }
