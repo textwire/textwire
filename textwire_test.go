@@ -8,6 +8,7 @@ import (
 
 	"github.com/textwire/textwire/v3/fail"
 	"github.com/textwire/textwire/v3/object"
+	"github.com/textwire/textwire/v3/token"
 )
 
 func readFile(fileName string) (string, error) {
@@ -302,6 +303,18 @@ func TestErrorHandling(t *testing.T) {
 		{
 			inp:  `{{ obj = {name: "Amy"}; obj.name.id }}`,
 			err:  fail.New(1, "", "evaluator", fail.ErrProperyOnNonObject, "id", object.STR_OBJ),
+			data: nil,
+		},
+		{
+			inp: `{{ obj."str" }}`,
+			err: fail.New(
+				1,
+				"",
+				"evaluator",
+				fail.ErrWrongNextToken,
+				token.String(token.IDENT),
+				token.String(token.STR),
+			),
 			data: nil,
 		},
 	}
