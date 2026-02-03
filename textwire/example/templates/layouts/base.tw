@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@reserve('title')</title>
+    <meta name="description" content="@reserve('description')">
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+<body>
+    <div>
+        <nav class="bg-yellow-100 px-4 py-2 flex items-center gap-4 mb-4">
+            <b class="text-lg mr-4">Textwire Example</b>
+
+            <a href="/">Home</a>
+            <a href="/about">About</a>
+        </nav>
+    </div>
+
+    <main class="mx-auto max-w-[1300px]">
+        @reserve('content')
+    </main>
+</body>
+</html>

@@ -1,6 +1,7 @@
-@use('~main')
+@use('~base')
 
 @insert('title', 'About Us')
+@insert('description', 'This is about us page for Textwire')
 
 @insert('content')
     @component('~header', {
