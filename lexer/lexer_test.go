@@ -700,6 +700,30 @@ func TestComponentDirective(t *testing.T) {
 }
 
 func TestComponentSlotDirective(t *testing.T) {
+	t.Run("slot with space", func(t *testing.T) {
+		inp := `@slot ("top")`
+
+		TokenizeString(t, inp, []token.Token{
+			{Type: token.SLOT, Literal: "@slot", Pos: token.Position{StartCol: 0, EndCol: 4}},
+			{Type: token.LPAREN, Literal: "(", Pos: token.Position{StartCol: 6, EndCol: 6}},
+			{Type: token.STR, Literal: "top", Pos: token.Position{StartCol: 7, EndCol: 11}},
+			{Type: token.RPAREN, Literal: ")", Pos: token.Position{StartCol: 12, EndCol: 12}},
+			{Type: token.EOF, Literal: "", Pos: token.Position{StartCol: 13, EndCol: 13}},
+		})
+	})
+
+	t.Run("slot with 3 spaces", func(t *testing.T) {
+		inp := `@slot   ("top")`
+
+		TokenizeString(t, inp, []token.Token{
+			{Type: token.SLOT, Literal: "@slot", Pos: token.Position{StartCol: 0, EndCol: 4}},
+			{Type: token.LPAREN, Literal: "(", Pos: token.Position{StartCol: 8, EndCol: 8}},
+			{Type: token.STR, Literal: "top", Pos: token.Position{StartCol: 9, EndCol: 13}},
+			{Type: token.RPAREN, Literal: ")", Pos: token.Position{StartCol: 14, EndCol: 14}},
+			{Type: token.EOF, Literal: "", Pos: token.Position{StartCol: 15, EndCol: 15}},
+		})
+	})
+
 	t.Run("slots with parentheses", func(t *testing.T) {
 		inp := `@component("card")@slot("top")<h1>Hello</h1>@end@end`
 
