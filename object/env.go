@@ -32,12 +32,10 @@ func EnvFromMap(data map[string]any) (*Env, *fail.Error) {
 		obj := NativeToObject(val)
 
 		if obj == nil {
-			return nil, fail.New(0, "", "template",
-				fail.ErrUnsupportedType, val)
+			return nil, fail.New(0, "", "template", fail.ErrUnsupportedType, val)
 		}
 
-		err := env.Set(key, obj)
-		if err != nil {
+		if err := env.Set(key, obj); err != nil {
 			return nil, fail.New(0, "", "evaluator", "%s", err.Error())
 		}
 	}

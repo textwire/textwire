@@ -2109,12 +2109,12 @@ func TestParseIllegalNode(t *testing.T) {
 		stmtCount int
 	}{
 		{"@if(false", 1},
-		{"@if(loop. {{ 'nice' }}@end", 1},
+		{"@if  (loop. {{ 'nice' }}@end", 1},
 		{"@if {{ 'nice' }}@end", 1},
 		{"@if( {{ 'nice' }}@end", 1},
 		{"@each( {{ 'nice' }}@end", 1},
 		{"@each() {{ 'nice' }}@end", 1},
-		{"@each(loop. {{ 'nice' }}@end", 1},
+		{"@each (loop. {{ 'nice' }}@end", 1},
 		{"@each(nice in []{{ 'nice' }}@end", 1},
 		{"@each(nice in {{ 'nice' }}@end", 1},
 		{"@for( {{ 'nice' }}@end", 1},
@@ -2123,12 +2123,12 @@ func TestParseIllegalNode(t *testing.T) {
 		{"@for(i = 0; i < []; i++{{ 'nice' }}@end", 1},
 		{"@for(i = 0; i < [] {{ 'nice' }}@end", 1},
 		{"@component('~user'", 1},
-		{"@component('", 1},
+		{"@component   ('", 1},
 		{"@component", 1},
 		{"@insert('nice", 1},
-		{"@insert('nice'", 1},
+		{"@insert ('nice'", 1},
 		{"@insert('nice'@end", 1},
-		{"@insert('nice' {{ 'nice' }}@end", 1},
+		{"@insert    ('nice' {{ 'nice' }}@end", 1},
 		{`@if(loop.
             {{ loop.first }}
             Iteration number is {{ loop.iter }}
