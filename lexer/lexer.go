@@ -557,8 +557,12 @@ func (l *Lexer) peekChar() byte {
 	return l.input[l.readPos]
 }
 
+func (l *Lexer) isWhitespace() bool {
+	return l.char == ' ' || l.char == '\t' || l.char == '\n' || l.char == '\r'
+}
+
 func (l *Lexer) skipWhitespace() {
-	for l.char == ' ' || l.char == '\t' || l.char == '\n' || l.char == '\r' {
+	for l.isWhitespace() {
 		l.readChar()
 	}
 }
