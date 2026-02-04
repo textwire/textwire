@@ -38,7 +38,7 @@ const (
 	ErrTypeMismatch            = "type mismatch: cannot %s %s %s"
 	ErrUnknownTypeForOperator  = "operator '%s' not supported for type '%s'"
 	ErrPrefixOperatorIsWrong   = "cannot apply prefix '%s' to type '%s'"
-	ErrUseStmtMissingLayout    = "@use statement missing layout file"
+	ErrUseStmtMissingLayout    = "@use statement missing layout file '%s'"
 	ErrIdentifierIsUndefined   = "variable '%s' is not defined"
 	ErrReservedIdentifiers     = "'loop' and 'global' are reserved variable names"
 	ErrIdentifierTypeMismatch  = "cannot assign identifier '%s' of type '%s' to type '%s'"
@@ -67,7 +67,6 @@ const (
 	// API errors
 	ErrFuncAlreadyDefined        = "custom function '%s' already defined for type '%s'"
 	ErrCannotOverrideBuiltInFunc = "cannot override built-in function '%s' for '%s'"
-	ErrProgramNotFound           = "parsed AST program not found for '%s' file"
 	ErrUndefinedComponent        = "component '%s' is not defined"
 
 	NoErrorsFound = "no Textwire errors found"

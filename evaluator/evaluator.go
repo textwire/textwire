@@ -207,7 +207,7 @@ func (e *Evaluator) evalAssignStmt(
 func (e *Evaluator) evalUseStmt(node *ast.UseStmt, env *object.Env, path string) object.Object {
 	if node.Attachment == nil {
 		if e.UsingTemplates {
-			return e.newError(node, path, fail.ErrUseStmtMissingLayout)
+			return e.newError(node, path, fail.ErrUseStmtMissingLayout, node.Name.Value)
 		}
 		return e.newError(node, path, fail.ErrSomeDirsOnlyInTemplates)
 	}
