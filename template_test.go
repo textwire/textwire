@@ -223,8 +223,9 @@ func TestNewTemplate(t *testing.T) {
 
 func TestRegisteringCustomFunction(t *testing.T) {
 	tpl, err := NewTemplate(&config.Config{
-		TemplateDir: "textwire/testdata/good/before/",
+		TemplateDir: "textwire/testdata/good/before/012.with-custom-function",
 	})
+
 	if err != nil {
 		t.Fatalf("unexpected error: %s", err)
 	}
@@ -236,17 +237,18 @@ func TestRegisteringCustomFunction(t *testing.T) {
 
 		return string(s[0]) + string(s[1]-32) + s[2:]
 	})
+
 	if err != nil {
 		t.Fatalf("unexpected error: %s", err)
 	}
 
-	expect, err := readFile("textwire/testdata/good/expected/12.with-custom-function.html")
+	expect, err := readFile("textwire/testdata/good/expected/012.with-custom-function.html")
 	if err != nil {
 		t.Errorf("error reading expected file: %s", err)
 		return
 	}
 
-	actual, evalErr := tpl.String("12.with-custom-function", nil)
+	actual, evalErr := tpl.String("index", nil)
 	if evalErr != nil {
 		t.Fatalf("error evaluating template: %s", evalErr)
 	}
