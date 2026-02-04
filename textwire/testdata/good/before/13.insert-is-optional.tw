@@ -3,7 +3,7 @@
 <!-- Intentionally, no title inset here -->
 
 @insert("content")
-<p>Some content</p>
+<h1>Insert is optional</h1>
 
 <p>Here is more here</p>
 @end

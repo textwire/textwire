@@ -1,8 +1,8 @@
 @use("layouts/title-and-content")
 
-@insert("title", "Home page")
+@insert("title", "with inserts")
 
 @insert("content")
-<h1>Home page</h1>
+<h1>With Inserts</h1>
 <p>Some content</p>
 @end

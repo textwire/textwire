@@ -1,9 +1,9 @@
-<h1>Some title is here</h1>
-<p>Some content is here</p>
+<h1>Insert without Use Statement</h1>
+<p>Pretty content is over here</p>
 
-@insert("title", "Home page")
+@insert("title", "insert without use")
 
 @insert("content")
-<h1>Home page</h1>
-<p>Some content</p>
+<h1>This should be ignored</h1>
+<p>This is also will be ignored</p>
 @end
