@@ -165,30 +165,31 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 
 func TestNewTemplate(t *testing.T) {
 	cases := []struct {
-		dirName string
-		data    map[string]any
+		dirName  string
+		fileName string
+		data     map[string]any
 	}{
-		{"001.no-stmts", nil},
-		{"002.with-inserts", nil},
-		{"003.without-layout", map[string]any{
+		{"001.no-stmts", "index", nil},
+		{"002.with-inserts", "index", nil},
+		{"003.without-layout", "index", map[string]any{
 			"pageTitle": "Test Page",
 			"NAME_1":    "Anna Korotchaeva",
 			"name_2":    "Serhii Cho",
 		}},
-		{"004.loops", map[string]any{
+		{"004.loops", "index", map[string]any{
 			"names": []string{"Anna", "Serhii", "Vladimir"},
 		}},
-		{"005.with-component", map[string]any{
+		{"005.with-component", "views/index", map[string]any{
 			"names": []string{"Anna", "Serhii", "Vladimir"},
 		}},
-		{"006.use-inside-if", nil},
-		{"007.insert-without-use", nil},
-		{"008.with-component", nil},
-		{"009.with-inserts-and-html", nil},
-		{"010.with-component-and-slots", nil},
-		{"011.with-component-no-args", nil},
-		{"013.insert-is-optional", nil},
-		{"015.use-layout-with-comp-inside", nil},
+		{"006.use-inside-if", "index", nil},
+		{"007.insert-without-use", "index", nil},
+		{"008.with-component", "index", nil},
+		{"009.with-inserts-and-html", "index", nil},
+		{"010.with-component-and-slots", "index", nil},
+		{"011.with-component-no-args", "index", nil},
+		{"013.insert-is-optional", "index", nil},
+		{"015.use-layout-with-comp-inside", "index", nil},
 	}
 
 	for _, tc := range cases {
