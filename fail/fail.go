@@ -62,7 +62,7 @@ const (
 
 	// Template errors
 	ErrUnsupportedType   = "unsupported value type '%T'"
-	ErrTemplateNotFound  = "template file not found"
+	ErrTemplateNotFound  = "template file '%s' not found"
 	ErrUseStmtNotAllowed = "@use not allowed in layout files - causes infinite recursion"
 
 	// API errors
