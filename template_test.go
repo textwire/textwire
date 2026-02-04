@@ -114,10 +114,10 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 			data: nil,
 		},
 		{
-			dirName: "comp-error",
+			dirName: "undefined-var-in-comp",
 			err: fail.New(
 				1,
-				path+"comp-error/hero.tw",
+				path+"undefined-var-in-comp/hero.tw",
 				"parser",
 				fail.ErrIdentifierIsUndefined,
 				"undefinedVar",
