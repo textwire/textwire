@@ -125,10 +125,10 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 			data: nil,
 		},
 		{
-			dirName: "undefined-var-in-use-stmt",
+			dirName: "undefined-var-in-use",
 			err: fail.New(
 				8,
-				path+"undefined-var-in-use-stmt/base.tw",
+				path+"undefined-var-in-use/base.tw",
 				"parser",
 				fail.ErrIdentifierIsUndefined,
 				"undefinedVar",
