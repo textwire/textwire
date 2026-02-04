@@ -302,7 +302,7 @@ func TestErrorHandling(t *testing.T) {
 		},
 		{
 			inp:  `{{ obj = {name: "Amy"}; obj.name.id }}`,
-			err:  fail.New(1, "", "evaluator", fail.ErrProperyOnNonObject, "id", object.STR_OBJ),
+			err:  fail.New(1, "", "evaluator", fail.ErrPropertyOnNonObject, "id", object.STR_OBJ),
 			data: nil,
 		},
 		{

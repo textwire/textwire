@@ -599,7 +599,7 @@ func (e *Evaluator) evalDotExp(node *ast.DotExp, env *object.Env, path string) o
 	key := node.Key.(*ast.Identifier)
 	obj, ok := left.(*object.Obj)
 	if !ok {
-		return e.newError(node, path, fail.ErrProperyOnNonObject, key, left.Type())
+		return e.newError(node, path, fail.ErrPropertyOnNonObject, key, left.Type())
 	}
 
 	return e.evalObjectKeyExp(obj, key.Name, node, path)
