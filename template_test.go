@@ -135,6 +135,17 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 			),
 			data: nil,
 		},
+		{
+			dirName: "undefined-use",
+			err: fail.New(
+				1,
+				path+"undefined-use/index.tw",
+				"parser",
+				fail.ErrUseStmtMissingLayout,
+				"undefined-layout",
+			),
+			data: nil,
+		},
 	}
 
 	for _, tc := range cases {
