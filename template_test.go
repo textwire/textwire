@@ -182,17 +182,21 @@ func TestNewTemplate(t *testing.T) {
 	}{
 		{"001.no-stmts", "index", nil},
 		{"002.with-inserts", "index", nil},
-		{"003.without-use", "index", map[string]any{
-			"pageTitle": "Test Page",
-			"NAME_1":    "Anna Korotchaeva",
-			"name_2":    "Serhii Cho",
-		}},
-		{"004.loops", "index", map[string]any{
-			"names": []string{"Anna", "Serhii", "Vladimir"},
-		}},
-		{"005.with-comp", "views/index", map[string]any{
-			"names": []string{"Anna", "Serhii", "Vladimir"},
-		}},
+		{
+			"003.without-use",
+			"index",
+			map[string]any{
+				"pageTitle": "Test Page",
+				"NAME_1":    "Anna Korotchaeva",
+				"name_2":    "Serhii Cho",
+			},
+		},
+		{"004.loops", "index", map[string]any{"names": []string{"Anna", "Serhii", "Vladimir"}}},
+		{
+			"005.with-comp",
+			"views/index",
+			map[string]any{"names": []string{"Anna", "Serhii", "Vladimir"}},
+		},
 		{"006.use-inside-if", "index", nil},
 		{"007.insert-without-use", "index", nil},
 		{"008.with-comp", "index", nil},
@@ -201,6 +205,7 @@ func TestNewTemplate(t *testing.T) {
 		{"011.with-comp-no-args", "index", nil},
 		{"013.insert-is-optional", "index", nil},
 		{"015.use-with-comp-inside", "index", nil},
+		{"016.comp-in-other-comp", "home", nil},
 	}
 
 	for _, tc := range cases {
