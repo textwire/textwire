@@ -1,4 +1,4 @@
-@component ("user", { name: "Anna" })
+@component("user", { name: "Anna" })
     @slot<p>Content 1</p>@end
     @slot<p>Content 2</p>@end
 @end

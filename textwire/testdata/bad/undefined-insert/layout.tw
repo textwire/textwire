@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@reserve ('title')</title>
+    <title>@reserve('title')</title>
 </head>
 <body>
-    @reserve ('main')
+    @reserve('main')
 </body>
 </html>

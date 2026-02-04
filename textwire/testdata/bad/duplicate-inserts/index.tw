@@ -1,8 +1,8 @@
-@use ('layout')
+@use('layout')
 
-@insert ('title', 'Some title')
-@insert ('title', 'Another title')
+@insert('title', 'Some title')
+@insert('title', 'Another title')
 
-@insert ('content')
+@insert('content')
 <h1>Some title is here</h1>
 @end
