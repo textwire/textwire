@@ -344,7 +344,7 @@ func TestErrorHandling(t *testing.T) {
 }
 
 func TestEvaluateFile(t *testing.T) {
-	dirName := "014.two-vars-no-layout"
+	dirName := "014.two-vars-no-use"
 	absPath, fileErr := getFullPath("textwire/testdata/good/before/" + dirName + "/index.tw")
 
 	if fileErr != nil {

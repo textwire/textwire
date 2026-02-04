@@ -171,7 +171,7 @@ func TestNewTemplate(t *testing.T) {
 	}{
 		{"001.no-stmts", "index", nil},
 		{"002.with-inserts", "index", nil},
-		{"003.without-layout", "index", map[string]any{
+		{"003.without-use", "index", map[string]any{
 			"pageTitle": "Test Page",
 			"NAME_1":    "Anna Korotchaeva",
 			"name_2":    "Serhii Cho",
@@ -179,17 +179,17 @@ func TestNewTemplate(t *testing.T) {
 		{"004.loops", "index", map[string]any{
 			"names": []string{"Anna", "Serhii", "Vladimir"},
 		}},
-		{"005.with-component", "views/index", map[string]any{
+		{"005.with-comp", "views/index", map[string]any{
 			"names": []string{"Anna", "Serhii", "Vladimir"},
 		}},
 		{"006.use-inside-if", "index", nil},
 		{"007.insert-without-use", "index", nil},
-		{"008.with-component", "index", nil},
+		{"008.with-comp", "index", nil},
 		{"009.with-inserts-and-html", "index", nil},
-		{"010.with-component-and-slots", "index", nil},
-		{"011.with-component-no-args", "index", nil},
+		{"010.with-comp-and-slots", "index", nil},
+		{"011.with-comp-no-args", "index", nil},
 		{"013.insert-is-optional", "index", nil},
-		{"015.use-layout-with-comp-inside", "index", nil},
+		{"015.use-with-comp-inside", "index", nil},
 	}
 
 	for _, tc := range cases {
@@ -224,7 +224,7 @@ func TestNewTemplate(t *testing.T) {
 
 func TestRegisteringCustomFunction(t *testing.T) {
 	tpl, err := NewTemplate(&config.Config{
-		TemplateDir: "textwire/testdata/good/before/012.with-custom-function",
+		TemplateDir: "textwire/testdata/good/before/012.with-custom-func",
 	})
 
 	if err != nil {
@@ -243,7 +243,7 @@ func TestRegisteringCustomFunction(t *testing.T) {
 		t.Fatalf("unexpected error: %s", err)
 	}
 
-	expect, err := readFile("textwire/testdata/good/expected/012.with-custom-function.html")
+	expect, err := readFile("textwire/testdata/good/expected/012.with-custom-func.html")
 	if err != nil {
 		t.Errorf("error reading expected file: %s", err)
 		return
