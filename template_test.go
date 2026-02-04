@@ -32,10 +32,10 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 			data: nil,
 		},
 		{
-			dirName: "unknown-slot",
+			dirName: "unknown-named-slot",
 			err: fail.New(
 				2,
-				path+"unknown-slot/index.tw",
+				path+"unknown-named-slot/index.tw",
 				"parser",
 				fail.ErrSlotNotDefined,
 				"unknown",
@@ -81,10 +81,10 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 			data: nil,
 		},
 		{
-			dirName: "unknown-component",
+			dirName: "unknown-comp",
 			err: fail.New(
 				9,
-				path+"unknown-component/index.tw",
+				path+"unknown-comp/index.tw",
 				"template",
 				fail.ErrUndefinedComponent,
 				"unknown-name",
@@ -114,10 +114,10 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 			data: nil,
 		},
 		{
-			dirName: "component-error",
+			dirName: "comp-error",
 			err: fail.New(
 				1,
-				path+"component-error/hero.tw",
+				path+"comp-error/hero.tw",
 				"parser",
 				fail.ErrIdentifierIsUndefined,
 				"undefinedVar",
@@ -125,10 +125,10 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 			data: nil,
 		},
 		{
-			dirName: "use-stmt-error",
+			dirName: "undefined-var-in-use-stmt",
 			err: fail.New(
 				8,
-				path+"use-stmt-error/base.tw",
+				path+"undefined-var-in-use-stmt/base.tw",
 				"parser",
 				fail.ErrIdentifierIsUndefined,
 				"undefinedVar",
