@@ -106,7 +106,6 @@ func (e *Error) Message() string {
 // Meta returns the error meta information like the file path and line number
 func (e *Error) Meta() string {
 	var path string
-
 	if e.filepath != "" {
 		path = fmt.Sprintf(" in %s", e.filepath)
 	}
@@ -153,7 +152,7 @@ func (e *Error) Error() error {
 
 func FromError(err error, line uint, absPath, origin string, args ...any) *Error {
 	if err == nil {
-		return nil
+		panic("err should never be nil in fail.FromError() function")
 	}
 
 	return New(line, absPath, origin, err.Error(), args...)
