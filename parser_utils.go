@@ -60,7 +60,13 @@ func addAttachToUseStmt(twFile *textwireFile, twFiles []*textwireFile) *fail.Err
 	layoutName := twFile.Prog.UseStmt.Name.Value
 	layoutTwFile := findTwFile(layoutName, twFiles)
 	if layoutTwFile == nil {
-		return fail.New(twFile.Prog.Line(), twFile.Abs, "API", fail.ErrUseStmtMissingLayout, layoutName)
+		return fail.New(
+			twFile.Prog.Line(),
+			twFile.Abs,
+			"API",
+			fail.ErrUseStmtMissingLayout,
+			layoutName,
+		)
 	}
 
 	layoutTwFile.Prog.IsLayout = true

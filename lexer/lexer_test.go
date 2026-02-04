@@ -445,23 +445,39 @@ func TestTokenPosition(t *testing.T) {
 		}
 
 		if targetTok.Pos.StartCol != pos.StartCol {
-			t.Errorf("Expected token %q StartCol: %d, got %d",
-				targetTok.Literal, pos.StartCol, targetTok.Pos.StartCol)
+			t.Errorf(
+				"Expected token %q StartCol: %d, got %d",
+				targetTok.Literal,
+				pos.StartCol,
+				targetTok.Pos.StartCol,
+			)
 		}
 
 		if targetTok.Pos.EndCol != pos.EndCol {
-			t.Errorf("Expected token %q EndCol: %d, got: %d",
-				targetTok.Literal, pos.EndCol, targetTok.Pos.EndCol)
+			t.Errorf(
+				"Expected token %q EndCol: %d, got: %d",
+				targetTok.Literal,
+				pos.EndCol,
+				targetTok.Pos.EndCol,
+			)
 		}
 
 		if targetTok.Pos.EndLine != pos.EndLine {
-			t.Errorf("Expected token %q EndLine: %d, got: %d",
-				targetTok.Literal, pos.EndLine, targetTok.Pos.EndLine)
+			t.Errorf(
+				"Expected token %q EndLine: %d, got: %d",
+				targetTok.Literal,
+				pos.EndLine,
+				targetTok.Pos.EndLine,
+			)
 		}
 
 		if targetTok.Pos.StartLine != pos.StartLine {
-			t.Errorf("Expected token %q StartLine: %d, got %d",
-				targetTok.Literal, pos.StartLine, targetTok.Pos.StartLine)
+			t.Errorf(
+				"Expected token %q StartLine: %d, got %d",
+				targetTok.Literal,
+				pos.StartLine,
+				targetTok.Pos.StartLine,
+			)
 		}
 	}
 }
