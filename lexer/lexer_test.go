@@ -32,7 +32,7 @@ func TokenizeString(t *testing.T, input string, expectTokens []token.Token) {
 
 		if tok.Pos != expectTok.Pos {
 			t.Fatalf(
-				"token %q - position wrong.\nexpect: {startCol=%d, endCol=%d, startLine=%d, endLine=%d}\ngot:      {startCol=%d, endCol=%d, startLine=%d, endLine=%d}",
+				"token %q - position wrong.\nEXPECT: {startCol=%d, endCol=%d, startLine=%d, endLine=%d}\nGOT:    {startCol=%d, endCol=%d, startLine=%d, endLine=%d}",
 				tok.Literal,
 				expectTok.Pos.StartCol,
 				expectTok.Pos.EndCol,
