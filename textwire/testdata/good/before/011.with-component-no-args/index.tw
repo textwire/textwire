@@ -1,0 +1,2 @@
+<ul>@component("components/user")</ul>
+<ol>@component("~user")</ol>

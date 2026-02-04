@@ -1,5 +1,5 @@
 <body>
-@component("components/with-slots")
+@component("with-slots")
 @slot<h2>Subtitle</h2>@end
 @slot("head")<header>Header</header>@end
 @slot("foot")<footer>Footer</footer>@end

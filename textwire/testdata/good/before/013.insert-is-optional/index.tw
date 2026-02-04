@@ -1,6 +1,6 @@
-@use("~title-and-content")
+@use("layout")
 
-<!-- Intentionally, no title inset here -->
+<!-- Intentionally, no title insert here -->
 
 @insert("content")
 <h1>Insert is optional</h1>

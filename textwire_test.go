@@ -344,8 +344,8 @@ func TestErrorHandling(t *testing.T) {
 }
 
 func TestEvaluateFile(t *testing.T) {
-	filename := "14.two-vars-no-layout"
-	absPath, fileErr := getFullPath("textwire/testdata/good/before/" + filename + ".tw")
+	dirName := "014.two-vars-no-layout"
+	absPath, fileErr := getFullPath("textwire/testdata/good/before/" + dirName + "/index.tw")
 
 	if fileErr != nil {
 		t.Errorf("error getting full path: %s", fileErr)
@@ -361,7 +361,7 @@ func TestEvaluateFile(t *testing.T) {
 		t.Errorf("error evaluating file:\n%s", err)
 	}
 
-	expect, err := readFile("textwire/testdata/good/expected/" + filename + ".html")
+	expect, err := readFile("textwire/testdata/good/expected/" + dirName + ".html")
 	if err != nil {
 		t.Errorf("error reading expected file: %s", err)
 		return

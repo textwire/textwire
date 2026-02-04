@@ -1,4 +1,4 @@
-@if(true)@use("layouts/title-and-content")@end
+@if(true)@use("layouts/base")@end
 
 @if(true)@insert("title", "use inside if title")@end
 

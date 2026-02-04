@@ -64,7 +64,6 @@ func addAttachToUseStmt(twFile *textwireFile, twFiles []*textwireFile) *fail.Err
 	}
 
 	layoutTwFile.Prog.IsLayout = true
-
 	err := layoutTwFile.Prog.AddInsertsAttachments(twFile.Prog.Inserts)
 	if err != nil {
 		return err

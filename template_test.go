@@ -165,50 +165,50 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 
 func TestNewTemplate(t *testing.T) {
 	cases := []struct {
-		fileName string
-		data     map[string]any
+		dirName string
+		data    map[string]any
 	}{
-		{"1.no-stmts", nil},
-		{"2.with-inserts", nil},
-		{"3.without-layout", map[string]any{
+		{"001.no-stmts", nil},
+		{"002.with-inserts", nil},
+		{"003.without-layout", map[string]any{
 			"pageTitle": "Test Page",
 			"NAME_1":    "Anna Korotchaeva",
 			"name_2":    "Serhii Cho",
 		}},
-		{"4.loops", map[string]any{
+		{"004.loops", map[string]any{
 			"names": []string{"Anna", "Serhii", "Vladimir"},
 		}},
-		{"5.with-component", map[string]any{
+		{"005.with-component", map[string]any{
 			"names": []string{"Anna", "Serhii", "Vladimir"},
 		}},
-		{"6.use-inside-if", nil},
-		{"7.insert-without-use", nil},
-		{"8.with-component", nil},
-		{"9.with-inserts-and-html", nil},
-		{"10.with-component-and-slots", nil},
-		{"11.with-component-no-args", nil},
-		{"13.insert-is-optional", nil},
-		{"15.use-layout-with-comp-inside", nil},
-	}
-
-	tpl, err := NewTemplate(&config.Config{
-		TemplateDir: "textwire/testdata/good/before",
-	})
-
-	if err != nil {
-		t.Errorf("error creating template: %s", err)
-		return
+		{"006.use-inside-if", nil},
+		{"007.insert-without-use", nil},
+		{"008.with-component", nil},
+		{"009.with-inserts-and-html", nil},
+		{"010.with-component-and-slots", nil},
+		{"011.with-component-no-args", nil},
+		{"013.insert-is-optional", nil},
+		{"015.use-layout-with-comp-inside", nil},
 	}
 
 	for _, tc := range cases {
-		t.Run(tc.fileName, func(t *testing.T) {
-			actual, evalErr := tpl.String(tc.fileName, tc.data)
+		t.Run(tc.dirName, func(t *testing.T) {
+			tpl, err := NewTemplate(&config.Config{
+				TemplateDir: "textwire/testdata/good/before/" + tc.dirName,
+			})
+
+			if err != nil {
+				t.Errorf("error creating template: %s", err)
+				return
+			}
+
+			actual, evalErr := tpl.String("index", tc.data)
 			if evalErr != nil {
 				t.Fatalf("error evaluating template: %s", evalErr)
 				return
 			}
 
-			expect, err := readFile("textwire/testdata/good/expected/" + tc.fileName + ".html")
+			expect, err := readFile("textwire/testdata/good/expected/" + tc.dirName + ".html")
 			if err != nil {
 				t.Fatalf("error reading expected file: %s", err)
 				return
