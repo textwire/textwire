@@ -9,6 +9,7 @@
 1. Improve error handling when trying to use `@use`, `@insert`, `@reserve` or `@component` directives in simple `EvaluateString` or `EvaluateFile` function calls. These directives are only allowed inside template files with `textwire.NewTemplate`.
 2. Improve memory and performance. Read about improvements [here](https://textwire.github.io/blog/2026/02/05/textwire-v3#memory-performance).
 3. Improve error messages. Now they are clearer.
+4. Added tons of tests to make sure version 3 is stable.
 
 ### 🐛 Bug Fixes
 
@@ -18,7 +19,7 @@
 4. Now you will get a proper error when trying to access a property on a non-object type like `{{ "str".nice }}`. Before, you would get a panic.
 5. Fixed issue where you couldn't write a slot directive with space after the `@slot` keyword. This `@slot ("book")` was giving an error previously.
 6. Now you will get an proper error when trying to use `@each` statement on non-array type.
-7. Fixed bug where you couldn't use `@component` statement inside of a layout.
+7. Fixed bug where you couldn't use `@component` statement inside of a layout and `@component` inside of other components.
 
 ### ✨ New Features
 
