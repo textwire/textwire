@@ -166,7 +166,7 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 func TestNewTemplate(t *testing.T) {
 	cases := []struct {
 		dirName  string
-		fileName string
+		viewName string
 		data     map[string]any
 	}{
 		{"001.no-stmts", "index", nil},
@@ -203,7 +203,7 @@ func TestNewTemplate(t *testing.T) {
 				return
 			}
 
-			actual, evalErr := tpl.String("index", tc.data)
+			actual, evalErr := tpl.String(tc.viewName, tc.data)
 			if evalErr != nil {
 				t.Fatalf("error evaluating template: %s", evalErr)
 				return
