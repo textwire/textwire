@@ -201,21 +201,23 @@ func TestNewTemplate(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		actual, evalErr := tpl.String(tc.fileName, tc.data)
-		if evalErr != nil {
-			t.Fatalf("error evaluating template: %s", evalErr)
-			return
-		}
+		t.Run(tc.fileName, func(t *testing.T) {
+			actual, evalErr := tpl.String(tc.fileName, tc.data)
+			if evalErr != nil {
+				t.Fatalf("error evaluating template: %s", evalErr)
+				return
+			}
 
-		expect, err := readFile("textwire/testdata/good/expected/" + tc.fileName + ".html")
-		if err != nil {
-			t.Fatalf("error reading expected file: %s", err)
-			return
-		}
+			expect, err := readFile("textwire/testdata/good/expected/" + tc.fileName + ".html")
+			if err != nil {
+				t.Fatalf("error reading expected file: %s", err)
+				return
+			}
 
-		if actual != expect {
-			t.Fatalf("wrong result. expect:\n\"%s\"\ngot:\n\"%s\"", expect, actual)
-		}
+			if actual != expect {
+				t.Fatalf("wrong result. expect:\n\"%s\"\ngot:\n\"%s\"", expect, actual)
+			}
+		})
 	}
 }
 
