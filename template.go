@@ -25,9 +25,12 @@ func NewTemplate(opt *config.Config) (*Template, error) {
 		return nil, fail.FromError(err, 0, "", "template").Error()
 	}
 
-	parseErr := parsePrograms(twFiles)
-	if parseErr != nil {
-		return nil, parseErr.Error()
+	if err := parsePrograms(twFiles); err != nil {
+		return nil, err.Error()
+	}
+
+	if err := addAttachments(twFiles); err != nil {
+		return nil, err.Error()
 	}
 
 	return &Template{twFiles: twFiles}, nil
@@ -39,10 +42,9 @@ func (t *Template) String(name string, data map[string]any) (string, *fail.Error
 		return "", envErr
 	}
 
-	relPath := nameToRelPath(name)
-	twFile := t.findTwFile(relPath)
+	twFile := findTwFile(name, t.twFiles)
 	if twFile == nil {
-		return "", fail.New(0, relPath, "template", fail.ErrTemplateNotFound)
+		return "", fail.New(0, nameToRelPath(name), "template", fail.ErrTemplateNotFound, name)
 	}
 
 	e := evaluator.New(customFunc, userConfig)
@@ -98,14 +100,5 @@ func (t *Template) responseErrorPage(w http.ResponseWriter) error {
 		return err
 	}
 
-	return nil
-}
-
-func (t *Template) findTwFile(relPath string) *textwireFile {
-	for i := range t.twFiles {
-		if t.twFiles[i].Rel == relPath {
-			return t.twFiles[i]
-		}
-	}
 	return nil
 }

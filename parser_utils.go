@@ -1,9 +1,6 @@
 package textwire
 
 import (
-	"errors"
-	"os"
-
 	"github.com/textwire/textwire/v3/ast"
 	"github.com/textwire/textwire/v3/fail"
 	"github.com/textwire/textwire/v3/lexer"
@@ -22,6 +19,7 @@ func parseStr(text string) (*ast.Program, []*fail.Error) {
 	return prog, nil
 }
 
+// parsePrograms parses each Textwire file into AST nodes.
 func parsePrograms(twFiles []*textwireFile) *fail.Error {
 	for _, twFile := range twFiles {
 		failure, parseErr := twFile.parseProgram()
@@ -32,12 +30,21 @@ func parsePrograms(twFiles []*textwireFile) *fail.Error {
 		if failure != nil {
 			return failure
 		}
+	}
 
-		if err := applyLayoutToProgram(twFile); err != nil {
+	return nil
+}
+
+// addAttachments adds components and layouts to those files that use them.
+// For example, we need to add Attachment to @component('name'), where
+// attachment is the parsed AST of the name.tw component.
+func addAttachments(twFiles []*textwireFile) *fail.Error {
+	for _, twFile := range twFiles {
+		if err := addAttachToUseStmt(twFile, twFiles); err != nil {
 			return err
 		}
 
-		if err := applyComponentToProgram(twFile); err != nil {
+		if err := addAttachToCompStmts(twFile, twFiles); err != nil {
 			return err
 		}
 	}
@@ -45,71 +52,49 @@ func parsePrograms(twFiles []*textwireFile) *fail.Error {
 	return nil
 }
 
-func applyLayoutToProgram(progTwFile *textwireFile) *fail.Error {
-	if !progTwFile.Prog.HasUseStmt() {
+func addAttachToUseStmt(twFile *textwireFile, twFiles []*textwireFile) *fail.Error {
+	if !twFile.Prog.HasUseStmt() {
 		return nil
 	}
 
-	layoutRelPath := nameToRelPath(progTwFile.Prog.UseStmt.Name.Value)
-	layoutAbsPath, err := getFullPath(layoutRelPath)
-	if err != nil {
-		return fail.FromError(err, progTwFile.Prog.UseStmt.Line(), layoutAbsPath, "template")
-	}
-
-	layoutTwFile := NewTextwireFile(layoutRelPath, layoutAbsPath)
-
-	failure, parseErr := layoutTwFile.parseProgram()
-	if parseErr != nil {
-		return fail.FromError(parseErr, progTwFile.Prog.UseStmt.Line(), layoutAbsPath, "template")
-	}
-
-	if failure != nil {
-		return failure
+	layoutName := twFile.Prog.UseStmt.Name.Value
+	layoutTwFile := findTwFile(layoutName, twFiles)
+	if layoutTwFile == nil {
+		return fail.New(twFile.Prog.Line(), twFile.Abs, "API", fail.ErrProgramNotFound, layoutName)
 	}
 
 	layoutTwFile.Prog.IsLayout = true
 
-	layoutErr := layoutTwFile.Prog.ApplyInserts(progTwFile.Prog.Inserts, layoutAbsPath)
-	if layoutErr != nil {
-		return layoutErr
+	err := layoutTwFile.Prog.AddInsertsAttachments(twFile.Prog.Inserts)
+	if err != nil {
+		return err
 	}
 
-	progTwFile.Prog.ApplyLayout(layoutTwFile.Prog)
+	twFile.Prog.AddLayoutAttachment(layoutTwFile.Prog)
 
 	return nil
 }
 
-func applyComponentToProgram(progTwFile *textwireFile) *fail.Error {
-	for _, comp := range progTwFile.Prog.Components {
-		relPath := nameToRelPath(comp.Name.Value)
+func addAttachToCompStmts(twFile *textwireFile, twFiles []*textwireFile) *fail.Error {
+	if len(twFile.Prog.Components) == 0 {
+		return nil
+	}
 
-		absPath, err := getFullPath(relPath)
+	for _, comp := range twFile.Prog.Components {
+		compName := comp.Name.Value
+		compTwFile := findTwFile(compName, twFiles)
+		if compTwFile == nil {
+			return fail.New(
+				twFile.Prog.Line(),
+				twFile.Abs,
+				"API",
+				fail.ErrUndefinedComponent,
+				compName,
+			)
+		}
+
+		err := twFile.Prog.AddCompAttachment(compName, compTwFile.Prog, twFile.Abs)
 		if err != nil {
-			return fail.FromError(err, 0, "", "template")
-		}
-
-		compTwFile := NewTextwireFile(relPath, absPath)
-
-		failure, parseErr := compTwFile.parseProgram()
-		if parseErr != nil {
-			if errors.Is(parseErr, os.ErrNotExist) {
-				return fail.New(
-					comp.Line(),
-					progTwFile.Abs,
-					"template",
-					fail.ErrUndefinedComponent,
-					comp.Name.Value,
-				)
-			}
-
-			return fail.FromError(parseErr, comp.Line(), absPath, "template")
-		}
-
-		if failure != nil {
-			return failure
-		}
-
-		if err := progTwFile.Prog.ApplyComponent(comp.Name.Value, compTwFile.Prog, progTwFile.Abs); err != nil {
 			return err
 		}
 	}

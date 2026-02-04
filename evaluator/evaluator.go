@@ -205,18 +205,18 @@ func (e *Evaluator) evalAssignStmt(
 }
 
 func (e *Evaluator) evalUseStmt(node *ast.UseStmt, env *object.Env, path string) object.Object {
-	if node.Layout == nil {
+	if node.Attachment == nil {
 		if e.UsingTemplates {
 			return e.newError(node, path, fail.ErrUseStmtMissingLayout)
 		}
 		return e.newError(node, path, fail.ErrSomeDirsOnlyInTemplates)
 	}
 
-	if node.Layout.IsLayout && node.Layout.HasUseStmt() {
+	if node.Attachment.IsLayout && node.Attachment.HasUseStmt() {
 		return e.newError(node, path, fail.ErrUseStmtNotAllowed)
 	}
 
-	layout := e.Eval(node.Layout, env, node.Layout.Filepath)
+	layout := e.Eval(node.Attachment, env, node.Attachment.Filepath)
 	if isError(layout) {
 		return layout
 	}
@@ -282,7 +282,7 @@ func (e *Evaluator) evalComponentStmt(
 		return compName
 	}
 
-	if node.Block == nil {
+	if node.Attachment == nil {
 		return e.newError(node, path, fail.ErrComponentMustHaveBlock, compName.String())
 	}
 
@@ -303,7 +303,7 @@ func (e *Evaluator) evalComponentStmt(
 		}
 	}
 
-	blockObj := e.Eval(node.Block, newEnv, node.Block.Filepath)
+	blockObj := e.Eval(node.Attachment, newEnv, node.Attachment.Filepath)
 	if isError(blockObj) {
 		return blockObj
 	}

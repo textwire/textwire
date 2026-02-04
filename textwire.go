@@ -41,7 +41,6 @@ func EvaluateString(inp string, data map[string]any) (string, error) {
 // The absPath an absolute path to the Textwire file.
 // The data is a map of variables you want to inject into the Textwire.
 func EvaluateFile(absPath string, data map[string]any) (string, error) {
-	twFile := NewTextwireFile("", absPath)
 	twFile := NewTextwireFile("", "", absPath)
 
 	content, err := fileContent(twFile)

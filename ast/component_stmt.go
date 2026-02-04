@@ -8,10 +8,10 @@ import (
 
 type ComponentStmt struct {
 	BaseNode
-	Name     *StringLiteral // Relative path to the component 'components/book'
-	Argument *ObjectLiteral
-	Block    *Program    // AST node of the component file Name
-	Slots    []*SlotStmt // Each slot of the component's body
+	Name       *StringLiteral // Relative path to the component 'components/book'
+	Argument   *ObjectLiteral
+	Attachment *Program    // AST node of the component file Name
+	Slots      []*SlotStmt // Each slot of the component's body
 }
 
 func NewComponentStmt(tok token.Token) *ComponentStmt {
@@ -57,9 +57,9 @@ func (cs *ComponentStmt) String() string {
 }
 
 func (cs *ComponentStmt) Stmts() []Statement {
-	if cs.Block == nil {
+	if cs.Attachment == nil {
 		return []Statement{}
 	}
 
-	return cs.Block.Stmts()
+	return cs.Attachment.Stmts()
 }

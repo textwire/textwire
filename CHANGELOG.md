@@ -18,6 +18,7 @@
 4. Now you will get a proper error when trying to access a property on a non-object type like `{{ "str".nice }}`. Before, you would get a panic.
 5. Fixed issue where you couldn't write a slot directive with space after the `@slot` keyword. This `@slot ("book")` was giving an error previously.
 6. Now you will get an proper error when trying to use `@each` statement on non-array type.
+7. Fixed bug where you couldn't use `@component` statement inside of a layout.
 
 ### ✨ New Features
 

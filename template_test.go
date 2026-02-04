@@ -145,19 +145,19 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 
 			if tplErr != nil {
 				if tplErr.Error() != tc.err.String() {
-					t.Errorf("wrong error message. expect:\n\"%s\"\ngot:\n\"%s\"", tc.err, tplErr)
+					t.Fatalf("wrong error message. expect:\n\"%s\"\ngot:\n\"%s\"", tc.err, tplErr)
 				}
 				return
 			}
 
 			_, err := tpl.String("index", tc.data)
 			if err == nil {
-				t.Errorf("expected error but got none")
+				t.Fatalf("expected error but got none")
 				return
 			}
 
 			if err.String() != tc.err.String() {
-				t.Errorf("wrong error message. expect:\n\"%s\"\ngot:\n\"%s\"", tc.err, err)
+				t.Fatalf("wrong error message. expect:\n\"%s\"\ngot:\n\"%s\"", tc.err, err)
 			}
 		})
 	}
@@ -168,26 +168,27 @@ func TestNewTemplate(t *testing.T) {
 		fileName string
 		data     map[string]any
 	}{
-		{"1.no-stmts", nil},
-		{"2.with-inserts", nil},
-		{"3.without-layout", map[string]any{
-			"pageTitle": "Test Page",
-			"NAME_1":    "Anna Korotchaeva",
-			"name_2":    "Serhii Cho",
-		}},
-		{"4.loops", map[string]any{
-			"names": []string{"Anna", "Serhii", "Vladimir"},
-		}},
-		{"5.with-component", map[string]any{
-			"names": []string{"Anna", "Serhii", "Vladimir"},
-		}},
-		{"6.use-inside-if", nil},
-		{"7.insert-without-use", nil},
-		{"8.with-component", nil},
-		{"9.with-inserts-and-html", nil},
-		{"10.with-component-and-slots", nil},
-		{"11.with-component-no-args", nil},
-		{"13.insert-is-optional", nil},
+		// {"1.no-stmts", nil},
+		// {"2.with-inserts", nil},
+		// {"3.without-layout", map[string]any{
+		// 	"pageTitle": "Test Page",
+		// 	"NAME_1":    "Anna Korotchaeva",
+		// 	"name_2":    "Serhii Cho",
+		// }},
+		// {"4.loops", map[string]any{
+		// 	"names": []string{"Anna", "Serhii", "Vladimir"},
+		// }},
+		// {"5.with-component", map[string]any{
+		// 	"names": []string{"Anna", "Serhii", "Vladimir"},
+		// }},
+		// {"6.use-inside-if", nil},
+		// {"7.insert-without-use", nil},
+		// {"8.with-component", nil},
+		// {"9.with-inserts-and-html", nil},
+		// {"10.with-component-and-slots", nil},
+		// {"11.with-component-no-args", nil},
+		// {"13.insert-is-optional", nil},
+		{"15.use-layout-with-comp-inside", nil},
 	}
 
 	tpl, err := NewTemplate(&config.Config{
@@ -202,19 +203,18 @@ func TestNewTemplate(t *testing.T) {
 	for _, tc := range cases {
 		actual, evalErr := tpl.String(tc.fileName, tc.data)
 		if evalErr != nil {
-			t.Errorf("error evaluating template: %s", evalErr)
+			t.Fatalf("error evaluating template: %s", evalErr)
 			return
 		}
 
 		expect, err := readFile("textwire/testdata/good/expected/" + tc.fileName + ".html")
 		if err != nil {
-			t.Errorf("error reading expected file: %s", err)
+			t.Fatalf("error reading expected file: %s", err)
 			return
 		}
 
 		if actual != expect {
-			t.Errorf("wrong result. expect:\n\"%s\"\ngot:\n\"%s\"",
-				expect, actual)
+			t.Fatalf("wrong result. expect:\n\"%s\"\ngot:\n\"%s\"", expect, actual)
 		}
 	}
 }

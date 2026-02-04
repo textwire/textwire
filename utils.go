@@ -62,7 +62,8 @@ func findTwFiles() ([]*textwireFile, error) {
 				return err
 			}
 
-			twPaths = append(twPaths, NewTextwireFile(relPath, absPath))
+			name := strings.Replace(path, userConfig.TemplateExt, "", 1)
+			twPaths = append(twPaths, NewTextwireFile(name, relPath, absPath))
 
 			return nil
 		},
@@ -132,4 +133,14 @@ func addTwExtension(path string) string {
 // e.g. components/book will be converted to templates/components/book.tw
 func nameToRelPath(name string) string {
 	return joinPaths(userConfig.TemplateDir, addTwExtension(name))
+}
+
+func findTwFile(name string, twFiles []*textwireFile) *textwireFile {
+	for i := range twFiles {
+		if twFiles[i].Name == name {
+			return twFiles[i]
+		}
+	}
+
+	return nil
 }

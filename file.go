@@ -10,6 +10,11 @@ import (
 // textwireFile holds information about individual Textwire file, including
 // relative and absolute file paths.
 type textwireFile struct {
+	// Name of the file, like "components/book" or "layouts/base", or "home".
+	// This field can be empty when we are evaluating a file outside of using
+	// templating system.
+	Name string
+
 	// Rel path to the Textwire file that starts from the root of user's
 	// project.
 	// When using config.TemplateFS, relative path will exclude
@@ -23,13 +28,14 @@ type textwireFile struct {
 	Prog *ast.Program
 }
 
-func NewTextwireFile(rel, abs string) *textwireFile {
+func NewTextwireFile(name, rel, abs string) *textwireFile {
 	rel = addTwExtension(rel)
 	abs = addTwExtension(abs)
 
 	return &textwireFile{
-		Rel: trimRelPath(rel),
-		Abs: abs,
+		Name: name,
+		Rel:  trimRelPath(rel),
+		Abs:  abs,
 	}
 }
 

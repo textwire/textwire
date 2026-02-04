@@ -25,7 +25,6 @@ const (
 	ErrDuplicateSlotUsage        = "slot '%s' used %d times in component '%s'"
 	ErrDuplicateDefaultSlotUsage = "default slot used %d times in component '%s'"
 	ErrExpectedComponentName     = "component name cannot be empty"
-	ErrUndefinedComponent        = "component '%s' is not defined"
 	ErrUndefinedInsert           = "insert '%s' not found in layout - add matching @reserve"
 	ErrDuplicateInserts          = "duplicate insert '%s' found"
 	ErrUseStmtFirstArgStr        = "first argument of @use must be a string, got '%s'"
@@ -62,12 +61,14 @@ const (
 
 	// Template errors
 	ErrUnsupportedType   = "unsupported value type '%T'"
-	ErrTemplateNotFound  = "template file '%s' not found"
 	ErrUseStmtNotAllowed = "@use not allowed in layout files - causes infinite recursion"
+	ErrTemplateNotFound  = "template file '%s' not found"
 
 	// API errors
 	ErrFuncAlreadyDefined        = "custom function '%s' already defined for type '%s'"
 	ErrCannotOverrideBuiltInFunc = "cannot override built-in function '%s' for '%s'"
+	ErrProgramNotFound           = "parsed AST program not found for '%s' file"
+	ErrUndefinedComponent        = "component '%s' is not defined"
 
 	NoErrorsFound = "no Textwire errors found"
 )

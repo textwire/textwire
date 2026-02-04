@@ -64,7 +64,7 @@ func (p *Program) Stmts() []Statement {
 	return res
 }
 
-func (p *Program) ApplyInserts(inserts map[string]*InsertStmt, absPath string) *fail.Error {
+func (p *Program) AddInsertsAttachments(inserts map[string]*InsertStmt) *fail.Error {
 	if err := p.checkUndefinedInsert(inserts); err != nil {
 		return err
 	}
@@ -79,12 +79,16 @@ func (p *Program) ApplyInserts(inserts map[string]*InsertStmt, absPath string) *
 	return nil
 }
 
-func (p *Program) ApplyLayout(prog *Program) {
-	p.UseStmt.Layout = prog
+// AddLayoutAttachment sets Attachment field for the current template and
+// resets statements to only to only have UseStmt in it. Because we don't
+// need anything else. Make sure inserts are added before this is called
+// because they will be removed by this function.
+func (p *Program) AddLayoutAttachment(prog *Program) {
+	p.UseStmt.Attachment = prog
 	p.Statements = []Statement{p.UseStmt}
 }
 
-func (p *Program) ApplyComponent(name string, prog *Program, progAbsPath string) *fail.Error {
+func (p *Program) AddCompAttachment(name string, prog *Program, absPath string) *fail.Error {
 	for _, comp := range p.Components {
 		if comp.Name.Value != name {
 			continue
@@ -95,7 +99,7 @@ func (p *Program) ApplyComponent(name string, prog *Program, progAbsPath string)
 			if name == "" {
 				return fail.New(
 					prog.Line(),
-					progAbsPath,
+					absPath,
 					"parser",
 					fail.ErrDuplicateDefaultSlotUsage,
 					times,
@@ -105,7 +109,7 @@ func (p *Program) ApplyComponent(name string, prog *Program, progAbsPath string)
 
 			return fail.New(
 				prog.Line(),
-				progAbsPath,
+				absPath,
 				"parser",
 				fail.ErrDuplicateSlotUsage,
 				duplicateName,
@@ -124,7 +128,7 @@ func (p *Program) ApplyComponent(name string, prog *Program, progAbsPath string)
 			if slot.Name.Value == "" {
 				return fail.New(
 					prog.Line(),
-					progAbsPath,
+					absPath,
 					"parser",
 					fail.ErrDefaultSlotNotDefined,
 					name,
@@ -133,7 +137,7 @@ func (p *Program) ApplyComponent(name string, prog *Program, progAbsPath string)
 
 			return fail.New(
 				prog.Line(),
-				progAbsPath,
+				absPath,
 				"parser",
 				fail.ErrSlotNotDefined,
 				slot.Name.Value,
@@ -141,7 +145,7 @@ func (p *Program) ApplyComponent(name string, prog *Program, progAbsPath string)
 			)
 		}
 
-		comp.Block = prog
+		comp.Attachment = prog
 	}
 
 	return nil
