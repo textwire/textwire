@@ -1,0 +1,1 @@
+@component('first', { name })

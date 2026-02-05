@@ -287,7 +287,7 @@ func (e *Evaluator) evalComponentStmt(
 	}
 
 	comp := &object.Component{Name: compName.String()}
-	newEnv := object.NewEnclosedEnv(env)
+	newEnv := object.NewEnv()
 
 	if node.Argument != nil {
 		for key, arg := range node.Argument.Pairs {

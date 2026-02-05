@@ -35,6 +35,7 @@
 3. Fixed precedence for prefix expressions. Instead of `((!var).func())` we now have `(!(var.func()))`.
 4. Changed default file extension from `.tw.html` to `.tw`. If you still want to support it, go to your configurations in `NewTemplate` or `Configure` and add field `TemplateExt: ".tw.html"` to it.
 5. Minimal Go version support is version `1.25.0`.
+6. Components in Textwire v2 would pass variables to their children automatially without manual passing. It was a bug. In Textwire v3 each component has its scope. You need to pass data manually `@component('user', { user })`.
 
 ## [Release Notes V1](.github/CHANGELOG-V1.md)
 

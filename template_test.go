@@ -146,6 +146,17 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 			),
 			data: nil,
 		},
+		{
+			dirName: "undefined-var-in-nested-comp",
+			err: fail.New(
+				1,
+				path+"undefined-var-in-nested-comp/second.tw",
+				"parser",
+				fail.ErrIdentifierIsUndefined,
+				"name",
+			),
+			data: map[string]any{"name": "Amy"},
+		},
 	}
 
 	for _, tc := range cases {
