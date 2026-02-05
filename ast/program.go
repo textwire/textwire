@@ -11,7 +11,8 @@ import (
 type Program struct {
 	BaseNode
 	IsLayout   bool
-	Filepath   string
+	Name       string
+	AbsPath    string
 	UseStmt    *UseStmt
 	Statements []Statement
 	Components []*ComponentStmt
@@ -70,8 +71,7 @@ func (p *Program) AddInsertsAttachments(inserts map[string]*InsertStmt) *fail.Er
 	}
 
 	for _, reserve := range p.Reserves {
-		insert, ok := inserts[reserve.Name.Value]
-		if ok {
+		if insert, ok := inserts[reserve.Name.Value]; ok {
 			reserve.Insert = insert
 		}
 	}
@@ -166,7 +166,7 @@ func (p *Program) checkUndefinedInsert(inserts map[string]*InsertStmt) *fail.Err
 		}
 
 		line := inserts[name].Line()
-		path := inserts[name].FilePath
+		path := inserts[name].AbsPath
 		name := inserts[name].Name.Value
 
 		return fail.New(line, path, "parser", fail.ErrUndefinedInsert, name)

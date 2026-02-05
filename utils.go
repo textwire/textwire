@@ -2,9 +2,6 @@ package textwire
 
 import (
 	_ "embed"
-	"io"
-	"io/fs"
-	"os"
 	"path/filepath"
 	"strings"
 
@@ -33,68 +30,6 @@ func errorPage(failure *fail.Error) (string, error) {
 	}
 
 	return result, nil
-}
-
-// findFiles recursively finds all Textwire files in the templates directory,
-// and creates a *file wrapper for each of these files.
-func findFiles() ([]*file, error) {
-	twPaths := make([]*file, 0, 4) // 4 is an approximate number
-
-	err := fs.WalkDir(
-		userConfig.TemplateFS,
-		".",
-		func(path string, d fs.DirEntry, err error) error {
-			if err != nil {
-				return err
-			}
-
-			if d.IsDir() || !strings.Contains(path, userConfig.TemplateExt) {
-				return nil
-			}
-
-			// When using config.TemplateFS to embed templates into binary,
-			// we need to exclude config.TemplateDir from path since it
-			// already contains it.
-			if userConfig.UsesFS() {
-				path = strings.Replace(path, userConfig.TemplateDir, "", 1)
-			}
-
-			relPath := joinPaths(userConfig.TemplateDir, path)
-			absPath, err := filepath.Abs(relPath)
-			if err != nil {
-				return err
-			}
-
-			name := strings.Replace(path, userConfig.TemplateExt, "", 1)
-			twPaths = append(twPaths, NewFile(name, relPath, absPath))
-
-			return nil
-		},
-	)
-
-	if err != nil {
-		return nil, err
-	}
-
-	return twPaths, nil
-}
-
-// fileContent returns the content of the provided file path.
-func fileContent(f *file) (string, error) {
-	var content []byte
-	var err error
-
-	if userConfig.UsesFS() {
-		content, err = fs.ReadFile(userConfig.TemplateFS, f.Rel)
-	} else {
-		content, err = os.ReadFile(f.Abs)
-	}
-
-	if err != nil && err != io.EOF {
-		return "", err
-	}
-
-	return string(content), nil
 }
 
 func getFullPath(relPath string) (string, error) {
@@ -137,100 +72,14 @@ func nameToRelPath(name string) string {
 	return joinPaths(userConfig.TemplateDir, addTwExtension(name))
 }
 
-func findFile(name string, files []*file) *file {
-	for i := range files {
-		if files[i].Name == name {
-			return files[i]
-		}
-	}
-
-	return nil
-}
-
 func parseStr(text string) (*ast.Program, []*fail.Error) {
-	lex := lexer.New(text)
-	pars := parser.New(lex, "")
+	l := lexer.New(text)
+	p := parser.New(l, "")
 
-	prog := pars.ParseProgram()
-	if pars.HasErrors() {
-		return nil, pars.Errors()
+	prog := p.ParseProgram()
+	if p.HasErrors() {
+		return nil, p.Errors()
 	}
 
 	return prog, nil
-}
-
-// parsePrograms parses each Textwire file into AST nodes.
-func parsePrograms(files []*file) *fail.Error {
-	for _, f := range files {
-		failure, parseErr := f.parseProgram()
-		if parseErr != nil {
-			return fail.FromError(parseErr, 0, f.Abs, "template")
-		}
-
-		if failure != nil {
-			return failure
-		}
-	}
-
-	return nil
-}
-
-// addAttachments adds components and layouts to those files that use them.
-// For example, we need to add Attachment to @component('name'), where
-// attachment is the parsed AST of the name.tw component.
-func addAttachments(files []*file) *fail.Error {
-	for _, f := range files {
-		if err := addAttachToUseStmt(f, files); err != nil {
-			return err
-		}
-
-		if err := addAttachToCompStmts(f, files); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-func addAttachToUseStmt(f *file, files []*file) *fail.Error {
-	if !f.Prog.HasUseStmt() {
-		return nil
-	}
-
-	layoutName := f.Prog.UseStmt.Name.Value
-	layoutFile := findFile(layoutName, files)
-	if layoutFile == nil {
-		return fail.New(f.Prog.Line(), f.Abs, "API", fail.ErrUseStmtMissingLayout, layoutName)
-	}
-
-	layoutFile.Prog.IsLayout = true
-	err := layoutFile.Prog.AddInsertsAttachments(f.Prog.Inserts)
-	if err != nil {
-		return err
-	}
-
-	f.Prog.AddLayoutAttachment(layoutFile.Prog)
-
-	return nil
-}
-
-func addAttachToCompStmts(f *file, files []*file) *fail.Error {
-	if len(f.Prog.Components) == 0 {
-		return nil
-	}
-
-	for _, comp := range f.Prog.Components {
-		compName := comp.Name.Value
-		compFile := findFile(compName, files)
-		if compFile == nil {
-			return fail.New(f.Prog.Line(), f.Abs, "API", fail.ErrUndefinedComponent, compName)
-		}
-
-		err := f.Prog.AddCompAttachment(compName, compFile.Prog, f.Abs)
-		if err != nil {
-			return err
-		}
-	}
-
-	return nil
 }

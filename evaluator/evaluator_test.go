@@ -19,7 +19,7 @@ func testEval(inp string) object.Object {
 
 	eval := New(&config.Func{}, nil)
 
-	return eval.Eval(prog, env, prog.Filepath)
+	return eval.Eval(prog, env, prog.AbsPath)
 }
 
 func evaluationExpected(t *testing.T, inp, expect string, idx int) {

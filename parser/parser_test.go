@@ -778,16 +778,14 @@ func TestErrorHandling(t *testing.T) {
 	for _, tc := range cases {
 		l := lexer.New(tc.inp)
 		p := New(l, "")
-
 		p.ParseProgram()
 
-		if len(p.Errors()) == 0 {
+		if !p.HasErrors() {
 			t.Errorf("no errors found in input %q", tc.inp)
 			return
 		}
 
-		err := p.Errors()[0]
-		if err.String() != tc.err.String() {
+		if err := p.Errors()[0]; err.String() != tc.err.String() {
 			t.Errorf("expect error message %q, got %q", tc.err, err.String())
 		}
 	}

@@ -1,10 +1,9 @@
 package textwire
 
 import (
-	"github.com/textwire/textwire/v3/ast"
-	"github.com/textwire/textwire/v3/fail"
-	"github.com/textwire/textwire/v3/lexer"
-	"github.com/textwire/textwire/v3/parser"
+	"io"
+	"io/fs"
+	"os"
 )
 
 // file holds information about individual Textwire file, including
@@ -23,9 +22,6 @@ type file struct {
 
 	// Abs path to the Textwire file starting with `/` and system's root.
 	Abs string
-
-	// Prog is parsed AST for this Textwire file.
-	Prog *ast.Program
 }
 
 func NewFile(name, rel, abs string) *file {
@@ -39,22 +35,20 @@ func NewFile(name, rel, abs string) *file {
 	}
 }
 
-// parseProgram parses file.Program and returns errors.
-func (tf *file) parseProgram() (*fail.Error, error) {
-	content, err := fileContent(tf)
-	if err != nil {
-		return nil, err
+// Content returns the content of the file.
+func (f *file) Content() (string, error) {
+	var content []byte
+	var err error
+
+	if userConfig.UsesFS() {
+		content, err = fs.ReadFile(userConfig.TemplateFS, f.Rel)
+	} else {
+		content, err = os.ReadFile(f.Abs)
 	}
 
-	lex := lexer.New(content)
-	pars := parser.New(lex, tf.Abs)
-	tf.Prog = pars.ParseProgram()
-
-	if len(pars.Errors()) != 0 {
-		return pars.Errors()[0], nil
+	if err != nil && err != io.EOF {
+		return "", err
 	}
 
-	tf.Prog.Filepath = tf.Abs
-
-	return nil, nil
+	return string(content), nil
 }

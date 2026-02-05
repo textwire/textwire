@@ -120,7 +120,7 @@ func (e *Evaluator) evalProgram(prog *ast.Program, env *object.Env) object.Objec
 	stmts.Grow(len(prog.Statements))
 
 	for i := range prog.Statements {
-		stmt := e.Eval(prog.Statements[i], env, prog.Filepath)
+		stmt := e.Eval(prog.Statements[i], env, prog.AbsPath)
 		if isError(stmt) {
 			return stmt
 		}
@@ -216,7 +216,7 @@ func (e *Evaluator) evalUseStmt(node *ast.UseStmt, env *object.Env, path string)
 		return e.newError(node, path, fail.ErrUseStmtNotAllowed)
 	}
 
-	layout := e.Eval(node.Attachment, env, node.Attachment.Filepath)
+	layout := e.Eval(node.Attachment, env, node.Attachment.AbsPath)
 	if isError(layout) {
 		return layout
 	}
@@ -244,7 +244,7 @@ func (e *Evaluator) evalReserveStmt(
 	}
 
 	if node.Insert.Block != nil {
-		block := e.Eval(node.Insert.Block, env, node.Insert.FilePath)
+		block := e.Eval(node.Insert.Block, env, node.Insert.AbsPath)
 		if isError(block) {
 			return block
 		}
@@ -303,7 +303,7 @@ func (e *Evaluator) evalComponentStmt(
 		}
 	}
 
-	blockObj := e.Eval(node.Attachment, newEnv, node.Attachment.Filepath)
+	blockObj := e.Eval(node.Attachment, newEnv, node.Attachment.AbsPath)
 	if isError(blockObj) {
 		return blockObj
 	}

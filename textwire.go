@@ -28,7 +28,7 @@ func EvaluateString(inp string, data map[string]any) (string, error) {
 
 	eval := evaluator.New(customFunc, nil)
 
-	evaluated := eval.Eval(prog, env, prog.Filepath)
+	evaluated := eval.Eval(prog, env, prog.AbsPath)
 	if evaluated.Is(object.ERR_OBJ) {
 		return "", evaluated.(*object.Error).Err.Error()
 	}
@@ -43,17 +43,17 @@ func EvaluateString(inp string, data map[string]any) (string, error) {
 func EvaluateFile(absPath string, data map[string]any) (string, error) {
 	f := NewFile("", "", absPath)
 
-	content, err := fileContent(f)
+	content, err := f.Content()
 	if err != nil {
 		return "", fail.FromError(err, 0, absPath, "template").Error()
 	}
 
-	result, err := EvaluateString(content, data)
+	res, err := EvaluateString(content, data)
 	if err != nil {
 		return "", err
 	}
 
-	return result, nil
+	return res, nil
 }
 
 // RegisterStrFunc registers a custom function with the given name for the

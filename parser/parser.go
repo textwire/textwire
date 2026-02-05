@@ -57,9 +57,9 @@ var precedences = map[token.TokenType]int{
 }
 
 type Parser struct {
-	l        *lexer.Lexer
-	errors   []*fail.Error
-	filepath string
+	l       *lexer.Lexer
+	errors  []*fail.Error
+	absPath string
 
 	curToken  token.Token
 	peekToken token.Token
@@ -77,10 +77,10 @@ type Parser struct {
 	reserves   map[string]*ast.ReserveStmt
 }
 
-func New(lexer *lexer.Lexer, filepath string) *Parser {
+func New(lexer *lexer.Lexer, absPath string) *Parser {
 	p := &Parser{
 		l:          lexer,
-		filepath:   filepath,
+		absPath:    absPath,
 		errors:     []*fail.Error{},
 		components: []*ast.ComponentStmt{},
 		inserts:    map[string]*ast.InsertStmt{},
@@ -160,9 +160,17 @@ func (p *Parser) ParseProgram() *ast.Program {
 	prog.Inserts = p.inserts
 	prog.UseStmt = p.pointerToUseStmt
 	prog.Reserves = p.reserves
-	prog.Filepath = p.filepath
+	prog.AbsPath = p.absPath
 
 	return prog
+}
+
+func (p *Parser) Errors() []*fail.Error {
+	return p.errors
+}
+
+func (p *Parser) HasErrors() bool {
+	return len(p.errors) > 0
 }
 
 func (p *Parser) statement() ast.Statement {
@@ -260,7 +268,7 @@ func (p *Parser) expectPeek(tok token.TokenType) bool {
 }
 
 func (p *Parser) newError(line uint, msg string, args ...any) {
-	newErr := fail.New(line, p.filepath, "parser", msg, args...)
+	newErr := fail.New(line, p.absPath, "parser", msg, args...)
 	p.errors = append(p.errors, newErr)
 }
 
@@ -641,7 +649,7 @@ func (p *Parser) reserveStmt() ast.Statement {
 }
 
 func (p *Parser) insertStmt() ast.Statement {
-	stmt := ast.NewInsertStmt(p.curToken, p.filepath)
+	stmt := ast.NewInsertStmt(p.curToken, p.absPath)
 
 	if !p.expectPeek(token.LPAREN) { // move to "("
 		return p.illegalNode()
@@ -651,7 +659,7 @@ func (p *Parser) insertStmt() ast.Statement {
 
 	stmt.Name = ast.NewStringLiteral(p.curToken, p.curToken.Literal)
 
-	if hasDuplicates := p.checkDuplicateInserts(stmt); hasDuplicates {
+	if ok := p.checkDuplicateInserts(stmt); ok {
 		return nil
 	}
 
