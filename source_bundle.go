@@ -50,11 +50,11 @@ func (sb *SourceBundle) ParseFiles() *fail.Error {
 // attachment is the parsed program AST of the book.tw component.
 func (sb *SourceBundle) AddAttachments() *fail.Error {
 	for _, prog := range sb.programs {
-		if err := sb.addAttachToUseStmt(prog); err != nil {
+		if err := sb.addAttachToUse(prog); err != nil {
 			return err
 		}
 
-		if err := sb.addAttachToCompStmts(prog); err != nil {
+		if err := sb.addAttachToComp(prog); err != nil {
 			return err
 		}
 	}
@@ -110,7 +110,8 @@ func (sb *SourceBundle) FindFiles() error {
 	return err
 }
 
-func (sb *SourceBundle) addAttachToUseStmt(prog *ast.Program) *fail.Error {
+// addAttachToUse add attachments to use statement
+func (sb *SourceBundle) addAttachToUse(prog *ast.Program) *fail.Error {
 	if !prog.HasUseStmt() {
 		return nil
 	}
@@ -132,7 +133,8 @@ func (sb *SourceBundle) addAttachToUseStmt(prog *ast.Program) *fail.Error {
 	return nil
 }
 
-func (sb *SourceBundle) addAttachToCompStmts(prog *ast.Program) *fail.Error {
+// addAttachToComp adds attachments to components
+func (sb *SourceBundle) addAttachToComp(prog *ast.Program) *fail.Error {
 	if len(prog.Components) == 0 {
 		return nil
 	}
