@@ -4,6 +4,7 @@ import (
 	"io"
 	"io/fs"
 	"os"
+	"strings"
 )
 
 // file holds information about individual Textwire file, including
@@ -29,7 +30,7 @@ func NewFile(name, rel, abs string) *file {
 	abs = addTwExtension(abs)
 
 	return &file{
-		Name: name,
+		Name: strings.Trim(name, "/"),
 		Rel:  trimRelPath(rel),
 		Abs:  abs,
 	}
