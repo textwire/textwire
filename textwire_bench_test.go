@@ -1,6 +1,7 @@
 package textwire
 
 import (
+	"log"
 	"testing"
 )
 
@@ -11,7 +12,10 @@ func BenchmarkArrayJoinFunc(b *testing.B) {
 	b.ResetTimer()
 
 	for b.Loop() {
-		_, _ = EvaluateString(code, map[string]any{"arr": arr})
+		_, err := EvaluateString(code, map[string]any{"arr": arr})
+		if err != nil {
+			log.Fatal(err)
+		}
 	}
 }
 
@@ -26,13 +30,16 @@ func BenchmarkArrayAppendFunc(b *testing.B) {
 	b.ResetTimer()
 
 	for b.Loop() {
-		_, _ = EvaluateString(code, map[string]any{
+		_, err := EvaluateString(code, map[string]any{
 			"arr": arr,
 			"o1":  o1,
 			"o2":  o2,
 			"o3":  o3,
 			"o4":  o4,
 		})
+		if err != nil {
+			log.Fatal(err)
+		}
 	}
 }
 
@@ -47,12 +54,15 @@ func BenchmarkArrayPrependFunc(b *testing.B) {
 	b.ResetTimer()
 
 	for b.Loop() {
-		_, _ = EvaluateString(code, map[string]any{
+		_, err := EvaluateString(code, map[string]any{
 			"arr": arr,
 			"o1":  o1,
 			"o2":  o2,
 			"o3":  o3,
 			"o4":  o4,
 		})
+		if err != nil {
+			log.Fatal(err)
+		}
 	}
 }
