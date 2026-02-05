@@ -35,10 +35,10 @@ func errorPage(failure *fail.Error) (string, error) {
 	return result, nil
 }
 
-// findTwFiles recursively finds all files in the templates directory,
-// and creates a *twFile wrapper for each of these files.
-func findTwFiles() ([]*textwireFile, error) {
-	twPaths := make([]*textwireFile, 0, 4) // 4 is an approximate number
+// findFiles recursively finds all Textwire files in the templates directory,
+// and creates a *file wrapper for each of these files.
+func findFiles() ([]*file, error) {
+	twPaths := make([]*file, 0, 4) // 4 is an approximate number
 
 	err := fs.WalkDir(
 		userConfig.TemplateFS,
@@ -66,7 +66,7 @@ func findTwFiles() ([]*textwireFile, error) {
 			}
 
 			name := strings.Replace(path, userConfig.TemplateExt, "", 1)
-			twPaths = append(twPaths, NewTextwireFile(name, relPath, absPath))
+			twPaths = append(twPaths, NewFile(name, relPath, absPath))
 
 			return nil
 		},
@@ -80,14 +80,14 @@ func findTwFiles() ([]*textwireFile, error) {
 }
 
 // fileContent returns the content of the provided file path.
-func fileContent(twFile *textwireFile) (string, error) {
+func fileContent(f *file) (string, error) {
 	var content []byte
 	var err error
 
 	if userConfig.UsesFS() {
-		content, err = fs.ReadFile(userConfig.TemplateFS, twFile.Rel)
+		content, err = fs.ReadFile(userConfig.TemplateFS, f.Rel)
 	} else {
-		content, err = os.ReadFile(twFile.Abs)
+		content, err = os.ReadFile(f.Abs)
 	}
 
 	if err != nil && err != io.EOF {
@@ -127,7 +127,6 @@ func addTwExtension(path string) string {
 	if path == "" || strings.HasSuffix(path, userConfig.TemplateExt) {
 		return path
 	}
-
 	return path + userConfig.TemplateExt
 }
 
@@ -138,10 +137,10 @@ func nameToRelPath(name string) string {
 	return joinPaths(userConfig.TemplateDir, addTwExtension(name))
 }
 
-func findTwFile(name string, twFiles []*textwireFile) *textwireFile {
-	for i := range twFiles {
-		if twFiles[i].Name == name {
-			return twFiles[i]
+func findFile(name string, files []*file) *file {
+	for i := range files {
+		if files[i].Name == name {
+			return files[i]
 		}
 	}
 
@@ -161,11 +160,11 @@ func parseStr(text string) (*ast.Program, []*fail.Error) {
 }
 
 // parsePrograms parses each Textwire file into AST nodes.
-func parsePrograms(twFiles []*textwireFile) *fail.Error {
-	for _, twFile := range twFiles {
-		failure, parseErr := twFile.parseProgram()
+func parsePrograms(files []*file) *fail.Error {
+	for _, f := range files {
+		failure, parseErr := f.parseProgram()
 		if parseErr != nil {
-			return fail.FromError(parseErr, 0, twFile.Abs, "template")
+			return fail.FromError(parseErr, 0, f.Abs, "template")
 		}
 
 		if failure != nil {
@@ -179,13 +178,13 @@ func parsePrograms(twFiles []*textwireFile) *fail.Error {
 // addAttachments adds components and layouts to those files that use them.
 // For example, we need to add Attachment to @component('name'), where
 // attachment is the parsed AST of the name.tw component.
-func addAttachments(twFiles []*textwireFile) *fail.Error {
-	for _, twFile := range twFiles {
-		if err := addAttachToUseStmt(twFile, twFiles); err != nil {
+func addAttachments(files []*file) *fail.Error {
+	for _, f := range files {
+		if err := addAttachToUseStmt(f, files); err != nil {
 			return err
 		}
 
-		if err := addAttachToCompStmts(twFile, twFiles); err != nil {
+		if err := addAttachToCompStmts(f, files); err != nil {
 			return err
 		}
 	}
@@ -193,53 +192,41 @@ func addAttachments(twFiles []*textwireFile) *fail.Error {
 	return nil
 }
 
-func addAttachToUseStmt(twFile *textwireFile, twFiles []*textwireFile) *fail.Error {
-	if !twFile.Prog.HasUseStmt() {
+func addAttachToUseStmt(f *file, files []*file) *fail.Error {
+	if !f.Prog.HasUseStmt() {
 		return nil
 	}
 
-	layoutName := twFile.Prog.UseStmt.Name.Value
-	layoutTwFile := findTwFile(layoutName, twFiles)
-	if layoutTwFile == nil {
-		return fail.New(
-			twFile.Prog.Line(),
-			twFile.Abs,
-			"API",
-			fail.ErrUseStmtMissingLayout,
-			layoutName,
-		)
+	layoutName := f.Prog.UseStmt.Name.Value
+	layoutFile := findFile(layoutName, files)
+	if layoutFile == nil {
+		return fail.New(f.Prog.Line(), f.Abs, "API", fail.ErrUseStmtMissingLayout, layoutName)
 	}
 
-	layoutTwFile.Prog.IsLayout = true
-	err := layoutTwFile.Prog.AddInsertsAttachments(twFile.Prog.Inserts)
+	layoutFile.Prog.IsLayout = true
+	err := layoutFile.Prog.AddInsertsAttachments(f.Prog.Inserts)
 	if err != nil {
 		return err
 	}
 
-	twFile.Prog.AddLayoutAttachment(layoutTwFile.Prog)
+	f.Prog.AddLayoutAttachment(layoutFile.Prog)
 
 	return nil
 }
 
-func addAttachToCompStmts(twFile *textwireFile, twFiles []*textwireFile) *fail.Error {
-	if len(twFile.Prog.Components) == 0 {
+func addAttachToCompStmts(f *file, files []*file) *fail.Error {
+	if len(f.Prog.Components) == 0 {
 		return nil
 	}
 
-	for _, comp := range twFile.Prog.Components {
+	for _, comp := range f.Prog.Components {
 		compName := comp.Name.Value
-		compTwFile := findTwFile(compName, twFiles)
-		if compTwFile == nil {
-			return fail.New(
-				twFile.Prog.Line(),
-				twFile.Abs,
-				"API",
-				fail.ErrUndefinedComponent,
-				compName,
-			)
+		compFile := findFile(compName, files)
+		if compFile == nil {
+			return fail.New(f.Prog.Line(), f.Abs, "API", fail.ErrUndefinedComponent, compName)
 		}
 
-		err := twFile.Prog.AddCompAttachment(compName, compTwFile.Prog, twFile.Abs)
+		err := f.Prog.AddCompAttachment(compName, compFile.Prog, f.Abs)
 		if err != nil {
 			return err
 		}

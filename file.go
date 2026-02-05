@@ -7,9 +7,9 @@ import (
 	"github.com/textwire/textwire/v3/parser"
 )
 
-// textwireFile holds information about individual Textwire file, including
+// file holds information about individual Textwire file, including
 // relative and absolute file paths.
-type textwireFile struct {
+type file struct {
 	// Name of the file, like "components/book" or "layouts/base", or "home".
 	// This field can be empty when we are evaluating a file outside of using
 	// templating system.
@@ -28,19 +28,19 @@ type textwireFile struct {
 	Prog *ast.Program
 }
 
-func NewTextwireFile(name, rel, abs string) *textwireFile {
+func NewFile(name, rel, abs string) *file {
 	rel = addTwExtension(rel)
 	abs = addTwExtension(abs)
 
-	return &textwireFile{
+	return &file{
 		Name: name,
 		Rel:  trimRelPath(rel),
 		Abs:  abs,
 	}
 }
 
-// parseProgram parses twFile.Program and returns errors.
-func (tf *textwireFile) parseProgram() (*fail.Error, error) {
+// parseProgram parses file.Program and returns errors.
+func (tf *file) parseProgram() (*fail.Error, error) {
 	content, err := fileContent(tf)
 	if err != nil {
 		return nil, err

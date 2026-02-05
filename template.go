@@ -11,7 +11,7 @@ import (
 )
 
 type Template struct {
-	twFiles []*textwireFile
+	files []*file
 }
 
 // NewTemplate returns a new Template instance with parsed Textwire files
@@ -20,20 +20,20 @@ type Template struct {
 func NewTemplate(opt *config.Config) (*Template, error) {
 	Configure(opt)
 
-	twFiles, err := findTwFiles()
+	files, err := findFiles()
 	if err != nil {
 		return nil, fail.FromError(err, 0, "", "template").Error()
 	}
 
-	if err := parsePrograms(twFiles); err != nil {
+	if err := parsePrograms(files); err != nil {
 		return nil, err.Error()
 	}
 
-	if err := addAttachments(twFiles); err != nil {
+	if err := addAttachments(files); err != nil {
 		return nil, err.Error()
 	}
 
-	return &Template{twFiles: twFiles}, nil
+	return &Template{files: files}, nil
 }
 
 func (t *Template) String(name string, data map[string]any) (string, *fail.Error) {
@@ -42,13 +42,13 @@ func (t *Template) String(name string, data map[string]any) (string, *fail.Error
 		return "", envErr
 	}
 
-	twFile := findTwFile(name, t.twFiles)
-	if twFile == nil {
+	f := findFile(name, t.files)
+	if f == nil {
 		return "", fail.New(0, nameToRelPath(name), "template", fail.ErrTemplateNotFound, name)
 	}
 
 	e := evaluator.New(customFunc, userConfig)
-	evaluated := e.Eval(twFile.Prog, env, twFile.Prog.Filepath)
+	evaluated := e.Eval(f.Prog, env, f.Prog.Filepath)
 	if evaluated.Is(object.ERR_OBJ) {
 		return "", evaluated.(*object.Error).Err
 	}
