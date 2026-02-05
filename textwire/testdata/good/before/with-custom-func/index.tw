@@ -1,1 +1,0 @@
-<h1>{{ "amyadams"._secondLetterUpper() }}</h1>
