@@ -18,7 +18,7 @@ const (
 	ErrIllegalToken              = "illegal token '%s'"
 	ErrElseifCannotFollowElse    = "'@elseif' cannot come after '@else'"
 	ErrExceptedComponentStmt     = "expected component statement, got %T"
-	ErrComponentMustHaveBlock    = "component '%s' missing required block"
+	ErrComponentMustHaveBlock    = "@component statement '%s' missing required block"
 	ErrExpectedObjectLiteral     = "expected object literal, got '%s'"
 	ErrSlotNotDefined            = "slot '%s' not defined in component '%s'"
 	ErrDefaultSlotNotDefined     = "default slot not defined in component '%s'"

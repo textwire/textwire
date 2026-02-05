@@ -286,3 +286,43 @@ func TestRegisteringCustomFunction(t *testing.T) {
 		t.Errorf("wrong result. expect: '%s' got: '%s'", expect, actual)
 	}
 }
+
+func TestTwoTemplates(t *testing.T) {
+	tpl, err := NewTemplate(&config.Config{
+		TemplateDir: "textwire/testdata/good/before/two-templates",
+	})
+
+	if err != nil {
+		t.Fatalf("unexpected error: %s", err)
+	}
+
+	expectHome, err := readFile("textwire/testdata/good/expected/two-templates-home.html")
+	if err != nil {
+		t.Errorf("error reading expected file: %s", err)
+		return
+	}
+
+	actualHome, evalHomeErr := tpl.String("home", map[string]any{"titleHome": "home"})
+	if evalHomeErr != nil {
+		t.Fatalf("error evaluating home.tw template: %s", evalHomeErr)
+	}
+
+	if actualHome != expectHome {
+		t.Errorf("wrong result for home.tw. expect: '%s' got: '%s'", expectHome, actualHome)
+	}
+
+	expectAbout, err := readFile("textwire/testdata/good/expected/two-templates-about.html")
+	if err != nil {
+		t.Errorf("error reading expected file: %s", err)
+		return
+	}
+
+	actualAbout, evalAboutErr := tpl.String("about", map[string]any{"titleAbout": "about"})
+	if evalAboutErr != nil {
+		t.Fatalf("error evaluating home.tw template: %s", evalAboutErr)
+	}
+
+	if actualAbout != expectAbout {
+		t.Errorf("wrong result for about.tw. expect: '%s' got: '%s'", expectAbout, actualAbout)
+	}
+}
