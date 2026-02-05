@@ -83,8 +83,8 @@ func (p *Program) AddInsertsAttachments(inserts map[string]*InsertStmt) *fail.Er
 // resets statements to only to only have UseStmt in it. Because we don't
 // need anything else. Make sure inserts are added before this is called
 // because they will be removed by this function.
-func (p *Program) AddLayoutAttachment(prog *Program) {
-	p.UseStmt.Attachment = prog
+func (p *Program) AddLayoutAttachment(layoutProg *Program) {
+	p.UseStmt.Attachment = layoutProg
 	p.Statements = []Statement{p.UseStmt}
 }
 
