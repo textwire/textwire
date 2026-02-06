@@ -51,7 +51,7 @@ const (
 	ErrEachDirWithNonArrArg    = "cannot use @each statement with non-array type '%s' after 'in' keyword"
 
 	// Functions
-	ErrNoFuncForThisType  = "function '%s' not available for type '%s'"
+	ErrNoAttrForThisType  = "'%s' type has no attribute '%s'"
 	ErrFuncRequiresOneArg = "function '%s' on type '%s' requires at least one argument"
 	ErrFuncFirstArgInt    = "first argument for function '%s' on type '%s' must be an INTEGER"
 	ErrFuncFirstArgStr    = "first argument for function '%s' on type '%s' must be a STRING"

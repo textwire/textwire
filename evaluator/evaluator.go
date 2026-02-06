@@ -682,7 +682,7 @@ func (e *Evaluator) evalCallExp(node *ast.CallExp, ctx *Context) object.Object {
 	receiverType := receiver.Type()
 	typeFuncs, ok := functions[receiverType]
 	if !ok {
-		return e.newError(node, ctx, fail.ErrNoFuncForThisType, funcName, receiverType)
+		return e.newError(node, ctx, fail.ErrNoAttrForThisType, receiverType, funcName)
 	}
 
 	args := e.evalExpressions(node.Arguments, ctx)
@@ -733,7 +733,7 @@ func (e *Evaluator) evalCallExp(node *ast.CallExp, ctx *Context) object.Object {
 		}
 	}
 
-	return e.newError(node, ctx, fail.ErrNoFuncForThisType, node.Function.Name, receiver.Type())
+	return e.newError(node, ctx, fail.ErrNoAttrForThisType, receiver.Type(), node.Function.Name)
 }
 
 func (e *Evaluator) evalGlobalCallExp(node *ast.GlobalCallExp, ctx *Context) object.Object {
