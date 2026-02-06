@@ -9,10 +9,10 @@ import (
 
 type InsertStmt struct {
 	BaseNode
-	Name     *StringLiteral // The name of the insert statement
-	Argument Expression     // The argument to the insert statement; nil if has block
-	Block    *BlockStmt     // The block of the insert statement; nil if has argument
-	AbsPath  string         // The absolute file path of the insert statement
+	Name     *StringLiteral // Name of the insert statement
+	Argument Expression     // Argument to the insert statement; nil if has block
+	Block    *BlockStmt     // Block of the insert statement; nil if has argument
+	AbsPath  string         // AbsPath of the insert statement
 }
 
 func NewInsertStmt(tok token.Token, absPath string) *InsertStmt {

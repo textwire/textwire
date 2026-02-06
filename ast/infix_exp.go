@@ -8,7 +8,7 @@ import (
 
 type InfixExp struct {
 	BaseNode
-	Operator string // The operator, e.g. +
+	Operator string // +, -, *, /, etc.
 	Left     Expression
 	Right    Expression
 }

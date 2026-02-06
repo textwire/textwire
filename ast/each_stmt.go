@@ -9,10 +9,10 @@ import (
 
 type EachStmt struct {
 	BaseNode
-	Var         *Identifier // The variable name
-	Array       Expression  // The array to loop over
-	Alternative *BlockStmt  // The @else block
-	Block       *BlockStmt
+	Var       *Identifier // Variable name
+	Array     Expression  // Array to loop over
+	ElseBlock *BlockStmt  // @else<ElseBlock>@end
+	Block     *BlockStmt
 }
 
 func NewEachStmt(tok token.Token) *EachStmt {
@@ -33,9 +33,9 @@ func (es *EachStmt) String() string {
 
 	fmt.Fprintf(&out, "@each(%s in %s)\n%s\n", es.Var, es.Array, es.Block)
 
-	if es.Alternative != nil {
+	if es.ElseBlock != nil {
 		out.WriteString("@else\n")
-		out.WriteString(es.Alternative.String() + "\n")
+		out.WriteString(es.ElseBlock.String() + "\n")
 	}
 
 	out.WriteString("@end\n")
@@ -45,13 +45,12 @@ func (es *EachStmt) String() string {
 
 func (es *EachStmt) Stmts() []Statement {
 	stmts := make([]Statement, 0)
-
 	if es.Block != nil {
 		stmts = append(stmts, es.Block.Stmts()...)
 	}
 
-	if es.Alternative != nil {
-		stmts = append(stmts, es.Alternative.Stmts()...)
+	if es.ElseBlock != nil {
+		stmts = append(stmts, es.ElseBlock.Stmts()...)
 	}
 
 	return stmts

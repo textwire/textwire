@@ -2,7 +2,7 @@ package ast
 
 import "github.com/textwire/textwire/v3/token"
 
-// BaseNode is the base for all the ast nodes
+// BaseNode is the main base for all the AST nodes.
 type BaseNode struct {
 	Token token.Token
 	Pos   token.Position

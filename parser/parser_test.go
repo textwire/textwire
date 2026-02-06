@@ -256,7 +256,7 @@ func testLiteralExpression(
 	return false
 }
 
-func testConsequence(t *testing.T, stmt ast.Statement, condition any, consequence string) bool {
+func testIfBlock(t *testing.T, stmt ast.Statement, condition any, ifBlock string) bool {
 	ifStmt, ok := stmt.(*ast.IfStmt)
 
 	if !ok {
@@ -268,30 +268,28 @@ func testConsequence(t *testing.T, stmt ast.Statement, condition any, consequenc
 		return false
 	}
 
-	if ifStmt.Consequence.String() != consequence {
-		t.Errorf("ifStmt.Consequence.String() is not %q, got %q",
-			consequence, ifStmt.Consequence.String())
+	if ifStmt.IfBlock.String() != ifBlock {
+		t.Errorf("ifStmt.IfBlock.String() is not %q, got %q", ifBlock, ifStmt.IfBlock.String())
 		return false
 	}
 
 	return true
 }
 
-func testAlternative(t *testing.T, alt *ast.BlockStmt, altValue string) bool {
-	if alt == nil {
-		t.Errorf("alternative is nil")
+func testElseBlock(t *testing.T, elseBlock *ast.BlockStmt, elseVal string) bool {
+	if elseBlock == nil {
+		t.Errorf("elseBlock is nil")
 		return false
 	}
 
-	if len(alt.Statements) != 1 {
-		t.Errorf("alternative.Statements does not contain 1 statement, got %d",
-			len(alt.Statements))
+	if len(elseBlock.Statements) != 1 {
+		t.Errorf("elseBlock.Statements does not contain 1 statement, got %d", len(elseBlock.Statements))
 
 		return false
 	}
 
-	if alt.String() != altValue {
-		t.Errorf("alternative.String() is not %q, got %q", alt.String(), altValue)
+	if elseBlock.String() != elseVal {
+		t.Errorf("elseBlock.String() is not %q, got %q", elseBlock.String(), elseVal)
 		return false
 	}
 
@@ -814,8 +812,8 @@ func TestTernaryExp(t *testing.T) {
 	})
 
 	testBooleanLiteral(t, exp.Condition, true)
-	testIntegerLiteral(t, exp.Consequence, 100)
-	testStringLiteral(t, exp.Alternative, "Some string")
+	testIntegerLiteral(t, exp.IfBlock, 100)
+	testStringLiteral(t, exp.ElseBlock, "Some string")
 }
 
 func TestParseIfStmt(t *testing.T) {
@@ -834,16 +832,16 @@ func TestParseIfStmt(t *testing.T) {
 		EndCol:   13,
 	})
 
-	if !testConsequence(t, stmt, true, "1") {
+	if !testIfBlock(t, stmt, true, "1") {
 		return
 	}
 
-	if stmt.Alternative != nil {
-		t.Errorf("ifStmt.Alternative is not nil, got %T", stmt.Alternative)
+	if stmt.ElseBlock != nil {
+		t.Errorf("ifStmt.ElseBlock is not nil, got %T", stmt.ElseBlock)
 	}
 
-	if len(stmt.Alternatives) != 0 {
-		t.Errorf("ifStmt.Alternatives is not empty, got %d", len(stmt.Alternatives))
+	if len(stmt.ElseIfStmts) != 0 {
+		t.Errorf("ifStmt.ElseIfStmts is not empty, got %d", len(stmt.ElseIfStmts))
 	}
 }
 
@@ -858,19 +856,19 @@ func TestParseIfElseStatement(t *testing.T) {
 	}
 
 	testToken(t, stmt, token.IF)
-	testToken(t, stmt.Consequence, token.HTML)
-	testToken(t, stmt.Alternative, token.HTML)
+	testToken(t, stmt.IfBlock, token.HTML)
+	testToken(t, stmt.ElseBlock, token.HTML)
 
 	testPosition(t, stmt.Position(), token.Position{
 		StartCol: 0,
 		EndCol:   19,
 	})
 
-	if !testConsequence(t, stmt, true, "1") {
+	if !testIfBlock(t, stmt, true, "1") {
 		return
 	}
 
-	if !testAlternative(t, stmt.Alternative, "2") {
+	if !testElseBlock(t, stmt.ElseBlock, "2") {
 		return
 	}
 }
@@ -900,14 +898,13 @@ func TestParseNestedIfElseStatement(t *testing.T) {
 		t.Fatalf("stmts[1] is not an IfStmt, got %T", stmts[1])
 	}
 
-	if len(ifStmt.Consequence.Statements) != 3 {
-		t.Fatalf("ifStmt.Consequence.Statements does not contain 3 statement, got %d",
-			len(ifStmt.Consequence.Statements))
+	if len(ifStmt.IfBlock.Statements) != 3 {
+		t.Fatalf("ifStmt.IfBlock.Statements does not contain 3 statement, got %d", len(ifStmt.IfBlock.Statements))
 	}
 
 	testToken(t, ifStmt, token.IF)
-	testToken(t, ifStmt.Consequence, token.HTML)
-	testToken(t, ifStmt.Alternative, token.HTML)
+	testToken(t, ifStmt.IfBlock, token.HTML)
+	testToken(t, ifStmt.ElseBlock, token.HTML)
 
 	testPosition(t, ifStmt.Position(), token.Position{
 		StartLine: 1,
@@ -916,14 +913,14 @@ func TestParseNestedIfElseStatement(t *testing.T) {
 		EndCol:    11,
 	})
 
-	testPosition(t, ifStmt.Consequence.Position(), token.Position{
+	testPosition(t, ifStmt.IfBlock.Position(), token.Position{
 		StartLine: 1,
 		EndLine:   9,
 		StartCol:  17,
 		EndCol:    7,
 	})
 
-	testPosition(t, ifStmt.Alternative.Position(), token.Position{
+	testPosition(t, ifStmt.ElseBlock.Position(), token.Position{
 		StartLine: 9,
 		EndLine:   11,
 		StartCol:  13,
@@ -941,98 +938,95 @@ func TestParseIfElseIfStmt(t *testing.T) {
 		t.Fatalf("stmts[0] is not an IfStmt, got %T", stmts[0])
 	}
 
-	if !testConsequence(t, stmt, true, "first") {
+	if !testIfBlock(t, stmt, true, "first") {
 		return
 	}
 
-	if stmt.Alternative != nil {
-		t.Errorf("ifStmt.Alternative is not nil, got %T", stmt.Alternative)
+	if stmt.ElseBlock != nil {
+		t.Errorf("ifStmt.ElseBlock is not nil, got %T", stmt.ElseBlock)
 	}
 
-	if len(stmt.Alternatives) != 1 {
-		t.Errorf("ifStmt.Alternatives does not contain 1 statement, got %d",
-			len(stmt.Alternatives))
+	if len(stmt.ElseIfStmts) != 1 {
+		t.Errorf("ifStmt.ElseIfStmts does not contain 1 statement, got %d", len(stmt.ElseIfStmts))
 	}
 
-	alt := stmt.Alternatives[0]
-	if elseIfStmt, ok := alt.(*ast.ElseIfStmt); ok {
+	elseIfStmt := stmt.ElseIfStmts[0]
+	if elseIfStmt, ok := elseIfStmt.(*ast.ElseIfStmt); ok {
 		if !testBooleanLiteral(t, elseIfStmt.Condition, false) {
 			return
 		}
 
-		if len(elseIfStmt.Consequence.Statements) != 1 {
+		if len(elseIfStmt.Block.Statements) != 1 {
 			t.Errorf(
-				"elseIfStmt.Consequence.Statements does not contain 1 statement, got %d",
-				len(elseIfStmt.Consequence.Statements),
+				"elseIfStmt.Block.Statements does not contain 1 statement, got %d",
+				len(elseIfStmt.Block.Statements),
 			)
 		}
 
-		cons, ok := elseIfStmt.Consequence.Statements[0].(*ast.HTMLStmt)
-
+		htmlStmt, ok := elseIfStmt.Block.Statements[0].(*ast.HTMLStmt)
 		if !ok {
 			t.Fatalf(
-				"elseIfStmt.Consequence.Statements[0] is not an HTMLStmt, got %T",
-				elseIfStmt.Consequence.Statements[0],
+				"elseIfStmt.Block.Statements[0] is not an HTMLStmt, got %T",
+				elseIfStmt.Block.Statements[0],
 			)
 		}
 
-		if cons.String() != "second" {
-			t.Errorf("cons.String() is not %q, got %q", "second", cons.String())
+		if htmlStmt.String() != "second" {
+			t.Errorf("htmlStmt.String() is not %q, got %q", "second", htmlStmt.String())
 		}
+
 		return
 	}
 
-	t.Errorf("stmt.Alternatives[0] is not an ElseIfStmt, got %T", alt)
+	t.Errorf("stmt.ElseIfStmts[0] is not an ElseIfStmt, got %T", elseIfStmt)
 }
 
-func TestParseIfElseIfElseStatement(t *testing.T) {
+func TestParseElseIfWithElseStatement(t *testing.T) {
 	inp := `@if(true)1@elseif(false)2@else3@end`
 
 	stmts := parseStatements(t, inp, defaultParseOpts)
-
 	stmt, ok := stmts[0].(*ast.IfStmt)
 	if !ok {
 		t.Fatalf("stmts[0] is not an IfStmt, got %T", stmts[0])
 	}
 
-	if !testConsequence(t, stmt, true, "1") {
+	if !testIfBlock(t, stmt, true, "1") {
 		return
 	}
 
-	if !testAlternative(t, stmt.Alternative, "3") {
+	if !testElseBlock(t, stmt.ElseBlock, "3") {
 		return
 	}
 
-	if len(stmt.Alternatives) != 1 {
+	if len(stmt.ElseIfStmts) != 1 {
 		t.Errorf(
-			"ifStmt.Alternatives does not contain 1 statement, got %d",
-			len(stmt.Alternatives),
+			"ifStmt.ElseIfStmts does not contain 1 statement, got %d",
+			len(stmt.ElseIfStmts),
 		)
 	}
 
-	if elseIfAlt, ok := stmt.Alternatives[0].(*ast.ElseIfStmt); ok {
-		if !testBooleanLiteral(t, elseIfAlt.Condition, false) {
+	if elseIfStmt, ok := stmt.ElseIfStmts[0].(*ast.ElseIfStmt); ok {
+		if !testBooleanLiteral(t, elseIfStmt.Condition, false) {
 			return
 		}
 
-		if len(elseIfAlt.Consequence.Statements) != 1 {
+		if len(elseIfStmt.Block.Statements) != 1 {
 			t.Errorf(
-				"alternative.Consequence.Statements does not contain 1 statement, got %d",
-				len(elseIfAlt.Consequence.Statements),
+				"elseIfStmt.Block.Statements does not contain 1 statement, got %d",
+				len(elseIfStmt.Block.Statements),
 			)
 		}
 
-		consequence, ok := elseIfAlt.Consequence.Statements[0].(*ast.HTMLStmt)
-
+		htmlStmt, ok := elseIfStmt.Block.Statements[0].(*ast.HTMLStmt)
 		if !ok {
 			t.Fatalf(
-				"alternative.Consequence.Statements[0] is not an HTMLStmt, got %T",
-				elseIfAlt.Consequence.Statements[0],
+				"elseIfStmt.Block.Statements[0] is not an HTMLStmt, got %T",
+				elseIfStmt.Block.Statements[0],
 			)
 		}
 
-		if consequence.String() != "2" {
-			t.Errorf("consequence.String() is not %s, got %s", "2", consequence.String())
+		if htmlStmt.String() != "2" {
+			t.Errorf("htmlStmt.String() is not %s, got %s", "2", htmlStmt.String())
 		}
 	}
 }
@@ -1546,8 +1540,8 @@ func TestParseForStmt(t *testing.T) {
 		t.Errorf("actual is not '%q', got %q", "{{ i }}", actual)
 	}
 
-	if stmt.Alternative != nil {
-		t.Errorf("stmt.Alternative is not nil, got %T", stmt.Alternative)
+	if stmt.ElseBlock != nil {
+		t.Errorf("stmt.ElseBlock is not nil, got %T", stmt.ElseBlock)
 	}
 }
 
@@ -1563,13 +1557,12 @@ func TestParseForElseStatement(t *testing.T) {
 
 	testToken(t, stmt, token.FOR)
 
-	if stmt.Alternative == nil {
-		t.Fatalf("stmt.Alternative is nil")
+	if stmt.ElseBlock == nil {
+		t.Fatalf("stmt.ElseBlock is nil")
 	}
 
-	if stmt.Alternative.String() != "Empty" {
-		t.Errorf("stmt.Alternative.String() is not 'Empty', got %s",
-			stmt.Alternative.String())
+	if stmt.ElseBlock.String() != "Empty" {
+		t.Errorf("stmt.ElseBlock.String() is not 'Empty', got %s", stmt.ElseBlock.String())
 	}
 }
 
@@ -1634,8 +1627,8 @@ func TestParseEachStmt(t *testing.T) {
 		t.Errorf("actual is not %q, got %q", "{{ name }}", actual)
 	}
 
-	if stmt.Alternative != nil {
-		t.Errorf("stmt.Alternative is not nil, got %T", stmt.Alternative)
+	if stmt.ElseBlock != nil {
+		t.Errorf("stmt.ElseBlock is not nil, got %T", stmt.ElseBlock)
 	}
 }
 
@@ -1682,9 +1675,8 @@ func TestParseEachElseStatement(t *testing.T) {
 
 	testToken(t, stmt, token.EACH)
 
-	if stmt.Alternative.String() != "Test" {
-		t.Errorf("stmt.Alternative.String() is not 'Test', got %s",
-			stmt.Alternative.String())
+	if stmt.ElseBlock.String() != "Test" {
+		t.Errorf("stmt.ElseBlock.String() is not 'Test', got %s", stmt.ElseBlock.String())
 	}
 }
 
@@ -2090,14 +2082,14 @@ func TestParseBodyAsIllegalNode(t *testing.T) {
 		t.Errorf("stmts[0] is not an IfStmt, got %T", stmt)
 	}
 
-	dump, ok := stmt.Consequence.Statements[0].(*ast.DumpStmt)
+	dumpStmt, ok := stmt.IfBlock.Statements[0].(*ast.DumpStmt)
 	if !ok {
-		t.Errorf("stmt.Consequence.Statements[0] is not an DumpStmt, got %T", dump)
+		t.Errorf("stmt.IfBlock.Statements[0] is not an DumpStmt, got %T", dumpStmt)
 	}
 
-	_, ok = dump.Arguments[0].(*ast.IllegalNode)
+	_, ok = dumpStmt.Arguments[0].(*ast.IllegalNode)
 	if !ok {
-		t.Errorf("dump.Arguments[0] is not an IllegalNode, got %T", dump.Arguments[0])
+		t.Errorf("dump.Arguments[0] is not an IllegalNode, got %T", dumpStmt.Arguments[0])
 	}
 }
 

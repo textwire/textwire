@@ -8,7 +8,7 @@ import (
 
 type ReserveStmt struct {
 	BaseNode
-	Insert *InsertStmt // The insert statement; nil if not yet parsed
+	Insert *InsertStmt // Insert statement; nil if not yet parsed
 	Name   *StringLiteral
 }
 

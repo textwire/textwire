@@ -8,9 +8,9 @@ import (
 
 type TernaryExp struct {
 	BaseNode
-	Condition   Expression
-	Consequence Expression
-	Alternative Expression
+	Condition Expression
+	IfBlock   Expression // true ? <IfBlock> : <ElseBlock>
+	ElseBlock Expression // false ? <IfBlock> : <ElseBlock>
 }
 
 func NewTernaryExp(tok token.Token, cond Expression) *TernaryExp {
@@ -23,5 +23,5 @@ func NewTernaryExp(tok token.Token, cond Expression) *TernaryExp {
 func (te *TernaryExp) expressionNode() {}
 
 func (te *TernaryExp) String() string {
-	return fmt.Sprintf("(%s ? %s : %s)", te.Condition, te.Consequence, te.Alternative)
+	return fmt.Sprintf("(%s ? %s : %s)", te.Condition, te.IfBlock, te.ElseBlock)
 }

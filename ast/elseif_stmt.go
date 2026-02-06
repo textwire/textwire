@@ -9,8 +9,8 @@ import (
 
 type ElseIfStmt struct {
 	BaseNode
-	Condition   Expression
-	Consequence *BlockStmt
+	Condition Expression
+	Block     *BlockStmt // @elseif()<Block>@end
 }
 
 func NewElseIfStmt(tok token.Token) *ElseIfStmt {
@@ -25,15 +25,15 @@ func (eis *ElseIfStmt) String() string {
 	var out strings.Builder
 
 	fmt.Fprintf(&out, "@elseif(%s)\n", eis.Condition)
-	out.WriteString(eis.Consequence.String())
+	out.WriteString(eis.Block.String())
 
 	return out.String()
 }
 
 func (eis *ElseIfStmt) Stmts() []Statement {
-	if eis.Consequence == nil {
+	if eis.Block == nil {
 		return []Statement{}
 	}
 
-	return eis.Consequence.Stmts()
+	return eis.Block.Stmts()
 }

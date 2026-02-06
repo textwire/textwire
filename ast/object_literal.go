@@ -8,7 +8,7 @@ import (
 
 type ObjectLiteral struct {
 	BaseNode
-	Pairs map[string]Expression // key-value pairs
+	Pairs map[string]Expression // Key-value pairs; { key: value }
 }
 
 func NewObjectLiteral(tok token.Token) *ObjectLiteral {

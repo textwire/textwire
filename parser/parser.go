@@ -803,7 +803,7 @@ func (p *Parser) ternaryExp(left ast.Expression) ast.Expression {
 
 	p.nextToken() // skip "?"
 
-	exp.Consequence = p.expression(TERNARY)
+	exp.IfBlock = p.expression(TERNARY)
 
 	if !p.expectPeek(token.COLON) { // move to ":"
 		return p.illegalNode()
@@ -811,7 +811,7 @@ func (p *Parser) ternaryExp(left ast.Expression) ast.Expression {
 
 	p.nextToken() // skip ":"
 
-	exp.Alternative = p.expression(LOWEST)
+	exp.ElseBlock = p.expression(LOWEST)
 	exp.SetEndPosition(p.curToken.Pos)
 
 	return exp
@@ -834,21 +834,20 @@ func (p *Parser) ifStmt() ast.Statement {
 
 	p.nextToken() // skip ")"
 
-	stmt.Consequence = p.blockStmt()
-	if stmt.Consequence == nil {
+	stmt.IfBlock = p.blockStmt()
+	if stmt.IfBlock == nil {
 		stmt.SetEndPosition(p.curToken.Pos)
 		return stmt
 	}
 
 	for p.peekTokenIs(token.ELSE_IF) {
-		alt := p.elseIfStmt()
-		stmt.Alternatives = append(stmt.Alternatives, alt)
+		elseIfStmt := p.elseIfStmt()
+		stmt.ElseIfStmts = append(stmt.ElseIfStmts, elseIfStmt)
 	}
 
 	if p.peekTokenIs(token.ELSE) {
-		stmt.Alternative = p.alternativeBlock()
-
-		if stmt.Alternative == nil {
+		stmt.ElseBlock = p.elseBlock()
+		if stmt.ElseBlock == nil {
 			return nil
 		}
 	}
@@ -880,13 +879,13 @@ func (p *Parser) elseIfStmt() ast.Statement {
 
 	p.nextToken() // skip ")"
 
-	stmt.Consequence = p.blockStmt()
+	stmt.Block = p.blockStmt()
 	stmt.SetEndPosition(p.curToken.Pos)
 
 	return stmt
 }
 
-func (p *Parser) alternativeBlock() *ast.BlockStmt {
+func (p *Parser) elseBlock() *ast.BlockStmt {
 	p.nextToken() // move to "@else"
 	p.nextToken() // skip "@else"
 
@@ -948,7 +947,7 @@ func (p *Parser) forStmt() ast.Statement {
 	if p.peekTokenIs(token.ELSE) {
 		p.nextToken() // move to "@else"
 		p.nextToken() // skip "@else"
-		stmt.Alternative = p.blockStmt()
+		stmt.ElseBlock = p.blockStmt()
 	}
 
 	if !p.expectPeek(token.END) { // move to "@end"
@@ -994,7 +993,7 @@ func (p *Parser) eachStmt() ast.Statement {
 	if p.peekTokenIs(token.ELSE) {
 		p.nextToken() // move to "@else"
 		p.nextToken() // skip "@else"
-		stmt.Alternative = p.blockStmt()
+		stmt.ElseBlock = p.blockStmt()
 	}
 
 	if !p.expectPeek(token.END) { // move to "@end"

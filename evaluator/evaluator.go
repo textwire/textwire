@@ -139,11 +139,11 @@ func (e *Evaluator) evalIfStmt(node *ast.IfStmt, env *object.Env, path string) o
 
 	newEnv := object.NewEnclosedEnv(env)
 	if isTruthy(cond) {
-		return e.Eval(node.Consequence, newEnv, path)
+		return e.Eval(node.IfBlock, newEnv, path)
 	}
 
-	for i := range node.Alternatives {
-		elseIfNode, ok := node.Alternatives[i].(*ast.ElseIfStmt)
+	for i := range node.ElseIfStmts {
+		elseIfNode, ok := node.ElseIfStmts[i].(*ast.ElseIfStmt)
 		if !ok {
 			continue
 		}
@@ -154,12 +154,12 @@ func (e *Evaluator) evalIfStmt(node *ast.IfStmt, env *object.Env, path string) o
 		}
 
 		if isTruthy(cond) {
-			return e.Eval(elseIfNode.Consequence, newEnv, path)
+			return e.Eval(elseIfNode.Block, newEnv, path)
 		}
 	}
 
-	if node.Alternative != nil {
-		return e.Eval(node.Alternative, newEnv, path)
+	if node.ElseBlock != nil {
+		return e.Eval(node.ElseBlock, newEnv, path)
 	}
 
 	return NIL
@@ -323,21 +323,21 @@ func (e *Evaluator) evalForStmt(node *ast.ForStmt, env *object.Env, path string)
 		}
 	}
 
-	// evaluate alternative block if user's condition is false
+	// Evaluate ElseBlock block if user's condition is false
 	if node.Condition != nil {
 		cond := e.Eval(node.Condition, newEnv, path)
 		if isError(cond) {
 			return cond
 		}
 
-		if !isTruthy(cond) && node.Alternative != nil {
-			return e.Eval(node.Alternative, newEnv, path)
+		if !isTruthy(cond) && node.ElseBlock != nil {
+			return e.Eval(node.ElseBlock, newEnv, path)
 		}
 	}
 
 	var blocks strings.Builder
 
-	// loop through the block until the user's condition is false
+	// Loop through the block until the user's condition is false
 	for {
 		cond := e.Eval(node.Condition, newEnv, path)
 		if isError(cond) {
@@ -400,9 +400,9 @@ func (e *Evaluator) evalEachStmt(
 
 	arrElems := arr.Elements
 
-	// evaluate alternative block when array is empty
-	if len(arrElems) == 0 && node.Alternative != nil {
-		return e.Eval(node.Alternative, newEnv, path)
+	// Evaluate ElseBlock when array is empty
+	if len(arrElems) == 0 && node.ElseBlock != nil {
+		return e.Eval(node.ElseBlock, newEnv, path)
 	}
 
 	var blocks strings.Builder
@@ -642,10 +642,10 @@ func (e *Evaluator) evalTernaryExp(
 	}
 
 	if isTruthy(cond) {
-		return e.Eval(node.Consequence, env, path)
+		return e.Eval(node.IfBlock, env, path)
 	}
 
-	return e.Eval(node.Alternative, env, path)
+	return e.Eval(node.ElseBlock, env, path)
 }
 
 func (e *Evaluator) evalArrayLiteral(

@@ -2,6 +2,8 @@ package ast
 
 import "github.com/textwire/textwire/v3/token"
 
+// HTMLStmt holds literal string of HTML code. The token literal
+// is its value.
 type HTMLStmt struct {
 	BaseNode
 }

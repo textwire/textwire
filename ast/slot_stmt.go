@@ -8,8 +8,8 @@ import (
 
 type SlotStmt struct {
 	BaseNode
-	Name *StringLiteral // when empty string literal, it means default slot
-	Body *BlockStmt     // optional block statement, can be nil
+	Name *StringLiteral // When empty string literal, it means default slot
+	Body *BlockStmt     // Optional block statement, can be nil
 }
 
 func NewSlotStmt(tok token.Token, name *StringLiteral) *SlotStmt {

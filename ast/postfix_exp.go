@@ -8,7 +8,7 @@ import (
 
 type PostfixExp struct {
 	BaseNode
-	Operator string
+	Operator string // ++ or --
 	Left     Expression
 }
 
@@ -16,7 +16,7 @@ func NewPostfixExp(tok token.Token, left Expression, op string) *PostfixExp {
 	return &PostfixExp{
 		BaseNode: NewBaseNode(tok),
 		Left:     left,
-		Operator: op, // "++" or "--"
+		Operator: op,
 	}
 }
 

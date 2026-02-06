@@ -6,6 +6,7 @@ import (
 	"github.com/textwire/textwire/v3/token"
 )
 
+// BlockStmt holds the body of statements like @each, @if, etc.
 type BlockStmt struct {
 	BaseNode
 	Statements []Statement
