@@ -137,9 +137,9 @@ func (e *Evaluator) evalIfStmt(node *ast.IfStmt, ctx *Context) object.Object {
 		return cond
 	}
 
-	newCtx := NewContext(ctx.scope.Child(), ctx.absPath)
+	ifCtx := NewContext(ctx.scope.Child(), ctx.absPath)
 	if isTruthy(cond) {
-		return e.Eval(node.IfBlock, newCtx)
+		return e.Eval(node.IfBlock, ifCtx)
 	}
 
 	for i := range node.ElseIfStmts {
@@ -148,18 +148,18 @@ func (e *Evaluator) evalIfStmt(node *ast.IfStmt, ctx *Context) object.Object {
 			continue
 		}
 
-		cond = e.Eval(elseIfNode.Condition, newCtx)
+		cond = e.Eval(elseIfNode.Condition, ifCtx)
 		if isError(cond) {
 			return cond
 		}
 
 		if isTruthy(cond) {
-			return e.Eval(elseIfNode.Block, newCtx)
+			return e.Eval(elseIfNode.Block, ifCtx)
 		}
 	}
 
 	if node.ElseBlock != nil {
-		return e.Eval(node.ElseBlock, newCtx)
+		return e.Eval(node.ElseBlock, ifCtx)
 	}
 
 	return NIL
@@ -208,8 +208,8 @@ func (e *Evaluator) evalUseStmt(node *ast.UseStmt, ctx *Context) object.Object {
 		return e.newError(node, ctx, fail.ErrUseStmtNotAllowed)
 	}
 
-	newCtx := NewContext(ctx.scope, node.Attachment.AbsPath)
-	layout := e.Eval(node.Attachment, newCtx)
+	useStmtCtx := NewContext(ctx.scope, node.Attachment.AbsPath)
+	layout := e.Eval(node.Attachment, useStmtCtx)
 	if isError(layout) {
 		return layout
 	}
@@ -233,8 +233,8 @@ func (e *Evaluator) evalReserveStmt(node *ast.ReserveStmt, ctx *Context) object.
 	}
 
 	if node.Insert.Block != nil {
-		newCtx := NewContext(ctx.scope, node.Insert.AbsPath)
-		block := e.Eval(node.Insert.Block, newCtx)
+		reserveCtx := NewContext(ctx.scope, node.Insert.AbsPath)
+		block := e.Eval(node.Insert.Block, reserveCtx)
 		if isError(block) {
 			return block
 		}
@@ -273,7 +273,7 @@ func (e *Evaluator) evalComponentStmt(node *ast.ComponentStmt, ctx *Context) obj
 	}
 
 	comp := &object.Component{Name: compName.String()}
-	newCtx := NewContext(object.NewScope(), node.Attachment.AbsPath)
+	compCtx := NewContext(object.NewScope(), node.Attachment.AbsPath)
 
 	if node.Argument != nil {
 		for key, arg := range node.Argument.Pairs {
@@ -282,13 +282,13 @@ func (e *Evaluator) evalComponentStmt(node *ast.ComponentStmt, ctx *Context) obj
 				return obj
 			}
 
-			if err := newCtx.scope.Set(key, obj); err != nil {
+			if err := compCtx.scope.Set(key, obj); err != nil {
 				return e.newError(node, ctx, "%s", err.Error())
 			}
 		}
 	}
 
-	blockObj := e.Eval(node.Attachment, newCtx)
+	blockObj := e.Eval(node.Attachment, compCtx)
 	if isError(blockObj) {
 		return blockObj
 	}
@@ -299,24 +299,24 @@ func (e *Evaluator) evalComponentStmt(node *ast.ComponentStmt, ctx *Context) obj
 }
 
 func (e *Evaluator) evalForStmt(node *ast.ForStmt, ctx *Context) object.Object {
-	newCtx := NewContext(ctx.scope.Child(), ctx.absPath)
+	forCtx := NewContext(ctx.scope.Child(), ctx.absPath)
 
 	var init object.Object
 	if node.Init != nil {
-		if init = e.Eval(node.Init, newCtx); isError(init) {
+		if init = e.Eval(node.Init, forCtx); isError(init) {
 			return init
 		}
 	}
 
 	// Evaluate ElseBlock block if user's condition is false
 	if node.Condition != nil {
-		cond := e.Eval(node.Condition, newCtx)
+		cond := e.Eval(node.Condition, forCtx)
 		if isError(cond) {
 			return cond
 		}
 
 		if !isTruthy(cond) && node.ElseBlock != nil {
-			return e.Eval(node.ElseBlock, newCtx)
+			return e.Eval(node.ElseBlock, forCtx)
 		}
 	}
 
@@ -324,7 +324,7 @@ func (e *Evaluator) evalForStmt(node *ast.ForStmt, ctx *Context) object.Object {
 
 	// Loop through the block until the user's condition is false
 	for {
-		cond := e.Eval(node.Condition, newCtx)
+		cond := e.Eval(node.Condition, forCtx)
 		if isError(cond) {
 			return cond
 		}
@@ -333,13 +333,13 @@ func (e *Evaluator) evalForStmt(node *ast.ForStmt, ctx *Context) object.Object {
 			break
 		}
 
-		block := e.Eval(node.Block, newCtx)
+		block := e.Eval(node.Block, forCtx)
 		if isError(block) {
 			return block
 		}
 
 		blocks.WriteString(block.String())
-		post := e.Eval(node.Post, newCtx)
+		post := e.Eval(node.Post, forCtx)
 		if isError(post) {
 			return post
 		}
@@ -349,8 +349,8 @@ func (e *Evaluator) evalForStmt(node *ast.ForStmt, ctx *Context) object.Object {
 		}
 
 		varName := node.Init.(*ast.AssignStmt).Left.Name
-		if err := newCtx.scope.Set(varName, post); err != nil {
-			return e.newError(node, newCtx, "%s", err.Error())
+		if err := forCtx.scope.Set(varName, post); err != nil {
+			return e.newError(node, forCtx, "%s", err.Error())
 		}
 
 		if hasBreakStmt(block) {
@@ -366,42 +366,42 @@ func (e *Evaluator) evalForStmt(node *ast.ForStmt, ctx *Context) object.Object {
 }
 
 func (e *Evaluator) evalEachStmt(node *ast.EachStmt, ctx *Context) object.Object {
-	newCtx := NewContext(ctx.scope.Child(), ctx.absPath)
+	eachCtx := NewContext(ctx.scope.Child(), ctx.absPath)
 	varName := node.Var.Name
 
-	arrObj := e.Eval(node.Array, newCtx)
+	arrObj := e.Eval(node.Array, eachCtx)
 	if isError(arrObj) {
 		return arrObj
 	}
 
 	arr, ok := arrObj.(*object.Array)
 	if !ok {
-		return e.newError(node, newCtx, fail.ErrEachDirWithNonArrArg, arrObj.Type())
+		return e.newError(node, eachCtx, fail.ErrEachDirWithNonArrArg, arrObj.Type())
 	}
 
 	arrElems := arr.Elements
 
 	// Evaluate ElseBlock when array is empty
 	if len(arrElems) == 0 && node.ElseBlock != nil {
-		return e.Eval(node.ElseBlock, newCtx)
+		return e.Eval(node.ElseBlock, eachCtx)
 	}
 
 	var blocks strings.Builder
 	blocks.Grow(len(arrElems))
 
 	for i := range arrElems {
-		if err := newCtx.scope.Set(varName, arrElems[i]); err != nil {
-			return e.newError(node, newCtx, "%s", err.Error())
+		if err := eachCtx.scope.Set(varName, arrElems[i]); err != nil {
+			return e.newError(node, eachCtx, "%s", err.Error())
 		}
 
-		newCtx.scope.SetLoopVar(map[string]object.Object{
+		eachCtx.scope.SetLoopVar(map[string]object.Object{
 			"index": &object.Int{Value: int64(i)},
 			"first": nativeBoolToBooleanObject(i == 0),
 			"last":  nativeBoolToBooleanObject(i == len(arrElems)-1),
 			"iter":  &object.Int{Value: int64(i + 1)},
 		})
 
-		block := e.Eval(node.Block, newCtx)
+		block := e.Eval(node.Block, eachCtx)
 		if isError(block) {
 			return block
 		}
