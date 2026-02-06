@@ -38,7 +38,7 @@ func NewTemplate(opt *config.Config) (*Template, error) {
 }
 
 func (t *Template) String(name string, data map[string]any) (string, *fail.Error) {
-	env, err := object.EnvFromMap(data)
+	scope, err := object.NewScopeFromMap(data)
 	if err != nil {
 		return "", err
 	}
@@ -49,7 +49,7 @@ func (t *Template) String(name string, data map[string]any) (string, *fail.Error
 	}
 
 	e := evaluator.New(customFunc, userConfig)
-	evaluated := e.Eval(prog, env, prog.AbsPath)
+	evaluated := e.Eval(prog, scope, prog.AbsPath)
 	if evaluated.Is(object.ERR_OBJ) {
 		return "", evaluated.(*object.Error).Err
 	}

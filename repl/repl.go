@@ -25,13 +25,12 @@ func main() {
 
 func Start(in io.Reader, out io.Writer) error {
 	scanner := bufio.NewScanner(in)
-	env := object.NewEnv()
+	scope := object.NewScope()
 
 	for {
 		fmt.Print(PROMPT)
 
 		scanned := scanner.Scan()
-
 		if !scanned {
 			return nil
 		}
@@ -49,7 +48,7 @@ func Start(in io.Reader, out io.Writer) error {
 		}
 
 		evaluator := evaluator.New(nil, nil)
-		evaluated := evaluator.Eval(prog, env, prog.AbsPath)
+		evaluated := evaluator.Eval(prog, scope, prog.AbsPath)
 
 		if evaluated == nil {
 			continue

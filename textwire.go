@@ -21,14 +21,13 @@ func EvaluateString(inp string, data map[string]any) (string, error) {
 		return "", errs[0].Error()
 	}
 
-	env, err := object.EnvFromMap(data)
+	scope, err := object.NewScopeFromMap(data)
 	if err != nil {
 		return "", err.Error()
 	}
 
 	eval := evaluator.New(customFunc, nil)
-
-	evaluated := eval.Eval(prog, env, prog.AbsPath)
+	evaluated := eval.Eval(prog, scope, prog.AbsPath)
 	if evaluated.Is(object.ERR_OBJ) {
 		return "", evaluated.(*object.Error).Err.Error()
 	}

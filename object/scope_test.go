@@ -4,7 +4,7 @@ import (
 	"testing"
 )
 
-func TestEnvFromMap(t *testing.T) {
+func TestNewScopeFromMap(t *testing.T) {
 	var float32val float32 = 5.731
 
 	data := map[string]any{
@@ -85,23 +85,23 @@ func TestEnvFromMap(t *testing.T) {
 		},
 	}
 
-	env, err := EnvFromMap(data)
+	scope, err := NewScopeFromMap(data)
 	if err != nil {
-		t.Fatalf("EnvFromMap returned an error: %s", err)
+		t.Fatalf("returned an error: %s", err)
 	}
 
 	for key, val := range expect {
-		obj, ok := env.Get(key)
+		obj, ok := scope.Get(key)
 		if !ok {
-			t.Fatalf("Env.Get(%s) returned !ok", key)
+			t.Fatalf("scope.Get(%s) returned !ok", key)
 		}
 
 		if obj.Type() != val.Type() {
-			t.Fatalf("Env.Get(%s) returned %s, expect %s", key, obj.Type(), val.Type())
+			t.Fatalf("scope.Get(%s) returned %s, expect %s", key, obj.Type(), val.Type())
 		}
 
 		if obj.String() != val.String() {
-			t.Fatalf("Env.Get(%s) returned %s, expect %s", key, obj.String(), val.String())
+			t.Fatalf("scope.Get(%s) returned %s, expect %s", key, obj.String(), val.String())
 		}
 	}
 }
@@ -316,12 +316,12 @@ func TestAddGlobalData(t *testing.T) {
 
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
-			env := NewEnv()
-			env.AddGlobalData(tc.key, tc.val)
+			scope := NewScope()
+			scope.AddGlobal(tc.key, tc.val)
 
-			global, exists := env.store["global"]
+			global, exists := scope.vars["global"]
 			if !exists {
-				t.Fatalf("'global' object not found in environment")
+				t.Fatalf("'global' object not found in the scope")
 			}
 
 			obj, isObj := global.(*Obj)

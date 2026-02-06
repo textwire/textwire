@@ -15,11 +15,11 @@ func testEval(inp string) object.Object {
 	l := lexer.New(inp)
 	p := parser.New(l, "/path/to/file")
 	prog := p.ParseProgram()
-	env := object.NewEnv()
+	scope := object.NewScope()
 
 	eval := New(&config.Func{}, nil)
 
-	return eval.Eval(prog, env, prog.AbsPath)
+	return eval.Eval(prog, scope, prog.AbsPath)
 }
 
 func evaluationExpected(t *testing.T, inp, expect string, idx int) {
