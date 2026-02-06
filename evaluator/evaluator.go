@@ -283,7 +283,7 @@ func (e *Evaluator) evalComponentStmt(
 	}
 
 	if node.Attachment == nil {
-		return e.newError(node, path, fail.ErrComponentMustHaveBlock, compName.String())
+		return e.newError(node, path, fail.ErrComponentMustHaveBlock, compName)
 	}
 
 	comp := &object.Component{Name: compName.String()}
