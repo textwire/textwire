@@ -37,7 +37,6 @@ func Start(in io.Reader, out io.Writer) error {
 
 		l := lexer.New(scanner.Text())
 		p := parser.New(l, "")
-
 		prog := p.ParseProgram()
 
 		if len(p.Errors()) != 0 {
@@ -47,9 +46,9 @@ func Start(in io.Reader, out io.Writer) error {
 			continue
 		}
 
-		evaluator := evaluator.New(nil, nil)
-		evaluated := evaluator.Eval(prog, scope, prog.AbsPath)
-
+		e := evaluator.New(nil, nil)
+		ctx := evaluator.NewContext(scope, prog.AbsPath)
+		evaluated := e.Eval(prog, ctx)
 		if evaluated == nil {
 			continue
 		}

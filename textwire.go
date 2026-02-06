@@ -26,8 +26,9 @@ func EvaluateString(inp string, data map[string]any) (string, error) {
 		return "", err.Error()
 	}
 
-	eval := evaluator.New(customFunc, nil)
-	evaluated := eval.Eval(prog, scope, prog.AbsPath)
+	e := evaluator.New(customFunc, nil)
+	ctx := evaluator.NewContext(scope, prog.AbsPath)
+	evaluated := e.Eval(prog, ctx)
 	if evaluated.Is(object.ERR_OBJ) {
 		return "", evaluated.(*object.Error).Err.Error()
 	}

@@ -35,41 +35,41 @@ func New(customFunc *config.Func, conf *config.Config) *Evaluator {
 	}
 }
 
-func (e *Evaluator) Eval(node ast.Node, scope *object.Scope, path string) object.Object {
+func (e *Evaluator) Eval(node ast.Node, ctx *Context) object.Object {
 	switch node := node.(type) {
 	// Statements
 	case *ast.Program:
-		return e.evalProgram(node, scope)
+		return e.evalProgram(node, ctx)
 	case *ast.HTMLStmt:
 		return &object.HTML{Value: node.String()}
 	case *ast.ExpressionStmt:
-		return e.Eval(node.Expression, scope, path)
+		return e.Eval(node.Expression, ctx)
 	case *ast.IfStmt:
-		return e.evalIfStmt(node, scope, path)
+		return e.evalIfStmt(node, ctx)
 	case *ast.BlockStmt:
-		return e.evalBlockStmt(node, scope, path)
+		return e.evalBlockStmt(node, ctx)
 	case *ast.AssignStmt:
-		return e.evalAssignStmt(node, scope, path)
+		return e.evalAssignStmt(node, ctx)
 	case *ast.UseStmt:
-		return e.evalUseStmt(node, scope, path)
+		return e.evalUseStmt(node, ctx)
 	case *ast.ReserveStmt:
-		return e.evalReserveStmt(node, scope, path)
+		return e.evalReserveStmt(node, ctx)
 	case *ast.ForStmt:
-		return e.evalForStmt(node, scope, path)
+		return e.evalForStmt(node, ctx)
 	case *ast.EachStmt:
-		return e.evalEachStmt(node, scope, path)
+		return e.evalEachStmt(node, ctx)
 	case *ast.BreakIfStmt:
-		return e.evalBreakIfStmt(node, scope, path)
+		return e.evalBreakIfStmt(node, ctx)
 	case *ast.ComponentStmt:
-		return e.evalComponentStmt(node, scope, path)
+		return e.evalComponentStmt(node, ctx)
 	case *ast.ContinueIfStmt:
-		return e.evalContinueIfStmt(node, scope, path)
+		return e.evalContinueIfStmt(node, ctx)
 	case *ast.SlotStmt:
-		return e.evalSlotStmt(node, scope, path)
+		return e.evalSlotStmt(node, ctx)
 	case *ast.DumpStmt:
-		return e.evalDumpStmt(node, scope, path)
+		return e.evalDumpStmt(node, ctx)
 	case *ast.InsertStmt:
-		return e.evalInsertStmt(node, path)
+		return e.evalInsertStmt(node, ctx)
 	case *ast.ContinueStmt:
 		return CONTINUE
 	case *ast.BreakStmt:
@@ -79,48 +79,48 @@ func (e *Evaluator) Eval(node ast.Node, scope *object.Scope, path string) object
 
 	// Expressions
 	case *ast.Identifier:
-		return e.evalIdentifier(node, scope, path)
+		return e.evalIdentifier(node, ctx)
 	case *ast.IndexExp:
-		return e.evalIndexExp(node, scope, path)
+		return e.evalIndexExp(node, ctx)
 	case *ast.DotExp:
-		return e.evalDotExp(node, scope, path)
+		return e.evalDotExp(node, ctx)
 	case *ast.IntegerLiteral:
 		return &object.Int{Value: node.Value}
 	case *ast.FloatLiteral:
 		return &object.Float{Value: node.Value}
 	case *ast.StringLiteral:
-		return e.evalString(node, scope)
+		return e.evalString(node)
 	case *ast.BooleanLiteral:
 		return nativeBoolToBooleanObject(node.Value)
 	case *ast.ObjectLiteral:
-		return e.evalObjectLiteral(node, scope, path)
+		return e.evalObjectLiteral(node, ctx)
 	case *ast.ArrayLiteral:
-		return e.evalArrayLiteral(node, scope, path)
+		return e.evalArrayLiteral(node, ctx)
 	case *ast.PrefixExp:
-		return e.evalPrefixExp(node, scope, path)
+		return e.evalPrefixExp(node, ctx)
 	case *ast.TernaryExp:
-		return e.evalTernaryExp(node, scope, path)
+		return e.evalTernaryExp(node, ctx)
 	case *ast.InfixExp:
-		return e.evalInfixExp(node.Op, node.Left, node.Right, scope, path)
+		return e.evalInfixExp(node.Op, node.Left, node.Right, ctx)
 	case *ast.PostfixExp:
-		return e.evalPostfixExp(node, scope, path)
+		return e.evalPostfixExp(node, ctx)
 	case *ast.CallExp:
-		return e.evalCallExp(node, scope, path)
+		return e.evalCallExp(node, ctx)
 	case *ast.GlobalCallExp:
-		return e.evalGlobalCallExp(node, scope, path)
+		return e.evalGlobalCallExp(node, ctx)
 	case *ast.NilLiteral:
 		return NIL
 	}
 
-	return e.newError(node, path, fail.ErrUnknownNodeType, node)
+	return e.newError(node, ctx, fail.ErrUnknownNodeType, node)
 }
 
-func (e *Evaluator) evalProgram(prog *ast.Program, scope *object.Scope) object.Object {
+func (e *Evaluator) evalProgram(prog *ast.Program, ctx *Context) object.Object {
 	var stmts strings.Builder
 	stmts.Grow(len(prog.Statements))
 
 	for i := range prog.Statements {
-		stmt := e.Eval(prog.Statements[i], scope, prog.AbsPath)
+		stmt := e.Eval(prog.Statements[i], ctx)
 		if isError(stmt) {
 			return stmt
 		}
@@ -131,15 +131,15 @@ func (e *Evaluator) evalProgram(prog *ast.Program, scope *object.Scope) object.O
 	return &object.HTML{Value: stmts.String()}
 }
 
-func (e *Evaluator) evalIfStmt(node *ast.IfStmt, scope *object.Scope, path string) object.Object {
-	cond := e.Eval(node.Condition, scope, path)
+func (e *Evaluator) evalIfStmt(node *ast.IfStmt, ctx *Context) object.Object {
+	cond := e.Eval(node.Condition, ctx)
 	if isError(cond) {
 		return cond
 	}
 
-	childScope := scope.Child()
+	newCtx := NewContext(ctx.scope.Child(), ctx.absPath)
 	if isTruthy(cond) {
-		return e.Eval(node.IfBlock, childScope, path)
+		return e.Eval(node.IfBlock, newCtx)
 	}
 
 	for i := range node.ElseIfStmts {
@@ -148,32 +148,28 @@ func (e *Evaluator) evalIfStmt(node *ast.IfStmt, scope *object.Scope, path strin
 			continue
 		}
 
-		cond = e.Eval(elseIfNode.Condition, scope, path)
+		cond = e.Eval(elseIfNode.Condition, newCtx)
 		if isError(cond) {
 			return cond
 		}
 
 		if isTruthy(cond) {
-			return e.Eval(elseIfNode.Block, childScope, path)
+			return e.Eval(elseIfNode.Block, newCtx)
 		}
 	}
 
 	if node.ElseBlock != nil {
-		return e.Eval(node.ElseBlock, childScope, path)
+		return e.Eval(node.ElseBlock, newCtx)
 	}
 
 	return NIL
 }
 
-func (e *Evaluator) evalBlockStmt(
-	node *ast.BlockStmt,
-	scope *object.Scope,
-	path string,
-) object.Object {
+func (e *Evaluator) evalBlockStmt(node *ast.BlockStmt, ctx *Context) object.Object {
 	stmts := make([]object.Object, 0, len(node.Statements))
 
 	for i := range node.Statements {
-		stmt := e.Eval(node.Statements[i], scope, path)
+		stmt := e.Eval(node.Statements[i], ctx)
 		if isError(stmt) {
 			return stmt
 		}
@@ -187,36 +183,33 @@ func (e *Evaluator) evalBlockStmt(
 	return &object.Block{Elements: stmts}
 }
 
-func (e *Evaluator) evalAssignStmt(
-	node *ast.AssignStmt,
-	scope *object.Scope,
-	path string,
-) object.Object {
-	right := e.Eval(node.Right, scope, path)
+func (e *Evaluator) evalAssignStmt(node *ast.AssignStmt, ctx *Context) object.Object {
+	right := e.Eval(node.Right, ctx)
 	if isError(right) {
 		return right
 	}
 
-	if err := scope.Set(node.Left.Name, right); err != nil {
-		return e.newError(node, path, "%s", err.Error())
+	if err := ctx.scope.Set(node.Left.Name, right); err != nil {
+		return e.newError(node, ctx, "%s", err.Error())
 	}
 
 	return NIL
 }
 
-func (e *Evaluator) evalUseStmt(node *ast.UseStmt, scope *object.Scope, path string) object.Object {
+func (e *Evaluator) evalUseStmt(node *ast.UseStmt, ctx *Context) object.Object {
 	if node.Attachment == nil {
 		if e.UsingTemplates {
-			return e.newError(node, path, fail.ErrUseStmtMissingLayout, node.Name.Value)
+			return e.newError(node, ctx, fail.ErrUseStmtMissingLayout, node.Name.Value)
 		}
-		return e.newError(node, path, fail.ErrSomeDirsOnlyInTemplates)
+		return e.newError(node, ctx, fail.ErrSomeDirsOnlyInTemplates)
 	}
 
 	if node.Attachment.IsLayout && node.Attachment.HasUseStmt() {
-		return e.newError(node, path, fail.ErrUseStmtNotAllowed)
+		return e.newError(node, ctx, fail.ErrUseStmtNotAllowed)
 	}
 
-	layout := e.Eval(node.Attachment, scope, node.Attachment.AbsPath)
+	newCtx := NewContext(ctx.scope, node.Attachment.AbsPath)
+	layout := e.Eval(node.Attachment, newCtx)
 	if isError(layout) {
 		return layout
 	}
@@ -227,13 +220,9 @@ func (e *Evaluator) evalUseStmt(node *ast.UseStmt, scope *object.Scope, path str
 	}
 }
 
-func (e *Evaluator) evalReserveStmt(
-	node *ast.ReserveStmt,
-	scope *object.Scope,
-	path string,
-) object.Object {
+func (e *Evaluator) evalReserveStmt(node *ast.ReserveStmt, ctx *Context) object.Object {
 	if !e.UsingTemplates {
-		return e.newError(node, path, fail.ErrSomeDirsOnlyInTemplates)
+		return e.newError(node, ctx, fail.ErrSomeDirsOnlyInTemplates)
 	}
 
 	reserve := &object.Reserve{Name: node.Name.Value}
@@ -244,7 +233,8 @@ func (e *Evaluator) evalReserveStmt(
 	}
 
 	if node.Insert.Block != nil {
-		block := e.Eval(node.Insert.Block, scope, node.Insert.AbsPath)
+		newCtx := NewContext(ctx.scope, node.Insert.AbsPath)
+		block := e.Eval(node.Insert.Block, newCtx)
 		if isError(block) {
 			return block
 		}
@@ -255,10 +245,10 @@ func (e *Evaluator) evalReserveStmt(
 	}
 
 	if node.Insert.Argument == nil {
-		return e.newError(node.Insert, path, fail.ErrInsertMustHaveContent)
+		return e.newError(node.Insert, ctx, fail.ErrInsertMustHaveContent)
 	}
 
-	firstArg := e.Eval(node.Insert.Argument, scope, path)
+	firstArg := e.Eval(node.Insert.Argument, ctx)
 	if isError(firstArg) {
 		return firstArg
 	}
@@ -268,42 +258,37 @@ func (e *Evaluator) evalReserveStmt(
 	return reserve
 }
 
-func (e *Evaluator) evalComponentStmt(
-	node *ast.ComponentStmt,
-	scope *object.Scope,
-	path string,
-) object.Object {
+func (e *Evaluator) evalComponentStmt(node *ast.ComponentStmt, ctx *Context) object.Object {
 	if !e.UsingTemplates {
-		return e.newError(node, path, fail.ErrSomeDirsOnlyInTemplates)
+		return e.newError(node, ctx, fail.ErrSomeDirsOnlyInTemplates)
 	}
 
-	compName := e.Eval(node.Name, scope, path)
+	compName := e.Eval(node.Name, ctx)
 	if isError(compName) {
 		return compName
 	}
 
 	if node.Attachment == nil {
-		return e.newError(node, path, fail.ErrComponentMustHaveBlock, compName)
+		return e.newError(node, ctx, fail.ErrComponentMustHaveBlock, compName)
 	}
 
 	comp := &object.Component{Name: compName.String()}
-	childScope := object.NewScope()
+	newCtx := NewContext(object.NewScope(), node.Attachment.AbsPath)
 
 	if node.Argument != nil {
 		for key, arg := range node.Argument.Pairs {
-			obj := e.Eval(arg, scope, path)
+			obj := e.Eval(arg, ctx)
 			if isError(obj) {
 				return obj
 			}
 
-			err := childScope.Set(key, obj)
-			if err != nil {
-				return e.newError(node, path, "%s", err.Error())
+			if err := newCtx.scope.Set(key, obj); err != nil {
+				return e.newError(node, ctx, "%s", err.Error())
 			}
 		}
 	}
 
-	blockObj := e.Eval(node.Attachment, childScope, node.Attachment.AbsPath)
+	blockObj := e.Eval(node.Attachment, newCtx)
 	if isError(blockObj) {
 		return blockObj
 	}
@@ -313,25 +298,25 @@ func (e *Evaluator) evalComponentStmt(
 	return comp
 }
 
-func (e *Evaluator) evalForStmt(node *ast.ForStmt, scope *object.Scope, path string) object.Object {
-	childScope := scope.Child()
+func (e *Evaluator) evalForStmt(node *ast.ForStmt, ctx *Context) object.Object {
+	newCtx := NewContext(ctx.scope.Child(), ctx.absPath)
 
 	var init object.Object
 	if node.Init != nil {
-		if init = e.Eval(node.Init, childScope, path); isError(init) {
+		if init = e.Eval(node.Init, newCtx); isError(init) {
 			return init
 		}
 	}
 
 	// Evaluate ElseBlock block if user's condition is false
 	if node.Condition != nil {
-		cond := e.Eval(node.Condition, childScope, path)
+		cond := e.Eval(node.Condition, newCtx)
 		if isError(cond) {
 			return cond
 		}
 
 		if !isTruthy(cond) && node.ElseBlock != nil {
-			return e.Eval(node.ElseBlock, childScope, path)
+			return e.Eval(node.ElseBlock, newCtx)
 		}
 	}
 
@@ -339,7 +324,7 @@ func (e *Evaluator) evalForStmt(node *ast.ForStmt, scope *object.Scope, path str
 
 	// Loop through the block until the user's condition is false
 	for {
-		cond := e.Eval(node.Condition, childScope, path)
+		cond := e.Eval(node.Condition, newCtx)
 		if isError(cond) {
 			return cond
 		}
@@ -348,13 +333,13 @@ func (e *Evaluator) evalForStmt(node *ast.ForStmt, scope *object.Scope, path str
 			break
 		}
 
-		block := e.Eval(node.Block, childScope, path)
+		block := e.Eval(node.Block, newCtx)
 		if isError(block) {
 			return block
 		}
 
 		blocks.WriteString(block.String())
-		post := e.Eval(node.Post, childScope, path)
+		post := e.Eval(node.Post, newCtx)
 		if isError(post) {
 			return post
 		}
@@ -364,8 +349,8 @@ func (e *Evaluator) evalForStmt(node *ast.ForStmt, scope *object.Scope, path str
 		}
 
 		varName := node.Init.(*ast.AssignStmt).Left.Name
-		if err := childScope.Set(varName, post); err != nil {
-			return e.newError(node, path, "%s", err.Error())
+		if err := newCtx.scope.Set(varName, post); err != nil {
+			return e.newError(node, newCtx, "%s", err.Error())
 		}
 
 		if hasBreakStmt(block) {
@@ -380,47 +365,43 @@ func (e *Evaluator) evalForStmt(node *ast.ForStmt, scope *object.Scope, path str
 	return &object.HTML{Value: blocks.String()}
 }
 
-func (e *Evaluator) evalEachStmt(
-	node *ast.EachStmt,
-	scope *object.Scope,
-	path string,
-) object.Object {
-	childScope := scope.Child()
+func (e *Evaluator) evalEachStmt(node *ast.EachStmt, ctx *Context) object.Object {
+	newCtx := NewContext(ctx.scope.Child(), ctx.absPath)
 	varName := node.Var.Name
 
-	arrObj := e.Eval(node.Array, childScope, path)
+	arrObj := e.Eval(node.Array, newCtx)
 	if isError(arrObj) {
 		return arrObj
 	}
 
 	arr, ok := arrObj.(*object.Array)
 	if !ok {
-		return e.newError(node, path, fail.ErrEachDirWithNonArrArg, arrObj.Type())
+		return e.newError(node, newCtx, fail.ErrEachDirWithNonArrArg, arrObj.Type())
 	}
 
 	arrElems := arr.Elements
 
 	// Evaluate ElseBlock when array is empty
 	if len(arrElems) == 0 && node.ElseBlock != nil {
-		return e.Eval(node.ElseBlock, childScope, path)
+		return e.Eval(node.ElseBlock, newCtx)
 	}
 
 	var blocks strings.Builder
 	blocks.Grow(len(arrElems))
 
 	for i := range arrElems {
-		if err := childScope.Set(varName, arrElems[i]); err != nil {
-			return e.newError(node, path, "%s", err.Error())
+		if err := newCtx.scope.Set(varName, arrElems[i]); err != nil {
+			return e.newError(node, newCtx, "%s", err.Error())
 		}
 
-		childScope.SetLoopVar(map[string]object.Object{
+		newCtx.scope.SetLoopVar(map[string]object.Object{
 			"index": &object.Int{Value: int64(i)},
 			"first": nativeBoolToBooleanObject(i == 0),
 			"last":  nativeBoolToBooleanObject(i == len(arrElems)-1),
 			"iter":  &object.Int{Value: int64(i + 1)},
 		})
 
-		block := e.Eval(node.Block, childScope, path)
+		block := e.Eval(node.Block, newCtx)
 		if isError(block) {
 			return block
 		}
@@ -438,12 +419,8 @@ func (e *Evaluator) evalEachStmt(
 	return &object.HTML{Value: blocks.String()}
 }
 
-func (e *Evaluator) evalBreakIfStmt(
-	node *ast.BreakIfStmt,
-	scope *object.Scope,
-	path string,
-) object.Object {
-	cond := e.Eval(node.Condition, scope, path)
+func (e *Evaluator) evalBreakIfStmt(node *ast.BreakIfStmt, ctx *Context) object.Object {
+	cond := e.Eval(node.Condition, ctx)
 	if isError(cond) {
 		return cond
 	}
@@ -455,12 +432,8 @@ func (e *Evaluator) evalBreakIfStmt(
 	return NIL
 }
 
-func (e *Evaluator) evalContinueIfStmt(
-	node *ast.ContinueIfStmt,
-	scope *object.Scope,
-	path string,
-) object.Object {
-	cond := e.Eval(node.Condition, scope, path)
+func (e *Evaluator) evalContinueIfStmt(node *ast.ContinueIfStmt, ctx *Context) object.Object {
+	cond := e.Eval(node.Condition, ctx)
 	if isError(cond) {
 		return cond
 	}
@@ -472,15 +445,11 @@ func (e *Evaluator) evalContinueIfStmt(
 	return NIL
 }
 
-func (e *Evaluator) evalSlotStmt(
-	node *ast.SlotStmt,
-	scope *object.Scope,
-	path string,
-) object.Object {
+func (e *Evaluator) evalSlotStmt(node *ast.SlotStmt, ctx *Context) object.Object {
 	var body object.Object
 
 	if node.Body != nil {
-		body = e.Eval(node.Body, scope, path)
+		body = e.Eval(node.Body, ctx)
 		if isError(body) {
 			return body
 		}
@@ -491,9 +460,9 @@ func (e *Evaluator) evalSlotStmt(
 	return &object.Slot{Name: node.Name.Value, Content: body}
 }
 
-func (e *Evaluator) evalInsertStmt(node *ast.InsertStmt, path string) object.Object {
+func (e *Evaluator) evalInsertStmt(node *ast.InsertStmt, ctx *Context) object.Object {
 	if !e.UsingTemplates {
-		return e.newError(node, path, fail.ErrSomeDirsOnlyInTemplates)
+		return e.newError(node, ctx, fail.ErrSomeDirsOnlyInTemplates)
 	}
 
 	// we do not evaluate inserts, they are getting attached
@@ -501,49 +470,37 @@ func (e *Evaluator) evalInsertStmt(node *ast.InsertStmt, path string) object.Obj
 	return NIL
 }
 
-func (e *Evaluator) evalDumpStmt(
-	node *ast.DumpStmt,
-	scope *object.Scope,
-	path string,
-) object.Object {
+func (e *Evaluator) evalDumpStmt(node *ast.DumpStmt, ctx *Context) object.Object {
 	values := make([]string, 0, len(node.Arguments))
 
 	for i := range node.Arguments {
-		evaluated := e.Eval(node.Arguments[i], scope, path)
+		evaluated := e.Eval(node.Arguments[i], ctx)
 		values = append(values, evaluated.Dump(0))
 	}
 
 	return &object.Dump{Values: values}
 }
 
-func (e *Evaluator) evalIdentifier(
-	node *ast.Identifier,
-	scope *object.Scope,
-	path string,
-) object.Object {
+func (e *Evaluator) evalIdentifier(node *ast.Identifier, ctx *Context) object.Object {
 	varName := node.Name
 	if varName == "global" && e.Config != nil && e.Config.GlobalData != nil {
 		return object.NativeToObject(e.Config.GlobalData)
 	}
 
-	if val, ok := scope.Get(varName); ok {
+	if val, ok := ctx.scope.Get(varName); ok {
 		return val
 	}
 
-	return e.newError(node, path, fail.ErrIdentifierIsUndefined, node.Name)
+	return e.newError(node, ctx, fail.ErrIdentifierIsUndefined, node.Name)
 }
 
-func (e *Evaluator) evalIndexExp(
-	node *ast.IndexExp,
-	scope *object.Scope,
-	path string,
-) object.Object {
-	left := e.Eval(node.Left, scope, path)
+func (e *Evaluator) evalIndexExp(node *ast.IndexExp, ctx *Context) object.Object {
+	left := e.Eval(node.Left, ctx)
 	if isError(left) {
 		return left
 	}
 
-	idx := e.Eval(node.Index, scope, path)
+	idx := e.Eval(node.Index, ctx)
 	if isError(idx) {
 		return idx
 	}
@@ -552,10 +509,10 @@ func (e *Evaluator) evalIndexExp(
 	case left.Is(object.ARR_OBJ) && idx.Is(object.INT_OBJ):
 		return e.evalArrayIndexExp(left, idx)
 	case left.Is(object.OBJ_OBJ) && idx.Is(object.STR_OBJ):
-		return e.evalObjectKeyExp(left.(*object.Obj), idx.(*object.Str).Value, node.Index, path)
+		return e.evalObjectKeyExp(left.(*object.Obj), idx.(*object.Str).Value, node.Index, ctx)
 	}
 
-	return e.newError(node, path, fail.ErrIndexNotSupported, left.Type())
+	return e.newError(node, ctx, fail.ErrIndexNotSupported, left.Type())
 }
 
 func (e *Evaluator) evalArrayIndexExp(
@@ -577,7 +534,7 @@ func (e *Evaluator) evalObjectKeyExp(
 	obj *object.Obj,
 	key string,
 	node ast.Node,
-	path string,
+	ctx *Context,
 ) object.Object {
 	// First, try to get key as it is with regular case.
 	if pair, ok := obj.Pairs[key]; ok {
@@ -591,11 +548,11 @@ func (e *Evaluator) evalObjectKeyExp(
 		return pair
 	}
 
-	return e.newError(node, path, fail.ErrPropertyNotFound, key, object.OBJ_OBJ)
+	return e.newError(node, ctx, fail.ErrPropertyNotFound, key, object.OBJ_OBJ)
 }
 
-func (e *Evaluator) evalDotExp(node *ast.DotExp, scope *object.Scope, path string) object.Object {
-	left := e.Eval(node.Left, scope, path)
+func (e *Evaluator) evalDotExp(node *ast.DotExp, ctx *Context) object.Object {
+	left := e.Eval(node.Left, ctx)
 	if isError(left) {
 		return left
 	}
@@ -603,13 +560,13 @@ func (e *Evaluator) evalDotExp(node *ast.DotExp, scope *object.Scope, path strin
 	key := node.Key.(*ast.Identifier)
 	obj, ok := left.(*object.Obj)
 	if !ok {
-		return e.newError(node, path, fail.ErrPropertyOnNonObject, key, left.Type())
+		return e.newError(node, ctx, fail.ErrPropertyOnNonObject, key, left.Type())
 	}
 
-	return e.evalObjectKeyExp(obj, key.Name, node, path)
+	return e.evalObjectKeyExp(obj, key.Name, node, ctx)
 }
 
-func (e *Evaluator) evalString(node *ast.StringLiteral, _ *object.Scope) object.Object {
+func (e *Evaluator) evalString(node *ast.StringLiteral) object.Object {
 	str := html.EscapeString(node.Value)
 
 	// unescape single and double quotes
@@ -619,49 +576,37 @@ func (e *Evaluator) evalString(node *ast.StringLiteral, _ *object.Scope) object.
 	return &object.Str{Value: str}
 }
 
-func (e *Evaluator) evalPrefixExp(
-	node *ast.PrefixExp,
-	scope *object.Scope,
-	path string,
-) object.Object {
-	right := e.Eval(node.Right, scope, path)
+func (e *Evaluator) evalPrefixExp(node *ast.PrefixExp, ctx *Context) object.Object {
+	right := e.Eval(node.Right, ctx)
 	if isError(right) {
 		return right
 	}
 
 	switch node.Op {
 	case "-":
-		return e.evalMinusPrefixOpExp(right, node, path)
+		return e.evalMinusPrefixOpExp(right, node, ctx)
 	case "!":
-		return e.evalBangOpExp(right, node, path)
+		return e.evalBangOpExp(right, node, ctx)
 	}
 
-	return e.newError(node, path, fail.ErrUnknownOp, node.Op, right.Type())
+	return e.newError(node, ctx, fail.ErrUnknownOp, node.Op, right.Type())
 }
 
-func (e *Evaluator) evalTernaryExp(
-	node *ast.TernaryExp,
-	scope *object.Scope,
-	path string,
-) object.Object {
-	cond := e.Eval(node.Condition, scope, path)
+func (e *Evaluator) evalTernaryExp(node *ast.TernaryExp, ctx *Context) object.Object {
+	cond := e.Eval(node.Condition, ctx)
 	if isError(cond) {
 		return cond
 	}
 
 	if isTruthy(cond) {
-		return e.Eval(node.IfBlock, scope, path)
+		return e.Eval(node.IfBlock, ctx)
 	}
 
-	return e.Eval(node.ElseBlock, scope, path)
+	return e.Eval(node.ElseBlock, ctx)
 }
 
-func (e *Evaluator) evalArrayLiteral(
-	node *ast.ArrayLiteral,
-	scope *object.Scope,
-	path string,
-) object.Object {
-	elems := e.evalExpressions(node.Elements, scope, path)
+func (e *Evaluator) evalArrayLiteral(node *ast.ArrayLiteral, ctx *Context) object.Object {
+	elems := e.evalExpressions(node.Elements, ctx)
 	if len(elems) == 1 && isError(elems[0]) {
 		return elems[0]
 	}
@@ -669,15 +614,11 @@ func (e *Evaluator) evalArrayLiteral(
 	return &object.Array{Elements: elems}
 }
 
-func (e *Evaluator) evalObjectLiteral(
-	node *ast.ObjectLiteral,
-	scope *object.Scope,
-	path string,
-) object.Object {
+func (e *Evaluator) evalObjectLiteral(node *ast.ObjectLiteral, ctx *Context) object.Object {
 	pairs := make(map[string]object.Object, len(node.Pairs))
 
 	for key, val := range node.Pairs {
-		valObj := e.Eval(val, scope, path)
+		valObj := e.Eval(val, ctx)
 		if isError(valObj) {
 			return valObj
 		}
@@ -688,15 +629,11 @@ func (e *Evaluator) evalObjectLiteral(
 	return object.NewObj(pairs)
 }
 
-func (e *Evaluator) evalExpressions(
-	exps []ast.Expression,
-	scope *object.Scope,
-	path string,
-) []object.Object {
+func (e *Evaluator) evalExpressions(exps []ast.Expression, ctx *Context) []object.Object {
 	res := make([]object.Object, 0, len(exps))
 
 	for i := range exps {
-		evaluated := e.Eval(exps[i], scope, path)
+		evaluated := e.Eval(exps[i], ctx)
 		if isError(evaluated) {
 			return []object.Object{evaluated}
 		}
@@ -711,41 +648,32 @@ func (e *Evaluator) evalInfixExp(
 	op string,
 	leftNode,
 	rightNode ast.Expression,
-	scope *object.Scope,
-	path string,
+	ctx *Context,
 ) object.Object {
-	left := e.Eval(leftNode, scope, path)
+	left := e.Eval(leftNode, ctx)
 	if isError(left) {
 		return left
 	}
 
-	right := e.Eval(rightNode, scope, path)
+	right := e.Eval(rightNode, ctx)
 	if isError(right) {
 		return right
 	}
 
-	return e.evalInfixOpExp(op, left, right, leftNode, path)
+	return e.evalInfixOpExp(op, left, right, leftNode, ctx)
 }
 
-func (e *Evaluator) evalPostfixExp(
-	node *ast.PostfixExp,
-	scope *object.Scope,
-	path string,
-) object.Object {
-	leftObj := e.Eval(node.Left, scope, path)
+func (e *Evaluator) evalPostfixExp(node *ast.PostfixExp, ctx *Context) object.Object {
+	leftObj := e.Eval(node.Left, ctx)
 	if isError(leftObj) {
 		return leftObj
 	}
 
-	return e.evalPostfixOpExp(leftObj, node.Op, node, path)
+	return e.evalPostfixOpExp(leftObj, node.Op, node, ctx)
 }
 
-func (e *Evaluator) evalCallExp(
-	node *ast.CallExp,
-	scope *object.Scope,
-	path string,
-) object.Object {
-	receiver := e.Eval(node.Receiver, scope, path)
+func (e *Evaluator) evalCallExp(node *ast.CallExp, ctx *Context) object.Object {
+	receiver := e.Eval(node.Receiver, ctx)
 	funcName := node.Function.Name
 	if isError(receiver) {
 		return receiver
@@ -754,10 +682,10 @@ func (e *Evaluator) evalCallExp(
 	receiverType := receiver.Type()
 	typeFuncs, ok := functions[receiverType]
 	if !ok {
-		return e.newError(node, path, fail.ErrNoFuncForThisType, funcName, receiverType)
+		return e.newError(node, ctx, fail.ErrNoFuncForThisType, funcName, receiverType)
 	}
 
-	args := e.evalExpressions(node.Arguments, scope, path)
+	args := e.evalExpressions(node.Arguments, ctx)
 	if len(args) == 1 && isError(args[0]) {
 		return args[0]
 	}
@@ -766,7 +694,7 @@ func (e *Evaluator) evalCallExp(
 	if ok {
 		res, err := buitin.Fn(receiver, args...)
 		if err != nil {
-			return e.newError(node, path, "%s", err.Error())
+			return e.newError(node, ctx, "%s", err.Error())
 		}
 
 		return res
@@ -805,30 +733,22 @@ func (e *Evaluator) evalCallExp(
 		}
 	}
 
-	return e.newError(node, path, fail.ErrNoFuncForThisType, node.Function.Name, receiver.Type())
+	return e.newError(node, ctx, fail.ErrNoFuncForThisType, node.Function.Name, receiver.Type())
 }
 
-func (e *Evaluator) evalGlobalCallExp(
-	node *ast.GlobalCallExp,
-	scope *object.Scope,
-	path string,
-) object.Object {
+func (e *Evaluator) evalGlobalCallExp(node *ast.GlobalCallExp, ctx *Context) object.Object {
 	switch node.Function.Name {
 	case "defined":
-		return e.evalGlobalFuncDefined(node, scope, path)
+		return e.evalGlobalFuncDefined(node, ctx)
 	default:
-		return e.newError(node, path, fail.ErrGlobalFuncMissing, node.Function.Name)
+		return e.newError(node, ctx, fail.ErrGlobalFuncMissing, node.Function.Name)
 	}
 }
 
-func (e *Evaluator) evalGlobalFuncDefined(
-	node *ast.GlobalCallExp,
-	scope *object.Scope,
-	path string,
-) object.Object {
+func (e *Evaluator) evalGlobalFuncDefined(node *ast.GlobalCallExp, ctx *Context) object.Object {
 	definedVars := make([]bool, 0, len(node.Arguments))
 	for i := range node.Arguments {
-		evaluated := e.Eval(node.Arguments[i], scope, path)
+		evaluated := e.Eval(node.Arguments[i], ctx)
 		definedVars = append(definedVars, !isUndefinedVarError(evaluated))
 	}
 
@@ -854,7 +774,7 @@ func (e *Evaluator) evalPostfixOpExp(
 	left object.Object,
 	op string,
 	node ast.Node,
-	path string,
+	ctx *Context,
 ) object.Object {
 	if op == "++" {
 		if left.Is(object.INT_OBJ) {
@@ -879,14 +799,14 @@ func (e *Evaluator) evalPostfixOpExp(
 			float := &object.Float{Value: val}
 
 			if err := float.SubtractFromFloat(1); err != nil {
-				return e.newError(node, path, fail.ErrCannotSubFromFloat, float, err)
+				return e.newError(node, ctx, fail.ErrCannotSubFromFloat, float, err)
 			}
 
 			return float
 		}
 	}
 
-	return e.newError(node, path, fail.ErrUnknownOp, left.Type(), op)
+	return e.newError(node, ctx, fail.ErrUnknownOp, left.Type(), op)
 }
 
 func (e *Evaluator) evalInfixOpExp(
@@ -894,24 +814,24 @@ func (e *Evaluator) evalInfixOpExp(
 	left,
 	right object.Object,
 	leftNode ast.Node,
-	path string,
+	ctx *Context,
 ) object.Object {
 	if left.Type() != right.Type() {
-		return e.newError(leftNode, path, fail.ErrTypeMismatch, left.Type(), op, right.Type())
+		return e.newError(leftNode, ctx, fail.ErrTypeMismatch, left.Type(), op, right.Type())
 	}
 
 	switch left.Type() {
 	case object.INT_OBJ:
-		return e.evalIntegerInfixExp(op, right, left, leftNode, path)
+		return e.evalIntegerInfixExp(op, right, left, leftNode, ctx)
 	case object.FLOAT_OBJ:
-		return e.evalFloatInfixExp(op, right, left, leftNode, path)
+		return e.evalFloatInfixExp(op, right, left, leftNode, ctx)
 	case object.BOOL_OBJ:
-		return e.evalBooleanInfixExp(op, right, left, leftNode, path)
+		return e.evalBooleanInfixExp(op, right, left, leftNode, ctx)
 	case object.STR_OBJ:
-		return e.evalStringInfixExp(op, right, left, leftNode, path)
+		return e.evalStringInfixExp(op, right, left, leftNode, ctx)
 	}
 
-	return e.newError(leftNode, path, fail.ErrUnknownTypeForOp, left.Type(), op)
+	return e.newError(leftNode, ctx, fail.ErrUnknownTypeForOp, left.Type(), op)
 }
 
 func (e *Evaluator) evalBooleanInfixExp(
@@ -919,7 +839,7 @@ func (e *Evaluator) evalBooleanInfixExp(
 	right,
 	left object.Object,
 	leftNode ast.Node,
-	path string,
+	ctx *Context,
 ) object.Object {
 	leftVal := left.(*object.Bool).Value
 	rightVal := right.(*object.Bool).Value
@@ -931,7 +851,7 @@ func (e *Evaluator) evalBooleanInfixExp(
 		return &object.Bool{Value: leftVal || rightVal}
 	}
 
-	return e.newError(leftNode, path, fail.ErrUnknownTypeForOp, left.Type(), op)
+	return e.newError(leftNode, ctx, fail.ErrUnknownTypeForOp, left.Type(), op)
 }
 
 func (e *Evaluator) evalIntegerInfixExp(
@@ -939,7 +859,7 @@ func (e *Evaluator) evalIntegerInfixExp(
 	right,
 	left object.Object,
 	leftNode ast.Node,
-	path string,
+	ctx *Context,
 ) object.Object {
 	leftVal := left.(*object.Int).Value
 	rightVal := right.(*object.Int).Value
@@ -953,9 +873,8 @@ func (e *Evaluator) evalIntegerInfixExp(
 		return &object.Int{Value: leftVal * rightVal}
 	case "/":
 		if rightVal == 0 {
-			return e.newError(leftNode, path, fail.ErrDivisionByZero)
+			return e.newError(leftNode, ctx, fail.ErrDivisionByZero)
 		}
-
 		return &object.Int{Value: leftVal / rightVal}
 	case "%":
 		return &object.Int{Value: leftVal % rightVal}
@@ -973,7 +892,7 @@ func (e *Evaluator) evalIntegerInfixExp(
 		return nativeBoolToBooleanObject(leftVal <= rightVal)
 	}
 
-	return e.newError(leftNode, path, fail.ErrUnknownTypeForOp, left.Type(), op)
+	return e.newError(leftNode, ctx, fail.ErrUnknownTypeForOp, left.Type(), op)
 }
 
 func (e *Evaluator) evalStringInfixExp(
@@ -981,7 +900,7 @@ func (e *Evaluator) evalStringInfixExp(
 	right,
 	left object.Object,
 	leftNode ast.Node,
-	path string,
+	ctx *Context,
 ) object.Object {
 	leftVal := left.(*object.Str).Value
 	rightVal := right.(*object.Str).Value
@@ -995,7 +914,7 @@ func (e *Evaluator) evalStringInfixExp(
 		return &object.Str{Value: leftVal + rightVal}
 	}
 
-	return e.newError(leftNode, path, fail.ErrUnknownTypeForOp, left.Type(), op)
+	return e.newError(leftNode, ctx, fail.ErrUnknownTypeForOp, left.Type(), op)
 }
 
 func (e *Evaluator) evalFloatInfixExp(
@@ -1003,7 +922,7 @@ func (e *Evaluator) evalFloatInfixExp(
 	right,
 	left object.Object,
 	leftNode ast.Node,
-	path string,
+	ctx *Context,
 ) object.Object {
 	leftVal := left.(*object.Float).Value
 	rightVal := right.(*object.Float).Value
@@ -1031,13 +950,13 @@ func (e *Evaluator) evalFloatInfixExp(
 		return nativeBoolToBooleanObject(leftVal <= rightVal)
 	}
 
-	return e.newError(leftNode, path, fail.ErrUnknownTypeForOp, left.Type(), op)
+	return e.newError(leftNode, ctx, fail.ErrUnknownTypeForOp, left.Type(), op)
 }
 
 func (e *Evaluator) evalMinusPrefixOpExp(
 	right object.Object,
 	node ast.Node,
-	path string,
+	ctx *Context,
 ) object.Object {
 	switch right.Type() {
 	case object.INT_OBJ:
@@ -1048,13 +967,13 @@ func (e *Evaluator) evalMinusPrefixOpExp(
 		return &object.Float{Value: -val}
 	}
 
-	return e.newError(node, path, fail.ErrPrefixOpIsWrong, "-", right.Type())
+	return e.newError(node, ctx, fail.ErrPrefixOpIsWrong, "-", right.Type())
 }
 
 func (e *Evaluator) evalBangOpExp(
 	right object.Object,
 	node ast.Node,
-	path string,
+	ctx *Context,
 ) object.Object {
 	switch right {
 	case FALSE:
@@ -1065,12 +984,12 @@ func (e *Evaluator) evalBangOpExp(
 		return TRUE
 	}
 
-	return e.newError(node, path, fail.ErrPrefixOpIsWrong, "!", right.Type())
+	return e.newError(node, ctx, fail.ErrPrefixOpIsWrong, "!", right.Type())
 }
 
-func (e *Evaluator) newError(node ast.Node, path, format string, a ...any) *object.Error {
+func (e *Evaluator) newError(node ast.Node, ctx *Context, format string, a ...any) *object.Error {
 	return &object.Error{
-		Err:     fail.New(node.Line(), path, "evaluator", format, a...),
+		Err:     fail.New(node.Line(), ctx.absPath, "evaluator", format, a...),
 		ErrorID: format,
 	}
 }

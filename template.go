@@ -49,7 +49,8 @@ func (t *Template) String(name string, data map[string]any) (string, *fail.Error
 	}
 
 	e := evaluator.New(customFunc, userConfig)
-	evaluated := e.Eval(prog, scope, prog.AbsPath)
+	ctx := evaluator.NewContext(scope, prog.AbsPath)
+	evaluated := e.Eval(prog, ctx)
 	if evaluated.Is(object.ERR_OBJ) {
 		return "", evaluated.(*object.Error).Err
 	}

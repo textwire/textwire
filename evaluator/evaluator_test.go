@@ -17,9 +17,10 @@ func testEval(inp string) object.Object {
 	prog := p.ParseProgram()
 	scope := object.NewScope()
 
-	eval := New(&config.Func{}, nil)
+	e := New(&config.Func{}, nil)
+	ctx := NewContext(scope, prog.AbsPath)
 
-	return eval.Eval(prog, scope, prog.AbsPath)
+	return e.Eval(prog, ctx)
 }
 
 func evaluationExpected(t *testing.T, inp, expect string, idx int) {
