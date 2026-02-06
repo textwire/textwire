@@ -8,20 +8,20 @@ import (
 
 type PostfixExp struct {
 	BaseNode
-	Operator string // ++ or --
-	Left     Expression
+	Op   string // ++ or --
+	Left Expression
 }
 
 func NewPostfixExp(tok token.Token, left Expression, op string) *PostfixExp {
 	return &PostfixExp{
 		BaseNode: NewBaseNode(tok),
 		Left:     left,
-		Operator: op,
+		Op:       op,
 	}
 }
 
 func (pe *PostfixExp) expressionNode() {}
 
 func (pe *PostfixExp) String() string {
-	return fmt.Sprintf("(%s%s)", pe.Left, pe.Operator)
+	return fmt.Sprintf("(%s%s)", pe.Left, pe.Op)
 }

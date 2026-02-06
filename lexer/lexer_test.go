@@ -295,7 +295,7 @@ func TestVariableDeclaration(t *testing.T) {
 	})
 }
 
-func TestLogicalAndOperator(t *testing.T) {
+func TestLogicalAndOp(t *testing.T) {
 	inp := `{{ true && false }}`
 
 	TokenizeString(t, inp, []token.Token{
@@ -308,7 +308,7 @@ func TestLogicalAndOperator(t *testing.T) {
 	})
 }
 
-func TestLogicalOrOperator(t *testing.T) {
+func TestLogicalOrOp(t *testing.T) {
 	inp := `{{ true || false }}`
 
 	TokenizeString(t, inp, []token.Token{

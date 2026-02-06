@@ -65,7 +65,7 @@ func checkParserErrors(t *testing.T, p *Parser) {
 	t.FailNow()
 }
 
-func testInfixExp(t *testing.T, exp ast.Expression, left any, operator string, right any) {
+func testInfixExp(t *testing.T, exp ast.Expression, left any, op string, right any) {
 	infix, ok := exp.(*ast.InfixExp)
 	if !ok {
 		t.Fatalf("exp is not an InfixExp, got %T", exp)
@@ -73,8 +73,8 @@ func testInfixExp(t *testing.T, exp ast.Expression, left any, operator string, r
 
 	testLiteralExpression(t, infix.Left, left)
 
-	if infix.Operator != operator {
-		t.Fatalf("infix.Operator is not %s, got %s", operator, infix.Operator)
+	if infix.Op != op {
+		t.Fatalf("infix.Op is not %s, got %s", op, infix.Op)
 	}
 
 	testLiteralExpression(t, infix.Right, right)
@@ -367,8 +367,8 @@ func TestStringConcatenation(t *testing.T) {
 		t.Fatalf("exp.Left is not %s, got %s", "Serhii", exp.Left)
 	}
 
-	if exp.Operator != "+" {
-		t.Fatalf("exp.Operator is not %s, got %s", "+", exp.Operator)
+	if exp.Op != "+" {
+		t.Fatalf("exp.Op is not %s, got %s", "+", exp.Op)
 	}
 
 	if exp.Right.Tok().Literal != " Anna" {
@@ -396,8 +396,8 @@ func TestExpression(t *testing.T) {
 		EndCol:   7,
 	})
 
-	if exp.Operator != "+" {
-		t.Fatalf("exp.Operator is not %s, got %s", "+", exp.Operator)
+	if exp.Op != "+" {
+		t.Fatalf("exp.Op is not %s, got %s", "+", exp.Op)
 	}
 
 	testIntegerLiteral(t, exp.Left, 5)
@@ -420,8 +420,8 @@ func TestGroupedExpression(t *testing.T) {
 	testToken(t, stmt, token.LPAREN)
 	testIntegerLiteral(t, exp.Right, 2)
 
-	if exp.Operator != "*" {
-		t.Fatalf("exp.Operator is not %s, got %s", "*", exp.Operator)
+	if exp.Op != "*" {
+		t.Fatalf("exp.Op is not %s, got %s", "*", exp.Op)
 	}
 
 	infix, ok := exp.Left.(*ast.InfixExp)
@@ -431,8 +431,8 @@ func TestGroupedExpression(t *testing.T) {
 
 	testIntegerLiteral(t, infix.Left, 5)
 
-	if infix.Operator != "+" {
-		t.Fatalf("infix.Operator is not %s, got %s", "+", infix.Operator)
+	if infix.Op != "+" {
+		t.Fatalf("infix.Op is not %s, got %s", "+", infix.Op)
 	}
 
 	testLiteralExpression(t, infix.Right, 5)
@@ -440,12 +440,12 @@ func TestGroupedExpression(t *testing.T) {
 
 func TestInfixExp(t *testing.T) {
 	cases := []struct {
-		inp      string
-		left     any
-		operator string
-		right    any
-		endCol   uint
-		expTok   token.TokenType
+		inp    string
+		left   any
+		op     string
+		right  any
+		endCol uint
+		expTok token.TokenType
 	}{
 		{"{{ 5 + 8 }}", 5, "+", 8, 7, token.INT},
 		{"{{ 10 - 2 }}", 10, "-", 2, 8, token.INT},
@@ -477,7 +477,7 @@ func TestInfixExp(t *testing.T) {
 			EndCol:   tc.endCol,
 		})
 
-		testInfixExp(t, stmt.Expression, tc.left, tc.operator, tc.right)
+		testInfixExp(t, stmt.Expression, tc.left, tc.op, tc.right)
 	}
 }
 
@@ -511,11 +511,11 @@ func TestBooleanExpression(t *testing.T) {
 
 func TestPrefixExp(t *testing.T) {
 	cases := []struct {
-		inp      string
-		operator string
-		value    any
-		endCol   uint
-		expTok   token.TokenType
+		inp    string
+		op     string
+		value  any
+		endCol uint
+		expTok token.TokenType
 	}{
 		{"{{ -5 }}", "-", 5, 4, token.SUB},
 		{"{{ -10 }}", "-", 10, 5, token.SUB},
@@ -546,15 +546,15 @@ func TestPrefixExp(t *testing.T) {
 			EndCol:   tc.endCol,
 		})
 
-		if exp.Operator != tc.operator {
-			t.Fatalf("exp.Operator is not %s, got %s", tc.operator, exp.Operator)
+		if exp.Op != tc.op {
+			t.Fatalf("exp.Op is not %s, got %s", tc.op, exp.Op)
 		}
 
 		testLiteralExpression(t, exp.Right, tc.value)
 	}
 }
 
-func TestOperatorPrecedenceParsing(t *testing.T) {
+func TestOpPrecedenceParsing(t *testing.T) {
 	cases := []struct {
 		inp    string
 		expect string
@@ -1157,11 +1157,11 @@ func TestParseIndexExp(t *testing.T) {
 
 func TestParsePostfixExp(t *testing.T) {
 	cases := []struct {
-		inp      string
-		ident    string
-		operator string
-		str      string
-		expTok   token.TokenType
+		inp    string
+		ident  string
+		op     string
+		str    string
+		expTok token.TokenType
 	}{
 		{`{{ i++ }}`, "i", "++", "(i++)", token.INC},
 		{`{{ num-- }}`, "num", "--", "(num--)", token.DEC},
@@ -1183,8 +1183,8 @@ func TestParsePostfixExp(t *testing.T) {
 		testToken(t, postfix, tc.expTok)
 		testIdentifier(t, postfix.Left, tc.ident)
 
-		if postfix.Operator != tc.operator {
-			t.Fatalf("postfix.Operator is not '%s', got %s", tc.operator, postfix.Operator)
+		if postfix.Op != tc.op {
+			t.Fatalf("postfix.Op is not '%s', got %s", tc.op, postfix.Op)
 		}
 
 		if postfix.String() != tc.str {

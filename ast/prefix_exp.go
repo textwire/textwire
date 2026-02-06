@@ -8,19 +8,19 @@ import (
 
 type PrefixExp struct {
 	BaseNode
-	Operator string
-	Right    Expression
+	Op    string
+	Right Expression
 }
 
 func NewPrefixExp(tok token.Token, op string) *PrefixExp {
 	return &PrefixExp{
 		BaseNode: NewBaseNode(tok),
-		Operator: op,
+		Op:       op,
 	}
 }
 
 func (pe *PrefixExp) expressionNode() {}
 
 func (pe *PrefixExp) String() string {
-	return fmt.Sprintf("(%s%s)", pe.Operator, pe.Right)
+	return fmt.Sprintf("(%s%s)", pe.Op, pe.Right)
 }

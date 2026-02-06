@@ -453,10 +453,10 @@ func TestEvalComments(t *testing.T) {
 
 func TestTypeMismatchErrors(t *testing.T) {
 	cases := []struct {
-		inp      string
-		objL     object.ObjectType
-		operator string
-		objR     object.ObjectType
+		inp  string
+		objL object.ObjectType
+		op   string
+		objR object.ObjectType
 	}{
 		{"{{ 3 + 2.0 }}", object.INT_OBJ, "+", object.FLOAT_OBJ},
 		{"{{ 2.0 + 3 }}", object.FLOAT_OBJ, "+", object.INT_OBJ},
@@ -490,7 +490,7 @@ func TestTypeMismatchErrors(t *testing.T) {
 		}
 
 		expect := fail.New(1, "/path/to/file", "evaluator", fail.ErrTypeMismatch,
-			tc.objL, tc.operator, tc.objR).String()
+			tc.objL, tc.op, tc.objR).String()
 
 		if errObj.String() != expect {
 			t.Fatalf("error message is not '%s', got '%s'", expect, errObj.String())
@@ -498,11 +498,11 @@ func TestTypeMismatchErrors(t *testing.T) {
 	}
 }
 
-func TestLogicalOperatorUnknownTypeError(t *testing.T) {
+func TestLogicalOpUnknownTypeError(t *testing.T) {
 	cases := []struct {
-		inp      string
-		obj      object.ObjectType
-		operator string
+		inp string
+		obj object.ObjectType
+		op  string
 	}{
 		{"{{ 3 && 0 }}", object.INT_OBJ, "&&"},
 		{"{{ [] && [] }}", object.ARR_OBJ, "&&"},
@@ -528,7 +528,7 @@ func TestLogicalOperatorUnknownTypeError(t *testing.T) {
 		}
 
 		expect := fail.New(1, "/path/to/file", "evaluator",
-			fail.ErrUnknownTypeForOperator, tc.obj, tc.operator).String()
+			fail.ErrUnknownTypeForOp, tc.obj, tc.op).String()
 
 		if errObj.String() != expect {
 			t.Fatalf("error message is not '%s', got '%s'", expect, errObj.String())

@@ -101,7 +101,7 @@ func (e *Evaluator) Eval(node ast.Node, scope *object.Scope, path string) object
 	case *ast.TernaryExp:
 		return e.evalTernaryExp(node, scope, path)
 	case *ast.InfixExp:
-		return e.evalInfixExp(node.Operator, node.Left, node.Right, scope, path)
+		return e.evalInfixExp(node.Op, node.Left, node.Right, scope, path)
 	case *ast.PostfixExp:
 		return e.evalPostfixExp(node, scope, path)
 	case *ast.CallExp:
@@ -621,14 +621,14 @@ func (e *Evaluator) evalPrefixExp(node *ast.PrefixExp, scope *object.Scope, path
 		return right
 	}
 
-	switch node.Operator {
+	switch node.Op {
 	case "-":
-		return e.evalMinusPrefixOperatorExp(right, node, path)
+		return e.evalMinusPrefixOpExp(right, node, path)
 	case "!":
-		return e.evalBangOperatorExp(right, node, path)
+		return e.evalBangOpExp(right, node, path)
 	}
 
-	return e.newError(node, path, fail.ErrUnknownOperator, node.Operator, right.Type())
+	return e.newError(node, path, fail.ErrUnknownOp, node.Op, right.Type())
 }
 
 func (e *Evaluator) evalTernaryExp(
@@ -700,7 +700,7 @@ func (e *Evaluator) evalExpressions(
 }
 
 func (e *Evaluator) evalInfixExp(
-	operator string,
+	op string,
 	leftNode,
 	rightNode ast.Expression,
 	scope *object.Scope,
@@ -716,7 +716,7 @@ func (e *Evaluator) evalInfixExp(
 		return right
 	}
 
-	return e.evalInfixOperatorExp(operator, left, right, leftNode, path)
+	return e.evalInfixOpExp(op, left, right, leftNode, path)
 }
 
 func (e *Evaluator) evalPostfixExp(
@@ -729,7 +729,7 @@ func (e *Evaluator) evalPostfixExp(
 		return leftObj
 	}
 
-	return e.evalPostfixOperatorExp(leftObj, node.Operator, node, path)
+	return e.evalPostfixOpExp(leftObj, node.Op, node, path)
 }
 
 func (e *Evaluator) evalCallExp(
@@ -842,7 +842,7 @@ func (e *Evaluator) objectsToNativeType(args []object.Object) []any {
 	return res
 }
 
-func (e *Evaluator) evalPostfixOperatorExp(
+func (e *Evaluator) evalPostfixOpExp(
 	left object.Object,
 	op string,
 	node ast.Node,
@@ -878,10 +878,10 @@ func (e *Evaluator) evalPostfixOperatorExp(
 		}
 	}
 
-	return e.newError(node, path, fail.ErrUnknownOperator, left.Type(), op)
+	return e.newError(node, path, fail.ErrUnknownOp, left.Type(), op)
 }
 
-func (e *Evaluator) evalInfixOperatorExp(
+func (e *Evaluator) evalInfixOpExp(
 	op string,
 	left,
 	right object.Object,
@@ -903,11 +903,11 @@ func (e *Evaluator) evalInfixOperatorExp(
 		return e.evalStringInfixExp(op, right, left, leftNode, path)
 	}
 
-	return e.newError(leftNode, path, fail.ErrUnknownTypeForOperator, left.Type(), op)
+	return e.newError(leftNode, path, fail.ErrUnknownTypeForOp, left.Type(), op)
 }
 
 func (e *Evaluator) evalBooleanInfixExp(
-	operator string,
+	op string,
 	right,
 	left object.Object,
 	leftNode ast.Node,
@@ -916,18 +916,18 @@ func (e *Evaluator) evalBooleanInfixExp(
 	leftVal := left.(*object.Bool).Value
 	rightVal := right.(*object.Bool).Value
 
-	switch operator {
+	switch op {
 	case "&&":
 		return &object.Bool{Value: leftVal && rightVal}
 	case "||":
 		return &object.Bool{Value: leftVal || rightVal}
 	}
 
-	return e.newError(leftNode, path, fail.ErrUnknownTypeForOperator, left.Type(), operator)
+	return e.newError(leftNode, path, fail.ErrUnknownTypeForOp, left.Type(), op)
 }
 
 func (e *Evaluator) evalIntegerInfixExp(
-	operator string,
+	op string,
 	right,
 	left object.Object,
 	leftNode ast.Node,
@@ -936,7 +936,7 @@ func (e *Evaluator) evalIntegerInfixExp(
 	leftVal := left.(*object.Int).Value
 	rightVal := right.(*object.Int).Value
 
-	switch operator {
+	switch op {
 	case "+":
 		return &object.Int{Value: leftVal + rightVal}
 	case "-":
@@ -965,11 +965,11 @@ func (e *Evaluator) evalIntegerInfixExp(
 		return nativeBoolToBooleanObject(leftVal <= rightVal)
 	}
 
-	return e.newError(leftNode, path, fail.ErrUnknownTypeForOperator, left.Type(), operator)
+	return e.newError(leftNode, path, fail.ErrUnknownTypeForOp, left.Type(), op)
 }
 
 func (e *Evaluator) evalStringInfixExp(
-	operator string,
+	op string,
 	right,
 	left object.Object,
 	leftNode ast.Node,
@@ -978,7 +978,7 @@ func (e *Evaluator) evalStringInfixExp(
 	leftVal := left.(*object.Str).Value
 	rightVal := right.(*object.Str).Value
 
-	switch operator {
+	switch op {
 	case "==":
 		return nativeBoolToBooleanObject(leftVal == rightVal)
 	case "!=":
@@ -987,11 +987,11 @@ func (e *Evaluator) evalStringInfixExp(
 		return &object.Str{Value: leftVal + rightVal}
 	}
 
-	return e.newError(leftNode, path, fail.ErrUnknownTypeForOperator, left.Type(), operator)
+	return e.newError(leftNode, path, fail.ErrUnknownTypeForOp, left.Type(), op)
 }
 
 func (e *Evaluator) evalFloatInfixExp(
-	operator string,
+	op string,
 	right,
 	left object.Object,
 	leftNode ast.Node,
@@ -1000,7 +1000,7 @@ func (e *Evaluator) evalFloatInfixExp(
 	leftVal := left.(*object.Float).Value
 	rightVal := right.(*object.Float).Value
 
-	switch operator {
+	switch op {
 	case "+":
 		return &object.Float{Value: leftVal + rightVal}
 	case "-":
@@ -1023,10 +1023,10 @@ func (e *Evaluator) evalFloatInfixExp(
 		return nativeBoolToBooleanObject(leftVal <= rightVal)
 	}
 
-	return e.newError(leftNode, path, fail.ErrUnknownTypeForOperator, left.Type(), operator)
+	return e.newError(leftNode, path, fail.ErrUnknownTypeForOp, left.Type(), op)
 }
 
-func (e *Evaluator) evalMinusPrefixOperatorExp(
+func (e *Evaluator) evalMinusPrefixOpExp(
 	right object.Object,
 	node ast.Node,
 	path string,
@@ -1040,10 +1040,10 @@ func (e *Evaluator) evalMinusPrefixOperatorExp(
 		return &object.Float{Value: -val}
 	}
 
-	return e.newError(node, path, fail.ErrPrefixOperatorIsWrong, "-", right.Type())
+	return e.newError(node, path, fail.ErrPrefixOpIsWrong, "-", right.Type())
 }
 
-func (e *Evaluator) evalBangOperatorExp(
+func (e *Evaluator) evalBangOpExp(
 	right object.Object,
 	node ast.Node,
 	path string,
@@ -1057,7 +1057,7 @@ func (e *Evaluator) evalBangOperatorExp(
 		return TRUE
 	}
 
-	return e.newError(node, path, fail.ErrPrefixOperatorIsWrong, "!", right.Type())
+	return e.newError(node, path, fail.ErrPrefixOpIsWrong, "!", right.Type())
 }
 
 func (e *Evaluator) newError(node ast.Node, path, format string, a ...any) *object.Error {
