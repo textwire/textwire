@@ -501,7 +501,11 @@ func (e *Evaluator) evalInsertStmt(node *ast.InsertStmt, path string) object.Obj
 	return NIL
 }
 
-func (e *Evaluator) evalDumpStmt(node *ast.DumpStmt, scope *object.Scope, path string) object.Object {
+func (e *Evaluator) evalDumpStmt(
+	node *ast.DumpStmt,
+	scope *object.Scope,
+	path string,
+) object.Object {
 	values := make([]string, 0, len(node.Arguments))
 
 	for i := range node.Arguments {
@@ -615,7 +619,11 @@ func (e *Evaluator) evalString(node *ast.StringLiteral, _ *object.Scope) object.
 	return &object.Str{Value: str}
 }
 
-func (e *Evaluator) evalPrefixExp(node *ast.PrefixExp, scope *object.Scope, path string) object.Object {
+func (e *Evaluator) evalPrefixExp(
+	node *ast.PrefixExp,
+	scope *object.Scope,
+	path string,
+) object.Object {
 	right := e.Eval(node.Right, scope, path)
 	if isError(right) {
 		return right

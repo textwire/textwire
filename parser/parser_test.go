@@ -222,7 +222,10 @@ func testElseBlock(t *testing.T, elseBlock *ast.BlockStmt, elseVal string) {
 	}
 
 	if len(elseBlock.Statements) != 1 {
-		t.Fatalf("elseBlock.Statements does not contain 1 statement, got %d", len(elseBlock.Statements))
+		t.Fatalf(
+			"elseBlock.Statements does not contain 1 statement, got %d",
+			len(elseBlock.Statements),
+		)
 	}
 
 	if elseBlock.String() != elseVal {
@@ -783,7 +786,10 @@ func TestParseNestedIfElseStatement(t *testing.T) {
 	}
 
 	if len(ifStmt.IfBlock.Statements) != 3 {
-		t.Fatalf("ifStmt.IfBlock.Statements does not contain 3 statement, got %d", len(ifStmt.IfBlock.Statements))
+		t.Fatalf(
+			"ifStmt.IfBlock.Statements does not contain 3 statement, got %d",
+			len(ifStmt.IfBlock.Statements),
+		)
 	}
 
 	testToken(t, ifStmt, token.IF)
