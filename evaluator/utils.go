@@ -111,7 +111,7 @@ func addDecimals(
 	decimals := 2
 
 	if len(args) > 2 {
-		msg := fmt.Sprintf(fail.ErrFuncMaxArgs, "decimal", objType, 2)
+		msg := fmt.Sprintf(fail.ErrFuncMaxArgs, objType, "decimal", 2)
 		return nil, errors.New(msg)
 	}
 
@@ -119,7 +119,7 @@ func addDecimals(
 		separatorArg, ok := args[0].(*object.Str)
 
 		if !ok {
-			msg := fmt.Sprintf(fail.ErrFuncFirstArgStr, "decimal", objType)
+			msg := fmt.Sprintf(fail.ErrFuncFirstArgStr, objType, "decimal")
 			return nil, errors.New(msg)
 		}
 
@@ -130,7 +130,7 @@ func addDecimals(
 		decimalArg, ok := args[1].(*object.Int)
 
 		if !ok {
-			msg := fmt.Sprintf(fail.ErrFuncSecondArgInt, "decimal", objType)
+			msg := fmt.Sprintf(fail.ErrFuncSecondArgInt, objType, "decimal")
 			return nil, errors.New(msg)
 		}
 

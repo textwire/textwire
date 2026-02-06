@@ -27,7 +27,7 @@ func strSplitFunc(receiver object.Object, args ...object.Object) (object.Object,
 	if len(args) > 0 {
 		str, ok := args[0].(*object.Str)
 		if !ok {
-			msg := fmt.Sprintf(fail.ErrFuncFirstArgStr, "split", object.STR_OBJ)
+			msg := fmt.Sprintf(fail.ErrFuncFirstArgStr, object.STR_OBJ, "split")
 			return nil, errors.New(msg)
 		}
 
@@ -59,7 +59,7 @@ func strTrimFunc(receiver object.Object, args ...object.Object) (object.Object, 
 	if len(args) > 0 {
 		str, ok := args[0].(*object.Str)
 		if !ok {
-			msg := fmt.Sprintf(fail.ErrFuncFirstArgStr, "trim", object.STR_OBJ)
+			msg := fmt.Sprintf(fail.ErrFuncFirstArgStr, object.STR_OBJ, "trim")
 			return nil, errors.New(msg)
 		}
 
@@ -113,13 +113,13 @@ func strReverseFunc(receiver object.Object, _ ...object.Object) (object.Object, 
 // strContainsFunc returns true if the string contains the given substring, false otherwise
 func strContainsFunc(receiver object.Object, args ...object.Object) (object.Object, error) {
 	if len(args) == 0 {
-		msg := fmt.Sprintf(fail.ErrFuncRequiresOneArg, "contains", object.STR_OBJ)
+		msg := fmt.Sprintf(fail.ErrFuncMissingArg, object.STR_OBJ, "contains")
 		return nil, errors.New(msg)
 	}
 
 	firstArg, ok := args[0].(*object.Str)
 	if !ok {
-		msg := fmt.Sprintf(fail.ErrFuncFirstArgStr, "contains", object.STR_OBJ)
+		msg := fmt.Sprintf(fail.ErrFuncFirstArgStr, object.STR_OBJ, "contains")
 		return nil, errors.New(msg)
 	}
 
@@ -132,13 +132,13 @@ func strContainsFunc(receiver object.Object, args ...object.Object) (object.Obje
 // strTruncateFunc returns a string truncated to the given length
 func strTruncateFunc(receiver object.Object, args ...object.Object) (object.Object, error) {
 	if len(args) == 0 {
-		msg := fmt.Sprintf(fail.ErrFuncRequiresOneArg, "truncate", object.STR_OBJ)
+		msg := fmt.Sprintf(fail.ErrFuncMissingArg, object.STR_OBJ, "truncate")
 		return nil, errors.New(msg)
 	}
 
 	firstArg, ok := args[0].(*object.Int)
 	if !ok {
-		msg := fmt.Sprintf(fail.ErrFuncFirstArgInt, "truncate", object.STR_OBJ)
+		msg := fmt.Sprintf(fail.ErrFuncFirstArgInt, object.STR_OBJ, "truncate")
 		return nil, errors.New(msg)
 	}
 
@@ -156,7 +156,7 @@ func strTruncateFunc(receiver object.Object, args ...object.Object) (object.Obje
 		if ok {
 			ellipsis = secondArg.Value
 		} else {
-			msg := fmt.Sprintf(fail.ErrFuncSecondArgStr, "truncate", object.STR_OBJ)
+			msg := fmt.Sprintf(fail.ErrFuncSecondArgStr, object.STR_OBJ, "truncate")
 			return nil, errors.New(msg)
 		}
 	}
@@ -178,7 +178,7 @@ func strAtFunc(receiver object.Object, args ...object.Object) (object.Object, er
 	if len(args) != 0 {
 		firstArg, ok := args[0].(*object.Int)
 		if !ok {
-			msg := fmt.Sprintf(fail.ErrFuncFirstArgInt, "at", object.STR_OBJ)
+			msg := fmt.Sprintf(fail.ErrFuncFirstArgInt, object.STR_OBJ, "at")
 			return nil, errors.New(msg)
 		}
 
@@ -219,7 +219,7 @@ func strTrimRightFunc(receiver object.Object, args ...object.Object) (object.Obj
 	if len(args) > 0 {
 		str, ok := args[0].(*object.Str)
 		if !ok {
-			msg := fmt.Sprintf(fail.ErrFuncFirstArgStr, "trimRight", object.STR_OBJ)
+			msg := fmt.Sprintf(fail.ErrFuncFirstArgStr, object.STR_OBJ, "trimRight")
 			return nil, errors.New(msg)
 		}
 
@@ -238,7 +238,7 @@ func strTrimLeftFunc(receiver object.Object, args ...object.Object) (object.Obje
 		str, ok := args[0].(*object.Str)
 
 		if !ok {
-			msg := fmt.Sprintf(fail.ErrFuncFirstArgStr, "trimLeft", object.STR_OBJ)
+			msg := fmt.Sprintf(fail.ErrFuncFirstArgStr, object.STR_OBJ, "trimLeft")
 			return nil, errors.New(msg)
 		}
 
@@ -253,13 +253,13 @@ func strTrimLeftFunc(receiver object.Object, args ...object.Object) (object.Obje
 // strRepeatFunc returns a string repeated n times
 func strRepeatFunc(receiver object.Object, args ...object.Object) (object.Object, error) {
 	if len(args) == 0 {
-		msg := fmt.Sprintf(fail.ErrFuncRequiresOneArg, "repeat", object.STR_OBJ)
+		msg := fmt.Sprintf(fail.ErrFuncMissingArg, object.STR_OBJ, "repeat")
 		return nil, errors.New(msg)
 	}
 
 	firstArg, ok := args[0].(*object.Int)
 	if !ok {
-		msg := fmt.Sprintf(fail.ErrFuncFirstArgInt, "repeat", object.STR_OBJ)
+		msg := fmt.Sprintf(fail.ErrFuncFirstArgInt, object.STR_OBJ, "repeat")
 		return nil, errors.New(msg)
 	}
 

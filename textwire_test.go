@@ -284,7 +284,7 @@ func TestErrorHandling(t *testing.T) {
 				1,
 				"",
 				"evaluator",
-				fail.ErrNoAttrForThisType,
+				fail.ErrFuncNotDefined,
 				object.INT_OBJ,
 				"someFunction",
 			),

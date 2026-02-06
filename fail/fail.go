@@ -51,13 +51,13 @@ const (
 	ErrEachDirWithNonArrArg    = "cannot use @each statement with non-array type '%s' after 'in' keyword"
 
 	// Functions
-	ErrNoAttrForThisType  = "'%s' type has no attribute '%s'"
-	ErrFuncRequiresOneArg = "function '%s' on type '%s' requires at least one argument"
-	ErrFuncFirstArgInt    = "first argument for function '%s' on type '%s' must be an INTEGER"
-	ErrFuncFirstArgStr    = "first argument for function '%s' on type '%s' must be a STRING"
-	ErrFuncSecondArgInt   = "second argument for function '%s' on type '%s' must be an INTEGER"
-	ErrFuncSecondArgStr   = "second argument for function '%s' on type '%s' must be a STRING"
-	ErrFuncMaxArgs        = "function '%s' on type '%s' accepts a maximum of %d arguments"
+	ErrFuncNotDefined   = "%s.%s() is not defined"
+	ErrFuncMissingArg   = "%s.%s(arg) missing required argument"
+	ErrFuncFirstArgInt  = "argument 1 on %s.%s() must be INTEGER"
+	ErrFuncFirstArgStr  = "argument 1 on %s.%s() must be STRING"
+	ErrFuncSecondArgInt = "argument 2 on %s.%s() must be INTEGER"
+	ErrFuncSecondArgStr = "argument 2 on %s.%s() must be STRING"
+	ErrFuncMaxArgs      = "%s.%s() takes at most %d arguments"
 
 	// Template errors
 	ErrUnsupportedType   = "unsupported value type '%T'"

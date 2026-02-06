@@ -29,7 +29,7 @@ func arrayJoinFunc(receiver object.Object, args ...object.Object) (object.Object
 	} else {
 		str, ok := args[0].(*object.Str)
 		if !ok {
-			msg := fmt.Sprintf(fail.ErrFuncFirstArgStr, "join", object.ARR_OBJ)
+			msg := fmt.Sprintf(fail.ErrFuncFirstArgStr, object.ARR_OBJ, "join")
 			return nil, errors.New(msg)
 		}
 
@@ -81,13 +81,13 @@ func arraySliceFunc(receiver object.Object, args ...object.Object) (object.Objec
 	argsLen := len(args)
 	elemsLen := len(elems)
 	if argsLen == 0 {
-		msg := fmt.Sprintf(fail.ErrFuncRequiresOneArg, "slice", object.ARR_OBJ)
+		msg := fmt.Sprintf(fail.ErrFuncMissingArg, object.ARR_OBJ, "slice")
 		return nil, errors.New(msg)
 	}
 
 	startFrom, ok := args[0].(*object.Int)
 	if !ok {
-		msg := fmt.Sprintf(fail.ErrFuncFirstArgInt, "slice", object.ARR_OBJ)
+		msg := fmt.Sprintf(fail.ErrFuncFirstArgInt, object.ARR_OBJ, "slice")
 		return nil, errors.New(msg)
 	}
 
@@ -100,7 +100,7 @@ func arraySliceFunc(receiver object.Object, args ...object.Object) (object.Objec
 
 	endAt, ok := args[1].(*object.Int)
 	if !ok {
-		msg := fmt.Sprintf(fail.ErrFuncSecondArgInt, "slice", object.ARR_OBJ)
+		msg := fmt.Sprintf(fail.ErrFuncSecondArgInt, object.ARR_OBJ, "slice")
 		return nil, errors.New(msg)
 	}
 
@@ -140,7 +140,7 @@ func arrayShuffleFunc(receiver object.Object, _ ...object.Object) (object.Object
 // arrayContainsFunc checks if the given array contains the given element
 func arrayContainsFunc(receiver object.Object, args ...object.Object) (object.Object, error) {
 	if len(args) == 0 {
-		msg := fmt.Sprintf(fail.ErrFuncRequiresOneArg, "contains", object.ARR_OBJ)
+		msg := fmt.Sprintf(fail.ErrFuncMissingArg, object.ARR_OBJ, "contains")
 		return nil, errors.New(msg)
 	}
 
@@ -174,7 +174,7 @@ func arrayContainsFunc(receiver object.Object, args ...object.Object) (object.Ob
 // arrayAppendFunc appends the given elements to the given array
 func arrayAppendFunc(receiver object.Object, args ...object.Object) (object.Object, error) {
 	if len(args) == 0 {
-		msg := fmt.Sprintf(fail.ErrFuncRequiresOneArg, "append", object.ARR_OBJ)
+		msg := fmt.Sprintf(fail.ErrFuncMissingArg, object.ARR_OBJ, "append")
 		return nil, errors.New(msg)
 	}
 
@@ -196,7 +196,7 @@ func arrayAppendFunc(receiver object.Object, args ...object.Object) (object.Obje
 // arrayPrependFunc prepends the given elements to the given array
 func arrayPrependFunc(receiver object.Object, args ...object.Object) (object.Object, error) {
 	if len(args) == 0 {
-		msg := fmt.Sprintf(fail.ErrFuncRequiresOneArg, "prepend", object.ARR_OBJ)
+		msg := fmt.Sprintf(fail.ErrFuncMissingArg, object.ARR_OBJ, "prepend")
 		return nil, errors.New(msg)
 	}
 

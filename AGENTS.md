@@ -113,10 +113,7 @@ import "github.com/textwire/textwire/v3/fail"
 ```
 
 ### Error Constants
-Use predefined error constants from the fail package:
-- Parser errors: `ErrEmptyBraces`, `ErrWrongNextToken`, `ErrExpectedExpression`
-- Evaluator errors: `ErrUnknownNodeType`, `ErrIdentifierNotFound`, `ErrTypeMismatch`
-- Function errors: `ErrNoFuncForThisType`, `ErrFuncRequiresOneArg`
+Use predefined error constants from the fail package.
 
 ### Error Creation
 Create errors using the fail package:
