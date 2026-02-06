@@ -47,7 +47,7 @@ const (
 	ErrDivisionByZero          = "division by zero - divisor cannot be zero"
 	ErrSomeDirsOnlyInTemplates = "@use, @insert, @reserve, @component only allowed in templates"
 	ErrGlobalFuncMissing       = "global function '%s' not found"
-	ErrPropertyOnNonObject     = "cannot get property '%s' from a non-object type '%s'"
+	ErrPropertyOnNonObject     = "'%s' type does not support attribute '%s' access"
 	ErrEachDirWithNonArrArg    = "cannot use @each statement with non-array type '%s' after 'in' keyword"
 
 	// Functions
