@@ -1,7 +1,8 @@
 # Release notes
 
 ## v3.0.0 (2026-02-05)
-- 🧑‍💻 Improve error messages
+- 🧑‍💻 Improve error messages.
+- 🧑‍💻 Potentially a breaking change, but it should not be. You will receive a clear error if you trying to use `@insert` in a template file without defining `@use` statement. Previously, `@insert` would result in empty string in your template.
 
 ## v3.0.0 (2026-02-07) — Major Release
 

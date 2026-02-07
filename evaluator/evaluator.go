@@ -497,9 +497,9 @@ func (e *Evaluator) insert(insertStmt *ast.InsertStmt, ctx *Context) object.Obje
 		return e.newError(insertStmt, ctx, fail.ErrSomeDirsOnlyInTemplates)
 	}
 
-	// Inserts should be nil when we don't have @use() directive
+	name := insertStmt.Name.Value
 	if !e.usingUseStmt {
-		return NIL
+		return e.newError(insertStmt, ctx, fail.ErrInsertRequiresUse, name)
 	}
 
 	block := e.combineInsertContent(insertStmt, ctx)
@@ -508,7 +508,7 @@ func (e *Evaluator) insert(insertStmt *ast.InsertStmt, ctx *Context) object.Obje
 	}
 
 	return &object.Insert{
-		Name:  insertStmt.Name.Value,
+		Name:  name,
 		Block: block,
 	}
 }
@@ -552,7 +552,7 @@ func (e *Evaluator) ident(ident *ast.Identifier, ctx *Context) object.Object {
 		return val
 	}
 
-	return e.newError(ident, ctx, fail.ErrIdentifierIsUndefined, ident.Name)
+	return e.newError(ident, ctx, fail.ErrVariableIsUndefined, ident.Name)
 }
 
 func (e *Evaluator) indexExp(indexExp *ast.IndexExp, ctx *Context) object.Object {

@@ -297,7 +297,7 @@ func TestErrorHandling(t *testing.T) {
 		},
 		{
 			inp:  `{{ undefinedVar }}`,
-			err:  fail.New(1, "", "evaluator", fail.ErrIdentifierIsUndefined, "undefinedVar"),
+			err:  fail.New(1, "", "evaluator", fail.ErrVariableIsUndefined, "undefinedVar"),
 			data: nil,
 		},
 		{

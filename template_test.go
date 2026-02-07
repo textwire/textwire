@@ -118,8 +118,8 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 			err: fail.New(
 				1,
 				path+"undefined-var-in-comp/hero.tw",
-				"parser",
-				fail.ErrIdentifierIsUndefined,
+				"evaluator",
+				fail.ErrVariableIsUndefined,
 				"undefinedVar",
 			),
 			data: nil,
@@ -129,8 +129,8 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 			err: fail.New(
 				8,
 				path+"undefined-var-in-use/base.tw",
-				"parser",
-				fail.ErrIdentifierIsUndefined,
+				"evaluator",
+				fail.ErrVariableIsUndefined,
 				"undefinedVar",
 			),
 			data: nil,
@@ -151,8 +151,8 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 			err: fail.New(
 				1,
 				path+"undefined-var-in-nested-comp/second.tw",
-				"parser",
-				fail.ErrIdentifierIsUndefined,
+				"evaluator",
+				fail.ErrVariableIsUndefined,
 				"name",
 			),
 			data: map[string]any{"name": "Amy"},
@@ -162,8 +162,8 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 			err: fail.New(
 				1,
 				path+"var-in-layout/layout.tw",
-				"parser",
-				fail.ErrIdentifierIsUndefined,
+				"evaluator",
+				fail.ErrVariableIsUndefined,
 				"fullName",
 			),
 			data: map[string]any{"fullName": "Amy Adams"},
@@ -171,6 +171,17 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 		{
 			dir:  "duplicate-use",
 			err:  fail.New(2, path+"duplicate-use/index.tw", "parser", fail.ErrOnlyOneUseDir),
+			data: nil,
+		},
+		{
+			dir: "inserts-without-use",
+			err: fail.New(
+				4,
+				path+"inserts-without-use/index.tw",
+				"evaluator",
+				fail.ErrInsertRequiresUse,
+				"title",
+			),
 			data: nil,
 		},
 	}
@@ -191,11 +202,19 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 			_, err := tpl.String("index", tc.data)
 			if err == nil {
 				t.Fatalf("expected error but got none")
-				return
 			}
 
 			if err.String() != tc.err.String() {
-				t.Fatalf("wrong error message. expect:\n\"%s\"\ngot:\n\"%s\"", tc.err, err)
+				t.Fatalf("wrong error message! expect:\n\"%s\"\ngot:\n\"%s\"", tc.err, err)
+			}
+
+			if err.Origin() != tc.err.Origin() {
+				t.Fatalf(
+					"wrong origin on error message '%s'! expect: '%s', got: '%s'",
+					err,
+					tc.err.Origin(),
+					err.Origin(),
+				)
 			}
 		})
 	}
@@ -225,7 +244,6 @@ func TestNewTemplate(t *testing.T) {
 			map[string]any{"names": []string{"Anna", "Serhii", "Vladimir"}},
 		},
 		{"use-inside-if", "index", nil},
-		{"insert-without-use", "index", nil},
 		{"with-comp", "index", nil},
 		{"with-inserts-and-html", "index", nil},
 		{
