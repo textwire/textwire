@@ -8,8 +8,7 @@ import (
 
 type ReserveStmt struct {
 	BaseNode
-	Insert *InsertStmt // Insert statement; nil if not yet parsed
-	Name   *StringLiteral
+	Name *StringLiteral
 }
 
 func NewReserveStmt(tok token.Token) *ReserveStmt {

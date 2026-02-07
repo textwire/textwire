@@ -1,10 +1,28 @@
 package ast
 
+import "github.com/textwire/textwire/v3/fail"
+
 func FindProg(name string, programs []*Program) *Program {
 	for i := range programs {
 		if programs[i].Name == name {
 			return programs[i]
 		}
+	}
+
+	return nil
+}
+
+func CheckUndefinedInserts(prog *Program, inserts map[string]*InsertStmt) *fail.Error {
+	for name := range inserts {
+		if _, ok := prog.Reserves[name]; ok {
+			continue
+		}
+
+		line := inserts[name].Line()
+		path := inserts[name].AbsPath
+		name := inserts[name].Name.Value
+
+		return fail.New(line, path, "parser", fail.ErrUndefinedInsert, name)
 	}
 
 	return nil

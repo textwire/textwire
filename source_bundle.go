@@ -115,8 +115,7 @@ func (sb *SourceBundle) handleLayoutLinking(prog *ast.Program) *fail.Error {
 	}
 
 	layoutProg.IsLayout = true
-	err := layoutProg.LinkInsertsToReserves(prog.Inserts)
-	if err != nil {
+	if err := ast.CheckUndefinedInserts(layoutProg, prog.Inserts); err != nil {
 		return err
 	}
 

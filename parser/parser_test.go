@@ -29,11 +29,6 @@ func parseStatements(t *testing.T, inp string, opts parseOpts) []ast.Statement {
 	l := lexer.New(inp)
 	p := New(l, "")
 	prog := p.ParseProgram()
-	err := prog.LinkInsertsToReserves(opts.inserts)
-
-	if err != nil {
-		t.Fatalf("error applying inserts: %s", err)
-	}
 
 	if opts.checkErrors {
 		checkParserErrors(t, p)

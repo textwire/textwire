@@ -65,20 +65,6 @@ func (p *Program) Stmts() []Statement {
 	return res
 }
 
-func (p *Program) LinkInsertsToReserves(inserts map[string]*InsertStmt) *fail.Error {
-	if err := p.checkUndefinedInsert(inserts); err != nil {
-		return err
-	}
-
-	for _, reserve := range p.Reserves {
-		if insert, ok := inserts[reserve.Name.Value]; ok {
-			reserve.Insert = insert
-		}
-	}
-
-	return nil
-}
-
 // LinkLayoutToUse adds Layout AST program to UseStmt for the current template
 // and resets statements to UseStmt only. Because we don't need anything else
 // inside a template. Make sure inserts are added before this is called
@@ -157,20 +143,4 @@ func (p *Program) HasReserveStmt() bool {
 
 func (p *Program) HasUseStmt() bool {
 	return p.UseStmt != nil
-}
-
-func (p *Program) checkUndefinedInsert(inserts map[string]*InsertStmt) *fail.Error {
-	for name := range inserts {
-		if _, ok := p.Reserves[name]; ok {
-			continue
-		}
-
-		line := inserts[name].Line()
-		path := inserts[name].AbsPath
-		name := inserts[name].Name.Value
-
-		return fail.New(line, path, "parser", fail.ErrUndefinedInsert, name)
-	}
-
-	return nil
 }
