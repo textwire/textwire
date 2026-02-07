@@ -253,37 +253,37 @@ func (e *Evaluator) reserveStmt(reserveStmt *ast.ReserveStmt, ctx *Context) obje
 	}
 }
 
-func (e *Evaluator) componentStmt(node *ast.ComponentStmt, ctx *Context) object.Object {
+func (e *Evaluator) componentStmt(compStmt *ast.ComponentStmt, ctx *Context) object.Object {
 	if !e.usingTemplates {
-		return e.newError(node, ctx, fail.ErrSomeDirsOnlyInTemplates)
+		return e.newError(compStmt, ctx, fail.ErrSomeDirsOnlyInTemplates)
 	}
 
-	compName := e.Eval(node.Name, ctx)
+	compName := e.Eval(compStmt.Name, ctx)
 	if isError(compName) {
 		return compName
 	}
 
-	if node.CompProg == nil {
-		return e.newError(node, ctx, fail.ErrComponentMustHaveBlock, compName)
+	if compStmt.CompProg == nil {
+		return e.newError(compStmt, ctx, fail.ErrComponentMustHaveBlock, compName)
 	}
 
 	comp := &object.Component{Name: compName.String()}
-	compCtx := NewContext(object.NewScope(), node.CompProg.AbsPath)
+	compCtx := NewContext(object.NewScope(), compStmt.CompProg.AbsPath)
 
-	if node.Argument != nil {
-		for key, arg := range node.Argument.Pairs {
+	if compStmt.Argument != nil {
+		for key, arg := range compStmt.Argument.Pairs {
 			obj := e.Eval(arg, ctx)
 			if isError(obj) {
 				return obj
 			}
 
 			if err := compCtx.scope.Set(key, obj); err != nil {
-				return e.newError(node, ctx, "%s", err.Error())
+				return e.newError(compStmt, ctx, "%s", err.Error())
 			}
 		}
 	}
 
-	blockObj := e.Eval(node.CompProg, compCtx)
+	blockObj := e.Eval(compStmt.CompProg, compCtx)
 	if isError(blockObj) {
 		return blockObj
 	}
@@ -293,25 +293,25 @@ func (e *Evaluator) componentStmt(node *ast.ComponentStmt, ctx *Context) object.
 	return comp
 }
 
-func (e *Evaluator) forStmt(node *ast.ForStmt, ctx *Context) object.Object {
+func (e *Evaluator) forStmt(forStmt *ast.ForStmt, ctx *Context) object.Object {
 	forCtx := NewContext(ctx.scope.Child(), ctx.absPath)
 
 	var init object.Object
-	if node.Init != nil {
-		if init = e.Eval(node.Init, forCtx); isError(init) {
+	if forStmt.Init != nil {
+		if init = e.Eval(forStmt.Init, forCtx); isError(init) {
 			return init
 		}
 	}
 
 	// Evaluate ElseBlock block if user's condition is false
-	if node.Condition != nil {
-		cond := e.Eval(node.Condition, forCtx)
+	if forStmt.Condition != nil {
+		cond := e.Eval(forStmt.Condition, forCtx)
 		if isError(cond) {
 			return cond
 		}
 
-		if !isTruthy(cond) && node.ElseBlock != nil {
-			return e.Eval(node.ElseBlock, forCtx)
+		if !isTruthy(cond) && forStmt.ElseBlock != nil {
+			return e.Eval(forStmt.ElseBlock, forCtx)
 		}
 	}
 
@@ -319,7 +319,7 @@ func (e *Evaluator) forStmt(node *ast.ForStmt, ctx *Context) object.Object {
 
 	// Loop through the block until the user's condition is false
 	for {
-		cond := e.Eval(node.Condition, forCtx)
+		cond := e.Eval(forStmt.Condition, forCtx)
 		if isError(cond) {
 			return cond
 		}
@@ -328,24 +328,24 @@ func (e *Evaluator) forStmt(node *ast.ForStmt, ctx *Context) object.Object {
 			break
 		}
 
-		block := e.Eval(node.Block, forCtx)
+		block := e.Eval(forStmt.Block, forCtx)
 		if isError(block) {
 			return block
 		}
 
 		blocks.WriteString(block.String())
-		post := e.Eval(node.Post, forCtx)
+		post := e.Eval(forStmt.Post, forCtx)
 		if isError(post) {
 			return post
 		}
 
-		if node.Init == nil || node.Post == nil {
+		if forStmt.Init == nil || forStmt.Post == nil {
 			continue
 		}
 
-		varName := node.Init.(*ast.AssignStmt).Left.Name
+		varName := forStmt.Init.(*ast.AssignStmt).Left.Name
 		if err := forCtx.scope.Set(varName, post); err != nil {
-			return e.newError(node, forCtx, "%s", err.Error())
+			return e.newError(forStmt, forCtx, "%s", err.Error())
 		}
 
 		if hasBreakStmt(block) {
@@ -360,25 +360,25 @@ func (e *Evaluator) forStmt(node *ast.ForStmt, ctx *Context) object.Object {
 	return &object.HTML{Value: blocks.String()}
 }
 
-func (e *Evaluator) eachStmt(node *ast.EachStmt, ctx *Context) object.Object {
+func (e *Evaluator) eachStmt(eachStmt *ast.EachStmt, ctx *Context) object.Object {
 	eachCtx := NewContext(ctx.scope.Child(), ctx.absPath)
-	varName := node.Var.Name
+	varName := eachStmt.Var.Name
 
-	arrObj := e.Eval(node.Array, eachCtx)
+	arrObj := e.Eval(eachStmt.Array, eachCtx)
 	if isError(arrObj) {
 		return arrObj
 	}
 
 	arr, ok := arrObj.(*object.Array)
 	if !ok {
-		return e.newError(node, eachCtx, fail.ErrEachDirWithNonArrArg, arrObj.Type())
+		return e.newError(eachStmt, eachCtx, fail.ErrEachDirWithNonArrArg, arrObj.Type())
 	}
 
 	arrElems := arr.Elements
 
 	// Evaluate ElseBlock when array is empty
-	if len(arrElems) == 0 && node.ElseBlock != nil {
-		return e.Eval(node.ElseBlock, eachCtx)
+	if len(arrElems) == 0 && eachStmt.ElseBlock != nil {
+		return e.Eval(eachStmt.ElseBlock, eachCtx)
 	}
 
 	var blocks strings.Builder
@@ -386,7 +386,7 @@ func (e *Evaluator) eachStmt(node *ast.EachStmt, ctx *Context) object.Object {
 
 	for i := range arrElems {
 		if err := eachCtx.scope.Set(varName, arrElems[i]); err != nil {
-			return e.newError(node, eachCtx, "%s", err.Error())
+			return e.newError(eachStmt, eachCtx, "%s", err.Error())
 		}
 
 		eachCtx.scope.SetLoopVar(map[string]object.Object{
@@ -396,7 +396,7 @@ func (e *Evaluator) eachStmt(node *ast.EachStmt, ctx *Context) object.Object {
 			"iter":  &object.Int{Value: int64(i + 1)},
 		})
 
-		block := e.Eval(node.Block, eachCtx)
+		block := e.Eval(eachStmt.Block, eachCtx)
 		if isError(block) {
 			return block
 		}
