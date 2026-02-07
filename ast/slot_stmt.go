@@ -6,14 +6,13 @@ import (
 	"github.com/textwire/textwire/v3/token"
 )
 
-const DefaultSlotName = "__DEFAULT_SLOT__"
-
 type SlotStmt struct {
 	BaseNode
-	Name     *StringLiteral
-	Block    *BlockStmt // Optional block statement, can be nil
-	IsLocal  bool       // If the slot from the external comp or local
-	CompName string     // Component name
+	Name      *StringLiteral // Empty when @slot is default
+	Block     *BlockStmt     // Optional block statement, can be nil
+	IsLocal   bool           // If the slot from the external comp or local
+	CompName  string         // Component name
+	IsDefault bool           // Whether the slot is named or default
 }
 
 func NewSlotStmt(tok token.Token, name *StringLiteral, compName string, isLocal bool) *SlotStmt {

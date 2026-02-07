@@ -80,14 +80,14 @@ func (p *Program) LinkCompProg(compName string, prog *Program, absPath string) *
 			continue
 		}
 
-		duplicateName, times := findDuplicateSlot(comp.Slots)
-		if times > 0 {
-			if duplicateName == DefaultSlotName {
+		duplicate, times := findDuplicateSlot(comp.Slots)
+		if times > 0 && duplicate != nil {
+			if duplicate.IsDefault {
 				return fail.New(
 					prog.Line(),
 					absPath,
 					"parser",
-					fail.ErrDuplicateDefaultSlotUsage,
+					fail.ErrDuplicateDefaultSlot,
 					times,
 					compName,
 				)
@@ -97,38 +97,26 @@ func (p *Program) LinkCompProg(compName string, prog *Program, absPath string) *
 				prog.Line(),
 				absPath,
 				"parser",
-				fail.ErrDuplicateSlotUsage,
-				duplicateName,
+				fail.ErrDuplicateSlot,
+				duplicate.Name.Value,
 				times,
 				compName,
 			)
 		}
 
 		for _, slot := range comp.Slots {
-			idx := findSlotStmtIndex(prog.Statements, slot.Name.Value)
+			name := slot.Name.Value
+			idx := findSlotStmtIndex(prog.Statements, name)
 			if idx != -1 {
 				prog.Statements[idx].(*SlotStmt).Block = slot.Block
 				continue
 			}
 
-			if slot.Name.Value == DefaultSlotName {
-				return fail.New(
-					prog.Line(),
-					absPath,
-					"parser",
-					fail.ErrDefaultSlotNotDefined,
-					compName,
-				)
+			if slot.IsDefault {
+				return fail.New(prog.Line(), absPath, "parser", fail.ErrDefaultSlotNotDefined, compName)
 			}
 
-			return fail.New(
-				prog.Line(),
-				absPath,
-				"parser",
-				fail.ErrSlotNotDefined,
-				slot.Name.Value,
-				compName,
-			)
+			return fail.New(prog.Line(), absPath, "parser", fail.ErrSlotNotDefined, name, compName)
 		}
 
 		comp.CompProg = prog

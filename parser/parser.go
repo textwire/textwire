@@ -557,8 +557,10 @@ func (p *Parser) slotStmt() ast.Statement {
 
 	// Handle default @slot without name
 	if !p.peekTokenIs(token.LPAREN) {
-		name := ast.NewStringLiteral(p.curToken, ast.DefaultSlotName)
-		return ast.NewSlotStmt(tok, name, p.name, false)
+		name := ast.NewStringLiteral(p.curToken, "")
+		stmt := ast.NewSlotStmt(tok, name, p.name, false)
+		stmt.IsDefault = true
+		return stmt
 	}
 
 	p.nextToken() // skip "@slot"
@@ -598,9 +600,10 @@ func (p *Parser) slots(compName string) []*ast.SlotStmt {
 	var slots []*ast.SlotStmt
 
 	for p.curTokenIs(token.SLOT) {
-		slotName := ast.NewStringLiteral(p.curToken, ast.DefaultSlotName)
+		slotName := ast.NewStringLiteral(p.curToken, "")
 
 		stmt := ast.NewSlotStmt(p.curToken, slotName, compName, true)
+		stmt.IsDefault = !p.peekTokenIs(token.LPAREN)
 
 		// When slot has a name @slot('name')
 		if p.peekTokenIs(token.LPAREN) {

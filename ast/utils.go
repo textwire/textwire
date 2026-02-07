@@ -43,18 +43,29 @@ func findSlotStmtIndex(stmts []Statement, slotName string) int {
 	return -1
 }
 
-func findDuplicateSlot(slots []*SlotStmt) (string, int) {
-	counts := map[string]int{}
-	for _, slot := range slots {
-		counts[slot.Name.Value]++
-	}
+func findDuplicateSlot(slots []*SlotStmt) (*SlotStmt, int) {
+	occurrences := make(map[string]struct {
+		slot  *SlotStmt
+		count int
+	})
 
-	// find the first slot name that has a count greater than 1
-	for name, times := range counts {
-		if times > 1 {
-			return name, times
+	for _, slot := range slots {
+		name := slot.Name.Value
+		entry := occurrences[name]
+		entry.count++
+
+		// Store the first occurrence
+		if entry.slot == nil {
+			entry.slot = slot
+		}
+
+		occurrences[name] = entry
+
+		// Return as soon as we find a duplicate
+		if entry.count > 1 {
+			return entry.slot, entry.count
 		}
 	}
 
-	return "", 0
+	return nil, 0
 }
