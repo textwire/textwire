@@ -3,111 +3,891 @@ package evaluator
 import (
 	"testing"
 
-	"github.com/textwire/textwire/v2/fail"
-	"github.com/textwire/textwire/v2/object"
+	"github.com/textwire/textwire/v3/fail"
+	"github.com/textwire/textwire/v3/object"
 )
 
 func TestFunctionGivesError(t *testing.T) {
-	tests := []struct {
+	cases := []struct {
 		inp string
 		err *fail.Error
 	}{
 		// slice
-		{`{{ [1, 2].slice() }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncRequiresOneArg, "slice", object.ARR_OBJ)},
-		{`{{ [1, 2].slice("hi") }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncFirstArgInt, "slice", object.ARR_OBJ)},
-		{`{{ [1, 2].slice({}) }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncFirstArgInt, "slice", object.ARR_OBJ)},
-		{`{{ [1, 2].slice([]) }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncFirstArgInt, "slice", object.ARR_OBJ)},
-		{`{{ [1, 2].slice(3.0) }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncFirstArgInt, "slice", object.ARR_OBJ)},
-		{`{{ [1, 2].slice(nil) }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncFirstArgInt, "slice", object.ARR_OBJ)},
-		{`{{ [1, 2].slice("hi", "hi") }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncFirstArgInt, "slice", object.ARR_OBJ)},
-		{`{{ [1, 2].slice(0, "hi") }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncSecondArgInt, "slice", object.ARR_OBJ)},
-		{`{{ [1, 2].slice(0, {}) }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncSecondArgInt, "slice", object.ARR_OBJ)},
-		{`{{ [1, 2].slice(0, []) }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncSecondArgInt, "slice", object.ARR_OBJ)},
-		{`{{ [1, 2].slice(0, 3.0) }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncSecondArgInt, "slice", object.ARR_OBJ)},
-		{`{{ [1, 2].slice(0, nil) }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncSecondArgInt, "slice", object.ARR_OBJ)},
+		{
+			`{{ [1, 2].slice() }}`,
+			fail.New(
+				1,
+				"/path/to/file",
+				"evaluator",
+				fail.ErrFuncMissingArg,
+				object.ARR_OBJ,
+				"slice",
+			),
+		},
+		{
+			`{{ [1, 2].slice("hi") }}`,
+			fail.New(
+				1,
+				"/path/to/file",
+				"evaluator",
+				fail.ErrFuncFirstArgInt,
+				object.ARR_OBJ,
+				"slice",
+			),
+		},
+		{
+			`{{ [1, 2].slice({}) }}`,
+			fail.New(
+				1,
+				"/path/to/file",
+				"evaluator",
+				fail.ErrFuncFirstArgInt,
+				object.ARR_OBJ,
+				"slice",
+			),
+		},
+		{
+			`{{ [1, 2].slice([]) }}`,
+			fail.New(
+				1,
+				"/path/to/file",
+				"evaluator",
+				fail.ErrFuncFirstArgInt,
+				object.ARR_OBJ,
+				"slice",
+			),
+		},
+		{
+			`{{ [1, 2].slice(3.0) }}`,
+			fail.New(
+				1,
+				"/path/to/file",
+				"evaluator",
+				fail.ErrFuncFirstArgInt,
+				object.ARR_OBJ,
+				"slice",
+			),
+		},
+		{
+			`{{ [1, 2].slice(nil) }}`,
+			fail.New(
+				1,
+				"/path/to/file",
+				"evaluator",
+				fail.ErrFuncFirstArgInt,
+				object.ARR_OBJ,
+				"slice",
+			),
+		},
+		{
+			`{{ [1, 2].slice("hi", "hi") }}`,
+			fail.New(
+				1,
+				"/path/to/file",
+				"evaluator",
+				fail.ErrFuncFirstArgInt,
+				object.ARR_OBJ,
+				"slice",
+			),
+		},
+		{
+			`{{ [1, 2].slice(0, "hi") }}`,
+			fail.New(
+				1,
+				"/path/to/file",
+				"evaluator",
+				fail.ErrFuncSecondArgInt,
+				object.ARR_OBJ,
+				"slice",
+			),
+		},
+		{
+			`{{ [1, 2].slice(0, {}) }}`,
+			fail.New(
+				1,
+				"/path/to/file",
+				"evaluator",
+				fail.ErrFuncSecondArgInt,
+				object.ARR_OBJ,
+				"slice",
+			),
+		},
+		{
+			`{{ [1, 2].slice(0, []) }}`,
+			fail.New(
+				1,
+				"/path/to/file",
+				"evaluator",
+				fail.ErrFuncSecondArgInt,
+				object.ARR_OBJ,
+				"slice",
+			),
+		},
+		{
+			`{{ [1, 2].slice(0, 3.0) }}`,
+			fail.New(
+				1,
+				"/path/to/file",
+				"evaluator",
+				fail.ErrFuncSecondArgInt,
+				object.ARR_OBJ,
+				"slice",
+			),
+		},
+		{
+			`{{ [1, 2].slice(0, nil) }}`,
+			fail.New(
+				1,
+				"/path/to/file",
+				"evaluator",
+				fail.ErrFuncSecondArgInt,
+				object.ARR_OBJ,
+				"slice",
+			),
+		},
 		// join
-		{`{{ [1, 2].join(1) }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncFirstArgStr, "join", object.ARR_OBJ)},
-		{`{{ [1, 2].join({}) }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncFirstArgStr, "join", object.ARR_OBJ)},
-		{`{{ [1, 2].join([]) }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncFirstArgStr, "join", object.ARR_OBJ)},
-		{`{{ [1, 2].join(3.0) }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncFirstArgStr, "join", object.ARR_OBJ)},
-		{`{{ [1, 2].join(nil) }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncFirstArgStr, "join", object.ARR_OBJ)},
+		{
+			`{{ [1, 2].join(1) }}`,
+			fail.New(
+				1,
+				"/path/to/file",
+				"evaluator",
+				fail.ErrFuncFirstArgStr,
+				object.ARR_OBJ,
+				"join",
+			),
+		},
+		{
+			`{{ [1, 2].join({}) }}`,
+			fail.New(
+				1,
+				"/path/to/file",
+				"evaluator",
+				fail.ErrFuncFirstArgStr,
+				object.ARR_OBJ,
+				"join",
+			),
+		},
+		{
+			`{{ [1, 2].join([]) }}`,
+			fail.New(
+				1,
+				"/path/to/file",
+				"evaluator",
+				fail.ErrFuncFirstArgStr,
+				object.ARR_OBJ,
+				"join",
+			),
+		},
+		{
+			`{{ [1, 2].join(3.0) }}`,
+			fail.New(
+				1,
+				"/path/to/file",
+				"evaluator",
+				fail.ErrFuncFirstArgStr,
+				object.ARR_OBJ,
+				"join",
+			),
+		},
+		{
+			`{{ [1, 2].join(nil) }}`,
+			fail.New(
+				1,
+				"/path/to/file",
+				"evaluator",
+				fail.ErrFuncFirstArgStr,
+				object.ARR_OBJ,
+				"join",
+			),
+		},
 		// split
-		{`{{ "nice".split(1) }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncFirstArgStr, "split", object.STR_OBJ)},
-		{`{{ "nice".split({}) }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncFirstArgStr, "split", object.STR_OBJ)},
-		{`{{ "nice".split([]) }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncFirstArgStr, "split", object.STR_OBJ)},
-		{`{{ "nice".split(3.0) }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncFirstArgStr, "split", object.STR_OBJ)},
-		{`{{ "nice".split(nil) }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncFirstArgStr, "split", object.STR_OBJ)},
+		{
+			`{{ "nice".split(1) }}`,
+			fail.New(
+				1,
+				"/path/to/file",
+				"evaluator",
+				fail.ErrFuncFirstArgStr,
+				object.STR_OBJ,
+				"split",
+			),
+		},
+		{
+			`{{ "nice".split({}) }}`,
+			fail.New(
+				1,
+				"/path/to/file",
+				"evaluator",
+				fail.ErrFuncFirstArgStr,
+				object.STR_OBJ,
+				"split",
+			),
+		},
+		{
+			`{{ "nice".split([]) }}`,
+			fail.New(
+				1,
+				"/path/to/file",
+				"evaluator",
+				fail.ErrFuncFirstArgStr,
+				object.STR_OBJ,
+				"split",
+			),
+		},
+		{
+			`{{ "nice".split(3.0) }}`,
+			fail.New(
+				1,
+				"/path/to/file",
+				"evaluator",
+				fail.ErrFuncFirstArgStr,
+				object.STR_OBJ,
+				"split",
+			),
+		},
+		{
+			`{{ "nice".split(nil) }}`,
+			fail.New(
+				1,
+				"/path/to/file",
+				"evaluator",
+				fail.ErrFuncFirstArgStr,
+				object.STR_OBJ,
+				"split",
+			),
+		},
 		// trim
-		{`{{ "n".trim(1) }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncFirstArgStr, "trim", object.STR_OBJ)},
-		{`{{ "n".trim({}) }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncFirstArgStr, "trim", object.STR_OBJ)},
-		{`{{ "n".trim([]) }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncFirstArgStr, "trim", object.STR_OBJ)},
-		{`{{ "n".trim(3.0) }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncFirstArgStr, "trim", object.STR_OBJ)},
-		{`{{ "n".trim(nil) }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncFirstArgStr, "trim", object.STR_OBJ)},
+		{
+			`{{ "n".trim(1) }}`,
+			fail.New(
+				1,
+				"/path/to/file",
+				"evaluator",
+				fail.ErrFuncFirstArgStr,
+				object.STR_OBJ,
+				"trim",
+			),
+		},
+		{
+			`{{ "n".trim({}) }}`,
+			fail.New(
+				1,
+				"/path/to/file",
+				"evaluator",
+				fail.ErrFuncFirstArgStr,
+				object.STR_OBJ,
+				"trim",
+			),
+		},
+		{
+			`{{ "n".trim([]) }}`,
+			fail.New(
+				1,
+				"/path/to/file",
+				"evaluator",
+				fail.ErrFuncFirstArgStr,
+				object.STR_OBJ,
+				"trim",
+			),
+		},
+		{
+			`{{ "n".trim(3.0) }}`,
+			fail.New(
+				1,
+				"/path/to/file",
+				"evaluator",
+				fail.ErrFuncFirstArgStr,
+				object.STR_OBJ,
+				"trim",
+			),
+		},
+		{
+			`{{ "n".trim(nil) }}`,
+			fail.New(
+				1,
+				"/path/to/file",
+				"evaluator",
+				fail.ErrFuncFirstArgStr,
+				object.STR_OBJ,
+				"trim",
+			),
+		},
 		// trimRight
-		{`{{ "n".trimRight(1) }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncFirstArgStr, "trimRight", object.STR_OBJ)},
-		{`{{ "n".trimRight({}) }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncFirstArgStr, "trimRight", object.STR_OBJ)},
-		{`{{ "n".trimRight([]) }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncFirstArgStr, "trimRight", object.STR_OBJ)},
-		{`{{ "n".trimRight(3.0) }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncFirstArgStr, "trimRight", object.STR_OBJ)},
-		{`{{ "n".trimRight(nil) }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncFirstArgStr, "trimRight", object.STR_OBJ)},
+		{
+			`{{ "n".trimRight(1) }}`,
+			fail.New(
+				1,
+				"/path/to/file",
+				"evaluator",
+				fail.ErrFuncFirstArgStr,
+				object.STR_OBJ,
+				"trimRight",
+			),
+		},
+		{
+			`{{ "n".trimRight({}) }}`,
+			fail.New(
+				1,
+				"/path/to/file",
+				"evaluator",
+				fail.ErrFuncFirstArgStr,
+				object.STR_OBJ,
+				"trimRight",
+			),
+		},
+		{
+			`{{ "n".trimRight([]) }}`,
+			fail.New(
+				1,
+				"/path/to/file",
+				"evaluator",
+				fail.ErrFuncFirstArgStr,
+				object.STR_OBJ,
+				"trimRight",
+			),
+		},
+		{
+			`{{ "n".trimRight(3.0) }}`,
+			fail.New(
+				1,
+				"/path/to/file",
+				"evaluator",
+				fail.ErrFuncFirstArgStr,
+				object.STR_OBJ,
+				"trimRight",
+			),
+		},
+		{
+			`{{ "n".trimRight(nil) }}`,
+			fail.New(
+				1,
+				"/path/to/file",
+				"evaluator",
+				fail.ErrFuncFirstArgStr,
+				object.STR_OBJ,
+				"trimRight",
+			),
+		},
 		// trimLeft
-		{`{{ "n".trimLeft(1) }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncFirstArgStr, "trimLeft", object.STR_OBJ)},
-		{`{{ "n".trimLeft({}) }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncFirstArgStr, "trimLeft", object.STR_OBJ)},
-		{`{{ "n".trimLeft([]) }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncFirstArgStr, "trimLeft", object.STR_OBJ)},
-		{`{{ "n".trimLeft(3.0) }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncFirstArgStr, "trimLeft", object.STR_OBJ)},
-		{`{{ "n".trimLeft(nil) }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncFirstArgStr, "trimLeft", object.STR_OBJ)},
+		{
+			`{{ "n".trimLeft(1) }}`,
+			fail.New(
+				1,
+				"/path/to/file",
+				"evaluator",
+				fail.ErrFuncFirstArgStr,
+				object.STR_OBJ,
+				"trimLeft",
+			),
+		},
+		{
+			`{{ "n".trimLeft({}) }}`,
+			fail.New(
+				1,
+				"/path/to/file",
+				"evaluator",
+				fail.ErrFuncFirstArgStr,
+				object.STR_OBJ,
+				"trimLeft",
+			),
+		},
+		{
+			`{{ "n".trimLeft([]) }}`,
+			fail.New(
+				1,
+				"/path/to/file",
+				"evaluator",
+				fail.ErrFuncFirstArgStr,
+				object.STR_OBJ,
+				"trimLeft",
+			),
+		},
+		{
+			`{{ "n".trimLeft(3.0) }}`,
+			fail.New(
+				1,
+				"/path/to/file",
+				"evaluator",
+				fail.ErrFuncFirstArgStr,
+				object.STR_OBJ,
+				"trimLeft",
+			),
+		},
+		{
+			`{{ "n".trimLeft(nil) }}`,
+			fail.New(
+				1,
+				"/path/to/file",
+				"evaluator",
+				fail.ErrFuncFirstArgStr,
+				object.STR_OBJ,
+				"trimLeft",
+			),
+		},
 		// repeat
-		{`{{ "n".repeat(true) }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncFirstArgInt, "repeat", object.STR_OBJ)},
-		{`{{ "n".repeat(false) }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncFirstArgInt, "repeat", object.STR_OBJ)},
-		{`{{ "n".repeat(nil) }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncFirstArgInt, "repeat", object.STR_OBJ)},
-		{`{{ "n".repeat("3") }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncFirstArgInt, "repeat", object.STR_OBJ)},
-		{`{{ "n".repeat() }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncRequiresOneArg, "repeat", object.STR_OBJ)},
+		{
+			`{{ "n".repeat(true) }}`,
+			fail.New(
+				1,
+				"/path/to/file",
+				"evaluator",
+				fail.ErrFuncFirstArgInt,
+				object.STR_OBJ,
+				"repeat",
+			),
+		},
+		{
+			`{{ "n".repeat(false) }}`,
+			fail.New(
+				1,
+				"/path/to/file",
+				"evaluator",
+				fail.ErrFuncFirstArgInt,
+				object.STR_OBJ,
+				"repeat",
+			),
+		},
+		{
+			`{{ "n".repeat(nil) }}`,
+			fail.New(
+				1,
+				"/path/to/file",
+				"evaluator",
+				fail.ErrFuncFirstArgInt,
+				object.STR_OBJ,
+				"repeat",
+			),
+		},
+		{
+			`{{ "n".repeat("3") }}`,
+			fail.New(
+				1,
+				"/path/to/file",
+				"evaluator",
+				fail.ErrFuncFirstArgInt,
+				object.STR_OBJ,
+				"repeat",
+			),
+		},
+		{
+			`{{ "n".repeat() }}`,
+			fail.New(
+				1,
+				"/path/to/file",
+				"evaluator",
+				fail.ErrFuncMissingArg,
+				object.STR_OBJ,
+				"repeat",
+			),
+		},
 		// contains
-		{`{{ "anna".contains() }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncRequiresOneArg, "contains", object.STR_OBJ)},
+		{
+			`{{ "anna".contains() }}`,
+			fail.New(
+				1,
+				"/path/to/file",
+				"evaluator",
+				fail.ErrFuncMissingArg,
+				object.STR_OBJ,
+				"contains",
+			),
+		},
 		// truncate
-		{`{{ "anna serhii".truncate() }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncRequiresOneArg, "truncate", object.STR_OBJ)},
-		{`{{ "anna".truncate("hi") }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncFirstArgInt, "truncate", object.STR_OBJ)},
-		{`{{ "anna".truncate(true) }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncFirstArgInt, "truncate", object.STR_OBJ)},
-		{`{{ "anna".truncate([]) }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncFirstArgInt, "truncate", object.STR_OBJ)},
-		{`{{ "anna".truncate({}) }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncFirstArgInt, "truncate", object.STR_OBJ)},
-		{`{{ "anna".truncate(3.3) }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncFirstArgInt, "truncate", object.STR_OBJ)},
-		{`{{ "anna".truncate(1, true) }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncSecondArgStr, "truncate", object.STR_OBJ)},
-		{`{{ "anna".truncate(2, []) }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncSecondArgStr, "truncate", object.STR_OBJ)},
-		{`{{ "anna".truncate(1, {}) }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncSecondArgStr, "truncate", object.STR_OBJ)},
-		{`{{ "anna".truncate(1, 3.3) }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncSecondArgStr, "truncate", object.STR_OBJ)},
+		{
+			`{{ "anna serhii".truncate() }}`,
+			fail.New(
+				1,
+				"/path/to/file",
+				"evaluator",
+				fail.ErrFuncMissingArg,
+				object.STR_OBJ,
+				"truncate",
+			),
+		},
+		{
+			`{{ "anna".truncate("hi") }}`,
+			fail.New(
+				1,
+				"/path/to/file",
+				"evaluator",
+				fail.ErrFuncFirstArgInt,
+				object.STR_OBJ,
+				"truncate",
+			),
+		},
+		{
+			`{{ "anna".truncate(true) }}`,
+			fail.New(
+				1,
+				"/path/to/file",
+				"evaluator",
+				fail.ErrFuncFirstArgInt,
+				object.STR_OBJ,
+				"truncate",
+			),
+		},
+		{
+			`{{ "anna".truncate([]) }}`,
+			fail.New(
+				1,
+				"/path/to/file",
+				"evaluator",
+				fail.ErrFuncFirstArgInt,
+				object.STR_OBJ,
+				"truncate",
+			),
+		},
+		{
+			`{{ "anna".truncate({}) }}`,
+			fail.New(
+				1,
+				"/path/to/file",
+				"evaluator",
+				fail.ErrFuncFirstArgInt,
+				object.STR_OBJ,
+				"truncate",
+			),
+		},
+		{
+			`{{ "anna".truncate(3.3) }}`,
+			fail.New(
+				1,
+				"/path/to/file",
+				"evaluator",
+				fail.ErrFuncFirstArgInt,
+				object.STR_OBJ,
+				"truncate",
+			),
+		},
+		{
+			`{{ "anna".truncate(1, true) }}`,
+			fail.New(
+				1,
+				"/path/to/file",
+				"evaluator",
+				fail.ErrFuncSecondArgStr,
+				object.STR_OBJ,
+				"truncate",
+			),
+		},
+		{
+			`{{ "anna".truncate(2, []) }}`,
+			fail.New(
+				1,
+				"/path/to/file",
+				"evaluator",
+				fail.ErrFuncSecondArgStr,
+				object.STR_OBJ,
+				"truncate",
+			),
+		},
+		{
+			`{{ "anna".truncate(1, {}) }}`,
+			fail.New(
+				1,
+				"/path/to/file",
+				"evaluator",
+				fail.ErrFuncSecondArgStr,
+				object.STR_OBJ,
+				"truncate",
+			),
+		},
+		{
+			`{{ "anna".truncate(1, 3.3) }}`,
+			fail.New(
+				1,
+				"/path/to/file",
+				"evaluator",
+				fail.ErrFuncSecondArgStr,
+				object.STR_OBJ,
+				"truncate",
+			),
+		},
 		// decimal (STRING)
-		{`{{ "100".decimal(1) }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncFirstArgStr, "decimal", object.STR_OBJ)},
-		{`{{ "100".decimal(true) }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncFirstArgStr, "decimal", object.STR_OBJ)},
-		{`{{ "100".decimal([]) }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncFirstArgStr, "decimal", object.STR_OBJ)},
-		{`{{ "100".decimal({}) }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncFirstArgStr, "decimal", object.STR_OBJ)},
-		{`{{ "100".decimal(1.1) }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncFirstArgStr, "decimal", object.STR_OBJ)},
-		{`{{ "100".decimal("", "nice") }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncSecondArgInt, "decimal", object.STR_OBJ)},
-		{`{{ "100".decimal("", true) }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncSecondArgInt, "decimal", object.STR_OBJ)},
-		{`{{ "100".decimal("", []) }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncSecondArgInt, "decimal", object.STR_OBJ)},
-		{`{{ "100".decimal("", {}) }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncSecondArgInt, "decimal", object.STR_OBJ)},
-		{`{{ "100".decimal("", 1.1) }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncSecondArgInt, "decimal", object.STR_OBJ)},
+		{
+			`{{ "100".decimal(1) }}`,
+			fail.New(
+				1,
+				"/path/to/file",
+				"evaluator",
+				fail.ErrFuncFirstArgStr,
+				object.STR_OBJ,
+				"decimal",
+			),
+		},
+		{
+			`{{ "100".decimal(true) }}`,
+			fail.New(
+				1,
+				"/path/to/file",
+				"evaluator",
+				fail.ErrFuncFirstArgStr,
+				object.STR_OBJ,
+				"decimal",
+			),
+		},
+		{
+			`{{ "100".decimal([]) }}`,
+			fail.New(
+				1,
+				"/path/to/file",
+				"evaluator",
+				fail.ErrFuncFirstArgStr,
+				object.STR_OBJ,
+				"decimal",
+			),
+		},
+		{
+			`{{ "100".decimal({}) }}`,
+			fail.New(
+				1,
+				"/path/to/file",
+				"evaluator",
+				fail.ErrFuncFirstArgStr,
+				object.STR_OBJ,
+				"decimal",
+			),
+		},
+		{
+			`{{ "100".decimal(1.1) }}`,
+			fail.New(
+				1,
+				"/path/to/file",
+				"evaluator",
+				fail.ErrFuncFirstArgStr,
+				object.STR_OBJ,
+				"decimal",
+			),
+		},
+		{
+			`{{ "100".decimal("", "nice") }}`,
+			fail.New(
+				1,
+				"/path/to/file",
+				"evaluator",
+				fail.ErrFuncSecondArgInt,
+				object.STR_OBJ,
+				"decimal",
+			),
+		},
+		{
+			`{{ "100".decimal("", true) }}`,
+			fail.New(
+				1,
+				"/path/to/file",
+				"evaluator",
+				fail.ErrFuncSecondArgInt,
+				object.STR_OBJ,
+				"decimal",
+			),
+		},
+		{
+			`{{ "100".decimal("", []) }}`,
+			fail.New(
+				1,
+				"/path/to/file",
+				"evaluator",
+				fail.ErrFuncSecondArgInt,
+				object.STR_OBJ,
+				"decimal",
+			),
+		},
+		{
+			`{{ "100".decimal("", {}) }}`,
+			fail.New(
+				1,
+				"/path/to/file",
+				"evaluator",
+				fail.ErrFuncSecondArgInt,
+				object.STR_OBJ,
+				"decimal",
+			),
+		},
+		{
+			`{{ "100".decimal("", 1.1) }}`,
+			fail.New(
+				1,
+				"/path/to/file",
+				"evaluator",
+				fail.ErrFuncSecondArgInt,
+				object.STR_OBJ,
+				"decimal",
+			),
+		},
 		// decimal (INTEGER)
-		{`{{ 100.decimal(1) }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncFirstArgStr, "decimal", object.INT_OBJ)},
-		{`{{ 100.decimal(true) }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncFirstArgStr, "decimal", object.INT_OBJ)},
-		{`{{ 100.decimal([]) }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncFirstArgStr, "decimal", object.INT_OBJ)},
-		{`{{ 100.decimal({}) }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncFirstArgStr, "decimal", object.INT_OBJ)},
-		{`{{ 100.decimal(1.1) }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncFirstArgStr, "decimal", object.INT_OBJ)},
-		{`{{ 100.decimal("", "nice") }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncSecondArgInt, "decimal", object.INT_OBJ)},
-		{`{{ 100.decimal("", true) }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncSecondArgInt, "decimal", object.INT_OBJ)},
-		{`{{ 100.decimal("", []) }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncSecondArgInt, "decimal", object.INT_OBJ)},
-		{`{{ 100.decimal("", {}) }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncSecondArgInt, "decimal", object.INT_OBJ)},
-		{`{{ 100.decimal("", 1.1) }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncSecondArgInt, "decimal", object.INT_OBJ)},
+		{
+			`{{ 100.decimal(1) }}`,
+			fail.New(
+				1,
+				"/path/to/file",
+				"evaluator",
+				fail.ErrFuncFirstArgStr,
+				object.INT_OBJ,
+				"decimal",
+			),
+		},
+		{
+			`{{ 100.decimal(true) }}`,
+			fail.New(
+				1,
+				"/path/to/file",
+				"evaluator",
+				fail.ErrFuncFirstArgStr,
+				object.INT_OBJ,
+				"decimal",
+			),
+		},
+		{
+			`{{ 100.decimal([]) }}`,
+			fail.New(
+				1,
+				"/path/to/file",
+				"evaluator",
+				fail.ErrFuncFirstArgStr,
+				object.INT_OBJ,
+				"decimal",
+			),
+		},
+		{
+			`{{ 100.decimal({}) }}`,
+			fail.New(
+				1,
+				"/path/to/file",
+				"evaluator",
+				fail.ErrFuncFirstArgStr,
+				object.INT_OBJ,
+				"decimal",
+			),
+		},
+		{
+			`{{ 100.decimal(1.1) }}`,
+			fail.New(
+				1,
+				"/path/to/file",
+				"evaluator",
+				fail.ErrFuncFirstArgStr,
+				object.INT_OBJ,
+				"decimal",
+			),
+		},
+		{
+			`{{ 100.decimal("", "nice") }}`,
+			fail.New(
+				1,
+				"/path/to/file",
+				"evaluator",
+				fail.ErrFuncSecondArgInt,
+				object.INT_OBJ,
+				"decimal",
+			),
+		},
+		{
+			`{{ 100.decimal("", true) }}`,
+			fail.New(
+				1,
+				"/path/to/file",
+				"evaluator",
+				fail.ErrFuncSecondArgInt,
+				object.INT_OBJ,
+				"decimal",
+			),
+		},
+		{
+			`{{ 100.decimal("", []) }}`,
+			fail.New(
+				1,
+				"/path/to/file",
+				"evaluator",
+				fail.ErrFuncSecondArgInt,
+				object.INT_OBJ,
+				"decimal",
+			),
+		},
+		{
+			`{{ 100.decimal("", {}) }}`,
+			fail.New(
+				1,
+				"/path/to/file",
+				"evaluator",
+				fail.ErrFuncSecondArgInt,
+				object.INT_OBJ,
+				"decimal",
+			),
+		},
+		{
+			`{{ 100.decimal("", 1.1) }}`,
+			fail.New(
+				1,
+				"/path/to/file",
+				"evaluator",
+				fail.ErrFuncSecondArgInt,
+				object.INT_OBJ,
+				"decimal",
+			),
+		},
 		// then
-		{`{{ true.then() }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncRequiresOneArg, "then", object.BOOL_OBJ)},
-		{`{{ false.then() }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncRequiresOneArg, "then", object.BOOL_OBJ)},
+		{
+			`{{ true.then() }}`,
+			fail.New(
+				1,
+				"/path/to/file",
+				"evaluator",
+				fail.ErrFuncMissingArg,
+				object.BOOL_OBJ,
+				"then",
+			),
+		},
+		{
+			`{{ false.then() }}`,
+			fail.New(
+				1,
+				"/path/to/file",
+				"evaluator",
+				fail.ErrFuncMissingArg,
+				object.BOOL_OBJ,
+				"then",
+			),
+		},
 		// contains
-		{`{{ [1, 2].contains() }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncRequiresOneArg, "contains", object.ARR_OBJ)},
+		{
+			`{{ [1, 2].contains() }}`,
+			fail.New(
+				1,
+				"/path/to/file",
+				"evaluator",
+				fail.ErrFuncMissingArg,
+				object.ARR_OBJ,
+				"contains",
+			),
+		},
 		// append
-		{`{{ [1, 2].append() }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncRequiresOneArg, "append", object.ARR_OBJ)},
+		{
+			`{{ [1, 2].append() }}`,
+			fail.New(
+				1,
+				"/path/to/file",
+				"evaluator",
+				fail.ErrFuncMissingArg,
+				object.ARR_OBJ,
+				"append",
+			),
+		},
 		// prepend
-		{`{{ [1, 2].prepend() }}`, fail.New(1, "/path/to/file", "evaluator", fail.ErrFuncRequiresOneArg, "prepend", object.ARR_OBJ)},
+		{
+			`{{ [1, 2].prepend() }}`,
+			fail.New(
+				1,
+				"/path/to/file",
+				"evaluator",
+				fail.ErrFuncMissingArg,
+				object.ARR_OBJ,
+				"prepend",
+			),
+		},
 	}
 
-	for _, tc := range tests {
+	for _, tc := range cases {
 		evaluated := testEval(tc.inp)
 		errObj, ok := evaluated.(*object.Error)
 
@@ -116,11 +896,11 @@ func TestFunctionGivesError(t *testing.T) {
 		}
 
 		if evaluated.Type() != object.ERR_OBJ {
-			t.Fatalf("expected object.ERR_OBJ, got=%T", evaluated)
+			t.Fatalf("expect object.ERR_OBJ, got=%T", evaluated)
 		}
 
 		if errObj.String() != tc.err.String() {
-			t.Fatalf("expected error message=%q, got=%q", tc.err.String(), errObj.String())
+			t.Fatalf("expect error message=%q, got=%q", tc.err.String(), errObj.String())
 		}
 	}
 }

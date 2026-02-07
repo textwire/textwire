@@ -1,5 +1,0 @@
-@component("hero")
-    @slot
-        <h1>Title</h1>
-    @end
-@end

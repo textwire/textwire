@@ -1,0 +1,9 @@
+<h1>Insert without Use Statement</h1>
+<p>Pretty content is over here</p>
+
+@insert("title", "insert without use")
+
+@insert("content")
+<h1>This should be ignored</h1>
+<p>This is also will be ignored</p>
+@end

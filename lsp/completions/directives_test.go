@@ -3,17 +3,17 @@ package completions
 import (
 	"testing"
 
-	"github.com/textwire/textwire/v2/token"
+	"github.com/textwire/textwire/v3/token"
 )
 
 func TestGetDirectives(t *testing.T) {
 	directives, err := GetDirectives("en")
 	if err != nil {
-		t.Fatalf("expected no error, got %v", err)
+		t.Fatalf("expect no error, got %v", err)
 	}
 
 	if len(directives) == 0 {
-		t.Fatal("expected non-empty directives")
+		t.Fatal("expect non-empty directives")
 	}
 
 	hasInsertDir := false

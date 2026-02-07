@@ -3,7 +3,7 @@ package evaluator
 import (
 	"strconv"
 
-	"github.com/textwire/textwire/v2/object"
+	"github.com/textwire/textwire/v3/object"
 )
 
 // intFloatFunc converts an integer to a float and returns it
@@ -15,7 +15,6 @@ func intFloatFunc(receiver object.Object, _ ...object.Object) (object.Object, er
 // intAbsFunc returns the absolute value of an integer
 func intAbsFunc(receiver object.Object, _ ...object.Object) (object.Object, error) {
 	val := receiver.(*object.Int).Value
-
 	if val < 0 {
 		return &object.Int{Value: -val}, nil
 	}
@@ -33,7 +32,6 @@ func intStrFunc(receiver object.Object, _ ...object.Object) (object.Object, erro
 func intLenFunc(receiver object.Object, _ ...object.Object) (object.Object, error) {
 	val := receiver.(*object.Int).Value
 	valStr := strconv.FormatInt(val, 10)
-
 	if val < 0 {
 		return &object.Int{Value: int64(len(valStr) - 1)}, nil
 	}

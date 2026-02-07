@@ -6,8 +6,9 @@ import (
 	"os"
 	"testing"
 
-	"github.com/textwire/textwire/v2/fail"
-	"github.com/textwire/textwire/v2/object"
+	"github.com/textwire/textwire/v3/fail"
+	"github.com/textwire/textwire/v3/object"
+	"github.com/textwire/textwire/v3/token"
 )
 
 func readFile(fileName string) (string, error) {
@@ -31,67 +32,319 @@ func readFile(fileName string) (string, error) {
 }
 
 func TestEvaluateString(t *testing.T) {
-	tests := []struct {
+	cases := []struct {
+		name   string
 		inp    string
 		expect string
 		data   map[string]any
 	}{
-		{"{{ 1 + 2 }}", "3", nil},
-		{"{{ n1 * n2 }}", "2", map[string]any{"n1": 1, "n2": 2}},
-		{"{{ user.name.firstName }}", "Ann", map[string]any{"user": struct {
-			Name struct{ FirstName string }
-			Age  int
-		}{Name: struct{ FirstName string }{"Ann"}, Age: 20}}},
+		{
+			name:   "Simple math operation with integers",
+			inp:    "{{ 1 + 2 }}",
+			expect: "3",
+			data:   nil,
+		},
+		{
+			name:   "Simple math operation with identifiers",
+			inp:    "{{ n1 * n2 }}",
+			expect: "2",
+			data:   map[string]any{"n1": 1, "n2": 2},
+		},
+		{
+			name:   "First letter of the object property is case insensitive",
+			inp:    "{{ user.iD.str() + ' ' + user.ID.str() }}",
+			expect: "1 1",
+			data: map[string]any{
+				"user": struct{ ID uint }{1}},
+		},
+		{
+			name:   "Accessing user.name.firstName property",
+			inp:    "{{ user.name.firstName }}",
+			expect: "Ann",
+			data: map[string]any{
+				"user": struct {
+					Name struct{ FirstName string }
+				}{
+					Name: struct{ FirstName string }{"Ann"},
+				},
+			},
+		},
+		{
+			name:   "Empty global object is defined",
+			inp:    "<span>{{ global }}</span>",
+			expect: "<span>{}</span>",
+			data:   nil,
+		},
 	}
 
-	for _, tc := range tests {
-		actual, err := EvaluateString(tc.inp, tc.data)
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			actual, err := EvaluateString(tc.inp, tc.data)
+			if err != nil {
+				t.Errorf("error evaluating template: %s", err)
+			}
+
+			if actual != tc.expect {
+				t.Errorf("wrong result. expect:\n\"%s\"\ngot:\n\"%s\"",
+					tc.expect, actual)
+			}
+		})
+	}
+}
+
+func TestDefinedCallExpression(t *testing.T) {
+	cases := []struct {
+		inp    string
+		expect string
+		data   map[string]any
+	}{
+		{`{{ defined('') }}`, "1", nil},
+		{`{{ defined("") }}`, "1", nil},
+		{`{{ defined(0) }}`, "1", nil},
+		{`{{ defined(1) }}`, "1", nil},
+		{`{{ defined(0.0) }}`, "1", nil},
+		{`{{ defined(1.0) }}`, "1", nil},
+		{`{{ defined({}) }}`, "1", nil},
+		{`{{ defined([]) }}`, "1", nil},
+		{`{{ defined(true) }}`, "1", nil},
+		{`{{ defined(false) }}`, "1", nil},
+		{`{{ defined(nil) }}`, "1", nil},
+		{`{{ defined(undefinedVar) }}`, "0", nil},
+		{`@if(!defined(definedVar))YES@end`, "YES", nil},
+		{
+			inp:    `{{ defined(definedVar) }}`,
+			expect: "1",
+			data:   map[string]any{"definedVar": "nice"},
+		},
+		{
+			inp:    `@if(defined(definedVar))YES@end`,
+			expect: "YES",
+			data:   map[string]any{"definedVar": "nice"},
+		},
+		{
+			inp:    `{{ defined(definedVar).then("Yes", "No") }}`,
+			expect: "Yes",
+			data:   map[string]any{"definedVar": "nice"}},
+
+		// Variables with falsy but defined values like nil, false, ""
+		{`{{ defined(nilVar) }}`, "1", map[string]any{"nilVar": nil}},
+		{`@if(defined(nilVar))YES@end`, "YES", map[string]any{"nilVar": nil}},
+		{`{{ defined(emptyStr) }}`, "1", map[string]any{"emptyStr": ""}},
+		{`@if(defined(emptyStr))YES@end`, "YES", map[string]any{"emptyStr": ""}},
+		{`{{ defined(falseVar) }}`, "1", map[string]any{"falseVar": false}},
+		{`@if(defined(falseVar))YES@end`, "YES", map[string]any{"falseVar": false}},
+		{`{{ defined(zeroInt) }}`, "1", map[string]any{"zeroInt": 0}},
+		{`@if(defined(zeroInt))YES@end`, "YES", map[string]any{"zeroInt": 0}},
+		{`{{ defined(zeroFloat) }}`, "1", map[string]any{"zeroFloat": 0.0}},
+
+		// Complex data structures with nested objects
+		{
+			inp:    `{{ defined(obj.prop) }}`,
+			expect: "1",
+			data:   map[string]any{"obj": map[string]any{"prop": "value"}},
+		},
+		{
+			inp:    `{{ defined(obj.nested.prop) }}`,
+			expect: "1",
+			data: map[string]any{
+				"obj": map[string]any{
+					"nested": map[string]any{"prop": "value"},
+				},
+			},
+		},
+		{
+			inp:    `{{ defined(arr[0]) }}`,
+			expect: "1",
+			data:   map[string]any{"arr": []any{"first", "second"}}},
+
+		// More conditional logic tests
+		{
+			inp:    `@if(defined(obj.prop))YES@end`,
+			expect: "YES",
+			data:   map[string]any{"obj": map[string]any{"prop": "value"}},
+		},
+		{
+			inp:    `@if(defined(definedVar) && defined(nilVar))YES@end`,
+			expect: "YES",
+			data:   map[string]any{"definedVar": "nice", "nilVar": nil},
+		},
+		{
+			inp:    `@if(defined(definedVar) || defined(undefinedVar))YES@end`,
+			expect: "YES",
+			data:   map[string]any{"definedVar": "nice"},
+		},
+		{
+			inp:    `@if(defined(obj.prop, obj.nested.prop))YES@end`,
+			expect: "YES",
+			data: map[string]any{
+				"obj": map[string]any{
+					"prop":   "value",
+					"nested": map[string]any{"prop": "value"},
+				},
+			},
+		},
+	}
+
+	for _, tc := range cases {
+		res, err := EvaluateString(tc.inp, tc.data)
 		if err != nil {
-			t.Errorf("error evaluating template: %s", err)
+			t.Fatalf("we don't expect error but got %s", err)
 		}
 
-		if actual != tc.expect {
-			t.Errorf("wrong result. EXPECTED:\n\"%s\"\nGOT:\n\"%s\"",
-				tc.expect, actual)
+		if tc.expect != res {
+			t.Errorf("wrong result. expect: %q got: %q", tc.expect, res)
 		}
 	}
 }
 
 func TestErrorHandling(t *testing.T) {
-	tests := []struct {
+	cases := []struct {
 		inp  string
 		err  *fail.Error
 		data map[string]any
 	}{
-		{`{{ 1 + "a" }}`, fail.New(1, "", "evaluator", fail.ErrTypeMismatch, object.INT_OBJ, "+", object.STR_OBJ), nil},
-		{`@use("sometemplate")`, fail.New(1, "", "evaluator", fail.ErrUseStmtMustHaveProgram), nil},
-		{`{{ loop = "test" }}`, fail.New(1, "", "evaluator", fail.ErrLoopVariableIsReserved), nil},
-		{`{{ loop }}`, fail.New(0, "", "evaluator", fail.ErrLoopVariableIsReserved), map[string]any{"loop": "test"}},
-		{`{{ n = 1; n = "test" }}`, fail.New(1, "", "evaluator", fail.ErrVariableTypeMismatch, "n", object.INT_OBJ, object.STR_OBJ), nil},
-		{`{{ obj = {}; obj.name }}`, fail.New(1, "", "evaluator", fail.ErrPropertyNotFound, "name", object.OBJ_OBJ), nil},
-		{`{{ {}.test }}`, fail.New(1, "", "evaluator", fail.ErrPropertyNotFound, "test", object.OBJ_OBJ), nil},
-		{`{{ 5.somefunction() }}`, fail.New(1, "", "evaluator", fail.ErrNoFuncForThisType, "somefunction", object.INT_OBJ), nil},
-		{`{{ 3 / 0 }}`, fail.New(1, "", "evaluator", fail.ErrDivisionByZero), nil},
-		{`{{ 1 ~ 8 }}`, fail.New(1, "", "parser", fail.ErrIllegalToken, "~"), nil},
+		{
+			inp:  `@use("someTemplate")`,
+			err:  fail.New(1, "", "evaluator", fail.ErrSomeDirsOnlyInTemplates),
+			data: nil,
+		},
+		{
+			inp:  `@insert("title", "hi")`,
+			err:  fail.New(1, "", "evaluator", fail.ErrSomeDirsOnlyInTemplates),
+			data: nil,
+		},
+		{
+			inp:  `@reserve("content")`,
+			err:  fail.New(1, "", "evaluator", fail.ErrSomeDirsOnlyInTemplates),
+			data: nil,
+		},
+		{
+			inp:  `@component("~header")`,
+			err:  fail.New(1, "", "evaluator", fail.ErrSomeDirsOnlyInTemplates),
+			data: nil,
+		},
+		{
+			inp: `{{ 1 + "a" }}`,
+			err: fail.New(
+				1,
+				"",
+				"evaluator",
+				fail.ErrTypeMismatch,
+				object.INT_OBJ,
+				"+",
+				object.STR_OBJ,
+			),
+			data: nil,
+		},
+		{
+			inp:  `{{ loop = "test" }}`,
+			err:  fail.New(1, "", "evaluator", fail.ErrReservedIdentifiers),
+			data: nil,
+		},
+		{
+			inp:  `{{ global = "test" }}`,
+			err:  fail.New(1, "", "evaluator", fail.ErrReservedIdentifiers),
+			data: nil,
+		},
+		{
+			inp: `{{ loop }}`,
+			err: fail.New(
+				0,
+				"",
+				"evaluator",
+				fail.ErrReservedIdentifiers,
+			), data: map[string]any{"loop": "test"},
+		},
+		{
+			inp: `{{ n = 1; n = "test" }}`,
+			err: fail.New(
+				1,
+				"",
+				"evaluator",
+				fail.ErrIdentifierTypeMismatch,
+				"n",
+				object.INT_OBJ,
+				object.STR_OBJ,
+			),
+			data: nil,
+		},
+		{
+			inp:  `{{ obj = {}; obj.name }}`,
+			err:  fail.New(1, "", "evaluator", fail.ErrPropertyNotFound, "name", object.OBJ_OBJ),
+			data: nil,
+		},
+		{
+			inp:  `{{ {}.test }}`,
+			err:  fail.New(1, "", "evaluator", fail.ErrPropertyNotFound, "test", object.OBJ_OBJ),
+			data: nil,
+		},
+		{
+			inp: `{{ 5.someFunction() }}`,
+			err: fail.New(
+				1,
+				"",
+				"evaluator",
+				fail.ErrFuncNotDefined,
+				object.INT_OBJ,
+				"someFunction",
+			),
+			data: nil,
+		},
+		{
+			inp:  `{{ 3 / 0 }}`,
+			err:  fail.New(1, "", "evaluator", fail.ErrDivisionByZero),
+			data: nil,
+		},
+		{
+			inp:  `{{ undefinedVar }}`,
+			err:  fail.New(1, "", "evaluator", fail.ErrIdentifierIsUndefined, "undefinedVar"),
+			data: nil,
+		},
+		{
+			inp:  `{{ obj = {name: "Amy"}; obj.name.id }}`,
+			err:  fail.New(1, "", "evaluator", fail.ErrPropertyOnNonObject, object.STR_OBJ, "id"),
+			data: nil,
+		},
+		{
+			inp: `{{ obj."str" }}`,
+			err: fail.New(
+				1,
+				"",
+				"evaluator",
+				fail.ErrWrongNextToken,
+				token.String(token.IDENT),
+				token.String(token.STR),
+			),
+			data: nil,
+		},
+		{
+			inp: `@each(v in {}){{ v }}@end`,
+			err: fail.New(
+				1,
+				"",
+				"evaluator",
+				fail.ErrEachDirWithNonArrArg,
+				object.OBJ_OBJ,
+			),
+			data: nil,
+		},
 	}
 
-	for _, tc := range tests {
+	for _, tc := range cases {
 		_, err := EvaluateString(tc.inp, tc.data)
 		if err == nil {
-			t.Errorf("expected error but got none")
-			return
+			t.Fatalf("expect error but got none")
 		}
 
 		if err.Error() != tc.err.String() {
-			t.Errorf("wrong error message. EXPECTED:\n%q\nGOT:\n%q",
+			t.Errorf("wrong error message. expected:\n%q\ngot:\n%q",
 				tc.err, err)
 		}
 	}
 }
 
 func TestEvaluateFile(t *testing.T) {
-	filename := "14.two-vars-no-layout"
-	absPath, fileErr := getFullPath("textwire/testdata/good/before/"+filename+".tw", false)
+	absPath, fileErr := getFullPath("textwire/testdata/good/before/two-vars-no-use/index.tw")
 
 	if fileErr != nil {
 		t.Errorf("error getting full path: %s", fileErr)
@@ -107,20 +360,20 @@ func TestEvaluateFile(t *testing.T) {
 		t.Errorf("error evaluating file:\n%s", err)
 	}
 
-	expected, err := readFile("textwire/testdata/good/expected/" + filename + ".html")
+	expect, err := readFile("textwire/testdata/good/expected/two-vars-no-use.html")
 	if err != nil {
 		t.Errorf("error reading expected file: %s", err)
 		return
 	}
 
-	if out != expected {
-		t.Errorf("wrong output. EXPECTED:\n%s\nGOT:\n%s", expected, out)
+	if out != expect {
+		t.Errorf("wrong output. expect:\n%s\ngot:\n%s", expect, out)
 	}
 }
 
 func TestCustomFunctions(t *testing.T) {
 	t.Run("register for integer receiver", func(t *testing.T) {
-		err := RegisterIntFunc("double", func(num int, args ...any) int {
+		err := RegisterIntFunc("_double", func(num int, args ...any) any {
 			return num * 2
 		})
 
@@ -128,18 +381,18 @@ func TestCustomFunctions(t *testing.T) {
 			t.Fatalf("error registering function: %s", err)
 		}
 
-		actual, err := EvaluateString("{{ 3.double() }}", nil)
+		actual, err := EvaluateString("{{ 3._double() }}", nil)
 		if err != nil {
 			t.Fatalf("error evaluating template: %s", err)
 		}
 
 		if actual != "6" {
-			t.Errorf("wrong result. EXPECTED: '6' GOT: '%s'", actual)
+			t.Errorf("wrong result. expect: '6' got: '%s'", actual)
 		}
 	})
 
 	t.Run("register for float receiver", func(t *testing.T) {
-		err := RegisterFloatFunc("double", func(num float64, args ...any) float64 {
+		err := RegisterFloatFunc("_double", func(num float64, args ...any) any {
 			return num * 2
 		})
 
@@ -147,18 +400,18 @@ func TestCustomFunctions(t *testing.T) {
 			t.Fatalf("error registering function: %s", err)
 		}
 
-		actual, err := EvaluateString("{{ 3.5.double() }}", nil)
+		actual, err := EvaluateString("{{ 3.5._double() }}", nil)
 		if err != nil {
 			t.Fatalf("error evaluating template: %s", err)
 		}
 
 		if actual != "7.0" {
-			t.Fatalf("wrong result. EXPECTED: '7.0' GOT: '%s'", actual)
+			t.Fatalf("wrong result. expect: '7.0' got: '%s'", actual)
 		}
 	})
 
 	t.Run("register for array receiver", func(t *testing.T) {
-		err := RegisterArrFunc("addNumber", func(arr []any, args ...any) []any {
+		err := RegisterArrFunc("_addNumber", func(arr []any, args ...any) any {
 			firstArg := args[0].(int64)
 			arr = append(arr, firstArg)
 			return arr
@@ -168,36 +421,59 @@ func TestCustomFunctions(t *testing.T) {
 			t.Fatalf("error registering function: %s", err)
 		}
 
-		actual, err := EvaluateString("{{ [1, 2].addNumber(3) }}", nil)
+		actual, err := EvaluateString("{{ [1, 2]._addNumber(3) }}", nil)
 		if err != nil {
 			t.Fatalf("error evaluating template: %s", err)
 		}
 
 		if actual != "1, 2, 3" {
-			t.Fatalf("wrong result. EXPECTED: '1, 2, 3' GOT: '%s'", actual)
+			t.Fatalf("wrong result. expect: '1, 2, 3' got: '%s'", actual)
+		}
+	})
+
+	t.Run("register for object receiver", func(t *testing.T) {
+		err := RegisterObjFunc("_addProp", func(obj map[string]any, args ...any) any {
+			key := args[0].(string)
+			value := args[1]
+			obj[key] = value
+			return obj
+		})
+
+		if err != nil {
+			t.Fatalf("error registering function: %s", err)
+		}
+
+		inp := "{{ obj = {name: 'Anna'}; obj = obj._addProp('age', 25); obj.age }}"
+		actual, err := EvaluateString(inp, nil)
+		if err != nil {
+			t.Fatalf("error evaluating template: %s", err)
+		}
+
+		if actual != "25" {
+			t.Fatalf("wrong result. expect: '25' got: '%s'", actual)
 		}
 	})
 
 	t.Run("register for boolean receiver", func(t *testing.T) {
-		err := RegisterBoolFunc("negate", func(b bool, args ...any) bool {
+		err := RegisterBoolFunc("_negate", func(b bool, args ...any) any {
 			return !b
 		})
 		if err != nil {
 			t.Fatalf("error registering function: %s", err)
 		}
 
-		actual, err := EvaluateString("{{ true.negate() }}", nil)
+		actual, err := EvaluateString("{{ true._negate() }}", nil)
 		if err != nil {
 			t.Fatalf("error evaluating template: %s", err)
 		}
 
 		if actual != "0" {
-			t.Fatalf("wrong result. EXPECTED: '0' GOT '%s'", actual)
+			t.Fatalf("wrong result. expect: '0' got '%s'", actual)
 		}
 	})
 
 	t.Run("register for string receiver", func(t *testing.T) {
-		err := RegisterStrFunc("concat", func(s string, args ...any) string {
+		err := RegisterStrFunc("_concat", func(s string, args ...any) any {
 			arg1Value := args[0].(string)
 			arg2Value := args[1].(string)
 
@@ -208,18 +484,18 @@ func TestCustomFunctions(t *testing.T) {
 			t.Fatalf("error registering function: %s", err)
 		}
 
-		actual, err := EvaluateString("{{ 'anna'.concat(' ', 'cho') }}", nil)
+		actual, err := EvaluateString("{{ 'anna'._concat(' ', 'cho') }}", nil)
 		if err != nil {
 			t.Fatalf("error evaluating template: %s", err)
 		}
 
 		if actual != "anna cho" {
-			t.Fatalf("wrong result. EXPECTED: 'anna cho' GOT: '%s'", actual)
+			t.Fatalf("wrong result. expect: 'anna cho' got: '%s'", actual)
 		}
 	})
 
 	t.Run("registering already registered function", func(t *testing.T) {
-		err := RegisterStrFunc("len", func(s string, args ...any) string {
+		err := RegisterStrFunc("_len", func(s string, args ...any) any {
 			return "some output"
 		})
 
@@ -228,23 +504,24 @@ func TestCustomFunctions(t *testing.T) {
 		}
 
 		// Registering the same function again should return an error
-		err = RegisterStrFunc("len", func(s string, args ...any) string {
+		err = RegisterStrFunc("_len", func(s string, args ...any) any {
 			return "some output"
 		})
 
 		if err == nil {
-			t.Fatalf("expected error but got none")
+			t.Fatalf("expect error but got none")
 		}
 
-		expect := fail.New(0, "", "API", fail.ErrFuncAlreadyDefined, "len", "strings")
+		expect := fail.New(0, "", "API", fail.ErrFuncAlreadyDefined,
+			"_len", "strings")
 
 		if err.Error() != expect.Error().Error() {
-			t.Fatalf("wrong error message. EXPECTED: %q GOT: %q", expect, err)
+			t.Fatalf("wrong error message. expect: %q got: %q", expect, err)
 		}
 	})
 
 	t.Run("redefining built-in function not working", func(t *testing.T) {
-		err := RegisterStrFunc("trim", func(s string, args ...any) string {
+		err := RegisterStrFunc("trim", func(s string, args ...any) any {
 			return "some output"
 		})
 
@@ -257,9 +534,10 @@ func TestCustomFunctions(t *testing.T) {
 			t.Fatalf("error registering function: %s", err)
 		}
 
-		// the output should be the same as the built-in function even though we redefined it
+		// the output should be the same as the built-in function
+		// even though we redefined it.
 		if actual != "anna" {
-			t.Fatalf("wrong output. EXPECTED: 'anna' GOT: '%s'", actual)
+			t.Fatalf("wrong output. expect: 'anna' got: '%s'", actual)
 		}
 	})
 }

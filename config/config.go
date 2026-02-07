@@ -1,27 +1,49 @@
 package config
 
-// Config is the main configuration for Textwire
+import (
+	"io/fs"
+	"os"
+	"strings"
+)
+
+// Config holds the configuration settings for Textwire template engine.
 type Config struct {
-	// TemplateDir is the directory where the Textwire
-	// templates are located. Default is `"templates"`
+	// TemplateDir specifies the directory containing Textwire template files.
+	// Default: "templates"
+	// Note: If TemplatesFS is provided, TemplateDir is ignored because there
+	// are no absolute paths for embeded files.
 	TemplateDir string
 
-	// TemplateExt is the extension of the Textwire
-	// template files. Default is `.tw.html`, recommended to use`.tw`.
-	// If you use a different extension other then ".tw.html",
-	// you will loose syntax highlighting in VSCode editor
-	// if you use the Textwire extension
+	// TemplateFS provides an optional fs.FS filesystem for template access.
+	// Default: os.DirFS(TemplateDir)
+	// Use this field to embed templates into your binary using Go's embed package.
+	// When provided, TemplateDir is not used for file access.
+	TemplateFS fs.FS
+
+	// TemplateExt defines the file extension for Textwire template files.
+	// Default: ".tw"
+	// Note: Using a different extension may disable syntax highlighting
+	// in editors like VSCode when using the Textwire extension.
 	TemplateExt string
 
-	// ErrorPagePath is the relative path to the custom error page
-	// that will be displayed when an error occurs while
-	// rendering a template. Default is an internal error page.
-	// It's relative to the `TemplateDi`r directory
+	// ErrorPagePath sets the relative path to a custom error page template.
+	// Default: internal error page
+	// The path is relative to the template directory (TemplateDir or TemplatesFS root).
 	ErrorPagePath string
 
-	// DebugMode is a flag to enable the debug mode. When enabled,
-	// you can see error messages in the browser. Default is `false`
+	// DebugMode enables detailed error reporting in the browser and server logs.
+	// Default: false (keep false in production)
+	// When true, error messages with file paths and line numbers are displayed
+	// during development.
 	DebugMode bool
+
+	// GlobalData stores shared data accessible across all templates.
+	// Access these values in templates using the `global` object (e.g., `global.authUser`).
+	// Useful for storing environment variables, configuration, or common data.
+	GlobalData map[string]any
+
+	// usesFS is a flag to determine if user uses TemplateFS or not.
+	usesFS bool
 }
 
 func New(dir, ext, errPagePath string, debug bool) *Config {
@@ -30,5 +52,42 @@ func New(dir, ext, errPagePath string, debug bool) *Config {
 		TemplateExt:   ext,
 		ErrorPagePath: errPagePath,
 		DebugMode:     debug,
+		GlobalData:    map[string]any{},
 	}
+}
+
+// UsesFS returns value of usesFS field since that field is private.
+func (c *Config) UsesFS() bool {
+	return c.usesFS
+}
+
+func (c *Config) Configure(opt *Config) {
+	if opt == nil {
+		return
+	}
+
+	if opt.TemplateDir != "" {
+		c.TemplateDir = strings.Trim(opt.TemplateDir, "/")
+	}
+
+	if opt.TemplateExt != "" {
+		c.TemplateExt = opt.TemplateExt
+	}
+
+	if opt.TemplateFS == nil {
+		c.TemplateFS = os.DirFS(c.TemplateDir)
+	} else {
+		c.TemplateFS = opt.TemplateFS
+	}
+
+	if opt.ErrorPagePath != "" {
+		c.ErrorPagePath = opt.ErrorPagePath
+	}
+
+	if opt.GlobalData != nil {
+		c.GlobalData = opt.GlobalData
+	}
+
+	c.usesFS = opt.TemplateFS != nil
+	c.DebugMode = opt.DebugMode
 }

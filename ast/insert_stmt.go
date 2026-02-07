@@ -1,38 +1,42 @@
 package ast
 
 import (
-	"bytes"
 	"fmt"
+	"strings"
 
-	"github.com/textwire/textwire/v2/token"
+	"github.com/textwire/textwire/v3/token"
 )
 
 type InsertStmt struct {
 	BaseNode
-	Name     *StringLiteral // The name of the insert statement
-	Argument Expression     // The argument to the insert statement; nil if has block
-	Block    *BlockStmt     // The block of the insert statement; nil if has argument
-	FilePath string         // The file path of the insert statement
+	Name *StringLiteral
+	// Argument to the insert statement; nil if has block
+	Argument Expression
+	// Block of the insert statement; nil if has argument
+	Block *BlockStmt
+	// AbsPath of the insert statement. We use it for showing error path
+	AbsPath string
 }
 
-func NewInsertStmt(tok token.Token, filePath string) *InsertStmt {
+func NewInsertStmt(tok token.Token, absPath string) *InsertStmt {
 	return &InsertStmt{
 		BaseNode: NewBaseNode(tok),
-		FilePath: filePath,
+		AbsPath:  absPath,
 	}
 }
 
 func (is *InsertStmt) statementNode() {}
 
 func (is *InsertStmt) String() string {
-	var out bytes.Buffer
+	var out strings.Builder
+	out.Grow(30)
 
 	if is.Argument != nil {
-		out.WriteString(fmt.Sprintf(`@insert("%s", %s)`, is.Name.String(), is.Argument.String()))
+		fmt.Fprintf(&out, `@insert("%s", %s)`, is.Name, is.Argument)
 		return out.String()
 	}
 
-	out.WriteString(fmt.Sprintf(`@insert("%s")`, is.Name.String()))
+	fmt.Fprintf(&out, `@insert("%s")`, is.Name)
 	out.WriteString(is.Block.String())
 	out.WriteString(`@end`)
 

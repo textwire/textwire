@@ -1,0 +1,8 @@
+@if(true)@use("layouts/base")@end
+
+@if(true)@insert("title", "use inside if title")@end
+
+@insert("content")
+<h1>Use Inside {{ false && false || true ? 'If' : '' }}</h1>
+<p>Some boring content is here</p>
+@end

@@ -1,18 +1,18 @@
 package lsp
 
 import (
-	"github.com/textwire/textwire/v2/fail"
-	"github.com/textwire/textwire/v2/token"
+	"github.com/textwire/textwire/v3/fail"
+	"github.com/textwire/textwire/v3/token"
 
-	"github.com/textwire/textwire/v2/ast"
-	"github.com/textwire/textwire/v2/lexer"
-	"github.com/textwire/textwire/v2/parser"
+	"github.com/textwire/textwire/v3/ast"
+	"github.com/textwire/textwire/v3/lexer"
+	"github.com/textwire/textwire/v3/parser"
 )
 
 // IsInLoop checks if given position of the cursor is inside of a loop
 func IsInLoop(doc, filePath string, line, col uint) (bool, []*fail.Error) {
 	l := lexer.New(doc)
-	p := parser.New(l, filePath)
+	p := parser.New(l, "", filePath)
 	program := p.ParseProgram()
 
 	if program == nil {

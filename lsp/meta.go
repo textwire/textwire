@@ -8,8 +8,8 @@ import (
 
 	"slices"
 
-	"github.com/textwire/textwire/v2/lsp/utils"
-	"github.com/textwire/textwire/v2/token"
+	"github.com/textwire/textwire/v3/lsp/utils"
+	"github.com/textwire/textwire/v3/token"
 )
 
 // Locale represents a language locale for metadata.
@@ -74,7 +74,7 @@ func GetTokenInsert(tok token.TokenType) (string, error) {
 }
 
 func initFileNames() {
-	fileNames = make(map[token.TokenType]string)
+	fileNames = map[token.TokenType]string{}
 
 	for dir, tok := range token.GetDirectives() {
 		name := strings.ToLower(dir[1:])

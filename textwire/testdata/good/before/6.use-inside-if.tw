@@ -1,8 +1,0 @@
-@if(true)@use("layouts/title-and-content")@end
-
-@if(true)@insert("title", "Home page")@end
-
-@insert("content")
-<h1>Home {{ false && false || true ? 'page' : '' }}</h1>
-<p>Some content</p>
-@end

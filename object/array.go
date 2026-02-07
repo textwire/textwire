@@ -34,7 +34,7 @@ func (a *Array) Dump(ident int) string {
 
 	var out bytes.Buffer
 
-	out.WriteString(fmt.Sprintf("<span class='textwire-meta'>array:%d </span>", len(a.Elements)))
+	fmt.Fprintf(&out, "<span class='textwire-meta'>array:%d </span>", len(a.Elements))
 	out.WriteString("<span class='textwire-brace'>[</span>\n")
 
 	insideSpaces := strings.Repeat("  ", ident)

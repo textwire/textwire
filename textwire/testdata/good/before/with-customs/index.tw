@@ -1,0 +1,7 @@
+@use('layout')
+
+@insert('content')
+<h2>{{ "amyadams"._secondLetterUpper() }}</h2>
+<h3>{{ global.env }}</h3>
+@component('comp')
+@end

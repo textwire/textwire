@@ -1,0 +1,8 @@
+@use("title-and-content")
+
+@insert("title", "with inserts")
+
+@insert("content")
+<h1>With Inserts</h1>
+<p>Some content</p>
+@end

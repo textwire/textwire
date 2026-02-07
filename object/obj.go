@@ -3,6 +3,7 @@ package object
 import (
 	"bytes"
 	"fmt"
+	"sort"
 	"strings"
 )
 
@@ -10,30 +11,42 @@ type Obj struct {
 	Pairs map[string]Object
 }
 
+func NewObj(pairs map[string]Object) *Obj {
+	if pairs == nil {
+		pairs = map[string]Object{}
+	}
+	return &Obj{Pairs: pairs}
+}
+
 func (o *Obj) Type() ObjectType {
 	return OBJ_OBJ
 }
 
 func (o *Obj) String() string {
-	var out bytes.Buffer
+	if o.Pairs == nil {
+		return "{}"
+	}
+
+	keys := o.sortedKeys()
+
+	var out strings.Builder
 
 	out.WriteString("{")
 
-	idx := 0
-	last := len(o.Pairs) - 1
-
-	for key, pair := range o.Pairs {
-		out.WriteString(key + ": " + pair.String())
-
-		if idx != last {
+	for i, k := range keys {
+		pair := o.Pairs[k]
+		if i > 0 {
 			out.WriteString(", ")
 		}
 
-		idx++
+		if _, isStr := pair.(*Str); isStr {
+			out.WriteString(k + `: "` + pair.String() + `"`)
+		} else {
+			out.WriteString(k + ": " + pair.String())
+		}
 	}
 
 	out.WriteString("}")
-
 	return out.String()
 }
 
@@ -43,7 +56,7 @@ func (o *Obj) Dump(ident int) string {
 
 	var out bytes.Buffer
 
-	out.WriteString(fmt.Sprintf("<span class='textwire-meta'>object:%d </span>", len(o.Pairs)))
+	fmt.Fprintf(&out, "<span class='textwire-meta'>object:%d </span>", len(o.Pairs))
 	out.WriteString("<span class='textwire-brace'>{</span>\n")
 
 	insideSpaces := strings.Repeat("  ", ident)
@@ -62,7 +75,7 @@ func (o *Obj) Dump(ident int) string {
 }
 
 func (o *Obj) Val() any {
-	result := make(map[string]any)
+	result := map[string]any{}
 
 	for k, v := range o.Pairs {
 		result[k] = v.Val()
@@ -73,4 +86,13 @@ func (o *Obj) Val() any {
 
 func (o *Obj) Is(t ObjectType) bool {
 	return t == o.Type()
+}
+
+func (o *Obj) sortedKeys() []string {
+	keys := make([]string, 0, len(o.Pairs))
+	for k := range o.Pairs {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+	return keys
 }

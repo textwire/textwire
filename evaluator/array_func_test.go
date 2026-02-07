@@ -5,9 +5,9 @@ import (
 )
 
 func TestEvalArrayFunctions(t *testing.T) {
-	tests := []struct {
-		inp      string
-		expected string
+	cases := []struct {
+		inp    string
+		expect string
 	}{
 		// len
 		{`{{ [].len() }}`, "0"},
@@ -59,6 +59,8 @@ func TestEvalArrayFunctions(t *testing.T) {
 		{`{{ [1, 2].contains({}) }}`, "0"},
 		{`{{ [{}, 21].contains({age: 21}) }}`, "0"},
 		{`{{ [[], [1], [2]].contains([2]) }}`, "1"},
+		{`{{ ![{}, 21].contains({age: 21}) }}`, "1"},
+		{`{{ ![[], [1], [2]].contains([2]) }}`, "0"},
 		// append
 		{`{{ [].append(1) }}`, "1"},
 		{`{{ [1, 2, 3].append(4) }}`, "1, 2, 3, 4"},
@@ -75,7 +77,7 @@ func TestEvalArrayFunctions(t *testing.T) {
 		{`{{ [1, 2].prepend([3, 4]).len() }}`, "3"},
 	}
 
-	for _, tc := range tests {
-		evaluationExpected(t, tc.inp, tc.expected)
+	for i, tc := range cases {
+		evaluationExpected(t, tc.inp, tc.expect, i)
 	}
 }

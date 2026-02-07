@@ -1,0 +1,6 @@
+<style>
+.body {
+    color: {{ color }};
+    background-color: {{ bg }};
+}
+</style>

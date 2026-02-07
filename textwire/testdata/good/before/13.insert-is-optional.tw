@@ -1,9 +1,0 @@
-@use("~title-and-content")
-
-<!-- Intentionally, no title inset here -->
-
-@insert("content")
-<p>Some content</p>
-
-<p>Here is more here</p>
-@end

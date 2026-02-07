@@ -1,11 +1,23 @@
 ## Description
 Textwire is a templating language for Go. It is designed to easily inject variables from Go code into a template file or just a regular string. It uses directives like `@if()`, `@for()`, `@each()`, and expressions like `{{ x + y }}` and `{{ "Hello, World!".lower() }}`.
 
+### Globals
+You can pass globals to `Configure` or `NewTemplate` function like this:
+```go
+tpl, err = textwire.NewTemplate(&config.Config{
+    GlobalData: map[string]any{
+        "env": "development",
+    },
+})
+```
+In template files you can use globals like this `{{ globals.env }}`.
+
 ## Project Overview
-- **Module**: `github.com/textwire/textwire/v2`
-- **Template Extensions**: `.tw` and `.tw.html`
+- **Module**: `github.com/textwire/textwire/v3`
+- **Template Extensions**: `.tw`
 - **Architecture**: Modular design with separate packages for lexer, parser, evaluator, AST, token, and object handling
 - **LSP Support**: Full Language Server Protocol implementation for editor integration
+- **Precedence**: All the precedence defined in `./parser/parser.go:20-70`
 
 ## Development Environment & Commands
 ### Available Commands
@@ -86,7 +98,7 @@ func NewIdentifier(tok token.Token, val string) *Identifier {
 
 ### Import Organization
 - Group imports: standard library, third-party, local packages
-- Local packages use `github.com/textwire/textwire/v2/` prefix
+- Local packages use `github.com/textwire/textwire/v3/` prefix
 - Keep imports sorted and remove unused imports
 
 ### Formatting Requirements
@@ -97,14 +109,11 @@ func NewIdentifier(tok token.Token, val string) *Identifier {
 ### Fail Package Usage
 Import the fail package for structured error handling:
 ```go
-import "github.com/textwire/textwire/v2/fail"
+import "github.com/textwire/textwire/v3/fail"
 ```
 
 ### Error Constants
-Use predefined error constants from the fail package:
-- Parser errors: `ErrEmptyBraces`, `ErrWrongNextToken`, `ErrExpectedExpression`
-- Evaluator errors: `ErrUnknownNodeType`, `ErrIdentifierNotFound`, `ErrTypeMismatch`
-- Function errors: `ErrNoFuncForThisType`, `ErrFuncRequiresOneArg`
+Use predefined error constants from the fail package.
 
 ### Error Creation
 Create errors using the fail package:
@@ -148,7 +157,7 @@ Always test error conditions:
 func parseStatements(t *testing.T, inp string, opts parseOpts) []ast.Statement {
     l := lexer.New(inp)
     p := New(l, "")
-    prog := p.ParseProgram()
+    prog := p.Parse()
     
     if opts.checkErrors {
         checkParserErrors(t, p)
@@ -160,7 +169,7 @@ func parseStatements(t *testing.T, inp string, opts parseOpts) []ast.Statement {
 
 ### Test Data
 - Store template examples in `textwire/testdata/`
-- Use `.tw` and `.tw.html` extensions
+- Use `.tw` extension
 - Include both valid and invalid examples for testing
 - Name test files descriptively (e.g., `if-statements.tw`)
 

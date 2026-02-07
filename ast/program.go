@@ -1,16 +1,18 @@
 package ast
 
 import (
-	"bytes"
+	"fmt"
+	"strings"
 
-	fail "github.com/textwire/textwire/v2/fail"
-	token "github.com/textwire/textwire/v2/token"
+	"github.com/textwire/textwire/v3/fail"
+	"github.com/textwire/textwire/v3/token"
 )
 
 type Program struct {
 	BaseNode
 	IsLayout   bool
-	Filepath   string
+	Name       string
+	AbsPath    string
 	UseStmt    *UseStmt
 	Statements []Statement
 	Components []*ComponentStmt
@@ -27,11 +29,12 @@ func NewProgram(tok token.Token) *Program {
 func (p *Program) statementNode() {}
 
 func (p *Program) String() string {
-	var out bytes.Buffer
+	var out strings.Builder
+	out.Grow(len(p.Statements))
 
 	for _, stmt := range p.Statements {
 		if _, ok := stmt.(*ExpressionStmt); ok {
-			out.WriteString("{{ " + stmt.String() + " }}")
+			fmt.Fprintf(&out, "{{ %s }}", stmt)
 			continue
 		}
 
@@ -62,62 +65,67 @@ func (p *Program) Stmts() []Statement {
 	return res
 }
 
-func (p *Program) ApplyInserts(inserts map[string]*InsertStmt, absPath string) *fail.Error {
-	if err := p.checkUndefinedInsert(inserts); err != nil {
-		return err
-	}
-
-	for _, reserve := range p.Reserves {
-		insert, hasInsert := inserts[reserve.Name.Value]
-
-		if hasInsert {
-			reserve.Insert = insert
-		}
-	}
-
-	return nil
-}
-
-func (p *Program) ApplyLayout(prog *Program) {
-	p.UseStmt.Program = prog
+// LinkLayoutToUse adds Layout AST program to UseStmt for the current template
+// and resets statements to UseStmt only. Because we don't need anything else
+// inside a template. Make sure inserts are added before this is called
+// because they will be removed by this function.
+func (p *Program) LinkLayoutToUse(layoutProg *Program) {
+	p.UseStmt.LayoutProg = layoutProg
 	p.Statements = []Statement{p.UseStmt}
 }
 
-func (p *Program) ApplyComponent(name string, prog *Program, progFilePath string) *fail.Error {
+func (p *Program) LinkCompProg(compName string, prog *Program, absPath string) *fail.Error {
 	for _, comp := range p.Components {
-		if comp.Name.Value != name {
+		if comp.Name.Value != compName {
 			continue
 		}
 
-		duplicateName, times := findDuplicateSlot(comp.Slots)
-
-		if times > 0 {
-			if name == "" {
-				return fail.New(prog.Line(), progFilePath, "parser",
-					fail.ErrDuplicateDefaultSlotUsage, times, name)
+		duplicate, times := findDuplicateSlot(comp.Slots)
+		if times > 0 && duplicate != nil {
+			if duplicate.IsDefault {
+				return fail.New(
+					prog.Line(),
+					absPath,
+					"parser",
+					fail.ErrDuplicateDefaultSlot,
+					times,
+					compName,
+				)
 			}
 
-			return fail.New(prog.Line(), progFilePath, "parser",
-				fail.ErrDuplicateSlotUsage, duplicateName, times, name)
+			return fail.New(
+				prog.Line(),
+				absPath,
+				"parser",
+				fail.ErrDuplicateSlot,
+				duplicate.Name.Value,
+				times,
+				compName,
+			)
 		}
 
 		for _, slot := range comp.Slots {
-			idx := findSlotStmtIndex(prog.Statements, slot.Name.Value)
-
-			if idx == -1 {
-				if slot.Name.Value == "" {
-					return fail.New(prog.Line(), progFilePath, "parser",
-						fail.ErrDefaultSlotNotDefined, name)
-				}
-
-				return fail.New(prog.Line(), progFilePath, "parser",
-					fail.ErrSlotNotDefined, slot.Name.Value, name)
+			name := slot.Name.Value
+			idx := findSlotStmtIndex(prog.Statements, name)
+			if idx != -1 {
+				prog.Statements[idx].(*SlotStmt).Block = slot.Block
+				continue
 			}
 
-			prog.Statements[idx].(*SlotStmt).Body = slot.Body
+			if slot.IsDefault {
+				return fail.New(
+					prog.Line(),
+					absPath,
+					"parser",
+					fail.ErrDefaultSlotNotDefined,
+					compName,
+				)
+			}
+
+			return fail.New(prog.Line(), absPath, "parser", fail.ErrSlotNotDefined, name, compName)
 		}
 
-		comp.Block = prog
+		comp.CompProg = prog
 	}
 
 	return nil
@@ -129,20 +137,4 @@ func (p *Program) HasReserveStmt() bool {
 
 func (p *Program) HasUseStmt() bool {
 	return p.UseStmt != nil
-}
-
-func (p *Program) checkUndefinedInsert(inserts map[string]*InsertStmt) *fail.Error {
-	for name := range inserts {
-		if _, ok := p.Reserves[name]; ok {
-			continue
-		}
-
-		line := inserts[name].Line()
-		path := inserts[name].FilePath
-		name := inserts[name].Name.Value
-
-		return fail.New(line, path, "parser", fail.ErrUndefinedInsert, name)
-	}
-
-	return nil
 }

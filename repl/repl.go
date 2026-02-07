@@ -6,11 +6,11 @@ import (
 	"io"
 	"os"
 
-	"github.com/textwire/textwire/v2/evaluator"
-	"github.com/textwire/textwire/v2/fail"
-	"github.com/textwire/textwire/v2/lexer"
-	"github.com/textwire/textwire/v2/object"
-	"github.com/textwire/textwire/v2/parser"
+	"github.com/textwire/textwire/v3/evaluator"
+	"github.com/textwire/textwire/v3/fail"
+	"github.com/textwire/textwire/v3/lexer"
+	"github.com/textwire/textwire/v3/object"
+	"github.com/textwire/textwire/v3/parser"
 )
 
 const PROMPT = ">>> "
@@ -25,20 +25,18 @@ func main() {
 
 func Start(in io.Reader, out io.Writer) error {
 	scanner := bufio.NewScanner(in)
-	env := object.NewEnv()
+	scope := object.NewScope()
 
 	for {
 		fmt.Print(PROMPT)
 
 		scanned := scanner.Scan()
-
 		if !scanned {
 			return nil
 		}
 
 		l := lexer.New(scanner.Text())
-		p := parser.New(l, "")
-
+		p := parser.New(l, "", "")
 		prog := p.ParseProgram()
 
 		if len(p.Errors()) != 0 {
@@ -48,9 +46,9 @@ func Start(in io.Reader, out io.Writer) error {
 			continue
 		}
 
-		evaluator := evaluator.New(nil, nil)
-		evaluated := evaluator.Eval(prog, env, prog.Filepath)
-
+		e := evaluator.New(nil, nil)
+		ctx := evaluator.NewContext(scope, prog.AbsPath)
+		evaluated := e.Eval(prog, ctx)
 		if evaluated == nil {
 			continue
 		}

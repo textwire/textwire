@@ -3,12 +3,12 @@ package evaluator
 import (
 	"errors"
 	"fmt"
+	"strconv"
 	"strings"
 
-	"github.com/textwire/textwire/v2/config"
-	"github.com/textwire/textwire/v2/fail"
-	"github.com/textwire/textwire/v2/object"
-	"github.com/textwire/textwire/v2/utils"
+	"github.com/textwire/textwire/v3/config"
+	"github.com/textwire/textwire/v3/fail"
+	"github.com/textwire/textwire/v3/object"
 )
 
 func isTruthy(obj object.Object) bool {
@@ -34,11 +34,10 @@ func isError(obj object.Object) bool {
 	return obj.Is(object.ERR_OBJ)
 }
 
-func nativeBoolToBooleanObject(input bool) object.Object {
+func nativeBoolToBoolObj(input bool) object.Object {
 	if input {
 		return TRUE
 	}
-
 	return FALSE
 }
 
@@ -52,7 +51,6 @@ func hasContinueStmt(obj object.Object) bool {
 
 func hasControlStmt(obj object.Object, controlType object.ObjectType) bool {
 	block, isBlock := obj.(*object.Block)
-
 	if !isBlock {
 		return obj.Is(controlType)
 	}
@@ -84,12 +82,18 @@ func hasCustomFunc(customFunc *config.Func, t object.ObjectType, funcName string
 		return customFunc.Float[funcName] != nil
 	case object.BOOL_OBJ:
 		return customFunc.Bool[funcName] != nil
+	case object.OBJ_OBJ:
+		return customFunc.Obj[funcName] != nil
 	default:
 		return false
 	}
 }
 
-func addDecimals(receiver object.Object, objType object.ObjectType, args ...object.Object) (object.Object, error) {
+func addDecimals(
+	receiver object.Object,
+	objType object.ObjectType,
+	args ...object.Object,
+) (object.Object, error) {
 	var val string
 
 	switch objType {
@@ -99,7 +103,7 @@ func addDecimals(receiver object.Object, objType object.ObjectType, args ...obje
 		val = receiver.(*object.Int).String()
 	}
 
-	if !utils.StrIsInt(val) {
+	if !strIsInt(val) {
 		return &object.Str{Value: val}, nil
 	}
 
@@ -107,7 +111,7 @@ func addDecimals(receiver object.Object, objType object.ObjectType, args ...obje
 	decimals := 2
 
 	if len(args) > 2 {
-		msg := fmt.Sprintf(fail.ErrFuncMaxArgs, "decimal", objType, 2)
+		msg := fmt.Sprintf(fail.ErrFuncMaxArgs, objType, "decimal", 2)
 		return nil, errors.New(msg)
 	}
 
@@ -115,7 +119,7 @@ func addDecimals(receiver object.Object, objType object.ObjectType, args ...obje
 		separatorArg, ok := args[0].(*object.Str)
 
 		if !ok {
-			msg := fmt.Sprintf(fail.ErrFuncFirstArgStr, "decimal", objType)
+			msg := fmt.Sprintf(fail.ErrFuncFirstArgStr, objType, "decimal")
 			return nil, errors.New(msg)
 		}
 
@@ -126,7 +130,7 @@ func addDecimals(receiver object.Object, objType object.ObjectType, args ...obje
 		decimalArg, ok := args[1].(*object.Int)
 
 		if !ok {
-			msg := fmt.Sprintf(fail.ErrFuncSecondArgInt, "decimal", objType)
+			msg := fmt.Sprintf(fail.ErrFuncSecondArgInt, objType, "decimal")
 			return nil, errors.New(msg)
 		}
 
@@ -134,10 +138,20 @@ func addDecimals(receiver object.Object, objType object.ObjectType, args ...obje
 	}
 
 	zeros := strings.Repeat("0", decimals)
-
 	if decimals == 0 {
 		return &object.Str{Value: val}, nil
 	}
 
 	return &object.Str{Value: val + separator + zeros}, nil
+}
+
+func isUndefinedVarError(obj object.Object) bool {
+	err, isErr := obj.(*object.Error)
+	return isErr &&
+		(err.ErrorID == fail.ErrIdentifierIsUndefined || err.ErrorID == fail.ErrPropertyNotFound)
+}
+
+func strIsInt(s string) bool {
+	_, err := strconv.Atoi(s)
+	return err == nil
 }

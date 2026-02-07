@@ -1,1 +1,0 @@
-<h1>{{ "my name".secondLetterUppercase() }}</h1>

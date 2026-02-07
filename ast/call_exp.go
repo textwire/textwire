@@ -1,10 +1,10 @@
 package ast
 
 import (
-	"bytes"
 	"fmt"
+	"strings"
 
-	"github.com/textwire/textwire/v2/token"
+	"github.com/textwire/textwire/v3/token"
 )
 
 type CallExp struct {
@@ -25,16 +25,16 @@ func NewCallExp(tok token.Token, receiver Expression, function *Identifier) *Cal
 func (ce *CallExp) expressionNode() {}
 
 func (ce *CallExp) String() string {
-	var args bytes.Buffer
+	var args strings.Builder
+	args.Grow(len(ce.Arguments) + (2 * len(ce.Arguments)))
 
-	for i, arg := range ce.Arguments {
-		args.WriteString(arg.String())
+	for i := range ce.Arguments {
+		args.WriteString(ce.Arguments[i].String())
 
 		if i < len(ce.Arguments)-1 {
 			args.WriteString(", ")
 		}
 	}
 
-	return fmt.Sprintf("(%s.%s(%s))", ce.Receiver.String(),
-		ce.Function.String(), args.String())
+	return fmt.Sprintf("(%s.%s(%s))", ce.Receiver, ce.Function, args.String())
 }

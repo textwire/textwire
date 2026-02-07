@@ -22,6 +22,9 @@ func (s *Slot) Dump(ident int) string {
 }
 
 func (s *Slot) Val() any {
+	if s.Content == nil {
+		return ""
+	}
 	return s.Content.Val()
 }
 

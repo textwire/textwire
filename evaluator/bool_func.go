@@ -4,8 +4,8 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/textwire/textwire/v2/fail"
-	"github.com/textwire/textwire/v2/object"
+	"github.com/textwire/textwire/v3/fail"
+	"github.com/textwire/textwire/v3/object"
 )
 
 // boolBinaryFunc returns an integer 1 if the receiver is true, 0 otherwise
@@ -20,7 +20,7 @@ func boolBinaryFunc(receiver object.Object, _ ...object.Object) (object.Object, 
 // boolThenFunc returns the first argument if the receiver is true, the second argument or nil otherwise
 func boolThenFunc(receiver object.Object, args ...object.Object) (object.Object, error) {
 	if len(args) == 0 {
-		msg := fmt.Sprintf(fail.ErrFuncRequiresOneArg, "then", object.BOOL_OBJ)
+		msg := fmt.Sprintf(fail.ErrFuncMissingArg, object.BOOL_OBJ, "then")
 		return nil, errors.New(msg)
 	}
 

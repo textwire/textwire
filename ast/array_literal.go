@@ -3,7 +3,7 @@ package ast
 import (
 	"bytes"
 
-	"github.com/textwire/textwire/v2/token"
+	"github.com/textwire/textwire/v3/token"
 )
 
 type ArrayLiteral struct {
@@ -21,6 +21,7 @@ func (al *ArrayLiteral) expressionNode() {}
 
 func (al *ArrayLiteral) String() string {
 	var out bytes.Buffer
+	out.Grow(len(al.Elements) + (2 * len(al.Elements)))
 
 	out.WriteString("[")
 

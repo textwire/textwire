@@ -1,0 +1,9 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>@reserve("title")</title>
+</head>
+<body>
+@reserve("content")
+</body>
+</html>

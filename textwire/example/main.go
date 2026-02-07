@@ -1,48 +1,19 @@
 package main
 
 import (
+	"embed"
 	"fmt"
 	"log"
 	"net/http"
 
-	"github.com/textwire/textwire/v2"
-	"github.com/textwire/textwire/v2/config"
+	"github.com/textwire/textwire/v3"
+	"github.com/textwire/textwire/v3/config"
 )
 
-var tpl *textwire.Template
-
-func main() {
-	var err error
-
-	err = textwire.RegisterStrFunc("reverse", func(s string, args ...any) string {
-		runes := []rune(s)
-
-		for i, j := 0, len(runes)-1; i < j; i, j = i+1, j-1 {
-			runes[i], runes[j] = runes[j], runes[i]
-		}
-
-		return string(runes)
-	})
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	tpl, err = textwire.NewTemplate(&config.Config{
-		TemplateExt:   ".tw",
-		ErrorPagePath: "error-page",
-		DebugMode:     true,
-	})
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	http.HandleFunc("/", homeHandler)
-	http.HandleFunc("/about", aboutHandler)
-
-	fmt.Println("Listening on http://localhost:8080")
-
-	log.Fatalln(http.ListenAndServe(":8080", nil))
-}
+var (
+	//go:embed templates/*
+	templateFS embed.FS
+)
 
 type Book struct {
 	ID     int     `json:"id,omitempty"`
@@ -57,51 +28,89 @@ type Author struct {
 	LastName  string `json:"last_name,omitempty"`
 }
 
-func homeHandler(w http.ResponseWriter, r *http.Request) {
-	if r.URL.Path != "/" {
-		return
-	}
+var names = generateStrings(100)
+var books = generateBooks(100)
 
-	books := []Book{
-		{
-			ID:    1,
-			Isbn:  "978-3-16-148410-0",
-			Title: "The Go Programming Language",
-			Author: &Author{
-				ID:        1,
-				FirstName: "Alan",
-				LastName:  "Donovan",
-			},
-		},
-		{
-			ID:    2,
-			Isbn:  "978-3-16-148410-1",
-			Title: "The Rust Programming Language",
-			Author: &Author{
-				ID:        2,
-				FirstName: "Steve",
-				LastName:  "Klabnik",
-			},
-		},
-	}
+func main() {
+	tpl := startTextwire()
 
-	err := tpl.Response(w, "home", map[string]any{
-		"names":     []string{"John", "Jane", "Jack", "Jill"},
-		"showNames": true,
-		"books":     books,
+	http.HandleFunc("/", homeHandler(tpl))
+	http.HandleFunc("/about", aboutHandler(tpl))
+
+	fmt.Println("Listening on http://localhost:8080")
+
+	log.Fatalln(http.ListenAndServe(":8080", nil))
+}
+
+func startTextwire() *textwire.Template {
+	tpl, err := textwire.NewTemplate(&config.Config{
+		TemplateFS:    templateFS,
+		ErrorPagePath: "error-page",
+		DebugMode:     true,
+		GlobalData: map[string]any{
+			"env": "development",
+		},
 	})
 	if err != nil {
-		log.Println(err.Error())
+		log.Fatal(err)
+	}
+
+	return tpl
+}
+
+func homeHandler(tpl *textwire.Template) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path != "/" {
+			return
+		}
+
+		err := tpl.Response(w, "views/home", map[string]any{
+			"names":     names,
+			"showNames": true,
+			"books":     books,
+		})
+		if err != nil {
+			log.Fatal(err)
+		}
 	}
 }
 
-func aboutHandler(w http.ResponseWriter, r *http.Request) {
-	if r.URL.Path != "/about" {
-		return
-	}
+func aboutHandler(tpl *textwire.Template) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path != "/about" {
+			return
+		}
 
-	err := tpl.Response(w, "about", map[string]any{})
-	if err != nil {
-		log.Println(err.Error())
+		err := tpl.Response(w, "views/about", map[string]any{})
+		if err != nil {
+			log.Println(err.Error())
+		}
 	}
+}
+
+func generateBooks(count int) []Book {
+	books := make([]Book, count)
+
+	for i := range count {
+		books[i] = Book{
+			ID:    i + 1,
+			Isbn:  fmt.Sprintf("978-3-16-148410-%d", i),
+			Title: fmt.Sprintf("Book %d", i+1),
+			Author: &Author{
+				ID:        i + 1,
+				FirstName: fmt.Sprintf("Author%d", i+1),
+				LastName:  "Smith",
+			},
+		}
+	}
+	return books
+}
+
+func generateStrings(count int) []string {
+	strs := make([]string, count)
+
+	for i := range count {
+		strs[i] = fmt.Sprintf("978-3-16-148410-%d", i)
+	}
+	return strs
 }

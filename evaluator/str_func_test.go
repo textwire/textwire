@@ -3,9 +3,9 @@ package evaluator
 import "testing"
 
 func TestEvalStringFunctions(t *testing.T) {
-	tests := []struct {
-		inp      string
-		expected string
+	cases := []struct {
+		inp    string
+		expect string
 	}{
 		// len
 		{`{{ "anna".len() }}`, "4"},
@@ -77,6 +77,8 @@ func TestEvalStringFunctions(t *testing.T) {
 		{`{{ "".contains("") }}`, "1"},
 		{`{{ "some".contains("") }}`, "1"},
 		{`{{ "Hello, World!".lower().contains("world") }}`, "1"},
+		{`{{ !"aaa".contains("a") }}`, "0"},
+		{`{{ !"aaa".contains("b") }}`, "1"},
 		// truncate
 		{`{{ "Hello World".truncate(5) }}`, "Hello..."},
 		{`{{ "谢尔盖".truncate(3) }}`, "谢尔盖"},
@@ -127,7 +129,7 @@ func TestEvalStringFunctions(t *testing.T) {
 		{`{{ "".last() }}`, ""},
 	}
 
-	for _, tc := range tests {
-		evaluationExpected(t, tc.inp, tc.expected)
+	for i, tc := range cases {
+		evaluationExpected(t, tc.inp, tc.expect, i)
 	}
 }

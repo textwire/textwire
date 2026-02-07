@@ -3,7 +3,7 @@ package lsp
 import "testing"
 
 func TestIsInLoop(t *testing.T) {
-	tests := []struct {
+	cases := []struct {
 		doc     string
 		linePos uint
 		colPos  uint
@@ -135,7 +135,7 @@ func TestIsInLoop(t *testing.T) {
 		},
 	}
 
-	for _, tc := range tests {
+	for _, tc := range cases {
 		actual, errors := IsInLoop(tc.doc, "", tc.linePos, tc.colPos)
 
 		if len(errors) > 0 {

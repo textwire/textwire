@@ -1,0 +1,8 @@
+@use('~layout-with-component')
+
+@insert('title', 'Home Page')
+@insert('description', 'This is a books example template with Textwire')
+
+@insert('content')
+<div>Content is here</div>
+@end

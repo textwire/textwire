@@ -42,7 +42,7 @@ func (d *Dump) Type() ObjectType {
 func (d *Dump) String() string {
 	var out bytes.Buffer
 	for _, v := range d.Values {
-		out.WriteString(fmt.Sprintf(outputHTML, v))
+		fmt.Fprintf(&out, outputHTML, v)
 	}
 
 	return out.String()

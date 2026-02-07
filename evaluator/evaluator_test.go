@@ -4,43 +4,43 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/textwire/textwire/v2/config"
-	"github.com/textwire/textwire/v2/fail"
-	"github.com/textwire/textwire/v2/lexer"
-	"github.com/textwire/textwire/v2/object"
-	"github.com/textwire/textwire/v2/parser"
+	"github.com/textwire/textwire/v3/config"
+	"github.com/textwire/textwire/v3/fail"
+	"github.com/textwire/textwire/v3/lexer"
+	"github.com/textwire/textwire/v3/object"
+	"github.com/textwire/textwire/v3/parser"
 )
 
 func testEval(inp string) object.Object {
 	l := lexer.New(inp)
-	p := parser.New(l, "/path/to/file")
+	p := parser.New(l, "file", "/path/to/file")
 	prog := p.ParseProgram()
-	env := object.NewEnv()
+	scope := object.NewScope()
 
-	eval := New(&config.Func{}, &config.Config{})
+	e := New(&config.Func{}, nil)
+	ctx := NewContext(scope, prog.AbsPath)
 
-	return eval.Eval(prog, env, prog.Filepath)
+	return e.Eval(prog, ctx)
 }
 
-func evaluationExpected(t *testing.T, inp, expect string) {
+func evaluationExpected(t *testing.T, inp, expect string, idx int) {
 	evaluated := testEval(inp)
-	errObj, ok := evaluated.(*object.Error)
 
+	errObj, ok := evaluated.(*object.Error)
 	if ok {
-		t.Fatalf("evaluation failed: %s", errObj.String())
+		t.Fatalf("Case: %d. evaluation failed: %s", idx, errObj.String())
 	}
 
-	result := evaluated.String()
-
-	if result != expect {
-		t.Fatalf("result is not '%s', got '%s'", expect, result)
+	res := evaluated.String()
+	if res != expect {
+		t.Fatalf("Case: %d. result is not '%s', got '%s'", idx, expect, res)
 	}
 }
 
 func TestEvalHTML(t *testing.T) {
-	tests := []struct {
-		inp      string
-		expected string
+	cases := []struct {
+		inp    string
+		expect string
 	}{
 		{"<h1>Hello World</h1>", "<h1>Hello World</h1>"},
 		{"<ul><li><span>Email: anna@protonmail.com</span></li></ul>",
@@ -58,15 +58,15 @@ func TestEvalHTML(t *testing.T) {
 		{`\\\{{ x }}`, `\\{{ x }}`},
 	}
 
-	for _, tc := range tests {
-		evaluationExpected(t, tc.inp, tc.expected)
+	for i, tc := range cases {
+		evaluationExpected(t, tc.inp, tc.expect, i)
 	}
 }
 
 func TestEvalNumericExp(t *testing.T) {
-	tests := []struct {
-		inp      string
-		expected string
+	cases := []struct {
+		inp    string
+		expect string
 	}{
 		{"{{ 5; 5 }}", "55"},
 		{"{{ 5 }}", "5"},
@@ -96,15 +96,15 @@ func TestEvalNumericExp(t *testing.T) {
 		{`{{ 2.0 + 1.2 }}`, "3.2"},
 	}
 
-	for _, tc := range tests {
-		evaluationExpected(t, tc.inp, tc.expected)
+	for i, tc := range cases {
+		evaluationExpected(t, tc.inp, tc.expect, i)
 	}
 }
 
 func TestEvalBooleanExp(t *testing.T) {
-	tests := []struct {
-		inp      string
-		expected string
+	cases := []struct {
+		inp    string
+		expect string
 	}{
 		// Booleans
 		{"{{ true }}", "1"},
@@ -145,7 +145,7 @@ func TestEvalBooleanExp(t *testing.T) {
 		{`{{ 1.1 >= 2.1 }}`, "0"},
 	}
 
-	for _, tc := range tests {
+	for _, tc := range cases {
 		evaluated := testEval(tc.inp)
 
 		errObj, ok := evaluated.(*object.Error)
@@ -157,21 +157,21 @@ func TestEvalBooleanExp(t *testing.T) {
 
 		result := evaluated.String()
 
-		if result != tc.expected {
-			t.Errorf("result is not %s, got %s", tc.expected, result)
+		if result != tc.expect {
+			t.Errorf("result is not %s, got %s", tc.expect, result)
 		}
 	}
 }
 
 func TestEvalNilExp(t *testing.T) {
 	inp := "<h1>{{ nil }}</h1>"
-	evaluationExpected(t, inp, "<h1></h1>")
+	evaluationExpected(t, inp, "<h1></h1>", 0)
 }
 
 func TestEvalStringExp(t *testing.T) {
-	tests := []struct {
-		inp      string
-		expected string
+	cases := []struct {
+		inp    string
+		expect string
 	}{
 		{`{{ "Hello World" }}`, "Hello World"},
 		{`<div {{ 'data-attr="Test"' }}></div>`, `<div data-attr="Test"></div>`},
@@ -183,15 +183,15 @@ func TestEvalStringExp(t *testing.T) {
 		{`{{ "<h1>Test</h1>" }}`, "&lt;h1&gt;Test&lt;/h1&gt;"},
 	}
 
-	for _, tc := range tests {
-		evaluationExpected(t, tc.inp, tc.expected)
+	for i, tc := range cases {
+		evaluationExpected(t, tc.inp, tc.expect, i)
 	}
 }
 
 func TestEvalTernaryExp(t *testing.T) {
-	tests := []struct {
-		inp      string
-		expected string
+	cases := []struct {
+		inp    string
+		expect string
 	}{
 		{`{{ true ? "Yes" : "No" }}`, "Yes"},
 		{`{{ false ? "Yes" : "No" }}`, "No"},
@@ -205,17 +205,19 @@ func TestEvalTernaryExp(t *testing.T) {
 		{`{{ !!false ? 1 : 0 }}`, "0"},
 	}
 
-	for _, tc := range tests {
-		evaluationExpected(t, tc.inp, tc.expected)
+	for i, tc := range cases {
+		evaluationExpected(t, tc.inp, tc.expect, i)
 	}
 }
 
 func TestEvalIfStmt(t *testing.T) {
-	tests := []struct {
+	cases := []struct {
 		inp    string
 		expect string
 	}{
 		{`@if(true)Hello@end`, "Hello"},
+		{`@if(true.binary())Hello@end`, "Hello"},
+		{`@if(false.binary())Hello@end`, ""},
 		{`@if(false)Hello@end`, ""},
 		{`@if(true)Anna@elseif(true)Lili@end`, "Anna"},
 		{`@if(false)Alan@elseif(true)Serhii@end`, "Serhii"},
@@ -243,7 +245,7 @@ func TestEvalIfStmt(t *testing.T) {
 		},
 	}
 
-	for _, tc := range tests {
+	for _, tc := range cases {
 		evaluated := testEval(tc.inp)
 		errObj, ok := evaluated.(*object.Error)
 
@@ -260,9 +262,9 @@ func TestEvalIfStmt(t *testing.T) {
 }
 
 func TestEvalArray(t *testing.T) {
-	tests := []struct {
-		inp      string
-		expected string
+	cases := []struct {
+		inp    string
+		expect string
 	}{
 		{`{{ [] }}`, ""},
 		{`{{ [[[[[]]]]] }}`, ""},
@@ -272,32 +274,49 @@ func TestEvalArray(t *testing.T) {
 		{`{{ [[1, [2]], 3] }}`, "1, 2, 3"},
 	}
 
-	for _, tc := range tests {
-		evaluationExpected(t, tc.inp, tc.expected)
+	for i, tc := range cases {
+		evaluationExpected(t, tc.inp, tc.expect, i)
 	}
 }
 
 func TestEvalIndexExp(t *testing.T) {
-	tests := []struct {
-		inp      string
-		expected string
+	cases := []struct {
+		inp    string
+		expect string
 	}{
 		{`{{ [1, 2, 3][0] }}`, "1"},
 		{`{{ [1, 2, 3][1] }}`, "2"},
 		{`{{ [1, 2, 3][2] }}`, "3"},
 		{`{{ ["Some string"][0] }}`, "Some string"},
 		{`{{ [[[11]]][0][0][0] }}`, "11"},
+		{`{{ [][2] }}`, ""},
 	}
 
-	for _, tc := range tests {
-		evaluationExpected(t, tc.inp, tc.expected)
+	for i, tc := range cases {
+		evaluationExpected(t, tc.inp, tc.expect, i)
+	}
+}
+
+func TestEvalGlobalFunc(t *testing.T) {
+	cases := []struct {
+		inp    string
+		expect string
+	}{
+		{`{{ defined(user) }}`, "0"},
+		{`{{ user = {}; defined(user) }}`, "1"},
+		{`{{ user = {}; defined(user.name) }}`, "0"},
+		{`{{ user = {name:"s"}; defined(user.name) }}`, "1"},
+	}
+
+	for i, tc := range cases {
+		evaluationExpected(t, tc.inp, tc.expect, i)
 	}
 }
 
 func TestEvalAssignVariable(t *testing.T) {
-	tests := []struct {
-		inp      string
-		expected string
+	cases := []struct {
+		inp    string
+		expect string
 	}{
 		{`{{ age = 18 }}`, ""},
 		{`{{ age = 18; age }}`, "18"},
@@ -315,15 +334,15 @@ func TestEvalAssignVariable(t *testing.T) {
 		{`{{ city = "Kiev"; city = "Moscow"; city }}`, "Moscow"},
 	}
 
-	for _, tc := range tests {
-		evaluationExpected(t, tc.inp, tc.expected)
+	for i, tc := range cases {
+		evaluationExpected(t, tc.inp, tc.expect, i)
 	}
 }
 
 func TestEvalForStmt(t *testing.T) {
-	tests := []struct {
-		inp      string
-		expected string
+	cases := []struct {
+		inp    string
+		expect string
 	}{
 		{`@for(i = 0; i < 2; i++){{ i }}@end`, "01"},
 		{`@for(i = 1; i <= 3; i++){{ i }}@end`, "123"},
@@ -350,15 +369,15 @@ func TestEvalForStmt(t *testing.T) {
 		{`@for(i = 1; i <= 3; i++)@continueIf(i == 2){{ i }}@end`, "13"},
 	}
 
-	for _, tc := range tests {
-		evaluationExpected(t, tc.inp, tc.expected)
+	for i, tc := range cases {
+		evaluationExpected(t, tc.inp, tc.expect, i)
 	}
 }
 
 func TestEvalEachStmt(t *testing.T) {
-	tests := []struct {
-		inp      string
-		expected string
+	cases := []struct {
+		inp    string
+		expect string
 	}{
 		{`@each(name in ["anna", "serhii"]){{ name }} @end`, "anna serhii "},
 		{`@each(num in [1, 2, 3]){{ num }}@end`, "123"},
@@ -391,15 +410,15 @@ func TestEvalEachStmt(t *testing.T) {
 		{`@each(n in ["ann", "serhii", "sam"])@continueIf(n == 'sam'){{ n }} @end`, "ann serhii "},
 	}
 
-	for _, tc := range tests {
-		evaluationExpected(t, tc.inp, tc.expected)
+	for i, tc := range cases {
+		evaluationExpected(t, tc.inp, tc.expect, i)
 	}
 }
 
 func TestEvalObjectLiteral(t *testing.T) {
-	tests := []struct {
-		inp      string
-		expected string
+	cases := []struct {
+		inp    string
+		expect string
 	}{
 		{`{{ {"name": "John"}['name'] }}`, "John"},
 		{`{{ {"name": "John"}.name }}`, "John"},
@@ -412,15 +431,15 @@ func TestEvalObjectLiteral(t *testing.T) {
 		{`{{ name = "Sam"; age = 12; obj = { name, age }; obj.age }}`, "12"},
 	}
 
-	for _, tc := range tests {
-		evaluationExpected(t, tc.inp, tc.expected)
+	for i, tc := range cases {
+		evaluationExpected(t, tc.inp, tc.expect, i)
 	}
 }
 
 func TestEvalComments(t *testing.T) {
-	tests := []struct {
-		inp      string
-		expected string
+	cases := []struct {
+		inp    string
+		expect string
 	}{
 		{"{{-- This is a comment --}}", ""},
 		{"<section>{{-- This is a comment --}}</section>", "<section></section>"},
@@ -428,17 +447,17 @@ func TestEvalComments(t *testing.T) {
 		{"{{-- @each(u in users){{ u }}@end --}}", ""},
 	}
 
-	for _, tc := range tests {
-		evaluationExpected(t, tc.inp, tc.expected)
+	for i, tc := range cases {
+		evaluationExpected(t, tc.inp, tc.expect, i)
 	}
 }
 
 func TestTypeMismatchErrors(t *testing.T) {
 	cases := []struct {
-		inp      string
-		objL     object.ObjectType
-		operator string
-		objR     object.ObjectType
+		inp  string
+		objL object.ObjectType
+		op   string
+		objR object.ObjectType
 	}{
 		{"{{ 3 + 2.0 }}", object.INT_OBJ, "+", object.FLOAT_OBJ},
 		{"{{ 2.0 + 3 }}", object.FLOAT_OBJ, "+", object.INT_OBJ},
@@ -472,7 +491,7 @@ func TestTypeMismatchErrors(t *testing.T) {
 		}
 
 		expect := fail.New(1, "/path/to/file", "evaluator", fail.ErrTypeMismatch,
-			tc.objL, tc.operator, tc.objR).String()
+			tc.objL, tc.op, tc.objR).String()
 
 		if errObj.String() != expect {
 			t.Fatalf("error message is not '%s', got '%s'", expect, errObj.String())
@@ -480,11 +499,11 @@ func TestTypeMismatchErrors(t *testing.T) {
 	}
 }
 
-func TestLogicalOperatorUnknownTypeError(t *testing.T) {
+func TestLogicalOpUnknownTypeError(t *testing.T) {
 	cases := []struct {
-		inp      string
-		obj      object.ObjectType
-		operator string
+		inp string
+		obj object.ObjectType
+		op  string
 	}{
 		{"{{ 3 && 0 }}", object.INT_OBJ, "&&"},
 		{"{{ [] && [] }}", object.ARR_OBJ, "&&"},
@@ -510,7 +529,7 @@ func TestLogicalOperatorUnknownTypeError(t *testing.T) {
 		}
 
 		expect := fail.New(1, "/path/to/file", "evaluator",
-			fail.ErrUnknownTypeForOperator, tc.obj, tc.operator).String()
+			fail.ErrUnknownTypeForOp, tc.obj, tc.op).String()
 
 		if errObj.String() != expect {
 			t.Fatalf("error message is not '%s', got '%s'", expect, errObj.String())

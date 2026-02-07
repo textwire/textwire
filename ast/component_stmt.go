@@ -1,17 +1,17 @@
 package ast
 
 import (
-	"bytes"
+	"strings"
 
-	"github.com/textwire/textwire/v2/token"
+	"github.com/textwire/textwire/v3/token"
 )
 
 type ComponentStmt struct {
 	BaseNode
-	Name     *StringLiteral
+	Name     *StringLiteral // Relative path to the component 'components/book'
 	Argument *ObjectLiteral
-	Block    *Program
-	Slots    []*SlotStmt
+	CompProg *Program    // AST node of the component file Name
+	Slots    []*SlotStmt // Each slot of the component's body
 }
 
 func NewComponentStmt(tok token.Token) *ComponentStmt {
@@ -23,7 +23,8 @@ func NewComponentStmt(tok token.Token) *ComponentStmt {
 func (cs *ComponentStmt) statementNode() {}
 
 func (cs *ComponentStmt) ArgsString() string {
-	var out bytes.Buffer
+	var out strings.Builder
+	out.Grow(10)
 
 	out.WriteString(cs.Name.String())
 
@@ -36,7 +37,8 @@ func (cs *ComponentStmt) ArgsString() string {
 }
 
 func (cs *ComponentStmt) String() string {
-	var out bytes.Buffer
+	var out strings.Builder
+	out.Grow(len(cs.Slots) + 20)
 
 	out.WriteString("@component(")
 	out.WriteString(cs.ArgsString())
@@ -55,9 +57,9 @@ func (cs *ComponentStmt) String() string {
 }
 
 func (cs *ComponentStmt) Stmts() []Statement {
-	if cs.Block == nil {
+	if cs.CompProg == nil {
 		return []Statement{}
 	}
 
-	return cs.Block.Stmts()
+	return cs.CompProg.Stmts()
 }

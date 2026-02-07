@@ -1,28 +1,34 @@
 package ast
 
 import (
-	"bytes"
+	"strings"
 
-	"github.com/textwire/textwire/v2/token"
+	"github.com/textwire/textwire/v3/token"
 )
 
 type SlotStmt struct {
 	BaseNode
-	Name *StringLiteral // when empty string literal, it means default slot
-	Body *BlockStmt     // optional block statement, can be nil
+	Name      *StringLiteral // Empty when @slot is default
+	Block     *BlockStmt     // Optional block statement, can be nil
+	IsLocal   bool           // If the slot from the external comp or local
+	CompName  string         // Component name
+	IsDefault bool           // Whether the slot is named or default
 }
 
-func NewSlotStmt(tok token.Token, name *StringLiteral) *SlotStmt {
+func NewSlotStmt(tok token.Token, name *StringLiteral, compName string, isLocal bool) *SlotStmt {
 	return &SlotStmt{
 		BaseNode: NewBaseNode(tok),
 		Name:     name,
+		CompName: compName,
+		IsLocal:  isLocal,
 	}
 }
 
 func (ss *SlotStmt) statementNode() {}
 
 func (ss *SlotStmt) String() string {
-	var out bytes.Buffer
+	var out strings.Builder
+	out.Grow(6)
 
 	if ss.Name.Value == "" {
 		out.WriteString("@slot")
@@ -32,9 +38,9 @@ func (ss *SlotStmt) String() string {
 		out.WriteString(")")
 	}
 
-	if ss.Body != nil {
+	if ss.Block != nil {
 		out.WriteString("\n")
-		out.WriteString(ss.Body.String())
+		out.WriteString(ss.Block.String())
 		out.WriteString("\n@end")
 	}
 
@@ -42,9 +48,9 @@ func (ss *SlotStmt) String() string {
 }
 
 func (ss *SlotStmt) Stmts() []Statement {
-	if ss.Body == nil {
+	if ss.Block == nil {
 		return []Statement{}
 	}
 
-	return ss.Body.Stmts()
+	return ss.Block.Stmts()
 }

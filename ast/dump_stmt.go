@@ -1,9 +1,9 @@
 package ast
 
 import (
-	"bytes"
+	"strings"
 
-	"github.com/textwire/textwire/v2/token"
+	"github.com/textwire/textwire/v3/token"
 )
 
 type DumpStmt struct {
@@ -21,12 +21,13 @@ func NewDumpStmt(tok token.Token, args []Expression) *DumpStmt {
 func (ds *DumpStmt) statementNode() {}
 
 func (ds *DumpStmt) String() string {
-	var out bytes.Buffer
+	var out strings.Builder
+	out.Grow(len(ds.Arguments) * 3)
 
 	out.WriteString("@dump(")
 
-	for i, arg := range ds.Arguments {
-		out.WriteString(arg.String())
+	for i := range ds.Arguments {
+		out.WriteString(ds.Arguments[i].String())
 
 		if i < len(ds.Arguments)-1 {
 			out.WriteString(",")

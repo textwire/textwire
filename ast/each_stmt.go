@@ -1,17 +1,18 @@
 package ast
 
 import (
-	"bytes"
+	"fmt"
+	"strings"
 
-	"github.com/textwire/textwire/v2/token"
+	"github.com/textwire/textwire/v3/token"
 )
 
 type EachStmt struct {
 	BaseNode
-	Var         *Identifier // The variable name
-	Array       Expression  // The array to loop over
-	Alternative *BlockStmt  // The @else block
-	Block       *BlockStmt
+	Var       *Identifier // Variable name
+	Array     Expression  // Array to loop over
+	ElseBlock *BlockStmt  // @else<ElseBlock>@end
+	Block     *BlockStmt
 }
 
 func NewEachStmt(tok token.Token) *EachStmt {
@@ -27,18 +28,14 @@ func (es *EachStmt) LoopBodyBlock() *BlockStmt {
 }
 
 func (es *EachStmt) String() string {
-	var out bytes.Buffer
+	var out strings.Builder
+	out.Grow(26)
 
-	out.WriteString("@each(")
-	out.WriteString(es.Var.String())
-	out.WriteString(" in ")
-	out.WriteString(es.Array.String())
-	out.WriteString(")\n")
-	out.WriteString(es.Block.String() + "\n")
+	fmt.Fprintf(&out, "@each(%s in %s)\n%s\n", es.Var, es.Array, es.Block)
 
-	if es.Alternative != nil {
+	if es.ElseBlock != nil {
 		out.WriteString("@else\n")
-		out.WriteString(es.Alternative.String() + "\n")
+		out.WriteString(es.ElseBlock.String() + "\n")
 	}
 
 	out.WriteString("@end\n")
@@ -47,15 +44,14 @@ func (es *EachStmt) String() string {
 }
 
 func (es *EachStmt) Stmts() []Statement {
-	res := make([]Statement, 0)
-
+	stmts := make([]Statement, 0)
 	if es.Block != nil {
-		res = append(res, es.Block.Stmts()...)
+		stmts = append(stmts, es.Block.Stmts()...)
 	}
 
-	if es.Alternative != nil {
-		res = append(res, es.Alternative.Stmts()...)
+	if es.ElseBlock != nil {
+		stmts = append(stmts, es.ElseBlock.Stmts()...)
 	}
 
-	return res
+	return stmts
 }

@@ -1,26 +1,43 @@
-.PHONY: web test shell fmt lint check test-count
+MAX_LINE_LENGTH := 100
 
-web:
+.PHONY: dev
+dev:
+	@clear || true
 	cd textwire/example && go run main.go
 
+.PHONY: shell
 shell:
 	go run repl/repl.go
 
+.PHONY: test
 test:
-	echo "🚀 Running tests..."
+	@clear || true
 	go test ./...
 	@echo "✅ All tests passed!"
 
+.PHONY: fmt
 fmt:
-	echo "🔧 Formatting code..."
-	go fmt ./...
+	@go fmt ./...
 	echo "✅ Code formatted!"
 
+.PHONY: line
+line:
+	@golines -w -m $(MAX_LINE_LENGTH) .
+	echo "✅ Lines limited!"
+
+.PHONY: lint
 lint:
-	echo "🔍 Running linter..."
-	golangci-lint run
+	@golangci-lint run
 	echo "✅ Linting passed!"
 
-check: fmt lint test
+.PHONY: todo
+todo:
+	@if grep -I --exclude="Makefile" --exclude-dir=".git" -r TODO .; then \
+		echo "❌ Found TODOs" >&2; \
+		exit 1; \
+	fi
+
+.PHONY: check
+check: test line fmt lint todo
 
 .DEFAULT_GOAL := test

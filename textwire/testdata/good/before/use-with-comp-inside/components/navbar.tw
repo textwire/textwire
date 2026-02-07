@@ -1,0 +1,7 @@
+<nav class="bg-yellow-100 px-4 py-2 mb-4">
+<div class="container mx-auto max-w-200 flex items-center gap-4 ">
+<b class="text-lg mr-4">Textwire Example</b>
+<a href="/">Home</a>
+<a href="/about">About</a>
+</div>
+</nav>

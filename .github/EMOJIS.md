@@ -5,3 +5,4 @@ Inside of changelogs, we use emojis to categorize the changes. Here is a list of
 - ✨ Introducing new features
 - 🐛 Fixing bugs
 - ♻️ Refactoring code
+

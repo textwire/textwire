@@ -3,9 +3,9 @@ package evaluator
 import "testing"
 
 func TestEvalFloatFunctions(t *testing.T) {
-	tests := []struct {
-		inp      string
-		expected string
+	cases := []struct {
+		inp    string
+		expect string
 	}{
 		// int
 		{`{{ 13.999.int() }}`, "13"},
@@ -18,9 +18,9 @@ func TestEvalFloatFunctions(t *testing.T) {
 		{`{{ 1234567890.1234567.str() }}`, "1234567890.1234567"},
 		// abs
 		{`{{ 1.0.abs() }}`, "1.0"},
-		{`{{ -1.0.abs() }}`, "1.0"},
+		{`{{ -1.0.abs() }}`, "-1.0"},
 		{`{{ 0.0.abs() }}`, "0.0"},
-		{`{{ -999999.55.abs() }}`, "999999.55"},
+		{`{{ -999999.55.abs() }}`, "-999999.55"},
 		{`{{ 999999.55.abs() }}`, "999999.55"},
 		// ceil
 		{`{{ 1.0.ceil() }}`, "1"},
@@ -30,9 +30,9 @@ func TestEvalFloatFunctions(t *testing.T) {
 		{`{{ 1.9.ceil() }}`, "2"},
 		{`{{ 0.0.ceil() }}`, "0"},
 		{`{{ -1.0.ceil() }}`, "-1"},
-		{`{{ -1.1.ceil() }}`, "-1"},
-		{`{{ -1.543.ceil() }}`, "-1"},
-		{`{{ -1.9.ceil() }}`, "-1"},
+		{`{{ -1.1.ceil() }}`, "-2"},
+		{`{{ -1.543.ceil() }}`, "-2"},
+		{`{{ -1.9.ceil() }}`, "-2"},
 		// floor
 		{`{{ 1.0.floor() }}`, "1"},
 		{`{{ 1.1.floor() }}`, "1"},
@@ -40,9 +40,9 @@ func TestEvalFloatFunctions(t *testing.T) {
 		{`{{ 5.125.floor() }}`, "5"},
 		{`{{ 0.0.floor() }}`, "0"},
 		{`{{ -1.0.floor() }}`, "-1"},
-		{`{{ -1.1.floor() }}`, "-2"},
-		{`{{ -1.9.floor() }}`, "-2"},
-		{`{{ -5.125.floor() }}`, "-6"},
+		{`{{ -1.1.floor() }}`, "-1"},
+		{`{{ -1.9.floor() }}`, "-1"},
+		{`{{ -5.125.floor() }}`, "-5"},
 		// round
 		{`{{ 1.0.round() }}`, "1"},
 		{`{{ 1.1.round() }}`, "1"},
@@ -59,7 +59,7 @@ func TestEvalFloatFunctions(t *testing.T) {
 		{`{{ -5.125.round() }}`, "-5"},
 	}
 
-	for _, tc := range tests {
-		evaluationExpected(t, tc.inp, tc.expected)
+	for i, tc := range cases {
+		evaluationExpected(t, tc.inp, tc.expect, i)
 	}
 }

@@ -1,9 +1,0 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<title>@if(true)@reserve("title")@end</title>
-</head>
-<body>
-@reserve("content")
-</body>
-</html>

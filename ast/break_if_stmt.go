@@ -1,7 +1,9 @@
 package ast
 
 import (
-	"github.com/textwire/textwire/v2/token"
+	"fmt"
+
+	"github.com/textwire/textwire/v3/token"
 )
 
 type BreakIfStmt struct {
@@ -18,5 +20,5 @@ func NewBreakIfStmt(tok token.Token) *BreakIfStmt {
 func (bis *BreakIfStmt) statementNode() {}
 
 func (bis *BreakIfStmt) String() string {
-	return bis.Token.Literal + "(" + bis.Condition.String() + ")"
+	return fmt.Sprintf("%s(%s)", bis.Token.Literal, bis.Condition)
 }

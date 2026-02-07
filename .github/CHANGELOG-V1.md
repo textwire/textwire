@@ -1,11 +1,5 @@
 # Release notes V1
 
-* 🧑‍💻 - Improving developer experience
-* ✨ - Introducing new features
-* 🐛 - Fixing bugs
-* ♻️ - Refactoring code
-* 📝 - Adding or updating documentation
-
 ## v1.7.1 (2024-09-08)
 - 🧑‍💻 Improve error handling for component slots. When you pass a slot that isn't defined, you'll get an error
 - 🧑‍💻 Improve error handling for component slots. When you pass multiple slots with the same name, you'll get an error

@@ -4,21 +4,21 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/textwire/textwire/v2/token"
+	"github.com/textwire/textwire/v3/token"
 )
 
 func TestGetTokenMeta(t *testing.T) {
 	t.Run("Invalid locale", func(t *testing.T) {
 		_, err := GetTokenMeta(token.IF, "invalid")
 		if err == nil {
-			t.Error("expected error, got nil")
+			t.Error("expect error, got nil")
 		}
 	})
 
 	t.Run("Token missing docs", func(t *testing.T) {
 		_, err := GetTokenMeta(token.EOF, "en")
 		if err == nil {
-			t.Error("expected error, got nil")
+			t.Error("expect error, got nil")
 		}
 	})
 
@@ -33,7 +33,7 @@ func TestGetTokenMeta(t *testing.T) {
 		{"@each token", token.EACH, "en", "@each(item in items)"},
 		{"@for token", token.FOR, "en", "@for(i = 0; i < items.len(); i++)"},
 		{"@else token", token.ELSE, "en", "@else"},
-		{"@dump token", token.DUMP, "en", "@dump(variable)"},
+		{"@dump token", token.DUMP, "en", "@dump(identifier)"},
 		{"@use token", token.USE, "en", "@use('layoutName')"},
 		{"@insert token", token.INSERT, "en", "@insert('reservedName')"},
 		{"@reserve token", token.RESERVE, "en", "@reserve('reservedName')"},
@@ -50,11 +50,11 @@ func TestGetTokenMeta(t *testing.T) {
 		t.Run("Valid "+tc.name, func(t *testing.T) {
 			meta, err := GetTokenMeta(tc.token, tc.locale)
 			if err != nil {
-				t.Errorf("expected err to be nil, got error %v", err)
+				t.Errorf("expect err to be nil, got error %v", err)
 			}
 
 			if !strings.Contains(meta, tc.expect) {
-				t.Errorf("expected %s in meta, got %s", tc.expect, meta)
+				t.Errorf("expect %s in meta, got %s", tc.expect, meta)
 			}
 		})
 	}

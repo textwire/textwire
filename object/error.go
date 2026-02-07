@@ -4,11 +4,14 @@ import (
 	"bytes"
 	"fmt"
 
-	"github.com/textwire/textwire/v2/fail"
+	"github.com/textwire/textwire/v3/fail"
 )
 
 type Error struct {
 	Err *fail.Error
+
+	// ErrorID is a raw error message with %s characters instead of values
+	ErrorID string
 }
 
 func (e *Error) Type() ObjectType {
@@ -16,22 +19,26 @@ func (e *Error) Type() ObjectType {
 }
 
 func (e *Error) String() string {
+	if e.Err == nil {
+		panic("Err field on Error object must not be nil when calling String()")
+	}
 	return e.Err.String()
 }
 
 func (e *Error) Dump(ident int) string {
 	var out bytes.Buffer
+	out.Grow(4)
 
 	out.WriteString("<span class='textwire-meta'>error\"\"\"</span>\n")
-	out.WriteString(fmt.Sprintf("<span class='textwire-key'>%s</span>\n\n", e.Err.Meta()))
-	out.WriteString(fmt.Sprintf("<span class='textwire-str'>%s</span>\n", e.Err.Message()))
+	fmt.Fprintf(&out, "<span class='textwire-key'>%s</span>\n\n", e.Err.Meta())
+	fmt.Fprintf(&out, "<span class='textwire-str'>%s</span>\n", e.Err.Message())
 	out.WriteString("<span class='textwire-meta'>\"\"\"</span>")
 
 	return out.String()
 }
 
 func (e *Error) Val() any {
-	return e.Err.String()
+	return e.String()
 }
 
 func (e *Error) Is(t ObjectType) bool {

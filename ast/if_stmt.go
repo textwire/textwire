@@ -1,17 +1,18 @@
 package ast
 
 import (
-	"bytes"
+	"fmt"
+	"strings"
 
-	"github.com/textwire/textwire/v2/token"
+	"github.com/textwire/textwire/v3/token"
 )
 
 type IfStmt struct {
 	BaseNode
-	Condition    Expression  // The truthy condition
-	Consequence  *BlockStmt  // The 'then' block
-	Alternative  *BlockStmt  // The @else block
-	Alternatives []Statement // The @elseif blocks
+	Condition   Expression
+	IfBlock     *BlockStmt // @if()<IfBlock>@end
+	ElseBlock   *BlockStmt // @else<ElseBlock>@end
+	ElseIfStmts []Statement
 }
 
 func NewIfStmt(tok token.Token) *IfStmt {
@@ -23,19 +24,18 @@ func NewIfStmt(tok token.Token) *IfStmt {
 func (is *IfStmt) statementNode() {}
 
 func (is *IfStmt) String() string {
-	var out bytes.Buffer
+	var out strings.Builder
+	out.Grow(20 + len(is.ElseIfStmts)*2)
 
-	out.WriteString("@if(" + is.Condition.String() + ")\n")
+	fmt.Fprintf(&out, "@if(%s)\n%s", is.Condition, is.IfBlock)
 
-	out.WriteString(is.Consequence.String())
-
-	for _, e := range is.Alternatives {
+	for _, e := range is.ElseIfStmts {
 		out.WriteString(e.String())
 	}
 
-	if is.Alternative != nil {
+	if is.ElseBlock != nil {
 		out.WriteString("@else\n")
-		out.WriteString(is.Alternative.String() + "\n")
+		out.WriteString(is.ElseBlock.String() + "\n")
 	}
 
 	out.WriteString("@end\n")
@@ -46,15 +46,15 @@ func (is *IfStmt) String() string {
 func (is *IfStmt) Stmts() []Statement {
 	res := make([]Statement, 0)
 
-	if is.Consequence != nil {
-		res = append(res, is.Consequence.Stmts()...)
+	if is.IfBlock != nil {
+		res = append(res, is.IfBlock.Stmts()...)
 	}
 
-	if is.Alternative != nil {
-		res = append(res, is.Alternative.Stmts()...)
+	if is.ElseBlock != nil {
+		res = append(res, is.ElseBlock.Stmts()...)
 	}
 
-	for _, e := range is.Alternatives {
+	for _, e := range is.ElseIfStmts {
 		if withStmts, ok := e.(NodeWithStatements); ok {
 			res = append(res, withStmts.Stmts()...)
 		}

@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@reserve('title')</title>
+    <meta name="description" content="@reserve('description')">
+</head>
+<body>
+@component('~navbar')
+<main class="container mx-auto max-w-200">
+@reserve('content')
+</main>
+</body>
+</html>

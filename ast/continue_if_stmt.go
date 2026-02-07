@@ -1,6 +1,10 @@
 package ast
 
-import "github.com/textwire/textwire/v2/token"
+import (
+	"fmt"
+
+	"github.com/textwire/textwire/v3/token"
+)
 
 type ContinueIfStmt struct {
 	BaseNode
@@ -16,5 +20,5 @@ func NewContinueIfStmt(tok token.Token) *ContinueIfStmt {
 func (cis *ContinueIfStmt) statementNode() {}
 
 func (cis *ContinueIfStmt) String() string {
-	return cis.Token.Literal + "(" + cis.Condition.String() + ")"
+	return fmt.Sprintf("%s(%s)", cis.Token.Literal, cis.Condition)
 }

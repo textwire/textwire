@@ -1,6 +1,7 @@
-@use('~main')
+@use('~base')
 
-@insert('title', 'About Us')
+@insert('title', 'Error')
+@insert('description', 'Something went wrong')
 
 @insert('content')
     <h1>Oops!</h1>

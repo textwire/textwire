@@ -3,13 +3,12 @@ package ast
 import (
 	"fmt"
 
-	"github.com/textwire/textwire/v2/token"
+	"github.com/textwire/textwire/v3/token"
 )
 
 type ReserveStmt struct {
 	BaseNode
-	Insert *InsertStmt // The insert statement; nil if not yet parsed
-	Name   *StringLiteral
+	Name *StringLiteral
 }
 
 func NewReserveStmt(tok token.Token) *ReserveStmt {
@@ -21,5 +20,5 @@ func NewReserveStmt(tok token.Token) *ReserveStmt {
 func (rs *ReserveStmt) statementNode() {}
 
 func (rs *ReserveStmt) String() string {
-	return fmt.Sprintf(`@reserve("%s")`, rs.Name.String())
+	return fmt.Sprintf(`@reserve("%s")`, rs.Name)
 }

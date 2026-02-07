@@ -1,15 +1,16 @@
 package ast
 
 import (
-	"bytes"
+	"fmt"
+	"strings"
 
-	"github.com/textwire/textwire/v2/token"
+	"github.com/textwire/textwire/v3/token"
 )
 
 type ElseIfStmt struct {
 	BaseNode
-	Condition   Expression
-	Consequence *BlockStmt
+	Condition Expression
+	Block     *BlockStmt // @elseif()<Block>@end
 }
 
 func NewElseIfStmt(tok token.Token) *ElseIfStmt {
@@ -21,18 +22,18 @@ func NewElseIfStmt(tok token.Token) *ElseIfStmt {
 func (eis *ElseIfStmt) statementNode() {}
 
 func (eis *ElseIfStmt) String() string {
-	var out bytes.Buffer
+	var out strings.Builder
 
-	out.WriteString("@elseif(" + eis.Condition.String() + ")\n")
-	out.WriteString(eis.Consequence.String())
+	fmt.Fprintf(&out, "@elseif(%s)\n", eis.Condition)
+	out.WriteString(eis.Block.String())
 
 	return out.String()
 }
 
 func (eis *ElseIfStmt) Stmts() []Statement {
-	if eis.Consequence == nil {
+	if eis.Block == nil {
 		return []Statement{}
 	}
 
-	return eis.Consequence.Stmts()
+	return eis.Block.Stmts()
 }

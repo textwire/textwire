@@ -6,64 +6,65 @@ import (
 	"log"
 )
 
+// Each string constant here is also an ErrorID on Error object.
+// It helps to identify error by checking if ErrorID == fail.ErrEmptyBraces.
 const (
 	// Parser errors
-	ErrEmptyBraces               = "bracket statement must contain an expression '{{ <expression> }}'"
-	ErrWrongNextToken            = "expected next token to be '%s', got '%s' instead"
-	ErrExpectedExpression        = "expected expression, got '}}'"
-	ErrCouldNotParseAs           = "could not parse '%s' as '%s'"
-	ErrNoPrefixParseFunc         = "no prefix parse function for '%s'"
-	ErrIllegalToken              = "illegal token '%s' found"
-	ErrElseifCannotFollowElse    = "'@elseif' directive cannot follow '@else'"
-	ErrExceptedComponentStmt     = "expected *ComponentStmt, got %T"
-	ErrComponentMustHaveBlock    = "the component '%s' must have a block"
-	ErrExpectedObjectLiteral     = "expected object literal, got '%s' instead"
-	ErrSlotNotDefined            = "'%s' slot is not defined in the component '%s'"
-	ErrDefaultSlotNotDefined     = "default slot is not defined in the component '%s'"
-	ErrDuplicateSlotUsage        = "duplicate slot usage '%s' found %d times in the component '%s'"
-	ErrDuplicateDefaultSlotUsage = "duplicate default slot usage found %d times in the component '%s'"
-	ErrExpectedComponentName     = "expected component name, got empty string instead"
-	ErrUndefinedComponent        = "component '%s' is not defined. Check if component exists"
-	ErrUndefinedInsert           = "insert with the name '%s' is not defined in layout. Check if you have a matching reserve statement with the same name"
-	ErrDuplicateInserts          = "duplicate insert statements with the name '%s' found"
-	ErrUseStmtFirstArgStr        = "the first argument of the 'use' statement must be a string, got '%s' instead"
+	ErrEmptyBraces            = "empty expression {{}} - must contain valid code like {{ variable }} or {{ 1 + 2 }}"
+	ErrWrongNextToken         = "syntax error: expected '%s' but found '%s'"
+	ErrExpectedExpression     = "expected expression before '}}'"
+	ErrCouldNotParseAs        = "cannot parse '%s' as %s"
+	ErrNoPrefixParseFunc      = "unexpected token '%s' at start of expression"
+	ErrIllegalToken           = "illegal token '%s'"
+	ErrElseifCannotFollowElse = "'@elseif' cannot come after '@else'"
+	ErrExpectedObjectLiteral  = "expected object literal, got '%s'"
+	ErrSlotNotDefined         = "@slot('%s') not defined in @component('%s')"
+	ErrDuplicateSlot          = "@slot('%s') used %d times in @component('%s')"
+	ErrDuplicateDefaultSlot   = "default @slot used %d times in @component('%s')"
+	ErrExpectedComponentName  = "@component() cannot have empty name"
+	ErrUndefinedInsert        = "@insert('%s') not found in layout - add matching @reserve"
+	ErrDuplicateInserts       = "duplicate @insert('%s') found"
+	ErrUseStmtFirstArgStr     = "argument 1 of @use(STR) must be a string, got @use('%s')"
+	ErrOnlyOneUseDir          = "@use() directive can only be used once per template"
 
 	// Evaluator (interpreter) errors
-	ErrUnknownNodeType         = "unknown node type '%T'"
-	ErrInsertMustHaveContent   = "insert statement must have a content or a text argument"
-	ErrIndexNotSupported       = "index operator '%s' is not supported"
-	ErrUnknownOperator         = "unknown operator '%s%s'"
-	ErrCannotSubFromFloat      = "cannot decrement from float %s due to unknown error"
-	ErrTypeMismatch            = "type mismatch '%s %s %s'"
-	ErrUnknownTypeForOperator  = "unknown type '%s' for '%s' operator"
-	ErrPrefixOperatorIsWrong   = "prefix operator '%s' cannot be applied to '%s'"
-	ErrUseStmtMustHaveProgram  = "use statement must have a program attached"
-	ErrVariableIsUndefined     = "variable '%s' is undefined"
-	ErrLoopVariableIsReserved  = "loop variable is reserved. You cannot use it as a variable name"
-	ErrVariableTypeMismatch    = "cannot assign variable '%s' of type '%s' to type '%s'"
-	ErrDotOperatorNotSupported = "the dot operator is not supported for type '%s'"
-	ErrPropertyNotFound        = "property '%s' not found in type '%s'"
-	ErrDivisionByZero          = "division by zero error. The right-hand side of the division operator must not be zero"
+	ErrUnknownNodeType         = "unsupported expression type '%T'"
+	ErrInsertMustHaveContent   = "@insert() requires either a body or a second argument"
+	ErrIndexNotSupported       = "type '%s' does not support indexing"
+	ErrUnknownOp               = "unknown operator '%s%s'"
+	ErrCannotSubFromFloat      = "cannot decrement from float '%s' due to error: %s"
+	ErrTypeMismatch            = "type mismatch: cannot %s %s %s"
+	ErrUnknownTypeForOp        = "operator '%s' not supported for type '%s'"
+	ErrPrefixOpIsWrong         = "cannot apply prefix '%s' to type '%s'"
+	ErrIdentifierIsUndefined   = "variable '%s' is not defined"
+	ErrReservedIdentifiers     = "'loop' and 'global' are reserved variable names"
+	ErrIdentifierTypeMismatch  = "cannot assign identifier '%s' of type '%s' to type '%s'"
+	ErrPropertyNotFound        = "property '%s' not found on type '%s'"
+	ErrDivisionByZero          = "division by zero - divisor cannot be zero"
+	ErrEachDirWithNonArrArg    = "cannot use @each(item in ARRAY) with non-array type '%s' after 'in' keyword"
+	ErrSomeDirsOnlyInTemplates = "@use, @insert, @reserve, @component only allowed in templates"
+	ErrUseStmtMissingLayout    = "@use('%s') missing layout file"
+	ErrGlobalFuncMissing       = "global function %s() not found"
+	ErrPropertyOnNonObject     = "'%s' type does not support attribute '%s' access"
 
 	// Functions
-	ErrNoFuncForThisType  = "function '%s' doesn't exist for type '%s'"
-	ErrFuncRequiresOneArg = "function '%s' on type '%s' requires at least one argument"
-	ErrFuncFirstArgInt    = "first argument for function '%s' on type '%s' must be an INTEGER"
-	ErrFuncFirstArgStr    = "first argument for function '%s' on type '%s' must be a STRING"
-	ErrFuncSecondArgInt   = "second argument for function '%s' on type '%s' must be an INTEGER"
-	ErrFuncSecondArgStr   = "second argument for function '%s' on type '%s' must be a STRING"
-	ErrFuncMaxArgs        = "function '%s' on type '%s' accepts a maximum of '%d' arguments"
+	ErrFuncNotDefined   = "%s.%s() is not defined"
+	ErrFuncMissingArg   = "%s.%s(arg) missing required argument"
+	ErrFuncFirstArgInt  = "argument 1 on %s.%s() must be INTEGER"
+	ErrFuncFirstArgStr  = "argument 1 on %s.%s() must be STRING"
+	ErrFuncSecondArgInt = "argument 2 on %s.%s() must be INTEGER"
+	ErrFuncSecondArgStr = "argument 2 on %s.%s() must be STRING"
+	ErrFuncMaxArgs      = "%s.%s() takes at most %d arguments"
 
 	// Template errors
-	ErrUnsupportedType   = "unsupported type '%T'"
-	ErrTemplateNotFound  = "template not found"
-	ErrUseStmtNotAllowed = "the 'use' statement is not allowed in a layout file. It will cause infinite recursion"
+	ErrUnsupportedType       = "unsupported value type '%T'"
+	ErrUseStmtNotAllowed     = "@use() not allowed in layout files - causes infinite recursion"
+	ErrTemplateNotFound      = "template file '%s' not found"
+	ErrDefaultSlotNotDefined = "default @slot not defined in @component('%s')"
 
 	// API errors
-	ErrFuncAlreadyDefined        = "custom function '%s' already defined for '%s'"
-	ErrCannotOverrideBuiltInFunc = "cannot override built-in function '%s' for '%s'"
-
-	NoErrorsFound = "there are no Textwire errors"
+	ErrFuncAlreadyDefined = "custom function '%s' already defined for type '%s'"
+	ErrUndefinedComponent = "@component('%s') missing required component file"
 )
 
 // Error is the main error type for Textwire that contains all the necessary
@@ -100,7 +101,6 @@ func (e *Error) Message() string {
 // Meta returns the error meta information like the file path and line number
 func (e *Error) Meta() string {
 	var path string
-
 	if e.filepath != "" {
 		path = fmt.Sprintf(" in %s", e.filepath)
 	}
@@ -147,7 +147,7 @@ func (e *Error) Error() error {
 
 func FromError(err error, line uint, absPath, origin string, args ...any) *Error {
 	if err == nil {
-		return nil
+		panic("err should never be nil in fail.FromError() function")
 	}
 
 	return New(line, absPath, origin, err.Error(), args...)

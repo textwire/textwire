@@ -14,7 +14,8 @@ func (b *Block) Type() ObjectType {
 }
 
 func (b *Block) String() string {
-	var out bytes.Buffer
+	var out strings.Builder
+	out.Grow(len(b.Elements))
 
 	for _, e := range b.Elements {
 		out.WriteString(e.String())

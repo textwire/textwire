@@ -3,7 +3,7 @@ package lexer
 import (
 	"testing"
 
-	token "github.com/textwire/textwire/v2/token"
+	token "github.com/textwire/textwire/v3/token"
 )
 
 func TokenizeString(t *testing.T, input string, expectTokens []token.Token) {
@@ -13,21 +13,36 @@ func TokenizeString(t *testing.T, input string, expectTokens []token.Token) {
 		tok := l.NextToken()
 
 		if tok.Literal != expectTok.Literal {
-			t.Fatalf("token %q - literal wrong. expected='%s', got='%s'",
-				tok.Literal, expectTok.Literal, tok.Literal)
+			t.Fatalf(
+				"token %q - literal wrong.\nEXPECT:\n'%s'\nGOT:\n'%s'",
+				tok.Literal,
+				expectTok.Literal,
+				tok.Literal,
+			)
 		}
 
 		if tok.Type != expectTok.Type {
-			t.Fatalf("token %q - tokentype wrong. expected='%s', got='%s'",
-				tok.Literal, token.String(expectTok.Type), token.String(tok.Type))
+			t.Fatalf(
+				"token %q - tokentype wrong. expect='%s', got='%s'",
+				tok.Literal,
+				token.String(expectTok.Type),
+				token.String(tok.Type),
+			)
 		}
 
 		if tok.Pos != expectTok.Pos {
-			t.Fatalf("token %q - position wrong.\nexpected: {startCol=%d, endCol=%d, startLine=%d, endLine=%d}\ngot:      {startCol=%d, endCol=%d, startLine=%d, endLine=%d}",
-				tok.Literal, expectTok.Pos.StartCol, expectTok.Pos.EndCol,
-				expectTok.Pos.StartLine, expectTok.Pos.EndLine,
-				tok.Pos.StartCol, tok.Pos.EndCol, tok.Pos.StartLine,
-				tok.Pos.EndLine)
+			t.Fatalf(
+				"token %q - position wrong.\nEXPECT: {startCol=%d, endCol=%d, startLine=%d, endLine=%d}\nGOT:    {startCol=%d, endCol=%d, startLine=%d, endLine=%d}",
+				tok.Literal,
+				expectTok.Pos.StartCol,
+				expectTok.Pos.EndCol,
+				expectTok.Pos.StartLine,
+				expectTok.Pos.EndLine,
+				tok.Pos.StartCol,
+				tok.Pos.EndCol,
+				tok.Pos.StartLine,
+				tok.Pos.EndLine,
+			)
 		}
 	}
 }
@@ -93,7 +108,11 @@ func TestIdentifiers(t *testing.T) {
 	TokenizeString(t, inp, []token.Token{
 		{Type: token.LBRACES, Literal: "{{", Pos: token.Position{EndCol: 1}},
 		{Type: token.IDENT, Literal: "testVar", Pos: token.Position{StartCol: 3, EndCol: 9}},
-		{Type: token.IDENT, Literal: "another_var12", Pos: token.Position{StartCol: 11, EndCol: 23}},
+		{
+			Type:    token.IDENT,
+			Literal: "another_var12",
+			Pos:     token.Position{StartCol: 11, EndCol: 23},
+		},
 		{Type: token.NIL, Literal: "nil", Pos: token.Position{StartCol: 25, EndCol: 27}},
 		{Type: token.FALSE, Literal: "false", Pos: token.Position{StartCol: 29, EndCol: 33}},
 		{Type: token.NOT, Literal: "!", Pos: token.Position{StartCol: 35, EndCol: 35}},
@@ -167,7 +186,11 @@ func TestInsertStmt(t *testing.T) {
 		{Type: token.LPAREN, Literal: "(", Pos: token.Position{StartCol: 7, EndCol: 7}},
 		{Type: token.STR, Literal: "title", Pos: token.Position{StartCol: 8, EndCol: 14}},
 		{Type: token.RPAREN, Literal: ")", Pos: token.Position{StartCol: 15, EndCol: 15}},
-		{Type: token.HTML, Literal: "<div>Nice one</div>", Pos: token.Position{StartCol: 16, EndCol: 34}},
+		{
+			Type:    token.HTML,
+			Literal: "<div>Nice one</div>",
+			Pos:     token.Position{StartCol: 16, EndCol: 34},
+		},
 		{Type: token.END, Literal: "@end", Pos: token.Position{StartCol: 35, EndCol: 38}},
 		{Type: token.EOF, Literal: "", Pos: token.Position{StartCol: 39, EndCol: 39}},
 	})
@@ -207,7 +230,11 @@ func TestStrings(test *testing.T) {
 
 		TokenizeString(t, inp, []token.Token{
 			{Type: token.LBRACES, Literal: "{{", Pos: token.Position{EndCol: 1}},
-			{Type: token.STR, Literal: `Anna "and" Serhii`, Pos: token.Position{StartCol: 3, EndCol: 23}},
+			{
+				Type:    token.STR,
+				Literal: `Anna "and" Serhii`,
+				Pos:     token.Position{StartCol: 3, EndCol: 23},
+			},
 			{Type: token.ADD, Literal: "+", Pos: token.Position{StartCol: 25, EndCol: 25}},
 			{Type: token.STR, Literal: "", Pos: token.Position{StartCol: 27, EndCol: 28}},
 			{Type: token.RBRACES, Literal: "}}", Pos: token.Position{StartCol: 30, EndCol: 31}},
@@ -268,7 +295,7 @@ func TestVariableDeclaration(t *testing.T) {
 	})
 }
 
-func TestLogicalAndOperator(t *testing.T) {
+func TestLogicalAndOp(t *testing.T) {
 	inp := `{{ true && false }}`
 
 	TokenizeString(t, inp, []token.Token{
@@ -281,7 +308,7 @@ func TestLogicalAndOperator(t *testing.T) {
 	})
 }
 
-func TestLogicalOrOperator(t *testing.T) {
+func TestLogicalOrOp(t *testing.T) {
 	inp := `{{ true || false }}`
 
 	TokenizeString(t, inp, []token.Token{
@@ -332,7 +359,7 @@ func TestArray(t *testing.T) {
 }
 
 func TestErrorLineNumber(t *testing.T) {
-	tests := []struct {
+	cases := []struct {
 		inp  string
 		line uint
 	}{
@@ -360,7 +387,7 @@ func TestErrorLineNumber(t *testing.T) {
 		},
 	}
 
-	for _, tc := range tests {
+	for _, tc := range cases {
 		l := New(tc.inp)
 		var lastTok token.Token
 
@@ -375,7 +402,7 @@ func TestErrorLineNumber(t *testing.T) {
 }
 
 func TestTokenPosition(t *testing.T) {
-	tests := []struct {
+	cases := []struct {
 		startL uint
 		endL   uint
 		startC uint
@@ -402,7 +429,7 @@ func TestTokenPosition(t *testing.T) {
 </div>
 @break`
 
-	for tokenIdx, tc := range tests {
+	for tokenIdx, tc := range cases {
 		l := New(inp)
 		var targetTok token.Token
 
@@ -418,23 +445,39 @@ func TestTokenPosition(t *testing.T) {
 		}
 
 		if targetTok.Pos.StartCol != pos.StartCol {
-			t.Errorf("Expected token %q StartCol: %d, got %d",
-				targetTok.Literal, pos.StartCol, targetTok.Pos.StartCol)
+			t.Errorf(
+				"Expected token %q StartCol: %d, got %d",
+				targetTok.Literal,
+				pos.StartCol,
+				targetTok.Pos.StartCol,
+			)
 		}
 
 		if targetTok.Pos.EndCol != pos.EndCol {
-			t.Errorf("Expected token %q EndCol: %d, got: %d",
-				targetTok.Literal, pos.EndCol, targetTok.Pos.EndCol)
+			t.Errorf(
+				"Expected token %q EndCol: %d, got: %d",
+				targetTok.Literal,
+				pos.EndCol,
+				targetTok.Pos.EndCol,
+			)
 		}
 
 		if targetTok.Pos.EndLine != pos.EndLine {
-			t.Errorf("Expected token %q EndLine: %d, got: %d",
-				targetTok.Literal, pos.EndLine, targetTok.Pos.EndLine)
+			t.Errorf(
+				"Expected token %q EndLine: %d, got: %d",
+				targetTok.Literal,
+				pos.EndLine,
+				targetTok.Pos.EndLine,
+			)
 		}
 
 		if targetTok.Pos.StartLine != pos.StartLine {
-			t.Errorf("Expected token %q StartLine: %d, got %d",
-				targetTok.Literal, pos.StartLine, targetTok.Pos.StartLine)
+			t.Errorf(
+				"Expected token %q StartLine: %d, got %d",
+				targetTok.Literal,
+				pos.StartLine,
+				targetTok.Pos.StartLine,
+			)
 		}
 	}
 }
@@ -646,7 +689,11 @@ func TestBreakDirectives(t *testing.T) {
 		{Type: token.HTML, Literal: " ", Pos: token.Position{StartCol: 21, EndCol: 21}},
 		{Type: token.CONTINUE, Literal: "@continue", Pos: token.Position{StartCol: 22, EndCol: 30}},
 		{Type: token.HTML, Literal: " ", Pos: token.Position{StartCol: 31, EndCol: 31}},
-		{Type: token.CONTINUE_IF, Literal: "@continueIf", Pos: token.Position{StartCol: 32, EndCol: 42}},
+		{
+			Type:    token.CONTINUE_IF,
+			Literal: "@continueIf",
+			Pos:     token.Position{StartCol: 32, EndCol: 42},
+		},
 		{Type: token.LPAREN, Literal: "(", Pos: token.Position{StartCol: 43, EndCol: 43}},
 		{Type: token.FALSE, Literal: "false", Pos: token.Position{StartCol: 44, EndCol: 48}},
 		{Type: token.RPAREN, Literal: ")", Pos: token.Position{StartCol: 49, EndCol: 49}},
@@ -660,7 +707,11 @@ func TestComponentDirective(t *testing.T) {
 	TokenizeString(t, inp, []token.Token{
 		{Type: token.COMPONENT, Literal: "@component", Pos: token.Position{EndCol: 9}},
 		{Type: token.LPAREN, Literal: "(", Pos: token.Position{StartCol: 10, EndCol: 10}},
-		{Type: token.STR, Literal: "components/book-card", Pos: token.Position{StartCol: 11, EndCol: 32}},
+		{
+			Type:    token.STR,
+			Literal: "components/book-card",
+			Pos:     token.Position{StartCol: 11, EndCol: 32},
+		},
 		{Type: token.COMMA, Literal: ",", Pos: token.Position{StartCol: 33, EndCol: 33}},
 		{Type: token.LBRACE, Literal: "{", Pos: token.Position{StartCol: 35, EndCol: 35}},
 		{Type: token.IDENT, Literal: "c", Pos: token.Position{StartCol: 37, EndCol: 37}},
@@ -673,6 +724,30 @@ func TestComponentDirective(t *testing.T) {
 }
 
 func TestComponentSlotDirective(t *testing.T) {
+	t.Run("slot with space", func(t *testing.T) {
+		inp := `@slot ("top")`
+
+		TokenizeString(t, inp, []token.Token{
+			{Type: token.SLOT, Literal: "@slot", Pos: token.Position{StartCol: 0, EndCol: 4}},
+			{Type: token.LPAREN, Literal: "(", Pos: token.Position{StartCol: 6, EndCol: 6}},
+			{Type: token.STR, Literal: "top", Pos: token.Position{StartCol: 7, EndCol: 11}},
+			{Type: token.RPAREN, Literal: ")", Pos: token.Position{StartCol: 12, EndCol: 12}},
+			{Type: token.EOF, Literal: "", Pos: token.Position{StartCol: 13, EndCol: 13}},
+		})
+	})
+
+	t.Run("slot with 3 spaces", func(t *testing.T) {
+		inp := `@slot   ("top")`
+
+		TokenizeString(t, inp, []token.Token{
+			{Type: token.SLOT, Literal: "@slot", Pos: token.Position{StartCol: 0, EndCol: 4}},
+			{Type: token.LPAREN, Literal: "(", Pos: token.Position{StartCol: 8, EndCol: 8}},
+			{Type: token.STR, Literal: "top", Pos: token.Position{StartCol: 9, EndCol: 13}},
+			{Type: token.RPAREN, Literal: ")", Pos: token.Position{StartCol: 14, EndCol: 14}},
+			{Type: token.EOF, Literal: "", Pos: token.Position{StartCol: 15, EndCol: 15}},
+		})
+	})
+
 	t.Run("slots with parentheses", func(t *testing.T) {
 		inp := `@component("card")@slot("top")<h1>Hello</h1>@end@end`
 
@@ -685,7 +760,11 @@ func TestComponentSlotDirective(t *testing.T) {
 			{Type: token.LPAREN, Literal: "(", Pos: token.Position{StartCol: 23, EndCol: 23}},
 			{Type: token.STR, Literal: "top", Pos: token.Position{StartCol: 24, EndCol: 28}},
 			{Type: token.RPAREN, Literal: ")", Pos: token.Position{StartCol: 29, EndCol: 29}},
-			{Type: token.HTML, Literal: "<h1>Hello</h1>", Pos: token.Position{StartCol: 30, EndCol: 43}},
+			{
+				Type:    token.HTML,
+				Literal: "<h1>Hello</h1>",
+				Pos:     token.Position{StartCol: 30, EndCol: 43},
+			},
 			{Type: token.END, Literal: "@end", Pos: token.Position{StartCol: 44, EndCol: 47}},
 			{Type: token.END, Literal: "@end", Pos: token.Position{StartCol: 48, EndCol: 51}},
 			{Type: token.EOF, Literal: "", Pos: token.Position{StartCol: 52, EndCol: 52}},
@@ -693,18 +772,18 @@ func TestComponentSlotDirective(t *testing.T) {
 	})
 
 	t.Run("slots without parentheses", func(t *testing.T) {
-		inp := `@component("card")@slotNICE@end@end`
+		inp := `@component ("card")@slotNICE@end@end`
 
 		TokenizeString(t, inp, []token.Token{
 			{Type: token.COMPONENT, Literal: "@component", Pos: token.Position{EndCol: 9}},
-			{Type: token.LPAREN, Literal: "(", Pos: token.Position{StartCol: 10, EndCol: 10}},
-			{Type: token.STR, Literal: "card", Pos: token.Position{StartCol: 11, EndCol: 16}},
-			{Type: token.RPAREN, Literal: ")", Pos: token.Position{StartCol: 17, EndCol: 17}},
-			{Type: token.SLOT, Literal: "@slot", Pos: token.Position{StartCol: 18, EndCol: 22}},
-			{Type: token.HTML, Literal: "NICE", Pos: token.Position{StartCol: 23, EndCol: 26}},
-			{Type: token.END, Literal: "@end", Pos: token.Position{StartCol: 27, EndCol: 30}},
-			{Type: token.END, Literal: "@end", Pos: token.Position{StartCol: 31, EndCol: 34}},
-			{Type: token.EOF, Literal: "", Pos: token.Position{StartCol: 35, EndCol: 35}},
+			{Type: token.LPAREN, Literal: "(", Pos: token.Position{StartCol: 11, EndCol: 11}},
+			{Type: token.STR, Literal: "card", Pos: token.Position{StartCol: 12, EndCol: 17}},
+			{Type: token.RPAREN, Literal: ")", Pos: token.Position{StartCol: 18, EndCol: 18}},
+			{Type: token.SLOT, Literal: "@slot", Pos: token.Position{StartCol: 19, EndCol: 23}},
+			{Type: token.HTML, Literal: "NICE", Pos: token.Position{StartCol: 24, EndCol: 27}},
+			{Type: token.END, Literal: "@end", Pos: token.Position{StartCol: 28, EndCol: 31}},
+			{Type: token.END, Literal: "@end", Pos: token.Position{StartCol: 32, EndCol: 35}},
+			{Type: token.EOF, Literal: "", Pos: token.Position{StartCol: 36, EndCol: 36}},
 		})
 	})
 }

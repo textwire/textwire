@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"strings"
 
-	token "github.com/textwire/textwire/v2/token"
+	"github.com/textwire/textwire/v3/token"
 )
 
 var simpleTokens = map[byte]token.TokenType{
@@ -160,7 +160,7 @@ func (l *Lexer) directiveToken() token.Token {
 		return l.illegalToken()
 	}
 
-	hasOptionalParens := tokensWithOptionalParens[tok] && l.char == '('
+	hasOptionalParens := tokensWithOptionalParens[tok] && (l.char == '(' || l.peekCharIs('('))
 	hasNoParens := tokensWithoutParens[tok]
 
 	l.isDirective = hasOptionalParens || !hasNoParens
@@ -367,15 +367,15 @@ func (l *Lexer) readIdentifier() string {
 }
 
 func (l *Lexer) readDirective() (token.TokenType, string) {
-	var keyword string
+	var keyword strings.Builder
 	var tok token.TokenType
 
 	l.tokenBegins()
 
 	for isLetterWord(l.char) {
-		keyword += string(l.char)
+		keyword.WriteByte(l.char)
 
-		tok = token.LookupDirective(keyword)
+		tok = token.LookupDirective(keyword.String())
 
 		l.readChar()
 
@@ -384,7 +384,7 @@ func (l *Lexer) readDirective() (token.TokenType, string) {
 		}
 	}
 
-	return tok, keyword
+	return tok, keyword.String()
 }
 
 func (l *Lexer) isDirectiveToken() (isDirectory bool, escapedDirectory bool) {
@@ -491,6 +491,7 @@ func (l *Lexer) tokenBegins() {
 
 func (l *Lexer) readHTML() string {
 	var out bytes.Buffer
+	out.Grow(32) // 32 is approximate capacity
 	l.tokenBegins()
 
 	for l.isHTML && l.char != 0 {
@@ -556,8 +557,23 @@ func (l *Lexer) peekChar() byte {
 	return l.input[l.readPos]
 }
 
+// peekCharIs returns true if the next non-whitespace character matches
+// the given character. Advances past any whitespace (spaces, tabs, newlines)
+// without consuming characters.
+func (l *Lexer) peekCharIs(char byte) bool {
+	pos := l.readPos
+	for pos < len(l.input) && l.isWhitespace(l.input[pos]) {
+		pos++
+	}
+	return pos < len(l.input) && l.input[pos] == char
+}
+
+func (l *Lexer) isWhitespace(char byte) bool {
+	return char == ' ' || char == '\t' || char == '\n' || char == '\r'
+}
+
 func (l *Lexer) skipWhitespace() {
-	for l.char == ' ' || l.char == '\t' || l.char == '\n' || l.char == '\r' {
+	for l.isWhitespace(l.char) {
 		l.readChar()
 	}
 }
