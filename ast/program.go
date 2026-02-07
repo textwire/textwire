@@ -113,7 +113,13 @@ func (p *Program) LinkCompProg(compName string, prog *Program, absPath string) *
 			}
 
 			if slot.IsDefault {
-				return fail.New(prog.Line(), absPath, "parser", fail.ErrDefaultSlotNotDefined, compName)
+				return fail.New(
+					prog.Line(),
+					absPath,
+					"parser",
+					fail.ErrDefaultSlotNotDefined,
+					compName,
+				)
 			}
 
 			return fail.New(prog.Line(), absPath, "parser", fail.ErrSlotNotDefined, name, compName)
