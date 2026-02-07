@@ -74,22 +74,22 @@ func (p *Program) LinkLayoutToUse(layoutProg *Program) {
 	p.Statements = []Statement{p.UseStmt}
 }
 
-func (p *Program) LinkCompProg(name string, prog *Program, absPath string) *fail.Error {
+func (p *Program) LinkCompProg(compName string, prog *Program, absPath string) *fail.Error {
 	for _, comp := range p.Components {
-		if comp.Name.Value != name {
+		if comp.Name.Value != compName {
 			continue
 		}
 
 		duplicateName, times := findDuplicateSlot(comp.Slots)
 		if times > 0 {
-			if name == "" {
+			if duplicateName == DefaultSlotName {
 				return fail.New(
 					prog.Line(),
 					absPath,
 					"parser",
 					fail.ErrDuplicateDefaultSlotUsage,
 					times,
-					name,
+					compName,
 				)
 			}
 
@@ -100,24 +100,24 @@ func (p *Program) LinkCompProg(name string, prog *Program, absPath string) *fail
 				fail.ErrDuplicateSlotUsage,
 				duplicateName,
 				times,
-				name,
+				compName,
 			)
 		}
 
 		for _, slot := range comp.Slots {
 			idx := findSlotStmtIndex(prog.Statements, slot.Name.Value)
 			if idx != -1 {
-				prog.Statements[idx].(*SlotStmt).Body = slot.Body
+				prog.Statements[idx].(*SlotStmt).Block = slot.Block
 				continue
 			}
 
-			if slot.Name.Value == "" {
+			if slot.Name.Value == DefaultSlotName {
 				return fail.New(
 					prog.Line(),
 					absPath,
 					"parser",
 					fail.ErrDefaultSlotNotDefined,
-					name,
+					compName,
 				)
 			}
 
@@ -127,7 +127,7 @@ func (p *Program) LinkCompProg(name string, prog *Program, absPath string) *fail
 				"parser",
 				fail.ErrSlotNotDefined,
 				slot.Name.Value,
-				name,
+				compName,
 			)
 		}
 

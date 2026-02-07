@@ -57,9 +57,14 @@ var precedences = map[token.TokenType]int{
 }
 
 type Parser struct {
-	l       *lexer.Lexer
-	errors  []*fail.Error
+	l      *lexer.Lexer
+	errors []*fail.Error
+
+	// absPath to the program
 	absPath string
+
+	// name of the program being parsed; can be empty string
+	name string
 
 	curToken  token.Token
 	peekToken token.Token
@@ -77,9 +82,10 @@ type Parser struct {
 	reserves   map[string]*ast.ReserveStmt
 }
 
-func New(lexer *lexer.Lexer, absPath string) *Parser {
+func New(lexer *lexer.Lexer, name, absPath string) *Parser {
 	p := &Parser{
 		l:          lexer,
+		name:       name,
 		absPath:    absPath,
 		errors:     []*fail.Error{},
 		components: []*ast.ComponentStmt{},
@@ -515,7 +521,7 @@ func (p *Parser) componentStmt() ast.Statement {
 
 	if p.peekTokenIs(token.SLOT) {
 		p.nextToken() // skip whitespace
-		stmt.Slots = p.slots()
+		stmt.Slots = p.slots(stmt.Name.Value)
 	}
 
 	p.components = append(p.components, stmt)
@@ -545,20 +551,23 @@ func (p *Parser) parseAliasPathShortcut(shortenTo string) string {
 func (p *Parser) slotStmt() ast.Statement {
 	tok := p.curToken // "@slot"
 
+	// Handle default @slot without name
 	if !p.peekTokenIs(token.LPAREN) {
-		return ast.NewSlotStmt(tok, ast.NewStringLiteral(p.curToken, ""))
+		name := ast.NewStringLiteral(p.curToken, ast.DefaultSlotName)
+		return ast.NewSlotStmt(tok, name, p.name, false)
 	}
 
 	p.nextToken() // skip "@slot"
 	p.nextToken() // skip "("
 
-	slotName := ast.NewStringLiteral(p.curToken, p.curToken.Literal)
+	// Handle named @slot with name
+	name := ast.NewStringLiteral(p.curToken, p.curToken.Literal)
 
 	if !p.expectPeek(token.RPAREN) { // move to ")"
 		return p.illegalNodeUntil(token.END)
 	}
 
-	stmt := ast.NewSlotStmt(tok, slotName)
+	stmt := ast.NewSlotStmt(tok, name, p.name, false)
 	stmt.SetEndPosition(p.curToken.Pos)
 
 	return stmt
@@ -581,16 +590,17 @@ func (p *Parser) dumpStmt() ast.Statement {
 	return stmt
 }
 
-func (p *Parser) slots() []*ast.SlotStmt {
+func (p *Parser) slots(compName string) []*ast.SlotStmt {
 	var slots []*ast.SlotStmt
 
 	for p.curTokenIs(token.SLOT) {
-		slotName := ast.NewStringLiteral(p.curToken, "")
+		slotName := ast.NewStringLiteral(p.curToken, ast.DefaultSlotName)
 
-		tok := p.curToken
+		stmt := ast.NewSlotStmt(p.curToken, slotName, compName, true)
 
+		// When slot has a name @slot('name')
 		if p.peekTokenIs(token.LPAREN) {
-			p.nextToken() // move to "("
+			p.nextToken() // move to "(" from '@slot'
 			p.nextToken() // skip "("
 
 			slotName.Token = p.curToken
@@ -601,16 +611,17 @@ func (p *Parser) slots() []*ast.SlotStmt {
 			}
 
 			p.nextToken() // skip ")"
+		} else {
+			p.nextToken() // skip "@slot"
 		}
 
-		stmt := ast.NewSlotStmt(tok, slotName)
 		hasEmptyBody := p.curTokenIs(token.END)
 
 		if hasEmptyBody {
 			p.nextToken() // skip "@end"
 			stmt.SetEndPosition(p.curToken.Pos)
 		} else {
-			stmt.Body = p.blockStmt()
+			stmt.Block = p.blockStmt()
 			stmt.SetEndPosition(p.curToken.Pos)
 			p.nextToken() // skip block statement
 			p.nextToken() // skip "@end"

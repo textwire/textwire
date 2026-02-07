@@ -74,7 +74,7 @@ func nameToRelPath(name string) string {
 
 func parseStr(text string) (*ast.Program, []*fail.Error) {
 	l := lexer.New(text)
-	p := parser.New(l, "")
+	p := parser.New(l, "", "")
 
 	prog := p.ParseProgram()
 	if p.HasErrors() {

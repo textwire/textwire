@@ -6,16 +6,22 @@ import (
 	"github.com/textwire/textwire/v3/token"
 )
 
+const DefaultSlotName = "__DEFAULT_SLOT__"
+
 type SlotStmt struct {
 	BaseNode
-	Name *StringLiteral // When empty string literal, it means default slot
-	Body *BlockStmt     // Optional block statement, can be nil
+	Name     *StringLiteral
+	Block    *BlockStmt // Optional block statement, can be nil
+	IsLocal  bool       // If the slot from the external comp or local
+	CompName string     // Component name
 }
 
-func NewSlotStmt(tok token.Token, name *StringLiteral) *SlotStmt {
+func NewSlotStmt(tok token.Token, name *StringLiteral, compName string, isLocal bool) *SlotStmt {
 	return &SlotStmt{
 		BaseNode: NewBaseNode(tok),
 		Name:     name,
+		CompName: compName,
+		IsLocal:  isLocal,
 	}
 }
 
@@ -33,9 +39,9 @@ func (ss *SlotStmt) String() string {
 		out.WriteString(")")
 	}
 
-	if ss.Body != nil {
+	if ss.Block != nil {
 		out.WriteString("\n")
-		out.WriteString(ss.Body.String())
+		out.WriteString(ss.Block.String())
 		out.WriteString("\n@end")
 	}
 
@@ -43,9 +49,9 @@ func (ss *SlotStmt) String() string {
 }
 
 func (ss *SlotStmt) Stmts() []Statement {
-	if ss.Body == nil {
+	if ss.Block == nil {
 		return []Statement{}
 	}
 
-	return ss.Body.Stmts()
+	return ss.Block.Stmts()
 }

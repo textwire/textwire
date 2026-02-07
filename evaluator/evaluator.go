@@ -258,17 +258,26 @@ func (e *Evaluator) compStmt(compStmt *ast.ComponentStmt, ctx *Context) object.O
 		return e.newError(compStmt, ctx, fail.ErrSomeDirsOnlyInTemplates)
 	}
 
-	compName := e.Eval(compStmt.Name, ctx)
-	if isError(compName) {
-		return compName
-	}
-
+	name := compStmt.Name.Value
 	if compStmt.CompProg == nil {
-		return e.newError(compStmt, ctx, fail.ErrComponentMustHaveBlock, compName)
+		return e.newError(compStmt, ctx, fail.ErrComponentMustHaveBlock, name)
 	}
 
-	comp := &object.Component{Name: compName.String()}
 	compCtx := NewContext(object.NewScope(), compStmt.CompProg.AbsPath)
+
+	// Evaluate local slots and add them to component context
+	for _, slotStmt := range compStmt.Slots {
+		slot := e.Eval(slotStmt, ctx)
+		if isError(slot) {
+			return slot
+		}
+
+		if compCtx.slots[name] == nil {
+			compCtx.slots[name] = map[string]object.Object{}
+		}
+
+		compCtx.slots[name][slotStmt.Name.Value] = slot
+	}
 
 	if compStmt.Argument != nil {
 		for key, arg := range compStmt.Argument.Pairs {
@@ -283,14 +292,15 @@ func (e *Evaluator) compStmt(compStmt *ast.ComponentStmt, ctx *Context) object.O
 		}
 	}
 
-	blockObj := e.Eval(compStmt.CompProg, compCtx)
-	if isError(blockObj) {
-		return blockObj
+	content := e.Eval(compStmt.CompProg, compCtx)
+	if isError(content) {
+		return content
 	}
 
-	comp.Content = blockObj
-
-	return comp
+	return &object.Component{
+		Name:    name,
+		Content: content,
+	}
 }
 
 func (e *Evaluator) forStmt(forStmt *ast.ForStmt, ctx *Context) object.Object {
@@ -441,18 +451,42 @@ func (e *Evaluator) continueIfStmt(contIfStmt *ast.ContinueIfStmt, ctx *Context)
 }
 
 func (e *Evaluator) slotStmt(slotStmt *ast.SlotStmt, ctx *Context) object.Object {
-	var body object.Object
+	if slotStmt.IsLocal {
+		return e.localSlotStmt(slotStmt, ctx)
+	}
+	return e.externalSlotStmt(slotStmt, ctx)
+}
 
-	if slotStmt.Body != nil {
-		body = e.Eval(slotStmt.Body, ctx)
+func (e *Evaluator) externalSlotStmt(slotStmt *ast.SlotStmt, ctx *Context) object.Object {
+	name := slotStmt.Name.Value
+	compName := slotStmt.CompName
+
+	// Get slot's content from the context
+	content, ok := ctx.slots[compName][name]
+	if !ok {
+		return e.newError(slotStmt, ctx, fail.ErrSlotNotDefined, name, compName)
+	}
+
+	// delete slot after it's been used in external component
+	defer delete(ctx.slots[compName], name)
+
+	return &object.Slot{Name: name, Content: content}
+}
+
+func (e *Evaluator) localSlotStmt(slotStmt *ast.SlotStmt, ctx *Context) object.Object {
+	var body object.Object = NIL
+
+	if slotStmt.Block != nil {
+		body = e.Eval(slotStmt.Block, ctx)
 		if isError(body) {
 			return body
 		}
-	} else {
-		body = NIL
 	}
 
-	return &object.Slot{Name: slotStmt.Name.Value, Content: body}
+	return &object.Slot{
+		Name:    slotStmt.Name.Value,
+		Content: body,
+	}
 }
 
 func (e *Evaluator) insertStmt(insertStmt *ast.InsertStmt, ctx *Context) object.Object {

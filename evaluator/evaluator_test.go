@@ -13,7 +13,7 @@ import (
 
 func testEval(inp string) object.Object {
 	l := lexer.New(inp)
-	p := parser.New(l, "/path/to/file")
+	p := parser.New(l, "file", "/path/to/file")
 	prog := p.ParseProgram()
 	scope := object.NewScope()
 

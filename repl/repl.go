@@ -36,7 +36,7 @@ func Start(in io.Reader, out io.Writer) error {
 		}
 
 		l := lexer.New(scanner.Text())
-		p := parser.New(l, "")
+		p := parser.New(l, "", "")
 		prog := p.ParseProgram()
 
 		if len(p.Errors()) != 0 {
