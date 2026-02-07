@@ -20,25 +20,25 @@ const (
 	ErrExceptedComponentStmt     = "expected component statement, got %T"
 	ErrComponentMustHaveBlock    = "@component statement '%s' missing required block"
 	ErrExpectedObjectLiteral     = "expected object literal, got '%s'"
-	ErrSlotNotDefined            = "slot '%s' not defined in component '%s'"
-	ErrDefaultSlotNotDefined     = "default slot not defined in component '%s'"
-	ErrDuplicateSlotUsage        = "slot '%s' used %d times in component '%s'"
-	ErrDuplicateDefaultSlotUsage = "default slot used %d times in component '%s'"
-	ErrExpectedComponentName     = "component name cannot be empty"
-	ErrUndefinedInsert           = "insert '%s' not found in layout - add matching @reserve"
-	ErrDuplicateInserts          = "duplicate insert '%s' found"
-	ErrUseStmtFirstArgStr        = "first argument of @use must be a string, got '%s'"
+	ErrSlotNotDefined            = "@slot('%s') not defined in @component('%s')"
+	ErrDefaultSlotNotDefined     = "default @slot not defined in @component('%s')"
+	ErrDuplicateSlotUsage        = "@slot('%s') used %d times in @component('%s')"
+	ErrDuplicateDefaultSlotUsage = "default @slot used %d times in @component('%s')"
+	ErrExpectedComponentName     = "@component() cannot have empty name"
+	ErrUndefinedInsert           = "@insert('%s') not found in layout - add matching @reserve"
+	ErrDuplicateInserts          = "duplicate @insert('%s') found"
+	ErrUseStmtFirstArgStr        = "argument 1 of @use(STR) must be a string, got @use('%s')"
 
 	// Evaluator (interpreter) errors
 	ErrUnknownNodeType         = "unsupported expression type '%T'"
-	ErrInsertMustHaveContent   = "insert must have content or text argument"
+	ErrInsertMustHaveContent   = "@insert() requires either a body or a second argument"
 	ErrIndexNotSupported       = "type '%s' does not support indexing"
 	ErrUnknownOp               = "unknown operator '%s%s'"
 	ErrCannotSubFromFloat      = "cannot decrement from float '%s' due to error: %s"
 	ErrTypeMismatch            = "type mismatch: cannot %s %s %s"
 	ErrUnknownTypeForOp        = "operator '%s' not supported for type '%s'"
 	ErrPrefixOpIsWrong         = "cannot apply prefix '%s' to type '%s'"
-	ErrUseStmtMissingLayout    = "@use statement missing layout file '%s'"
+	ErrUseStmtMissingLayout    = "@use('%s') missing layout file"
 	ErrIdentifierIsUndefined   = "variable '%s' is not defined"
 	ErrReservedIdentifiers     = "'loop' and 'global' are reserved variable names"
 	ErrIdentifierTypeMismatch  = "cannot assign identifier '%s' of type '%s' to type '%s'"
@@ -46,9 +46,9 @@ const (
 	ErrPropertyNotFound        = "property '%s' not found on type '%s'"
 	ErrDivisionByZero          = "division by zero - divisor cannot be zero"
 	ErrSomeDirsOnlyInTemplates = "@use, @insert, @reserve, @component only allowed in templates"
-	ErrGlobalFuncMissing       = "global function '%s' not found"
+	ErrGlobalFuncMissing       = "global function %s() not found"
 	ErrPropertyOnNonObject     = "'%s' type does not support attribute '%s' access"
-	ErrEachDirWithNonArrArg    = "cannot use @each statement with non-array type '%s' after 'in' keyword"
+	ErrEachDirWithNonArrArg    = "cannot use @each(item in ARRAY) with non-array type '%s' after 'in' keyword"
 
 	// Functions
 	ErrFuncNotDefined   = "%s.%s() is not defined"
@@ -61,13 +61,13 @@ const (
 
 	// Template errors
 	ErrUnsupportedType   = "unsupported value type '%T'"
-	ErrUseStmtNotAllowed = "@use not allowed in layout files - causes infinite recursion"
+	ErrUseStmtNotAllowed = "@use() not allowed in layout files - causes infinite recursion"
 	ErrTemplateNotFound  = "template file '%s' not found"
 
 	// API errors
 	ErrFuncAlreadyDefined        = "custom function '%s' already defined for type '%s'"
 	ErrCannotOverrideBuiltInFunc = "cannot override built-in function '%s' for '%s'"
-	ErrUndefinedComponent        = "component '%s' is not defined"
+	ErrUndefinedComponent        = "@component('%s') is not defined"
 
 	NoErrorsFound = "no Textwire errors found"
 )
