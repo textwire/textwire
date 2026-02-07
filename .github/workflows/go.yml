@@ -20,7 +20,7 @@ jobs:
       uses: actions/setup-go@v4
 
     - name: Install line length checker
-      uses: go install github.com/golangci/golines@latest
+      run: go install github.com/golangci/golines@latest
 
     - name: Build
       run: go build -v ./...
