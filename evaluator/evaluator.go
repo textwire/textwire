@@ -62,7 +62,7 @@ func (e *Evaluator) Eval(node ast.Node, ctx *Context) object.Object {
 	case *ast.BreakIfStmt:
 		return e.breakIfStmt(node, ctx)
 	case *ast.ComponentStmt:
-		return e.componentStmt(node, ctx)
+		return e.compStmt(node, ctx)
 	case *ast.ContinueIfStmt:
 		return e.continueIfStmt(node, ctx)
 	case *ast.SlotStmt:
@@ -253,7 +253,7 @@ func (e *Evaluator) reserveStmt(reserveStmt *ast.ReserveStmt, ctx *Context) obje
 	}
 }
 
-func (e *Evaluator) componentStmt(compStmt *ast.ComponentStmt, ctx *Context) object.Object {
+func (e *Evaluator) compStmt(compStmt *ast.ComponentStmt, ctx *Context) object.Object {
 	if !e.usingTemplates {
 		return e.newError(compStmt, ctx, fail.ErrSomeDirsOnlyInTemplates)
 	}
