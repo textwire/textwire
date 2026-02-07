@@ -19,11 +19,15 @@ func (e *Error) Type() ObjectType {
 }
 
 func (e *Error) String() string {
+	if e.Err == nil {
+		panic("Err field on Error object must not be nil when calling String()")
+	}
 	return e.Err.String()
 }
 
 func (e *Error) Dump(ident int) string {
 	var out bytes.Buffer
+	out.Grow(4)
 
 	out.WriteString("<span class='textwire-meta'>error\"\"\"</span>\n")
 	fmt.Fprintf(&out, "<span class='textwire-key'>%s</span>\n\n", e.Err.Meta())
@@ -34,7 +38,7 @@ func (e *Error) Dump(ident int) string {
 }
 
 func (e *Error) Val() any {
-	return e.Err.String()
+	return e.String()
 }
 
 func (e *Error) Is(t ObjectType) bool {
