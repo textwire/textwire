@@ -96,7 +96,7 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 				5,
 				path+"undefined-insert/index.tw",
 				"parser",
-				fail.ErrUndefinedInsert,
+				fail.ErrAddMatchingReserve,
 				"some-name",
 			),
 			data: nil,

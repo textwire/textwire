@@ -1,6 +1,9 @@
 # Release notes
 
-## v3.0.0 (2026-02-05) — Major Release
+## v3.0.0 (2026-02-05)
+- 🧑‍💻 Improve error messages
+
+## v3.0.0 (2026-02-07) — Major Release
 
 📖 [Migration Guide](https://textwire.github.io/docs/v3/upgrade) | [Announcement](https://textwire.github.io/blog/2026/02/05/textwire-v3)
 
