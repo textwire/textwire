@@ -6,5 +6,5 @@
 <p>Some paragraph</p>
 <img src="https://via.placeholder.com/150" alt="Placeholder image">
 
-@slot("foot")
+@slot("foot")@slot("empty")
 </section>

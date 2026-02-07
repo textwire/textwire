@@ -3,5 +3,6 @@
 @slot<h2>Subtitle</h2>@end
 @slot("head")<header>{{ head }}</header>@end
 @slot("foot")<footer>{{ foot }}</footer>@end
+@slot("empty")@end
 @end
 </body>
