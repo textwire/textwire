@@ -19,19 +19,20 @@ var (
 )
 
 type Evaluator struct {
-	CustomFunc     *config.Func
-	UsingTemplates bool
+	customFunc     *config.Func
+	usingTemplates bool
+	usingUseStmt   bool
 
-	// Config can be nil when Textwire is used for simple string and
+	// config can be nil when Textwire is used for simple string and
 	// file evaluation. If config is not nil, it means we use templates.
-	Config *config.Config
+	config *config.Config
 }
 
 func New(customFunc *config.Func, conf *config.Config) *Evaluator {
 	return &Evaluator{
-		CustomFunc:     customFunc,
-		Config:         conf,
-		UsingTemplates: conf != nil,
+		customFunc:     customFunc,
+		config:         conf,
+		usingTemplates: conf != nil,
 	}
 }
 
@@ -196,70 +197,64 @@ func (e *Evaluator) assignStmt(node *ast.AssignStmt, ctx *Context) object.Object
 	return NIL
 }
 
-func (e *Evaluator) useStmt(node *ast.UseStmt, ctx *Context) object.Object {
-	if node.LayoutProg == nil {
-		if e.UsingTemplates {
-			return e.newError(node, ctx, fail.ErrUseStmtMissingLayout, node.Name.Value)
+func (e *Evaluator) useStmt(useStmt *ast.UseStmt, ctx *Context) object.Object {
+	if useStmt.LayoutProg == nil {
+		if e.usingTemplates {
+			return e.newError(useStmt, ctx, fail.ErrUseStmtMissingLayout, useStmt.Name.Value)
 		}
-		return e.newError(node, ctx, fail.ErrSomeDirsOnlyInTemplates)
+		return e.newError(useStmt, ctx, fail.ErrSomeDirsOnlyInTemplates)
 	}
 
-	if node.LayoutProg.IsLayout && node.LayoutProg.HasUseStmt() {
-		return e.newError(node, ctx, fail.ErrUseStmtNotAllowed)
+	e.usingUseStmt = true
+
+	// Make sure that layout is missing @use
+	if useStmt.LayoutProg.IsLayout && useStmt.LayoutProg.HasUseStmt() {
+		return e.newError(useStmt, ctx, fail.ErrUseStmtNotAllowed)
 	}
 
-	useStmtCtx := NewContext(ctx.scope, node.LayoutProg.AbsPath)
-	layout := e.Eval(node.LayoutProg, useStmtCtx)
+	// Create new layout context and pass inserts to it
+	layoutCtx := NewContext(ctx.scope.Child(), useStmt.LayoutProg.AbsPath)
+
+	// Evaluate @inserts and map them into new context for layout
+	for name, insertStmt := range useStmt.Inserts {
+		insert := e.insertStmt(insertStmt, ctx)
+		if isError(insert) {
+			return insert
+		}
+		layoutCtx.inserts[name] = insert
+	}
+
+	// Evaluate layout program with new context
+	layout := e.Eval(useStmt.LayoutProg, layoutCtx)
 	if isError(layout) {
 		return layout
 	}
 
 	return &object.Use{
-		Path:    node.Name.Value,
-		Content: layout,
+		Path:   useStmt.Name.Value,
+		Layout: layout,
 	}
 }
 
-func (e *Evaluator) reserveStmt(node *ast.ReserveStmt, ctx *Context) object.Object {
-	if !e.UsingTemplates {
-		return e.newError(node, ctx, fail.ErrSomeDirsOnlyInTemplates)
+func (e *Evaluator) reserveStmt(reserveStmt *ast.ReserveStmt, ctx *Context) object.Object {
+	if !e.usingTemplates {
+		return e.newError(reserveStmt, ctx, fail.ErrSomeDirsOnlyInTemplates)
 	}
 
-	reserve := &object.Reserve{Name: node.Name.Value}
-
-	// Inserts are optional statements. If not provided, reserve should be empty.
-	if node.Insert == nil {
-		return NIL
+	name := reserveStmt.Name.Value
+	insert, ok := ctx.inserts[name]
+	if !ok {
+		return NIL // Inserts are optional, NIL when not provided
 	}
 
-	if node.Insert.Block != nil {
-		reserveCtx := NewContext(ctx.scope, node.Insert.AbsPath)
-		block := e.Eval(node.Insert.Block, reserveCtx)
-		if isError(block) {
-			return block
-		}
-
-		reserve.Content = block
-
-		return reserve
+	return &object.Reserve{
+		Name:   name,
+		Insert: insert,
 	}
-
-	if node.Insert.Argument == nil {
-		return e.newError(node.Insert, ctx, fail.ErrInsertMustHaveContent)
-	}
-
-	firstArg := e.Eval(node.Insert.Argument, ctx)
-	if isError(firstArg) {
-		return firstArg
-	}
-
-	reserve.Argument = firstArg
-
-	return reserve
 }
 
 func (e *Evaluator) componentStmt(node *ast.ComponentStmt, ctx *Context) object.Object {
-	if !e.UsingTemplates {
+	if !e.usingTemplates {
 		return e.newError(node, ctx, fail.ErrSomeDirsOnlyInTemplates)
 	}
 
@@ -460,14 +455,43 @@ func (e *Evaluator) slotStmt(node *ast.SlotStmt, ctx *Context) object.Object {
 	return &object.Slot{Name: node.Name.Value, Content: body}
 }
 
-func (e *Evaluator) insertStmt(node *ast.InsertStmt, ctx *Context) object.Object {
-	if !e.UsingTemplates {
-		return e.newError(node, ctx, fail.ErrSomeDirsOnlyInTemplates)
+func (e *Evaluator) insertStmt(insertStmt *ast.InsertStmt, ctx *Context) object.Object {
+	if !e.usingTemplates {
+		return e.newError(insertStmt, ctx, fail.ErrSomeDirsOnlyInTemplates)
 	}
 
-	// we do not evaluate inserts, they are linked to ast.ReserveStmt as
-	// AST programs by this time.
-	return NIL
+	// Inserts should be nil when we don't have @use() directive
+	if !e.usingUseStmt {
+		return NIL
+	}
+
+	block := e.combineInsertContent(insertStmt, ctx)
+	if isError(block) {
+		return block
+	}
+
+	return &object.Insert{
+		Name:  insertStmt.Name.Value,
+		Block: block,
+	}
+}
+
+// combineInsertContent combines insert Argument and Block (depending what user has)
+// into a single object that we can work with.
+func (e *Evaluator) combineInsertContent(insertStmt *ast.InsertStmt, ctx *Context) object.Object {
+	if insertStmt.Argument != nil {
+		arg := e.Eval(insertStmt.Argument, ctx)
+		if isError(arg) {
+			return arg
+		}
+		return arg
+	}
+
+	if insertStmt.Block == nil {
+		return e.newError(insertStmt, ctx, fail.ErrInsertMustHaveContent)
+	}
+
+	return e.Eval(insertStmt.Block, ctx)
 }
 
 func (e *Evaluator) dumpStmt(node *ast.DumpStmt, ctx *Context) object.Object {
@@ -483,8 +507,8 @@ func (e *Evaluator) dumpStmt(node *ast.DumpStmt, ctx *Context) object.Object {
 
 func (e *Evaluator) identifier(node *ast.Identifier, ctx *Context) object.Object {
 	varName := node.Name
-	if varName == "global" && e.Config != nil && e.Config.GlobalData != nil {
-		return object.NativeToObject(e.Config.GlobalData)
+	if varName == "global" && e.config != nil && e.config.GlobalData != nil {
+		return object.NativeToObject(e.config.GlobalData)
 	}
 
 	if val, ok := ctx.scope.Get(varName); ok {
@@ -700,33 +724,33 @@ func (e *Evaluator) callExp(node *ast.CallExp, ctx *Context) object.Object {
 		return res
 	}
 
-	if hasCustomFunc(e.CustomFunc, receiverType, funcName) {
+	if hasCustomFunc(e.customFunc, receiverType, funcName) {
 		nativeArgs := e.objectsToNativeType(args)
 
 		switch receiverType {
 		case object.STR_OBJ:
-			fun := e.CustomFunc.Str[funcName]
+			fun := e.customFunc.Str[funcName]
 			res := fun(receiver.String(), nativeArgs...)
 			return object.NativeToObject(res)
 		case object.ARR_OBJ:
-			fun := e.CustomFunc.Arr[funcName]
+			fun := e.customFunc.Arr[funcName]
 			nativeElems := e.objectsToNativeType(receiver.(*object.Array).Elements)
 			res := fun(nativeElems, nativeArgs...)
 			return object.NativeToObject(res)
 		case object.INT_OBJ:
-			fun := e.CustomFunc.Int[funcName]
+			fun := e.customFunc.Int[funcName]
 			res := fun(int(receiver.(*object.Int).Value), nativeArgs...)
 			return object.NativeToObject(res)
 		case object.FLOAT_OBJ:
-			fun := e.CustomFunc.Float[funcName]
+			fun := e.customFunc.Float[funcName]
 			res := fun(receiver.(*object.Float).Value, nativeArgs...)
 			return object.NativeToObject(res)
 		case object.BOOL_OBJ:
-			fun := e.CustomFunc.Bool[funcName]
+			fun := e.customFunc.Bool[funcName]
 			res := fun(receiver.(*object.Bool).Value, nativeArgs...)
 			return object.NativeToObject(res)
 		case object.OBJ_OBJ:
-			fun := e.CustomFunc.Obj[funcName]
+			fun := e.customFunc.Obj[funcName]
 			firstArg := receiver.(*object.Obj).Val()
 			res := fun(firstArg.(map[string]any), nativeArgs...)
 			return object.NativeToObject(res)

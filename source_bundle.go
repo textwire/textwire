@@ -108,6 +108,8 @@ func (sb *SourceBundle) handleLayoutLinking(prog *ast.Program) *fail.Error {
 		return nil
 	}
 
+	prog.UseStmt.Inserts = prog.Inserts
+
 	layoutName := prog.UseStmt.Name.Value
 	layoutProg := ast.FindProg(layoutName, sb.programs)
 	if layoutProg == nil {

@@ -9,10 +9,13 @@ import (
 
 type InsertStmt struct {
 	BaseNode
-	Name     *StringLiteral // Name of the insert statement
-	Argument Expression     // Argument to the insert statement; nil if has block
-	Block    *BlockStmt     // Block of the insert statement; nil if has argument
-	AbsPath  string         // AbsPath of the insert statement
+	Name *StringLiteral
+	// Argument to the insert statement; nil if has block
+	Argument Expression
+	// Block of the insert statement; nil if has argument
+	Block *BlockStmt
+	// AbsPath of the insert statement. We use it for showing error path
+	AbsPath string
 }
 
 func NewInsertStmt(tok token.Token, absPath string) *InsertStmt {

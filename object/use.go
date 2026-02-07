@@ -1,8 +1,8 @@
 package object
 
 type Use struct {
-	Path    string
-	Content Object
+	Path   string
+	Layout Object
 }
 
 func (u *Use) Type() ObjectType {
@@ -10,7 +10,10 @@ func (u *Use) Type() ObjectType {
 }
 
 func (u *Use) String() string {
-	return u.Content.String()
+	if u.Layout == nil {
+		panic("Layout field on Use object must not be nil when calling String()")
+	}
+	return u.Layout.String()
 }
 
 func (u *Use) Dump(ident int) string {
@@ -18,7 +21,10 @@ func (u *Use) Dump(ident int) string {
 }
 
 func (u *Use) Val() any {
-	return u.Content.Val()
+	if u.Layout == nil {
+		panic("Layout field on Use object must not be nil when calling Val()")
+	}
+	return u.Layout.Val()
 }
 
 func (u *Use) Is(t ObjectType) bool {
