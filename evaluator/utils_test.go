@@ -6,7 +6,7 @@ import (
 	"github.com/textwire/textwire/v3/object"
 )
 
-func TestIsTruthy(t *testing.T) {
+func Test_isTruthy(t *testing.T) {
 	cases := []struct {
 		inp    object.Object
 		expect bool
@@ -36,7 +36,7 @@ func TestIsTruthy(t *testing.T) {
 	}
 }
 
-func TestNativeToBooleanObject(t *testing.T) {
+func Test_nativeBoolToBoolObj(t *testing.T) {
 	cases := []struct {
 		inp    bool
 		expect object.Object
@@ -46,11 +46,11 @@ func TestNativeToBooleanObject(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		result := nativeBoolToBoolObject(tc.inp)
+		result := nativeBoolToBoolObj(tc.inp)
 
 		if result != tc.expect {
 			t.Errorf(
-				"nativeBoolToBooleanObject(%t) returned %s, expect %s",
+				"nativeBoolToBoolObj(%t) returned %s, expect %s",
 				tc.inp,
 				result,
 				tc.expect,
