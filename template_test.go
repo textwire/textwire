@@ -212,7 +212,11 @@ func TestNewTemplate(t *testing.T) {
 		{"insert-without-use", "index", nil},
 		{"with-comp", "index", nil},
 		{"with-inserts-and-html", "index", nil},
-		{"with-comp-and-slots", "index", nil},
+		{
+			"with-comp-and-slots",
+			"index",
+			map[string]any{"head": "Header", "foot": "Footer"},
+		},
 		{"with-comp-no-args", "index", nil},
 		{"insert-is-optional", "index", nil},
 		{"use-with-comp-inside", "index", nil},

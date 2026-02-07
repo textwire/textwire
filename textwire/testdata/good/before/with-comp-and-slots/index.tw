@@ -1,7 +1,7 @@
 <body>
 @component("with-slots")
 @slot<h2>Subtitle</h2>@end
-@slot("head")<header>Header</header>@end
-@slot("foot")<footer>Footer</footer>@end
+@slot("head")<header>{{ head }}</header>@end
+@slot("foot")<footer>{{ foot }}</footer>@end
 @end
 </body>
