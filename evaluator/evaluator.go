@@ -62,7 +62,7 @@ func (e *Evaluator) Eval(node ast.Node, ctx *Context) object.Object {
 	case *ast.BreakIfStmt:
 		return e.breakIf(node, ctx)
 	case *ast.ComponentStmt:
-		return e.comp(node, ctx)
+		return e.component(node, ctx)
 	case *ast.ContinueIfStmt:
 		return e.continueIf(node, ctx)
 	case *ast.SlotStmt:
@@ -256,14 +256,14 @@ func (e *Evaluator) reserve(reserveStmt *ast.ReserveStmt, ctx *Context) object.O
 	}
 }
 
-func (e *Evaluator) comp(compStmt *ast.ComponentStmt, ctx *Context) object.Object {
+func (e *Evaluator) component(compStmt *ast.ComponentStmt, ctx *Context) object.Object {
 	if !e.usingTemplates {
 		return e.newError(compStmt, ctx, fail.ErrSomeDirsOnlyInTemplates)
 	}
 
 	name := compStmt.Name.Value
 	if compStmt.CompProg == nil {
-		return e.newError(compStmt, ctx, fail.ErrComponentMustHaveBlock, name)
+		return e.newError(compStmt, ctx, fail.ErrUndefinedComponent, name)
 	}
 
 	compCtx := NewContext(object.NewScope(), compStmt.CompProg.AbsPath)

@@ -46,7 +46,6 @@ const (
 	ErrUseStmtMissingLayout    = "@use('%s') missing layout file"
 	ErrGlobalFuncMissing       = "global function %s() not found"
 	ErrPropertyOnNonObject     = "'%s' type does not support attribute '%s' access"
-	ErrComponentMustHaveBlock  = "@component('%s') missing required block"
 
 	// Functions
 	ErrFuncNotDefined   = "%s.%s() is not defined"
@@ -65,7 +64,7 @@ const (
 
 	// API errors
 	ErrFuncAlreadyDefined = "custom function '%s' already defined for type '%s'"
-	ErrUndefinedComponent = "@component('%s') is not defined"
+	ErrUndefinedComponent = "@component('%s') missing required component file"
 )
 
 // Error is the main error type for Textwire that contains all the necessary
