@@ -156,6 +156,17 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 			),
 			data: map[string]any{"name": "Amy"},
 		},
+		{
+			dirName: "var-in-layout",
+			err: fail.New(
+				1,
+				path+"var-in-layout/layout.tw",
+				"parser",
+				fail.ErrIdentifierIsUndefined,
+				"fullName",
+			),
+			data: map[string]any{"fullName": "Amy Adams"},
+		},
 	}
 
 	for _, tc := range cases {

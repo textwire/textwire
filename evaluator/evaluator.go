@@ -213,7 +213,7 @@ func (e *Evaluator) useStmt(useStmt *ast.UseStmt, ctx *Context) object.Object {
 	}
 
 	// Create new layout context and pass inserts to it
-	layoutCtx := NewContext(ctx.scope.Child(), useStmt.LayoutProg.AbsPath)
+	layoutCtx := NewContext(object.NewScope(), useStmt.LayoutProg.AbsPath)
 
 	// Evaluate @inserts and map them into new context for layout
 	for name, insertStmt := range useStmt.Inserts {

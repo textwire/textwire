@@ -36,6 +36,7 @@
 4. Changed default file extension from `.tw.html` to `.tw`. If you still want to support it, go to your configurations in `NewTemplate` or `Configure` and add field `TemplateExt: ".tw.html"` to it.
 5. Minimal Go version support is version `1.25.0`.
 6. Components in Textwire v2 would pass variables to their children automatially without manual passing. It was a bug. In Textwire v3 each component has its scope. You need to pass data manually `@component('user', { user })`.
+7. Fixed variable leak from template to layout non-explicitly. In Textwire v2, if you had a variable in your template, it would be accessible in your layout without passing it explicitly. In Textwire v3, this is not available anymore.
 
 ## [Release Notes V1](.github/CHANGELOG-V1.md)
 
