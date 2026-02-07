@@ -67,10 +67,10 @@ type Parser struct {
 	prefixParseFns map[token.TokenType]prefixParseFn
 	infixParseFns  map[token.TokenType]infixParseFn
 
-	// pointerToUseStmt is used to reference the use statement in program.
+	// _useStmt is used to reference the use statement in program.
 	// We need it because the final program object must have a field UseStmt.
-	// After parsing a program we attach this pointer to program.UseStmt.
-	pointerToUseStmt *ast.UseStmt
+	// After parsing a program we link this pointer to program.UseStmt.
+	_useStmt *ast.UseStmt
 
 	components []*ast.ComponentStmt
 	inserts    map[string]*ast.InsertStmt
@@ -158,7 +158,7 @@ func (p *Parser) ParseProgram() *ast.Program {
 
 	prog.Components = p.components
 	prog.Inserts = p.inserts
-	prog.UseStmt = p.pointerToUseStmt
+	prog.UseStmt = p._useStmt
 	prog.Reserves = p.reserves
 	prog.AbsPath = p.absPath
 
@@ -433,7 +433,7 @@ func (p *Parser) useStmt() ast.Statement {
 
 	stmt.SetEndPosition(p.curToken.Pos)
 
-	p.pointerToUseStmt = stmt
+	p._useStmt = stmt
 
 	return stmt
 }

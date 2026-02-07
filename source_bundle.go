@@ -45,27 +45,19 @@ func (sb *SourceBundle) ParseFiles() *fail.Error {
 	return nil
 }
 
-// AddAttachments adds components and layouts to those programs that use them.
-// For example, we need to add Attachment to @component('book'), where
-// attachment is the parsed program AST of the book.tw component.
-func (sb *SourceBundle) AddAttachments() *fail.Error {
+// LinkNodes links components and layouts to those programs that use them.
+// For example, we need to add component program to @component('book'), where
+// CompProg is the parsed program AST of the `book.tw` component.
+func (sb *SourceBundle) LinkNodes() *fail.Error {
 	for _, prog := range sb.programs {
-		if err := sb.addAttachToUse(prog); err != nil {
-			return err
-		}
-
-		if err := sb.addAttachToComp(prog); err != nil {
+		if err := sb.handleLayoutLinking(prog); err != nil {
 			return err
 		}
 	}
 
-	return nil
-}
-
-func (sb *SourceBundle) FindProg(name string) *ast.Program {
-	for i := range sb.programs {
-		if sb.programs[i].Name == name {
-			return sb.programs[i]
+	for _, prog := range sb.programs {
+		if err := sb.handleCompLinking(prog); err != nil {
+			return err
 		}
 	}
 
@@ -110,43 +102,43 @@ func (sb *SourceBundle) FindFiles() error {
 	return err
 }
 
-// addAttachToUse add attachments to use statement
-func (sb *SourceBundle) addAttachToUse(prog *ast.Program) *fail.Error {
+// handleLayoutLinking links layout directives to template directives
+func (sb *SourceBundle) handleLayoutLinking(prog *ast.Program) *fail.Error {
 	if !prog.HasUseStmt() {
 		return nil
 	}
 
 	layoutName := prog.UseStmt.Name.Value
-	layoutProg := sb.FindProg(layoutName)
+	layoutProg := ast.FindProg(layoutName, sb.programs)
 	if layoutProg == nil {
 		return fail.New(prog.Line(), prog.AbsPath, "API", fail.ErrUseStmtMissingLayout, layoutName)
 	}
 
 	layoutProg.IsLayout = true
-	err := layoutProg.AddInsertsAttachments(prog.Inserts)
+	err := layoutProg.LinkInsertsToReserves(prog.Inserts)
 	if err != nil {
 		return err
 	}
 
-	prog.AddLayoutAttachment(layoutProg)
+	prog.LinkLayoutToUse(layoutProg)
 
 	return nil
 }
 
-// addAttachToComp adds attachments to components
-func (sb *SourceBundle) addAttachToComp(prog *ast.Program) *fail.Error {
+// handleCompLinking links component directives with component files
+func (sb *SourceBundle) handleCompLinking(prog *ast.Program) *fail.Error {
 	if len(prog.Components) == 0 {
 		return nil
 	}
 
 	for _, comp := range prog.Components {
 		compName := comp.Name.Value
-		compProg := sb.FindProg(compName)
+		compProg := ast.FindProg(compName, sb.programs)
 		if compProg == nil {
 			return fail.New(prog.Line(), prog.AbsPath, "API", fail.ErrUndefinedComponent, compName)
 		}
 
-		err := prog.AddCompAttachment(compName, compProg, prog.AbsPath)
+		err := prog.LinkCompProg(compName, compProg, prog.AbsPath)
 		if err != nil {
 			return err
 		}

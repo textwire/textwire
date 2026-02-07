@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/textwire/textwire/v3/ast"
 	"github.com/textwire/textwire/v3/config"
 	"github.com/textwire/textwire/v3/evaluator"
 	"github.com/textwire/textwire/v3/fail"
@@ -30,7 +31,7 @@ func NewTemplate(opt *config.Config) (*Template, error) {
 		return nil, err.Error()
 	}
 
-	if err := sb.AddAttachments(); err != nil {
+	if err := sb.LinkNodes(); err != nil {
 		return nil, err.Error()
 	}
 
@@ -43,7 +44,7 @@ func (t *Template) String(name string, data map[string]any) (string, *fail.Error
 		return "", err
 	}
 
-	prog := t.sourceBundle.FindProg(name)
+	prog := ast.FindProg(name, t.sourceBundle.programs)
 	if prog == nil {
 		return "", fail.New(0, nameToRelPath(name), "template", fail.ErrTemplateNotFound, name)
 	}

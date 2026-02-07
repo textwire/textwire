@@ -65,7 +65,7 @@ func (p *Program) Stmts() []Statement {
 	return res
 }
 
-func (p *Program) AddInsertsAttachments(inserts map[string]*InsertStmt) *fail.Error {
+func (p *Program) LinkInsertsToReserves(inserts map[string]*InsertStmt) *fail.Error {
 	if err := p.checkUndefinedInsert(inserts); err != nil {
 		return err
 	}
@@ -79,16 +79,16 @@ func (p *Program) AddInsertsAttachments(inserts map[string]*InsertStmt) *fail.Er
 	return nil
 }
 
-// AddLayoutAttachment sets Attachment field for the current template and
-// resets statements to only to only have UseStmt in it. Because we don't
-// need anything else. Make sure inserts are added before this is called
+// LinkLayoutToUse adds Layout AST program to UseStmt for the current template
+// and resets statements to UseStmt only. Because we don't need anything else
+// inside a template. Make sure inserts are added before this is called
 // because they will be removed by this function.
-func (p *Program) AddLayoutAttachment(layoutProg *Program) {
-	p.UseStmt.Attachment = layoutProg
+func (p *Program) LinkLayoutToUse(layoutProg *Program) {
+	p.UseStmt.LayoutProg = layoutProg
 	p.Statements = []Statement{p.UseStmt}
 }
 
-func (p *Program) AddCompAttachment(name string, prog *Program, absPath string) *fail.Error {
+func (p *Program) LinkCompProg(name string, prog *Program, absPath string) *fail.Error {
 	for _, comp := range p.Components {
 		if comp.Name.Value != name {
 			continue
@@ -145,7 +145,7 @@ func (p *Program) AddCompAttachment(name string, prog *Program, absPath string) 
 			)
 		}
 
-		comp.Attachment = prog
+		comp.CompProg = prog
 	}
 
 	return nil

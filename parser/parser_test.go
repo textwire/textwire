@@ -29,7 +29,7 @@ func parseStatements(t *testing.T, inp string, opts parseOpts) []ast.Statement {
 	l := lexer.New(inp)
 	p := New(l, "")
 	prog := p.ParseProgram()
-	err := prog.AddInsertsAttachments(opts.inserts)
+	err := prog.LinkInsertsToReserves(opts.inserts)
 
 	if err != nil {
 		t.Fatalf("error applying inserts: %s", err)
@@ -982,8 +982,8 @@ func TestParseUseStmt(t *testing.T) {
 		EndCol:   11,
 	})
 
-	if stmt.Attachment != nil {
-		t.Fatalf("stmt.Attachment is not nil, got %T", stmt.Attachment)
+	if stmt.LayoutProg != nil {
+		t.Fatalf("stmt.LayoutProg is not nil, got %T", stmt.LayoutProg)
 	}
 
 	if stmt.String() != inp {

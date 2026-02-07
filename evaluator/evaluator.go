@@ -197,19 +197,19 @@ func (e *Evaluator) evalAssignStmt(node *ast.AssignStmt, ctx *Context) object.Ob
 }
 
 func (e *Evaluator) evalUseStmt(node *ast.UseStmt, ctx *Context) object.Object {
-	if node.Attachment == nil {
+	if node.LayoutProg == nil {
 		if e.UsingTemplates {
 			return e.newError(node, ctx, fail.ErrUseStmtMissingLayout, node.Name.Value)
 		}
 		return e.newError(node, ctx, fail.ErrSomeDirsOnlyInTemplates)
 	}
 
-	if node.Attachment.IsLayout && node.Attachment.HasUseStmt() {
+	if node.LayoutProg.IsLayout && node.LayoutProg.HasUseStmt() {
 		return e.newError(node, ctx, fail.ErrUseStmtNotAllowed)
 	}
 
-	useStmtCtx := NewContext(ctx.scope, node.Attachment.AbsPath)
-	layout := e.Eval(node.Attachment, useStmtCtx)
+	useStmtCtx := NewContext(ctx.scope, node.LayoutProg.AbsPath)
+	layout := e.Eval(node.LayoutProg, useStmtCtx)
 	if isError(layout) {
 		return layout
 	}
@@ -268,12 +268,12 @@ func (e *Evaluator) evalComponentStmt(node *ast.ComponentStmt, ctx *Context) obj
 		return compName
 	}
 
-	if node.Attachment == nil {
+	if node.CompProg == nil {
 		return e.newError(node, ctx, fail.ErrComponentMustHaveBlock, compName)
 	}
 
 	comp := &object.Component{Name: compName.String()}
-	compCtx := NewContext(object.NewScope(), node.Attachment.AbsPath)
+	compCtx := NewContext(object.NewScope(), node.CompProg.AbsPath)
 
 	if node.Argument != nil {
 		for key, arg := range node.Argument.Pairs {
@@ -288,7 +288,7 @@ func (e *Evaluator) evalComponentStmt(node *ast.ComponentStmt, ctx *Context) obj
 		}
 	}
 
-	blockObj := e.Eval(node.Attachment, compCtx)
+	blockObj := e.Eval(node.CompProg, compCtx)
 	if isError(blockObj) {
 		return blockObj
 	}
@@ -465,8 +465,8 @@ func (e *Evaluator) evalInsertStmt(node *ast.InsertStmt, ctx *Context) object.Ob
 		return e.newError(node, ctx, fail.ErrSomeDirsOnlyInTemplates)
 	}
 
-	// we do not evaluate inserts, they are getting attached
-	// to @reserve directive.
+	// we do not evaluate inserts, they are linked to ast.ReserveStmt as
+	// AST programs by this time.
 	return NIL
 }
 

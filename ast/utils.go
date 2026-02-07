@@ -1,5 +1,15 @@
 package ast
 
+func FindProg(name string, programs []*Program) *Program {
+	for i := range programs {
+		if programs[i].Name == name {
+			return programs[i]
+		}
+	}
+
+	return nil
+}
+
 func findSlotStmtIndex(stmts []Statement, slotName string) int {
 	for i, stmt := range stmts {
 		slot, ok := stmt.(*SlotStmt)
