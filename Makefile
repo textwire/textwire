@@ -32,7 +32,7 @@ lint:
 
 .PHONY: todo
 todo:
-	@if grep --exclude="Makefile" --exclude-dir=".git" -r TODO .; then \
+	@if grep -I --exclude="Makefile" --exclude-dir=".git" -r TODO .; then \
 		echo "❌ Found TODOs" >&2; \
 		exit 1; \
 	fi
