@@ -247,6 +247,9 @@ func (e *Evaluator) reserve(reserveStmt *ast.ReserveStmt, ctx *Context) object.O
 		return NIL // Inserts are optional, NIL when not provided
 	}
 
+	// delete reserve after it's been used by reserve
+	defer delete(ctx.inserts, name)
+
 	return &object.Reserve{
 		Name:   name,
 		Insert: insert,
@@ -467,7 +470,7 @@ func (e *Evaluator) externalSlotStmt(slotStmt *ast.SlotStmt, ctx *Context) objec
 		return e.newError(slotStmt, ctx, fail.ErrSlotNotDefined, name, compName)
 	}
 
-	// delete slot after it's been used in external component
+	// delete slot after it's been used by external component
 	defer delete(ctx.slots[compName], name)
 
 	return &object.Slot{Name: name, Content: content}
