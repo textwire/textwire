@@ -22,7 +22,7 @@ func CheckUndefinedInserts(prog *Program, inserts map[string]*InsertStmt) *fail.
 		path := inserts[name].AbsPath
 		name := inserts[name].Name.Value
 
-		return fail.New(line, path, "parser", fail.ErrAddMatchingReserve, name)
+		return fail.New(line, path, "parser", fail.ErrAddMatchingReserve, name, name)
 	}
 
 	return nil

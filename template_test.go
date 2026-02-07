@@ -98,6 +98,7 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 				"parser",
 				fail.ErrAddMatchingReserve,
 				"some-name",
+				"some-name",
 			),
 			data: nil,
 		},
