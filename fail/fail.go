@@ -17,11 +17,8 @@ const (
 	ErrNoPrefixParseFunc         = "unexpected token '%s' at start of expression"
 	ErrIllegalToken              = "illegal token '%s'"
 	ErrElseifCannotFollowElse    = "'@elseif' cannot come after '@else'"
-	ErrExceptedComponentStmt     = "expected component statement, got %T"
-	ErrComponentMustHaveBlock    = "@component statement '%s' missing required block"
 	ErrExpectedObjectLiteral     = "expected object literal, got '%s'"
 	ErrSlotNotDefined            = "@slot('%s') not defined in @component('%s')"
-	ErrDefaultSlotNotDefined     = "default @slot not defined in @component('%s')"
 	ErrDuplicateSlotUsage        = "@slot('%s') used %d times in @component('%s')"
 	ErrDuplicateDefaultSlotUsage = "default @slot used %d times in @component('%s')"
 	ErrExpectedComponentName     = "@component() cannot have empty name"
@@ -42,13 +39,13 @@ const (
 	ErrIdentifierIsUndefined   = "variable '%s' is not defined"
 	ErrReservedIdentifiers     = "'loop' and 'global' are reserved variable names"
 	ErrIdentifierTypeMismatch  = "cannot assign identifier '%s' of type '%s' to type '%s'"
-	ErrDotOpNotSupported       = "type '%s' does not support property access"
 	ErrPropertyNotFound        = "property '%s' not found on type '%s'"
 	ErrDivisionByZero          = "division by zero - divisor cannot be zero"
 	ErrSomeDirsOnlyInTemplates = "@use, @insert, @reserve, @component only allowed in templates"
 	ErrGlobalFuncMissing       = "global function %s() not found"
 	ErrPropertyOnNonObject     = "'%s' type does not support attribute '%s' access"
 	ErrEachDirWithNonArrArg    = "cannot use @each(item in ARRAY) with non-array type '%s' after 'in' keyword"
+	ErrComponentMustHaveBlock  = "@component('%s') missing required block"
 
 	// Functions
 	ErrFuncNotDefined   = "%s.%s() is not defined"
@@ -60,16 +57,14 @@ const (
 	ErrFuncMaxArgs      = "%s.%s() takes at most %d arguments"
 
 	// Template errors
-	ErrUnsupportedType   = "unsupported value type '%T'"
-	ErrUseStmtNotAllowed = "@use() not allowed in layout files - causes infinite recursion"
-	ErrTemplateNotFound  = "template file '%s' not found"
+	ErrUnsupportedType       = "unsupported value type '%T'"
+	ErrUseStmtNotAllowed     = "@use() not allowed in layout files - causes infinite recursion"
+	ErrTemplateNotFound      = "template file '%s' not found"
+	ErrDefaultSlotNotDefined = "default @slot not defined in @component('%s')"
 
 	// API errors
-	ErrFuncAlreadyDefined        = "custom function '%s' already defined for type '%s'"
-	ErrCannotOverrideBuiltInFunc = "cannot override built-in function '%s' for '%s'"
-	ErrUndefinedComponent        = "@component('%s') is not defined"
-
-	NoErrorsFound = "no Textwire errors found"
+	ErrFuncAlreadyDefined = "custom function '%s' already defined for type '%s'"
+	ErrUndefinedComponent = "@component('%s') is not defined"
 )
 
 // Error is the main error type for Textwire that contains all the necessary
