@@ -25,6 +25,7 @@ const (
 	ErrUndefinedInsert           = "@insert('%s') not found in layout - add matching @reserve"
 	ErrDuplicateInserts          = "duplicate @insert('%s') found"
 	ErrUseStmtFirstArgStr        = "argument 1 of @use(STR) must be a string, got @use('%s')"
+	ErrOnlyOneUseDir             = "@use() directive can only be used once per template"
 
 	// Evaluator (interpreter) errors
 	ErrUnknownNodeType         = "unsupported expression type '%T'"
@@ -35,16 +36,16 @@ const (
 	ErrTypeMismatch            = "type mismatch: cannot %s %s %s"
 	ErrUnknownTypeForOp        = "operator '%s' not supported for type '%s'"
 	ErrPrefixOpIsWrong         = "cannot apply prefix '%s' to type '%s'"
-	ErrUseStmtMissingLayout    = "@use('%s') missing layout file"
 	ErrIdentifierIsUndefined   = "variable '%s' is not defined"
 	ErrReservedIdentifiers     = "'loop' and 'global' are reserved variable names"
 	ErrIdentifierTypeMismatch  = "cannot assign identifier '%s' of type '%s' to type '%s'"
 	ErrPropertyNotFound        = "property '%s' not found on type '%s'"
 	ErrDivisionByZero          = "division by zero - divisor cannot be zero"
+	ErrEachDirWithNonArrArg    = "cannot use @each(item in ARRAY) with non-array type '%s' after 'in' keyword"
 	ErrSomeDirsOnlyInTemplates = "@use, @insert, @reserve, @component only allowed in templates"
+	ErrUseStmtMissingLayout    = "@use('%s') missing layout file"
 	ErrGlobalFuncMissing       = "global function %s() not found"
 	ErrPropertyOnNonObject     = "'%s' type does not support attribute '%s' access"
-	ErrEachDirWithNonArrArg    = "cannot use @each(item in ARRAY) with non-array type '%s' after 'in' keyword"
 	ErrComponentMustHaveBlock  = "@component('%s') missing required block"
 
 	// Functions

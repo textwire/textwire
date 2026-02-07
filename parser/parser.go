@@ -439,6 +439,10 @@ func (p *Parser) useStmt() ast.Statement {
 
 	stmt.SetEndPosition(p.curToken.Pos)
 
+	if p._useStmt != nil {
+		p.newError(p.curToken.ErrorLine(), fail.ErrOnlyOneUseDir)
+	}
+
 	p._useStmt = stmt
 
 	return stmt

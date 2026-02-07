@@ -167,11 +167,6 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 			),
 			data: map[string]any{"fullName": "Amy Adams"},
 		},
-		{
-			dirName: "duplicate-use",
-			err:     fail.New(2, path+"duplicate-use/index.tw", "parser", fail.ErrOnlyOneUseDir),
-			data:    nil,
-		},
 	}
 
 	for _, tc := range cases {

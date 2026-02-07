@@ -10,6 +10,7 @@
 2. Improve memory and performance. Read about improvements [here](https://textwire.github.io/blog/2026/02/05/textwire-v3#memory-performance).
 3. Improve error messages. Now they are clearer.
 4. Added tons of tests to make sure version 3 is stable.
+4. You'll get a clear error when using 2 or more `@use` statements in the same template.
 
 ### 🐛 Bug Fixes
 
