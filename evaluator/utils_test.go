@@ -46,7 +46,7 @@ func TestNativeToBooleanObject(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		result := nativeBoolToBooleanObject(tc.inp)
+		result := nativeBoolToBoolObject(tc.inp)
 
 		if result != tc.expect {
 			t.Errorf(

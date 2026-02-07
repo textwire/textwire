@@ -34,7 +34,7 @@ func isError(obj object.Object) bool {
 	return obj.Is(object.ERR_OBJ)
 }
 
-func nativeBoolToBooleanObject(input bool) object.Object {
+func nativeBoolToBoolObject(input bool) object.Object {
 	if input {
 		return TRUE
 	}
