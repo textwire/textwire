@@ -2,7 +2,7 @@ MAX_LINE_LENGTH := 100
 
 .PHONY: dev
 dev:
-	clear
+	@clear || true
 	cd textwire/example && go run main.go
 
 .PHONY: shell
@@ -11,7 +11,7 @@ shell:
 
 .PHONY: test
 test:
-	clear
+	@clear || true
 	go test ./...
 	@echo "✅ All tests passed!"
 
