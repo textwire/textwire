@@ -40,37 +40,37 @@ func (e *Evaluator) Eval(node ast.Node, ctx *Context) object.Object {
 	switch node := node.(type) {
 	// Statements
 	case *ast.Program:
-		return e.programStmt(node, ctx)
+		return e.program(node, ctx)
 	case *ast.HTMLStmt:
 		return &object.HTML{Value: node.String()}
 	case *ast.ExpressionStmt:
 		return e.Eval(node.Expression, ctx)
 	case *ast.IfStmt:
-		return e.ifStmt(node, ctx)
+		return e._if(node, ctx)
 	case *ast.BlockStmt:
-		return e.blockStmt(node, ctx)
+		return e.block(node, ctx)
 	case *ast.AssignStmt:
-		return e.assignStmt(node, ctx)
+		return e.assign(node, ctx)
 	case *ast.UseStmt:
-		return e.useStmt(node, ctx)
+		return e.use(node, ctx)
 	case *ast.ReserveStmt:
-		return e.reserveStmt(node, ctx)
+		return e.reserve(node, ctx)
 	case *ast.ForStmt:
-		return e.forStmt(node, ctx)
+		return e._for(node, ctx)
 	case *ast.EachStmt:
-		return e.eachStmt(node, ctx)
+		return e.each(node, ctx)
 	case *ast.BreakIfStmt:
-		return e.breakIfStmt(node, ctx)
+		return e.breakIf(node, ctx)
 	case *ast.ComponentStmt:
-		return e.compStmt(node, ctx)
+		return e.comp(node, ctx)
 	case *ast.ContinueIfStmt:
-		return e.continueIfStmt(node, ctx)
+		return e.continueIf(node, ctx)
 	case *ast.SlotStmt:
-		return e.slotStmt(node, ctx)
+		return e.slot(node, ctx)
 	case *ast.DumpStmt:
-		return e.dumpStmt(node, ctx)
+		return e.dump(node, ctx)
 	case *ast.InsertStmt:
-		return e.insertStmt(node, ctx)
+		return e.insert(node, ctx)
 	case *ast.ContinueStmt:
 		return CONTINUE
 	case *ast.BreakStmt:
@@ -80,7 +80,7 @@ func (e *Evaluator) Eval(node ast.Node, ctx *Context) object.Object {
 
 	// Expressions
 	case *ast.Identifier:
-		return e.identifier(node, ctx)
+		return e.ident(node, ctx)
 	case *ast.IndexExp:
 		return e.indexExp(node, ctx)
 	case *ast.DotExp:
@@ -90,7 +90,7 @@ func (e *Evaluator) Eval(node ast.Node, ctx *Context) object.Object {
 	case *ast.FloatLiteral:
 		return &object.Float{Value: node.Value}
 	case *ast.StringLiteral:
-		return e.string(node)
+		return e.stringLit(node)
 	case *ast.BooleanLiteral:
 		return nativeBoolToBoolObj(node.Value)
 	case *ast.ObjectLiteral:
@@ -116,7 +116,7 @@ func (e *Evaluator) Eval(node ast.Node, ctx *Context) object.Object {
 	return e.newError(node, ctx, fail.ErrUnknownNodeType, node)
 }
 
-func (e *Evaluator) programStmt(prog *ast.Program, ctx *Context) object.Object {
+func (e *Evaluator) program(prog *ast.Program, ctx *Context) object.Object {
 	var stmts strings.Builder
 	stmts.Grow(len(prog.Statements))
 
@@ -132,7 +132,7 @@ func (e *Evaluator) programStmt(prog *ast.Program, ctx *Context) object.Object {
 	return &object.HTML{Value: stmts.String()}
 }
 
-func (e *Evaluator) ifStmt(ifStmt *ast.IfStmt, ctx *Context) object.Object {
+func (e *Evaluator) _if(ifStmt *ast.IfStmt, ctx *Context) object.Object {
 	cond := e.Eval(ifStmt.Condition, ctx)
 	if isError(cond) {
 		return cond
@@ -166,7 +166,7 @@ func (e *Evaluator) ifStmt(ifStmt *ast.IfStmt, ctx *Context) object.Object {
 	return NIL
 }
 
-func (e *Evaluator) blockStmt(blockStmt *ast.BlockStmt, ctx *Context) object.Object {
+func (e *Evaluator) block(blockStmt *ast.BlockStmt, ctx *Context) object.Object {
 	stmts := make([]object.Object, 0, len(blockStmt.Statements))
 
 	for i := range blockStmt.Statements {
@@ -184,7 +184,7 @@ func (e *Evaluator) blockStmt(blockStmt *ast.BlockStmt, ctx *Context) object.Obj
 	return &object.Block{Elements: stmts}
 }
 
-func (e *Evaluator) assignStmt(assignStmt *ast.AssignStmt, ctx *Context) object.Object {
+func (e *Evaluator) assign(assignStmt *ast.AssignStmt, ctx *Context) object.Object {
 	right := e.Eval(assignStmt.Right, ctx)
 	if isError(right) {
 		return right
@@ -197,7 +197,7 @@ func (e *Evaluator) assignStmt(assignStmt *ast.AssignStmt, ctx *Context) object.
 	return NIL
 }
 
-func (e *Evaluator) useStmt(useStmt *ast.UseStmt, ctx *Context) object.Object {
+func (e *Evaluator) use(useStmt *ast.UseStmt, ctx *Context) object.Object {
 	if useStmt.LayoutProg == nil {
 		if e.usingTemplates {
 			return e.newError(useStmt, ctx, fail.ErrUseStmtMissingLayout, useStmt.Name.Value)
@@ -217,7 +217,7 @@ func (e *Evaluator) useStmt(useStmt *ast.UseStmt, ctx *Context) object.Object {
 
 	// Evaluate @inserts and map them into new context for layout
 	for name, insertStmt := range useStmt.Inserts {
-		insert := e.insertStmt(insertStmt, ctx)
+		insert := e.insert(insertStmt, ctx)
 		if isError(insert) {
 			return insert
 		}
@@ -236,7 +236,7 @@ func (e *Evaluator) useStmt(useStmt *ast.UseStmt, ctx *Context) object.Object {
 	}
 }
 
-func (e *Evaluator) reserveStmt(reserveStmt *ast.ReserveStmt, ctx *Context) object.Object {
+func (e *Evaluator) reserve(reserveStmt *ast.ReserveStmt, ctx *Context) object.Object {
 	if !e.usingTemplates {
 		return e.newError(reserveStmt, ctx, fail.ErrSomeDirsOnlyInTemplates)
 	}
@@ -253,7 +253,7 @@ func (e *Evaluator) reserveStmt(reserveStmt *ast.ReserveStmt, ctx *Context) obje
 	}
 }
 
-func (e *Evaluator) compStmt(compStmt *ast.ComponentStmt, ctx *Context) object.Object {
+func (e *Evaluator) comp(compStmt *ast.ComponentStmt, ctx *Context) object.Object {
 	if !e.usingTemplates {
 		return e.newError(compStmt, ctx, fail.ErrSomeDirsOnlyInTemplates)
 	}
@@ -303,7 +303,7 @@ func (e *Evaluator) compStmt(compStmt *ast.ComponentStmt, ctx *Context) object.O
 	}
 }
 
-func (e *Evaluator) forStmt(forStmt *ast.ForStmt, ctx *Context) object.Object {
+func (e *Evaluator) _for(forStmt *ast.ForStmt, ctx *Context) object.Object {
 	forCtx := NewContext(ctx.scope.Child(), ctx.absPath)
 
 	var init object.Object
@@ -370,7 +370,7 @@ func (e *Evaluator) forStmt(forStmt *ast.ForStmt, ctx *Context) object.Object {
 	return &object.HTML{Value: blocks.String()}
 }
 
-func (e *Evaluator) eachStmt(eachStmt *ast.EachStmt, ctx *Context) object.Object {
+func (e *Evaluator) each(eachStmt *ast.EachStmt, ctx *Context) object.Object {
 	eachCtx := NewContext(ctx.scope.Child(), ctx.absPath)
 	varName := eachStmt.Var.Name
 
@@ -424,7 +424,7 @@ func (e *Evaluator) eachStmt(eachStmt *ast.EachStmt, ctx *Context) object.Object
 	return &object.HTML{Value: blocks.String()}
 }
 
-func (e *Evaluator) breakIfStmt(breakIfStmt *ast.BreakIfStmt, ctx *Context) object.Object {
+func (e *Evaluator) breakIf(breakIfStmt *ast.BreakIfStmt, ctx *Context) object.Object {
 	cond := e.Eval(breakIfStmt.Condition, ctx)
 	if isError(cond) {
 		return cond
@@ -437,7 +437,7 @@ func (e *Evaluator) breakIfStmt(breakIfStmt *ast.BreakIfStmt, ctx *Context) obje
 	return NIL
 }
 
-func (e *Evaluator) continueIfStmt(contIfStmt *ast.ContinueIfStmt, ctx *Context) object.Object {
+func (e *Evaluator) continueIf(contIfStmt *ast.ContinueIfStmt, ctx *Context) object.Object {
 	cond := e.Eval(contIfStmt.Condition, ctx)
 	if isError(cond) {
 		return cond
@@ -450,7 +450,7 @@ func (e *Evaluator) continueIfStmt(contIfStmt *ast.ContinueIfStmt, ctx *Context)
 	return NIL
 }
 
-func (e *Evaluator) slotStmt(slotStmt *ast.SlotStmt, ctx *Context) object.Object {
+func (e *Evaluator) slot(slotStmt *ast.SlotStmt, ctx *Context) object.Object {
 	if slotStmt.IsLocal {
 		return e.localSlotStmt(slotStmt, ctx)
 	}
@@ -489,7 +489,7 @@ func (e *Evaluator) localSlotStmt(slotStmt *ast.SlotStmt, ctx *Context) object.O
 	}
 }
 
-func (e *Evaluator) insertStmt(insertStmt *ast.InsertStmt, ctx *Context) object.Object {
+func (e *Evaluator) insert(insertStmt *ast.InsertStmt, ctx *Context) object.Object {
 	if !e.usingTemplates {
 		return e.newError(insertStmt, ctx, fail.ErrSomeDirsOnlyInTemplates)
 	}
@@ -528,7 +528,7 @@ func (e *Evaluator) combineInsertContent(insertStmt *ast.InsertStmt, ctx *Contex
 	return e.Eval(insertStmt.Block, ctx)
 }
 
-func (e *Evaluator) dumpStmt(dumpStmt *ast.DumpStmt, ctx *Context) object.Object {
+func (e *Evaluator) dump(dumpStmt *ast.DumpStmt, ctx *Context) object.Object {
 	values := make([]string, 0, len(dumpStmt.Arguments))
 
 	for i := range dumpStmt.Arguments {
@@ -539,7 +539,7 @@ func (e *Evaluator) dumpStmt(dumpStmt *ast.DumpStmt, ctx *Context) object.Object
 	return &object.Dump{Values: values}
 }
 
-func (e *Evaluator) identifier(ident *ast.Identifier, ctx *Context) object.Object {
+func (e *Evaluator) ident(ident *ast.Identifier, ctx *Context) object.Object {
 	varName := ident.Name
 	if varName == "global" && e.config != nil && e.config.GlobalData != nil {
 		return object.NativeToObject(e.config.GlobalData)
@@ -621,7 +621,7 @@ func (e *Evaluator) dotExp(dotExp *ast.DotExp, ctx *Context) object.Object {
 	return e.objectKeyExp(obj, key.Name, dotExp, ctx)
 }
 
-func (e *Evaluator) string(strLit *ast.StringLiteral) object.Object {
+func (e *Evaluator) stringLit(strLit *ast.StringLiteral) object.Object {
 	str := html.EscapeString(strLit.Value)
 
 	// unescape single and double quotes
