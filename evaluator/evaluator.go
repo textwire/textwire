@@ -699,7 +699,11 @@ func (e *Evaluator) evalExpressions(exps []ast.Expression, ctx *Context) []objec
 	return res
 }
 
-func (e *Evaluator) infixExp(op string, leftNode, rightNode ast.Expression, ctx *Context) object.Object {
+func (e *Evaluator) infixExp(
+	op string,
+	leftNode, rightNode ast.Expression,
+	ctx *Context,
+) object.Object {
 	left := e.Eval(leftNode, ctx)
 	if isError(left) {
 		return left
@@ -791,11 +795,19 @@ func (e *Evaluator) globalCallExp(globalCallExp *ast.GlobalCallExp, ctx *Context
 	case "defined":
 		return e.globalFuncDefined(globalCallExp, ctx)
 	default:
-		return e.newError(globalCallExp, ctx, fail.ErrGlobalFuncMissing, globalCallExp.Function.Name)
+		return e.newError(
+			globalCallExp,
+			ctx,
+			fail.ErrGlobalFuncMissing,
+			globalCallExp.Function.Name,
+		)
 	}
 }
 
-func (e *Evaluator) globalFuncDefined(globalCallExp *ast.GlobalCallExp, ctx *Context) object.Object {
+func (e *Evaluator) globalFuncDefined(
+	globalCallExp *ast.GlobalCallExp,
+	ctx *Context,
+) object.Object {
 	definedVars := make([]bool, 0, len(globalCallExp.Arguments))
 	for i := range globalCallExp.Arguments {
 		evaluated := e.Eval(globalCallExp.Arguments[i], ctx)
@@ -1003,7 +1015,11 @@ func (e *Evaluator) floatInfixExp(
 	return e.newError(leftNode, ctx, fail.ErrUnknownTypeForOp, left.Type(), op)
 }
 
-func (e *Evaluator) minusPrefixOpExp(right object.Object, node ast.Node, ctx *Context) object.Object {
+func (e *Evaluator) minusPrefixOpExp(
+	right object.Object,
+	node ast.Node,
+	ctx *Context,
+) object.Object {
 	switch right.Type() {
 	case object.INT_OBJ:
 		val := right.(*object.Int).Value

@@ -17,12 +17,12 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 	}
 
 	cases := []struct {
-		dirName string
-		err     *fail.Error
-		data    map[string]any
+		dir  string
+		err  *fail.Error
+		data map[string]any
 	}{
 		{
-			dirName: "use-inside-tpl",
+			dir: "use-inside-tpl",
 			err: fail.New(
 				1,
 				path+"use-inside-tpl/index.tw",
@@ -32,7 +32,7 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 			data: nil,
 		},
 		{
-			dirName: "unknown-named-slot",
+			dir: "unknown-named-slot",
 			err: fail.New(
 				2,
 				path+"unknown-named-slot/index.tw",
@@ -44,7 +44,7 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 			data: nil,
 		},
 		{
-			dirName: "unknown-default-slot",
+			dir: "unknown-default-slot",
 			err: fail.New(
 				2,
 				path+"unknown-default-slot/index.tw",
@@ -55,7 +55,7 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 			data: nil,
 		},
 		{
-			dirName: "duplicate-slot",
+			dir: "duplicate-slot",
 			err: fail.New(
 				2,
 				path+"duplicate-slot/index.tw",
@@ -68,7 +68,7 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 			data: nil,
 		},
 		{
-			dirName: "duplicate-default-slot",
+			dir: "duplicate-default-slot",
 			err: fail.New(
 				2,
 				path+"duplicate-default-slot/index.tw",
@@ -80,7 +80,7 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 			data: nil,
 		},
 		{
-			dirName: "unknown-comp",
+			dir: "unknown-comp",
 			err: fail.New(
 				9,
 				path+"unknown-comp/index.tw",
@@ -91,7 +91,7 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 			data: nil,
 		},
 		{
-			dirName: "undefined-insert",
+			dir: "undefined-insert",
 			err: fail.New(
 				5,
 				path+"undefined-insert/index.tw",
@@ -102,7 +102,7 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 			data: nil,
 		},
 		{
-			dirName: "duplicate-inserts",
+			dir: "duplicate-inserts",
 			err: fail.New(
 				4,
 				path+"duplicate-inserts/index.tw",
@@ -113,7 +113,7 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 			data: nil,
 		},
 		{
-			dirName: "undefined-var-in-comp",
+			dir: "undefined-var-in-comp",
 			err: fail.New(
 				1,
 				path+"undefined-var-in-comp/hero.tw",
@@ -124,7 +124,7 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 			data: nil,
 		},
 		{
-			dirName: "undefined-var-in-use",
+			dir: "undefined-var-in-use",
 			err: fail.New(
 				8,
 				path+"undefined-var-in-use/base.tw",
@@ -135,7 +135,7 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 			data: nil,
 		},
 		{
-			dirName: "undefined-use",
+			dir: "undefined-use",
 			err: fail.New(
 				1,
 				path+"undefined-use/index.tw",
@@ -146,7 +146,7 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 			data: nil,
 		},
 		{
-			dirName: "undefined-var-in-nested-comp",
+			dir: "undefined-var-in-nested-comp",
 			err: fail.New(
 				1,
 				path+"undefined-var-in-nested-comp/second.tw",
@@ -157,7 +157,7 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 			data: map[string]any{"name": "Amy"},
 		},
 		{
-			dirName: "var-in-layout",
+			dir: "var-in-layout",
 			err: fail.New(
 				1,
 				path+"var-in-layout/layout.tw",
@@ -168,16 +168,16 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 			data: map[string]any{"fullName": "Amy Adams"},
 		},
 		{
-			dirName: "duplicate-use",
-			err:     fail.New(2, path+"duplicate-use/index.tw", "parser", fail.ErrOnlyOneUseDir),
-			data:    nil,
+			dir:  "duplicate-use",
+			err:  fail.New(2, path+"duplicate-use/index.tw", "parser", fail.ErrOnlyOneUseDir),
+			data: nil,
 		},
 	}
 
 	for _, tc := range cases {
-		t.Run(tc.dirName, func(t *testing.T) {
+		t.Run(tc.dir, func(t *testing.T) {
 			tpl, tplErr := NewTemplate(&config.Config{
-				TemplateDir: "textwire/testdata/bad/" + tc.dirName,
+				TemplateDir: "textwire/testdata/bad/" + tc.dir,
 			})
 
 			if tplErr != nil {
