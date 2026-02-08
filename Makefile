@@ -9,6 +9,12 @@ dev:
 shell:
 	go run repl/repl.go
 
+.PHONY: cover
+cover:
+	go test -coverprofile=coverage.out
+	go tool cover -html=coverage.out
+	rm coverage.out
+
 .PHONY: test
 test:
 	@clear || true
@@ -18,17 +24,17 @@ test:
 .PHONY: fmt
 fmt:
 	@go fmt ./...
-	echo "✅ Code formatted!"
+	@echo "✅ Code formatted!"
 
 .PHONY: line
 line:
 	@golines -w -m $(MAX_LINE_LENGTH) .
-	echo "✅ Lines limited!"
+	@echo "✅ Lines limited!"
 
 .PHONY: lint
 lint:
 	@golangci-lint run
-	echo "✅ Linting passed!"
+	@echo "✅ Linting passed!"
 
 .PHONY: todo
 todo:

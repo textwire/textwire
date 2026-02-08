@@ -1,5 +1,7 @@
 # Release notes
 
+## v3.0.2 (2026-02-10)
+
 ## v3.0.1 (2026-02-08)
 
 - 🧑‍💻 Improve error messages.
