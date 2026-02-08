@@ -106,7 +106,7 @@ func (p *Program) LinkCompProg(compName string, prog *Program, absPath string) *
 
 		for _, slot := range comp.Slots {
 			name := slot.Name.Value
-			idx := findSlotStmtIndex(prog.Statements, name)
+			idx := findSlotIndex(prog.Statements, name)
 			if idx != -1 {
 				prog.Statements[idx].(*SlotStmt).Block = slot.Block
 				continue

@@ -2,58 +2,49 @@ package ast
 
 import (
 	"testing"
-
-	"github.com/textwire/textwire/v3/token"
 )
 
-func TestFindSlotStmtIndex(t *testing.T) {
+func TestFindSlotIndex(t *testing.T) {
 	t.Run("found", func(t *testing.T) {
-		stmts := []Statement{
+		slots := []Statement{
 			&SlotStmt{Name: &StringLiteral{Value: "country"}},
 			&SlotStmt{Name: &StringLiteral{Value: "city"}},
 			&SlotStmt{Name: &StringLiteral{Value: "street"}},
 		}
 
-		idx := findSlotStmtIndex(stmts, "city")
-
-		if idx != 1 {
-			t.Errorf("expect index 1 but got %d", idx)
+		if idx := findSlotIndex(slots, "city"); idx != 1 {
+			t.Errorf("Function should return index 1 but got %d", idx)
 		}
 	})
 
 	t.Run("not found", func(t *testing.T) {
-		stmts := []Statement{
+		slots := []Statement{
 			&SlotStmt{Name: &StringLiteral{Value: "country"}},
 			&SlotStmt{Name: &StringLiteral{Value: "city"}},
 			&SlotStmt{Name: &StringLiteral{Value: "street"}},
 		}
 
-		idx := findSlotStmtIndex(stmts, "name")
-
-		if idx != -1 {
-			t.Errorf("expect index -1 but got %d", idx)
+		if idx := findSlotIndex(slots, "name"); idx != -1 {
+			t.Errorf("Function should return index -1 but got %d", idx)
 		}
 	})
 }
 
-func Test_findDuplicateSlot(t *testing.T) {
+func TestFindDuplicateSlot(t *testing.T) {
 	t.Run("returns duplicate slot", func(t *testing.T) {
-		compName := "components/actors"
 		expectTimes := 3
 		expectDupl := "firstName"
-
-		tok := token.Token{Type: token.SLOT, Literal: "@slot"}
 		slots := []*SlotStmt{
-			NewSlotStmt(tok, NewStringLiteral(tok, "lastname"), compName, true),
-			NewSlotStmt(tok, NewStringLiteral(tok, "lastName"), compName, true),
-			NewSlotStmt(tok, NewStringLiteral(tok, expectDupl), compName, true),
-			NewSlotStmt(tok, NewStringLiteral(tok, expectDupl), compName, true),
-			NewSlotStmt(tok, NewStringLiteral(tok, expectDupl), compName, true),
+			{Name: &StringLiteral{Value: "lastname"}},
+			{Name: &StringLiteral{Value: "lastName"}},
+			{Name: &StringLiteral{Value: expectDupl}},
+			{Name: &StringLiteral{Value: expectDupl}},
+			{Name: &StringLiteral{Value: expectDupl}},
 		}
 
 		slot, times := findDuplicateSlot(slots)
 		if times != expectTimes {
-			t.Fatalf("Should find '%d' duplicate slots, found '%d'", expectTimes, times)
+			t.Fatalf("Should find %d duplicate slots, found %d", expectTimes, times)
 		}
 
 		if slot == nil {
@@ -61,20 +52,17 @@ func Test_findDuplicateSlot(t *testing.T) {
 		}
 
 		if slot.Name.Value != expectDupl {
-			t.Fatalf("The duplicate slot name must be '%s', got '%s'", expectDupl, slot.Name.Value)
+			t.Fatalf("The duplicate slot name must be %s, got %s", expectDupl, slot.Name.Value)
 		}
 	})
 
 	t.Run("returns nil and 0 for no duplicates", func(t *testing.T) {
-		compName := "components/actors"
-
-		tok := token.Token{Type: token.SLOT, Literal: "@slot"}
 		slots := []*SlotStmt{
-			NewSlotStmt(tok, NewStringLiteral(tok, "lastname"), compName, true),
-			NewSlotStmt(tok, NewStringLiteral(tok, "lastName"), compName, true),
-			NewSlotStmt(tok, NewStringLiteral(tok, "last_name"), compName, true),
-			NewSlotStmt(tok, NewStringLiteral(tok, "last-name"), compName, true),
-			NewSlotStmt(tok, NewStringLiteral(tok, "LastName"), compName, true),
+			{Name: &StringLiteral{Value: "lastname"}},
+			{Name: &StringLiteral{Value: "lastName"}},
+			{Name: &StringLiteral{Value: "last_name"}},
+			{Name: &StringLiteral{Value: "last-name"}},
+			{Name: &StringLiteral{Value: "LastName"}},
 		}
 
 		slot, times := findDuplicateSlot(slots)

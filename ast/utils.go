@@ -28,7 +28,7 @@ func CheckUndefinedInserts(prog *Program, inserts map[string]*InsertStmt) *fail.
 	return nil
 }
 
-func findSlotStmtIndex(stmts []Statement, slotName string) int {
+func findSlotIndex(stmts []Statement, slotName string) int {
 	for i, stmt := range stmts {
 		slot, ok := stmt.(*SlotStmt)
 		if !ok {

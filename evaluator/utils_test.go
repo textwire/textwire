@@ -6,7 +6,7 @@ import (
 	"github.com/textwire/textwire/v3/object"
 )
 
-func Test_isTruthy(t *testing.T) {
+func TestIsTruthy(t *testing.T) {
 	cases := []struct {
 		inp    object.Object
 		expect bool
@@ -36,7 +36,7 @@ func Test_isTruthy(t *testing.T) {
 	}
 }
 
-func Test_nativeBoolToBoolObj(t *testing.T) {
+func TestNativeBoolToBoolObj(t *testing.T) {
 	cases := []struct {
 		inp    bool
 		expect object.Object
@@ -59,7 +59,7 @@ func Test_nativeBoolToBoolObj(t *testing.T) {
 	}
 }
 
-func Test_strIsInt(t *testing.T) {
+func TestStrIsInt(t *testing.T) {
 	tc := []struct {
 		name   string
 		inp    string
