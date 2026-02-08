@@ -477,18 +477,18 @@ func (e *Evaluator) externalSlotStmt(slotStmt *ast.SlotStmt, ctx *Context) objec
 }
 
 func (e *Evaluator) localSlotStmt(slotStmt *ast.SlotStmt, ctx *Context) object.Object {
-	var body object.Object = NIL
+	var block object.Object = NIL
 
 	if slotStmt.Block != nil {
-		body = e.Eval(slotStmt.Block, ctx)
-		if isError(body) {
-			return body
+		block = e.Eval(slotStmt.Block, ctx)
+		if isError(block) {
+			return block
 		}
 	}
 
 	return &object.Slot{
 		Name:    slotStmt.Name.Value,
-		Content: body,
+		Content: block,
 	}
 }
 

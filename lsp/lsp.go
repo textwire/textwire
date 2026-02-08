@@ -28,9 +28,9 @@ func IsInLoop(doc, filePath string, line, col uint) (bool, []*fail.Error) {
 		}
 
 		loopStmt := stmt.(ast.LoopStmt)
-		pos := loopStmt.LoopBodyBlock().Pos
+		pos := loopStmt.LoopBlock().Pos
 
-		if IsCursorInBody(line, col, pos) {
+		if IsCursorInBlock(line, col, pos) {
 			return true, p.Errors()
 		}
 	}
@@ -38,7 +38,7 @@ func IsInLoop(doc, filePath string, line, col uint) (bool, []*fail.Error) {
 	return false, p.Errors()
 }
 
-func IsCursorInBody(line, col uint, pos token.Position) bool {
+func IsCursorInBlock(line, col uint, pos token.Position) bool {
 	// Line outside range
 	if line < pos.StartLine || line > pos.EndLine {
 		return false

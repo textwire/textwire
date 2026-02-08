@@ -13,7 +13,7 @@ type Node interface {
 }
 
 type LoopStmt interface {
-	LoopBodyBlock() *BlockStmt
+	LoopBlock() *BlockStmt
 }
 
 type NodeWithStatements interface {

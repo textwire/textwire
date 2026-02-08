@@ -1464,7 +1464,7 @@ func TestParseEachStmt(t *testing.T) {
 	}
 }
 
-func TestParseStmtCanHaveEmptyBody(t *testing.T) {
+func TestParseStmtCanHaveEmptyBlock(t *testing.T) {
 	cases := []struct {
 		inp       string
 		endColPos uint
@@ -1888,7 +1888,7 @@ func TestParseDumpStmt(t *testing.T) {
 	testBooleanLiteral(t, stmt.Arguments[2], false)
 }
 
-func TestParseBodyAsIllegalNode(t *testing.T) {
+func TestParseBlockAsIllegalNode(t *testing.T) {
 	inp := "@if(false)@dump(@end"
 
 	stmts := parseStatements(t, inp, parseOpts{stmtCount: 1, checkErrors: false})

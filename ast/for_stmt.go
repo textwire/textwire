@@ -24,7 +24,10 @@ func NewForStmt(tok token.Token) *ForStmt {
 
 func (fs *ForStmt) statementNode() {}
 
-func (fs *ForStmt) LoopBodyBlock() *BlockStmt {
+func (fs *ForStmt) LoopBlock() *BlockStmt {
+	if fs.Block == nil {
+		panic("Block must not be nil on ForStmt when calling LoopBlock()")
+	}
 	return fs.Block
 }
 
