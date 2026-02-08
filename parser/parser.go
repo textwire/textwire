@@ -550,8 +550,8 @@ func (p *Parser) parseAliasPathShortcut(shortenTo string) string {
 	return name
 }
 
-// slotStmt parses a slot statement inside a component file.
-// Slots inside a component are parsed by other function
+// slotStmt parses an external slot statement inside a component file.
+// Slots inside a @component are parsed by other function.
 func (p *Parser) slotStmt() ast.Statement {
 	tok := p.curToken // "@slot"
 
