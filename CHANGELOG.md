@@ -4,6 +4,7 @@
 
 - 🧑‍💻 Improve error messages.
 - 🧑‍💻 Potentially a breaking change, but it should not be. You will receive a clear error if you trying to use `@insert` in a template file without defining `@use` statement. Previously, `@insert` would result in empty string in your template.
+- 🐛 Fixed incorrect duplicate slot counter for error message when you have multiple duplicate slots in the same comonent.
 
 ## v3.0.0 (2026-02-07) — Major Release
 
