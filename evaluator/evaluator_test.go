@@ -33,7 +33,7 @@ func evaluationExpected(t *testing.T, inp, expect string, idx int) {
 
 	res := evaluated.String()
 	if res != expect {
-		t.Fatalf("Case: %d. result is not '%s', got '%s'", idx, expect, res)
+		t.Fatalf("Case: %d. Result is not %q, got %q", idx, expect, res)
 	}
 }
 
@@ -147,18 +147,14 @@ func TestEvalBooleanExp(t *testing.T) {
 
 	for _, tc := range cases {
 		evaluated := testEval(tc.inp)
-
-		errObj, ok := evaluated.(*object.Error)
-
+		err, ok := evaluated.(*object.Error)
 		if ok {
-			t.Errorf("evaluation failed: %s", errObj.String())
+			t.Errorf("evaluation failed: %s", err.String())
 			return
 		}
 
-		result := evaluated.String()
-
-		if result != tc.expect {
-			t.Errorf("result is not %s, got %s", tc.expect, result)
+		if res := evaluated.String(); res != tc.expect {
+			t.Errorf("Result is not %q, got %q", tc.expect, res)
 		}
 	}
 }
@@ -247,16 +243,13 @@ func TestEvalIfStmt(t *testing.T) {
 
 	for _, tc := range cases {
 		evaluated := testEval(tc.inp)
-		errObj, ok := evaluated.(*object.Error)
-
+		err, ok := evaluated.(*object.Error)
 		if ok {
-			t.Errorf("evaluation failed: %s", errObj.String())
+			t.Errorf("Evaluation failed: %s", err)
 		}
 
-		result := strings.TrimSpace(evaluated.String())
-
-		if result != tc.expect {
-			t.Errorf("result is not %q, got %q", tc.expect, result)
+		if res := strings.TrimSpace(evaluated.String()); res != tc.expect {
+			t.Errorf("Result is not %q, got %q", tc.expect, res)
 		}
 	}
 }
@@ -483,18 +476,14 @@ func TestTypeMismatchErrors(t *testing.T) {
 
 	for _, tc := range cases {
 		evaluated := testEval(tc.inp)
-
-		errObj, ok := evaluated.(*object.Error)
-
+		err, ok := evaluated.(*object.Error)
 		if !ok {
-			t.Fatalf("evaluation failed: %s", errObj.String())
+			t.Fatalf("Evaluation failed, got error %q", err)
 		}
 
-		expect := fail.New(1, "/path/to/file", "evaluator", fail.ErrTypeMismatch,
-			tc.objL, tc.op, tc.objR).String()
-
-		if errObj.String() != expect {
-			t.Fatalf("error message is not '%s', got '%s'", expect, errObj.String())
+		expect := fail.New(1, "/path/to/file", "evaluator", fail.ErrTypeMismatch, tc.objL, tc.op, tc.objR)
+		if err.String() != expect.String() {
+			t.Fatalf("Error message is not %q, got %q", expect, err)
 		}
 	}
 }
@@ -521,18 +510,14 @@ func TestLogicalOpUnknownTypeError(t *testing.T) {
 
 	for _, tc := range cases {
 		evaluated := testEval(tc.inp)
-
-		errObj, ok := evaluated.(*object.Error)
-
+		err, ok := evaluated.(*object.Error)
 		if !ok {
-			t.Fatalf("evaluation failed: %s", errObj.String())
+			t.Fatalf("Evaluation failed with error %q", err.String())
 		}
 
-		expect := fail.New(1, "/path/to/file", "evaluator",
-			fail.ErrUnknownTypeForOp, tc.obj, tc.op).String()
-
-		if errObj.String() != expect {
-			t.Fatalf("error message is not '%s', got '%s'", expect, errObj.String())
+		expect := fail.New(1, "/path/to/file", "evaluator", fail.ErrUnknownTypeForOp, tc.obj, tc.op)
+		if err.String() != expect.String() {
+			t.Fatalf("Error message is not %q, got %q", expect, err)
 		}
 	}
 }
