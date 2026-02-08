@@ -1,0 +1,4 @@
+<ul>
+    <li class="acts as default">@slot{{-- Comment --}}</li>
+    <li class="slot with number">@slot('1') {{ age }}</li>
+</ul>

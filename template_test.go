@@ -249,7 +249,7 @@ func TestNewTemplate(t *testing.T) {
 		{
 			"with-comp-and-slots",
 			"index",
-			map[string]any{"head": "Header", "foot": "Footer"},
+			map[string]any{"name": "Anna", "age": 20},
 		},
 		{"with-comp-no-args", "index", nil},
 		{"insert-is-optional", "index", nil},
