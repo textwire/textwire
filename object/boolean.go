@@ -12,7 +12,6 @@ func (b *Bool) String() string {
 	if b.Value {
 		return "1"
 	}
-
 	return "0"
 }
 
@@ -20,7 +19,6 @@ func (b *Bool) Dump(ident int) string {
 	if b.Value {
 		return "<span class='textwire-keyword'>true</span>"
 	}
-
 	return "<span class='textwire-keyword'>false</span>"
 }
 

@@ -1,5 +1,7 @@
 package object
 
+import "fmt"
+
 type Use struct {
 	Path   string
 	Layout Object
@@ -17,7 +19,7 @@ func (u *Use) String() string {
 }
 
 func (u *Use) Dump(ident int) string {
-	return "use stmt"
+	return fmt.Sprintf("@use(%q)", u.Path)
 }
 
 func (u *Use) Val() any {

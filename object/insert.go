@@ -1,5 +1,7 @@
 package object
 
+import "fmt"
+
 type Insert struct {
 	Name  string
 	Block Object //@insert(name)<Block>@end or @insert(name, <Block>)
@@ -18,7 +20,7 @@ func (i *Insert) String() string {
 }
 
 func (r *Insert) Dump(ident int) string {
-	return "reserve stmt"
+	return fmt.Sprintf("@insert(%q)", r.Name)
 }
 
 func (r *Insert) Val() any {

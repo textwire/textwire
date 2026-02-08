@@ -11,7 +11,7 @@ func (b *Builtin) Type() ObjectType {
 }
 
 func (b *Builtin) String() string {
-	return "builtin function"
+	return "func()"
 }
 
 func (b *Builtin) Dump(ident int) string {
