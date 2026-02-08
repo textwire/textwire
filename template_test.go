@@ -188,7 +188,9 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 
 	for _, tc := range cases {
 		t.Run(tc.dir, func(t *testing.T) {
-			tpl, tplErr := NewTemplate(&config.Config{TemplateDir: "textwire/testdata/bad/" + tc.dir})
+			tpl, tplErr := NewTemplate(
+				&config.Config{TemplateDir: "textwire/testdata/bad/" + tc.dir},
+			)
 			if tplErr != nil {
 				if tplErr.Error() != tc.err.String() {
 					t.Fatalf("Wrong error message! Expect:\n%q\ngot:\n%q", tc.err, tplErr)
@@ -342,7 +344,9 @@ func TestTwoTemplates(t *testing.T) {
 		t.Errorf("Wrong result for home.tw. Expect\n'%s'\ngot:\n'%s'", expectHome, actualHome)
 	}
 
-	expectAbout, aboutFileErr := readFile("textwire/testdata/good/expected/two-templates-about.html")
+	expectAbout, aboutFileErr := readFile(
+		"textwire/testdata/good/expected/two-templates-about.html",
+	)
 	if aboutFileErr != nil {
 		t.Errorf("Error reading file: %s", aboutFileErr)
 		return

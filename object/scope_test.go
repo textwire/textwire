@@ -335,7 +335,12 @@ func TestAddGlobalData(t *testing.T) {
 			}
 
 			if val.Type() != tc.expectVal.Type() {
-				t.Fatalf("Expected 'global[%s]' type to be %q, got %q", tc.key, tc.expectVal.Type(), val.Type())
+				t.Fatalf(
+					"Expected 'global[%s]' type to be %q, got %q",
+					tc.key,
+					tc.expectVal.Type(),
+					val.Type(),
+				)
 			}
 
 			if val.String() != tc.expectVal.String() {

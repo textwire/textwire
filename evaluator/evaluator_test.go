@@ -481,7 +481,15 @@ func TestTypeMismatchErrors(t *testing.T) {
 			t.Fatalf("Evaluation failed, got error %q", err)
 		}
 
-		expect := fail.New(1, "/path/to/file", "evaluator", fail.ErrTypeMismatch, tc.objL, tc.op, tc.objR)
+		expect := fail.New(
+			1,
+			"/path/to/file",
+			"evaluator",
+			fail.ErrTypeMismatch,
+			tc.objL,
+			tc.op,
+			tc.objR,
+		)
 		if err.String() != expect.String() {
 			t.Fatalf("Error message is not %q, got %q", expect, err)
 		}
