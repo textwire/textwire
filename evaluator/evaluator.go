@@ -477,18 +477,18 @@ func (e *Evaluator) externalSlotStmt(slotStmt *ast.SlotStmt, ctx *Context) objec
 }
 
 func (e *Evaluator) localSlotStmt(slotStmt *ast.SlotStmt, ctx *Context) object.Object {
-	var body object.Object = NIL
+	var block object.Object = NIL
 
 	if slotStmt.Block != nil {
-		body = e.Eval(slotStmt.Block, ctx)
-		if isError(body) {
-			return body
+		block = e.Eval(slotStmt.Block, ctx)
+		if isError(block) {
+			return block
 		}
 	}
 
 	return &object.Slot{
 		Name:    slotStmt.Name.Value,
-		Content: body,
+		Content: block,
 	}
 }
 
@@ -497,9 +497,9 @@ func (e *Evaluator) insert(insertStmt *ast.InsertStmt, ctx *Context) object.Obje
 		return e.newError(insertStmt, ctx, fail.ErrSomeDirsOnlyInTemplates)
 	}
 
-	// Inserts should be nil when we don't have @use() directive
+	name := insertStmt.Name.Value
 	if !e.usingUseStmt {
-		return NIL
+		return e.newError(insertStmt, ctx, fail.ErrInsertRequiresUse, name)
 	}
 
 	block := e.combineInsertContent(insertStmt, ctx)
@@ -508,7 +508,7 @@ func (e *Evaluator) insert(insertStmt *ast.InsertStmt, ctx *Context) object.Obje
 	}
 
 	return &object.Insert{
-		Name:  insertStmt.Name.Value,
+		Name:  name,
 		Block: block,
 	}
 }
@@ -552,7 +552,7 @@ func (e *Evaluator) ident(ident *ast.Identifier, ctx *Context) object.Object {
 		return val
 	}
 
-	return e.newError(ident, ctx, fail.ErrIdentifierIsUndefined, ident.Name)
+	return e.newError(ident, ctx, fail.ErrVariableIsUndefined, ident.Name)
 }
 
 func (e *Evaluator) indexExp(indexExp *ast.IndexExp, ctx *Context) object.Object {

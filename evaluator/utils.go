@@ -148,7 +148,7 @@ func addDecimals(
 func isUndefinedVarError(obj object.Object) bool {
 	err, isErr := obj.(*object.Error)
 	return isErr &&
-		(err.ErrorID == fail.ErrIdentifierIsUndefined || err.ErrorID == fail.ErrPropertyNotFound)
+		(err.ErrorID == fail.ErrVariableIsUndefined || err.ErrorID == fail.ErrPropertyNotFound)
 }
 
 func strIsInt(s string) bool {

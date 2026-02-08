@@ -97,11 +97,11 @@ func TestNewScopeFromMap(t *testing.T) {
 		}
 
 		if obj.Type() != val.Type() {
-			t.Fatalf("scope.Get(%s) returned %s, expect %s", key, obj.Type(), val.Type())
+			t.Fatalf("scope.Get(%s) returned %q, expected %q", key, obj.Type(), val.Type())
 		}
 
 		if obj.String() != val.String() {
-			t.Fatalf("scope.Get(%s) returned %s, expect %s", key, obj.String(), val.String())
+			t.Fatalf("scope.Get(%s) returned %q, expected %q", key, obj, val)
 		}
 	}
 }
@@ -319,29 +319,32 @@ func TestAddGlobalData(t *testing.T) {
 			scope := NewScope()
 			scope.AddGlobal(tc.key, tc.val)
 
-			global, exists := scope.vars["global"]
-			if !exists {
-				t.Fatalf("'global' object not found in the scope")
+			global, ok := scope.vars["global"]
+			if !ok {
+				t.Fatalf("The 'global' object not found in the scope")
 			}
 
-			obj, isObj := global.(*Obj)
-			if !isObj {
-				t.Fatalf("'global' object is not of type Obj")
+			obj, ok := global.(*Obj)
+			if !ok {
+				t.Fatalf("The 'global' object is not of type Obj")
 			}
 
-			val, hasVal := obj.Pairs[tc.key]
-			if !hasVal {
-				t.Fatalf("'global' object does not have key %s", tc.key)
+			val, ok := obj.Pairs[tc.key]
+			if !ok {
+				t.Fatalf("The 'global' object does not have key %s", tc.key)
 			}
 
 			if val.Type() != tc.expectVal.Type() {
-				t.Fatalf("Expected 'global[%s]' type to be %s, got %s",
-					tc.key, tc.expectVal.Type(), val.Type())
+				t.Fatalf(
+					"Expected 'global[%s]' type to be %q, got %q",
+					tc.key,
+					tc.expectVal.Type(),
+					val.Type(),
+				)
 			}
 
 			if val.String() != tc.expectVal.String() {
-				t.Fatalf("Expected 'global[%s]' to be '%s', got '%s'",
-					tc.key, tc.expectVal, val)
+				t.Fatalf("Expected 'global[%s]' to be %q, got %q", tc.key, tc.expectVal, val)
 			}
 		})
 	}

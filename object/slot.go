@@ -1,5 +1,7 @@
 package object
 
+import "fmt"
+
 type Slot struct {
 	Name    string
 	Content Object
@@ -18,7 +20,7 @@ func (s *Slot) String() string {
 }
 
 func (s *Slot) Dump(ident int) string {
-	return "slot stmt"
+	return fmt.Sprintf("@slot(%q)", s.Name)
 }
 
 func (s *Slot) Val() any {

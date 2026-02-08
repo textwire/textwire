@@ -550,8 +550,8 @@ func (p *Parser) parseAliasPathShortcut(shortenTo string) string {
 	return name
 }
 
-// slotStmt parses a slot statement inside a component file.
-// Slots inside a component are parsed by other function
+// slotStmt parses an external slot statement inside a component file.
+// Slots inside a @component are parsed by other function.
 func (p *Parser) slotStmt() ast.Statement {
 	tok := p.curToken // "@slot"
 
@@ -622,9 +622,9 @@ func (p *Parser) slots(compName string) []*ast.SlotStmt {
 			p.nextToken() // skip "@slot"
 		}
 
-		hasEmptyBody := p.curTokenIs(token.END)
+		hasEmptyBlock := p.curTokenIs(token.END)
 
-		if hasEmptyBody {
+		if hasEmptyBlock {
 			p.nextToken() // skip "@end"
 			stmt.SetEndPosition(p.curToken.Pos)
 		} else {
@@ -681,7 +681,7 @@ func (p *Parser) insertStmt() ast.Statement {
 		return nil
 	}
 
-	// Handle inline @insert without body
+	// Handle inline @insert without block
 	if p.peekTokenIs(token.COMMA) {
 		p.nextToken() // skip insert name
 		p.nextToken() // skip ","
@@ -711,7 +711,7 @@ func (p *Parser) insertStmt() ast.Statement {
 	p.nextToken() // skip ")"
 	stmt.Block = p.blockStmt()
 
-	// skip body block and move to @end
+	// skip block and move to @end
 	if !p.expectPeek(token.END) {
 		return p.illegalNodeUntil(token.END)
 	}

@@ -25,10 +25,8 @@ func TestFloatToStr(t *testing.T) {
 
 	for _, tt := range tc {
 		t.Run(tt.name, func(t *testing.T) {
-			actual := FloatToStr(tt.input)
-
-			if actual != tt.expect {
-				t.Errorf("expect %s, got %s", tt.expect, actual)
+			if actual := FloatToStr(tt.input); actual != tt.expect {
+				t.Errorf("Expected %q but got %q", tt.expect, actual)
 			}
 		})
 	}

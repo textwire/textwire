@@ -1,6 +1,12 @@
 # Release notes
 
-## v3.0.0 (2026-02-05) — Major Release
+## v3.0.1 (2026-02-08)
+
+- 🧑‍💻 Improve error messages.
+- 🧑‍💻 Potentially a breaking change, but it should not be. You will receive a clear error if you trying to use `@insert` in a template file without defining `@use` statement. Previously, `@insert` would result in empty string in your template.
+- 🐛 Fixed incorrect duplicate slot counter for error message when you have multiple duplicate slots in the same comonent.
+
+## v3.0.0 (2026-02-07) — Major Release
 
 📖 [Migration Guide](https://textwire.github.io/docs/v3/upgrade) | [Announcement](https://textwire.github.io/blog/2026/02/05/textwire-v3)
 
@@ -10,7 +16,7 @@
 2. Improve memory and performance. Read about improvements [here](https://textwire.github.io/blog/2026/02/05/textwire-v3#memory-performance).
 3. Improve error messages. Now they are clearer.
 4. Added tons of tests to make sure version 3 is stable.
-4. You'll get a clear error when using 2 or more `@use` statements in the same template.
+5. You'll get a clear error when using 2 or more `@use` statements in the same template.
 
 ### 🐛 Bug Fixes
 

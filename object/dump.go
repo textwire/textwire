@@ -3,6 +3,7 @@ package object
 import (
 	"bytes"
 	"fmt"
+	"strings"
 )
 
 var outputHTML = `<style>
@@ -49,17 +50,15 @@ func (d *Dump) String() string {
 }
 
 func (d *Dump) Dump(ident int) string {
-	return "dump stmt"
+	return fmt.Sprintf("@dump(%s)", strings.Join(d.Values, ", "))
 }
 
 func (d *Dump) Val() any {
-	var result []any
-
-	for _, v := range d.Values {
-		result = append(result, v)
+	var res []any
+	for i := range d.Values {
+		res = append(res, d.Values[i])
 	}
-
-	return result
+	return res
 }
 
 func (d *Dump) Is(t ObjectType) bool {

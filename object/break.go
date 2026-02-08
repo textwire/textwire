@@ -11,7 +11,7 @@ func (b *Break) String() string {
 }
 
 func (b *Break) Dump(ident int) string {
-	return "break stmt"
+	return "@break"
 }
 
 func (b *Break) Val() any {

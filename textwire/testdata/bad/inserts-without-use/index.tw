@@ -1,0 +1,8 @@
+<h1>Amy Lou Adams</h1>
+<p>Amy Lou Adams is an American actress. Known for both her comedic and dramatic roles</p>
+
+@insert("title", "Causes error")
+
+@insert("content")
+<h1>This is impossible and will cause an error</h1>
+@end

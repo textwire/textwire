@@ -104,7 +104,6 @@ func nativeStructToObject(val any) Object {
 
 func nativeSliceToArrayObject(slice []any) *Array {
 	arr := &Array{}
-
 	for _, val := range slice {
 		arr.Elements = append(arr.Elements, NativeToObject(val))
 	}

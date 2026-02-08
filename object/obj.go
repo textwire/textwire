@@ -1,7 +1,6 @@
 package object
 
 import (
-	"bytes"
 	"fmt"
 	"sort"
 	"strings"
@@ -30,6 +29,7 @@ func (o *Obj) String() string {
 	keys := o.sortedKeys()
 
 	var out strings.Builder
+	out.Grow(2)
 
 	out.WriteString("{")
 
@@ -47,6 +47,7 @@ func (o *Obj) String() string {
 	}
 
 	out.WriteString("}")
+
 	return out.String()
 }
 
@@ -54,7 +55,8 @@ func (o *Obj) Dump(ident int) string {
 	spaces := strings.Repeat("  ", ident)
 	ident += 1
 
-	var out bytes.Buffer
+	var out strings.Builder
+	out.Grow(4)
 
 	fmt.Fprintf(&out, "<span class='textwire-meta'>object:%d </span>", len(o.Pairs))
 	out.WriteString("<span class='textwire-brace'>{</span>\n")
@@ -75,13 +77,12 @@ func (o *Obj) Dump(ident int) string {
 }
 
 func (o *Obj) Val() any {
-	result := map[string]any{}
-
+	res := map[string]any{}
 	for k, v := range o.Pairs {
-		result[k] = v.Val()
+		res[k] = v.Val()
 	}
 
-	return result
+	return res
 }
 
 func (o *Obj) Is(t ObjectType) bool {
@@ -93,6 +94,8 @@ func (o *Obj) sortedKeys() []string {
 	for k := range o.Pairs {
 		keys = append(keys, k)
 	}
+
 	sort.Strings(keys)
+
 	return keys
 }

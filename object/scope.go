@@ -44,11 +44,9 @@ func (s *Scope) Child() *Scope {
 
 func (e *Scope) Get(name string) (Object, bool) {
 	obj, ok := e.vars[name]
-
 	if !ok && e.parent != nil {
 		obj, ok = e.parent.Get(name)
 	}
-
 	return obj, ok
 }
 

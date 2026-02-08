@@ -96,7 +96,8 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 				5,
 				path+"undefined-insert/index.tw",
 				"parser",
-				fail.ErrUndefinedInsert,
+				fail.ErrAddMatchingReserve,
+				"some-name",
 				"some-name",
 			),
 			data: nil,
@@ -117,8 +118,8 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 			err: fail.New(
 				1,
 				path+"undefined-var-in-comp/hero.tw",
-				"parser",
-				fail.ErrIdentifierIsUndefined,
+				"evaluator",
+				fail.ErrVariableIsUndefined,
 				"undefinedVar",
 			),
 			data: nil,
@@ -128,8 +129,8 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 			err: fail.New(
 				8,
 				path+"undefined-var-in-use/base.tw",
-				"parser",
-				fail.ErrIdentifierIsUndefined,
+				"evaluator",
+				fail.ErrVariableIsUndefined,
 				"undefinedVar",
 			),
 			data: nil,
@@ -150,8 +151,8 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 			err: fail.New(
 				1,
 				path+"undefined-var-in-nested-comp/second.tw",
-				"parser",
-				fail.ErrIdentifierIsUndefined,
+				"evaluator",
+				fail.ErrVariableIsUndefined,
 				"name",
 			),
 			data: map[string]any{"name": "Amy"},
@@ -161,8 +162,8 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 			err: fail.New(
 				1,
 				path+"var-in-layout/layout.tw",
-				"parser",
-				fail.ErrIdentifierIsUndefined,
+				"evaluator",
+				fail.ErrVariableIsUndefined,
 				"fullName",
 			),
 			data: map[string]any{"fullName": "Amy Adams"},
@@ -172,29 +173,47 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 			err:  fail.New(2, path+"duplicate-use/index.tw", "parser", fail.ErrOnlyOneUseDir),
 			data: nil,
 		},
+		{
+			dir: "inserts-without-use",
+			err: fail.New(
+				4,
+				path+"inserts-without-use/index.tw",
+				"evaluator",
+				fail.ErrInsertRequiresUse,
+				"title",
+			),
+			data: nil,
+		},
 	}
 
 	for _, tc := range cases {
 		t.Run(tc.dir, func(t *testing.T) {
-			tpl, tplErr := NewTemplate(&config.Config{
-				TemplateDir: "textwire/testdata/bad/" + tc.dir,
-			})
-
+			tpl, tplErr := NewTemplate(
+				&config.Config{TemplateDir: "textwire/testdata/bad/" + tc.dir},
+			)
 			if tplErr != nil {
 				if tplErr.Error() != tc.err.String() {
-					t.Fatalf("wrong error message. expect:\n\"%s\"\ngot:\n\"%s\"", tc.err, tplErr)
+					t.Fatalf("Wrong error message! Expect:\n%q\ngot:\n%q", tc.err, tplErr)
 				}
 				return
 			}
 
 			_, err := tpl.String("index", tc.data)
 			if err == nil {
-				t.Fatalf("expected error but got none")
-				return
+				t.Fatalf("Expected error but got none")
 			}
 
 			if err.String() != tc.err.String() {
-				t.Fatalf("wrong error message. expect:\n\"%s\"\ngot:\n\"%s\"", tc.err, err)
+				t.Fatalf("Wrong error message! Expect:\n%s\ngot:\n%q", tc.err, err)
+			}
+
+			if err.Origin() != tc.err.Origin() {
+				t.Fatalf(
+					"Wrong origin on error message, expect %s, got: %s in error message:\n%q",
+					tc.err.Origin(),
+					err.Origin(),
+					err,
+				)
 			}
 		})
 	}
@@ -224,13 +243,12 @@ func TestNewTemplate(t *testing.T) {
 			map[string]any{"names": []string{"Anna", "Serhii", "Vladimir"}},
 		},
 		{"use-inside-if", "index", nil},
-		{"insert-without-use", "index", nil},
 		{"with-comp", "index", nil},
 		{"with-inserts-and-html", "index", nil},
 		{
 			"with-comp-and-slots",
 			"index",
-			map[string]any{"head": "Header", "foot": "Footer"},
+			map[string]any{"name": "Anna", "age": 20},
 		},
 		{"with-comp-no-args", "index", nil},
 		{"insert-is-optional", "index", nil},
@@ -245,103 +263,101 @@ func TestNewTemplate(t *testing.T) {
 			})
 
 			if err != nil {
-				t.Errorf("error creating template: %s", err)
+				t.Errorf("Error creating template: %q", err)
 				return
 			}
 
-			actual, evalErr := tpl.String(tc.viewName, tc.data)
-			if evalErr != nil {
-				t.Fatalf("error evaluating template: %s", evalErr)
+			actual, failure := tpl.String(tc.viewName, tc.data)
+			if failure != nil {
+				t.Fatalf("Error evaluating template: %q", failure)
 				return
 			}
 
 			expect, err := readFile("textwire/testdata/good/expected/" + tc.dirName + ".html")
 			if err != nil {
-				t.Fatalf("error reading expected file: %s", err)
+				t.Fatalf("Error reading file. Error: %s", err)
 				return
 			}
 
 			if actual != expect {
-				t.Fatalf("wrong result. expect:\n\"%s\"\ngot:\n\"%s\"", expect, actual)
+				t.Fatalf("Wrong result. Expect:\n'%s'\ngot:\n'%s'", expect, actual)
 			}
 		})
 	}
 }
 
 func TestRegisteringCustomFunction(t *testing.T) {
-	tpl, err := NewTemplate(&config.Config{
+	tpl, fileErr := NewTemplate(&config.Config{
 		TemplateDir: "textwire/testdata/good/before/with-customs",
 		GlobalData:  map[string]any{"env": "dev", "name": "Serhii", "age": 36},
 	})
-
-	if err != nil {
-		t.Fatalf("unexpected error: %s", err)
+	if fileErr != nil {
+		t.Fatalf("Unexpected template error: %s", fileErr)
 	}
 
-	err = RegisterStrFunc("_secondLetterUpper", func(s string, args ...any) any {
+	err := RegisterStrFunc("_secondLetterUpper", func(s string, args ...any) any {
 		if len(s) < 2 {
 			return s
 		}
-
 		return string(s[0]) + string(s[1]-32) + s[2:]
 	})
-
 	if err != nil {
-		t.Fatalf("unexpected error: %s", err)
+		t.Fatalf("Unexpected error registering function: %s", fileErr)
 	}
 
-	expect, err := readFile("textwire/testdata/good/expected/with-customs.html")
-	if err != nil {
-		t.Errorf("error reading expected file: %s", err)
+	expect, fileErr := readFile("textwire/testdata/good/expected/with-customs.html")
+	if fileErr != nil {
+		t.Errorf("Error reading file: %s", fileErr)
 		return
 	}
 
 	actual, evalErr := tpl.String("index", nil)
 	if evalErr != nil {
-		t.Fatalf("error evaluating template: %s", evalErr)
+		t.Fatalf("Error evaluating template: %s", evalErr)
 	}
 
 	if actual != expect {
-		t.Errorf("wrong result. expect: '%s' got: '%s'", expect, actual)
+		t.Errorf("Wrong result. Expect:\n'%s'\ngot:\n'%s'", expect, actual)
 	}
 }
 
 func TestTwoTemplates(t *testing.T) {
-	tpl, err := NewTemplate(&config.Config{
+	tpl, tplErr := NewTemplate(&config.Config{
 		TemplateDir: "textwire/testdata/good/before/two-templates",
 	})
-
-	if err != nil {
-		t.Fatalf("unexpected error: %s", err)
+	if tplErr != nil {
+		t.Fatalf("Unexpected template error: %s", tplErr)
 	}
 
-	expectHome, err := readFile("textwire/testdata/good/expected/two-templates-home.html")
-	if err != nil {
-		t.Errorf("error reading expected file: %s", err)
+	expectHome, homeFileErr := readFile("textwire/testdata/good/expected/two-templates-home.html")
+	if homeFileErr != nil {
+		t.Errorf("Error reading file: %s", homeFileErr)
 		return
 	}
 
 	actualHome, evalHomeErr := tpl.String("home", map[string]any{"titleHome": "home"})
 	if evalHomeErr != nil {
-		t.Fatalf("error evaluating home.tw template: %s", evalHomeErr)
+		t.Fatalf("Error evaluating home.tw template: %s", evalHomeErr)
 	}
 
 	if actualHome != expectHome {
-		t.Errorf("wrong result for home.tw. expect: '%s' got: '%s'", expectHome, actualHome)
+		t.Errorf("Wrong result for home.tw. Expect\n'%s'\ngot:\n'%s'", expectHome, actualHome)
 	}
 
-	expectAbout, err := readFile("textwire/testdata/good/expected/two-templates-about.html")
-	if err != nil {
-		t.Errorf("error reading expected file: %s", err)
+	expectAbout, aboutFileErr := readFile(
+		"textwire/testdata/good/expected/two-templates-about.html",
+	)
+	if aboutFileErr != nil {
+		t.Errorf("Error reading file: %s", aboutFileErr)
 		return
 	}
 
 	actualAbout, evalAboutErr := tpl.String("about", map[string]any{"titleAbout": "about"})
 	if evalAboutErr != nil {
-		t.Fatalf("error evaluating home.tw template: %s", evalAboutErr)
+		t.Fatalf("Error evaluating home.tw file template: %s", evalAboutErr)
 	}
 
 	if actualAbout != expectAbout {
-		t.Errorf("wrong result for about.tw. expect: '%s' got: '%s'", expectAbout, actualAbout)
+		t.Errorf("Wrong result for about.tw. Expect:\n'%s'\ngot:\n'%s'", expectAbout, actualAbout)
 	}
 }

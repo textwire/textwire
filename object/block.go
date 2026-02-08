@@ -29,7 +29,7 @@ func (b *Block) Dump(ident int) string {
 	ident += 1
 
 	var out bytes.Buffer
-
+	out.Grow(len(b.Elements))
 	for _, e := range b.Elements {
 		out.WriteString(spaces + e.Dump(ident))
 	}

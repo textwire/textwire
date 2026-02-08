@@ -23,7 +23,10 @@ func NewEachStmt(tok token.Token) *EachStmt {
 
 func (es *EachStmt) statementNode() {}
 
-func (es *EachStmt) LoopBodyBlock() *BlockStmt {
+func (es *EachStmt) LoopBlock() *BlockStmt {
+	if es.Block == nil {
+		panic("Block must not be nil on EachStmt when calling LoopBlock()")
+	}
 	return es.Block
 }
 

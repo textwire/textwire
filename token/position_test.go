@@ -132,10 +132,8 @@ func TestContains(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.desc, func(t *testing.T) {
-			actual := tc.token.Pos.Contains(tc.line, tc.col)
-
-			if actual != tc.expect {
-				t.Errorf("Got: %v, Expect: %v", actual, tc)
+			if actual := tc.token.Pos.Contains(tc.line, tc.col); actual != tc.expect {
+				t.Errorf("Expected position %v but got %v", tc, actual)
 			}
 		})
 	}
