@@ -36,7 +36,7 @@ func parseStatements(t *testing.T, inp string, opts parseOpts) []ast.Statement {
 
 	if len(prog.Statements) != opts.stmtCount {
 		t.Fatalf(
-			"prog must have %d statement, got %d for input: %q",
+			"Program must have %d statementbut got %d for input %q",
 			opts.stmtCount,
 			len(prog.Statements),
 			inp,
@@ -51,7 +51,7 @@ func checkParserErrors(t *testing.T, p *Parser) {
 		return
 	}
 
-	t.Errorf("parser has %d errors", len(p.Errors()))
+	t.Errorf("Parser has %d errors", len(p.Errors()))
 
 	for _, msg := range p.Errors() {
 		t.Errorf("parser error: %q", msg)
@@ -63,7 +63,7 @@ func checkParserErrors(t *testing.T, p *Parser) {
 func testInfixExp(t *testing.T, exp ast.Expression, left any, op string, right any) {
 	infix, ok := exp.(*ast.InfixExp)
 	if !ok {
-		t.Fatalf("exp is not an InfixExp, got %T", exp)
+		t.Fatalf("Variable exp is not an InfixExp, got %T", exp)
 	}
 
 	testLiteralExpression(t, infix.Left, left)
@@ -150,17 +150,17 @@ func testStringLiteral(t *testing.T, exp ast.Expression, value string) {
 }
 
 func testBooleanLiteral(t *testing.T, exp ast.Expression, value bool) {
-	boolean, ok := exp.(*ast.BooleanLiteral)
+	b, ok := exp.(*ast.BooleanLiteral)
 	if !ok {
-		t.Fatalf("exp not *ast.Boolean. got=%T", exp)
+		t.Fatalf("exp not *ast.Boolean, got %T", exp)
 	}
 
-	if boolean.Value != value {
-		t.Fatalf("bo.Value not %t. got=%t", value, boolean.Value)
+	if b.Value != value {
+		t.Fatalf("bo.Value not %t, got %t", value, b.Value)
 	}
 
-	if boolean.Tok().Literal != fmt.Sprintf("%t", value) {
-		t.Fatalf("bo.TokenLiteral not %t. got=%s", value, boolean.Tok().Literal)
+	if b.Tok().Literal != fmt.Sprintf("%t", value) {
+		t.Fatalf("b.Tok().Literal is not %t, got %s", value, b.Tok().Literal)
 	}
 }
 
@@ -194,7 +194,7 @@ func testLiteralExpression(t *testing.T, exp ast.Expression, expect any) {
 	case nil:
 		testNilLiteral(t, exp)
 	default:
-		t.Fatalf("type of exp not handled. got=%T", exp)
+		t.Fatalf("type of exp not handled. got %T", exp)
 	}
 }
 
@@ -623,7 +623,7 @@ func TestOpPrecedenceParsing(t *testing.T) {
 		checkParserErrors(t, p)
 
 		if prog.String() != tc.expect {
-			t.Fatalf("expect=%q, got=%q", tc.expect, prog)
+			t.Fatalf("Expect %q but got %q", tc.expect, prog)
 		}
 	}
 }
@@ -1720,7 +1720,6 @@ func TestParseComponentDirective(t *testing.T) {
 	t.Run("@component without slots", func(t *testing.T) {
 		inp := "<ul>@component('components/book-card', { c: card })</ul>"
 		stmts := parseStatements(t, inp, parseOpts{stmtCount: 3, checkErrors: true})
-
 		stmt, ok := stmts[1].(*ast.ComponentStmt)
 		if !ok {
 			t.Fatalf("stmts[1] is not a ComponentStmt, got %T", stmts[1])
@@ -1759,7 +1758,6 @@ func TestParseComponentDirective(t *testing.T) {
 		</ul>`
 
 		stmts := parseStatements(t, inp, parseOpts{stmtCount: 3, checkErrors: true})
-
 		stmt, ok := stmts[1].(*ast.ComponentStmt)
 		if !ok {
 			t.Fatalf("stmts[1] is not a ComponentStmt, got %T", stmts[1])
@@ -1839,7 +1837,6 @@ func TestParseSlotDirective(t *testing.T) {
 		testStringLiteral(t, stmt.Name, "header")
 
 		expect := "@slot(\"header\")"
-
 		if stmt.String() != expect {
 			t.Fatalf("stmt.String() is not `%s`, got `%s`", expect, stmt)
 		}
@@ -1870,9 +1867,7 @@ func TestParseSlotDirective(t *testing.T) {
 
 func TestParseDumpStmt(t *testing.T) {
 	inp := `@dump("test", 1 + 2, false)`
-
 	stmts := parseStatements(t, inp, defaultParseOpts)
-
 	stmt, ok := stmts[0].(*ast.DumpStmt)
 	if !ok {
 		t.Fatalf("stmts[0] is not an DumpStmt, got %T", stmts[0])
