@@ -32,7 +32,7 @@ func errorPage(failure *fail.Error) (string, error) {
 
 func parseStr(text string) (*ast.Program, []*fail.Error) {
 	l := lexer.New(text)
-	p := parser.New(l, "", "")
+	p := parser.New(l, nil)
 
 	prog := p.ParseProgram()
 	if p.HasErrors() {

@@ -6,6 +6,7 @@ import (
 
 	"github.com/textwire/textwire/v3/config"
 	"github.com/textwire/textwire/v3/fail"
+	"github.com/textwire/textwire/v3/file"
 	"github.com/textwire/textwire/v3/lexer"
 	"github.com/textwire/textwire/v3/object"
 	"github.com/textwire/textwire/v3/parser"
@@ -13,7 +14,7 @@ import (
 
 func testEval(inp string) object.Object {
 	l := lexer.New(inp)
-	p := parser.New(l, "file", "/path/to/file")
+	p := parser.New(l, file.New("file", "to/file", "/path/to/file", nil))
 	prog := p.ParseProgram()
 	scope := object.NewScope()
 

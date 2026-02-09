@@ -31,12 +31,9 @@ type File struct {
 }
 
 func New(name, rel, abs string, c *config.Config) *File {
-	rel = AppendFileExt(rel, c.TemplateExt)
-	abs = AppendFileExt(abs, c.TemplateExt)
-
 	return &File{
 		Name:   strings.Trim(name, "/"),
-		Rel:    TrimRelPath(rel),
+		Rel:    trimRelPath(rel),
 		Abs:    abs,
 		config: c,
 	}

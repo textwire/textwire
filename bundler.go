@@ -89,7 +89,7 @@ func (sb *SourceBundler) parseFile(f *file.File) (*ast.Program, *fail.Error, err
 	}
 
 	l := lexer.New(content)
-	p := parser.New(l, f.Name, f.Abs)
+	p := parser.New(l, f)
 	if p.HasErrors() {
 		return nil, p.Errors()[0], nil
 	}

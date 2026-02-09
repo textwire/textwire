@@ -27,7 +27,7 @@ var defaultParseOpts = parseOpts{
 
 func parseStatements(t *testing.T, inp string, opts parseOpts) []ast.Statement {
 	l := lexer.New(inp)
-	p := New(l, "", "")
+	p := New(l, nil)
 	prog := p.ParseProgram()
 
 	if opts.checkErrors {
@@ -617,7 +617,7 @@ func TestOpPrecedenceParsing(t *testing.T) {
 
 	for _, tc := range cases {
 		l := lexer.New(tc.inp)
-		p := New(l, "", "")
+		p := New(l, nil)
 		prog := p.ParseProgram()
 
 		checkParserErrors(t, p)
@@ -667,7 +667,7 @@ func TestErrorHandling(t *testing.T) {
 
 	for _, tc := range cases {
 		l := lexer.New(tc.inp)
-		p := New(l, "", "")
+		p := New(l, nil)
 		p.ParseProgram()
 
 		if !p.HasErrors() {
