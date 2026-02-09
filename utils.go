@@ -12,10 +12,10 @@ import (
 )
 
 //go:embed textwire/default-error-page.tw
-var defaultErrorPage string
+var defaultErrPage string
 
-// errorPage returns HTML that's displayed when an error
-// occurs while rendering a template
+// errorPage returns HTML that's displayed when an error occurs while
+// rendering template.
 func errorPage(failure *fail.Error) (string, error) {
 	data := map[string]any{
 		"path":      failure.Filepath(),
@@ -24,7 +24,7 @@ func errorPage(failure *fail.Error) (string, error) {
 		"debugMode": userConfig.DebugMode,
 	}
 
-	result, err := EvaluateString(defaultErrorPage, data)
+	result, err := EvaluateString(defaultErrPage, data)
 	if err != nil {
 		return "", err
 	}

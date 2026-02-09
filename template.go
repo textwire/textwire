@@ -12,6 +12,8 @@ import (
 	"github.com/textwire/textwire/v3/object"
 )
 
+// Template holds all necessary data which it will use when individual
+// template files will be evaluated by String() or Response() methods.
 type Template struct {
 	bundler *SourceBundler
 	linker  *linker.NodeLinker
@@ -42,6 +44,7 @@ func NewTemplate(opt *config.Config) (*Template, error) {
 	return &Template{bundler: sb, linker: ln}, nil
 }
 
+// String returns final evaluated template result represented as a string.
 func (t *Template) String(name string, data map[string]any) (string, *fail.Error) {
 	scope, err := object.NewScopeFromMap(data)
 	if err != nil {
@@ -63,6 +66,8 @@ func (t *Template) String(name string, data map[string]any) (string, *fail.Error
 	return evaluated.String(), nil
 }
 
+// Response evaluates template file with String() method and passing that final
+// string to the given http.ResponseWriter.
 func (t *Template) Response(w http.ResponseWriter, name string, data map[string]any) error {
 	evaluated, failure := t.String(name, data)
 	if failure == nil {
@@ -74,8 +79,8 @@ func (t *Template) Response(w http.ResponseWriter, name string, data map[string]
 		return nil
 	}
 
-	hasErrorPage := userConfig.ErrorPagePath != ""
-	if hasErrorPage && !userConfig.DebugMode {
+	hasErrPage := userConfig.ErrorPagePath != ""
+	if hasErrPage && !userConfig.DebugMode {
 		if err := t.responseErrorPage(w); err != nil {
 			return err
 		}
@@ -83,12 +88,12 @@ func (t *Template) Response(w http.ResponseWriter, name string, data map[string]
 		return failure.Error()
 	}
 
-	out, err := errorPage(failure)
+	errPage, err := errorPage(failure)
 	if err != nil {
 		return err
 	}
 
-	_, err = fmt.Fprint(w, out)
+	_, err = fmt.Fprint(w, errPage)
 	if err != nil {
 		return err
 	}
