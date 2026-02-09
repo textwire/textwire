@@ -9,29 +9,29 @@ import (
 	"github.com/textwire/textwire/v3/config"
 )
 
-// File holds information about individual Textwire File, including
-// relative and absolute File paths.
-type File struct {
-	// Name of the file, like "components/book" or "layouts/base", or "home".
-	// This field can be empty when we are evaluating a file outside of using
-	// templating system.
+// SourceFile holds information about individual Textwire source file,
+// including relative and absolute file paths.
+type SourceFile struct {
+	// Name of the source file, like "components/book" or "layouts/base",
+	// or "home". This field can be empty when we evaluate a file outside
+	// of using templating system.
 	Name string
 
-	// Rel path to the Textwire file that starts from the root of user's
-	// project.
+	// Rel path to the source file that starts from the root of user's project.
 	// When using config.TemplateFS, relative path will exclude
 	// config.TemplateDir from it to use embeded paths properly.
 	Rel string
 
-	// Abs path to the Textwire file starting with `/` and system's root.
+	// Abs is the absolute path to the source file starting with `/`.
 	Abs string
 
-	// config is user's config
+	// config is user's configurations that SourceFile needs to access
+	// source file extension and location to root of templates.
 	config *config.Config
 }
 
-func New(name, rel, abs string, c *config.Config) *File {
-	return &File{
+func New(name, rel, abs string, c *config.Config) *SourceFile {
+	return &SourceFile{
 		Name:   strings.Trim(name, "/"),
 		Rel:    trimRelPath(rel),
 		Abs:    abs,
@@ -39,8 +39,8 @@ func New(name, rel, abs string, c *config.Config) *File {
 	}
 }
 
-// Content returns the content of the file.
-func (f *File) Content() (string, error) {
+// Content returns the raw content of the file as a string.
+func (f *SourceFile) Content() (string, error) {
 	var content []byte
 	var err error
 

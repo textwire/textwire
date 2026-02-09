@@ -15,12 +15,12 @@ import (
 // SourceBundler is the main struct to handle parsing and evaluation of
 // Textwire code.
 type SourceBundler struct {
-	files []*file.File
+	files []*file.SourceFile
 }
 
-func NewSourceBundle() *SourceBundler {
+func NewSourceBundler() *SourceBundler {
 	return &SourceBundler{
-		files: make([]*file.File, 0, 4),
+		files: make([]*file.SourceFile, 0, 4),
 	}
 }
 
@@ -82,7 +82,7 @@ func (sb *SourceBundler) FindFiles() error {
 }
 
 // parseFile parses given file into a ast.Program and returns it.
-func (sb *SourceBundler) parseFile(f *file.File) (*ast.Program, *fail.Error, error) {
+func (sb *SourceBundler) parseFile(f *file.SourceFile) (*ast.Program, *fail.Error, error) {
 	content, err := f.Content()
 	if err != nil {
 		return nil, nil, err

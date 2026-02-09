@@ -61,7 +61,7 @@ type Parser struct {
 	l      *lexer.Lexer
 	errors []*fail.Error
 
-	file *file.File
+	file *file.SourceFile
 
 	curToken  token.Token
 	peekToken token.Token
@@ -79,7 +79,7 @@ type Parser struct {
 	reserves   map[string]*ast.ReserveStmt
 }
 
-func New(lexer *lexer.Lexer, f *file.File) *Parser {
+func New(lexer *lexer.Lexer, f *file.SourceFile) *Parser {
 	if f == nil {
 		f = file.New("", "", "", nil)
 	}

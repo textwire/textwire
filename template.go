@@ -26,7 +26,7 @@ type Template struct {
 func NewTemplate(opt *config.Config) (*Template, error) {
 	Configure(opt)
 
-	sb := NewSourceBundle()
+	sb := NewSourceBundler()
 
 	if err := sb.FindFiles(); err != nil {
 		return nil, fail.FromError(err, 0, "", "template").Error()
@@ -37,7 +37,7 @@ func NewTemplate(opt *config.Config) (*Template, error) {
 		return nil, err.Error()
 	}
 
-	ln := linker.NewNodeLinker(programs)
+	ln := linker.New(programs)
 	if err := ln.LinkNodes(); err != nil {
 		return nil, err.Error()
 	}

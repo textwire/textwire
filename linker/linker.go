@@ -12,7 +12,7 @@ type NodeLinker struct {
 	programs []*ast.Program
 }
 
-func NewNodeLinker(progs []*ast.Program) *NodeLinker {
+func New(progs []*ast.Program) *NodeLinker {
 	if progs == nil {
 		progs = make([]*ast.Program, 0, 4)
 	}
