@@ -8,11 +8,13 @@ import (
 	"github.com/textwire/textwire/v3/config"
 	"github.com/textwire/textwire/v3/evaluator"
 	"github.com/textwire/textwire/v3/fail"
+	"github.com/textwire/textwire/v3/linker"
 	"github.com/textwire/textwire/v3/object"
 )
 
 type Template struct {
-	sourceBundle *SourceBundle
+	bundler *SourceBundle
+	linker  *linker.NodeLinker
 }
 
 // NewTemplate returns a new Template instance with parsed Textwire files
@@ -27,15 +29,17 @@ func NewTemplate(opt *config.Config) (*Template, error) {
 		return nil, fail.FromError(err, 0, "", "template").Error()
 	}
 
-	if err := sb.ParseFiles(); err != nil {
+	programs, err := sb.ParseFiles()
+	if err != nil {
 		return nil, err.Error()
 	}
 
-	if err := sb.LinkNodes(); err != nil {
+	ln := linker.NewNodeLinker(programs)
+	if err := ln.LinkNodes(); err != nil {
 		return nil, err.Error()
 	}
 
-	return &Template{sourceBundle: sb}, nil
+	return &Template{bundler: sb, linker: ln}, nil
 }
 
 func (t *Template) String(name string, data map[string]any) (string, *fail.Error) {
@@ -44,7 +48,7 @@ func (t *Template) String(name string, data map[string]any) (string, *fail.Error
 		return "", err
 	}
 
-	prog := ast.FindProg(name, t.sourceBundle.programs)
+	prog := ast.FindProg(name, t.linker.Progs())
 	if prog == nil {
 		return "", fail.New(0, nameToRelPath(name), "template", fail.ErrTemplateNotFound, name)
 	}

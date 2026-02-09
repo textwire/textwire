@@ -14,54 +14,32 @@ import (
 // SourceBundle is the main struct to handle parsing and evaluation of
 // Textwire code.
 type SourceBundle struct {
-	files    []*file
-	programs []*ast.Program
+	files []*file
 }
 
 func NewSourceBundle() *SourceBundle {
-	const approximateCap = 4
-
 	return &SourceBundle{
-		files:    make([]*file, 0, approximateCap),
-		programs: make([]*ast.Program, 0, approximateCap),
+		files: make([]*file, 0, 4),
 	}
 }
 
-// ParseFiles parses each Textwire file into AST nodes and saves them.
-func (sb *SourceBundle) ParseFiles() *fail.Error {
+// ParseFiles parses each Textwire file into AST nodes and returns them.
+func (sb *SourceBundle) ParseFiles() ([]*ast.Program, *fail.Error) {
+	programs := make([]*ast.Program, 0, 4)
 	for _, f := range sb.files {
 		prog, failure, parseErr := sb.parseFile(f)
 		if parseErr != nil {
-			return fail.FromError(parseErr, 0, f.Abs, "template")
+			return programs, fail.FromError(parseErr, 0, f.Abs, "template")
 		}
 
 		if failure != nil {
-			return failure
+			return programs, failure
 		}
 
-		sb.programs = append(sb.programs, prog)
+		programs = append(programs, prog)
 	}
 
-	return nil
-}
-
-// LinkNodes links components and layouts to those programs that use them.
-// For example, we need to add component program to @component('book'), where
-// CompProg is the parsed program AST of the `book.tw` component.
-func (sb *SourceBundle) LinkNodes() *fail.Error {
-	for _, prog := range sb.programs {
-		if err := sb.handleLayoutLinking(prog); err != nil {
-			return err
-		}
-	}
-
-	for _, prog := range sb.programs {
-		if err := sb.handleCompLinking(prog); err != nil {
-			return err
-		}
-	}
-
-	return nil
+	return programs, nil
 }
 
 // FindFiles recursively finds all Textwire files in the templates directory,
@@ -100,52 +78,6 @@ func (sb *SourceBundle) FindFiles() error {
 	)
 
 	return err
-}
-
-// handleLayoutLinking links layout directives to template directives
-func (sb *SourceBundle) handleLayoutLinking(prog *ast.Program) *fail.Error {
-	if !prog.HasUseStmt() {
-		return nil
-	}
-
-	prog.UseStmt.Inserts = prog.Inserts
-
-	layoutName := prog.UseStmt.Name.Value
-	layoutProg := ast.FindProg(layoutName, sb.programs)
-	if layoutProg == nil {
-		return fail.New(prog.Line(), prog.AbsPath, "API", fail.ErrUseStmtMissingLayout, layoutName)
-	}
-
-	layoutProg.IsLayout = true
-	if err := ast.CheckUndefinedInserts(layoutProg, prog.Inserts); err != nil {
-		return err
-	}
-
-	prog.LinkLayoutToUse(layoutProg)
-
-	return nil
-}
-
-// handleCompLinking links component directives with component files
-func (sb *SourceBundle) handleCompLinking(prog *ast.Program) *fail.Error {
-	if len(prog.Components) == 0 {
-		return nil
-	}
-
-	for _, comp := range prog.Components {
-		compName := comp.Name.Value
-		compProg := ast.FindProg(compName, sb.programs)
-		if compProg == nil {
-			return fail.New(prog.Line(), prog.AbsPath, "API", fail.ErrUndefinedComponent, compName)
-		}
-
-		err := prog.LinkCompProg(compName, compProg, prog.AbsPath)
-		if err != nil {
-			return err
-		}
-	}
-
-	return nil
 }
 
 // parseFile parses given file into a ast.Program and returns it.
