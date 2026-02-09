@@ -8,6 +8,7 @@ import (
 	"github.com/textwire/textwire/v3/config"
 	"github.com/textwire/textwire/v3/evaluator"
 	"github.com/textwire/textwire/v3/fail"
+	"github.com/textwire/textwire/v3/file"
 	"github.com/textwire/textwire/v3/linker"
 	"github.com/textwire/textwire/v3/object"
 )
@@ -53,10 +54,11 @@ func (t *Template) String(name string, data map[string]any) (string, *fail.Error
 
 	prog := ast.FindProg(name, t.linker.Progs())
 	if prog == nil {
-		return "", fail.New(0, nameToRelPath(name), "template", fail.ErrTemplateNotFound, name)
+		relPath := file.NameToRelPath(name, userConf.TemplateDir, userConf.TemplateExt)
+		return "", fail.New(0, relPath, "template", fail.ErrTemplateNotFound, name)
 	}
 
-	e := evaluator.New(customFunc, userConfig)
+	e := evaluator.New(customFunc, userConf)
 	ctx := evaluator.NewContext(scope, prog.AbsPath)
 	evaluated := e.Eval(prog, ctx)
 	if evaluated.Is(object.ERR_OBJ) {
@@ -79,8 +81,8 @@ func (t *Template) Response(w http.ResponseWriter, name string, data map[string]
 		return nil
 	}
 
-	hasErrPage := userConfig.ErrorPagePath != ""
-	if hasErrPage && !userConfig.DebugMode {
+	hasErrPage := userConf.ErrorPagePath != ""
+	if hasErrPage && !userConf.DebugMode {
 		if err := t.responseErrorPage(w); err != nil {
 			return err
 		}
@@ -102,7 +104,7 @@ func (t *Template) Response(w http.ResponseWriter, name string, data map[string]
 }
 
 func (t *Template) responseErrorPage(w http.ResponseWriter) error {
-	evaluated, failure := t.String(userConfig.ErrorPagePath, nil)
+	evaluated, failure := t.String(userConf.ErrorPagePath, nil)
 	if failure != nil {
 		return failure.Error()
 	}

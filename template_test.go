@@ -5,10 +5,11 @@ import (
 
 	"github.com/textwire/textwire/v3/config"
 	"github.com/textwire/textwire/v3/fail"
+	"github.com/textwire/textwire/v3/file"
 )
 
 func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
-	path, err := getFullPath("")
+	path, err := file.ToFullPath("")
 	path += "/textwire/testdata/bad/"
 
 	if err != nil {

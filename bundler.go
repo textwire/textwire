@@ -7,6 +7,7 @@ import (
 
 	"github.com/textwire/textwire/v3/ast"
 	"github.com/textwire/textwire/v3/fail"
+	"github.com/textwire/textwire/v3/file"
 	"github.com/textwire/textwire/v3/lexer"
 	"github.com/textwire/textwire/v3/parser"
 )
@@ -14,12 +15,12 @@ import (
 // SourceBundler is the main struct to handle parsing and evaluation of
 // Textwire code.
 type SourceBundler struct {
-	files []*file
+	files []*file.File
 }
 
 func NewSourceBundle() *SourceBundler {
 	return &SourceBundler{
-		files: make([]*file, 0, 4),
+		files: make([]*file.File, 0, 4),
 	}
 }
 
@@ -46,32 +47,32 @@ func (sb *SourceBundler) ParseFiles() ([]*ast.Program, *fail.Error) {
 // and creates a *file wrapper for each of these files.
 func (sb *SourceBundler) FindFiles() error {
 	err := fs.WalkDir(
-		userConfig.TemplateFS,
+		userConf.TemplateFS,
 		".",
 		func(path string, d fs.DirEntry, err error) error {
 			if err != nil {
 				return err
 			}
 
-			if d.IsDir() || !strings.Contains(path, userConfig.TemplateExt) {
+			if d.IsDir() || !strings.Contains(path, userConf.TemplateExt) {
 				return nil
 			}
 
 			// When using config.TemplateFS to embed templates into binary,
 			// we need to exclude config.TemplateDir from path since it
 			// already contains it.
-			if userConfig.UsesFS() {
-				path = strings.Replace(path, userConfig.TemplateDir, "", 1)
+			if userConf.UsesFS() {
+				path = strings.Replace(path, userConf.TemplateDir, "", 1)
 			}
 
-			relPath := joinPaths(userConfig.TemplateDir, path)
+			relPath := file.JoinPaths(userConf.TemplateDir, path)
 			absPath, err := filepath.Abs(relPath)
 			if err != nil {
 				return err
 			}
 
-			name := strings.Replace(path, userConfig.TemplateExt, "", 1)
-			sb.files = append(sb.files, NewFile(name, relPath, absPath))
+			name := strings.Replace(path, userConf.TemplateExt, "", 1)
+			sb.files = append(sb.files, file.New(name, relPath, absPath, userConf))
 
 			return nil
 		},
@@ -81,7 +82,7 @@ func (sb *SourceBundler) FindFiles() error {
 }
 
 // parseFile parses given file into a ast.Program and returns it.
-func (sb *SourceBundler) parseFile(f *file) (*ast.Program, *fail.Error, error) {
+func (sb *SourceBundler) parseFile(f *file.File) (*ast.Program, *fail.Error, error) {
 	content, err := f.Content()
 	if err != nil {
 		return nil, nil, err

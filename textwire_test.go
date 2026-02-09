@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/textwire/textwire/v3/fail"
+	"github.com/textwire/textwire/v3/file"
 	"github.com/textwire/textwire/v3/object"
 	"github.com/textwire/textwire/v3/token"
 )
@@ -342,7 +343,7 @@ func TestErrorHandling(t *testing.T) {
 }
 
 func TestEvaluateFile(t *testing.T) {
-	absPath, fileErr := getFullPath("textwire/testdata/good/before/two-vars-no-use/index.tw")
+	absPath, fileErr := file.ToFullPath("textwire/testdata/good/before/two-vars-no-use/index.tw")
 	if fileErr != nil {
 		t.Errorf("Error getting full path: %s", fileErr)
 		return

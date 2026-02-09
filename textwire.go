@@ -4,11 +4,12 @@ import (
 	"github.com/textwire/textwire/v3/config"
 	"github.com/textwire/textwire/v3/evaluator"
 	"github.com/textwire/textwire/v3/fail"
+	"github.com/textwire/textwire/v3/file"
 	"github.com/textwire/textwire/v3/object"
 )
 
 var (
-	userConfig = config.New("templates", ".tw", "", false)
+	userConf   = config.New("templates", ".tw", "", false)
 	customFunc = config.NewFunc()
 )
 
@@ -41,8 +42,7 @@ func EvaluateString(inp string, data map[string]any) (string, error) {
 // The absPath an absolute path to the Textwire file.
 // The data is a map of variables you want to inject into the Textwire.
 func EvaluateFile(absPath string, data map[string]any) (string, error) {
-	f := NewFile("", "", absPath)
-
+	f := file.New("", "", absPath, userConf)
 	content, err := f.Content()
 	if err != nil {
 		return "", fail.FromError(err, 0, absPath, "template").Error()
@@ -136,5 +136,5 @@ func RegisterBoolFunc(name string, fn config.BoolCustomFunc) error {
 
 // Configure passes given options to the user configurations.
 func Configure(opt *config.Config) {
-	userConfig.Configure(opt)
+	userConf.Configure(opt)
 }
