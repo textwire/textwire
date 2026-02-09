@@ -5,6 +5,9 @@ import (
 	"github.com/textwire/textwire/v3/fail"
 )
 
+// NodeLinker handles connecting AST nodes between each other to prepare AST
+// for evaluator. It will connect @insert to @reserve, @use to layout file,
+// @component to its corresponding component file, etc.
 type NodeLinker struct {
 	programs []*ast.Program
 }

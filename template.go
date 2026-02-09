@@ -13,7 +13,7 @@ import (
 )
 
 type Template struct {
-	bundler *SourceBundle
+	bundler *SourceBundler
 	linker  *linker.NodeLinker
 }
 

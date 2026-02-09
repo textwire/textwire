@@ -11,20 +11,20 @@ import (
 	"github.com/textwire/textwire/v3/parser"
 )
 
-// SourceBundle is the main struct to handle parsing and evaluation of
+// SourceBundler is the main struct to handle parsing and evaluation of
 // Textwire code.
-type SourceBundle struct {
+type SourceBundler struct {
 	files []*file
 }
 
-func NewSourceBundle() *SourceBundle {
-	return &SourceBundle{
+func NewSourceBundle() *SourceBundler {
+	return &SourceBundler{
 		files: make([]*file, 0, 4),
 	}
 }
 
 // ParseFiles parses each Textwire file into AST nodes and returns them.
-func (sb *SourceBundle) ParseFiles() ([]*ast.Program, *fail.Error) {
+func (sb *SourceBundler) ParseFiles() ([]*ast.Program, *fail.Error) {
 	programs := make([]*ast.Program, 0, 4)
 	for _, f := range sb.files {
 		prog, failure, parseErr := sb.parseFile(f)
@@ -44,7 +44,7 @@ func (sb *SourceBundle) ParseFiles() ([]*ast.Program, *fail.Error) {
 
 // FindFiles recursively finds all Textwire files in the templates directory,
 // and creates a *file wrapper for each of these files.
-func (sb *SourceBundle) FindFiles() error {
+func (sb *SourceBundler) FindFiles() error {
 	err := fs.WalkDir(
 		userConfig.TemplateFS,
 		".",
@@ -81,7 +81,7 @@ func (sb *SourceBundle) FindFiles() error {
 }
 
 // parseFile parses given file into a ast.Program and returns it.
-func (sb *SourceBundle) parseFile(f *file) (*ast.Program, *fail.Error, error) {
+func (sb *SourceBundler) parseFile(f *file) (*ast.Program, *fail.Error, error) {
 	content, err := f.Content()
 	if err != nil {
 		return nil, nil, err
