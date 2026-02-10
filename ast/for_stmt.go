@@ -50,15 +50,14 @@ func (fs *ForStmt) String() string {
 }
 
 func (fs *ForStmt) Stmts() []Statement {
-	res := make([]Statement, 0)
-
+	stmts := make([]Statement, 0)
 	if fs.Block != nil {
-		res = append(res, fs.Block.Stmts()...)
+		stmts = append(stmts, fs.Block.Stmts()...)
 	}
 
 	if fs.ElseBlock != nil {
-		res = append(res, fs.ElseBlock.Stmts()...)
+		stmts = append(stmts, fs.ElseBlock.Stmts()...)
 	}
 
-	return res
+	return stmts
 }

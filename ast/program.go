@@ -45,8 +45,7 @@ func (p *Program) String() string {
 }
 
 func (p *Program) Stmts() []Statement {
-	res := make([]Statement, 0)
-
+	stmts := make([]Statement, 0)
 	if p.Statements == nil {
 		return []Statement{}
 	}
@@ -57,12 +56,12 @@ func (p *Program) Stmts() []Statement {
 		}
 
 		if s, ok := stmt.(NodeWithStatements); ok {
-			res = append(res, s.(Statement))
-			res = append(res, s.Stmts()...)
+			stmts = append(stmts, s.(Statement))
+			stmts = append(stmts, s.Stmts()...)
 		}
 	}
 
-	return res
+	return stmts
 }
 
 // LinkLayoutToUse adds Layout AST program to UseStmt for the current template

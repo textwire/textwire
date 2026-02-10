@@ -1,6 +1,8 @@
 # Release notes
 
-## v3.0.2 (2026-02-10)
+## v3.0.2 (2026-02-11)
+
+- ♻️ Lots of refactoring and improvements to the codebase, including adding tests for edge cases.
 
 ## v3.0.1 (2026-02-08)
 
