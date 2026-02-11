@@ -41,17 +41,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	tpl, err := textwire.NewTemplate(&config.Config{
-		TemplateFS:    templateFS,
-		ErrorPagePath: "error-page",
-		DebugMode:     true,
-		GlobalData: map[string]any{
-			"env": "development",
-		},
-	})
-	if err != nil {
-		log.Fatal(err)
-	}
+	tpl := startTextwire()
 
 	http.HandleFunc("/", homeHandler(tpl))
 	http.HandleFunc("/about", aboutHandler(tpl))
@@ -59,6 +49,22 @@ func main() {
 	fmt.Println("Listening on http://localhost:8080")
 
 	log.Fatalln(http.ListenAndServe(":8080", nil))
+}
+
+func startTextwire() *textwire.Template {
+	tpl, err := textwire.NewTemplate(&config.Config{
+		TemplateFS:    templateFS,
+		ErrorPagePath: "error-page",
+		DebugMode:     false,
+		GlobalData: map[string]any{
+			"env":  "development",
+			"year": "2020",
+		},
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
+	return tpl
 }
 
 func homeHandler(tpl *textwire.Template) http.HandlerFunc {

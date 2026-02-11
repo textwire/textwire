@@ -4,7 +4,10 @@
 @insert('description', 'Something went wrong')
 
 @insert('content')
-    <h1>Oops!</h1>
-    <p>Something went wrong.</p>
-    <p><a href="/">Go back to home</a></p>
+    <div class="container">
+        <h1 class="text-3xl">Oops!</h1>
+        <p>Something went wrong.</p>
+        <p><a href="/">Go back to home</a></p>
+        <small>&copy;{{ global.year }}</small>
+    </div>
 @end
