@@ -1,17 +1,19 @@
 package textwire
 
 import (
+	"net/http/httptest"
+	"strings"
 	"testing"
 
 	"github.com/textwire/textwire/v3/config"
 	"github.com/textwire/textwire/v3/fail"
 	"github.com/textwire/textwire/v3/file"
+	"github.com/textwire/textwire/v3/object"
 )
 
 func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
-	path, err := file.ToFullPath("")
-	path += "/textwire/testdata/bad/"
-
+	absPath, err := file.ToFullPath("")
+	absPath += "/textwire/testdata/bad/"
 	if err != nil {
 		t.Errorf("unexpected error: %s", err)
 		return
@@ -26,7 +28,7 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 			dir: "use-inside-tpl",
 			err: fail.New(
 				1,
-				path+"use-inside-tpl/index.tw",
+				absPath+"use-inside-tpl/index.tw",
 				"evaluator",
 				fail.ErrUseStmtNotAllowed,
 			),
@@ -36,7 +38,7 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 			dir: "unknown-named-slot",
 			err: fail.New(
 				2,
-				path+"unknown-named-slot/index.tw",
+				absPath+"unknown-named-slot/index.tw",
 				"parser",
 				fail.ErrSlotNotDefined,
 				"unknown",
@@ -48,7 +50,7 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 			dir: "unknown-default-slot",
 			err: fail.New(
 				2,
-				path+"unknown-default-slot/index.tw",
+				absPath+"unknown-default-slot/index.tw",
 				"parser",
 				fail.ErrDefaultSlotNotDefined,
 				"book",
@@ -59,7 +61,7 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 			dir: "duplicate-slot",
 			err: fail.New(
 				2,
-				path+"duplicate-slot/index.tw",
+				absPath+"duplicate-slot/index.tw",
 				"parser",
 				fail.ErrDuplicateSlot,
 				"content",
@@ -72,7 +74,7 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 			dir: "duplicate-default-slot",
 			err: fail.New(
 				2,
-				path+"duplicate-default-slot/index.tw",
+				absPath+"duplicate-default-slot/index.tw",
 				"parser",
 				fail.ErrDuplicateDefaultSlot,
 				2,
@@ -84,7 +86,7 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 			dir: "unknown-comp",
 			err: fail.New(
 				9,
-				path+"unknown-comp/index.tw",
+				absPath+"unknown-comp/index.tw",
 				"template",
 				fail.ErrUndefinedComponent,
 				"unknown-name",
@@ -95,7 +97,7 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 			dir: "undefined-insert",
 			err: fail.New(
 				5,
-				path+"undefined-insert/index.tw",
+				absPath+"undefined-insert/index.tw",
 				"parser",
 				fail.ErrAddMatchingReserve,
 				"some-name",
@@ -107,7 +109,7 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 			dir: "duplicate-inserts",
 			err: fail.New(
 				4,
-				path+"duplicate-inserts/index.tw",
+				absPath+"duplicate-inserts/index.tw",
 				"parser",
 				fail.ErrDuplicateInserts,
 				"title",
@@ -118,7 +120,7 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 			dir: "undefined-var-in-comp",
 			err: fail.New(
 				1,
-				path+"undefined-var-in-comp/hero.tw",
+				absPath+"undefined-var-in-comp/hero.tw",
 				"evaluator",
 				fail.ErrVariableIsUndefined,
 				"undefinedVar",
@@ -129,7 +131,7 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 			dir: "undefined-var-in-use",
 			err: fail.New(
 				8,
-				path+"undefined-var-in-use/base.tw",
+				absPath+"undefined-var-in-use/base.tw",
 				"evaluator",
 				fail.ErrVariableIsUndefined,
 				"undefinedVar",
@@ -140,7 +142,7 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 			dir: "undefined-use",
 			err: fail.New(
 				1,
-				path+"undefined-use/index.tw",
+				absPath+"undefined-use/index.tw",
 				"parser",
 				fail.ErrUseStmtMissingLayout,
 				"undefined-layout",
@@ -151,7 +153,7 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 			dir: "undefined-var-in-nested-comp",
 			err: fail.New(
 				1,
-				path+"undefined-var-in-nested-comp/second.tw",
+				absPath+"undefined-var-in-nested-comp/second.tw",
 				"evaluator",
 				fail.ErrVariableIsUndefined,
 				"name",
@@ -162,7 +164,7 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 			dir: "var-in-layout",
 			err: fail.New(
 				1,
-				path+"var-in-layout/layout.tw",
+				absPath+"var-in-layout/layout.tw",
 				"evaluator",
 				fail.ErrVariableIsUndefined,
 				"fullName",
@@ -171,14 +173,14 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 		},
 		{
 			dir:  "duplicate-use",
-			err:  fail.New(2, path+"duplicate-use/index.tw", "parser", fail.ErrOnlyOneUseDir),
+			err:  fail.New(2, absPath+"duplicate-use/index.tw", "parser", fail.ErrOnlyOneUseDir),
 			data: nil,
 		},
 		{
 			dir: "inserts-without-use",
 			err: fail.New(
 				4,
-				path+"inserts-without-use/index.tw",
+				absPath+"inserts-without-use/index.tw",
 				"evaluator",
 				fail.ErrInsertRequiresUse,
 				"title",
@@ -271,24 +273,110 @@ func TestNewTemplate(t *testing.T) {
 			tc.conf.TemplateDir = "textwire/testdata/good/before/" + tc.dir
 			tpl, err := NewTemplate(tc.conf)
 			if err != nil {
-				t.Errorf("Error creating template: %q", err)
-				return
+				t.Fatalf("Error creating template: %q", err)
 			}
 
 			actual, failure := tpl.String(tc.view, tc.data)
 			if failure != nil {
 				t.Fatalf("Error evaluating template: %q", failure)
+			}
+
+			expect, err := readFile("textwire/testdata/good/expected/" + tc.dir + ".html")
+			if err != nil {
+				t.Fatalf("Error reading file. Error: %s", err)
+			}
+
+			if actual != expect {
+				t.Fatalf("Wrong result. Expect:\n'%s'\ngot:\n'%s'", expect, actual)
+			}
+		})
+	}
+}
+
+func TestTemplateResponse(t *testing.T) {
+	absPath, err := file.ToFullPath("")
+	absPath += "/textwire/testdata/good/before/"
+	if err != nil {
+		t.Errorf("unexpected error: %s", err)
+		return
+	}
+
+	cases := []struct {
+		name string
+		conf *config.Config
+		view string
+		data map[string]any
+		dir  string
+		err  *fail.Error
+	}{
+		{
+			name: "Should show custom error page",
+			conf: &config.Config{ErrorPagePath: "custom-error-page"},
+			view: "home",
+			dir:  "prod-error-page",
+			data: map[string]any{"arr": "some string"},
+			err: fail.New(
+				2,
+				absPath+"prod-error-page/home.tw",
+				"parser",
+				fail.ErrEachDirWithNonArrArg,
+				object.STR_OBJ,
+			),
+		},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			tc.conf.TemplateDir += "textwire/testdata/good/before/" + tc.dir
+			tpl, err := NewTemplate(tc.conf)
+			if err != nil {
+				t.Errorf("Error creating template: %q", err)
 				return
 			}
 
 			expect, err := readFile("textwire/testdata/good/expected/" + tc.dir + ".html")
 			if err != nil {
 				t.Fatalf("Error reading file. Error: %s", err)
-				return
+			}
+
+			rr := httptest.NewRecorder()
+			respErr := tpl.Response(rr, tc.view, tc.data)
+			actual := rr.Body.String()
+
+			if tc.err != nil {
+				if respErr == nil {
+					t.Fatalf("We expect error from response, got nil")
+				}
+
+				if tc.err.String() != respErr.Error() {
+					t.Fatalf("Wrong error message! Expect:\n%q\ngot:\n%q", tc.err, respErr)
+				}
 			}
 
 			if actual != expect {
 				t.Fatalf("Wrong result. Expect:\n'%s'\ngot:\n'%s'", expect, actual)
+			}
+
+			// Make sure you don't see error in actual response without debug mode
+			if !tc.conf.DebugMode && respErr != nil {
+				if contains := strings.Contains(actual, respErr.Error()); contains {
+					t.Fatalf(
+						"Actual string should not contain error message. Actual:\n'%s'\nError msg:\n'%s'",
+						actual,
+						respErr,
+					)
+				}
+			}
+
+			// Make sure you see error in actual response with debug mode enabled
+			if tc.conf.DebugMode && respErr != nil {
+				if contains := strings.Contains(actual, respErr.Error()); !contains {
+					t.Fatalf(
+						"Actual string should contain error message. Actual:\n'%s'\nError msg:\n'%s'",
+						actual,
+						respErr,
+					)
+				}
 			}
 		})
 	}

@@ -1,0 +1,5 @@
+<div>
+    @each(item in arr)
+        <small>{{ item }}</small>
+    @end
+</div>
