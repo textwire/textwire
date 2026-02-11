@@ -61,7 +61,7 @@
             <small>Your DebugMode is on. Make sure you disable DebugMode in production.</small><br>
             <small>
                 You can read about configuring Textwire on the
-                <a href="https://textwire.github.io/docs/v2/guides/configurations" target="_blank">official resource</a>
+                <a href="https://textwire.github.io/v3/guides/configurations" target="_blank">official resource</a>
             </small>
         </div>
     @end
