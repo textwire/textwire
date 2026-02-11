@@ -54,11 +54,11 @@ func (d *Dump) Dump(ident int) string {
 }
 
 func (d *Dump) Val() any {
-	var res []any
+	var values []any
 	for i := range d.Values {
-		res = append(res, d.Values[i])
+		values = append(values, d.Values[i])
 	}
-	return res
+	return values
 }
 
 func (d *Dump) Is(t ObjectType) bool {

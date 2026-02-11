@@ -3,6 +3,7 @@ package parser
 import (
 	"strconv"
 
+	"github.com/textwire/textwire/v3/file"
 	"github.com/textwire/textwire/v3/token"
 
 	"slices"
@@ -60,11 +61,7 @@ type Parser struct {
 	l      *lexer.Lexer
 	errors []*fail.Error
 
-	// absPath to the program
-	absPath string
-
-	// name of the program being parsed; can be empty string
-	name string
+	file *file.SourceFile
 
 	curToken  token.Token
 	peekToken token.Token
@@ -82,11 +79,14 @@ type Parser struct {
 	reserves   map[string]*ast.ReserveStmt
 }
 
-func New(lexer *lexer.Lexer, name, absPath string) *Parser {
+func New(lexer *lexer.Lexer, f *file.SourceFile) *Parser {
+	if f == nil {
+		f = file.New("", "", "", nil)
+	}
+
 	p := &Parser{
 		l:          lexer,
-		name:       name,
-		absPath:    absPath,
+		file:       f,
 		errors:     []*fail.Error{},
 		components: []*ast.ComponentStmt{},
 		inserts:    map[string]*ast.InsertStmt{},
@@ -166,7 +166,7 @@ func (p *Parser) ParseProgram() *ast.Program {
 	prog.Inserts = p.inserts
 	prog.UseStmt = p._useStmt
 	prog.Reserves = p.reserves
-	prog.AbsPath = p.absPath
+	prog.AbsPath = p.file.Abs
 
 	return prog
 }
@@ -274,7 +274,7 @@ func (p *Parser) expectPeek(tok token.TokenType) bool {
 }
 
 func (p *Parser) newError(line uint, msg string, args ...any) {
-	newErr := fail.New(line, p.absPath, "parser", msg, args...)
+	newErr := fail.New(line, p.file.Abs, "parser", msg, args...)
 	p.errors = append(p.errors, newErr)
 }
 
@@ -558,7 +558,7 @@ func (p *Parser) slotStmt() ast.Statement {
 	// Handle default @slot without name
 	if !p.peekTokenIs(token.LPAREN) {
 		name := ast.NewStringLiteral(p.curToken, "")
-		stmt := ast.NewSlotStmt(tok, name, p.name, false)
+		stmt := ast.NewSlotStmt(tok, name, p.file.Name, false)
 		stmt.IsDefault = true
 		return stmt
 	}
@@ -573,7 +573,7 @@ func (p *Parser) slotStmt() ast.Statement {
 		return p.illegalNodeUntil(token.END)
 	}
 
-	stmt := ast.NewSlotStmt(tok, name, p.name, false)
+	stmt := ast.NewSlotStmt(tok, name, p.file.Name, false)
 	stmt.SetEndPosition(p.curToken.Pos)
 
 	return stmt
@@ -667,7 +667,7 @@ func (p *Parser) reserveStmt() ast.Statement {
 }
 
 func (p *Parser) insertStmt() ast.Statement {
-	stmt := ast.NewInsertStmt(p.curToken, p.absPath)
+	stmt := ast.NewInsertStmt(p.curToken, p.file.Abs)
 
 	if !p.expectPeek(token.LPAREN) { // move to "("
 		return p.illegalNode()

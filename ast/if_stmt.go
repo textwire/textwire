@@ -44,21 +44,20 @@ func (is *IfStmt) String() string {
 }
 
 func (is *IfStmt) Stmts() []Statement {
-	res := make([]Statement, 0)
-
+	stmts := make([]Statement, 0)
 	if is.IfBlock != nil {
-		res = append(res, is.IfBlock.Stmts()...)
+		stmts = append(stmts, is.IfBlock.Stmts()...)
 	}
 
 	if is.ElseBlock != nil {
-		res = append(res, is.ElseBlock.Stmts()...)
+		stmts = append(stmts, is.ElseBlock.Stmts()...)
 	}
 
 	for _, e := range is.ElseIfStmts {
 		if withStmts, ok := e.(NodeWithStatements); ok {
-			res = append(res, withStmts.Stmts()...)
+			stmts = append(stmts, withStmts.Stmts()...)
 		}
 	}
 
-	return res
+	return stmts
 }

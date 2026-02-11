@@ -12,7 +12,7 @@ import (
 // IsInLoop checks if given position of the cursor is inside of a loop
 func IsInLoop(doc, filePath string, line, col uint) (bool, []*fail.Error) {
 	l := lexer.New(doc)
-	p := parser.New(l, "", filePath)
+	p := parser.New(l, nil)
 	program := p.ParseProgram()
 
 	if program == nil {

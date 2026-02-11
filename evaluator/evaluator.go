@@ -688,7 +688,7 @@ func (e *Evaluator) objectLit(objLit *ast.ObjectLiteral, ctx *Context) object.Ob
 }
 
 func (e *Evaluator) evalExpressions(exps []ast.Expression, ctx *Context) []object.Object {
-	res := make([]object.Object, 0, len(exps))
+	result := make([]object.Object, 0, len(exps))
 
 	for i := range exps {
 		evaluated := e.Eval(exps[i], ctx)
@@ -696,10 +696,10 @@ func (e *Evaluator) evalExpressions(exps []ast.Expression, ctx *Context) []objec
 			return []object.Object{evaluated}
 		}
 
-		res = append(res, evaluated)
+		result = append(result, evaluated)
 	}
 
-	return res
+	return result
 }
 
 func (e *Evaluator) infixExp(
@@ -827,12 +827,12 @@ func (e *Evaluator) globalFuncDefined(
 }
 
 func (e *Evaluator) objectsToNativeType(args []object.Object) []any {
-	res := make([]any, 0, len(args))
+	result := make([]any, 0, len(args))
 	for i := range args {
-		res = append(res, args[i].Val())
+		result = append(result, args[i].Val())
 	}
 
-	return res
+	return result
 }
 
 func (e *Evaluator) postfixOpExp(

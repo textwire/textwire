@@ -8,11 +8,16 @@ import (
 	"github.com/textwire/textwire/v3/config"
 	"github.com/textwire/textwire/v3/evaluator"
 	"github.com/textwire/textwire/v3/fail"
+	"github.com/textwire/textwire/v3/file"
+	"github.com/textwire/textwire/v3/linker"
 	"github.com/textwire/textwire/v3/object"
 )
 
+// Template holds all necessary data which it will use when individual
+// template files will be evaluated by String() or Response() methods.
 type Template struct {
-	sourceBundle *SourceBundle
+	bundler *SourceBundler
+	linker  *linker.NodeLinker
 }
 
 // NewTemplate returns a new Template instance with parsed Textwire files
@@ -21,35 +26,39 @@ type Template struct {
 func NewTemplate(opt *config.Config) (*Template, error) {
 	Configure(opt)
 
-	sb := NewSourceBundle()
+	sb := NewSourceBundler()
 
 	if err := sb.FindFiles(); err != nil {
 		return nil, fail.FromError(err, 0, "", "template").Error()
 	}
 
-	if err := sb.ParseFiles(); err != nil {
+	programs, err := sb.ParseFiles()
+	if err != nil {
 		return nil, err.Error()
 	}
 
-	if err := sb.LinkNodes(); err != nil {
+	ln := linker.New(programs)
+	if err := ln.LinkNodes(); err != nil {
 		return nil, err.Error()
 	}
 
-	return &Template{sourceBundle: sb}, nil
+	return &Template{bundler: sb, linker: ln}, nil
 }
 
+// String returns final evaluated template result represented as a string.
 func (t *Template) String(name string, data map[string]any) (string, *fail.Error) {
 	scope, err := object.NewScopeFromMap(data)
 	if err != nil {
 		return "", err
 	}
 
-	prog := ast.FindProg(name, t.sourceBundle.programs)
+	prog := ast.FindProg(name, t.linker.Progs())
 	if prog == nil {
-		return "", fail.New(0, nameToRelPath(name), "template", fail.ErrTemplateNotFound, name)
+		relPath := file.NameToRelPath(name, userConf.TemplateDir, userConf.TemplateExt)
+		return "", fail.New(0, relPath, "template", fail.ErrTemplateNotFound, name)
 	}
 
-	e := evaluator.New(customFunc, userConfig)
+	e := evaluator.New(customFunc, userConf)
 	ctx := evaluator.NewContext(scope, prog.AbsPath)
 	evaluated := e.Eval(prog, ctx)
 	if evaluated.Is(object.ERR_OBJ) {
@@ -59,6 +68,8 @@ func (t *Template) String(name string, data map[string]any) (string, *fail.Error
 	return evaluated.String(), nil
 }
 
+// Response evaluates template file with String() method and passing that final
+// string to the given http.ResponseWriter.
 func (t *Template) Response(w http.ResponseWriter, name string, data map[string]any) error {
 	evaluated, failure := t.String(name, data)
 	if failure == nil {
@@ -70,8 +81,8 @@ func (t *Template) Response(w http.ResponseWriter, name string, data map[string]
 		return nil
 	}
 
-	hasErrorPage := userConfig.ErrorPagePath != ""
-	if hasErrorPage && !userConfig.DebugMode {
+	hasErrPage := userConf.ErrorPagePath != ""
+	if hasErrPage && !userConf.DebugMode {
 		if err := t.responseErrorPage(w); err != nil {
 			return err
 		}
@@ -79,12 +90,12 @@ func (t *Template) Response(w http.ResponseWriter, name string, data map[string]
 		return failure.Error()
 	}
 
-	out, err := errorPage(failure)
+	errPage, err := errorPage(failure)
 	if err != nil {
 		return err
 	}
 
-	_, err = fmt.Fprint(w, out)
+	_, err = fmt.Fprint(w, errPage)
 	if err != nil {
 		return err
 	}
@@ -93,7 +104,7 @@ func (t *Template) Response(w http.ResponseWriter, name string, data map[string]
 }
 
 func (t *Template) responseErrorPage(w http.ResponseWriter) error {
-	evaluated, failure := t.String(userConfig.ErrorPagePath, nil)
+	evaluated, failure := t.String(userConf.ErrorPagePath, nil)
 	if failure != nil {
 		return failure.Error()
 	}

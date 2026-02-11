@@ -6,7 +6,7 @@
 <a href="https://github.com/textwire/textwire/blob/master/LICENSE"><img src="https://img.shields.io/badge/License-MIT-yellow.svg"></a>
 </p>
 
-<p align="center"><img src="https://textwire.github.io/img/logo.png" width="150" height="150" /></p>
+<p align="center"><img src="https://avatars.githubusercontent.com/u/152325030" width="150" height="150" /></p>
 
 Textwire is a simple yet powerful templating language for Go. It is designed to easily inject variables from Go code into a template file or just a regular string.
 

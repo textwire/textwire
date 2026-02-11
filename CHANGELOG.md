@@ -1,5 +1,10 @@
 # Release notes
 
+## v3.0.2 (2026-02-11)
+
+- ♻️ Lots of refactoring and improvements to the codebase, including adding tests for edge cases.
+- 🐛 Fixed broken link on error page with debug mode on.
+
 ## v3.0.1 (2026-02-08)
 
 - 🧑‍💻 Improve error messages.

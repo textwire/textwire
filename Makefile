@@ -5,9 +5,20 @@ dev:
 	@clear || true
 	cd textwire/example && go run main.go
 
+.PHONY: build
+build:
+	@clear || true
+	cd textwire/example && go build main.go
+
 .PHONY: shell
 shell:
 	go run repl/repl.go
+
+.PHONY: cover
+cover:
+	go test -coverprofile=coverage.html
+	go tool cover -html=coverage.html
+	rm coverage.html
 
 .PHONY: test
 test:
@@ -18,17 +29,17 @@ test:
 .PHONY: fmt
 fmt:
 	@go fmt ./...
-	echo "✅ Code formatted!"
+	@echo "✅ Code formatted!"
 
 .PHONY: line
 line:
 	@golines -w -m $(MAX_LINE_LENGTH) .
-	echo "✅ Lines limited!"
+	@echo "✅ Lines limited!"
 
 .PHONY: lint
 lint:
 	@golangci-lint run
-	echo "✅ Linting passed!"
+	@echo "✅ Linting passed!"
 
 .PHONY: todo
 todo:

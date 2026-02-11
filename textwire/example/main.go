@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strings"
 
 	"github.com/textwire/textwire/v3"
 	"github.com/textwire/textwire/v3/config"
@@ -32,6 +33,14 @@ var names = generateStrings(100)
 var books = generateBooks(100)
 
 func main() {
+	lowerFn := func(s string, args ...any) any {
+		return strings.ToLower(s)
+	}
+
+	if err := textwire.RegisterStrFunc("_lower", lowerFn); err != nil {
+		log.Fatal(err)
+	}
+
 	tpl := startTextwire()
 
 	http.HandleFunc("/", homeHandler(tpl))
@@ -48,13 +57,13 @@ func startTextwire() *textwire.Template {
 		ErrorPagePath: "error-page",
 		DebugMode:     true,
 		GlobalData: map[string]any{
-			"env": "development",
+			"env":  "development",
+			"year": "2020",
 		},
 	})
 	if err != nil {
 		log.Fatal(err)
 	}
-
 	return tpl
 }
 
@@ -70,7 +79,7 @@ func homeHandler(tpl *textwire.Template) http.HandlerFunc {
 			"books":     books,
 		})
 		if err != nil {
-			log.Fatal(err)
+			log.Printf("Template error: %v", err)
 		}
 	}
 }
@@ -81,9 +90,8 @@ func aboutHandler(tpl *textwire.Template) http.HandlerFunc {
 			return
 		}
 
-		err := tpl.Response(w, "views/about", map[string]any{})
-		if err != nil {
-			log.Println(err.Error())
+		if err := tpl.Response(w, "views/about", map[string]any{}); err != nil {
+			log.Printf("Template error: %v", err)
 		}
 	}
 }
