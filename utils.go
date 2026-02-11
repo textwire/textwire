@@ -22,7 +22,7 @@ func errorPage(failure *fail.Error) (string, error) {
 		"debugMode": userConf.DebugMode,
 	}
 
-	result, err := EvaluateString(defaultErrPage, data)
+	out, err := EvaluateString(defaultErrPage, data)
 	if err != nil {
 		return "", err
 	}

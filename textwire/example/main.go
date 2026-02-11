@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strings"
 
 	"github.com/textwire/textwire/v3"
 	"github.com/textwire/textwire/v3/config"
@@ -32,17 +33,14 @@ var names = generateStrings(100)
 var books = generateBooks(100)
 
 func main() {
-	tpl := startTextwire()
+	lowerFn := func(s string, args ...any) any {
+		return strings.ToLower(s)
+	}
 
-	http.HandleFunc("/", homeHandler(tpl))
-	http.HandleFunc("/about", aboutHandler(tpl))
+	if err := textwire.RegisterStrFunc("_lower", lowerFn); err != nil {
+		log.Fatal(err)
+	}
 
-	fmt.Println("Listening on http://localhost:8080")
-
-	log.Fatalln(http.ListenAndServe(":8080", nil))
-}
-
-func startTextwire() *textwire.Template {
 	tpl, err := textwire.NewTemplate(&config.Config{
 		TemplateFS:    templateFS,
 		ErrorPagePath: "error-page",
@@ -55,7 +53,12 @@ func startTextwire() *textwire.Template {
 		log.Fatal(err)
 	}
 
-	return tpl
+	http.HandleFunc("/", homeHandler(tpl))
+	http.HandleFunc("/about", aboutHandler(tpl))
+
+	fmt.Println("Listening on http://localhost:8080")
+
+	log.Fatalln(http.ListenAndServe(":8080", nil))
 }
 
 func homeHandler(tpl *textwire.Template) http.HandlerFunc {
@@ -70,7 +73,7 @@ func homeHandler(tpl *textwire.Template) http.HandlerFunc {
 			"books":     books,
 		})
 		if err != nil {
-			log.Fatal(err)
+			http.Error(w, err.Error(), http.StatusInternalServerError)
 		}
 	}
 }
@@ -81,9 +84,8 @@ func aboutHandler(tpl *textwire.Template) http.HandlerFunc {
 			return
 		}
 
-		err := tpl.Response(w, "views/about", map[string]any{})
-		if err != nil {
-			log.Println(err.Error())
+		if err := tpl.Response(w, "views/about", map[string]any{}); err != nil {
+			log.Printf("Template error: %v", err)
 		}
 	}
 }
