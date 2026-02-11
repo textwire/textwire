@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<title>@reserve("title")</title>
+<title>@reserve("заголовок")</title>
 </head>
 <body>
 @reserve("content")

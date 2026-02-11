@@ -263,7 +263,7 @@ func TestNewTemplate(t *testing.T) {
 		{
 			conf: &config.Config{},
 			view: "index",
-			data: map[string]any{"name": "Anna ♥️", "age": 20},
+			data: map[string]any{"name": "Анна ♥️", "age": 20},
 			dir:  "with-comp-and-slots",
 		},
 	}

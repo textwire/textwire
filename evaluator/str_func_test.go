@@ -11,6 +11,7 @@ func TestEvalStringFunctions(t *testing.T) {
 		{`{{ "anna".len() }}`, "4"},
 		{`{{ "".len() }}`, "0"},
 		{`{{ "中国很漂亮".len() }}`, "5"},
+		{`{{ "👋🏽🌍".len() }}`, "3"}, // 👋 + 🏽 skin tone modifier give length 2
 		// split
 		{`{{ "one two three".split() }}`, "one, two, three"},
 		{`{{ "one|two|three".split("|") }}`, "one, two, three"},
