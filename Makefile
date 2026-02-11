@@ -5,15 +5,20 @@ dev:
 	@clear || true
 	cd textwire/example && go run main.go
 
+.PHONY: build
+build:
+	@clear || true
+	cd textwire/example && go build main.go
+
 .PHONY: shell
 shell:
 	go run repl/repl.go
 
 .PHONY: cover
 cover:
-	go test -coverprofile=coverage.out
-	go tool cover -html=coverage.out
-	rm coverage.out
+	go test -coverprofile=coverage.html
+	go tool cover -html=coverage.html
+	rm coverage.html
 
 .PHONY: test
 test:

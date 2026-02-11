@@ -27,7 +27,7 @@ func errorPage(failure *fail.Error) (string, error) {
 		return "", err
 	}
 
-	return result, nil
+	return out, nil
 }
 
 func parseStr(text string) (*ast.Program, []*fail.Error) {
