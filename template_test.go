@@ -229,19 +229,19 @@ func TestNewTemplate(t *testing.T) {
 		dir  string
 	}{
 		{
-			conf: &config.Config{TemplateDir: path + "no-stmts"},
+			conf: &config.Config{TemplateDir: path},
 			view: "index",
 			data: nil,
 			dir:  "no-stmts",
 		},
 		{
-			conf: &config.Config{TemplateDir: path + "with-inserts"},
+			conf: &config.Config{TemplateDir: path},
 			view: "index",
 			data: nil,
 			dir:  "with-inserts",
 		},
 		{
-			conf: &config.Config{TemplateDir: path + "without-use"},
+			conf: &config.Config{TemplateDir: path},
 			view: "index",
 			data: map[string]any{
 				"pageTitle": "Test Page",
@@ -251,61 +251,61 @@ func TestNewTemplate(t *testing.T) {
 			dir: "without-use",
 		},
 		{
-			conf: &config.Config{TemplateDir: path + "loops"},
+			conf: &config.Config{TemplateDir: path},
 			view: "index",
 			data: map[string]any{"names": []string{"Anna", "Serhii", "Vladimir"}},
 			dir:  "loops",
 		},
 		{
-			conf: &config.Config{TemplateDir: path + "with-each-and-comp"},
+			conf: &config.Config{TemplateDir: path},
 			view: "views/index",
 			data: map[string]any{"names": []string{"Anna", "Serhii", "Vladimir"}},
 			dir:  "with-each-and-comp",
 		},
 		{
-			conf: &config.Config{TemplateDir: path + "use-inside-if"},
+			conf: &config.Config{TemplateDir: path},
 			view: "index",
 			data: nil,
 			dir:  "use-inside-if",
 		},
 		{
-			conf: &config.Config{TemplateDir: path + "with-comp"},
+			conf: &config.Config{TemplateDir: path},
 			view: "index",
 			data: nil,
 			dir:  "with-comp",
 		},
 		{
-			conf: &config.Config{TemplateDir: path + "with-inserts-and-html"},
+			conf: &config.Config{TemplateDir: path},
 			view: "index",
 			data: nil,
 			dir:  "with-inserts-and-html",
 		},
 		{
-			conf: &config.Config{TemplateDir: path + "with-comp-and-slots"},
+			conf: &config.Config{TemplateDir: path},
 			view: "index",
 			data: map[string]any{"name": "Anna", "age": 20},
 			dir:  "with-comp-and-slots",
 		},
 		{
-			conf: &config.Config{TemplateDir: path + "with-comp-no-args"},
+			conf: &config.Config{TemplateDir: path},
 			view: "index",
 			data: nil,
 			dir:  "with-comp-no-args",
 		},
 		{
-			conf: &config.Config{TemplateDir: path + "insert-is-optional"},
+			conf: &config.Config{TemplateDir: path},
 			view: "index",
 			data: nil,
 			dir:  "insert-is-optional",
 		},
 		{
-			conf: &config.Config{TemplateDir: path + "use-with-comp-inside"},
+			conf: &config.Config{TemplateDir: path},
 			view: "index",
 			data: nil,
 			dir:  "use-with-comp-inside",
 		},
 		{
-			conf: &config.Config{TemplateDir: path + "comp-in-other-comp"},
+			conf: &config.Config{TemplateDir: path},
 			view: "home",
 			data: nil,
 			dir:  "comp-in-other-comp",
@@ -314,6 +314,7 @@ func TestNewTemplate(t *testing.T) {
 
 	for _, tc := range cases {
 		t.Run(tc.dir, func(t *testing.T) {
+			tc.conf.TemplateDir += tc.dir
 			tpl, err := NewTemplate(tc.conf)
 			if err != nil {
 				t.Errorf("Error creating template: %q", err)
