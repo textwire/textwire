@@ -55,7 +55,7 @@ func startTextwire() *textwire.Template {
 	tpl, err := textwire.NewTemplate(&config.Config{
 		TemplateFS:    templateFS,
 		ErrorPagePath: "error-page",
-		DebugMode:     false,
+		DebugMode:     true,
 		GlobalData: map[string]any{
 			"env":  "development",
 			"year": "2020",
@@ -79,7 +79,7 @@ func homeHandler(tpl *textwire.Template) http.HandlerFunc {
 			"books":     books,
 		})
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+			log.Printf("Template error: %v", err)
 		}
 	}
 }
