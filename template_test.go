@@ -221,48 +221,100 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 }
 
 func TestNewTemplate(t *testing.T) {
+	path := "textwire/testdata/good/before/"
 	cases := []struct {
-		dirName  string
+		config   *config.Config
 		viewName string
 		data     map[string]any
+		dirName  string
 	}{
-		{"no-stmts", "index", nil},
-		{"with-inserts", "index", nil},
 		{
-			"without-use",
-			"index",
-			map[string]any{
+			config:   &config.Config{TemplateDir: path + "no-stmts"},
+			viewName: "index",
+			data:     nil,
+			dirName:  "no-stmts",
+		},
+		{
+			config:   &config.Config{TemplateDir: path + "with-inserts"},
+			viewName: "index",
+			data:     nil,
+			dirName:  "with-inserts",
+		},
+		{
+			config:   &config.Config{TemplateDir: path + "without-use"},
+			viewName: "index",
+			data: map[string]any{
 				"pageTitle": "Test Page",
 				"NAME_1":    "Anna Korotchaeva",
 				"name_2":    "Serhii Cho",
 			},
+			dirName: "without-use",
 		},
-		{"loops", "index", map[string]any{"names": []string{"Anna", "Serhii", "Vladimir"}}},
 		{
-			"with-each-and-comp",
-			"views/index",
-			map[string]any{"names": []string{"Anna", "Serhii", "Vladimir"}},
+			config:   &config.Config{TemplateDir: path + "loops"},
+			viewName: "index",
+			data:     map[string]any{"names": []string{"Anna", "Serhii", "Vladimir"}},
+			dirName:  "loops",
 		},
-		{"use-inside-if", "index", nil},
-		{"with-comp", "index", nil},
-		{"with-inserts-and-html", "index", nil},
 		{
-			"with-comp-and-slots",
-			"index",
-			map[string]any{"name": "Anna", "age": 20},
+			config:   &config.Config{TemplateDir: path + "with-each-and-comp"},
+			viewName: "views/index",
+			data:     map[string]any{"names": []string{"Anna", "Serhii", "Vladimir"}},
+			dirName:  "with-each-and-comp",
 		},
-		{"with-comp-no-args", "index", nil},
-		{"insert-is-optional", "index", nil},
-		{"use-with-comp-inside", "index", nil},
-		{"comp-in-other-comp", "home", nil},
+		{
+			config:   &config.Config{TemplateDir: path + "use-inside-if"},
+			viewName: "index",
+			data:     nil,
+			dirName:  "use-inside-if",
+		},
+		{
+			config:   &config.Config{TemplateDir: path + "with-comp"},
+			viewName: "index",
+			data:     nil,
+			dirName:  "with-comp",
+		},
+		{
+			config:   &config.Config{TemplateDir: path + "with-inserts-and-html"},
+			viewName: "index",
+			data:     nil,
+			dirName:  "with-inserts-and-html",
+		},
+		{
+			config:   &config.Config{TemplateDir: path + "with-comp-and-slots"},
+			viewName: "index",
+			data:     map[string]any{"name": "Anna", "age": 20},
+			dirName:  "with-comp-and-slots",
+		},
+		{
+			config:   &config.Config{TemplateDir: path + "with-comp-no-args"},
+			viewName: "index",
+			data:     nil,
+			dirName:  "with-comp-no-args",
+		},
+		{
+			config:   &config.Config{TemplateDir: path + "insert-is-optional"},
+			viewName: "index",
+			data:     nil,
+			dirName:  "insert-is-optional",
+		},
+		{
+			config:   &config.Config{TemplateDir: path + "use-with-comp-inside"},
+			viewName: "index",
+			data:     nil,
+			dirName:  "use-with-comp-inside",
+		},
+		{
+			config:   &config.Config{TemplateDir: path + "comp-in-other-comp"},
+			viewName: "home",
+			data:     nil,
+			dirName:  "comp-in-other-comp",
+		},
 	}
 
 	for _, tc := range cases {
 		t.Run(tc.dirName, func(t *testing.T) {
-			tpl, err := NewTemplate(&config.Config{
-				TemplateDir: "textwire/testdata/good/before/" + tc.dirName,
-			})
-
+			tpl, err := NewTemplate(tc.config)
 			if err != nil {
 				t.Errorf("Error creating template: %q", err)
 				return
