@@ -1,5 +1,9 @@
 # Release notes
 
+## v3.1.0 (2026-02-13)
+
+- 🧑‍💻 Added tests to make sure some age cases work.
+
 ## v3.0.2 (2026-02-11)
 
 - ♻️ Lots of refactoring and improvements to the codebase, including adding tests for edge cases.

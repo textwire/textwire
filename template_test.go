@@ -263,7 +263,7 @@ func TestNewTemplate(t *testing.T) {
 		{
 			conf: &config.Config{},
 			view: "index",
-			data: map[string]any{"name": "Anna", "age": 20},
+			data: map[string]any{"name": "Anna ♥️", "age": 20},
 			dir:  "with-comp-and-slots",
 		},
 	}
@@ -311,7 +311,10 @@ func TestTemplateResponse(t *testing.T) {
 	}{
 		{
 			name: "Should show custom error page",
-			conf: &config.Config{ErrorPagePath: "custom-error-page"},
+			conf: &config.Config{
+				ErrorPagePath: "custom-error-page",
+				GlobalData:    map[string]any{"year": "2020"},
+			},
 			view: "home",
 			dir:  "prod-error-page",
 			data: map[string]any{"arr": "some string"},
