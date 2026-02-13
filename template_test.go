@@ -229,7 +229,7 @@ func TestNewTemplate(t *testing.T) {
 		data map[string]any
 		dir  string
 	}{
-		{conf: &config.Config{}, view: "index", data: nil, dir: "reserve-inside-comp"},
+		{conf: &config.Config{}, view: "index", data: nil, dir: "reserve-inside-slot"},
 		{conf: &config.Config{}, view: "index", data: nil, dir: "no-stmts"},
 		{conf: &config.Config{}, view: "index", data: nil, dir: "with-inserts"},
 		{conf: &config.Config{}, view: "index", data: nil, dir: "use-inside-if"},

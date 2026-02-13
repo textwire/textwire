@@ -823,3 +823,24 @@ func TestLexerCanReadIllegalDirectives(t *testing.T) {
 		{Type: token.EOF, Literal: "", Pos: token.Position{StartCol: 20, EndCol: 20}},
 	})
 }
+
+func TestReserveInsideSlot(t *testing.T) {
+	inp := `<head>@component('comp')@slot@reserve('title')@end@end</head>`
+
+	TokenizeString(t, inp, []token.Token{
+		{Type: token.HTML, Literal: "<head>", Pos: token.Position{EndCol: 5}},
+		{Type: token.COMPONENT, Literal: "@component", Pos: token.Position{StartCol: 6, EndCol: 15}},
+		{Type: token.LPAREN, Literal: "(", Pos: token.Position{StartCol: 16, EndCol: 16}},
+		{Type: token.STR, Literal: "comp", Pos: token.Position{StartCol: 17, EndCol: 22}},
+		{Type: token.RPAREN, Literal: ")", Pos: token.Position{StartCol: 23, EndCol: 23}},
+		{Type: token.SLOT, Literal: "@slot", Pos: token.Position{StartCol: 24, EndCol: 28}},
+		{Type: token.RESERVE, Literal: "@reserve", Pos: token.Position{StartCol: 29, EndCol: 36}},
+		{Type: token.LPAREN, Literal: "(", Pos: token.Position{StartCol: 37, EndCol: 37}},
+		{Type: token.STR, Literal: "title", Pos: token.Position{StartCol: 38, EndCol: 44}},
+		{Type: token.RPAREN, Literal: ")", Pos: token.Position{StartCol: 45, EndCol: 45}},
+		{Type: token.END, Literal: "@end", Pos: token.Position{StartCol: 46, EndCol: 49}},
+		{Type: token.END, Literal: "@end", Pos: token.Position{StartCol: 50, EndCol: 53}},
+		{Type: token.HTML, Literal: "</head>", Pos: token.Position{StartCol: 54, EndCol: 60}},
+		{Type: token.EOF, Literal: "", Pos: token.Position{StartCol: 61, EndCol: 61}},
+	})
+}
