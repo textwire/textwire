@@ -16,8 +16,7 @@ import (
 // Template holds all necessary data which it will use when individual
 // template files will be evaluated by String() or Response() methods.
 type Template struct {
-	bundler *SourceBundler
-	linker  *linker.NodeLinker
+	linker *linker.NodeLinker
 }
 
 // NewTemplate returns a new Template instance with parsed Textwire files
@@ -26,15 +25,14 @@ type Template struct {
 func NewTemplate(opt *config.Config) (*Template, error) {
 	Configure(opt)
 
-	sb := NewSourceBundler()
-
-	if err := sb.FindFiles(); err != nil {
+	files, err := locateFiles()
+	if err != nil {
 		return nil, fail.FromError(err, 0, "", "template").Error()
 	}
 
-	programs, err := sb.ParseFiles()
-	if err != nil {
-		return nil, err.Error()
+	programs, parseErr := parseFiles(files)
+	if parseErr != nil {
+		return nil, parseErr.Error()
 	}
 
 	ln := linker.New(programs)
@@ -42,7 +40,7 @@ func NewTemplate(opt *config.Config) (*Template, error) {
 		return nil, err.Error()
 	}
 
-	return &Template{bundler: sb, linker: ln}, nil
+	return &Template{linker: ln}, nil
 }
 
 // String returns final evaluated template result represented as a string.
