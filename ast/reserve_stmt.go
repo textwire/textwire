@@ -9,6 +9,8 @@ import (
 type ReserveStmt struct {
 	BaseNode
 	Name *StringLiteral
+	// Fallback is the second argument; nil if not present
+	Fallback Expression
 }
 
 func NewReserveStmt(tok token.Token) *ReserveStmt {
@@ -20,5 +22,8 @@ func NewReserveStmt(tok token.Token) *ReserveStmt {
 func (rs *ReserveStmt) statementNode() {}
 
 func (rs *ReserveStmt) String() string {
-	return fmt.Sprintf(`@reserve("%s")`, rs.Name)
+	if rs.Fallback == nil {
+		return fmt.Sprintf(`@reserve("%s")`, rs.Name)
+	}
+	return fmt.Sprintf(`@reserve("%s", %s)`, rs.Name, rs.Fallback)
 }

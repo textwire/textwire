@@ -244,7 +244,11 @@ func (e *Evaluator) reserve(reserveStmt *ast.ReserveStmt, ctx *Context) object.O
 	name := reserveStmt.Name.Value
 	insert, ok := ctx.inserts[name]
 	if !ok {
-		return NIL // Inserts are optional, NIL when not provided
+		// Inserts are optional, NIL when not provided or fallback argument
+		if reserveStmt.Fallback == nil {
+			return NIL
+		}
+		return e.Eval(reserveStmt.Fallback, ctx)
 	}
 
 	// delete reserve after it's been used by reserve
