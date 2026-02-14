@@ -1,0 +1,3 @@
+<section>
+@component('comp')@slot('h4')Textwire@end@end
+</section>

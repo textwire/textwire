@@ -121,7 +121,7 @@ func (p *Program) LinkCompProg(compName string, prog *Program, absPath string) *
 				)
 			}
 
-			return fail.New(prog.Line(), absPath, "parser", fail.ErrSlotNotDefined, name, compName)
+			return fail.New(prog.Line(), absPath, "parser", fail.ErrSlotNotDefined, compName, name)
 		}
 
 		comp.CompProg = prog

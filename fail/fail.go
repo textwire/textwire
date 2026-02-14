@@ -18,7 +18,7 @@ const (
 	ErrIllegalToken           = "illegal token '%s'"
 	ErrElseifCannotFollowElse = "'@elseif' cannot come after '@else'"
 	ErrExpectedObjectLiteral  = "expected object literal, got '%s'"
-	ErrSlotNotDefined         = "@slot('%s') not defined in @component('%s')"
+	ErrSlotNotDefined         = "@component('%s') references @slot('%s') which doesn't exist in the component file"
 	ErrDuplicateSlot          = "@slot('%s') used %d times in @component('%s')"
 	ErrDuplicateDefaultSlot   = "default @slot used %d times in @component('%s')"
 	ErrExpectedComponentName  = "@component('') cannot have empty name"

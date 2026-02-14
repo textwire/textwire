@@ -471,7 +471,8 @@ func (e *Evaluator) externalSlotStmt(slotStmt *ast.SlotStmt, ctx *Context) objec
 	// Get slot's content from the context
 	content, ok := ctx.slots[compName][name]
 	if !ok {
-		return e.newError(slotStmt, ctx, fail.ErrSlotNotDefined, name, compName)
+		// Slots are optional in component files since v3.1.0
+		return NIL
 	}
 
 	// delete slot after it's been used by external component
