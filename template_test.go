@@ -99,7 +99,7 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 				5,
 				absPath+"undefined-insert/index.tw",
 				"parser",
-				fail.ErrAddMatchingReserve,
+				fail.ErrUnusedInsertDetected,
 				"some-name",
 				"some-name",
 			),

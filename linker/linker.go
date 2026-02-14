@@ -58,7 +58,7 @@ func (nl *NodeLinker) handleLayoutLinking(prog *ast.Program) *fail.Error {
 	}
 
 	layoutProg.IsLayout = true
-	if err := ast.CheckUndefinedInserts(layoutProg, prog.Inserts); err != nil {
+	if err := ast.CheckUnusedInserts(layoutProg, prog.Inserts); err != nil {
 		return err
 	}
 

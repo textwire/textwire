@@ -22,7 +22,7 @@ const (
 	ErrDuplicateSlot          = "@slot('%s') used %d times in @component('%s')"
 	ErrDuplicateDefaultSlot   = "default @slot used %d times in @component('%s')"
 	ErrExpectedComponentName  = "@component('') cannot have empty name"
-	ErrAddMatchingReserve     = "@insert('%s') needs to have a matching @reserve('%s') in layout file"
+	ErrUnusedInsertDetected   = "@insert('%s') needs to have a matching @reserve('%s') in layout file"
 	ErrDuplicateInserts       = "duplicate @insert('%s') found"
 	ErrUseStmtFirstArgStr     = "argument 1 of @use(STR) must be a string, got @use('%s')"
 	ErrOnlyOneUseDir          = "@use() directive can only be used once per template"

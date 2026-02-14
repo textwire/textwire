@@ -829,7 +829,11 @@ func TestReserveInsideSlot(t *testing.T) {
 
 	TokenizeString(t, inp, []token.Token{
 		{Type: token.HTML, Literal: "<head>", Pos: token.Position{EndCol: 5}},
-		{Type: token.COMPONENT, Literal: "@component", Pos: token.Position{StartCol: 6, EndCol: 15}},
+		{
+			Type:    token.COMPONENT,
+			Literal: "@component",
+			Pos:     token.Position{StartCol: 6, EndCol: 15},
+		},
 		{Type: token.LPAREN, Literal: "(", Pos: token.Position{StartCol: 16, EndCol: 16}},
 		{Type: token.STR, Literal: "comp", Pos: token.Position{StartCol: 17, EndCol: 22}},
 		{Type: token.RPAREN, Literal: ")", Pos: token.Position{StartCol: 23, EndCol: 23}},
