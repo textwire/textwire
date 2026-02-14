@@ -10,9 +10,10 @@ build:
 	@clear || true
 	cd textwire/example && go build main.go
 
-.PHONY: shell
-shell:
-	go run repl/repl.go
+.PHONY: repl
+repl:
+	@clear || true
+	@go run repl/repl.go
 
 .PHONY: cover
 cover:
