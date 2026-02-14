@@ -3,7 +3,7 @@
 ## v3.1.0 (2026-02-14)
 
 - 🧑‍💻 Added tests to make sure some age cases work.
-- ✨ You can now add a fallback second argument to the reserve directive like this `@reserve('title', 'My Blog')` [#66](https://github.com/textwire/textwire/issues/66).
+- ✨ You can now add a fallback second argument to the reserve directive like this `@reserve('title', 'My Blog')` [#66](https://github.com/textwire/textwire/issues/66). It will be used when you didn't pass any inserts to that matching reseve.
 
 ## v3.0.2 (2026-02-11)
 
