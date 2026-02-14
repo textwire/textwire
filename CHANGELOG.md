@@ -1,5 +1,9 @@
 # Release notes
 
+## v3.1.1 (2026-02-14)
+
+- 🐛 Renamed 1 test file because it was causing some weird printing after `go get -u ./...` command.
+
 ## v3.1.0 (2026-02-14)
 
 - 🧑‍💻 Added tests to make sure some age cases work.

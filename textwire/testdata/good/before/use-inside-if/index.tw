@@ -1,4 +1,4 @@
-@if(true)@use("♥️/главная")@end
+@if(true)@use("l/главная")@end
 
 @if(true)@insert("заголовок", "use inside if title")@end
 
