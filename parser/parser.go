@@ -668,6 +668,12 @@ func (p *Parser) reserveStmt() ast.Statement {
 
 	stmt.SetEndPosition(p.curToken.Pos)
 
+	// Check for duplicate reserve statements
+	if _, ok := p.reserves[stmt.Name.Value]; ok {
+		p.newError(stmt.Token.ErrorLine(), fail.ErrDuplicateReserves, stmt.Name.Value, p.file.Abs)
+		return nil
+	}
+
 	p.reserves[stmt.Name.Value] = stmt
 
 	return stmt

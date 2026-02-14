@@ -25,6 +25,18 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 		data map[string]any
 	}{
 		{
+			dir: "duplicate-reserves",
+			err: fail.New(
+				3,
+				absPath+"duplicate-reserves/base.tw",
+				"parser",
+				fail.ErrDuplicateReserves,
+				"title",
+				absPath+"duplicate-reserves/base.tw",
+			),
+			data: nil,
+		},
+		{
 			dir: "use-inside-tpl",
 			err: fail.New(
 				1,

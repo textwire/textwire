@@ -19,6 +19,7 @@ const (
 	ErrElseifCannotFollowElse = "'@elseif' cannot come after '@else'"
 	ErrExpectedObjectLiteral  = "expected object literal, got '%s'"
 	ErrSlotNotDefined         = "@component('%s') references @slot('%s') which doesn't exist in the component file"
+	ErrDuplicateReserves      = "found duplicate @reserve('%s') inside of a layout file %s"
 	ErrDuplicateSlot          = "@slot('%s') used %d times in @component('%s')"
 	ErrDuplicateDefaultSlot   = "default @slot used %d times in @component('%s')"
 	ErrExpectedComponentName  = "@component('') cannot have empty name"
