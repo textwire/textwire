@@ -1,6 +1,6 @@
-@if(true)@use("layouts/base")@end
+@if(true)@use("♥️/главная")@end
 
-@if(true)@insert("title", "use inside if title")@end
+@if(true)@insert("заголовок", "use inside if title")@end
 
 @insert("content")
 <h1>Use Inside {{ false && false || true ? 'If' : '' }}</h1>

@@ -1,4 +1,4 @@
-@use('~layout-with-component')
+<section>@use('~layout-with-component')</section>
 
 @insert('title', 'Home Page')
 @insert('description', 'This is a books example template with Textwire')

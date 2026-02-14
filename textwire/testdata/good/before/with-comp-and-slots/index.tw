@@ -1,12 +1,12 @@
-<body>
+⚠️😎♥️<body>
 @component('user')
     @slot<b>User's information</b>@end
-    @slot('name')<b>The name is {{ name }}</b>@end
-    @slot('age')<b>The age is {{ age }}</b>@end
+    @slot('name')<b>Её имя {{ name }}</b>@end
+    @slot('age')<b>我的名字是 {{ age }}</b>@end
     @slot('empty')@end
 @end
 
-@component('book', { age })
+@component('书', { age })
     @slot('')Empty name@end{{-- Acts as default slot --}}
     @slot('1')1 inside@end
 @end

@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <title>@reserve("title")</title>
+<meta name="description" content="@reserve('description', 'Fallback value')">
 </head>
 <body>
 @reserve("content")

@@ -25,6 +25,18 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 		data map[string]any
 	}{
 		{
+			dir: "duplicate-reserves",
+			err: fail.New(
+				3,
+				absPath+"duplicate-reserves/base.tw",
+				"parser",
+				fail.ErrDuplicateReserves,
+				"title",
+				absPath+"duplicate-reserves/base.tw",
+			),
+			data: nil,
+		},
+		{
 			dir: "use-inside-tpl",
 			err: fail.New(
 				1,
@@ -41,8 +53,8 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 				absPath+"unknown-named-slot/index.tw",
 				"parser",
 				fail.ErrSlotNotDefined,
-				"unknown",
 				"user",
+				"unknown",
 			),
 			data: nil,
 		},
@@ -99,7 +111,7 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 				5,
 				absPath+"undefined-insert/index.tw",
 				"parser",
-				fail.ErrAddMatchingReserve,
+				fail.ErrUnusedInsertDetected,
 				"some-name",
 				"some-name",
 			),
@@ -229,6 +241,8 @@ func TestNewTemplate(t *testing.T) {
 		data map[string]any
 		dir  string
 	}{
+		{conf: &config.Config{}, view: "index", data: nil, dir: "slots-optional"},
+		{conf: &config.Config{}, view: "index", data: nil, dir: "reserve-inside-slot"},
 		{conf: &config.Config{}, view: "index", data: nil, dir: "no-stmts"},
 		{conf: &config.Config{}, view: "index", data: nil, dir: "with-inserts"},
 		{conf: &config.Config{}, view: "index", data: nil, dir: "use-inside-if"},
@@ -263,7 +277,7 @@ func TestNewTemplate(t *testing.T) {
 		{
 			conf: &config.Config{},
 			view: "index",
-			data: map[string]any{"name": "Anna", "age": 20},
+			data: map[string]any{"name": "Анна ♥️", "age": 20},
 			dir:  "with-comp-and-slots",
 		},
 	}
@@ -311,7 +325,10 @@ func TestTemplateResponse(t *testing.T) {
 	}{
 		{
 			name: "Should show custom error page",
-			conf: &config.Config{ErrorPagePath: "custom-error-page"},
+			conf: &config.Config{
+				ErrorPagePath: "custom-error-page",
+				GlobalData:    map[string]any{"year": "2020"},
+			},
 			view: "home",
 			dir:  "prod-error-page",
 			data: map[string]any{"arr": "some string"},

@@ -1,5 +1,12 @@
 # Release notes
 
+## v3.1.0 (2026-02-14)
+
+- 🧑‍💻 Added tests to make sure some age cases work.
+- ✨ You can now add a fallback second argument to the reserve directive like this `@reserve('title', 'My Blog')` [#66](https://github.com/textwire/textwire/issues/66). It will be used when you didn't pass any inserts to that matching reseve.
+- 🧑‍💻 Made slots defined in a component file optional.
+- 🐛 Fixed bug where you could define multiple `@reserve` directives in a layout file. Now, you'll get an error.
+
 ## v3.0.2 (2026-02-11)
 
 - ♻️ Lots of refactoring and improvements to the codebase, including adding tests for edge cases.
@@ -8,7 +15,7 @@
 ## v3.0.1 (2026-02-08)
 
 - 🧑‍💻 Improve error messages.
-- 🧑‍💻 Potentially a breaking change, but it should not be. You will receive a clear error if you trying to use `@insert` in a template file without defining `@use` statement. Previously, `@insert` would result in empty string in your template.
+- 🧑‍💻 Potentially a breaking change, but it should not be. You will receive a clear error if you trying to use `@insert` in a template file without defining `@use` directive. Previously, `@insert` would result in empty string in your template.
 - 🐛 Fixed incorrect duplicate slot counter for error message when you have multiple duplicate slots in the same comonent.
 
 ## v3.0.0 (2026-02-07) — Major Release
@@ -21,7 +28,7 @@
 2. Improve memory and performance. Read about improvements [here](https://textwire.github.io/blog/2026/02/05/textwire-v3#memory-performance).
 3. Improve error messages. Now they are clearer.
 4. Added tons of tests to make sure version 3 is stable.
-5. You'll get a clear error when using 2 or more `@use` statements in the same template.
+5. You'll get a clear error when using 2 or more `@use` directives in the same template.
 
 ### 🐛 Bug Fixes
 
@@ -30,8 +37,8 @@
 3. Fixed the `contains` function for arrays; `{{ ![{}, 21].contains({age: 21}) }}` now returns the correct result.
 4. Now you will get a proper error when trying to access a property on a non-object type like `{{ "str".nice }}`. Before, you would get a panic.
 5. Fixed issue where you couldn't write a slot directive with space after the `@slot` keyword. This `@slot ("book")` was giving an error previously.
-6. Now you will get an proper error when trying to use `@each` statement on non-array type.
-7. Fixed bug where you couldn't use `@component` statement inside of a layout and `@component` inside of other components.
+6. Now you will get an proper error when trying to use `@each` directive on non-array type.
+7. Fixed bug where you couldn't use `@component` directive inside of a layout and `@component` inside of other components.
 
 ### ✨ New Features
 

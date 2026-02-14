@@ -12,7 +12,7 @@ func FindProg(name string, programs []*Program) *Program {
 	return nil
 }
 
-func CheckUndefinedInserts(prog *Program, inserts map[string]*InsertStmt) *fail.Error {
+func CheckUnusedInserts(prog *Program, inserts map[string]*InsertStmt) *fail.Error {
 	for name := range inserts {
 		if _, ok := prog.Reserves[name]; ok {
 			continue
@@ -22,7 +22,7 @@ func CheckUndefinedInserts(prog *Program, inserts map[string]*InsertStmt) *fail.
 		path := inserts[name].AbsPath
 		name := inserts[name].Name.Value
 
-		return fail.New(line, path, "parser", fail.ErrAddMatchingReserve, name, name)
+		return fail.New(line, path, "parser", fail.ErrUnusedInsertDetected, name, name)
 	}
 
 	return nil

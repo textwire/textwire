@@ -10,9 +10,10 @@ build:
 	@clear || true
 	cd textwire/example && go build main.go
 
-.PHONY: shell
-shell:
-	go run repl/repl.go
+.PHONY: repl
+repl:
+	@clear || true
+	@go run repl/repl.go
 
 .PHONY: cover
 cover:
@@ -40,6 +41,10 @@ line:
 lint:
 	@golangci-lint run
 	@echo "✅ Linting passed!"
+
+.PHONY: bench
+bench:
+	@go test ./textwire/example -bench=BenchmarkTestProject -benchmem
 
 .PHONY: todo
 todo:

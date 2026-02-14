@@ -244,7 +244,11 @@ func (e *Evaluator) reserve(reserveStmt *ast.ReserveStmt, ctx *Context) object.O
 	name := reserveStmt.Name.Value
 	insert, ok := ctx.inserts[name]
 	if !ok {
-		return NIL // Inserts are optional, NIL when not provided
+		// Inserts are optional, NIL when not provided or fallback argument
+		if reserveStmt.Fallback == nil {
+			return NIL
+		}
+		return e.Eval(reserveStmt.Fallback, ctx)
 	}
 
 	// delete reserve after it's been used by reserve
@@ -467,7 +471,8 @@ func (e *Evaluator) externalSlotStmt(slotStmt *ast.SlotStmt, ctx *Context) objec
 	// Get slot's content from the context
 	content, ok := ctx.slots[compName][name]
 	if !ok {
-		return e.newError(slotStmt, ctx, fail.ErrSlotNotDefined, name, compName)
+		// Slots are optional in component files since v3.1.0
+		return NIL
 	}
 
 	// delete slot after it's been used by external component

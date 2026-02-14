@@ -655,11 +655,24 @@ func (p *Parser) reserveStmt() ast.Statement {
 
 	stmt.Name = ast.NewStringLiteral(p.curToken, p.curToken.Literal)
 
-	if !p.expectPeek(token.RPAREN) { // skip string token
+	// Handle when has second argument (fallback value) after comma
+	if p.peekTokenIs(token.COMMA) {
+		p.nextToken() // move to "," from string
+		p.nextToken() // move to expression from ","
+		stmt.Fallback = p.expression(LOWEST)
+	}
+
+	if !p.expectPeek(token.RPAREN) { // move to ")"
 		return p.illegalNode()
 	}
 
 	stmt.SetEndPosition(p.curToken.Pos)
+
+	// Check for duplicate reserve statements
+	if _, ok := p.reserves[stmt.Name.Value]; ok {
+		p.newError(stmt.Token.ErrorLine(), fail.ErrDuplicateReserves, stmt.Name.Value, p.file.Abs)
+		return nil
+	}
 
 	p.reserves[stmt.Name.Value] = stmt
 
