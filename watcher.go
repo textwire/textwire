@@ -15,8 +15,12 @@ import (
 // for development purposes and should not be used in production due to
 // potential performance implications.
 type fileWatcher struct {
-	ticker    *time.Ticker
 	oldLinker *linker.NodeLinker
+	ticker    *time.Ticker
+}
+
+func newFileWatcher(oldLinker *linker.NodeLinker) *fileWatcher {
+	return &fileWatcher{oldLinker: oldLinker}
 }
 
 // Watch watches for changes in the provided files and refreshes the linked
@@ -58,7 +62,8 @@ func (fw *fileWatcher) updateFileIfModified(f *file.SourceFile) {
 
 	prog, failure, parseErr := parseFile(f)
 	if parseErr != nil {
-		fw.fatal(parseErr.Error())
+		fw.info(parseErr.Error())
+		return
 	}
 
 	if failure != nil {
@@ -98,7 +103,7 @@ func (fw *fileWatcher) fetchModTime(f *file.SourceFile) time.Time {
 }
 
 func (fw *fileWatcher) info(text string) {
-	fmt.Printf("[Textwire File Watcher]: %s\n", text)
+	fmt.Printf("[Textwire File Watch]: %s\n", text)
 }
 
 func (fw *fileWatcher) fatal(text string) {
