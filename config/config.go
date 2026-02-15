@@ -45,22 +45,22 @@ type Config struct {
 	// configuration, or common data.
 	GlobalData map[string]any
 
-	// FileReload watches all of your template files for changes and
+	// RefreshFiles watches all of your template files for changes and
 	// automatically reparses them when they are modified. This is intended
 	// for development use only and should not be enabled in production due to
 	// performance implications. It doesn't work with TemplateFS configuration
-	// enabled! Disable it to use file reload functionality.
+	// enabled! Disable it to use file refresh functionality.
 	// Default: false
-	FileReload bool
+	RefreshFiles bool
 
-	// FileReloadInterval specifies how often Textwire checks for changes in
-	// template files when FileReload is enabled. The higher the interval,
+	// RefreshInterval specifies how often Textwire checks for changes in
+	// template files when RefreshFiles is enabled. The higher the interval,
 	// the less frequently Textwire checks for file changes, which can reduce
 	// CPU usage but may delay updates. Values less than 1 second will be
 	// treated as the default (1 second). Adjust this value based on your
 	// development needs.
 	// Default: time.Second (1 second)
-	FileReloadInterval time.Duration
+	RefreshInterval time.Duration
 
 	// usesFS is a flag to determine if user uses TemplateFS or not.
 	usesFS bool
@@ -68,12 +68,12 @@ type Config struct {
 
 func New(dir, ext, errPagePath string, debug bool) *Config {
 	return &Config{
-		TemplateDir:        dir,
-		TemplateExt:        ext,
-		ErrorPagePath:      errPagePath,
-		DebugMode:          debug,
-		GlobalData:         map[string]any{},
-		FileReloadInterval: time.Second,
+		TemplateDir:     dir,
+		TemplateExt:     ext,
+		ErrorPagePath:   errPagePath,
+		DebugMode:       debug,
+		GlobalData:      map[string]any{},
+		RefreshInterval: time.Second,
 	}
 }
 
@@ -105,15 +105,15 @@ func (c *Config) Configure(opt *Config) {
 		c.ErrorPagePath = opt.ErrorPagePath
 	}
 
-	if opt.FileReloadInterval >= time.Second {
-		c.FileReloadInterval = opt.FileReloadInterval
+	if opt.RefreshInterval >= time.Second {
+		c.RefreshInterval = opt.RefreshInterval
 	}
 
 	if opt.GlobalData != nil {
 		c.GlobalData = opt.GlobalData
 	}
 
-	c.FileReload = opt.FileReload
+	c.RefreshFiles = opt.RefreshFiles
 	c.DebugMode = opt.DebugMode
 	c.usesFS = opt.TemplateFS != nil
 }
