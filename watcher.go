@@ -51,7 +51,7 @@ func (fw *fileWatcher) Watch(files []*file.SourceFile) {
 
 func (fw *fileWatcher) updateFileIfModified(f *file.SourceFile) {
 	modTime := fw.fetchModTime(f)
-	if f.ModTime.Equal(modTime) {
+	if !modTime.After(f.ModTime) {
 		return
 	}
 
