@@ -92,7 +92,6 @@ func (fw *fileWatcher) refreshPrograms(prog *ast.Program) {
 
 // fetchModTime fetches the file's info and retrieves last modified date.
 func (fw *fileWatcher) fetchModTime(f *file.SourceFile) time.Time {
-	var fileInfo os.FileInfo
 	fileInfo, err := os.Stat(f.Abs)
 	if err != nil {
 		fw.fatal(err.Error())
