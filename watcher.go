@@ -1,13 +1,11 @@
 package textwire
 
 import (
-	"errors"
-	"log"
+	"fmt"
 	"os"
 	"time"
 
 	"github.com/textwire/textwire/v3/pkg/ast"
-	"github.com/textwire/textwire/v3/pkg/fail"
 	"github.com/textwire/textwire/v3/pkg/file"
 	"github.com/textwire/textwire/v3/pkg/linker"
 )
@@ -29,57 +27,48 @@ type fileWatcher struct {
 // are logged and the application is terminated. Note that this function
 // cannot be used if the user is using TemplateFS, as it relies on direct file
 // access to monitor changes.
-func (fw *fileWatcher) Watch(files []*file.SourceFile) error {
+func (fw *fileWatcher) Watch(files []*file.SourceFile) {
 	if userConf.UsesFS() {
-		return errors.New("cannot use config.RefreshFiles when using config.TemplateFS")
+		fw.fatal("cannot use config.RefreshFiles when using config.TemplateFS")
 	}
+
+	fw.info("Watching files for changes...")
 
 	fw.ticker = time.NewTicker(userConf.RefreshInterval)
 
 	go func() {
 		for range fw.ticker.C {
 			for i := range files {
-				if failure := fw.updateFileIfModified(files[i]); failure != nil {
-					log.Fatalln(failure)
-				}
+				fw.updateFileIfModified(files[i])
 			}
 		}
 	}()
-
-	return nil
 }
 
-func (fw *fileWatcher) updateFileIfModified(f *file.SourceFile) *fail.Error {
-	modTime, err := fw.fetchModTime(f)
-	if err != nil {
-		log.Fatalln(err)
-	}
+func (fw *fileWatcher) updateFileIfModified(f *file.SourceFile) {
+	modTime := fw.fetchModTime(f)
 
 	if f.ModTime.Equal(modTime) {
-		return nil
+		return
 	}
 
-	log.Printf("Refreshing %s", f.Rel)
+	fw.info("Refreshing file: " + f.Rel)
 
 	f.ModTime = modTime
 
 	prog, failure, parseErr := parseFile(f)
 	if parseErr != nil {
-		return fail.FromError(parseErr, 0, f.Abs, "template")
+		fw.fatal(parseErr.Error())
 	}
 
 	if failure != nil {
-		return failure
+		fw.fatal(failure.String())
 	}
 
-	if failure := fw.refreshPrograms(prog); failure != nil {
-		return failure
-	}
-
-	return nil
+	fw.refreshPrograms(prog)
 }
 
-func (fw *fileWatcher) refreshPrograms(prog *ast.Program) *fail.Error {
+func (fw *fileWatcher) refreshPrograms(prog *ast.Program) {
 	fw.oldLinker.Lock()
 	defer fw.oldLinker.Unlock()
 
@@ -91,21 +80,28 @@ func (fw *fileWatcher) refreshPrograms(prog *ast.Program) *fail.Error {
 
 	ln := linker.New(fw.oldLinker.Programs)
 	if failure := ln.LinkNodes(); failure != nil {
-		return failure
+		fw.fatal(failure.String())
 	}
 
 	fw.oldLinker.Programs = ln.Programs
-
-	return nil
 }
 
 // fetchModTime fetches the file's info and retrieves last modified date.
-func (fw *fileWatcher) fetchModTime(f *file.SourceFile) (time.Time, error) {
+func (fw *fileWatcher) fetchModTime(f *file.SourceFile) time.Time {
 	var fileInfo os.FileInfo
 	fileInfo, err := os.Stat(f.Abs)
 	if err != nil {
-		return time.Now(), err
+		fw.fatal(err.Error())
 	}
 
-	return fileInfo.ModTime(), nil
+	return fileInfo.ModTime()
+}
+
+func (fw *fileWatcher) info(text string) {
+	fmt.Printf("[Textwire File Watcher]: %s\n", text)
+}
+
+func (fw *fileWatcher) fatal(text string) {
+	fw.info(text)
+	os.Exit(1)
 }

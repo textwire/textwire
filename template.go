@@ -44,10 +44,7 @@ func NewTemplate(opt *config.Config) (*Template, error) {
 
 	if opt.RefreshFiles {
 		watcher := &fileWatcher{oldLinker: ln}
-		err := watcher.Watch(files)
-		if err != nil {
-			return nil, err
-		}
+		watcher.Watch(files)
 	}
 
 	return tpl, nil
