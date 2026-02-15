@@ -4,13 +4,13 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/textwire/textwire/v3/ast"
 	"github.com/textwire/textwire/v3/config"
-	"github.com/textwire/textwire/v3/evaluator"
-	"github.com/textwire/textwire/v3/fail"
-	"github.com/textwire/textwire/v3/file"
-	"github.com/textwire/textwire/v3/linker"
-	"github.com/textwire/textwire/v3/object"
+	"github.com/textwire/textwire/v3/pkg/ast"
+	"github.com/textwire/textwire/v3/pkg/evaluator"
+	"github.com/textwire/textwire/v3/pkg/fail"
+	"github.com/textwire/textwire/v3/pkg/file"
+	"github.com/textwire/textwire/v3/pkg/linker"
+	"github.com/textwire/textwire/v3/pkg/object"
 )
 
 // Template holds all necessary data which it will use when individual

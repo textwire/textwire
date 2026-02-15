@@ -6,14 +6,14 @@ import (
 	"testing"
 
 	"github.com/textwire/textwire/v3/config"
-	"github.com/textwire/textwire/v3/fail"
-	"github.com/textwire/textwire/v3/file"
-	"github.com/textwire/textwire/v3/object"
+	"github.com/textwire/textwire/v3/pkg/fail"
+	"github.com/textwire/textwire/v3/pkg/file"
+	"github.com/textwire/textwire/v3/pkg/object"
 )
 
 func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 	absPath, err := file.ToFullPath("")
-	absPath += "/textwire/testdata/bad/"
+	absPath += "/testdata/bad/"
 	if err != nil {
 		t.Errorf("unexpected error: %s", err)
 		return
@@ -204,7 +204,7 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 	for _, tc := range cases {
 		t.Run(tc.dir, func(t *testing.T) {
 			tpl, tplErr := NewTemplate(
-				&config.Config{TemplateDir: "textwire/testdata/bad/" + tc.dir},
+				&config.Config{TemplateDir: "testdata/bad/" + tc.dir},
 			)
 			if tplErr != nil {
 				if tplErr.Error() != tc.err.String() {
@@ -284,7 +284,7 @@ func TestNewTemplate(t *testing.T) {
 
 	for _, tc := range cases {
 		t.Run(tc.dir, func(t *testing.T) {
-			tc.conf.TemplateDir = "textwire/testdata/good/before/" + tc.dir
+			tc.conf.TemplateDir = "testdata/good/before/" + tc.dir
 			tpl, err := NewTemplate(tc.conf)
 			if err != nil {
 				t.Fatalf("Error creating template: %q", err)
@@ -295,7 +295,7 @@ func TestNewTemplate(t *testing.T) {
 				t.Fatalf("Error evaluating template: %q", failure)
 			}
 
-			expect, err := readFile("textwire/testdata/good/expected/" + tc.dir + ".html")
+			expect, err := readFile("testdata/good/expected/" + tc.dir + ".html")
 			if err != nil {
 				t.Fatalf("Error reading file. Error: %s", err)
 			}
@@ -309,7 +309,7 @@ func TestNewTemplate(t *testing.T) {
 
 func TestTemplateResponse(t *testing.T) {
 	absPath, err := file.ToFullPath("")
-	absPath += "/textwire/testdata/good/before/"
+	absPath += "/testdata/good/before/"
 	if err != nil {
 		t.Errorf("unexpected error: %s", err)
 		return
@@ -344,14 +344,14 @@ func TestTemplateResponse(t *testing.T) {
 
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
-			tc.conf.TemplateDir += "textwire/testdata/good/before/" + tc.dir
+			tc.conf.TemplateDir += "testdata/good/before/" + tc.dir
 			tpl, err := NewTemplate(tc.conf)
 			if err != nil {
 				t.Errorf("Error creating template: %q", err)
 				return
 			}
 
-			expect, err := readFile("textwire/testdata/good/expected/" + tc.dir + ".html")
+			expect, err := readFile("testdata/good/expected/" + tc.dir + ".html")
 			if err != nil {
 				t.Fatalf("Error reading file. Error: %s", err)
 			}
@@ -401,7 +401,7 @@ func TestTemplateResponse(t *testing.T) {
 
 func TestRegisteringCustomFunction(t *testing.T) {
 	tpl, fileErr := NewTemplate(&config.Config{
-		TemplateDir: "textwire/testdata/good/before/with-customs",
+		TemplateDir: "testdata/good/before/with-customs",
 		GlobalData:  map[string]any{"env": "dev", "name": "Serhii", "age": 36},
 	})
 	if fileErr != nil {
@@ -418,7 +418,7 @@ func TestRegisteringCustomFunction(t *testing.T) {
 		t.Fatalf("Unexpected error registering function: %s", fileErr)
 	}
 
-	expect, fileErr := readFile("textwire/testdata/good/expected/with-customs.html")
+	expect, fileErr := readFile("testdata/good/expected/with-customs.html")
 	if fileErr != nil {
 		t.Errorf("Error reading file: %s", fileErr)
 		return
@@ -436,13 +436,13 @@ func TestRegisteringCustomFunction(t *testing.T) {
 
 func TestTwoTemplates(t *testing.T) {
 	tpl, tplErr := NewTemplate(&config.Config{
-		TemplateDir: "textwire/testdata/good/before/two-templates",
+		TemplateDir: "testdata/good/before/two-templates",
 	})
 	if tplErr != nil {
 		t.Fatalf("Unexpected template error: %s", tplErr)
 	}
 
-	expectHome, homeFileErr := readFile("textwire/testdata/good/expected/two-templates-home.html")
+	expectHome, homeFileErr := readFile("testdata/good/expected/two-templates-home.html")
 	if homeFileErr != nil {
 		t.Errorf("Error reading file: %s", homeFileErr)
 		return
@@ -458,7 +458,7 @@ func TestTwoTemplates(t *testing.T) {
 	}
 
 	expectAbout, aboutFileErr := readFile(
-		"textwire/testdata/good/expected/two-templates-about.html",
+		"testdata/good/expected/two-templates-about.html",
 	)
 	if aboutFileErr != nil {
 		t.Errorf("Error reading file: %s", aboutFileErr)

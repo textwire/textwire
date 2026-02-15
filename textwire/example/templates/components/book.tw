@@ -1,6 +1,0 @@
-<div class="bg-gray-100 p-4 rounded-md">
-    <h4><strong>ID:</strong> {{ book.ID }}</h4>
-    <h4><strong>Title:</strong> {{ book.title.upper() }}</h4>
-    <p><strong>ISBN:</strong> {{ book.isbn }}</p>
-    <p><strong>Author:</strong> {{ book.author.firstName }} {{ book.author.lastName }}</p>
-</div>

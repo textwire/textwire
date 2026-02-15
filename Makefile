@@ -1,10 +1,5 @@
 MAX_LINE_LENGTH := 100
 
-.PHONY: dev
-dev:
-	@clear || true
-	cd textwire/example && go run main.go
-
 .PHONY: build
 build:
 	@clear || true

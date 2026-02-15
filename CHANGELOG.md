@@ -1,5 +1,9 @@
 # Release notes
 
+## v3.1.2 (2026-02-15)
+
+- 🧑‍💻 Full architecture change in directory and file structure. Doesn't break public API, just internal refactorking. Will be a breaking change if you use Textwire internals like parser, lexer, etc.
+
 ## v3.1.1 (2026-02-14)
 
 - 🐛 Renamed 1 test file because it was causing some weird printing after `go get -u ./...` command.

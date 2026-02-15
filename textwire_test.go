@@ -6,10 +6,10 @@ import (
 	"os"
 	"testing"
 
-	"github.com/textwire/textwire/v3/fail"
-	"github.com/textwire/textwire/v3/file"
-	"github.com/textwire/textwire/v3/object"
-	"github.com/textwire/textwire/v3/token"
+	"github.com/textwire/textwire/v3/pkg/fail"
+	"github.com/textwire/textwire/v3/pkg/file"
+	"github.com/textwire/textwire/v3/pkg/object"
+	"github.com/textwire/textwire/v3/pkg/token"
 )
 
 func readFile(fileName string) (string, error) {
@@ -343,7 +343,7 @@ func TestErrorHandling(t *testing.T) {
 }
 
 func TestEvaluateFile(t *testing.T) {
-	absPath, fileErr := file.ToFullPath("textwire/testdata/good/before/two-vars-no-use/index.tw")
+	absPath, fileErr := file.ToFullPath("testdata/good/before/two-vars-no-use/index.tw")
 	if fileErr != nil {
 		t.Errorf("Error getting full path: %s", fileErr)
 		return
@@ -358,7 +358,7 @@ func TestEvaluateFile(t *testing.T) {
 		t.Errorf("Error evaluating file: %q", err)
 	}
 
-	expect, err := readFile("textwire/testdata/good/expected/two-vars-no-use.html")
+	expect, err := readFile("testdata/good/expected/two-vars-no-use.html")
 	if err != nil {
 		t.Errorf("Error reading file: %q", err)
 		return

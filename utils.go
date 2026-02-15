@@ -6,14 +6,14 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/textwire/textwire/v3/ast"
-	"github.com/textwire/textwire/v3/fail"
-	"github.com/textwire/textwire/v3/file"
-	"github.com/textwire/textwire/v3/lexer"
-	"github.com/textwire/textwire/v3/parser"
+	"github.com/textwire/textwire/v3/pkg/ast"
+	"github.com/textwire/textwire/v3/pkg/fail"
+	"github.com/textwire/textwire/v3/pkg/file"
+	"github.com/textwire/textwire/v3/pkg/lexer"
+	"github.com/textwire/textwire/v3/pkg/parser"
 )
 
-//go:embed textwire/default-error-page.tw
+//go:embed embed/default-error-page.tw
 var defaultErrPage string
 
 // errorPage returns HTML that's displayed when an error occurs while

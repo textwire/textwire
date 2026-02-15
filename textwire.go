@@ -2,10 +2,10 @@ package textwire
 
 import (
 	"github.com/textwire/textwire/v3/config"
-	"github.com/textwire/textwire/v3/evaluator"
-	"github.com/textwire/textwire/v3/fail"
-	"github.com/textwire/textwire/v3/file"
-	"github.com/textwire/textwire/v3/object"
+	"github.com/textwire/textwire/v3/pkg/evaluator"
+	"github.com/textwire/textwire/v3/pkg/fail"
+	"github.com/textwire/textwire/v3/pkg/file"
+	"github.com/textwire/textwire/v3/pkg/object"
 )
 
 var (
