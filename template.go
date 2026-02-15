@@ -60,7 +60,9 @@ func (t *Template) String(name string, data map[string]any) (string, *fail.Error
 		return "", err
 	}
 
+	t.linker.RLock()
 	prog := ast.FindProg(name, t.linker.Programs)
+	t.linker.RUnlock()
 	if prog == nil {
 		relPath := file.NameToRelPath(name, userConf.TemplateDir, userConf.TemplateExt)
 		return "", fail.New(0, relPath, "template", fail.ErrTemplateNotFound, name)

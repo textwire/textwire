@@ -176,6 +176,9 @@ func (fr *FileReloader) Start(files []*file.SourceFile, oldLn *linker.NodeLinker
 					failure.FatalOnError()
 				}
 
+				oldLn.Lock()
+				defer oldLn.Unlock()
+
 				for i := range oldLn.Programs {
 					if oldLn.Programs[i].Name == prog.Name {
 						oldLn.Programs[i] = prog

@@ -1,6 +1,8 @@
 package linker
 
 import (
+	"sync"
+
 	"github.com/textwire/textwire/v3/pkg/ast"
 	"github.com/textwire/textwire/v3/pkg/fail"
 )
@@ -10,13 +12,14 @@ import (
 // @component to its corresponding component file, etc.
 type NodeLinker struct {
 	Programs []*ast.Program
+	mu       sync.RWMutex
 }
 
 func New(progs []*ast.Program) *NodeLinker {
 	if progs == nil {
 		progs = make([]*ast.Program, 0, 4)
 	}
-	return &NodeLinker{progs}
+	return &NodeLinker{Programs: progs}
 }
 
 // LinkNodes links components and layouts to those programs that use them.
@@ -82,4 +85,24 @@ func (nl *NodeLinker) handleCompLinking(prog *ast.Program) *fail.Error {
 	}
 
 	return nil
+}
+
+// Lock acquires the write lock for updating Programs.
+func (nl *NodeLinker) Lock() {
+	nl.mu.Lock()
+}
+
+// Unlock releases the write lock.
+func (nl *NodeLinker) Unlock() {
+	nl.mu.Unlock()
+}
+
+// RLock acquires the read lock for accessing Programs.
+func (nl *NodeLinker) RLock() {
+	nl.mu.RLock()
+}
+
+// RUnlock releases the read lock.
+func (nl *NodeLinker) RUnlock() {
+	nl.mu.RUnlock()
 }
