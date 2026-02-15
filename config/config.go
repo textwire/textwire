@@ -42,6 +42,14 @@ type Config struct {
 	// Useful for storing environment variables, configuration, or common data.
 	GlobalData map[string]any
 
+	// FileReload watches all of your template files for changes and automatically
+	// reparses them when they are modified. This is intended for development
+	// use only and should not be enabled in production due to performance implications.
+	// It doesn't work with TemplateFS configuration enabled! Disable it to use
+	// file reload functionality.
+	// Default: false
+	FileReload bool
+
 	// usesFS is a flag to determine if user uses TemplateFS or not.
 	usesFS bool
 }
@@ -88,6 +96,7 @@ func (c *Config) Configure(opt *Config) {
 		c.GlobalData = opt.GlobalData
 	}
 
-	c.usesFS = opt.TemplateFS != nil
+	c.FileReload = opt.FileReload
 	c.DebugMode = opt.DebugMode
+	c.usesFS = opt.TemplateFS != nil
 }

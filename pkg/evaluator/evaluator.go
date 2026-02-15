@@ -4,8 +4,8 @@ import (
 	"html"
 	"strings"
 
-	"github.com/textwire/textwire/v3/pkg/ast"
 	"github.com/textwire/textwire/v3/config"
+	"github.com/textwire/textwire/v3/pkg/ast"
 	"github.com/textwire/textwire/v3/pkg/fail"
 	"github.com/textwire/textwire/v3/pkg/object"
 )

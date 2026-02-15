@@ -1,5 +1,7 @@
 # Release notes
 
+## v3.1.3 (2026-02-15)
+
 ## v3.1.2 (2026-02-15)
 
 - 🧑‍💻 Full architecture change in directory and file structure. Doesn't break public API, just internal refactorking. Will be a breaking change if you use Textwire internals like parser, lexer, etc.
