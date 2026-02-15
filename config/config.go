@@ -9,32 +9,32 @@ import (
 // Config holds the configuration settings for Textwire template engine.
 type Config struct {
 	// TemplateDir specifies the directory containing Textwire template files.
-	// Default: "templates"
 	// Note: If TemplatesFS is provided, TemplateDir is ignored because there
 	// are no absolute paths for embeded files.
+	// Default: "templates"
 	TemplateDir string
 
 	// TemplateFS provides an optional fs.FS filesystem for template access.
-	// Default: os.DirFS(TemplateDir)
 	// Use this field to embed templates into your binary using Go's embed package.
 	// When provided, TemplateDir is not used for file access.
+	// Default: os.DirFS(TemplateDir)
 	TemplateFS fs.FS
 
 	// TemplateExt defines the file extension for Textwire template files.
-	// Default: ".tw"
 	// Note: Using a different extension may disable syntax highlighting
 	// in editors like VSCode when using the Textwire extension.
+	// Default: ".tw"
 	TemplateExt string
 
 	// ErrorPagePath sets the relative path to a custom error page template.
-	// Default: internal error page
 	// The path is relative to the template directory (TemplateDir or TemplatesFS root).
+	// Default: default-error-page.tw (internal error page provided by Textwire)
 	ErrorPagePath string
 
 	// DebugMode enables detailed error reporting in the browser and server logs.
-	// Default: false (keep false in production)
 	// When true, error messages with file paths and line numbers are displayed
 	// during development.
+	// Default: false
 	DebugMode bool
 
 	// GlobalData stores shared data accessible across all templates.
