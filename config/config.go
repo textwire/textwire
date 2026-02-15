@@ -4,6 +4,7 @@ import (
 	"io/fs"
 	"os"
 	"strings"
+	"time"
 )
 
 // Config holds the configuration settings for Textwire template engine.
@@ -15,8 +16,8 @@ type Config struct {
 	TemplateDir string
 
 	// TemplateFS provides an optional fs.FS filesystem for template access.
-	// Use this field to embed templates into your binary using Go's embed package.
-	// When provided, TemplateDir is not used for file access.
+	// Use this field to embed templates into your binary using Go's embed
+	// package. When provided, TemplateDir is not used for file access.
 	// Default: os.DirFS(TemplateDir)
 	TemplateFS fs.FS
 
@@ -27,28 +28,38 @@ type Config struct {
 	TemplateExt string
 
 	// ErrorPagePath sets the relative path to a custom error page template.
-	// The path is relative to the template directory (TemplateDir or TemplatesFS root).
-	// Default: default-error-page.tw (internal error page provided by Textwire)
+	// The path is relative to the template directory
+	// (TemplateDir or TemplatesFS root).
+	// Default: embed/default-error-page.tw (default error page)
 	ErrorPagePath string
 
-	// DebugMode enables detailed error reporting in the browser and server logs.
-	// When true, error messages with file paths and line numbers are displayed
-	// during development.
+	// DebugMode enables detailed error reporting in the browser and server
+	// logs. When true, error messages with file paths and line numbers are
+	// displayed during development.
 	// Default: false
 	DebugMode bool
 
 	// GlobalData stores shared data accessible across all templates.
-	// Access these values in templates using the `global` object (e.g., `global.authUser`).
-	// Useful for storing environment variables, configuration, or common data.
+	// Access these values in templates using the `global` object
+	// (e.g., `global.authUser`). Useful for storing environment variables,
+	// configuration, or common data.
 	GlobalData map[string]any
 
-	// FileReload watches all of your template files for changes and automatically
-	// reparses them when they are modified. This is intended for development
-	// use only and should not be enabled in production due to performance implications.
-	// It doesn't work with TemplateFS configuration enabled! Disable it to use
-	// file reload functionality.
+	// FileReload watches all of your template files for changes and
+	// automatically reparses them when they are modified. This is intended
+	// for development use only and should not be enabled in production due to
+	// performance implications. It doesn't work with TemplateFS configuration
+	// enabled! Disable it to use file reload functionality.
 	// Default: false
 	FileReload bool
+
+	// FileReloadInterval specifies how often Textwire checks for changes in
+	// template files when FileReload is enabled. The higher the interval,
+	// the less frequently Textwire checks for file changes, which can reduce
+	// CPU usage but may delay updates. Adjust this value based on your
+	// development needs.
+	// Default: time.Second * 2 (2 seconds)
+	FileReloadInterval time.Duration
 
 	// usesFS is a flag to determine if user uses TemplateFS or not.
 	usesFS bool
@@ -90,6 +101,10 @@ func (c *Config) Configure(opt *Config) {
 
 	if opt.ErrorPagePath != "" {
 		c.ErrorPagePath = opt.ErrorPagePath
+	}
+
+	if opt.FileReloadInterval != nil {
+		c.FileReloadInterval = opt.FileReloadInterval
 	}
 
 	if opt.GlobalData != nil {

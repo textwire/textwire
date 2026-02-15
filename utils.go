@@ -2,19 +2,14 @@ package textwire
 
 import (
 	_ "embed"
-	"errors"
 	"io/fs"
-	"log"
-	"os"
 	"path/filepath"
 	"strings"
-	"time"
 
 	"github.com/textwire/textwire/v3/pkg/ast"
 	"github.com/textwire/textwire/v3/pkg/fail"
 	"github.com/textwire/textwire/v3/pkg/file"
 	"github.com/textwire/textwire/v3/pkg/lexer"
-	"github.com/textwire/textwire/v3/pkg/linker"
 	"github.com/textwire/textwire/v3/pkg/parser"
 )
 
@@ -139,72 +134,4 @@ func locateFiles() ([]*file.SourceFile, error) {
 	)
 
 	return files, err
-}
-
-type FileReloader struct {
-	ticker *time.Ticker
-}
-
-func (fr *FileReloader) Start(files []*file.SourceFile, oldLn *linker.NodeLinker) error {
-	if userConf.UsesFS() {
-		return errors.New("cannot use config.FileReload when using config.TemplateFS")
-	}
-
-	fr.ticker = time.NewTicker(2 * time.Second)
-
-	go func() {
-		for range fr.ticker.C {
-			for _, f := range files {
-				modTime, err := fr.fetchModTime(f)
-				if err != nil {
-					log.Fatalln(err)
-				}
-
-				if f.ModTime.Equal(modTime) {
-					continue
-				}
-
-				log.Printf("Refreshing %s", f.Rel)
-				f.ModTime = modTime
-
-				prog, failure, parseErr := parseFile(f)
-				if parseErr != nil {
-					fail.FromError(parseErr, 0, f.Abs, "template").FatalOnError()
-				}
-
-				if failure != nil {
-					failure.FatalOnError()
-				}
-
-				oldLn.Lock()
-				defer oldLn.Unlock()
-
-				for i := range oldLn.Programs {
-					if oldLn.Programs[i].Name == prog.Name {
-						oldLn.Programs[i] = prog
-					}
-				}
-
-				ln := linker.New(oldLn.Programs)
-				if err := ln.LinkNodes(); err != nil {
-					log.Fatalln(err.Error())
-				}
-
-				oldLn.Programs = ln.Programs
-			}
-		}
-	}()
-
-	return nil
-}
-
-// fetchModTime fetches the file's info and retrieves last modified date.
-func (fr *FileReloader) fetchModTime(f *file.SourceFile) (time.Time, error) {
-	var fileInfo os.FileInfo
-	fileInfo, err := os.Stat(f.Abs)
-	if err != nil {
-		return time.Now(), err
-	}
-
-	return fileInfo.ModTime(), nil
 }

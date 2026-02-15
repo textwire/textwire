@@ -36,15 +36,15 @@ func NewTemplate(opt *config.Config) (*Template, error) {
 	}
 
 	ln := linker.New(programs)
-	if err := ln.LinkNodes(); err != nil {
-		return nil, err.Error()
+	if failure := ln.LinkNodes(); failure != nil {
+		return nil, failure.Error()
 	}
 
 	tpl := &Template{linker: ln}
 
 	if opt.FileReload {
-		reloader := &FileReloader{}
-		err := reloader.Start(files, ln)
+		reloader := &fileReloader{oldLinker: ln}
+		err := reloader.Watch(files)
 		if err != nil {
 			return nil, err
 		}
