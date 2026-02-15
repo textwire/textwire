@@ -56,9 +56,10 @@ type Config struct {
 	// FileReloadInterval specifies how often Textwire checks for changes in
 	// template files when FileReload is enabled. The higher the interval,
 	// the less frequently Textwire checks for file changes, which can reduce
-	// CPU usage but may delay updates. Adjust this value based on your
+	// CPU usage but may delay updates. Values less than 1 second will be
+	// treated as the default (1 second). Adjust this value based on your
 	// development needs.
-	// Default: time.Second * 2 (2 seconds)
+	// Default: time.Second (1 second)
 	FileReloadInterval time.Duration
 
 	// usesFS is a flag to determine if user uses TemplateFS or not.
@@ -67,11 +68,12 @@ type Config struct {
 
 func New(dir, ext, errPagePath string, debug bool) *Config {
 	return &Config{
-		TemplateDir:   dir,
-		TemplateExt:   ext,
-		ErrorPagePath: errPagePath,
-		DebugMode:     debug,
-		GlobalData:    map[string]any{},
+		TemplateDir:        dir,
+		TemplateExt:        ext,
+		ErrorPagePath:      errPagePath,
+		DebugMode:          debug,
+		GlobalData:         map[string]any{},
+		FileReloadInterval: time.Second,
 	}
 }
 
@@ -103,7 +105,7 @@ func (c *Config) Configure(opt *Config) {
 		c.ErrorPagePath = opt.ErrorPagePath
 	}
 
-	if opt.FileReloadInterval != nil {
+	if opt.FileReloadInterval >= time.Second {
 		c.FileReloadInterval = opt.FileReloadInterval
 	}
 

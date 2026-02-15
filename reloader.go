@@ -34,7 +34,7 @@ func (fr *fileReloader) Watch(files []*file.SourceFile) error {
 		return errors.New("cannot use config.FileReload when using config.TemplateFS")
 	}
 
-	fr.ticker = time.NewTicker(time.Second)
+	fr.ticker = time.NewTicker(userConf.FileReloadInterval)
 
 	go func() {
 		for range fr.ticker.C {
