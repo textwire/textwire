@@ -38,7 +38,7 @@ func (fw *fileWatcher) Watch(files []*file.SourceFile) {
 
 	fw.info("Watching files for changes...")
 
-	fw.ticker = time.NewTicker(userConf.RefreshInterval)
+	fw.ticker = time.NewTicker(userConf.WatcherInterval)
 
 	go func() {
 		for range fw.ticker.C {
@@ -51,7 +51,6 @@ func (fw *fileWatcher) Watch(files []*file.SourceFile) {
 
 func (fw *fileWatcher) updateFileIfModified(f *file.SourceFile) {
 	modTime := fw.fetchModTime(f)
-
 	if f.ModTime.Equal(modTime) {
 		return
 	}

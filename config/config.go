@@ -45,22 +45,22 @@ type Config struct {
 	// configuration, or common data.
 	GlobalData map[string]any
 
-	// RefreshFiles watches all of your template files for changes and
+	// FileWatcher watches all of your template files for changes and
 	// automatically reparses them when they are modified. This is intended
 	// for development use only and should not be enabled in production due to
 	// performance implications. It doesn't work with TemplateFS configuration
 	// enabled! Disable it to use file refresh functionality.
 	// Default: false
-	RefreshFiles bool
+	FileWatcher bool
 
-	// RefreshInterval specifies how often Textwire checks for changes in
+	// WatcherInterval specifies how often Textwire checks for changes in
 	// template files when RefreshFiles is enabled. The higher the interval,
 	// the less frequently Textwire checks for file changes, which can reduce
 	// CPU usage but may delay updates. Values less than 1 second will be
 	// treated as the default (1 second). Adjust this value based on your
 	// development needs.
 	// Default: time.Second (1 second)
-	RefreshInterval time.Duration
+	WatcherInterval time.Duration
 
 	// usesFS is a flag to determine if user uses TemplateFS or not.
 	usesFS bool
@@ -73,7 +73,7 @@ func New(dir, ext, errPagePath string, debug bool) *Config {
 		ErrorPagePath:   errPagePath,
 		DebugMode:       debug,
 		GlobalData:      map[string]any{},
-		RefreshInterval: time.Second,
+		WatcherInterval: time.Second,
 	}
 }
 
@@ -105,15 +105,15 @@ func (c *Config) Configure(opt *Config) {
 		c.ErrorPagePath = opt.ErrorPagePath
 	}
 
-	if opt.RefreshInterval >= time.Second {
-		c.RefreshInterval = opt.RefreshInterval
+	if opt.WatcherInterval >= time.Second {
+		c.WatcherInterval = opt.WatcherInterval
 	}
 
 	if opt.GlobalData != nil {
 		c.GlobalData = opt.GlobalData
 	}
 
-	c.RefreshFiles = opt.RefreshFiles
+	c.FileWatcher = opt.FileWatcher
 	c.DebugMode = opt.DebugMode
 	c.usesFS = opt.TemplateFS != nil
 }
