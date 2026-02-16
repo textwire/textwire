@@ -4,6 +4,7 @@
 
 - ✨ Added a file wather that wathes your file changes and refreshes Textwire AST nodes. It prevents you from restarting server everytime you want to see any changes in the browser.
 - 🧑‍💻 Accessing undefined property on an object does not give error anymore. It makes it consistant with accessing array on non-existant index. This `{{ {}.prop }}` returns nil now, but this `{{ {}.prop.second }}` causes error because you are trying to call property `second` on type `NIL`.
+- 🧑‍💻 Improve global function `defined`, it now check for non existing methods on a type like `{{ defined("some str".undefinedFunc()) }}`.
 
 ## v3.1.2 (2026-02-15)
 

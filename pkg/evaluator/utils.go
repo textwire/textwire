@@ -3,6 +3,7 @@ package evaluator
 import (
 	"errors"
 	"fmt"
+	"slices"
 	"strconv"
 	"strings"
 
@@ -145,10 +146,15 @@ func addDecimals(
 	return &object.Str{Value: val + separator + zeros}, nil
 }
 
-func isUndefinedVarError(obj object.Object) bool {
+func isUndefinedError(obj object.Object) bool {
+	undefinedErrors := []string{
+		fail.ErrVariableIsUndefined,
+		fail.ErrPropertyOnNonObject,
+		fail.ErrFuncNotDefined,
+	}
+
 	err, isErr := obj.(*object.Error)
-	return isErr &&
-		(err.ErrorID == fail.ErrVariableIsUndefined || err.ErrorID == fail.ErrPropertyNotFound)
+	return isErr && slices.Contains(undefinedErrors, err.ErrorID)
 }
 
 func strIsInt(s string) bool {
