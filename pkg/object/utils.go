@@ -35,7 +35,7 @@ func NativeToObject(val any) Object {
 	case uint64:
 		return &Int{Value: int64(v)}
 	case nil:
-		return &Nil{}
+		return new(Nil)
 	}
 
 	valType := reflect.TypeOf(val)
@@ -103,7 +103,7 @@ func nativeStructToObject(val any) Object {
 }
 
 func nativeSliceToArrayObject(slice []any) *Array {
-	arr := &Array{}
+	arr := new(Array)
 	for _, val := range slice {
 		arr.Elements = append(arr.Elements, NativeToObject(val))
 	}

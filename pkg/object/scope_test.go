@@ -57,7 +57,7 @@ func TestNewScopeFromMap(t *testing.T) {
 		"bool2":    &Bool{Value: false},
 		"height":   &Float{Value: 5.7},
 		"weight":   &Float{Value: float64(float32val)},
-		"nothing":  &Nil{},
+		"nothing":  new(Nil),
 		"ages":     &Array{Elements: []Object{&Int{Value: 1}, &Int{Value: 2}, &Int{Value: 3}}},
 		"ages64":   &Array{Elements: []Object{&Int{Value: 1}, &Int{Value: 2}, &Int{Value: 3}}},
 		"ages32":   &Array{Elements: []Object{&Int{Value: 1}, &Int{Value: 2}, &Int{Value: 3}}},
