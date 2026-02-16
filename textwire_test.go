@@ -274,6 +274,11 @@ func TestErrorHandling(t *testing.T) {
 			data: nil,
 		},
 		{
+			inp:  `{{ user = {}; user.address.zip }}`,
+			err:  fail.New(1, "", "evaluator", fail.ErrPropertyNotFound, "address", object.OBJ_OBJ),
+			data: nil,
+		},
+		{
 			inp:  `{{ {}.test }}`,
 			err:  fail.New(1, "", "evaluator", fail.ErrPropertyNotFound, "test", object.OBJ_OBJ),
 			data: nil,
