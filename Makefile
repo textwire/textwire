@@ -8,7 +8,7 @@ build:
 .PHONY: repl
 repl:
 	@clear || true
-	@go run repl/repl.go
+	@go run pkg/repl/repl.go
 
 .PHONY: cover
 cover:
