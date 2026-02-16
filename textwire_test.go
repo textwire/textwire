@@ -40,6 +40,18 @@ func TestEvaluateString(t *testing.T) {
 		data   map[string]any
 	}{
 		{
+			name:   "Accessing propery 'name' on empty 'obj' variable",
+			inp:    `<p>{{ obj = {}; obj.name }}</p>`,
+			expect: "<p></p>",
+			data:   nil,
+		},
+		{
+			name:   "Accessing property 'test' on empty object '{}'",
+			inp:    `<h2>{{ {}.test }}</h2>`,
+			expect: "<h2></h2>",
+			data:   nil,
+		},
+		{
 			name:   "Simple math operation with integers",
 			inp:    "{{ 1 + 2 }}",
 			expect: "3",
@@ -269,18 +281,8 @@ func TestErrorHandling(t *testing.T) {
 			data: nil,
 		},
 		{
-			inp:  `{{ obj = {}; obj.name }}`,
-			err:  fail.New(1, "", "evaluator", fail.ErrPropertyNotFound, "name", object.OBJ_OBJ),
-			data: nil,
-		},
-		{
 			inp:  `{{ user = {}; user.address.zip }}`,
-			err:  fail.New(1, "", "evaluator", fail.ErrPropertyNotFound, "address", object.OBJ_OBJ),
-			data: nil,
-		},
-		{
-			inp:  `{{ {}.test }}`,
-			err:  fail.New(1, "", "evaluator", fail.ErrPropertyNotFound, "test", object.OBJ_OBJ),
+			err:  fail.New(1, "", "evaluator", fail.ErrPropertyOnNonObject, object.NIL_OBJ, "zip"),
 			data: nil,
 		},
 		{

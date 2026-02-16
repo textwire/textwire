@@ -611,7 +611,7 @@ func (e *Evaluator) objectKeyExp(
 		return pair
 	}
 
-	return e.newError(node, ctx, fail.ErrPropertyNotFound, key, object.OBJ_OBJ)
+	return NIL // Undefined props result in nil
 }
 
 func (e *Evaluator) dotExp(dotExp *ast.DotExp, ctx *Context) object.Object {
@@ -819,7 +819,7 @@ func (e *Evaluator) globalFuncDefined(
 	definedVars := make([]bool, 0, len(globalCallExp.Arguments))
 	for i := range globalCallExp.Arguments {
 		evaluated := e.Eval(globalCallExp.Arguments[i], ctx)
-		definedVars = append(definedVars, !isUndefinedVarError(evaluated))
+		definedVars = append(definedVars, !isUndefinedError(evaluated))
 	}
 
 	for _, defined := range definedVars {
