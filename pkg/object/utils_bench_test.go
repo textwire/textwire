@@ -11,8 +11,8 @@ func BenchmarkNativeSliceToArrayObject(b *testing.B) {
 	}{
 		{"small", 100},
 		{"medium", 1000},
-		{"large", 10000},
-		{"huge", 100000},
+		{"large", 10_000},
+		{"huge", 100_000},
 	}
 
 	for _, tc := range cases {
