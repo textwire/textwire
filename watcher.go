@@ -33,7 +33,7 @@ func newFileWatcher(oldLinker *linker.NodeLinker) *fileWatcher {
 // access to monitor changes.
 func (fw *fileWatcher) Watch(files []*file.SourceFile) {
 	if userConf.UsesFS() {
-		fw.fatal("cannot use config.RefreshFiles when using config.TemplateFS")
+		fw.fatal("cannot use config.FileWatcher when using config.TemplateFS")
 	}
 
 	fw.info("Watching files for changes...")

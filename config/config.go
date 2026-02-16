@@ -54,7 +54,7 @@ type Config struct {
 	FileWatcher bool
 
 	// WatcherInterval specifies how often Textwire checks for changes in
-	// template files when RefreshFiles is enabled. The higher the interval,
+	// template files when FileWatcher is enabled. The higher the interval,
 	// the less frequently Textwire checks for file changes, which can reduce
 	// CPU usage but may delay updates. Values less than 1 second will be
 	// treated as the default (1 second). Adjust this value based on your
