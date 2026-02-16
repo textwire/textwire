@@ -5,6 +5,7 @@ import (
 	"io/fs"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/textwire/textwire/v3/config"
 )
@@ -24,6 +25,9 @@ type SourceFile struct {
 
 	// Abs is the absolute path to the source file starting with `/`.
 	Abs string
+
+	// ModTime is when the file was last modified.
+	ModTime time.Time
 
 	// config is user's configurations that SourceFile needs to access
 	// source file extension and location to root of templates.

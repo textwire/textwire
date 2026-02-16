@@ -119,7 +119,15 @@ func locateFiles() ([]*file.SourceFile, error) {
 			}
 
 			name := strings.Replace(path, userConf.TemplateExt, "", 1)
-			files = append(files, file.New(name, relPath, absPath, userConf))
+			file := file.New(name, relPath, absPath, userConf)
+
+			fileInfo, err := d.Info()
+			if err != nil {
+				return err
+			}
+
+			file.ModTime = fileInfo.ModTime()
+			files = append(files, file)
 
 			return nil
 		},

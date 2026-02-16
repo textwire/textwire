@@ -35,7 +35,7 @@ func NativeToObject(val any) Object {
 	case uint64:
 		return &Int{Value: int64(v)}
 	case nil:
-		return &Nil{}
+		return new(Nil)
 	}
 
 	valType := reflect.TypeOf(val)
@@ -73,13 +73,12 @@ func convertToInterfaceSlice(slice any) []any {
 		panic("InterfaceSlice() given a non-slice type")
 	}
 
-	ret := make([]any, s.Len())
-
+	result := make([]any, s.Len())
 	for i := 0; i < s.Len(); i++ {
-		ret[i] = s.Index(i).Interface()
+		result[i] = s.Index(i).Interface()
 	}
 
-	return ret
+	return result
 }
 
 func nativeStructToObject(val any) Object {
@@ -103,9 +102,10 @@ func nativeStructToObject(val any) Object {
 }
 
 func nativeSliceToArrayObject(slice []any) *Array {
-	arr := &Array{}
-	for _, val := range slice {
-		arr.Elements = append(arr.Elements, NativeToObject(val))
+	arr := new(Array)
+	arr.Elements = make([]Object, len(slice))
+	for i := range slice {
+		arr.Elements[i] = NativeToObject(slice[i])
 	}
 
 	return arr

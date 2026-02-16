@@ -1,6 +1,8 @@
 package linker
 
 import (
+	"sync"
+
 	"github.com/textwire/textwire/v3/pkg/ast"
 	"github.com/textwire/textwire/v3/pkg/fail"
 )
@@ -9,32 +11,28 @@ import (
 // for evaluator. It will connect @insert to @reserve, @use to layout file,
 // @component to its corresponding component file, etc.
 type NodeLinker struct {
-	programs []*ast.Program
+	Programs []*ast.Program
+	mu       sync.RWMutex
 }
 
 func New(progs []*ast.Program) *NodeLinker {
 	if progs == nil {
 		progs = make([]*ast.Program, 0, 4)
 	}
-	return &NodeLinker{progs}
-}
-
-// Progs returns parsed AST Program nodes
-func (nl *NodeLinker) Progs() []*ast.Program {
-	return nl.programs
+	return &NodeLinker{Programs: progs}
 }
 
 // LinkNodes links components and layouts to those programs that use them.
 // For example, we need to add component program to @component('book'), where
 // CompProg is the parsed program AST of the `book.tw` component.
 func (nl *NodeLinker) LinkNodes() *fail.Error {
-	for _, prog := range nl.programs {
+	for _, prog := range nl.Programs {
 		if err := nl.handleLayoutLinking(prog); err != nil {
 			return err
 		}
 	}
 
-	for _, prog := range nl.programs {
+	for _, prog := range nl.Programs {
 		if err := nl.handleCompLinking(prog); err != nil {
 			return err
 		}
@@ -52,7 +50,7 @@ func (nl *NodeLinker) handleLayoutLinking(prog *ast.Program) *fail.Error {
 	prog.UseStmt.Inserts = prog.Inserts
 
 	layoutName := prog.UseStmt.Name.Value
-	layoutProg := ast.FindProg(layoutName, nl.programs)
+	layoutProg := ast.FindProg(layoutName, nl.Programs)
 	if layoutProg == nil {
 		return fail.New(prog.Line(), prog.AbsPath, "API", fail.ErrUseStmtMissingLayout, layoutName)
 	}
@@ -75,7 +73,7 @@ func (nl *NodeLinker) handleCompLinking(prog *ast.Program) *fail.Error {
 
 	for _, comp := range prog.Components {
 		compName := comp.Name.Value
-		compProg := ast.FindProg(compName, nl.programs)
+		compProg := ast.FindProg(compName, nl.Programs)
 		if compProg == nil {
 			return fail.New(prog.Line(), prog.AbsPath, "API", fail.ErrUndefinedComponent, compName)
 		}
@@ -87,4 +85,24 @@ func (nl *NodeLinker) handleCompLinking(prog *ast.Program) *fail.Error {
 	}
 
 	return nil
+}
+
+// Lock acquires the write lock for updating Programs.
+func (nl *NodeLinker) Lock() {
+	nl.mu.Lock()
+}
+
+// Unlock releases the write lock.
+func (nl *NodeLinker) Unlock() {
+	nl.mu.Unlock()
+}
+
+// RLock acquires the read lock for accessing Programs.
+func (nl *NodeLinker) RLock() {
+	nl.mu.RLock()
+}
+
+// RUnlock releases the read lock.
+func (nl *NodeLinker) RUnlock() {
+	nl.mu.RUnlock()
 }

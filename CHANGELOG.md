@@ -1,5 +1,19 @@
 # Release notes
 
+## v3.2.0 (2026-02-16)
+
+- ✨ Added a file wather that wathes your file changes and refreshes Textwire AST nodes. It prevents you from restarting server everytime you want to see any changes in the browser.
+- 🧑‍💻 Accessing undefined property on an object does not give error anymore. It makes it consistant with accessing array on non-existant index. This `{{ {}.prop }}` returns nil now, but this `{{ {}.prop.second }}` causes error because you are trying to call property `second` on type `NIL`.
+- 🐛 Fixed global function `defined`, it was returning `true` in cases like this `{{ name = "john"; defined(name.somemethod()) }}` because it was returning `true` when any error happens inside `defined`. Now, it only checks for undefined variables and undefined properties on objects.
+- 🧑‍💻 Added so that now you can use any literal value in logical OR and logical AND expressions. Before, you could only use boolean on both sides. For example, now you can do `{{ "nice" && 13 ? "Yes" : "No" }}` and it returns `Yes` becuase non-empty string is `true` and non-zero int is also `true`.
+- 🧑‍💻 Performance improve ment for Go's slice convertion into Textwire array. Here are the benchmarks:
+    | Size | ⚡ Speed | 💾 Memory | 📉 Allocations |
+    |------|----------|-----------|----------------|
+    | small | **1.38× faster** | **48.7% less** | **6.4% fewer** |
+    | medium | **1.23× faster** | **41.6% less** | **1.0% fewer** |
+    | large | **1.67× faster** | **65.5% less** | **0.2% fewer** |
+    | huge | **2.74× faster** | **73.7% less** | **0.03% more** |
+
 ## v3.1.2 (2026-02-15)
 
 - 🧑‍💻 Full architecture change in directory and file structure. Doesn't break public API, just internal refactorking. Will be a breaking change if you use Textwire internals like parser, lexer, etc.

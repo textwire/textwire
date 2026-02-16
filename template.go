@@ -36,11 +36,17 @@ func NewTemplate(opt *config.Config) (*Template, error) {
 	}
 
 	ln := linker.New(programs)
-	if err := ln.LinkNodes(); err != nil {
-		return nil, err.Error()
+	if failure := ln.LinkNodes(); failure != nil {
+		return nil, failure.Error()
 	}
 
-	return &Template{linker: ln}, nil
+	tpl := &Template{linker: ln}
+
+	if opt.FileWatcher {
+		newFileWatcher(ln).Watch(files)
+	}
+
+	return tpl, nil
 }
 
 // String returns final evaluated template result represented as a string.
@@ -50,7 +56,9 @@ func (t *Template) String(name string, data map[string]any) (string, *fail.Error
 		return "", err
 	}
 
-	prog := ast.FindProg(name, t.linker.Progs())
+	t.linker.RLock()
+	prog := ast.FindProg(name, t.linker.Programs)
+	t.linker.RUnlock()
 	if prog == nil {
 		relPath := file.NameToRelPath(name, userConf.TemplateDir, userConf.TemplateExt)
 		return "", fail.New(0, relPath, "template", fail.ErrTemplateNotFound, name)

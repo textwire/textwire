@@ -3,6 +3,7 @@ package evaluator
 import (
 	"errors"
 	"fmt"
+	"slices"
 	"strconv"
 	"strings"
 
@@ -32,6 +33,16 @@ func isTruthy(obj object.Object) bool {
 
 func isError(obj object.Object) bool {
 	return obj.Is(object.ERR_OBJ)
+}
+
+func isUndefinedError(obj object.Object) bool {
+	undefinedErrors := []string{
+		fail.ErrVariableIsUndefined,
+		fail.ErrPropertyOnNonObject,
+	}
+
+	err, isErr := obj.(*object.Error)
+	return isErr && slices.Contains(undefinedErrors, err.ErrorID)
 }
 
 func nativeBoolToBoolObj(input bool) object.Object {
@@ -143,12 +154,6 @@ func addDecimals(
 	}
 
 	return &object.Str{Value: val + separator + zeros}, nil
-}
-
-func isUndefinedVarError(obj object.Object) bool {
-	err, isErr := obj.(*object.Error)
-	return isErr &&
-		(err.ErrorID == fail.ErrVariableIsUndefined || err.ErrorID == fail.ErrPropertyNotFound)
 }
 
 func strIsInt(s string) bool {

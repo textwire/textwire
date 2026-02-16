@@ -4,8 +4,8 @@ import (
 	"html"
 	"strings"
 
-	"github.com/textwire/textwire/v3/pkg/ast"
 	"github.com/textwire/textwire/v3/config"
+	"github.com/textwire/textwire/v3/pkg/ast"
 	"github.com/textwire/textwire/v3/pkg/fail"
 	"github.com/textwire/textwire/v3/pkg/object"
 )
@@ -611,7 +611,7 @@ func (e *Evaluator) objectKeyExp(
 		return pair
 	}
 
-	return e.newError(node, ctx, fail.ErrPropertyNotFound, key, object.OBJ_OBJ)
+	return NIL // Undefined props result in nil
 }
 
 func (e *Evaluator) dotExp(dotExp *ast.DotExp, ctx *Context) object.Object {
@@ -722,6 +722,10 @@ func (e *Evaluator) infixExp(
 		return right
 	}
 
+	if op == "&&" || op == "||" {
+		return e.logicalExp(op, right, left, leftNode, ctx)
+	}
+
 	return e.infixOpExp(op, left, right, leftNode, ctx)
 }
 
@@ -816,15 +820,14 @@ func (e *Evaluator) globalFuncDefined(
 	globalCallExp *ast.GlobalCallExp,
 	ctx *Context,
 ) object.Object {
-	definedVars := make([]bool, 0, len(globalCallExp.Arguments))
 	for i := range globalCallExp.Arguments {
 		evaluated := e.Eval(globalCallExp.Arguments[i], ctx)
-		definedVars = append(definedVars, !isUndefinedVarError(evaluated))
-	}
-
-	for _, defined := range definedVars {
-		if !defined {
+		if isUndefinedError(evaluated) {
 			return FALSE
+		}
+
+		if isError(evaluated) {
+			return evaluated
 		}
 	}
 
@@ -895,8 +898,6 @@ func (e *Evaluator) infixOpExp(
 		return e.intInfixExp(op, right, left, leftNode, ctx)
 	case object.FLOAT_OBJ:
 		return e.floatInfixExp(op, right, left, leftNode, ctx)
-	case object.BOOL_OBJ:
-		return e.boolInfixExp(op, right, left, leftNode, ctx)
 	case object.STR_OBJ:
 		return e.stringInfixExp(op, right, left, leftNode, ctx)
 	}
@@ -904,21 +905,18 @@ func (e *Evaluator) infixOpExp(
 	return e.newError(leftNode, ctx, fail.ErrUnknownTypeForOp, left.Type(), op)
 }
 
-func (e *Evaluator) boolInfixExp(
+func (e *Evaluator) logicalExp(
 	op string,
 	right,
 	left object.Object,
 	leftNode ast.Node,
 	ctx *Context,
 ) object.Object {
-	leftVal := left.(*object.Bool).Value
-	rightVal := right.(*object.Bool).Value
-
 	switch op {
 	case "&&":
-		return &object.Bool{Value: leftVal && rightVal}
+		return &object.Bool{Value: isTruthy(left) && isTruthy(right)}
 	case "||":
-		return &object.Bool{Value: leftVal || rightVal}
+		return &object.Bool{Value: isTruthy(left) || isTruthy(right)}
 	}
 
 	return e.newError(leftNode, ctx, fail.ErrUnknownTypeForOp, left.Type(), op)
