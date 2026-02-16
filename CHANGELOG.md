@@ -1,6 +1,8 @@
 # Release notes
 
-## v3.1.3 (2026-02-15)
+## v3.2.0 (2026-02-16)
+
+- ✨ Added a file wather that wathes your file changes and refreshes Textwire AST nodes. It prevents you from restarting server everytime you want to see any changes in the browser.
 
 ## v3.1.2 (2026-02-15)
 
