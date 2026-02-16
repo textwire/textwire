@@ -307,8 +307,15 @@ func TestErrorHandling(t *testing.T) {
 		data map[string]any
 	}{
 		{
-			inp:  `{{ defined(name.undefinedFunc()) }}`,
-			err:  fail.New(1, "", "evaluator", fail.ErrFuncNotDefined, object.STR_OBJ, "undefinedFunc"),
+			inp: `{{ defined(name.undefinedFunc()) }}`,
+			err: fail.New(
+				1,
+				"",
+				"evaluator",
+				fail.ErrFuncNotDefined,
+				object.STR_OBJ,
+				"undefinedFunc",
+			),
 			data: map[string]any{"name": "Anna"},
 		},
 		{
