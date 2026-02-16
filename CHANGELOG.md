@@ -5,6 +5,7 @@
 - ✨ Added a file wather that wathes your file changes and refreshes Textwire AST nodes. It prevents you from restarting server everytime you want to see any changes in the browser.
 - 🧑‍💻 Accessing undefined property on an object does not give error anymore. It makes it consistant with accessing array on non-existant index. This `{{ {}.prop }}` returns nil now, but this `{{ {}.prop.second }}` causes error because you are trying to call property `second` on type `NIL`.
 - 🐛 Fixed global function `defined`, it was returning `true` in cases like this `{{ name = "john"; defined(name.somemethod()) }}` because it was returning `true` when any error happens inside `defined`. Now, it only checks for undefined variables and undefined properties on objects.
+- 🧑‍💻 Added so that now you can use any literal value in logical OR and logical AND expressions. Before, you could only use boolean on both sides. For example, now you can do `{{ "nice" && 13 ? "Yes" : "No" }}` and it returns `Yes` becuase non-empty string is `true` and non-zero int is also `true`.
 - 🧑‍💻 Performance improve ment for Go's slice convertion into Textwire array. Here are the benchmarks:
     | Size | ⚡ Speed | 💾 Memory | 📉 Allocations |
     |------|----------|-----------|----------------|

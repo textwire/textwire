@@ -722,6 +722,10 @@ func (e *Evaluator) infixExp(
 		return right
 	}
 
+	if op == "&&" || op == "||" {
+		return e.logicalExp(op, right, left, leftNode, ctx)
+	}
+
 	return e.infixOpExp(op, left, right, leftNode, ctx)
 }
 
@@ -894,8 +898,6 @@ func (e *Evaluator) infixOpExp(
 		return e.intInfixExp(op, right, left, leftNode, ctx)
 	case object.FLOAT_OBJ:
 		return e.floatInfixExp(op, right, left, leftNode, ctx)
-	case object.BOOL_OBJ:
-		return e.boolInfixExp(op, right, left, leftNode, ctx)
 	case object.STR_OBJ:
 		return e.stringInfixExp(op, right, left, leftNode, ctx)
 	}
@@ -903,21 +905,18 @@ func (e *Evaluator) infixOpExp(
 	return e.newError(leftNode, ctx, fail.ErrUnknownTypeForOp, left.Type(), op)
 }
 
-func (e *Evaluator) boolInfixExp(
+func (e *Evaluator) logicalExp(
 	op string,
 	right,
 	left object.Object,
 	leftNode ast.Node,
 	ctx *Context,
 ) object.Object {
-	leftVal := left.(*object.Bool).Value
-	rightVal := right.(*object.Bool).Value
-
 	switch op {
 	case "&&":
-		return &object.Bool{Value: leftVal && rightVal}
+		return &object.Bool{Value: isTruthy(left) && isTruthy(right)}
 	case "||":
-		return &object.Bool{Value: leftVal || rightVal}
+		return &object.Bool{Value: isTruthy(left) || isTruthy(right)}
 	}
 
 	return e.newError(leftNode, ctx, fail.ErrUnknownTypeForOp, left.Type(), op)

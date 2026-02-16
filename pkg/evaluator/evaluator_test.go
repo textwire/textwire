@@ -104,58 +104,75 @@ func TestEvalNumericExp(t *testing.T) {
 
 func TestEvalBooleanExp(t *testing.T) {
 	cases := []struct {
+		id     int
 		inp    string
 		expect string
 	}{
 		// Booleans
-		{"{{ true }}", "1"},
-		{"{{ false }}", "0"},
-		{"{{ !true }}", "0"},
-		{"{{ !false }}", "1"},
-		{"{{ !nil }}", "1"},
-		{"{{ !!true }}", "1"},
-		{"{{ !!false }}", "0"},
-		{`{{ true && true }}`, "1"},
-		{`{{ !false && !false }}`, "1"},
-		{`{{ false && false }}`, "0"},
-		{`{{ false && !false }}`, "0"},
-		{`{{ true || false }}`, "1"},
-		{`{{ false || true }}`, "1"},
-		{`{{ false || false }}`, "0"},
-		{`{{ false || false || true }}`, "1"},
-		{`{{ false && false || true }}`, "1"},
-		{`{{ true && false || false }}`, "0"},
-		{`{{ false && (false || true) }}`, "0"},
+		{1, "{{ true }}", "1"},
+		{2, "{{ false }}", "0"},
+		{3, "{{ !true }}", "0"},
+		{4, "{{ !false }}", "1"},
+		{5, "{{ !nil }}", "1"},
+		{6, "{{ !!true }}", "1"},
+		{7, "{{ !!false }}", "0"},
+		{8, "{{ true && true }}", "1"},
+		{9, "{{ !false && !false }}", "1"},
+		{10, "{{ false && false }}", "0"},
+		{11, "{{ false && !false }}", "0"},
+		// Logical OR
+		{12, "{{ true || false }}", "1"},
+		{13, "{{ false || true }}", "1"},
+		{14, "{{ false || false }}", "0"},
+		{15, "{{ false || false || true }}", "1"},
+		{16, "{{ '' || '3' }}", "1"},
+		{17, "{{ 3 || 0 }}", "1"},
+		{18, "{{ [] || [] }}", "1"},
+		{19, "{{ {} || {} }}", "1"},
+		{20, "{{ 0.2 || 2.3 }}", "1"},
+		{21, "{{ 'a' || 'b' }}", "1"},
+		{22, "{{ nil || nil }}", "0"},
+		// Logical AND
+		{23, "{{ false && false || true }}", "1"},
+		{24, "{{ true && false || false }}", "0"},
+		{25, "{{ false && (false || true) }}", "0"},
+		{26, "{{ 3 && 0 }}", "0"},
+		{27, "{{ [] && [] }}", "1"},
+		{28, "{{ {} && {} }}", "1"},
+		{29, "{{ 0.2 && 2.3 }}", "1"},
+		{30, "{{ 'a' && 'b' }}", "1"},
+		{31, "{{ '' && '' }}", "0"},
+		{32, "{{ nil && nil }}", "0"},
 		// Ints
-		{`{{ 1 == 1 }}`, "1"},
-		{`{{ 1 == 2 }}`, "0"},
-		{`{{ 1 != 1 }}`, "0"},
-		{`{{ 1 != 2 }}`, "1"},
-		{`{{ 1 < 2 }}`, "1"},
-		{`{{ 1 > 2 }}`, "0"},
-		{`{{ 1 <= 2 }}`, "1"},
-		{`{{ 1 >= 2 }}`, "0"},
+		{33, "{{ 1 == 1 }}", "1"},
+		{34, "{{ 1 == 2 }}", "0"},
+		{35, "{{ 1 != 1 }}", "0"},
+		{36, "{{ 1 != 2 }}", "1"},
+		{37, "{{ 1 < 2 }}", "1"},
+		{38, "{{ 1 > 2 }}", "0"},
+		{39, "{{ 1 <= 2 }}", "1"},
+		{40, "{{ 1 >= 2 }}", "0"},
 		// Floats
-		{`{{ 1.1 == 1.1 }}`, "1"},
-		{`{{ 1.1 == 2.1 }}`, "0"},
-		{`{{ 1.1 != 1.1 }}`, "0"},
-		{`{{ 1.1 != 2.1 }}`, "1"},
-		{`{{ 1.1 < 2.1 }}`, "1"},
-		{`{{ 1.1 > 2.1 }}`, "0"},
-		{`{{ 1.1 <= 2.1 }}`, "1"},
-		{`{{ 1.1 >= 2.1 }}`, "0"},
+		{41, "{{ 1.1 == 1.1 }}", "1"},
+		{42, "{{ 1.1 == 2.1 }}", "0"},
+		{43, "{{ 1.1 != 1.1 }}", "0"},
+		{44, "{{ 1.1 != 2.1 }}", "1"},
+		{45, "{{ 1.1 < 2.1 }}", "1"},
+		{46, "{{ 1.1 > 2.1 }}", "0"},
+		{47, "{{ 1.1 <= 2.1 }}", "1"},
+		{48, "{{ 1.1 >= 2.1 }}", "0"},
 	}
 
 	for _, tc := range cases {
 		evaluated := testEval(tc.inp)
 		err, ok := evaluated.(*object.Error)
 		if ok {
-			t.Errorf("evaluation failed: %s", err.String())
+			t.Errorf("Case %d: Evaluation failed: %s", tc.id, err.String())
 			return
 		}
 
 		if res := evaluated.String(); res != tc.expect {
-			t.Errorf("Result is not %q, got %q", tc.expect, res)
+			t.Errorf("Case %d: Result is not %q, got %q", tc.id, tc.expect, res)
 		}
 	}
 }
@@ -447,16 +464,6 @@ func TestTypeMismatchErrors(t *testing.T) {
 		{"{{ false - 2.0 }}", object.BOOL_OBJ, "-", object.FLOAT_OBJ},
 		{"{{ [] * {} }}", object.ARR_OBJ, "*", object.OBJ_OBJ},
 		{"{{ {} / [] }}", object.OBJ_OBJ, "/", object.ARR_OBJ},
-		{"{{ 3 && 'bad' }}", object.INT_OBJ, "&&", object.STR_OBJ},
-		{"{{ false || 2.5 }}", object.BOOL_OBJ, "||", object.FLOAT_OBJ},
-		{"{{ 1 || true }}", object.INT_OBJ, "||", object.BOOL_OBJ},
-		{"{{ 'nice' && 0 }}", object.STR_OBJ, "&&", object.INT_OBJ},
-		{"{{ nil && 5 }}", object.NIL_OBJ, "&&", object.INT_OBJ},
-		{"{{ 5 && nil }}", object.INT_OBJ, "&&", object.NIL_OBJ},
-		{"{{ nil || false }}", object.NIL_OBJ, "||", object.BOOL_OBJ},
-		{"{{ true || nil }}", object.BOOL_OBJ, "||", object.NIL_OBJ},
-		{"{{ nil || 3.5 }}", object.NIL_OBJ, "||", object.FLOAT_OBJ},
-		{"{{ 2.5 || nil }}", object.FLOAT_OBJ, "||", object.NIL_OBJ},
 	}
 
 	for _, tc := range cases {
@@ -475,40 +482,6 @@ func TestTypeMismatchErrors(t *testing.T) {
 			tc.op,
 			tc.objR,
 		)
-		if err.String() != expect.String() {
-			t.Fatalf("Error message is not %q, got %q", expect, err)
-		}
-	}
-}
-
-func TestLogicalOpUnknownTypeError(t *testing.T) {
-	cases := []struct {
-		inp string
-		obj object.ObjectType
-		op  string
-	}{
-		{"{{ 3 && 0 }}", object.INT_OBJ, "&&"},
-		{"{{ [] && [] }}", object.ARR_OBJ, "&&"},
-		{"{{ {} && {} }}", object.OBJ_OBJ, "&&"},
-		{"{{ 0.2 && 2.3 }}", object.FLOAT_OBJ, "&&"},
-		{"{{ 'a' && 'b' }}", object.STR_OBJ, "&&"},
-		{"{{ nil && nil }}", object.NIL_OBJ, "&&"},
-		{"{{ 3 || 0 }}", object.INT_OBJ, "||"},
-		{"{{ [] || [] }}", object.ARR_OBJ, "||"},
-		{"{{ {} || {} }}", object.OBJ_OBJ, "||"},
-		{"{{ 0.2 || 2.3 }}", object.FLOAT_OBJ, "||"},
-		{"{{ 'a' || 'b' }}", object.STR_OBJ, "||"},
-		{"{{ nil || nil }}", object.NIL_OBJ, "||"},
-	}
-
-	for _, tc := range cases {
-		evaluated := testEval(tc.inp)
-		err, ok := evaluated.(*object.Error)
-		if !ok {
-			t.Fatalf("Evaluation failed with error %q", err.String())
-		}
-
-		expect := fail.New(1, "/path/to/file", "evaluator", fail.ErrUnknownTypeForOp, tc.obj, tc.op)
 		if err.String() != expect.String() {
 			t.Fatalf("Error message is not %q, got %q", expect, err)
 		}
