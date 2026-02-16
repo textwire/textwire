@@ -84,7 +84,8 @@ func (fw *fileWatcher) refreshPrograms(prog *ast.Program) {
 
 	ln := linker.New(fw.oldLinker.Programs)
 	if failure := ln.LinkNodes(); failure != nil {
-		fw.fatal(failure.String())
+		failure.PrintOnError()
+		return
 	}
 
 	fw.oldLinker.Programs = ln.Programs
