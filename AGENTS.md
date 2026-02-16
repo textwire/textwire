@@ -45,23 +45,22 @@ go test -cover ./parser/
 
 ## Project Architecture
 ### Core Packages
-- `lexer/` - Tokenizes input strings into tokens
-- `parser/` - Builds AST from token stream
-- `evaluator/` - Evaluates AST nodes to produce output
-- `token/` - Token definitions and utilities
-- `ast/` - Abstract Syntax Tree node definitions
-- `object/` - Runtime object system
+- `pkg/lexer/` - Tokenizes input strings into tokens
+- `pkg/parser/` - Builds AST from token stream
+- `pkg/evaluator/` - Evaluates AST nodes to produce output
+- `pkg/token/` - Token definitions and utilities
+- `pkg/ast/` - Abstract Syntax Tree node definitions
+- `pkg/object/` - Runtime object system
 
 ### Support Packages
 - `config/` - Configuration management
-- `fail/` - Structured error handling
-- `utils/` - Utility functions
-- `lsp/` - Language Server Protocol implementation
+- `pkg/fail/` - Structured error handling
+- `pkg/utils/` - Utility functions
+- `pkg/lsp/` - Language Server Protocol implementation
 
 ### Entry Points
 - `textwire.go` - Main public API
-- `textwire/example/main.go` - Example web server usage
-- `repl/repl.go` - Interactive REPL
+- `pkg/repl/repl.go` - Interactive REPL
 
 ## Code Style & Conventions
 ### Naming Conventions
@@ -109,7 +108,7 @@ func NewIdentifier(tok token.Token, val string) *Identifier {
 ### Fail Package Usage
 Import the fail package for structured error handling:
 ```go
-import "github.com/textwire/textwire/v3/fail"
+import "github.com/textwire/textwire/v3/pkg/fail"
 ```
 
 ### Error Constants

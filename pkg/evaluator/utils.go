@@ -35,6 +35,16 @@ func isError(obj object.Object) bool {
 	return obj.Is(object.ERR_OBJ)
 }
 
+func isUndefinedError(obj object.Object) bool {
+	undefinedErrors := []string{
+		fail.ErrVariableIsUndefined,
+		fail.ErrPropertyOnNonObject,
+	}
+
+	err, isErr := obj.(*object.Error)
+	return isErr && slices.Contains(undefinedErrors, err.ErrorID)
+}
+
 func nativeBoolToBoolObj(input bool) object.Object {
 	if input {
 		return TRUE
@@ -144,17 +154,6 @@ func addDecimals(
 	}
 
 	return &object.Str{Value: val + separator + zeros}, nil
-}
-
-func isUndefinedError(obj object.Object) bool {
-	undefinedErrors := []string{
-		fail.ErrVariableIsUndefined,
-		fail.ErrPropertyOnNonObject,
-		fail.ErrFuncNotDefined,
-	}
-
-	err, isErr := obj.(*object.Error)
-	return isErr && slices.Contains(undefinedErrors, err.ErrorID)
 }
 
 func strIsInt(s string) bool {

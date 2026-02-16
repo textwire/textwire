@@ -816,15 +816,14 @@ func (e *Evaluator) globalFuncDefined(
 	globalCallExp *ast.GlobalCallExp,
 	ctx *Context,
 ) object.Object {
-	definedVars := make([]bool, 0, len(globalCallExp.Arguments))
 	for i := range globalCallExp.Arguments {
 		evaluated := e.Eval(globalCallExp.Arguments[i], ctx)
-		definedVars = append(definedVars, !isUndefinedError(evaluated))
-	}
-
-	for _, defined := range definedVars {
-		if !defined {
+		if isUndefinedError(evaluated) {
 			return FALSE
+		}
+
+		if isError(evaluated) {
+			return evaluated
 		}
 	}
 

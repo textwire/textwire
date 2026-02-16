@@ -234,6 +234,12 @@ func TestDefinedCallExpression(t *testing.T) {
 			data:   map[string]any{"obj": map[string]any{}},
 		},
 		{
+			name:   "defined on missing object property",
+			inp:    `{{ defined(obj.prop.test.nice.cool) }}`,
+			expect: "0",
+			data:   map[string]any{"obj": map[string]any{}},
+		},
+		{
 			name:   "defined on nested object property",
 			inp:    `{{ defined(obj.nested.prop) }}`,
 			expect: "1",
@@ -278,12 +284,6 @@ func TestDefinedCallExpression(t *testing.T) {
 				},
 			},
 		},
-		{
-			name:   "defined on undefined method call",
-			inp:    `{{ defined(name.undefinedFunc()) }}`,
-			expect: "0",
-			data:   map[string]any{"name": "Anna"},
-		},
 	}
 
 	for _, tc := range cases {
@@ -306,6 +306,11 @@ func TestErrorHandling(t *testing.T) {
 		err  *fail.Error
 		data map[string]any
 	}{
+		{
+			inp:  `{{ defined(name.undefinedFunc()) }}`,
+			err:  fail.New(1, "", "evaluator", fail.ErrFuncNotDefined, object.STR_OBJ, "undefinedFunc"),
+			data: map[string]any{"name": "Anna"},
+		},
 		{
 			inp:  `@use("someTemplate")`,
 			err:  fail.New(1, "", "evaluator", fail.ErrSomeDirsOnlyInTemplates),
