@@ -66,7 +66,8 @@ func (fw *fileWatcher) updateFileIfModified(f *file.SourceFile) {
 	}
 
 	if failure != nil {
-		fw.fatal(failure.String())
+		fw.info(failure.Error().Error())
+		return
 	}
 
 	fw.refreshPrograms(prog)
@@ -84,7 +85,7 @@ func (fw *fileWatcher) refreshPrograms(prog *ast.Program) {
 
 	ln := linker.New(fw.oldLinker.Programs)
 	if failure := ln.LinkNodes(); failure != nil {
-		failure.PrintOnError()
+		fw.info(failure.Error().Error())
 		return
 	}
 

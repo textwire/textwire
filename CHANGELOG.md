@@ -1,5 +1,9 @@
 # Release notes
 
+## v3.2.3 (2026-02-22)
+
+- 🐛 Fixed file watcher stops warching files when parser returns syntax error. Now, it will keep watching files changes even after syntax error happens.
+
 ## v3.2.2 (2026-02-22)
 
 - 🐛 Fixed styles after `@dump` directive output being modified.
