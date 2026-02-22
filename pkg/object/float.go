@@ -21,7 +21,7 @@ func (f *Float) String() string {
 }
 
 func (f *Float) Dump(ident int) string {
-	return fmt.Sprintf("<span class='textwire-num'>%s</span>", f)
+	return fmt.Sprintf(`<span style="%s">%s</span>`, DUMP_NUM, f)
 }
 
 func (f *Float) Val() any {

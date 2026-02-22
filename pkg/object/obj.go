@@ -52,26 +52,38 @@ func (o *Obj) String() string {
 }
 
 func (o *Obj) Dump(ident int) string {
+	if o.Pairs == nil {
+		return "{}"
+	}
+
 	spaces := strings.Repeat("  ", ident)
 	ident += 1
 
 	var out strings.Builder
 	out.Grow(4)
 
-	fmt.Fprintf(&out, "<span class='textwire-meta'>object:%d </span>", len(o.Pairs))
-	out.WriteString("<span class='textwire-brace'>{</span>\n")
+	fmt.Fprintf(&out, `<span style="%s">object:%d </span>`, DUMP_META, len(o.Pairs))
+	fmt.Fprintf(&out, `<span style="%s">{</span>`, DUMP_BRACE)
+
+	if len(o.Pairs) == 0 {
+		spaces = ""
+	} else {
+		out.WriteByte('\n')
+	}
 
 	insideSpaces := strings.Repeat("  ", ident)
 
 	for key, pair := range o.Pairs {
 		out.WriteString(insideSpaces)
-		out.WriteString(`<span class="textwire-prop">"` + key + `"</span>`)
-		out.WriteString(": ")
+		fmt.Fprintf(&out, `<span style="%s">"`, DUMP_PROP)
+		out.WriteString(key)
+		fmt.Fprintf(&out, `"</span>: `)
 		out.WriteString(pair.Dump(ident))
 		out.WriteString(",\n")
 	}
 
-	out.WriteString(spaces + "<span class='textwire-brace'>}</span>")
+	out.WriteString(spaces)
+	fmt.Fprintf(&out, `<span style="%s">}</span>`, DUMP_BRACE)
 
 	return out.String()
 }

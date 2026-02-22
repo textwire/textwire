@@ -15,8 +15,11 @@ func (a *Array) Type() ObjectType {
 }
 
 func (a *Array) String() string {
-	var out bytes.Buffer
+	if len(a.Elements) == 0 {
+		return ""
+	}
 
+	var out bytes.Buffer
 	for _, elem := range a.Elements {
 		out.WriteString(elem.String() + ", ")
 	}
@@ -34,8 +37,14 @@ func (a *Array) Dump(ident int) string {
 
 	var out bytes.Buffer
 
-	fmt.Fprintf(&out, "<span class='textwire-meta'>array:%d </span>", len(a.Elements))
-	out.WriteString("<span class='textwire-brace'>[</span>\n")
+	fmt.Fprintf(&out, `<span style="%s">array:%d </span>`, DUMP_META, len(a.Elements))
+	fmt.Fprintf(&out, `<span style="%s">[</span>`, DUMP_BRACE)
+
+	if len(a.Elements) == 0 {
+		spaces = ""
+	} else {
+		out.WriteByte('\n')
+	}
 
 	insideSpaces := strings.Repeat("  ", ident)
 
@@ -54,7 +63,7 @@ func (a *Array) Dump(ident int) string {
 		res += "\n"
 	}
 
-	return res + spaces + "<span class='textwire-brace'>]</span>"
+	return res + spaces + fmt.Sprintf(`<span style="%s">]</span>`, DUMP_BRACE)
 }
 
 func (a *Array) Val() any {

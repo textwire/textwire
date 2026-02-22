@@ -1,5 +1,7 @@
 package object
 
+import "fmt"
+
 type Nil struct{}
 
 func (n *Nil) Type() ObjectType {
@@ -11,7 +13,7 @@ func (n *Nil) String() string {
 }
 
 func (n *Nil) Dump(ident int) string {
-	return "<span class='textwire-keyword'>nil</span>"
+	return fmt.Sprintf(`<span style="%s">nil</span>`, DUMP_KEYWORD)
 }
 
 func (n *Nil) Val() any {

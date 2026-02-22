@@ -1,5 +1,7 @@
 package object
 
+import "fmt"
+
 type Bool struct {
 	Value bool
 }
@@ -17,9 +19,9 @@ func (b *Bool) String() string {
 
 func (b *Bool) Dump(ident int) string {
 	if b.Value {
-		return "<span class='textwire-keyword'>true</span>"
+		return fmt.Sprintf(`<span style="%s">true</span>`, DUMP_KEYWORD)
 	}
-	return "<span class='textwire-keyword'>false</span>"
+	return fmt.Sprintf(`<span style="%s">false</span>`, DUMP_KEYWORD)
 }
 
 func (b *Bool) Val() any {

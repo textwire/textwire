@@ -29,10 +29,10 @@ func (e *Error) Dump(ident int) string {
 	var out bytes.Buffer
 	out.Grow(4)
 
-	out.WriteString("<span class='textwire-meta'>error\"\"\"</span>\n")
-	fmt.Fprintf(&out, "<span class='textwire-key'>%s</span>\n\n", e.Err.Meta())
-	fmt.Fprintf(&out, "<span class='textwire-str'>%s</span>\n", e.Err.Message())
-	out.WriteString("<span class='textwire-meta'>\"\"\"</span>")
+	fmt.Fprintf(&out, `<span style="%s">error"""</span>`+"\n", DUMP_META)
+	fmt.Fprintf(&out, `<span style="%s">%s</span>`+"\n\n", DUMP_KEY, e.Err.Meta())
+	fmt.Fprintf(&out, `<span style="%s">%s</span>`+"\n", DUMP_STR, e.Err.Message())
+	fmt.Fprintf(&out, `<span style="%s">"""</span>`, DUMP_META)
 
 	return out.String()
 }

@@ -6,31 +6,23 @@ import (
 	"strings"
 )
 
-var outputHTML = `<style>
-.textwire-dump {
-	overflow-x: auto;
-	overflow-y: hidden;
-    scrollbar-width: thin;
-	margin: 4px;
-}
-
-.textwire-prop { color: #f8f8f2 }
-.textwire-str { color: #c3e88d }
-.textwire-num { color: #76a8ff }
-.textwire-keyword { color: #c792ea }
-.textwire-brace { color: #e99f33 }
-.textwire-meta { color:#2c8ed0 }
-
-.textwire-dump pre {
-	background-color: #212121;
-	color: white;
-	padding: 20px;
-	border-radius: 5px;
-	margin: 0 !important;
-	width: fit-content;
-}
-</style>
-<div class="textwire-dump"><pre>%s</pre></div>`
+var outputHTML = `
+<div style="
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  scrollbar-width: thin !important;
+  margin: 4px !important;
+  font-size: 0.9rem !important;
+">
+  <pre style="
+    background-color: #212121 !important;
+    color: white !important;
+    padding: 20px !important;
+    border-radius: 5px !important;
+    margin: 0 !important !important;
+    width: fit-content !important;
+  ">%s</pre>
+</div>`
 
 type Dump struct {
 	Values []string

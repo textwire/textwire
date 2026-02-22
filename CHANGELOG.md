@@ -1,5 +1,9 @@
 # Release notes
 
+## v3.2.2 (2026-02-22)
+
+- 🐛 Fixed styles after `@dump` directive output being modified
+
 ## v3.2.1 (2026-02-22)
 
 - 🐛 Fixed bug with literal pointers like `*int`, `*string`, etc. Textwire would panic when you try to pass them to Textwire template.

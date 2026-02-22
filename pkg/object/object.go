@@ -26,6 +26,14 @@ const (
 	BREAK_IF_OBJ    ObjectType = "BREAK_IF"
 	CONTINUE_OBJ    ObjectType = "CONTINUE"
 	CONTINUE_IF_OBJ ObjectType = "CONTINUE_IF"
+
+	DUMP_PROP    = "color: #f8f8f2 !important"
+	DUMP_STR     = "color: #c3e88d !important"
+	DUMP_NUM     = "color: #76a8ff !important"
+	DUMP_KEYWORD = "color: #c792ea !important"
+	DUMP_BRACE   = "color: #e99f33 !important"
+	DUMP_META    = "color: #2c8ed0 !important"
+	DUMP_KEY     = "color: #ffcb8b !important"
 )
 
 type Object interface {

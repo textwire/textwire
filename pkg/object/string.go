@@ -15,7 +15,7 @@ func (s *Str) String() string {
 }
 
 func (s *Str) Dump(ident int) string {
-	return fmt.Sprintf("<span class='textwire-str'>%q</span>", s.Value)
+	return fmt.Sprintf(`<span style="%s">%q</span>`, DUMP_STR, s.Value)
 }
 
 func (s *Str) Val() any {
