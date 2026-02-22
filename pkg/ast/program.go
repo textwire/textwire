@@ -1,7 +1,6 @@
 package ast
 
 import (
-	"fmt"
 	"strings"
 
 	"github.com/textwire/textwire/v3/pkg/fail"
@@ -32,13 +31,8 @@ func (p *Program) String() string {
 	var out strings.Builder
 	out.Grow(len(p.Statements))
 
-	for _, stmt := range p.Statements {
-		if _, ok := stmt.(*ExpressionStmt); ok {
-			fmt.Fprintf(&out, "{{ %s }}", stmt)
-			continue
-		}
-
-		out.WriteString(stmt.String())
+	for i := range p.Statements {
+		out.WriteString(p.Statements[i].String())
 	}
 
 	return out.String()
