@@ -1,6 +1,8 @@
 package ast
 
 import (
+	"fmt"
+
 	"github.com/textwire/textwire/v3/pkg/token"
 )
 
@@ -20,5 +22,5 @@ func NewAssignStmt(tok token.Token, left *Identifier) *AssignStmt {
 func (as *AssignStmt) statementNode() {}
 
 func (as *AssignStmt) String() string {
-	return as.Left.String() + " = " + as.Right.String()
+	return fmt.Sprintf("%s = %s", as.Left, as.Right)
 }

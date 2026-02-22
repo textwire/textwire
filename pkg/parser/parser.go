@@ -401,7 +401,7 @@ func (p *Parser) assignStmt() ast.Statement {
 		return nil
 	}
 
-	stmt.Right = p.expression(SUM)
+	stmt.Right = p.expression(LOWEST)
 	stmt.SetEndPosition(p.curToken.Pos)
 
 	if p.peekTokenIs(token.RBRACES) {

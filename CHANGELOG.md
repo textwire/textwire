@@ -1,5 +1,9 @@
 # Release notes
 
+## v3.2.4 (2026-02-22)
+
+- 🐛 Fixed precedence parsing error for assignment statements. Some complex expressions like `{{ isLong = user.name.len() > 10 }}` return parse error that `token > is illegal`.
+
 ## v3.2.3 (2026-02-22)
 
 - 🐛 Fixed file watcher stops warching files when parser returns syntax error. Now, it will keep watching files changes even after syntax error happens.
