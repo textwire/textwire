@@ -717,6 +717,15 @@ func (e *Evaluator) infixExp(
 		return left
 	}
 
+	// Short-circuit evaluation for logical operators to prevent
+	// checking conditions if the left side is false.
+	if op == "&&" && !isTruthy(left) {
+		return &object.Bool{Value: false}
+	}
+	if op == "||" && isTruthy(left) {
+		return &object.Bool{Value: true}
+	}
+
 	right := e.Eval(rightNode, ctx)
 	if isError(right) {
 		return right

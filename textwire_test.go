@@ -42,7 +42,13 @@ func TestEvaluateString(t *testing.T) {
 		data   map[string]any
 	}{
 		{
-			name:   "Accessing propery 'name' on empty 'obj' variable",
+			name:   "Accessing propery name on empty obj variable",
+			inp:    `@if(item && item.items && item.items > 1)YES@elseNO@end`,
+			expect: "NO",
+			data:   map[string]any{"item": nil},
+		},
+		{
+			name:   "Accessing propery name on empty obj variable",
 			inp:    `{{ long = user.name.len() > 0 }}{{ long }}`,
 			expect: "1",
 			data: map[string]any{
@@ -50,7 +56,7 @@ func TestEvaluateString(t *testing.T) {
 			},
 		},
 		{
-			name:   "Accessing propery 'name' on empty 'obj' variable",
+			name:   "Accessing propery name on empty obj variable",
 			inp:    `{{ nameLen = user.name.len() }}{{ nameLen }}`,
 			expect: "5",
 			data: map[string]any{
@@ -58,19 +64,19 @@ func TestEvaluateString(t *testing.T) {
 			},
 		},
 		{
-			name:   "Accessing propery 'name' on empty 'obj' variable",
+			name:   "Accessing propery name on empty obj variable",
 			inp:    `<p>{{ age }}</p>`,
 			expect: `<p></p>`,
 			data:   map[string]any{"age": age},
 		},
 		{
-			name:   "Accessing propery 'name' on empty 'obj' variable",
+			name:   "Accessing propery name on empty obj variable",
 			inp:    `<p>{{ obj = {}; obj.name }}</p>`,
 			expect: "<p></p>",
 			data:   nil,
 		},
 		{
-			name:   "Accessing property 'test' on empty object '{}'",
+			name:   "Accessing property test on empty object {}",
 			inp:    `<h2>{{ {}.test }}</h2>`,
 			expect: "<h2></h2>",
 			data:   nil,

@@ -633,6 +633,11 @@ func TestOpPrecedenceParsing(t *testing.T) {
 			inp:    "{{ long = user.name.len() > 0 }}",
 			expect: "long = (((user.name).len()) > 0)",
 		},
+		{
+			id:     16,
+			inp:    "{{ user && user.name == 'serhii' }}",
+			expect: `(user && ((user.name) == "serhii"))`,
+		},
 	}
 
 	for _, tc := range cases {
@@ -643,7 +648,7 @@ func TestOpPrecedenceParsing(t *testing.T) {
 		checkParserErrors(t, p)
 
 		if prog.String() != tc.expect {
-			t.Fatalf("Test %d. Expect %q but got %q", tc.id, tc.expect, prog)
+			t.Fatalf("Test %d. Expect %s but got %s", tc.id, tc.expect, prog)
 		}
 	}
 }

@@ -1,5 +1,9 @@
 # Release notes
 
+## v3.2.5 (2026-02-22)
+
+- 🐛 Fixed precedence parsing bug with complex expressions like `{{ false && false.prop }}`. Added short-circuit for these types of expressions. If your first value is falsy, no continuing further.
+
 ## v3.2.4 (2026-02-22)
 
 - 🐛 Fixed precedence parsing error for assignment statements. Some complex expressions like `{{ isLong = user.name.len() > 10 }}` return parse error that `token > is illegal`.

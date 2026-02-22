@@ -816,6 +816,8 @@ func (p *Parser) callExp(receiver ast.Expression) ast.Expression {
 func (p *Parser) infixExp(left ast.Expression) ast.Expression {
 	exp := ast.NewInfixExp(*left.Tok(), left, p.curToken.Literal)
 
+	precedence := precedences[p.curToken.Type]
+
 	p.nextToken() // skip operator
 
 	if p.curTokenIs(token.RBRACES) {
@@ -823,7 +825,7 @@ func (p *Parser) infixExp(left ast.Expression) ast.Expression {
 		return nil
 	}
 
-	exp.Right = p.expression(SUM)
+	exp.Right = p.expression(precedence)
 	exp.SetEndPosition(p.curToken.Pos)
 
 	return exp
