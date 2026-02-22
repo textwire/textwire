@@ -43,6 +43,22 @@ func TestEvaluateString(t *testing.T) {
 	}{
 		{
 			name:   "Accessing propery 'name' on empty 'obj' variable",
+			inp:    `{{ long = user.name.len() > 0 }}{{ long }}`,
+			expect: "1",
+			data: map[string]any{
+				"user": struct{ Name string }{Name: "Harry"},
+			},
+		},
+		{
+			name:   "Accessing propery 'name' on empty 'obj' variable",
+			inp:    `{{ nameLen = user.name.len() }}{{ nameLen }}`,
+			expect: "5",
+			data: map[string]any{
+				"user": struct{ Name string }{Name: "Harry"},
+			},
+		},
+		{
+			name:   "Accessing propery 'name' on empty 'obj' variable",
 			inp:    `<p>{{ age }}</p>`,
 			expect: `<p></p>`,
 			data:   map[string]any{"age": age},
