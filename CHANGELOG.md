@@ -1,5 +1,9 @@
 # Release notes
 
+## v3.2.1 (2026-02-22)
+
+- 🐛 Fixed bug with literal pointers like `*int`, `*string`, etc. Textwire would panic when you try to pass them to Textwire template.
+
 ## v3.2.0 (2026-02-16)
 
 - ✨ Added a file wather that wathes your file changes and refreshes Textwire AST nodes. It prevents you from restarting server everytime you want to see any changes in the browser.

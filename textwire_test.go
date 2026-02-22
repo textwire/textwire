@@ -33,12 +33,20 @@ func readFile(fileName string) (string, error) {
 }
 
 func TestEvaluateString(t *testing.T) {
+	var age *int
+
 	cases := []struct {
 		name   string
 		inp    string
 		expect string
 		data   map[string]any
 	}{
+		{
+			name:   "Accessing propery 'name' on empty 'obj' variable",
+			inp:    `<p>{{ age }}</p>`,
+			expect: `<p></p>`,
+			data:   map[string]any{"age": age},
+		},
 		{
 			name:   "Accessing propery 'name' on empty 'obj' variable",
 			inp:    `<p>{{ obj = {}; obj.name }}</p>`,

@@ -48,8 +48,13 @@ func NativeToObject(val any) Object {
 	case reflect.Map:
 		return nativeMapToObject(val)
 	case reflect.Pointer:
-		// NativeToObject is used recursively to handle pointers
-		return NativeToObject(reflect.ValueOf(val).Elem().Interface())
+		v := reflect.ValueOf(val)
+		if v.IsNil() {
+			return new(Nil)
+		}
+
+		// NativeToObject is used recursively here
+		return NativeToObject(v.Elem().Interface())
 	}
 
 	return nil
