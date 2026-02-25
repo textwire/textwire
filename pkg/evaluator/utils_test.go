@@ -24,7 +24,8 @@ func TestIsTruthy(t *testing.T) {
 		{&object.Str{Value: ""}, false},
 		{&object.Str{Value: "x"}, true},
 		{&object.Str{Value: "anna"}, true},
-		{&object.Array{Elements: nil}, true},
+		{&object.Array{Elements: nil}, false},
+		{&object.Obj{Pairs: nil}, false},
 	}
 
 	for _, tc := range cases {
