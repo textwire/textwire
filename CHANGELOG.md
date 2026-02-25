@@ -1,5 +1,7 @@
 # Release notes
 
+## v3.3.0 (2026-03-03)
+
 ## v3.2.5 (2026-02-22)
 
 - 🐛 Fixed precedence parsing bug with complex expressions like `{{ false && false.prop }}`. Added short-circuit for these types of expressions. If your first value is falsy, no continuing further.
@@ -27,12 +29,12 @@
 - 🐛 Fixed global function `defined`, it was returning `true` in cases like this `{{ name = "john"; defined(name.somemethod()) }}` because it was returning `true` when any error happens inside `defined`. Now, it only checks for undefined variables and undefined properties on objects.
 - 🧑‍💻 Added so that now you can use any literal value in logical OR and logical AND expressions. Before, you could only use boolean on both sides. For example, now you can do `{{ "nice" && 13 ? "Yes" : "No" }}` and it returns `Yes` becuase non-empty string is `true` and non-zero int is also `true`.
 - 🧑‍💻 Performance improve ment for Go's slice convertion into Textwire array. Here are the benchmarks:
-    | Size | ⚡ Speed | 💾 Memory | 📉 Allocations |
-    |------|----------|-----------|----------------|
-    | small | **1.38× faster** | **48.7% less** | **6.4% fewer** |
-    | medium | **1.23× faster** | **41.6% less** | **1.0% fewer** |
-    | large | **1.67× faster** | **65.5% less** | **0.2% fewer** |
-    | huge | **2.74× faster** | **73.7% less** | **0.03% more** |
+  | Size | ⚡ Speed | 💾 Memory | 📉 Allocations |
+  |------|----------|-----------|----------------|
+  | small | **1.38× faster** | **48.7% less** | **6.4% fewer** |
+  | medium | **1.23× faster** | **41.6% less** | **1.0% fewer** |
+  | large | **1.67× faster** | **65.5% less** | **0.2% fewer** |
+  | huge | **2.74× faster** | **73.7% less** | **0.03% more** |
 
 ## v3.1.2 (2026-02-15)
 
