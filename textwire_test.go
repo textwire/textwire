@@ -149,9 +149,11 @@ func TestDefinedCallExpression(t *testing.T) {
 	}{
 		{1, `{{ defined('') }}`, "1", nil},
 		{2, `{{ defined("") }}`, "1", nil},
+		{3, `{{ defined(-0) }}`, "1", nil},
 		{3, `{{ defined(0) }}`, "1", nil},
 		{4, `{{ defined(1) }}`, "1", nil},
 		{5, `{{ defined(0.0) }}`, "1", nil},
+		{5, `{{ defined(-0.0) }}`, "1", nil},
 		{6, `{{ defined(1.0) }}`, "1", nil},
 		{7, `{{ defined({}) }}`, "1", nil},
 		{8, `{{ defined([]) }}`, "1", nil},
@@ -223,6 +225,135 @@ func TestDefinedCallExpression(t *testing.T) {
 				"obj": map[string]any{"prop": "value", "nested": map[string]any{"prop": "value"}},
 			},
 		},
+	}
+
+	for _, tc := range cases {
+		res, err := EvaluateString(tc.inp, tc.data)
+		if err != nil {
+			t.Fatalf("Case %d. We don't expect error but got %s", tc.id, err)
+		}
+
+		if tc.expect != res {
+			t.Errorf("Case %d. Wrong result. Expect: %q got: %q", tc.id, tc.expect, res)
+		}
+	}
+}
+
+func TestHasValueCallExpression(t *testing.T) {
+	cases := []struct {
+		id     int
+		inp    string
+		expect string
+		data   map[string]any
+	}{
+		{1, `{{ hasValue('') }}`, "0", nil},
+		{2, `{{ hasValue("") }}`, "0", nil},
+		{3, `{{ hasValue(0) }}`, "0", nil},
+		{3, `{{ hasValue(-0) }}`, "0", nil},
+		{4, `{{ hasValue(1) }}`, "1", nil},
+		{5, `{{ hasValue(0.0) }}`, "0", nil},
+		{5, `{{ hasValue(-0.0) }}`, "0", nil},
+		{6, `{{ hasValue(1.0) }}`, "1", nil},
+		{7, `{{ hasValue({}) }}`, "0", nil},
+		{8, `{{ hasValue([]) }}`, "0", nil},
+		{9, `{{ hasValue(true) }}`, "1", nil},
+		{10, `{{ hasValue(false) }}`, "0", nil},
+		{11, `{{ hasValue(nil) }}`, "0", nil},
+		{12, `{{ hasValue(undefinedVar) }}`, "0", nil},
+		{13, `@if(!hasValue(definedVar))YES@end`, "YES", nil},
+		{14, `{{ hasValue(emptyStr) }}`, "0", map[string]any{"emptyStr": ""}},
+		{15, `{{ hasValue(zeroInt) }}`, "0", map[string]any{"zeroInt": 0}},
+		{16, `{{ hasValue(zeroFloat) }}`, "0", map[string]any{"zeroFloat": 0.0}},
+		{17, `{{ hasValue(falseVar) }}`, "0", map[string]any{"falseVar": false}},
+		{18, `{{ hasValue(nilVar) }}`, "0", map[string]any{"nilVar": nil}},
+		{19, `{{ hasValue(emptyObj) }}`, "0", map[string]any{"emptyObj": map[string]any{}}},
+		{20, `{{ hasValue(emptyArr) }}`, "0", map[string]any{"emptyArr": []any{}}},
+		{21, `{{ hasValue(definedVar) }}`, "1", map[string]any{"definedVar": "nice"}},
+		{22, `{{ hasValue(nonEmptyStr) }}`, "1", map[string]any{"nonEmptyStr": "hello"}},
+		{23, `{{ hasValue(positiveInt) }}`, "1", map[string]any{"positiveInt": 42}},
+		{24, `{{ hasValue(positiveFloat) }}`, "1", map[string]any{"positiveFloat": 3.14}},
+		{25, `{{ hasValue(trueVar) }}`, "1", map[string]any{"trueVar": true}},
+		{
+			26,
+			`{{ hasValue(nonEmptyObj) }}`,
+			"1",
+			map[string]any{"nonEmptyObj": map[string]any{"key": "val"}},
+		},
+		{27, `{{ hasValue(nonEmptyArr) }}`, "1", map[string]any{"nonEmptyArr": []any{1, 2, 3}}},
+		{28, `@if(hasValue(definedVar))YES@end`, "YES", map[string]any{"definedVar": "nice"}},
+		{29, `@if(hasValue(emptyStr))YES@elseNO@end`, "NO", map[string]any{"emptyStr": ""}},
+		{30, `@if(hasValue(nilVar))YES@elseNO@end`, "NO", map[string]any{"nilVar": nil}},
+		{31, `@if(hasValue(zeroInt))YES@elseNO@end`, "NO", map[string]any{"zeroInt": 0}},
+		{32, `@if(hasValue(falseVar))YES@elseNO@end`, "NO", map[string]any{"falseVar": false}},
+		{
+			33,
+			`{{ hasValue(definedVar).then("Yes", "No") }}`,
+			"Yes",
+			map[string]any{"definedVar": "nice"},
+		},
+		{34, `{{ hasValue(emptyStr).then("Yes", "No") }}`, "No", map[string]any{"emptyStr": ""}},
+		{
+			35,
+			`{{ hasValue(obj.prop) }}`,
+			"1",
+			map[string]any{"obj": map[string]any{"prop": "value"}},
+		},
+		{36, `{{ hasValue(obj.prop) }}`, "0", map[string]any{"obj": map[string]any{"prop": ""}}},
+		{37, `{{ hasValue(obj.prop) }}`, "0", map[string]any{"obj": map[string]any{"prop": 0}}},
+		{38, `{{ hasValue(obj.prop) }}`, "0", map[string]any{"obj": map[string]any{}}},
+		{39, `{{ hasValue(obj.missing) }}`, "0", map[string]any{"obj": map[string]any{}}},
+		{
+			40,
+			`{{ hasValue(obj.nested.prop) }}`,
+			"1",
+			map[string]any{"obj": map[string]any{"nested": map[string]any{"prop": "value"}}},
+		},
+		{
+			41,
+			`{{ hasValue(obj.nested.prop) }}`,
+			"0",
+			map[string]any{"obj": map[string]any{"nested": map[string]any{"prop": nil}}},
+		},
+		{42, `{{ hasValue(arr[0]) }}`, "1", map[string]any{"arr": []any{"first", "second"}}},
+		{43, `{{ hasValue(arr[0]) }}`, "0", map[string]any{"arr": []any{""}}},
+		{44, `{{ hasValue(arr[0]) }}`, "0", map[string]any{"arr": []any{}}},
+		{
+			45,
+			`@if(defined(definedVar) && hasValue(definedVar))YES@end`,
+			"YES",
+			map[string]any{"definedVar": "nice"},
+		},
+		{
+			46,
+			`@if(defined(definedVar) && hasValue(definedVar))YES@elseNO@end`,
+			"NO",
+			map[string]any{"definedVar": ""},
+		},
+		{
+			47,
+			`@if(hasValue(obj.prop) && hasValue(obj.prop2))YES@end`,
+			"YES",
+			map[string]any{"obj": map[string]any{"prop": "a", "prop2": "b"}},
+		},
+		{
+			48,
+			`@if(hasValue(obj.prop) || hasValue(obj.prop2))YES@end`,
+			"YES",
+			map[string]any{"obj": map[string]any{"prop": "a"}},
+		},
+		{49, `{{ hasValue(a, b) }}`, "1", map[string]any{"a": "hello", "b": "world"}},
+		{50, `{{ hasValue(a, b) }}`, "0", map[string]any{"a": "hello", "b": ""}},
+		{51, `{{ hasValue(a, b) }}`, "0", map[string]any{"a": "", "b": "hello"}},
+		{52, `{{ hasValue(a, b) }}`, "0", map[string]any{"a": "", "b": ""}},
+		{53, `{{ hasValue(a, b) }}`, "0", map[string]any{"a": 0, "b": 1}},
+		{54, `{{ hasValue(a, b) }}`, "0", map[string]any{"a": 1, "b": 0}},
+		{55, `{{ hasValue(a, b) }}`, "0", map[string]any{"a": nil, "b": "hello"}},
+		{56, `{{ hasValue(a, b, c) }}`, "1", map[string]any{"a": "a", "b": "b", "c": "c"}},
+		{57, `{{ hasValue(a, b, c) }}`, "0", map[string]any{"a": "a", "b": "", "c": "c"}},
+		{58, `@if(hasValue(a, b))YES@end`, "YES", map[string]any{"a": "x", "b": "y"}},
+		{59, `@if(hasValue(a, b))YES@elseNO@end`, "NO", map[string]any{"a": "x", "b": ""}},
+		{60, `@if(hasValue(obj.prop, obj.prop2))YES@end`, "YES", map[string]any{"obj": map[string]any{"prop": "a", "prop2": "b"}}},
+		{61, `@if(hasValue(obj.prop, obj.prop2))YES@elseNO@end`, "NO", map[string]any{"obj": map[string]any{"prop": "a"}}},
 	}
 
 	for _, tc := range cases {

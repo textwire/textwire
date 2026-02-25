@@ -815,6 +815,8 @@ func (e *Evaluator) globalCallExp(globalCallExp *ast.GlobalCallExp, ctx *Context
 	switch globalCallExp.Function.Name {
 	case "defined":
 		return e.globalFuncDefined(globalCallExp, ctx)
+	case "hasValue":
+		return e.globalFuncHasValue(globalCallExp, ctx)
 	default:
 		return e.newError(
 			globalCallExp,
@@ -837,6 +839,36 @@ func (e *Evaluator) globalFuncDefined(
 
 		if isError(evaluated) {
 			return evaluated
+		}
+	}
+
+	return TRUE
+}
+
+func (e *Evaluator) globalFuncHasValue(
+	globalCallExp *ast.GlobalCallExp,
+	ctx *Context,
+) object.Object {
+	// Check if all arguments are defined first
+	areDefined := e.globalFuncDefined(globalCallExp, ctx)
+	if isError(areDefined) {
+		return areDefined
+	}
+
+	if areDefined == FALSE {
+		return FALSE
+	}
+
+	// At this point, all variables are defined.
+	// Checking if they have nullable values.
+	for _, exp := range globalCallExp.Arguments {
+		arg := e.Eval(exp, ctx)
+		if isError(arg) {
+			return arg
+		}
+
+		if !isTruthy(arg) {
+			return FALSE
 		}
 	}
 

@@ -2,6 +2,8 @@
 
 ## v3.3.0 (2026-03-03)
 
+- ✨ Added `hasValue()` global function which checks if variables are defined and have non-nullable values. If variable inside is "" empty string, 0 int, 0.0 float, nil, {} empty object, [] empty array or false, it returns `false`.
+
 ## v3.2.5 (2026-02-22)
 
 - 🐛 Fixed precedence parsing bug with complex expressions like `{{ false && false.prop }}`. Added short-circuit for these types of expressions. If your first value is falsy, no continuing further.
