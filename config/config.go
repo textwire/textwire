@@ -11,7 +11,7 @@ import (
 type Config struct {
 	// TemplateDir specifies the directory containing Textwire template files.
 	// Note: If TemplatesFS is provided, TemplateDir is ignored because there
-	// are no absolute paths for embeded files.
+	// are no absolute paths for embedded files.
 	// Default: "templates"
 	TemplateDir string
 
@@ -46,7 +46,7 @@ type Config struct {
 	GlobalData map[string]any
 
 	// FileWatcher watches all of your template files for changes and
-	// automatically reparses them when they are modified. This is intended
+	// automatically re-parses them when they are modified. This is intended
 	// for development use only and should not be enabled in production due to
 	// performance implications. It doesn't work with TemplateFS configuration
 	// enabled! Disable it to use file refresh functionality.
