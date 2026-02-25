@@ -596,6 +596,7 @@ func (p *Parser) dumpStmt() ast.Statement {
 	return stmt
 }
 
+// slots parses local slots inside of @component directive's body
 func (p *Parser) slots(compName string) []*ast.SlotStmt {
 	var slots []*ast.SlotStmt
 
