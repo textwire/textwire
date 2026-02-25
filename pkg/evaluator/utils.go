@@ -24,6 +24,10 @@ func isTruthy(obj object.Object) bool {
 		return obj.Value != ""
 	case *object.Nil:
 		return false
+	case *object.Obj:
+		return len(obj.Pairs) > 0
+	case *object.Array:
+		return len(obj.Elements) != 0
 	case nil:
 		return false
 	}
