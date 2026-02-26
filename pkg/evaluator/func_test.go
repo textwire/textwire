@@ -12,6 +12,18 @@ func TestFunctionGivesError(t *testing.T) {
 		inp string
 		err *fail.Error
 	}{
+		// string format
+		{
+			`{{ "He has %s apples".format() }}`,
+			fail.New(
+				1,
+				"/path/to/file",
+				"evaluator",
+				fail.ErrFuncMissingArg,
+				object.STR_OBJ,
+				"format",
+			),
+		},
 		// string slice
 		{
 			`{{ [1, 2].slice() }}`,

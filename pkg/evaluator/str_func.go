@@ -268,3 +268,37 @@ func strRepeatFunc(receiver object.Object, args ...object.Object) (object.Object
 
 	return &object.Str{Value: repeated}, nil
 }
+
+// strFormatFunc embeds values into a string. Similar to sprintf in C.
+func strFormatFunc(receiver object.Object, args ...object.Object) (object.Object, error) {
+	if len(args) == 0 {
+		msg := fmt.Sprintf(fail.ErrFuncMissingArg, object.STR_OBJ, "format")
+		return nil, errors.New(msg)
+	}
+
+	str := receiver.(*object.Str).Value
+
+	var argIdx int
+	var out strings.Builder
+	out.Grow(len(args))
+
+	for i := 0; i < len(str); i++ {
+		isPlaceholder := str[i] == '%' && i+1 < len(str) && str[i+1] == 's'
+		if !isPlaceholder {
+			out.WriteByte(str[i])
+			continue
+		}
+
+		if argIdx >= len(args) {
+			out.WriteByte(str[i])
+			continue
+		}
+
+		argVal := args[argIdx].String()
+		out.WriteString(argVal)
+		argIdx++
+		i++
+	}
+
+	return &object.Str{Value: out.String()}, nil
+}
