@@ -420,9 +420,19 @@ func (l *Lexer) isDirectiveToken() (isDirectory bool, escapedDirectory bool) {
 }
 
 func (l *Lexer) isPotentiallyLong(tok token.TokenType) bool {
-	return (tok == token.ELSE && l.char == 'i' && l.peekChar() == 'f') ||
-		(tok == token.BREAK && l.char == 'I' && l.peekChar() == 'f') ||
-		(tok == token.CONTINUE && l.char == 'I' && l.peekChar() == 'f')
+	// Tokens that can be extended with "If" variants
+	longTokens := map[token.TokenType]struct{}{
+		token.ELSE:     {},
+		token.BREAK:    {},
+		token.CONTINUE: {},
+	}
+
+	if _, ok := longTokens[tok]; !ok {
+		return false
+	}
+
+	return l.char == 'I' && l.peekChar() == 'f' ||
+		(tok == token.ELSE && l.char == 'i' && l.peekChar() == 'f')
 }
 
 func (l *Lexer) readString() string {
