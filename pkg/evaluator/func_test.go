@@ -12,7 +12,7 @@ func TestFunctionGivesError(t *testing.T) {
 		inp string
 		err *fail.Error
 	}{
-		// slice
+		// string slice
 		{
 			`{{ [1, 2].slice() }}`,
 			fail.New(
@@ -145,7 +145,7 @@ func TestFunctionGivesError(t *testing.T) {
 				"slice",
 			),
 		},
-		// join
+		// string join
 		{
 			`{{ [1, 2].join(1) }}`,
 			fail.New(
@@ -201,7 +201,7 @@ func TestFunctionGivesError(t *testing.T) {
 				"join",
 			),
 		},
-		// split
+		// string split
 		{
 			`{{ "nice".split(1) }}`,
 			fail.New(
@@ -257,7 +257,7 @@ func TestFunctionGivesError(t *testing.T) {
 				"split",
 			),
 		},
-		// trim
+		// string trim
 		{
 			`{{ "n".trim(1) }}`,
 			fail.New(
@@ -313,7 +313,7 @@ func TestFunctionGivesError(t *testing.T) {
 				"trim",
 			),
 		},
-		// trimRight
+		// string trimRight
 		{
 			`{{ "n".trimRight(1) }}`,
 			fail.New(
@@ -369,7 +369,7 @@ func TestFunctionGivesError(t *testing.T) {
 				"trimRight",
 			),
 		},
-		// trimLeft
+		// string trimLeft
 		{
 			`{{ "n".trimLeft(1) }}`,
 			fail.New(
@@ -425,7 +425,7 @@ func TestFunctionGivesError(t *testing.T) {
 				"trimLeft",
 			),
 		},
-		// repeat
+		// string repeat
 		{
 			`{{ "n".repeat(true) }}`,
 			fail.New(
@@ -481,7 +481,7 @@ func TestFunctionGivesError(t *testing.T) {
 				"repeat",
 			),
 		},
-		// contains
+		// string contains
 		{
 			`{{ "anna".contains() }}`,
 			fail.New(
@@ -493,7 +493,7 @@ func TestFunctionGivesError(t *testing.T) {
 				"contains",
 			),
 		},
-		// truncate
+		// string truncate
 		{
 			`{{ "anna serhii".truncate() }}`,
 			fail.New(
@@ -604,7 +604,7 @@ func TestFunctionGivesError(t *testing.T) {
 				"truncate",
 			),
 		},
-		// decimal (STRING)
+		// string decimal
 		{
 			`{{ "100".decimal(1) }}`,
 			fail.New(
@@ -715,7 +715,7 @@ func TestFunctionGivesError(t *testing.T) {
 				"decimal",
 			),
 		},
-		// decimal (INTEGER)
+		// integer decimal
 		{
 			`{{ 100.decimal(1) }}`,
 			fail.New(
@@ -826,7 +826,7 @@ func TestFunctionGivesError(t *testing.T) {
 				"decimal",
 			),
 		},
-		// then
+		// boolean then
 		{
 			`{{ true.then() }}`,
 			fail.New(
@@ -849,7 +849,7 @@ func TestFunctionGivesError(t *testing.T) {
 				"then",
 			),
 		},
-		// contains
+		// array contains
 		{
 			`{{ [1, 2].contains() }}`,
 			fail.New(
@@ -861,7 +861,7 @@ func TestFunctionGivesError(t *testing.T) {
 				"contains",
 			),
 		},
-		// append
+		// array append
 		{
 			`{{ [1, 2].append() }}`,
 			fail.New(
@@ -873,7 +873,7 @@ func TestFunctionGivesError(t *testing.T) {
 				"append",
 			),
 		},
-		// prepend
+		// array prepend
 		{
 			`{{ [1, 2].prepend() }}`,
 			fail.New(
