@@ -10,8 +10,8 @@ type ComponentStmt struct {
 	BaseNode
 	Name     *StringLiteral // Relative path to the component 'components/book'
 	Argument *ObjectLiteral
-	CompProg *Program    // AST node of the component file Name
-	Slots    []*SlotStmt // Each slot of the component's block
+	CompProg *Program        // AST node of the component file Name
+	Slots    []SlotStatement // Each slot of the component's block
 }
 
 func NewComponentStmt(tok token.Token) *ComponentStmt {

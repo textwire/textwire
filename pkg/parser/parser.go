@@ -211,6 +211,9 @@ func (p *Parser) statement() ast.Statement {
 		return ast.NewBreakStmt(p.curToken)
 	case token.CONTINUE:
 		return ast.NewContinueStmt(p.curToken)
+	case token.SLOT_IF:
+		p.newError(p.curToken.ErrorLine(), fail.ErrSlotIfPosition)
+		return nil
 	default:
 		return p.illegalNode()
 	}
@@ -239,11 +242,17 @@ func (p *Parser) registerInfix(tokenType token.TokenType, fn infixParseFn) {
 	p.infixParseFns[tokenType] = fn
 }
 
-func (p *Parser) curTokenIs(tok token.TokenType) bool {
-	return p.curToken.Type == tok
+func (p *Parser) curTokenIs(tokens ...token.TokenType) bool {
+	if len(tokens) == 1 {
+		return tokens[0] == p.curToken.Type
+	}
+	return slices.Contains(tokens, p.curToken.Type)
 }
 
 func (p *Parser) peekTokenIs(tokens ...token.TokenType) bool {
+	if len(tokens) == 1 {
+		return tokens[0] == p.peekToken.Type
+	}
 	return slices.Contains(tokens, p.peekToken.Type)
 }
 
@@ -523,9 +532,11 @@ func (p *Parser) componentStmt() ast.Statement {
 		p.nextToken() // move to ")"
 	}
 
-	if p.peekTokenIs(token.SLOT) {
+	if p.peekTokenIs(token.SLOT, token.SLOT_IF) {
 		p.nextToken() // skip whitespace
-		stmt.Slots = p.slots(stmt.Name.Value)
+		if illegal := p.assignSlotsToComp(stmt); illegal != nil {
+			return illegal
+		}
 	}
 
 	p.components = append(p.components, stmt)
@@ -533,6 +544,21 @@ func (p *Parser) componentStmt() ast.Statement {
 	stmt.SetEndPosition(p.curToken.Pos)
 
 	return stmt
+}
+
+func (p *Parser) assignSlotsToComp(stmt *ast.ComponentStmt) ast.Statement {
+	slots := p.slots(stmt.Name.Value)
+	stmt.Slots = make([]ast.SlotStatement, len(slots))
+	for i := range slots {
+		slot, ok := slots[i].(ast.SlotStatement)
+		if !ok {
+			return slots[i]
+		}
+
+		stmt.Slots[i] = slot
+	}
+
+	return nil
 }
 
 func (p *Parser) parseAliasPathShortcut(shortenTo string) string {
@@ -559,7 +585,7 @@ func (p *Parser) slotStmt() ast.Statement {
 	if !p.peekTokenIs(token.LPAREN) {
 		name := ast.NewStringLiteral(p.curToken, "")
 		stmt := ast.NewSlotStmt(tok, name, p.file.Name, false)
-		stmt.IsDefault = true
+		stmt.SetIsDefault(true)
 		return stmt
 	}
 
@@ -597,45 +623,20 @@ func (p *Parser) dumpStmt() ast.Statement {
 }
 
 // slots parses local slots inside of @component directive's body
-func (p *Parser) slots(compName string) []*ast.SlotStmt {
-	var slots []*ast.SlotStmt
+func (p *Parser) slots(compName string) []ast.Statement {
+	var slots []ast.Statement
 
-	for p.curTokenIs(token.SLOT) {
+	for p.curTokenIs(token.SLOT, token.SLOT_IF) {
 		slotName := ast.NewStringLiteral(p.curToken, "")
 
-		stmt := ast.NewSlotStmt(p.curToken, slotName, compName, true)
-		stmt.IsDefault = !p.peekTokenIs(token.LPAREN)
-
-		// When slot has a name @slot('name')
-		if p.peekTokenIs(token.LPAREN) {
-			p.nextToken() // move to "(" from '@slot'
-			p.nextToken() // skip "("
-
-			slotName.Token = p.curToken
-			slotName.Value = p.curToken.Literal
-
-			if !p.expectPeek(token.RPAREN) { // move to ")"
-				p.illegalNode() // create an error
-			}
-
-			p.nextToken() // skip ")"
-		} else {
-			p.nextToken() // skip "@slot"
+		switch p.curToken.Type {
+		case token.SLOT:
+			slots = append(slots, p.localSlotStmt(slotName, compName))
+		case token.SLOT_IF:
+			slots = append(slots, p.slotIfStmt(slotName, compName))
+		default:
+			panic("Unknown slot token when parsing component slots")
 		}
-
-		hasEmptyBlock := p.curTokenIs(token.END)
-
-		if hasEmptyBlock {
-			p.nextToken() // skip "@end"
-			stmt.SetEndPosition(p.curToken.Pos)
-		} else {
-			stmt.Block = p.blockStmt()
-			stmt.SetEndPosition(p.curToken.Pos)
-			p.nextToken() // skip block statement
-			p.nextToken() // skip "@end"
-		}
-
-		slots = append(slots, stmt)
 
 		for p.curTokenIs(token.HTML) {
 			p.nextToken() // skip whitespace
@@ -643,6 +644,77 @@ func (p *Parser) slots(compName string) []*ast.SlotStmt {
 	}
 
 	return slots
+}
+
+func (p *Parser) localSlotStmt(name *ast.StringLiteral, compName string) ast.Statement {
+	stmt := ast.NewSlotStmt(p.curToken, name, compName, true)
+	stmt.SetIsDefault(!p.peekTokenIs(token.LPAREN))
+
+	// When slot has a name @slot('name')
+	if p.peekTokenIs(token.LPAREN) {
+		p.nextToken() // move to "(" from '@slot'
+		p.nextToken() // skip "("
+
+		name.Token = p.curToken
+		name.Value = p.curToken.Literal
+
+		if !p.expectPeek(token.RPAREN) { // move to ")"
+			return p.illegalNode() // create an error
+		}
+
+		p.nextToken() // skip ")"
+	} else {
+		p.nextToken() // skip "@slot"
+	}
+
+	hasEmptyBlock := p.curTokenIs(token.END)
+
+	if hasEmptyBlock {
+		p.nextToken() // skip "@end"
+		stmt.SetEndPosition(p.curToken.Pos)
+	} else {
+		stmt.SetBlock(p.blockStmt())
+		stmt.SetEndPosition(p.curToken.Pos)
+		p.nextToken() // skip block statement
+		p.nextToken() // skip "@end"
+	}
+
+	return stmt
+}
+
+func (p *Parser) slotIfStmt(name *ast.StringLiteral, compName string) ast.Statement {
+	stmt := ast.NewSlotIfStmt(p.curToken, name, compName)
+
+	if !p.expectPeek(token.LPAREN) { // move from "@slotIf" to "("
+		p.illegalNode()
+	}
+
+	p.nextToken() // skip "("
+
+	stmt.Condition = p.expression(LOWEST)
+
+	// When slot has name
+	if p.peekTokenIs(token.COMMA) {
+		p.nextToken() // move to ","
+		p.nextToken() // skip ","
+
+		name.Token = p.curToken
+		name.Value = p.curToken.Literal
+		stmt.SetIsDefault(name.Value != "")
+	}
+
+	if !p.expectPeek(token.RPAREN) { // move to ")"
+		return p.illegalNode()
+	}
+
+	p.nextToken() // skip ")"
+
+	stmt.SetBlock(p.blockStmt())
+	stmt.SetEndPosition(p.curToken.Pos)
+	p.nextToken() // skip block statement
+	p.nextToken() // skip "@end"
+
+	return stmt
 }
 
 func (p *Parser) reserveStmt() ast.Statement {

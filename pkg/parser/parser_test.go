@@ -1800,15 +1800,15 @@ func TestParseComponentDirective(t *testing.T) {
 		}
 
 		testToken(t, stmt, token.COMPONENT)
-		testStringLiteral(t, stmt.Slots[0].Name, "header")
-		testStringLiteral(t, stmt.Slots[1].Name, "footer")
+		testStringLiteral(t, stmt.Slots[0].Name(), "header")
+		testStringLiteral(t, stmt.Slots[1].Name(), "footer")
 
-		expect := "@slot(\"header\")\n<h1>Header</h1>\n@end"
+		expect := `@slot("header")<h1>Header</h1>@end`
 		if stmt.Slots[0].String() != expect {
 			t.Fatalf("stmt.Slots[0].String() is not '%q', got %q", expect, stmt.Slots[0])
 		}
 
-		expect = "@slot(\"footer\")\n<footer>Footer</footer>\n@end"
+		expect = `@slot("footer")<footer>Footer</footer>@end`
 		if stmt.Slots[1].String() != expect {
 			t.Fatalf("stmt.Slots[0].String() is not '%q', got %q", expect, stmt.Slots[1])
 		}
@@ -1826,7 +1826,7 @@ func TestParseComponentDirective(t *testing.T) {
 		testToken(t, stmt, token.COMPONENT)
 		testStringLiteral(t, stmt.Name, "some")
 
-		expect := "@component(\"some\")"
+		expect := `@component("some")`
 		if stmt.String() != expect {
 			t.Fatalf("stmt.String() is not `%s`, got `%s`", expect, stmt)
 		}
@@ -1859,9 +1859,9 @@ func TestParseSlotDirective(t *testing.T) {
 		})
 
 		testToken(t, stmt, token.SLOT)
-		testStringLiteral(t, stmt.Name, "header")
+		testStringLiteral(t, stmt.Name(), "header")
 
-		expect := "@slot(\"header\")"
+		expect := `@slot("header")`
 		if stmt.String() != expect {
 			t.Fatalf("stmt.String() is not `%s`, got `%s`", expect, stmt)
 		}
@@ -1878,7 +1878,7 @@ func TestParseSlotDirective(t *testing.T) {
 		}
 
 		testToken(t, stmt, token.SLOT)
-		testNilLiteral(t, stmt.Name)
+		testNilLiteral(t, stmt.Name())
 		testPosition(t, stmt.Position(), token.Position{
 			StartCol: 8,
 			EndCol:   12,
@@ -1886,6 +1886,80 @@ func TestParseSlotDirective(t *testing.T) {
 
 		if stmt.String() != "@slot" {
 			t.Fatalf("slot.String() is not @slot, got `%s`", stmt)
+		}
+	})
+}
+
+func TestParseSlotIfDirective(t *testing.T) {
+	t.Run("default slotIf", func(t *testing.T) {
+		inp := `@component('test')@slotIf(true)Test@end@end`
+		stmts := parseStatements(t, inp, parseOpts{stmtCount: 1, checkErrors: true})
+
+		comp, ok := stmts[0].(*ast.ComponentStmt)
+		if !ok {
+			t.Fatalf("stmts[1] is not a ComponentStmt, got %T", stmts[0])
+		}
+
+		if len(comp.Slots) > 1 {
+			t.Fatalf("len(comp.Slots) must be 1, got %d", len(comp.Slots))
+		}
+
+		testPosition(t, comp.Position(), token.Position{EndCol: 42})
+		testToken(t, comp, token.COMPONENT)
+
+		slot, ok := comp.Slots[0].(*ast.SlotIfStmt)
+		if !ok {
+			t.Fatalf("comp.Slots[0] is not a SlotIfStmt, got %T", stmts[0])
+		}
+
+		testBooleanLiteral(t, slot.Condition, true)
+
+		body := slot.Block().String()
+		if body != "Test" {
+			t.Fatalf("slotIf.Block().String() is not 'Test', got %s", body)
+		}
+
+		expect := "@slotIf(true)Test@end"
+		if slot.String() != expect {
+			t.Fatalf("slotIf.String() is not '%s', got %s", expect, slot)
+		}
+	})
+
+	t.Run("named slotIf", func(t *testing.T) {
+		inp := `@component('user')@slotIf(false, 'name')Test2@end@end`
+		stmts := parseStatements(t, inp, parseOpts{stmtCount: 1, checkErrors: true})
+
+		comp, ok := stmts[0].(*ast.ComponentStmt)
+		if !ok {
+			t.Fatalf("stmts[1] is not a ComponentStmt, got %T", stmts[0])
+		}
+
+		testPosition(t, comp.Position(), token.Position{EndCol: 52})
+		testToken(t, comp, token.COMPONENT)
+
+		if len(comp.Slots) > 1 {
+			t.Fatalf("len(comp.Slots) must be 1, got %d", len(comp.Slots))
+		}
+
+		slot, ok := comp.Slots[0].(*ast.SlotIfStmt)
+		if !ok {
+			t.Fatalf("comp.Slots[0] is not a SlotIfStmt, got %T", stmts[0])
+		}
+
+		testBooleanLiteral(t, slot.Condition, false)
+
+		if slot.Name().Value != "name" {
+			t.Fatalf("slot.Name().Value is not 'name', got %s", slot.Name())
+		}
+
+		body := slot.Block().String()
+		if body != "Test2" {
+			t.Fatalf("slotIf.Block().String() is not 'Test2', got %s", body)
+		}
+
+		expect := `@slotIf(false, "name")Test2@end`
+		if slot.String() != expect {
+			t.Fatalf("slotIf.String() is not '%s', got %s", expect, slot)
 		}
 	})
 }

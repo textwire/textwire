@@ -76,6 +76,7 @@ const (
 	CONTINUE
 	COMPONENT
 	SLOT
+	SLOT_IF
 	DUMP
 )
 
@@ -102,6 +103,7 @@ var directives = map[string]TokenType{
 	"@break":      BREAK,
 	"@breakIf":    BREAK_IF,
 	"@component":  COMPONENT,
+	"@slotIf":     SLOT_IF,
 	"@slot":       SLOT,
 	"@dump":       DUMP,
 }

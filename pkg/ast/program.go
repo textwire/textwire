@@ -75,7 +75,7 @@ func (p *Program) LinkCompProg(compName string, prog *Program, absPath string) *
 
 		duplicate, times := findDuplicateSlot(comp.Slots)
 		if times > 0 && duplicate != nil {
-			if duplicate.IsDefault {
+			if duplicate.IsDefault() {
 				return fail.New(
 					prog.Line(),
 					absPath,
@@ -91,21 +91,21 @@ func (p *Program) LinkCompProg(compName string, prog *Program, absPath string) *
 				absPath,
 				"parser",
 				fail.ErrDuplicateSlot,
-				duplicate.Name.Value,
+				duplicate.Name().Value,
 				times,
 				compName,
 			)
 		}
 
 		for _, slot := range comp.Slots {
-			name := slot.Name.Value
+			name := slot.Name().Value
 			idx := findSlotIndex(prog.Statements, name)
 			if idx != -1 {
-				prog.Statements[idx].(*SlotStmt).Block = slot.Block
+				prog.Statements[idx].(SlotStatement).SetBlock(slot.Block())
 				continue
 			}
 
-			if slot.IsDefault {
+			if slot.IsDefault() {
 				return fail.New(
 					prog.Line(),
 					absPath,

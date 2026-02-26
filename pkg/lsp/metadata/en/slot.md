@@ -1,5 +1,5 @@
 (directive)
-Define a default slot in a component to provide a placeholder for content.
+Define a default slot inside a component directive's body to provide content for placeholder.
 
 ```textwire
 @slot
@@ -7,7 +7,7 @@ Define a default slot in a component to provide a placeholder for content.
 @end
 ```
 
-Alternatively, you can define a named slot in a component.
+Alternatively, you can define a named slot.
 
 ```textwire
 @slot('name')
