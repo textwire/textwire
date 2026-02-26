@@ -425,6 +425,7 @@ func (l *Lexer) isPotentiallyLong(tok token.TokenType) bool {
 		token.ELSE:     {},
 		token.BREAK:    {},
 		token.CONTINUE: {},
+		token.SLOT:     {},
 	}
 
 	if _, ok := longTokens[tok]; !ok {

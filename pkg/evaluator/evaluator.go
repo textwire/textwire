@@ -283,7 +283,7 @@ func (e *Evaluator) component(compStmt *ast.ComponentStmt, ctx *Context) object.
 			compCtx.slots[name] = map[string]object.Object{}
 		}
 
-		compCtx.slots[name][slotStmt.Name.Value] = slot
+		compCtx.slots[name][slotStmt.Name().Value] = slot
 	}
 
 	if compStmt.Argument != nil {
@@ -465,7 +465,7 @@ func (e *Evaluator) slot(slotStmt *ast.SlotStmt, ctx *Context) object.Object {
 }
 
 func (e *Evaluator) externalSlotStmt(slotStmt *ast.SlotStmt, ctx *Context) object.Object {
-	name := slotStmt.Name.Value
+	name := slotStmt.Name().Value
 	compName := slotStmt.CompName
 
 	// Get slot's content from the context
@@ -484,15 +484,15 @@ func (e *Evaluator) externalSlotStmt(slotStmt *ast.SlotStmt, ctx *Context) objec
 func (e *Evaluator) localSlotStmt(slotStmt *ast.SlotStmt, ctx *Context) object.Object {
 	var block object.Object = NIL
 
-	if slotStmt.Block != nil {
-		block = e.Eval(slotStmt.Block, ctx)
+	if slotStmt.Block() != nil {
+		block = e.Eval(slotStmt.Block(), ctx)
 		if isError(block) {
 			return block
 		}
 	}
 
 	return &object.Slot{
-		Name:    slotStmt.Name.Value,
+		Name:    slotStmt.Name().Value,
 		Content: block,
 	}
 }
@@ -575,7 +575,7 @@ func (e *Evaluator) indexExp(indexExp *ast.IndexExp, ctx *Context) object.Object
 	case left.Is(object.ARR_OBJ) && idx.Is(object.INT_OBJ):
 		return e.arrayIndexExp(left, idx)
 	case left.Is(object.OBJ_OBJ) && idx.Is(object.STR_OBJ):
-		return e.objectKeyExp(left.(*object.Obj), idx.(*object.Str).Value, indexExp.Index, ctx)
+		return e.objectKeyExp(left.(*object.Obj), idx.(*object.Str).Value)
 	}
 
 	return e.newError(indexExp, ctx, fail.ErrIndexNotSupported, left.Type())
@@ -593,12 +593,7 @@ func (e *Evaluator) arrayIndexExp(arrObj, idx object.Object) object.Object {
 	return arr.Elements[index]
 }
 
-func (e *Evaluator) objectKeyExp(
-	obj *object.Obj,
-	key string,
-	node ast.Node,
-	ctx *Context,
-) object.Object {
+func (e *Evaluator) objectKeyExp(obj *object.Obj, key string) object.Object {
 	// First, try to get key as it is with regular case.
 	if pair, ok := obj.Pairs[key]; ok {
 		return pair
@@ -626,7 +621,7 @@ func (e *Evaluator) dotExp(dotExp *ast.DotExp, ctx *Context) object.Object {
 		return e.newError(dotExp, ctx, fail.ErrPropertyOnNonObject, left.Type(), key)
 	}
 
-	return e.objectKeyExp(obj, key.Name, dotExp, ctx)
+	return e.objectKeyExp(obj, key.Name)
 }
 
 func (e *Evaluator) stringLit(strLit *ast.StringLiteral) object.Object {

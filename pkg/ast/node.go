@@ -20,3 +20,12 @@ type NodeWithStatements interface {
 	Node
 	Stmts() []Statement
 }
+
+type SlotStatement interface {
+	Node
+	Name() *StringLiteral
+	IsDefault() bool
+	SetIsDefault(bool)
+	Block() *BlockStmt
+	SetBlock(*BlockStmt)
+}

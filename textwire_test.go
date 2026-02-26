@@ -411,6 +411,11 @@ func TestErrorHandling(t *testing.T) {
 		data map[string]any
 	}{
 		{
+			inp:  `<div>@slotIf(true)No@end</div>`,
+			err:  fail.New(1, "", "parser", fail.ErrSlotIfPosition),
+			data: nil,
+		},
+		{
 			inp: `{{ defined(name.undefinedFunc()) }}`,
 			err: fail.New(
 				1,
