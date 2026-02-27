@@ -1,0 +1,7 @@
+<section>
+@component('comp')
+@slotif(true)Textwire@end
+@slotif(true, 'span')Go@end
+@slotif(false, 'h2')React@end
+@end
+</section>

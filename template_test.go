@@ -241,6 +241,7 @@ func TestNewTemplate(t *testing.T) {
 		data map[string]any
 		dir  string
 	}{
+		{conf: &config.Config{}, view: "index", data: nil, dir: "slotif"},
 		{conf: &config.Config{}, view: "index", data: nil, dir: "slots-optional"},
 		{conf: &config.Config{}, view: "index", data: nil, dir: "reserve-inside-slot"},
 		{conf: &config.Config{}, view: "index", data: nil, dir: "no-stmts"},

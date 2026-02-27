@@ -67,6 +67,8 @@ func (e *Evaluator) Eval(node ast.Node, ctx *Context) object.Object {
 		return e.continueif(node, ctx)
 	case *ast.SlotStmt:
 		return e.slot(node, ctx)
+	case *ast.SlotifStmt:
+		return e.slotif(node, ctx)
 	case *ast.DumpStmt:
 		return e.dump(node, ctx)
 	case *ast.InsertStmt:
@@ -462,6 +464,29 @@ func (e *Evaluator) slot(slotStmt *ast.SlotStmt, ctx *Context) object.Object {
 		return e.localSlotStmt(slotStmt, ctx)
 	}
 	return e.externalSlotStmt(slotStmt, ctx)
+}
+
+func (e *Evaluator) slotif(slotifStmt *ast.SlotifStmt, ctx *Context) object.Object {
+	var block object.Object = NIL
+
+	cond := e.Eval(slotifStmt.Condition, ctx)
+	if isError(cond) {
+		return cond
+	}
+
+	if !isTruthy(cond) {
+		return NIL
+	}
+
+	block = e.Eval(slotifStmt.Block(), ctx)
+	if isError(block) {
+		return block
+	}
+
+	return &object.Slot{
+		Name:    slotifStmt.Name().Value,
+		Content: block,
+	}
 }
 
 func (e *Evaluator) externalSlotStmt(slotStmt *ast.SlotStmt, ctx *Context) object.Object {
