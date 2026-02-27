@@ -246,9 +246,9 @@ func TestNewTemplate(t *testing.T) {
 		{conf: &config.Config{}, view: "index", data: nil, dir: "no-stmts"},
 		{conf: &config.Config{}, view: "index", data: nil, dir: "inserts"},
 		{conf: &config.Config{}, view: "index", data: nil, dir: "use-inside-if"},
-		{conf: &config.Config{}, view: "index", data: nil, dir: "with-comp"},
+		{conf: &config.Config{}, view: "index", data: nil, dir: "comp"},
 		{conf: &config.Config{}, view: "index", data: nil, dir: "with-inserts-and-html"},
-		{conf: &config.Config{}, view: "index", data: nil, dir: "with-comp-no-args"},
+		{conf: &config.Config{}, view: "index", data: nil, dir: "comp-no-args"},
 		{conf: &config.Config{}, view: "index", data: nil, dir: "insert-is-optional"},
 		{conf: &config.Config{}, view: "index", data: nil, dir: "use-with-comp-inside"},
 		{conf: &config.Config{}, view: "home", data: nil, dir: "comp-in-other-comp"},
@@ -401,7 +401,7 @@ func TestTemplateResponse(t *testing.T) {
 
 func TestRegisteringCustomFunction(t *testing.T) {
 	tpl, fileErr := NewTemplate(&config.Config{
-		TemplateDir: "testdata/good/before/with-customs",
+		TemplateDir: "testdata/good/before/globals",
 		GlobalData:  map[string]any{"env": "dev", "name": "Serhii", "age": 36},
 	})
 	if fileErr != nil {
@@ -418,7 +418,7 @@ func TestRegisteringCustomFunction(t *testing.T) {
 		t.Fatalf("Unexpected error registering function: %s", fileErr)
 	}
 
-	expect, fileErr := readFile("testdata/good/expected/with-customs.html")
+	expect, fileErr := readFile("testdata/good/expected/globals.html")
 	if fileErr != nil {
 		t.Errorf("Error reading file: %s", fileErr)
 		return
