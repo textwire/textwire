@@ -106,9 +106,9 @@ var directives = map[string]TokenType{
 	"@dump":       DUMP,
 	"@continueif": CONTINUE_IF,
 	"@breakif":    BREAK_IF,
-	// @deprecated use @continueif
+	// Deprecated: use @continueif. Will be removed in v4.0.0
 	"@continueIf": CONTINUE_IF,
-	// @deprecated use @breakif
+	// Deprecated: use @breakif. Will be removed in v4.0.0
 	"@breakIf": BREAK_IF,
 }
 

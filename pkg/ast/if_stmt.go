@@ -12,7 +12,7 @@ type IfStmt struct {
 	Condition   Expression
 	IfBlock     *BlockStmt // @if()<IfBlock>@end
 	ElseBlock   *BlockStmt // @else<ElseBlock>@end
-	ElseIfStmts []Statement
+	ElseifStmts []Statement
 }
 
 func NewIfStmt(tok token.Token) *IfStmt {
@@ -25,11 +25,11 @@ func (is *IfStmt) statementNode() {}
 
 func (is *IfStmt) String() string {
 	var out strings.Builder
-	out.Grow(20 + len(is.ElseIfStmts)*2)
+	out.Grow(20 + len(is.ElseifStmts)*2)
 
 	fmt.Fprintf(&out, "@if(%s)\n%s", is.Condition, is.IfBlock)
 
-	for _, e := range is.ElseIfStmts {
+	for _, e := range is.ElseifStmts {
 		out.WriteString(e.String())
 	}
 
@@ -53,7 +53,7 @@ func (is *IfStmt) Stmts() []Statement {
 		stmts = append(stmts, is.ElseBlock.Stmts()...)
 	}
 
-	for _, e := range is.ElseIfStmts {
+	for _, e := range is.ElseifStmts {
 		if withStmts, ok := e.(NodeWithStatements); ok {
 			stmts = append(stmts, withStmts.Stmts()...)
 		}

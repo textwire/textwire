@@ -754,8 +754,8 @@ func TestParseIfStmt(t *testing.T) {
 		t.Fatalf("ifStmt.ElseBlock is not nil, got %T", stmt.ElseBlock)
 	}
 
-	if len(stmt.ElseIfStmts) != 0 {
-		t.Fatalf("ifStmt.ElseIfStmts is not empty, got %d", len(stmt.ElseIfStmts))
+	if len(stmt.ElseifStmts) != 0 {
+		t.Fatalf("ifStmt.ElseIfStmts is not empty, got %d", len(stmt.ElseifStmts))
 	}
 }
 
@@ -854,26 +854,26 @@ func TestParseIfElseIfStmt(t *testing.T) {
 		t.Fatalf("ifStmt.ElseBlock is not nil, got %T", stmt.ElseBlock)
 	}
 
-	if len(stmt.ElseIfStmts) != 1 {
-		t.Fatalf("ifStmt.ElseIfStmts does not contain 1 statement, got %d", len(stmt.ElseIfStmts))
+	if len(stmt.ElseifStmts) != 1 {
+		t.Fatalf("ifStmt.ElseifStmts does not contain 1 statement, got %d", len(stmt.ElseifStmts))
 	}
 
-	elseIfStmt := stmt.ElseIfStmts[0]
-	if elseIfStmt, ok := elseIfStmt.(*ast.ElseIfStmt); ok {
-		testBooleanLiteral(t, elseIfStmt.Condition, false)
+	elseifStmt := stmt.ElseifStmts[0]
+	if elseifStmt, ok := elseifStmt.(*ast.ElseIfStmt); ok {
+		testBooleanLiteral(t, elseifStmt.Condition, false)
 
-		if len(elseIfStmt.Block.Statements) != 1 {
+		if len(elseifStmt.Block.Statements) != 1 {
 			t.Fatalf(
-				"elseIfStmt.Block.Statements does not contain 1 statement, got %d",
-				len(elseIfStmt.Block.Statements),
+				"elseifStmt.Block.Statements does not contain 1 statement, got %d",
+				len(elseifStmt.Block.Statements),
 			)
 		}
 
-		htmlStmt, ok := elseIfStmt.Block.Statements[0].(*ast.HTMLStmt)
+		htmlStmt, ok := elseifStmt.Block.Statements[0].(*ast.HTMLStmt)
 		if !ok {
 			t.Fatalf(
-				"elseIfStmt.Block.Statements[0] is not an HTMLStmt, got %T",
-				elseIfStmt.Block.Statements[0],
+				"elseifStmt.Block.Statements[0] is not an HTMLStmt, got %T",
+				elseifStmt.Block.Statements[0],
 			)
 		}
 
@@ -884,7 +884,7 @@ func TestParseIfElseIfStmt(t *testing.T) {
 		return
 	}
 
-	t.Fatalf("stmt.ElseIfStmts[0] is not an ElseIfStmt, got %T", elseIfStmt)
+	t.Fatalf("stmt.ElseifStmts[0] is not an ElseifStmt, got %T", elseifStmt)
 }
 
 func TestParseElseIfWithElseStatement(t *testing.T) {
@@ -899,28 +899,28 @@ func TestParseElseIfWithElseStatement(t *testing.T) {
 	testIfBlock(t, stmt, true, "1")
 	testElseBlock(t, stmt.ElseBlock, "3")
 
-	if len(stmt.ElseIfStmts) != 1 {
+	if len(stmt.ElseifStmts) != 1 {
 		t.Fatalf(
-			"ifStmt.ElseIfStmts does not contain 1 statement, got %d",
-			len(stmt.ElseIfStmts),
+			"ifStmt.ElseifStmts does not contain 1 statement, got %d",
+			len(stmt.ElseifStmts),
 		)
 	}
 
-	if elseIfStmt, ok := stmt.ElseIfStmts[0].(*ast.ElseIfStmt); ok {
-		testBooleanLiteral(t, elseIfStmt.Condition, false)
+	if elseifStmt, ok := stmt.ElseifStmts[0].(*ast.ElseIfStmt); ok {
+		testBooleanLiteral(t, elseifStmt.Condition, false)
 
-		if len(elseIfStmt.Block.Statements) != 1 {
+		if len(elseifStmt.Block.Statements) != 1 {
 			t.Fatalf(
-				"elseIfStmt.Block.Statements does not contain 1 statement, got %d",
-				len(elseIfStmt.Block.Statements),
+				"elseifStmt.Block.Statements does not contain 1 statement, got %d",
+				len(elseifStmt.Block.Statements),
 			)
 		}
 
-		htmlStmt, ok := elseIfStmt.Block.Statements[0].(*ast.HTMLStmt)
+		htmlStmt, ok := elseifStmt.Block.Statements[0].(*ast.HTMLStmt)
 		if !ok {
 			t.Fatalf(
-				"elseIfStmt.Block.Statements[0] is not an HTMLStmt, got %T",
-				elseIfStmt.Block.Statements[0],
+				"elseifStmt.Block.Statements[0] is not an HTMLStmt, got %T",
+				elseifStmt.Block.Statements[0],
 			)
 		}
 

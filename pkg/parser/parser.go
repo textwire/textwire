@@ -198,9 +198,9 @@ func (p *Parser) statement() ast.Statement {
 	case token.INSERT:
 		return p.insertStmt()
 	case token.BREAK_IF:
-		return p.breakIfStmt()
+		return p.breakifStmt()
 	case token.CONTINUE_IF:
-		return p.continueIfStmt()
+		return p.continueifStmt()
 	case token.COMPONENT:
 		return p.componentStmt()
 	case token.SLOT:
@@ -457,7 +457,7 @@ func (p *Parser) useStmt() ast.Statement {
 	return stmt
 }
 
-func (p *Parser) breakIfStmt() ast.Statement {
+func (p *Parser) breakifStmt() ast.Statement {
 	stmt := ast.NewBreakIfStmt(p.curToken)
 
 	if !p.expectPeek(token.LPAREN) { // move to "("
@@ -477,7 +477,7 @@ func (p *Parser) breakIfStmt() ast.Statement {
 	return stmt
 }
 
-func (p *Parser) continueIfStmt() ast.Statement {
+func (p *Parser) continueifStmt() ast.Statement {
 	stmt := ast.NewContinueIfStmt(p.curToken)
 
 	if !p.expectPeek(token.LPAREN) { // move to "("
@@ -947,8 +947,8 @@ func (p *Parser) ifStmt() ast.Statement {
 	}
 
 	for p.peekTokenIs(token.ELSE_IF) {
-		elseIfStmt := p.elseIfStmt()
-		stmt.ElseIfStmts = append(stmt.ElseIfStmts, elseIfStmt)
+		elseifStmt := p.elseifStmt()
+		stmt.ElseifStmts = append(stmt.ElseifStmts, elseifStmt)
 	}
 
 	if p.peekTokenIs(token.ELSE) {
@@ -967,7 +967,7 @@ func (p *Parser) ifStmt() ast.Statement {
 	return stmt
 }
 
-func (p *Parser) elseIfStmt() ast.Statement {
+func (p *Parser) elseifStmt() ast.Statement {
 	if !p.expectPeek(token.ELSE_IF) { // move to "@elseif"
 		return p.illegalNode()
 	}
