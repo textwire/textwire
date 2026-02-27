@@ -50,7 +50,8 @@ func (sis *SlotifStmt) String() string {
 	var out strings.Builder
 	out.Grow(6)
 
-	out.WriteString("@slotif(")
+	out.WriteString(sis.Token.Literal)
+	out.WriteString("(")
 	out.WriteString(sis.Condition.String())
 
 	if sis.name.Value != "" {

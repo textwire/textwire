@@ -42,8 +42,8 @@ func TestGetTokenMeta(t *testing.T) {
 		{"@end token", token.END, "en", "@end"},
 		{"@break token", token.BREAK, "en", "@break"},
 		{"@continue token", token.CONTINUE, "en", "@continue"},
-		{"@breakIf token", token.BREAK_IF, "en", "@breakIf(condition)"},
-		{"@continueIf token", token.CONTINUE_IF, "en", "@continueIf(condition)"},
+		{"@breakif token", token.BREAK_IF, "en", "@breakif(condition)"},
+		{"@continueif token", token.CONTINUE_IF, "en", "@continueif(condition)"},
 	}
 
 	for _, tc := range testCases {

@@ -149,7 +149,10 @@ func TestEvalStringFunctions(t *testing.T) {
 		{`{{ "Empty: [%s]".format("") }}`, "Empty: []"},
 		{`{{ "你好%s".format("世界") }}`, "你好世界"},
 		{`{{ "End: %s".format("here") }}`, "End: here"},
-		{`{{ "%s".format("a very long string with many characters") }}`, "a very long string with many characters"},
+		{
+			`{{ "%s".format("a very long string with many characters") }}`,
+			"a very long string with many characters",
+		},
 		{`{{ "%.4f".format(3.14159) }}`, "%.4f"},
 		{`{{ "%%%s%%".format("middle") }}`, "%%middle%%"},
 		{`{{ "%s	%s".format("a", "b") }}`, "a	b"},

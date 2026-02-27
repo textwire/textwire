@@ -6,19 +6,19 @@ import (
 	"github.com/textwire/textwire/v3/pkg/token"
 )
 
-type ContinueIfStmt struct {
+type ContinueifStmt struct {
 	BaseNode
 	Condition Expression
 }
 
-func NewContinueIfStmt(tok token.Token) *ContinueIfStmt {
-	return &ContinueIfStmt{
+func NewContinueIfStmt(tok token.Token) *ContinueifStmt {
+	return &ContinueifStmt{
 		BaseNode: NewBaseNode(tok),
 	}
 }
 
-func (cis *ContinueIfStmt) statementNode() {}
+func (cis *ContinueifStmt) statementNode() {}
 
-func (cis *ContinueIfStmt) String() string {
+func (cis *ContinueifStmt) String() string {
 	return fmt.Sprintf("%s(%s)", cis.Token.Literal, cis.Condition)
 }

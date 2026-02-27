@@ -677,10 +677,10 @@ func TestObjectStatement(t *testing.T) {
 }
 
 func TestBreakDirectives(t *testing.T) {
-	inp := `@breakIf(true) @break @continue @continueIf(false)`
+	inp := `@breakif(true) @break @continue @continueif(false)`
 
 	TokenizeString(t, inp, []token.Token{
-		{Type: token.BREAK_IF, Literal: "@breakIf", Pos: token.Position{EndCol: 7}},
+		{Type: token.BREAK_IF, Literal: "@breakif", Pos: token.Position{EndCol: 7}},
 		{Type: token.LPAREN, Literal: "(", Pos: token.Position{StartCol: 8, EndCol: 8}},
 		{Type: token.TRUE, Literal: "true", Pos: token.Position{StartCol: 9, EndCol: 12}},
 		{Type: token.RPAREN, Literal: ")", Pos: token.Position{StartCol: 13, EndCol: 13}},
@@ -691,7 +691,7 @@ func TestBreakDirectives(t *testing.T) {
 		{Type: token.HTML, Literal: " ", Pos: token.Position{StartCol: 31, EndCol: 31}},
 		{
 			Type:    token.CONTINUE_IF,
-			Literal: "@continueIf",
+			Literal: "@continueif",
 			Pos:     token.Position{StartCol: 32, EndCol: 42},
 		},
 		{Type: token.LPAREN, Literal: "(", Pos: token.Position{StartCol: 43, EndCol: 43}},

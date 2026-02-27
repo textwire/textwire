@@ -4,6 +4,7 @@
 
 - ✨ Added `hasValue()` global function which checks if variables are defined and have non-nullable values. If variable inside is "" empty string, 0 int, 0.0 float, nil, {} empty object, [] empty array or false, it returns `false`.
 - ✨ Added `format()` built-in function for strings that allows you to embed values into a string. `{{ "He has %s apples".format(apples.len()) }}`.
+- 🗑️ Deprecated `@breakIf` and `@continueIf`, use lowercase `@breakif` and `@continueif`.
 
 ## v3.2.5 (2026-02-22)
 

@@ -244,11 +244,36 @@ func TestDefinedCallExpression(t *testing.T) {
 		{530, `{{ defined(arr[-1]) }}`, "1", map[string]any{"arr": []any{"first"}}},
 		{540, `{{ defined(0.000001) }}`, "1", nil},
 		{550, `{{ defined(-0.000001) }}`, "1", nil},
-		{580, `{{ defined(obj.arr[0].prop) }}`, "1", map[string]any{"obj": map[string]any{"arr": []any{map[string]any{"prop": "val"}}}}},
-		{590, `{{ defined(obj.arr[0].prop) }}`, "1", map[string]any{"obj": map[string]any{"arr": []any{map[string]any{}}}}},
-		{600, `{{ defined(obj.arr[5].prop) }}`, "0", map[string]any{"obj": map[string]any{"arr": []any{map[string]any{"prop": "val"}}}}},
-		{610, `@if(defined(a, b) && defined(c))YES@end`, "YES", map[string]any{"a": "x", "b": "y", "c": "z"}},
-		{620, `@if(defined(a, undefinedVar) && defined(c))YES@elseNO@end`, "NO", map[string]any{"a": "x", "c": "z"}},
+		{
+			580,
+			`{{ defined(obj.arr[0].prop) }}`,
+			"1",
+			map[string]any{"obj": map[string]any{"arr": []any{map[string]any{"prop": "val"}}}},
+		},
+		{
+			590,
+			`{{ defined(obj.arr[0].prop) }}`,
+			"1",
+			map[string]any{"obj": map[string]any{"arr": []any{map[string]any{}}}},
+		},
+		{
+			600,
+			`{{ defined(obj.arr[5].prop) }}`,
+			"0",
+			map[string]any{"obj": map[string]any{"arr": []any{map[string]any{"prop": "val"}}}},
+		},
+		{
+			610,
+			`@if(defined(a, b) && defined(c))YES@end`,
+			"YES",
+			map[string]any{"a": "x", "b": "y", "c": "z"},
+		},
+		{
+			620,
+			`@if(defined(a, undefinedVar) && defined(c))YES@elseNO@end`,
+			"NO",
+			map[string]any{"a": "x", "c": "z"},
+		},
 	}
 
 	for _, tc := range cases {

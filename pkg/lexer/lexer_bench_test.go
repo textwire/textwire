@@ -7,7 +7,7 @@ import (
 )
 
 func BenchmarkReadDirective(b *testing.B) {
-	code := "@if(a) @elseif(b) @end @breakIf(false) @continueIf(false) @each @for @reserve @use @insert('nice', 'cool')"
+	code := "@if(a) @elseif(b) @end @breakif(false) @continueif(false) @each @for @reserve @use @insert('nice', 'cool')"
 
 	b.ResetTimer()
 

@@ -1693,11 +1693,11 @@ func TestParseContinueDirective(t *testing.T) {
 }
 
 func TestParseBreakIfDirective(t *testing.T) {
-	inp := `@breakIf(true)`
+	inp := `@breakif(true)`
 
 	stmts := parseStatements(t, inp, defaultParseOpts)
 
-	stmt, ok := stmts[0].(*ast.BreakIfStmt)
+	stmt, ok := stmts[0].(*ast.BreakifStmt)
 	if !ok {
 		t.Fatalf("stmts[0] is not a BreakIfStmt, got %T", stmts[0])
 	}
@@ -1710,7 +1710,7 @@ func TestParseBreakIfDirective(t *testing.T) {
 	testToken(t, stmt, token.BREAK_IF)
 	testBooleanLiteral(t, stmt.Condition, true)
 
-	expect := "@breakIf(true)"
+	expect := "@breakif(true)"
 
 	if stmt.String() != expect {
 		t.Fatalf("breakStmt.String() is not '%s', got %s", expect, stmt)
@@ -1718,10 +1718,10 @@ func TestParseBreakIfDirective(t *testing.T) {
 }
 
 func TestParseContinueIfDirective(t *testing.T) {
-	inp := "@continueIf(false)"
+	inp := "@continueif(false)"
 	stmts := parseStatements(t, inp, defaultParseOpts)
 
-	stmt, ok := stmts[0].(*ast.ContinueIfStmt)
+	stmt, ok := stmts[0].(*ast.ContinueifStmt)
 	if !ok {
 		t.Fatalf("stmts[0] is not a ContinueIfStmt, got %T", stmts[0])
 	}
@@ -1734,7 +1734,7 @@ func TestParseContinueIfDirective(t *testing.T) {
 	testToken(t, stmt, token.CONTINUE_IF)
 	testBooleanLiteral(t, stmt.Condition, false)
 
-	expect := "@continueIf(false)"
+	expect := "@continueif(false)"
 
 	if stmt.String() != expect {
 		t.Fatalf("stmt.String() is not '%s', got %s", expect, stmt)
