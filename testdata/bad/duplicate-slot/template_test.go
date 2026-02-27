@@ -202,7 +202,7 @@ func TestNewTemplate(t *testing.T) {
 		data     map[string]any
 	}{
 		{"no-stmts", "index", nil},
-		{"with-inserts", "index", nil},
+		{"inserts", "index", nil},
 		{
 			"without-use",
 			"index",
@@ -223,7 +223,7 @@ func TestNewTemplate(t *testing.T) {
 		{"with-comp", "index", nil},
 		{"with-inserts-and-html", "index", nil},
 		{
-			"with-comp-and-slots",
+			"comp-and-slots",
 			"index",
 			map[string]any{"head": "Header", "foot": "Footer"},
 		},
