@@ -25,6 +25,18 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 		data map[string]any
 	}{
 		{
+			dir: "undefined-named-slotif",
+			err: fail.New(
+				1,
+				absPath+"undefined-named-slotif/index.tw",
+				"parser",
+				fail.ErrSlotNotDefined,
+				"user",
+				"name",
+			),
+			data: nil,
+		},
+		{
 			dir: "duplicate-reserves",
 			err: fail.New(
 				3,
