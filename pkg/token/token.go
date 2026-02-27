@@ -99,13 +99,17 @@ var directives = map[string]TokenType{
 	"@for":        FOR,
 	"@each":       EACH,
 	"@continue":   CONTINUE,
-	"@continueIf": CONTINUE_IF,
 	"@break":      BREAK,
-	"@breakIf":    BREAK_IF,
 	"@component":  COMPONENT,
-	"@slotIf":     SLOT_IF,
+	"@slotif":     SLOT_IF,
 	"@slot":       SLOT,
 	"@dump":       DUMP,
+	"@continueif": CONTINUE_IF,
+	"@breakif":    BREAK_IF,
+	// @deprecated use @continueif
+	"@continueIf": CONTINUE_IF,
+	// @deprecated use @breakif
+	"@breakIf": BREAK_IF,
 }
 
 func GetDirectives() map[string]TokenType {

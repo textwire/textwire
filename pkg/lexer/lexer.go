@@ -432,8 +432,7 @@ func (l *Lexer) isPotentiallyLong(tok token.TokenType) bool {
 		return false
 	}
 
-	return l.char == 'I' && l.peekChar() == 'f' ||
-		(tok == token.ELSE && l.char == 'i' && l.peekChar() == 'f')
+	return (l.char == 'I' || l.char == 'i') && l.peekChar() == 'f'
 }
 
 func (l *Lexer) readString() string {

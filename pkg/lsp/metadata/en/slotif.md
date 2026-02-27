@@ -1,8 +1,8 @@
 (directive)
-Define a conditional default slotIf in a component directive's body to provide a content to a placeholder if condition is true.
+Define a conditional default slotif in a component directive's body to provide a content to a placeholder if condition is true.
 
 ```textwire
-@slotIf(boolean)
+@slotif(boolean)
     <p>content</p>
 @end
 ```
@@ -10,7 +10,7 @@ Define a conditional default slotIf in a component directive's body to provide a
 Alternatively, you can define a conditional named slot.
 
 ```textwire
-@slotIf(boolean, 'name')
+@slotif(boolean, 'name')
     <p>content</p>
 @end
 ```

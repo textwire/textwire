@@ -850,10 +850,10 @@ func TestReserveInsideSlot(t *testing.T) {
 }
 
 func TestSlotIfDirective(t *testing.T) {
-	inp := `@slotIf(true)HERE@end`
+	inp := `@slotif(true)HERE@end`
 
 	TokenizeString(t, inp, []token.Token{
-		{Type: token.SLOT_IF, Literal: "@slotIf", Pos: token.Position{EndCol: 6}},
+		{Type: token.SLOT_IF, Literal: "@slotif", Pos: token.Position{EndCol: 6}},
 		{Type: token.LPAREN, Literal: "(", Pos: token.Position{StartCol: 7, EndCol: 7}},
 		{Type: token.TRUE, Literal: "true", Pos: token.Position{StartCol: 8, EndCol: 11}},
 		{Type: token.RPAREN, Literal: ")", Pos: token.Position{StartCol: 12, EndCol: 12}},

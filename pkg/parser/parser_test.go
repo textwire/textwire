@@ -1890,9 +1890,9 @@ func TestParseSlotDirective(t *testing.T) {
 	})
 }
 
-func TestParseSlotIfDirective(t *testing.T) {
-	t.Run("default slotIf", func(t *testing.T) {
-		inp := `@component('test')@slotIf(true)Test@end@end`
+func TestParseSlotifDirective(t *testing.T) {
+	t.Run("default slotif", func(t *testing.T) {
+		inp := `@component('test')@slotif(true)Test@end@end`
 		stmts := parseStatements(t, inp, parseOpts{stmtCount: 1, checkErrors: true})
 
 		comp, ok := stmts[0].(*ast.ComponentStmt)
@@ -1907,26 +1907,26 @@ func TestParseSlotIfDirective(t *testing.T) {
 		testPosition(t, comp.Position(), token.Position{EndCol: 42})
 		testToken(t, comp, token.COMPONENT)
 
-		slot, ok := comp.Slots[0].(*ast.SlotIfStmt)
+		slot, ok := comp.Slots[0].(*ast.SlotifStmt)
 		if !ok {
-			t.Fatalf("comp.Slots[0] is not a SlotIfStmt, got %T", stmts[0])
+			t.Fatalf("comp.Slots[0] is not a SlotifStmt, got %T", stmts[0])
 		}
 
 		testBooleanLiteral(t, slot.Condition, true)
 
 		body := slot.Block().String()
 		if body != "Test" {
-			t.Fatalf("slotIf.Block().String() is not 'Test', got %s", body)
+			t.Fatalf("slotif.Block().String() is not 'Test', got %s", body)
 		}
 
-		expect := "@slotIf(true)Test@end"
+		expect := "@slotif(true)Test@end"
 		if slot.String() != expect {
-			t.Fatalf("slotIf.String() is not '%s', got %s", expect, slot)
+			t.Fatalf("slotif.String() is not '%s', got %s", expect, slot)
 		}
 	})
 
-	t.Run("named slotIf", func(t *testing.T) {
-		inp := `@component('user')@slotIf(false, 'name')Test2@end@end`
+	t.Run("named slotif", func(t *testing.T) {
+		inp := `@component('user')@slotif(false, 'name')Test2@end@end`
 		stmts := parseStatements(t, inp, parseOpts{stmtCount: 1, checkErrors: true})
 
 		comp, ok := stmts[0].(*ast.ComponentStmt)
@@ -1941,9 +1941,9 @@ func TestParseSlotIfDirective(t *testing.T) {
 			t.Fatalf("len(comp.Slots) must be 1, got %d", len(comp.Slots))
 		}
 
-		slot, ok := comp.Slots[0].(*ast.SlotIfStmt)
+		slot, ok := comp.Slots[0].(*ast.SlotifStmt)
 		if !ok {
-			t.Fatalf("comp.Slots[0] is not a SlotIfStmt, got %T", stmts[0])
+			t.Fatalf("comp.Slots[0] is not a SlotifStmt, got %T", stmts[0])
 		}
 
 		testBooleanLiteral(t, slot.Condition, false)
@@ -1954,12 +1954,12 @@ func TestParseSlotIfDirective(t *testing.T) {
 
 		body := slot.Block().String()
 		if body != "Test2" {
-			t.Fatalf("slotIf.Block().String() is not 'Test2', got %s", body)
+			t.Fatalf("slotif.Block().String() is not 'Test2', got %s", body)
 		}
 
-		expect := `@slotIf(false, "name")Test2@end`
+		expect := `@slotif(false, "name")Test2@end`
 		if slot.String() != expect {
-			t.Fatalf("slotIf.String() is not '%s', got %s", expect, slot)
+			t.Fatalf("slotif.String() is not '%s', got %s", expect, slot)
 		}
 	})
 }
