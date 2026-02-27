@@ -27,7 +27,7 @@ const (
 	ErrDuplicateInserts       = "duplicate @insert('%s') found"
 	ErrUseStmtFirstArgStr     = "argument 1 of @use(STR) must be a string, got @use('%s')"
 	ErrOnlyOneUseDir          = "@use() directive can only be used once per template"
-	ErrSlotIfPosition         = "@slotIf() directive can only be used inside @component directive"
+	ErrSlotifPosition         = "@slotlf() directive can only be used inside @component directive"
 
 	// Evaluator (interpreter) errors
 	ErrUnknownNodeType         = "unsupported expression type '%T'"

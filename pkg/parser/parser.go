@@ -212,7 +212,7 @@ func (p *Parser) statement() ast.Statement {
 	case token.CONTINUE:
 		return ast.NewContinueStmt(p.curToken)
 	case token.SLOT_IF:
-		p.newError(p.curToken.ErrorLine(), fail.ErrSlotIfPosition)
+		p.newError(p.curToken.ErrorLine(), fail.ErrSlotifPosition)
 		return nil
 	default:
 		return p.illegalNode()
@@ -633,7 +633,7 @@ func (p *Parser) slots(compName string) []ast.Statement {
 		case token.SLOT:
 			slots = append(slots, p.localSlotStmt(slotName, compName))
 		case token.SLOT_IF:
-			slots = append(slots, p.slotIfStmt(slotName, compName))
+			slots = append(slots, p.slotifStmt(slotName, compName))
 		default:
 			panic("Unknown slot token when parsing component slots")
 		}
@@ -682,10 +682,10 @@ func (p *Parser) localSlotStmt(name *ast.StringLiteral, compName string) ast.Sta
 	return stmt
 }
 
-func (p *Parser) slotIfStmt(name *ast.StringLiteral, compName string) ast.Statement {
-	stmt := ast.NewSlotIfStmt(p.curToken, name, compName)
+func (p *Parser) slotifStmt(name *ast.StringLiteral, compName string) ast.Statement {
+	stmt := ast.NewSlotifStmt(p.curToken, name, compName)
 
-	if !p.expectPeek(token.LPAREN) { // move from "@slotIf" to "("
+	if !p.expectPeek(token.LPAREN) { // move from "@slotif" to "("
 		p.illegalNode()
 	}
 

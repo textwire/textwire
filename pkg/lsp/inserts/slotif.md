@@ -1,3 +1,3 @@
-@slotIf($1)
+@slotif($1)
     $2
 @end

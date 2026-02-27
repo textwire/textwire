@@ -6,9 +6,9 @@ import (
 	"github.com/textwire/textwire/v3/pkg/token"
 )
 
-// SlotIfStmt cannot be external and live in component file.
-type SlotIfStmt struct {
-	BaseNode  // @slotIf(bool, 'name'?)
+// SlotifStmt cannot be external and live in component file.
+type SlotifStmt struct {
+	BaseNode  // @slotif(bool, 'name'?)
 	Condition Expression
 	CompName  string         // Component name
 	isDefault bool           // Whether the slot is named or default
@@ -16,41 +16,41 @@ type SlotIfStmt struct {
 	block     *BlockStmt     // Required, cannot be nil
 }
 
-func NewSlotIfStmt(tok token.Token, name *StringLiteral, compName string) *SlotIfStmt {
-	return &SlotIfStmt{
+func NewSlotifStmt(tok token.Token, name *StringLiteral, compName string) *SlotifStmt {
+	return &SlotifStmt{
 		BaseNode: NewBaseNode(tok),
 		name:     name,
 		CompName: compName,
 	}
 }
 
-func (sis *SlotIfStmt) statementNode() {}
+func (sis *SlotifStmt) statementNode() {}
 
-func (sis *SlotIfStmt) Name() *StringLiteral {
+func (sis *SlotifStmt) Name() *StringLiteral {
 	return sis.name
 }
 
-func (sis *SlotIfStmt) IsDefault() bool {
+func (sis *SlotifStmt) IsDefault() bool {
 	return sis.isDefault
 }
 
-func (sis *SlotIfStmt) SetIsDefault(val bool) {
+func (sis *SlotifStmt) SetIsDefault(val bool) {
 	sis.isDefault = val
 }
 
-func (sis *SlotIfStmt) SetBlock(b *BlockStmt) {
+func (sis *SlotifStmt) SetBlock(b *BlockStmt) {
 	sis.block = b
 }
 
-func (sis *SlotIfStmt) Block() *BlockStmt {
+func (sis *SlotifStmt) Block() *BlockStmt {
 	return sis.block
 }
 
-func (sis *SlotIfStmt) String() string {
+func (sis *SlotifStmt) String() string {
 	var out strings.Builder
 	out.Grow(6)
 
-	out.WriteString("@slotIf(")
+	out.WriteString("@slotif(")
 	out.WriteString(sis.Condition.String())
 
 	if sis.name.Value != "" {
@@ -65,7 +65,7 @@ func (sis *SlotIfStmt) String() string {
 	return out.String()
 }
 
-func (sis *SlotIfStmt) Stmts() []Statement {
+func (sis *SlotifStmt) Stmts() []Statement {
 	if sis.block == nil {
 		return []Statement{}
 	}
