@@ -25,6 +25,17 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 		data map[string]any
 	}{
 		{
+			dir: "undefined-default-slotif",
+			err: fail.New(
+				1,
+				absPath+"undefined-default-slotif/index.tw",
+				"parser",
+				fail.ErrDefaultSlotNotDefined,
+				"user",
+			),
+			data: nil,
+		},
+		{
 			dir: "undefined-named-slotif",
 			err: fail.New(
 				1,

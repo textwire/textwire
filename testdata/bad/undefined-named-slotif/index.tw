@@ -1,1 +1,1 @@
-<p>@component('user')@slotif(true, 'name')@end</p>
+<p>@component('user')@slotif(true, 'name')TEST@end</p>

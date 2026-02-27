@@ -700,7 +700,8 @@ func (p *Parser) slotifStmt(name *ast.StringLiteral, compName string) ast.Statem
 
 		name.Token = p.curToken
 		name.Value = p.curToken.Literal
-		stmt.SetIsDefault(name.Value == "")
+	} else {
+		stmt.SetIsDefault(true)
 	}
 
 	if !p.expectPeek(token.RPAREN) { // move to ")"
