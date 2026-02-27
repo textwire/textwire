@@ -244,7 +244,7 @@ func TestNewTemplate(t *testing.T) {
 		{conf: &config.Config{}, view: "index", data: nil, dir: "slots-optional"},
 		{conf: &config.Config{}, view: "index", data: nil, dir: "reserve-inside-slot"},
 		{conf: &config.Config{}, view: "index", data: nil, dir: "no-stmts"},
-		{conf: &config.Config{}, view: "index", data: nil, dir: "with-inserts"},
+		{conf: &config.Config{}, view: "index", data: nil, dir: "inserts"},
 		{conf: &config.Config{}, view: "index", data: nil, dir: "use-inside-if"},
 		{conf: &config.Config{}, view: "index", data: nil, dir: "with-comp"},
 		{conf: &config.Config{}, view: "index", data: nil, dir: "with-inserts-and-html"},
@@ -278,7 +278,7 @@ func TestNewTemplate(t *testing.T) {
 			conf: &config.Config{},
 			view: "index",
 			data: map[string]any{"name": "Анна ♥️", "age": 20},
-			dir:  "with-comp-and-slots",
+			dir:  "comp-and-slots",
 		},
 	}
 
