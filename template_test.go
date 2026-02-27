@@ -247,7 +247,7 @@ func TestNewTemplate(t *testing.T) {
 		{conf: &config.Config{}, view: "index", data: nil, dir: "inserts"},
 		{conf: &config.Config{}, view: "index", data: nil, dir: "use-inside-if"},
 		{conf: &config.Config{}, view: "index", data: nil, dir: "comp"},
-		{conf: &config.Config{}, view: "index", data: nil, dir: "with-inserts-and-html"},
+		{conf: &config.Config{}, view: "index", data: nil, dir: "inserts-and-html"},
 		{conf: &config.Config{}, view: "index", data: nil, dir: "comp-no-args"},
 		{conf: &config.Config{}, view: "index", data: nil, dir: "insert-is-optional"},
 		{conf: &config.Config{}, view: "index", data: nil, dir: "use-with-comp-inside"},
@@ -272,7 +272,7 @@ func TestNewTemplate(t *testing.T) {
 			conf: &config.Config{},
 			view: "views/index",
 			data: map[string]any{"names": []string{"Anna", "Serhii", "Vladimir"}},
-			dir:  "with-each-and-comp",
+			dir:  "each-and-comp",
 		},
 		{
 			conf: &config.Config{},
