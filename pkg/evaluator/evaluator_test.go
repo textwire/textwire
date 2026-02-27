@@ -356,12 +356,12 @@ func TestEvalForStmt(t *testing.T) {
 		{`@for(i = 1; i <= 3; i++)@continue{{ i }}@end`, ""},
 		{`@for(i = 1; i <= 3; i++){{ i }}@continue@end`, "123"},
 		{`@for(i = 1; i <= 3; i++)@if(i == 2)@continue@end{{ i }}@end`, "13"},
-		// test @breakIf directive
-		{`@for(i = 1; i <= 3; i++)@breakIf(i == 3){{ i }}@end`, "12"},
-		{`@for(i = 1; i <= 3; i++)@breakIf(i == 2){{ i }}@end`, "1"},
-		// test @continueIf directive
-		{`@for(i = 1; i <= 3; i++)@continueIf(i == 3){{ i }}@end`, "12"},
-		{`@for(i = 1; i <= 3; i++)@continueIf(i == 2){{ i }}@end`, "13"},
+		// test @breakif directive
+		{`@for(i = 1; i <= 3; i++)@breakif(i == 3){{ i }}@end`, "12"},
+		{`@for(i = 1; i <= 3; i++)@breakif(i == 2){{ i }}@end`, "1"},
+		// test @continueif directive
+		{`@for(i = 1; i <= 3; i++)@continueif(i == 3){{ i }}@end`, "12"},
+		{`@for(i = 1; i <= 3; i++)@continueif(i == 2){{ i }}@end`, "13"},
 	}
 
 	for i, tc := range cases {
@@ -397,12 +397,12 @@ func TestEvalEachStmt(t *testing.T) {
 		{`@each(n in [1, 2, 3, 4, 5])@continue{{ n }}@end`, ""},
 		{`@each(n in [1, 2, 3, 4, 5]){{ n }}@continue@end`, "12345"},
 		{`@each(n in [1, 2, 3, 4, 5])@if(n == 3)@continue@end{{ n }}@end`, "1245"},
-		// test @breakIf directive
-		{`@each(n in [1, 2, 3, 4, 5])@breakIf(n == 3){{ n }}@end`, "12"},
-		{`@each(n in ["ann", "serhii", "sam"])@breakIf(n == 'sam'){{ n }} @end`, "ann serhii "},
-		// test @continueIf directive
-		{`@each(n in [1, 2, 3, 4, 5])@continueIf(n == 3){{ n }}@end`, "1245"},
-		{`@each(n in ["ann", "serhii", "sam"])@continueIf(n == 'sam'){{ n }} @end`, "ann serhii "},
+		// test @breakif directive
+		{`@each(n in [1, 2, 3, 4, 5])@breakif(n == 3){{ n }}@end`, "12"},
+		{`@each(n in ["ann", "serhii", "sam"])@breakif(n == 'sam'){{ n }} @end`, "ann serhii "},
+		// test @continueif directive
+		{`@each(n in [1, 2, 3, 4, 5])@continueif(n == 3){{ n }}@end`, "1245"},
+		{`@each(n in ["ann", "serhii", "sam"])@continueif(n == 'sam'){{ n }} @end`, "ann serhii "},
 	}
 
 	for i, tc := range cases {

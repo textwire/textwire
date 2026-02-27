@@ -59,11 +59,11 @@ func (e *Evaluator) Eval(node ast.Node, ctx *Context) object.Object {
 		return e._for(node, ctx)
 	case *ast.EachStmt:
 		return e.each(node, ctx)
-	case *ast.BreakIfStmt:
+	case *ast.BreakifStmt:
 		return e.breakIf(node, ctx)
 	case *ast.ComponentStmt:
 		return e.component(node, ctx)
-	case *ast.ContinueIfStmt:
+	case *ast.ContinueifStmt:
 		return e.continueIf(node, ctx)
 	case *ast.SlotStmt:
 		return e.slot(node, ctx)
@@ -431,7 +431,7 @@ func (e *Evaluator) each(eachStmt *ast.EachStmt, ctx *Context) object.Object {
 	return &object.HTML{Value: blocks.String()}
 }
 
-func (e *Evaluator) breakIf(breakIfStmt *ast.BreakIfStmt, ctx *Context) object.Object {
+func (e *Evaluator) breakIf(breakIfStmt *ast.BreakifStmt, ctx *Context) object.Object {
 	cond := e.Eval(breakIfStmt.Condition, ctx)
 	if isError(cond) {
 		return cond
@@ -444,7 +444,7 @@ func (e *Evaluator) breakIf(breakIfStmt *ast.BreakIfStmt, ctx *Context) object.O
 	return NIL
 }
 
-func (e *Evaluator) continueIf(contIfStmt *ast.ContinueIfStmt, ctx *Context) object.Object {
+func (e *Evaluator) continueIf(contIfStmt *ast.ContinueifStmt, ctx *Context) object.Object {
 	cond := e.Eval(contIfStmt.Condition, ctx)
 	if isError(cond) {
 		return cond

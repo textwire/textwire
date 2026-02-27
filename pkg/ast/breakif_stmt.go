@@ -6,19 +6,19 @@ import (
 	"github.com/textwire/textwire/v3/pkg/token"
 )
 
-type BreakIfStmt struct {
+type BreakifStmt struct {
 	BaseNode
 	Condition Expression
 }
 
-func NewBreakIfStmt(tok token.Token) *BreakIfStmt {
-	return &BreakIfStmt{
+func NewBreakIfStmt(tok token.Token) *BreakifStmt {
+	return &BreakifStmt{
 		BaseNode: NewBaseNode(tok),
 	}
 }
 
-func (bis *BreakIfStmt) statementNode() {}
+func (bis *BreakifStmt) statementNode() {}
 
-func (bis *BreakIfStmt) String() string {
+func (bis *BreakifStmt) String() string {
 	return fmt.Sprintf("%s(%s)", bis.Token.Literal, bis.Condition)
 }

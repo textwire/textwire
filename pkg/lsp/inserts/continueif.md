@@ -1,1 +1,1 @@
-@continueIf($1)
+@continueif($1)
