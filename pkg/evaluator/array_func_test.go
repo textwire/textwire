@@ -75,6 +75,11 @@ func TestEvalArrayFunctions(t *testing.T) {
 		{`{{ [1, 2].prepend(3, 4) }}`, "3, 4, 1, 2"},
 		{`{{ [1, 2].prepend([3, 4]) }}`, "3, 4, 1, 2"},
 		{`{{ [1, 2].prepend([3, 4]).len() }}`, "3"},
+		// json
+		{`{{ [].json() }}`, "[]"},
+		{`{{ [1, 2.1, true, false, nil, "Amy", []].json() }}`, `[1,2.1,true,false,null,"Amy",[]]`},
+		{`{{ [{name: "Chiori", game: "Genshin Impact"}, -10].json() }}`, `[{"game":"Genshin Impact","name":"Chiori"},-10]`},
+		{`{{ [[[[[1,2]]]]].json() }}`, "[[[[[1,2]]]]]"},
 	}
 
 	for i, tc := range cases {

@@ -16,6 +16,10 @@ func (n *Nil) Dump(ident int) string {
 	return fmt.Sprintf(`<span style="%s">nil</span>`, DUMP_KEYWORD)
 }
 
+func (n *Nil) JSON() (string, error) {
+	return "null", nil
+}
+
 func (n *Nil) Val() any {
 	return nil
 }

@@ -1,7 +1,5 @@
 package object
 
-import "fmt"
-
 type Reserve struct {
 	Name   string
 	Insert Object
@@ -19,7 +17,11 @@ func (r *Reserve) String() string {
 }
 
 func (r *Reserve) Dump(ident int) string {
-	return fmt.Sprintf("@reseve(%q)", r.Name)
+	return ""
+}
+
+func (r *Reserve) JSON() (string, error) {
+	return "", nil
 }
 
 func (r *Reserve) Val() any {

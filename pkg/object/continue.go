@@ -11,7 +11,11 @@ func (c *Continue) String() string {
 }
 
 func (c *Continue) Dump(ident int) string {
-	return "@continue"
+	return ""
+}
+
+func (c *Continue) JSON() (string, error) {
+	return "", nil
 }
 
 func (c *Continue) Val() any {

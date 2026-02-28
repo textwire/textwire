@@ -13,7 +13,11 @@ func (h *HTML) String() string {
 }
 
 func (h *HTML) Dump(ident int) string {
-	return h.Value
+	return ""
+}
+
+func (h *HTML) JSON() (string, error) {
+	return "", nil
 }
 
 func (h *HTML) Val() any {

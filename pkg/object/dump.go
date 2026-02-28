@@ -45,6 +45,10 @@ func (d *Dump) Dump(ident int) string {
 	return fmt.Sprintf("@dump(%s)", strings.Join(d.Values, ", "))
 }
 
+func (d *Dump) JSON() (string, error) {
+	return "", nil
+}
+
 func (d *Dump) Val() any {
 	var values []any
 	for i := range d.Values {

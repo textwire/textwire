@@ -66,6 +66,30 @@ func (a *Array) Dump(ident int) string {
 	return res + spaces + fmt.Sprintf(`<span style="%s">]</span>`, DUMP_BRACE)
 }
 
+func (a *Array) JSON() (string, error) {
+	var out strings.Builder
+	out.Grow(len(a.Elements) + 2)
+
+	out.WriteByte('[')
+
+	for i := range a.Elements {
+		if i > 0 {
+			out.WriteByte(',')
+		}
+
+		val, err := a.Elements[i].JSON()
+		if err != nil {
+			return "", err
+		}
+
+		out.WriteString(val)
+	}
+
+	out.WriteByte(']')
+
+	return out.String(), nil
+}
+
 func (a *Array) Val() any {
 	var result []any
 

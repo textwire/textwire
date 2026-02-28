@@ -20,6 +20,10 @@ func (i *Int) Dump(ident int) string {
 	return fmt.Sprintf(`<span style="%s">%d</span>`, DUMP_NUM, i.Value)
 }
 
+func (i *Int) JSON() (string, error) {
+	return fmt.Sprintf("%d", i.Value), nil
+}
+
 func (i *Int) Val() any {
 	return i.Value
 }

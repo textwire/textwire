@@ -27,11 +27,10 @@ func (o *Obj) String() string {
 	}
 
 	keys := o.sortedKeys()
-
 	var out strings.Builder
 	out.Grow(2)
 
-	out.WriteString("{")
+	out.WriteByte('{')
 
 	for i, k := range keys {
 		pair := o.Pairs[k]
@@ -46,9 +45,39 @@ func (o *Obj) String() string {
 		}
 	}
 
-	out.WriteString("}")
+	out.WriteByte('}')
 
 	return out.String()
+}
+
+func (o *Obj) JSON() (string, error) {
+	if o.Pairs == nil {
+		return "{}", nil
+	}
+
+	keys := o.sortedKeys()
+	var out strings.Builder
+	out.Grow(2)
+
+	out.WriteByte('{')
+
+	for i, k := range keys {
+		pair := o.Pairs[k]
+		if i > 0 {
+			out.WriteByte(',')
+		}
+
+		jsonVal, err := pair.JSON()
+		if err != nil {
+			return "", err
+		}
+
+		fmt.Fprintf(&out, `"%s":%s`, k, jsonVal)
+	}
+
+	out.WriteByte('}')
+
+	return out.String(), nil
 }
 
 func (o *Obj) Dump(ident int) string {

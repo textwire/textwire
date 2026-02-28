@@ -14,10 +14,11 @@ func (c *Component) String() string {
 }
 
 func (c *Component) Dump(ident int) string {
-	if c.Content == nil {
-		panic("Content field on Component object must not be nil when calling String()")
-	}
-	return c.Content.Dump(ident)
+	return ""
+}
+
+func (c *Component) JSON() (string, error) {
+	return "", nil
 }
 
 func (c *Component) Val() any {

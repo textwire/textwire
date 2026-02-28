@@ -37,6 +37,10 @@ func (e *Error) Dump(ident int) string {
 	return out.String()
 }
 
+func (e *Error) JSON() (string, error) {
+	return e.Err.String(), nil
+}
+
 func (e *Error) Val() any {
 	return e.String()
 }
