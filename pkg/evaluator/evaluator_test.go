@@ -169,12 +169,12 @@ func TestEvalBooleanExp(t *testing.T) {
 		evaluated := testEval(tc.inp)
 		err, ok := evaluated.(*object.Error)
 		if ok {
-			t.Errorf("Case %d: Evaluation failed: %s", tc.id, err.String())
+			t.Errorf("Case: %d. Evaluation failed: %s", tc.id, err.String())
 			return
 		}
 
 		if res := evaluated.String(); res != tc.expect {
-			t.Errorf("Case %d: Result is not %q, got %q", tc.id, tc.expect, res)
+			t.Errorf("Case: %d. Result is not %q, got %q", tc.id, tc.expect, res)
 		}
 	}
 }
@@ -269,11 +269,11 @@ func TestEvalIfStmt(t *testing.T) {
 		evaluated := testEval(tc.inp)
 		err, ok := evaluated.(*object.Error)
 		if ok {
-			t.Errorf("Case %d: Evaluation failed: %s", tc.id, err)
+			t.Errorf("Case: %d. Evaluation failed: %s", tc.id, err)
 		}
 
 		if res := strings.TrimSpace(evaluated.String()); res != tc.expect {
-			t.Errorf("Case %d: Result is not %q, got %q", tc.id, tc.expect, res)
+			t.Errorf("Case: %d. Result is not %q, got %q", tc.id, tc.expect, res)
 		}
 	}
 }
@@ -487,7 +487,7 @@ func TestTypeMismatchErrors(t *testing.T) {
 		evaluated := testEval(tc.inp)
 		err, ok := evaluated.(*object.Error)
 		if !ok {
-			t.Fatalf("Case %d: Evaluation failed, got error %q", tc.id, err)
+			t.Fatalf("Case: %d. Evaluation failed, got error %q", tc.id, err)
 		}
 
 		expect := fail.New(
@@ -500,7 +500,7 @@ func TestTypeMismatchErrors(t *testing.T) {
 			tc.objR,
 		)
 		if err.String() != expect.String() {
-			t.Fatalf("Case %d: Error message is not %q, got %q", tc.id, expect, err)
+			t.Fatalf("Case: %d. Error message is not %q, got %q", tc.id, expect, err)
 		}
 	}
 }

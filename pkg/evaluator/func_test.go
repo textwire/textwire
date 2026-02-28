@@ -984,15 +984,15 @@ func TestFunctionGivesError(t *testing.T) {
 		errObj, ok := evaluated.(*object.Error)
 
 		if !ok {
-			t.Fatalf("Case %d: Evaluation failed: %s", tc.id, errObj.String())
+			t.Fatalf("Case: %d. Evaluation failed: %s", tc.id, errObj.String())
 		}
 
 		if evaluated.Type() != object.ERR_OBJ {
-			t.Fatalf("Case %d: Expect object.ERR_OBJ, got=%T", tc.id, evaluated)
+			t.Fatalf("Case: %d. Expect object.ERR_OBJ, got=%T", tc.id, evaluated)
 		}
 
 		if errObj.String() != tc.err.String() {
-			t.Fatalf("Case %d: Expect error message=%q, got=%q", tc.id, tc.err.String(), errObj.String())
+			t.Fatalf("Case: %d. Expect error message=%q, got=%q", tc.id, tc.err.String(), errObj.String())
 		}
 	}
 }
