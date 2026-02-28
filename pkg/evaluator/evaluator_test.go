@@ -403,6 +403,9 @@ func TestEvalEachStmt(t *testing.T) {
 		// test @continueif directive
 		{`@each(n in [1, 2, 3, 4, 5])@continueif(n == 3){{ n }}@end`, "1245"},
 		{`@each(n in ["ann", "serhii", "sam"])@continueif(n == 'sam'){{ n }} @end`, "ann serhii "},
+		// support continueIf and breakIf
+		{`@each(n in [1, 2])@continueIf(n == 2){{ n }}@end`, "1"},
+		{`@each(n in [1, 2, 3])@breakIf(n == 2){{ n }}@end`, "1"},
 	}
 
 	for i, tc := range cases {
