@@ -40,65 +40,67 @@ func evaluationExpected(t *testing.T, inp, expect string, idx int) {
 
 func TestEvalHTML(t *testing.T) {
 	cases := []struct {
+		id     int
 		inp    string
 		expect string
 	}{
-		{"<h1>Hello World</h1>", "<h1>Hello World</h1>"},
-		{"<ul><li><span>Email: anna@protonmail.com</span></li></ul>",
+		{10, "<h1>Hello World</h1>", "<h1>Hello World</h1>"},
+		{20, "<ul><li><span>Email: anna@protonmail.com</span></li></ul>",
 			"<ul><li><span>Email: anna@protonmail.com</span></li></ul>"},
-		{"<b>Nice</b>@foo", "<b>Nice</b>@foo"},
-		{`<h1>\@continue</h1>`, "<h1>@continue</h1>"},
-		{`<h1>@\@break</h1>`, "<h1>@@break</h1>"},
-		{`<h1>@@@\@break</h1>`, "<h1>@@@@break</h1>"},
-		{`\@`, `\@`},
-		{`\\@`, `\\@`},
-		{`\@if(true)`, `@if(true)`},
-		{`\\@if(true)`, `\@if(true)`},
-		{`\{{ 5 }}`, `{{ 5 }}`},
-		{`\\{{ "nice" }}`, `\{{ "nice" }}`},
-		{`\\\{{ x }}`, `\\{{ x }}`},
+		{30, "<b>Nice</b>@foo", "<b>Nice</b>@foo"},
+		{40, `<h1>\@continue</h1>`, "<h1>@continue</h1>"},
+		{50, `<h1>@\@break</h1>`, "<h1>@@break</h1>"},
+		{60, `<h1>@@@\@break</h1>`, "<h1>@@@@break</h1>"},
+		{70, `\@`, `\@`},
+		{80, `\\@`, `\\@`},
+		{90, `\@if(true)`, `@if(true)`},
+		{100, `\\@if(true)`, `\@if(true)`},
+		{110, `\{{ 5 }}`, `{{ 5 }}`},
+		{120, `\\{{ "nice" }}`, `\{{ "nice" }}`},
+		{130, `\\\{{ x }}`, `\\{{ x }}`},
 	}
 
-	for i, tc := range cases {
-		evaluationExpected(t, tc.inp, tc.expect, i)
+	for _, tc := range cases {
+		evaluationExpected(t, tc.inp, tc.expect, tc.id)
 	}
 }
 
 func TestEvalNumericExp(t *testing.T) {
 	cases := []struct {
+		id     int
 		inp    string
 		expect string
 	}{
-		{"{{ 5; 5 }}", "55"},
-		{"{{ 5 }}", "5"},
-		{"{{ 10 }}", "10"},
-		{"{{ -123 }}", "-123"},
-		{`{{ 5 + 5 }}`, "10"},
-		{`{{ 5 - 5 }}`, "0"},
-		{`{{ 20 / 2 }}`, "10"},
-		{`{{ 23 * 2 }}`, "46"},
-		{`{{ 11 + 13 - 1 }}`, "23"},
-		{"{{ 2 * (5 + 10) }}", "30"},
-		{`{{ (3 + 5) * 2 }}`, "16"},
-		{`{{ 3 * 3 * 3 + 10 }}`, "37"},
-		{`{{ (5 + 10 * 2 + 15 / 3) * 2 + -10 }}`, "50"},
-		{`{{ ((5 + 10) * ((2 + 15) / 3) + 2) }}`, "77"},
-		{`{{ 10++ }}`, "11"},
-		{`{{ 10-- }}`, "9"},
-		{`{{ 3++ + 2-- }}`, "5"},
-		{`{{ 3-- + 2-- * 3++ + (4--) }}`, "9"},
+		{10, "{{ 5; 5 }}", "55"},
+		{20, "{{ 5 }}", "5"},
+		{30, "{{ 10 }}", "10"},
+		{40, "{{ -123 }}", "-123"},
+		{50, `{{ 5 + 5 }}`, "10"},
+		{60, `{{ 5 - 5 }}`, "0"},
+		{70, `{{ 20 / 2 }}`, "10"},
+		{80, `{{ 23 * 2 }}`, "46"},
+		{90, `{{ 11 + 13 - 1 }}`, "23"},
+		{100, "{{ 2 * (5 + 10) }}", "30"},
+		{110, `{{ (3 + 5) * 2 }}`, "16"},
+		{120, `{{ 3 * 3 * 3 + 10 }}`, "37"},
+		{130, `{{ (5 + 10 * 2 + 15 / 3) * 2 + -10 }}`, "50"},
+		{140, `{{ ((5 + 10) * ((2 + 15) / 3) + 2) }}`, "77"},
+		{150, `{{ 10++ }}`, "11"},
+		{160, `{{ 10-- }}`, "9"},
+		{170, `{{ 3++ + 2-- }}`, "5"},
+		{180, `{{ 3-- + 2-- * 3++ + (4--) }}`, "9"},
 		// Float
-		{`{{ 4.4++ }}`, "5.4"},
-		{`{{ 4.4-- }}`, "3.4"},
-		{`{{ 4.0-- }}`, "3.0"},
-		{"{{ 5.11 }}", "5.11"},
-		{"{{ -12.3 }}", "-12.3"},
-		{`{{ 2.123 + 1.111 }}`, "3.234"},
-		{`{{ 2.0 + 1.2 }}`, "3.2"},
+		{190, `{{ 4.4++ }}`, "5.4"},
+		{200, `{{ 4.4-- }}`, "3.4"},
+		{210, `{{ 4.0-- }}`, "3.0"},
+		{220, "{{ 5.11 }}", "5.11"},
+		{230, "{{ -12.3 }}", "-12.3"},
+		{240, `{{ 2.123 + 1.111 }}`, "3.234"},
+		{250, `{{ 2.0 + 1.2 }}`, "3.2"},
 	}
 
-	for i, tc := range cases {
-		evaluationExpected(t, tc.inp, tc.expect, i)
+	for _, tc := range cases {
+		evaluationExpected(t, tc.inp, tc.expect, tc.id)
 	}
 }
 
@@ -109,58 +111,58 @@ func TestEvalBooleanExp(t *testing.T) {
 		expect string
 	}{
 		// Booleans
-		{1, "{{ true }}", "1"},
-		{2, "{{ false }}", "0"},
-		{3, "{{ !true }}", "0"},
-		{4, "{{ !false }}", "1"},
-		{5, "{{ !nil }}", "1"},
-		{6, "{{ !!true }}", "1"},
-		{7, "{{ !!false }}", "0"},
-		{8, "{{ true && true }}", "1"},
-		{9, "{{ !false && !false }}", "1"},
-		{10, "{{ false && false }}", "0"},
-		{11, "{{ false && !false }}", "0"},
+		{10, "{{ true }}", "1"},
+		{20, "{{ false }}", "0"},
+		{30, "{{ !true }}", "0"},
+		{40, "{{ !false }}", "1"},
+		{50, "{{ !nil }}", "1"},
+		{60, "{{ !!true }}", "1"},
+		{70, "{{ !!false }}", "0"},
+		{80, "{{ true && true }}", "1"},
+		{90, "{{ !false && !false }}", "1"},
+		{100, "{{ false && false }}", "0"},
+		{110, "{{ false && !false }}", "0"},
 		// Logical OR
-		{12, "{{ true || false }}", "1"},
-		{13, "{{ false || true }}", "1"},
-		{14, "{{ false || false }}", "0"},
-		{15, "{{ false || false || true }}", "1"},
-		{16, "{{ '' || '3' }}", "1"},
-		{17, "{{ 3 || 0 }}", "1"},
-		{18, "{{ [] || [] }}", "0"},
-		{19, "{{ {} || {} }}", "0"},
-		{20, "{{ 0.2 || 2.3 }}", "1"},
-		{21, "{{ 'a' || 'b' }}", "1"},
-		{22, "{{ nil || nil }}", "0"},
+		{120, "{{ true || false }}", "1"},
+		{130, "{{ false || true }}", "1"},
+		{140, "{{ false || false }}", "0"},
+		{150, "{{ false || false || true }}", "1"},
+		{160, "{{ '' || '3' }}", "1"},
+		{170, "{{ 3 || 0 }}", "1"},
+		{180, "{{ [] || [] }}", "0"},
+		{190, "{{ {} || {} }}", "0"},
+		{200, "{{ 0.2 || 2.3 }}", "1"},
+		{210, "{{ 'a' || 'b' }}", "1"},
+		{220, "{{ nil || nil }}", "0"},
 		// Logical AND
-		{23, "{{ false && false || true }}", "1"},
-		{24, "{{ true && false || false }}", "0"},
-		{25, "{{ false && (false || true) }}", "0"},
-		{26, "{{ 3 && 0 }}", "0"},
-		{27, "{{ [] && [] }}", "0"},
-		{28, "{{ {} && {} }}", "0"},
-		{29, "{{ 0.2 && 2.3 }}", "1"},
-		{30, "{{ 'a' && 'b' }}", "1"},
-		{31, "{{ '' && '' }}", "0"},
-		{32, "{{ nil && nil }}", "0"},
+		{230, "{{ false && false || true }}", "1"},
+		{240, "{{ true && false || false }}", "0"},
+		{250, "{{ false && (false || true) }}", "0"},
+		{260, "{{ 3 && 0 }}", "0"},
+		{270, "{{ [] && [] }}", "0"},
+		{280, "{{ {} && {} }}", "0"},
+		{290, "{{ 0.2 && 2.3 }}", "1"},
+		{300, "{{ 'a' && 'b' }}", "1"},
+		{310, "{{ '' && '' }}", "0"},
+		{320, "{{ nil && nil }}", "0"},
 		// Ints
-		{33, "{{ 1 == 1 }}", "1"},
-		{34, "{{ 1 == 2 }}", "0"},
-		{35, "{{ 1 != 1 }}", "0"},
-		{36, "{{ 1 != 2 }}", "1"},
-		{37, "{{ 1 < 2 }}", "1"},
-		{38, "{{ 1 > 2 }}", "0"},
-		{39, "{{ 1 <= 2 }}", "1"},
-		{40, "{{ 1 >= 2 }}", "0"},
+		{330, "{{ 1 == 1 }}", "1"},
+		{340, "{{ 1 == 2 }}", "0"},
+		{350, "{{ 1 != 1 }}", "0"},
+		{360, "{{ 1 != 2 }}", "1"},
+		{370, "{{ 1 < 2 }}", "1"},
+		{380, "{{ 1 > 2 }}", "0"},
+		{390, "{{ 1 <= 2 }}", "1"},
+		{400, "{{ 1 >= 2 }}", "0"},
 		// Floats
-		{41, "{{ 1.1 == 1.1 }}", "1"},
-		{42, "{{ 1.1 == 2.1 }}", "0"},
-		{43, "{{ 1.1 != 1.1 }}", "0"},
-		{44, "{{ 1.1 != 2.1 }}", "1"},
-		{45, "{{ 1.1 < 2.1 }}", "1"},
-		{46, "{{ 1.1 > 2.1 }}", "0"},
-		{47, "{{ 1.1 <= 2.1 }}", "1"},
-		{48, "{{ 1.1 >= 2.1 }}", "0"},
+		{410, "{{ 1.1 == 1.1 }}", "1"},
+		{420, "{{ 1.1 == 2.1 }}", "0"},
+		{430, "{{ 1.1 != 1.1 }}", "0"},
+		{440, "{{ 1.1 != 2.1 }}", "1"},
+		{450, "{{ 1.1 < 2.1 }}", "1"},
+		{460, "{{ 1.1 > 2.1 }}", "0"},
+		{470, "{{ 1.1 <= 2.1 }}", "1"},
+		{480, "{{ 1.1 >= 2.1 }}", "0"},
 	}
 
 	for _, tc := range cases {
@@ -179,69 +181,73 @@ func TestEvalBooleanExp(t *testing.T) {
 
 func TestEvalNilExp(t *testing.T) {
 	inp := "<h1>{{ nil }}</h1>"
-	evaluationExpected(t, inp, "<h1></h1>", 0)
+	evaluationExpected(t, inp, "<h1></h1>", 10)
 }
 
 func TestEvalStringExp(t *testing.T) {
 	cases := []struct {
+		id     int
 		inp    string
 		expect string
 	}{
-		{`{{ "Hello World" }}`, "Hello World"},
-		{`<div {{ 'data-attr="Test"' }}></div>`, `<div data-attr="Test"></div>`},
-		{`<div {{ "data-attr='Test'" }}></div>`, `<div data-attr='Test'></div>`},
-		{`{{ "She \"is\" pretty" }}`, `She "is" pretty`},
-		{`{{ "Korotchaeva" + " " + "Anna" }}`, "Korotchaeva Anna"},
-		{`{{ "She" + " " + "is" + " " + "nice" }}`, "She is nice"},
-		{"{{ '' }}", ""},
-		{`{{ "<h1>Test</h1>" }}`, "&lt;h1&gt;Test&lt;/h1&gt;"},
+		{10, `{{ "Hello World" }}`, "Hello World"},
+		{20, `<div {{ 'data-attr="Test"' }}></div>`, `<div data-attr="Test"></div>`},
+		{30, `<div {{ "data-attr='Test'" }}></div>`, `<div data-attr='Test'></div>`},
+		{40, `{{ "She \"is\" pretty" }}`, `She "is" pretty`},
+		{50, `{{ "Korotchaeva" + " " + "Anna" }}`, "Korotchaeva Anna"},
+		{60, `{{ "She" + " " + "is" + " " + "nice" }}`, "She is nice"},
+		{70, "{{ '' }}", ""},
+		{80, `{{ "<h1>Test</h1>" }}`, "&lt;h1&gt;Test&lt;/h1&gt;"},
 	}
 
-	for i, tc := range cases {
-		evaluationExpected(t, tc.inp, tc.expect, i)
+	for _, tc := range cases {
+		evaluationExpected(t, tc.inp, tc.expect, tc.id)
 	}
 }
 
 func TestEvalTernaryExp(t *testing.T) {
 	cases := []struct {
+		id     int
 		inp    string
 		expect string
 	}{
-		{`{{ true ? "Yes" : "No" }}`, "Yes"},
-		{`{{ false ? "Yes" : "No" }}`, "No"},
-		{`{{ nil ? "Yes" : "No" }}`, "No"},
-		{`{{ 1 ? "Yes" : "No" }}`, "Yes"},
-		{`{{ 0 ? "Yes" : "No" }}`, "No"},
-		{`{{ "" ? "Yes" : "No" }}`, "No"},
-		{`{{ !true ? "Yes" : "No" }}`, "No"},
-		{`{{ !false ? "Yes" : "No" }}`, "Yes"},
-		{`{{ !!true ? 1 : 0 }}`, "1"},
-		{`{{ !!false ? 1 : 0 }}`, "0"},
+		{10, `{{ true ? "Yes" : "No" }}`, "Yes"},
+		{20, `{{ false ? "Yes" : "No" }}`, "No"},
+		{30, `{{ nil ? "Yes" : "No" }}`, "No"},
+		{40, `{{ 1 ? "Yes" : "No" }}`, "Yes"},
+		{50, `{{ 0 ? "Yes" : "No" }}`, "No"},
+		{60, `{{ "" ? "Yes" : "No" }}`, "No"},
+		{70, `{{ !true ? "Yes" : "No" }}`, "No"},
+		{80, `{{ !false ? "Yes" : "No" }}`, "Yes"},
+		{90, `{{ !!true ? 1 : 0 }}`, "1"},
+		{100, `{{ !!false ? 1 : 0 }}`, "0"},
 	}
 
-	for i, tc := range cases {
-		evaluationExpected(t, tc.inp, tc.expect, i)
+	for _, tc := range cases {
+		evaluationExpected(t, tc.inp, tc.expect, tc.id)
 	}
 }
 
 func TestEvalIfStmt(t *testing.T) {
 	cases := []struct {
+		id     int
 		inp    string
 		expect string
 	}{
-		{`@if(true)Hello@end`, "Hello"},
-		{`@if(true.binary())Hello@end`, "Hello"},
-		{`@if(false.binary())Hello@end`, ""},
-		{`@if(false)Hello@end`, ""},
-		{`@if(true)Anna@elseif(true)Lili@end`, "Anna"},
-		{`@if(false)Alan@elseif(true)Serhii@end`, "Serhii"},
-		{`@if(false)Ana De Armaz@elseif(false)David@elseVladimir@end`, "Vladimir"},
-		{`@if(false)Will@elseif(false)Daria@elseif(true)Poll@end`, "Poll"},
-		{`@if(false)Lara@elseif(true)Susan@elseif(true)Smith@end`, "Susan"},
-		{`<h2>@if(true)Hello@end</h2>`, "<h2>Hello</h2>"},
-		{`<h2>@if(false)Hello@end</h2>`, "<h2></h2>"},
-		{`@if(true)Hello@end`, "Hello"},
+		{10, `@if(true)Hello@end`, "Hello"},
+		{20, `@if(true.binary())Hello@end`, "Hello"},
+		{30, `@if(false.binary())Hello@end`, ""},
+		{40, `@if(false)Hello@end`, ""},
+		{50, `@if(true)Anna@elseif(true)Lili@end`, "Anna"},
+		{60, `@if(false)Alan@elseif(true)Serhii@end`, "Serhii"},
+		{70, `@if(false)Ana De Armaz@elseif(false)David@elseVladimir@end`, "Vladimir"},
+		{80, `@if(false)Will@elseif(false)Daria@elseif(true)Poll@end`, "Poll"},
+		{90, `@if(false)Lara@elseif(true)Susan@elseif(true)Smith@end`, "Susan"},
+		{100, `<h2>@if(true)Hello@end</h2>`, "<h2>Hello</h2>"},
+		{110, `<h2>@if(false)Hello@end</h2>`, "<h2></h2>"},
+		{120, `@if(true)Hello@end`, "Hello"},
 		{
+			130,
 			`
 				@if(true)
 					@if(false)
@@ -263,217 +269,225 @@ func TestEvalIfStmt(t *testing.T) {
 		evaluated := testEval(tc.inp)
 		err, ok := evaluated.(*object.Error)
 		if ok {
-			t.Errorf("Evaluation failed: %s", err)
+			t.Errorf("Case %d: Evaluation failed: %s", tc.id, err)
 		}
 
 		if res := strings.TrimSpace(evaluated.String()); res != tc.expect {
-			t.Errorf("Result is not %q, got %q", tc.expect, res)
+			t.Errorf("Case %d: Result is not %q, got %q", tc.id, tc.expect, res)
 		}
 	}
 }
 
 func TestEvalArray(t *testing.T) {
 	cases := []struct {
+		id     int
 		inp    string
 		expect string
 	}{
-		{`{{ [] }}`, ""},
-		{`{{ [[[[[]]]]] }}`, ""},
-		{`{{ [1, 2, 3] }}`, "1, 2, 3"},
-		{`{{ ["Anna", "Serhii" ] }}`, "Anna, Serhii"},
-		{`{{ [true, false] }}`, "1, 0"},
-		{`{{ [[1, [2]], 3] }}`, "1, 2, 3"},
+		{10, `{{ [] }}`, ""},
+		{20, `{{ [[[[[]]]]] }}`, ""},
+		{30, `{{ [1, 2, 3] }}`, "1, 2, 3"},
+		{40, `{{ ["Anna", "Serhii" ] }}`, "Anna, Serhii"},
+		{50, `{{ [true, false] }}`, "1, 0"},
+		{60, `{{ [[1, [2]], 3] }}`, "1, 2, 3"},
 	}
 
-	for i, tc := range cases {
-		evaluationExpected(t, tc.inp, tc.expect, i)
+	for _, tc := range cases {
+		evaluationExpected(t, tc.inp, tc.expect, tc.id)
 	}
 }
 
 func TestEvalIndexExp(t *testing.T) {
 	cases := []struct {
+		id     int
 		inp    string
 		expect string
 	}{
-		{`{{ [1, 2, 3][0] }}`, "1"},
-		{`{{ [1, 2, 3][1] }}`, "2"},
-		{`{{ [1, 2, 3][2] }}`, "3"},
-		{`{{ ["Some string"][0] }}`, "Some string"},
-		{`{{ [[[11]]][0][0][0] }}`, "11"},
-		{`{{ [][2] }}`, ""},
+		{10, `{{ [1, 2, 3][0] }}`, "1"},
+		{20, `{{ [1, 2, 3][1] }}`, "2"},
+		{30, `{{ [1, 2, 3][2] }}`, "3"},
+		{40, `{{ ["Some string"][0] }}`, "Some string"},
+		{50, `{{ [[[11]]][0][0][0] }}`, "11"},
+		{60, `{{ [][2] }}`, ""},
 	}
 
-	for i, tc := range cases {
-		evaluationExpected(t, tc.inp, tc.expect, i)
+	for _, tc := range cases {
+		evaluationExpected(t, tc.inp, tc.expect, tc.id)
 	}
 }
 
 func TestEvalAssignVariable(t *testing.T) {
 	cases := []struct {
+		id     int
 		inp    string
 		expect string
 	}{
-		{`{{ age = 18 }}`, ""},
-		{`{{ age = 18; age }}`, "18"},
-		{`{{ myAge = 33; herAge = 25; myAge + herAge }}`, "58"},
-		{`{{ age = 18; age + age }}`, "36"},
-		{`{{ herName = "Anna"; herName }}`, "Anna"},
-		{`{{ age = 18; age }}`, "18"},
-		{`{{ age = 18; age + 2 }}`, "20"},
-		{`{{ age = 18; age + age }}`, "36"},
-		{`{{ herName = "Anna"; herName }}`, "Anna"},
-		{`{{ she = "Anna"; me = "Serhii"; she + " " + me }}`, "Anna Serhii"},
-		{`{{ names = ["Anna", "Serhii"] }}`, ""},
-		{`{{ names = ["Anna", "Serhii"]; names }}`, "Anna, Serhii"},
-		{`{{ age = 18; age = 2; age }}`, "2"},
-		{`{{ city = "Kiev"; city = "Moscow"; city }}`, "Moscow"},
+		{10, `{{ age = 18 }}`, ""},
+		{20, `{{ age = 18; age }}`, "18"},
+		{30, `{{ myAge = 33; herAge = 25; myAge + herAge }}`, "58"},
+		{40, `{{ age = 18; age + age }}`, "36"},
+		{50, `{{ herName = "Anna"; herName }}`, "Anna"},
+		{60, `{{ age = 18; age }}`, "18"},
+		{70, `{{ age = 18; age + 2 }}`, "20"},
+		{80, `{{ age = 18; age + age }}`, "36"},
+		{90, `{{ herName = "Anna"; herName }}`, "Anna"},
+		{100, `{{ she = "Anna"; me = "Serhii"; she + " " + me }}`, "Anna Serhii"},
+		{110, `{{ names = ["Anna", "Serhii"] }}`, ""},
+		{120, `{{ names = ["Anna", "Serhii"]; names }}`, "Anna, Serhii"},
+		{130, `{{ age = 18; age = 2; age }}`, "2"},
+		{140, `{{ city = "Kiev"; city = "Moscow"; city }}`, "Moscow"},
 	}
 
-	for i, tc := range cases {
-		evaluationExpected(t, tc.inp, tc.expect, i)
+	for _, tc := range cases {
+		evaluationExpected(t, tc.inp, tc.expect, tc.id)
 	}
 }
 
 func TestEvalForStmt(t *testing.T) {
 	cases := []struct {
+		id     int
 		inp    string
 		expect string
 	}{
-		{`@for(i = 0; i < 2; i++){{ i }}@end`, "01"},
-		{`@for(i = 1; i <= 3; i++){{ i }}@end`, "123"},
-		{`@for(i = 0; i < 2; i++){{ i }}@end`, "01"},
-		{`@for(; false;)Here@end`, ""},
-		{`@for(c = 1; false; c++){{ c }}@end`, ""},
-		{`@for(c = 1; c == 1; c++){{ c }}@end`, "1"},
+		{10, `@for(i = 0; i < 2; i++){{ i }}@end`, "01"},
+		{20, `@for(i = 1; i <= 3; i++){{ i }}@end`, "123"},
+		{30, `@for(i = 0; i < 2; i++){{ i }}@end`, "01"},
+		{40, `@for(; false;)Here@end`, ""},
+		{50, `@for(c = 1; false; c++){{ c }}@end`, ""},
+		{60, `@for(c = 1; c == 1; c++){{ c }}@end`, "1"},
 		// test @else directive
-		{`@for(c = 1; false; c++){{ c }}@else<b>Empty</b>@end`, "<b>Empty</b>"},
-		{`@for(c = 0; c < 0; c++){{ c }}@elseEmpty@end`, "Empty"},
+		{70, `@for(c = 1; false; c++){{ c }}@else<b>Empty</b>@end`, "<b>Empty</b>"},
+		{80, `@for(c = 0; c < 0; c++){{ c }}@elseEmpty@end`, "Empty"},
 		// test @break directive
-		{`@for(i = 1; i <= 3; i++){{ i }}@break@end`, "1"},
-		{`@for(i = 1; i <= 3; i++)@break{{ i }}@end`, ""},
-		{`@for(i = 1; i <= 3; i++)@if(i == 3)@break@end{{ i }}@end`, "12"},
+		{90, `@for(i = 1; i <= 3; i++){{ i }}@break@end`, "1"},
+		{100, `@for(i = 1; i <= 3; i++)@break{{ i }}@end`, ""},
+		{110, `@for(i = 1; i <= 3; i++)@if(i == 3)@break@end{{ i }}@end`, "12"},
 		// test @continue directive
-		{`@for(i = 1; i <= 3; i++)@continue{{ i }}@end`, ""},
-		{`@for(i = 1; i <= 3; i++){{ i }}@continue@end`, "123"},
-		{`@for(i = 1; i <= 3; i++)@if(i == 2)@continue@end{{ i }}@end`, "13"},
+		{120, `@for(i = 1; i <= 3; i++)@continue{{ i }}@end`, ""},
+		{130, `@for(i = 1; i <= 3; i++){{ i }}@continue@end`, "123"},
+		{140, `@for(i = 1; i <= 3; i++)@if(i == 2)@continue@end{{ i }}@end`, "13"},
 		// test @breakif directive
-		{`@for(i = 1; i <= 3; i++)@breakif(i == 3){{ i }}@end`, "12"},
-		{`@for(i = 1; i <= 3; i++)@breakif(i == 2){{ i }}@end`, "1"},
+		{150, `@for(i = 1; i <= 3; i++)@breakif(i == 3){{ i }}@end`, "12"},
+		{160, `@for(i = 1; i <= 3; i++)@breakif(i == 2){{ i }}@end`, "1"},
 		// test @continueif directive
-		{`@for(i = 1; i <= 3; i++)@continueif(i == 3){{ i }}@end`, "12"},
-		{`@for(i = 1; i <= 3; i++)@continueif(i == 2){{ i }}@end`, "13"},
+		{170, `@for(i = 1; i <= 3; i++)@continueif(i == 3){{ i }}@end`, "12"},
+		{180, `@for(i = 1; i <= 3; i++)@continueif(i == 2){{ i }}@end`, "13"},
 	}
 
-	for i, tc := range cases {
-		evaluationExpected(t, tc.inp, tc.expect, i)
+	for _, tc := range cases {
+		evaluationExpected(t, tc.inp, tc.expect, tc.id)
 	}
 }
 
 func TestEvalEachStmt(t *testing.T) {
 	cases := []struct {
+		id     int
 		inp    string
 		expect string
 	}{
-		{`@each(name in ["anna", "serhii"]){{ name }} @end`, "anna serhii "},
-		{`@each(num in [1, 2, 3]){{ num }}@end`, "123"},
-		{`@each(num in []){{ num }}@end`, ""},
+		{10, `@each(name in ["anna", "serhii"]){{ name }} @end`, "anna serhii "},
+		{20, `@each(num in [1, 2, 3]){{ num }}@end`, "123"},
+		{30, `@each(num in []){{ num }}@end`, ""},
 		// test loop variable
-		{`@each(num in [43, 12, 53]){{ loop.index }}@end`, "012"},
-		{`@each(num in [100]){{ loop.index }}@end`, "0"},
-		{`@each(num in [1, 2, 3, 4]){{ loop.first }}@end`, "1000"},
-		{`@each(num in [1, 2, 3, 4]){{ loop.last }}@end`, "0001"},
-		{`@each(num in [4, 2, 8]){{ loop.iter }}@end`, "123"},
-		{`@each(num in [9, 3, 44, 24, 1, 3]){{ loop.iter }}@end`, "123456"},
+		{40, `@each(num in [43, 12, 53]){{ loop.index }}@end`, "012"},
+		{50, `@each(num in [100]){{ loop.index }}@end`, "0"},
+		{60, `@each(num in [1, 2, 3, 4]){{ loop.first }}@end`, "1000"},
+		{70, `@each(num in [1, 2, 3, 4]){{ loop.last }}@end`, "0001"},
+		{80, `@each(num in [4, 2, 8]){{ loop.iter }}@end`, "123"},
+		{90, `@each(num in [9, 3, 44, 24, 1, 3]){{ loop.iter }}@end`, "123456"},
 		// test @else directive
-		{`@each(v in []){{ v }}@else<b>Empty array</b>@end`, "<b>Empty array</b>"},
-		{`@each(n in []){{ n }}@else@end`, ""},
-		{`@each(n in []){{ n }}@elsetest@end`, "test"},
-		{`@each(n in [1, 2, 3, 4, 5]){{ n }}@end`, "12345"},
+		{100, `@each(v in []){{ v }}@else<b>Empty array</b>@end`, "<b>Empty array</b>"},
+		{110, `@each(n in []){{ n }}@else@end`, ""},
+		{120, `@each(n in []){{ n }}@elsetest@end`, "test"},
+		{130, `@each(n in [1, 2, 3, 4, 5]){{ n }}@end`, "12345"},
 		// test @break directive
-		{`@each(n in [1, 2, 3, 4, 5])@break{{ n }}@end`, ""},
-		{`@each(n in [1, 2, 3, 4, 5]){{ n }}@break@end`, "1"},
-		{`@each(n in [1, 2, 3, 4, 5])@if(n == 3)@break@end{{ n }}@end`, "12"},
+		{140, `@each(n in [1, 2, 3, 4, 5])@break{{ n }}@end`, ""},
+		{150, `@each(n in [1, 2, 3, 4, 5]){{ n }}@break@end`, "1"},
+		{160, `@each(n in [1, 2, 3, 4, 5])@if(n == 3)@break@end{{ n }}@end`, "12"},
 		// test @continue directive
-		{`@each(n in [1, 2, 3, 4, 5])@continue{{ n }}@end`, ""},
-		{`@each(n in [1, 2, 3, 4, 5]){{ n }}@continue@end`, "12345"},
-		{`@each(n in [1, 2, 3, 4, 5])@if(n == 3)@continue@end{{ n }}@end`, "1245"},
+		{170, `@each(n in [1, 2, 3, 4, 5])@continue{{ n }}@end`, ""},
+		{180, `@each(n in [1, 2, 3, 4, 5]){{ n }}@continue@end`, "12345"},
+		{190, `@each(n in [1, 2, 3, 4, 5])@if(n == 3)@continue@end{{ n }}@end`, "1245"},
 		// test @breakif directive
-		{`@each(n in [1, 2, 3, 4, 5])@breakif(n == 3){{ n }}@end`, "12"},
-		{`@each(n in ["ann", "serhii", "sam"])@breakif(n == 'sam'){{ n }} @end`, "ann serhii "},
+		{200, `@each(n in [1, 2, 3, 4, 5])@breakif(n == 3){{ n }}@end`, "12"},
+		{210, `@each(n in ["ann", "serhii", "sam"])@breakif(n == 'sam'){{ n }} @end`, "ann serhii "},
 		// test @continueif directive
-		{`@each(n in [1, 2, 3, 4, 5])@continueif(n == 3){{ n }}@end`, "1245"},
-		{`@each(n in ["ann", "serhii", "sam"])@continueif(n == 'sam'){{ n }} @end`, "ann serhii "},
+		{220, `@each(n in [1, 2, 3, 4, 5])@continueif(n == 3){{ n }}@end`, "1245"},
+		{230, `@each(n in ["ann", "serhii", "sam"])@continueif(n == 'sam'){{ n }} @end`, "ann serhii "},
 		// support continueIf and breakIf
-		{`@each(n in [1, 2])@continueIf(n == 2){{ n }}@end`, "1"},
-		{`@each(n in [1, 2, 3])@breakIf(n == 2){{ n }}@end`, "1"},
+		{240, `@each(n in [1, 2])@continueIf(n == 2){{ n }}@end`, "1"},
+		{250, `@each(n in [1, 2, 3])@breakIf(n == 2){{ n }}@end`, "1"},
 	}
 
-	for i, tc := range cases {
-		evaluationExpected(t, tc.inp, tc.expect, i)
+	for _, tc := range cases {
+		evaluationExpected(t, tc.inp, tc.expect, tc.id)
 	}
 }
 
 func TestEvalObjectLiteral(t *testing.T) {
 	cases := []struct {
+		id     int
 		inp    string
 		expect string
 	}{
-		{`{{ {"name": "John"}['name'] }}`, "John"},
-		{`{{ {"name": "John"}.name }}`, "John"},
-		{`{{ obj = {name: "John"}; obj.name }}`, "John"},
-		{`{{ o = {"name": "John", "age": 22}; o.age }}`, "22"},
-		{`{{ user = {"father": {"name": "John"}}; user.father.name }}`, "John"},
-		{`{{ user = {"father": {"name": {"first": "Sam"}}}; user.father.name.first }}`, "Sam"},
-		{`{{ u = {"father": {name: {"first": "Sam",},},}; u['father']['name'].first }}`, "Sam"},
-		{`{{ name = "Sam"; age = 12; obj = { name, age }; obj.name }}`, "Sam"},
-		{`{{ name = "Sam"; age = 12; obj = { name, age }; obj.age }}`, "12"},
+		{10, `{{ {"name": "John"}['name'] }}`, "John"},
+		{20, `{{ {"name": "John"}.name }}`, "John"},
+		{30, `{{ obj = {name: "John"}; obj.name }}`, "John"},
+		{40, `{{ o = {"name": "John", "age": 22}; o.age }}`, "22"},
+		{50, `{{ user = {"father": {"name": "John"}}; user.father.name }}`, "John"},
+		{60, `{{ user = {"father": {"name": {"first": "Sam"}}}; user.father.name.first }}`, "Sam"},
+		{70, `{{ u = {"father": {name: {"first": "Sam",},},}; u['father']['name'].first }}`, "Sam"},
+		{80, `{{ name = "Sam"; age = 12; obj = { name, age }; obj.name }}`, "Sam"},
+		{90, `{{ name = "Sam"; age = 12; obj = { name, age }; obj.age }}`, "12"},
 	}
 
-	for i, tc := range cases {
-		evaluationExpected(t, tc.inp, tc.expect, i)
+	for _, tc := range cases {
+		evaluationExpected(t, tc.inp, tc.expect, tc.id)
 	}
 }
 
 func TestEvalComments(t *testing.T) {
 	cases := []struct {
+		id     int
 		inp    string
 		expect string
 	}{
-		{"{{-- This is a comment --}}", ""},
-		{"<section>{{-- This is a comment --}}</section>", "<section></section>"},
-		{"Some {{-- --}}text", "Some text"},
-		{"{{-- @each(u in users){{ u }}@end --}}", ""},
+		{10, "{{-- This is a comment --}}", ""},
+		{20, "<section>{{-- This is a comment --}}</section>", "<section></section>"},
+		{30, "Some {{-- --}}text", "Some text"},
+		{40, "{{-- @each(u in users){{ u }}@end --}}", ""},
 	}
 
-	for i, tc := range cases {
-		evaluationExpected(t, tc.inp, tc.expect, i)
+	for _, tc := range cases {
+		evaluationExpected(t, tc.inp, tc.expect, tc.id)
 	}
 }
 
 func TestTypeMismatchErrors(t *testing.T) {
 	cases := []struct {
+		id   int
 		inp  string
 		objL object.ObjectType
 		op   string
 		objR object.ObjectType
 	}{
-		{"{{ 3 + 2.0 }}", object.INT_OBJ, "+", object.FLOAT_OBJ},
-		{"{{ 2.0 + 3 }}", object.FLOAT_OBJ, "+", object.INT_OBJ},
-		{"{{ 'nice' - [] }}", object.STR_OBJ, "-", object.ARR_OBJ},
-		{"{{ {} - 'bad' }}", object.OBJ_OBJ, "-", object.STR_OBJ},
-		{"{{ 5 * 'bad' }}", object.INT_OBJ, "*", object.STR_OBJ},
-		{"{{ 'nice' / 2 }}", object.STR_OBJ, "/", object.INT_OBJ},
-		{"{{ true + 5 }}", object.BOOL_OBJ, "+", object.INT_OBJ},
-		{"{{ false - 2.0 }}", object.BOOL_OBJ, "-", object.FLOAT_OBJ},
-		{"{{ [] * {} }}", object.ARR_OBJ, "*", object.OBJ_OBJ},
-		{"{{ {} / [] }}", object.OBJ_OBJ, "/", object.ARR_OBJ},
+		{10, "{{ 3 + 2.0 }}", object.INT_OBJ, "+", object.FLOAT_OBJ},
+		{20, "{{ 2.0 + 3 }}", object.FLOAT_OBJ, "+", object.INT_OBJ},
+		{30, "{{ 'nice' - [] }}", object.STR_OBJ, "-", object.ARR_OBJ},
+		{40, "{{ {} - 'bad' }}", object.OBJ_OBJ, "-", object.STR_OBJ},
+		{50, "{{ 5 * 'bad' }}", object.INT_OBJ, "*", object.STR_OBJ},
+		{60, "{{ 'nice' / 2 }}", object.STR_OBJ, "/", object.INT_OBJ},
+		{70, "{{ true + 5 }}", object.BOOL_OBJ, "+", object.INT_OBJ},
+		{80, "{{ false - 2.0 }}", object.BOOL_OBJ, "-", object.FLOAT_OBJ},
+		{90, "{{ [] * {} }}", object.ARR_OBJ, "*", object.OBJ_OBJ},
+		{100, "{{ {} / [] }}", object.OBJ_OBJ, "/", object.ARR_OBJ},
 	}
 
 	for _, tc := range cases {
 		evaluated := testEval(tc.inp)
 		err, ok := evaluated.(*object.Error)
 		if !ok {
-			t.Fatalf("Evaluation failed, got error %q", err)
+			t.Fatalf("Case %d: Evaluation failed, got error %q", tc.id, err)
 		}
 
 		expect := fail.New(
@@ -486,7 +500,7 @@ func TestTypeMismatchErrors(t *testing.T) {
 			tc.objR,
 		)
 		if err.String() != expect.String() {
-			t.Fatalf("Error message is not %q, got %q", expect, err)
+			t.Fatalf("Case %d: Error message is not %q, got %q", tc.id, expect, err)
 		}
 	}
 }
