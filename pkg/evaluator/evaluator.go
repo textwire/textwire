@@ -467,8 +467,6 @@ func (e *Evaluator) slot(slotStmt *ast.SlotStmt, ctx *Context) object.Object {
 }
 
 func (e *Evaluator) slotif(slotifStmt *ast.SlotifStmt, ctx *Context) object.Object {
-	var block object.Object = NIL
-
 	cond := e.Eval(slotifStmt.Condition, ctx)
 	if isError(cond) {
 		return cond
@@ -478,7 +476,7 @@ func (e *Evaluator) slotif(slotifStmt *ast.SlotifStmt, ctx *Context) object.Obje
 		return NIL
 	}
 
-	block = e.Eval(slotifStmt.Block(), ctx)
+	block := e.Eval(slotifStmt.Block(), ctx)
 	if isError(block) {
 		return block
 	}
