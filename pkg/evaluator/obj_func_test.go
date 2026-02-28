@@ -45,6 +45,12 @@ func TestEvalObjectFunctions(t *testing.T) {
 			`{{ {user: {name: 'John', age: 30, hobbies: ['coding', 'gaming']}, active: true}.json() }}`,
 			`{"active":true,"user":{"age":30,"hobbies":["coding","gaming"],"name":"John"}}`,
 		},
+		{618, `{{ {value: (1.0/0.0)}.json() }}`, `{"value":null}`},
+		{
+			619,
+			`{{ {nan: (0.0/0.0), inf: (1.0/0.0), ninf: (-1.0/0.0)}.json() }}`,
+			`{"inf":null,"nan":null,"ninf":null}`,
+		},
 	}
 
 	for _, tc := range cases {
