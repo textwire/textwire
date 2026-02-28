@@ -9,11 +9,13 @@ import (
 
 func TestFunctionGivesError(t *testing.T) {
 	cases := []struct {
+		id  int
 		inp string
 		err *fail.Error
 	}{
 		// string format
 		{
+			10,
 			`{{ "He has %s apples".format() }}`,
 			fail.New(
 				1,
@@ -26,6 +28,7 @@ func TestFunctionGivesError(t *testing.T) {
 		},
 		// string slice
 		{
+			20,
 			`{{ [1, 2].slice() }}`,
 			fail.New(
 				1,
@@ -37,6 +40,7 @@ func TestFunctionGivesError(t *testing.T) {
 			),
 		},
 		{
+			30,
 			`{{ [1, 2].slice("hi") }}`,
 			fail.New(
 				1,
@@ -48,6 +52,7 @@ func TestFunctionGivesError(t *testing.T) {
 			),
 		},
 		{
+			40,
 			`{{ [1, 2].slice({}) }}`,
 			fail.New(
 				1,
@@ -59,6 +64,7 @@ func TestFunctionGivesError(t *testing.T) {
 			),
 		},
 		{
+			50,
 			`{{ [1, 2].slice([]) }}`,
 			fail.New(
 				1,
@@ -70,6 +76,7 @@ func TestFunctionGivesError(t *testing.T) {
 			),
 		},
 		{
+			60,
 			`{{ [1, 2].slice(3.0) }}`,
 			fail.New(
 				1,
@@ -81,6 +88,7 @@ func TestFunctionGivesError(t *testing.T) {
 			),
 		},
 		{
+			70,
 			`{{ [1, 2].slice(nil) }}`,
 			fail.New(
 				1,
@@ -92,6 +100,7 @@ func TestFunctionGivesError(t *testing.T) {
 			),
 		},
 		{
+			80,
 			`{{ [1, 2].slice("hi", "hi") }}`,
 			fail.New(
 				1,
@@ -103,6 +112,7 @@ func TestFunctionGivesError(t *testing.T) {
 			),
 		},
 		{
+			90,
 			`{{ [1, 2].slice(0, "hi") }}`,
 			fail.New(
 				1,
@@ -114,6 +124,7 @@ func TestFunctionGivesError(t *testing.T) {
 			),
 		},
 		{
+			100,
 			`{{ [1, 2].slice(0, {}) }}`,
 			fail.New(
 				1,
@@ -125,6 +136,7 @@ func TestFunctionGivesError(t *testing.T) {
 			),
 		},
 		{
+			110,
 			`{{ [1, 2].slice(0, []) }}`,
 			fail.New(
 				1,
@@ -136,6 +148,7 @@ func TestFunctionGivesError(t *testing.T) {
 			),
 		},
 		{
+			120,
 			`{{ [1, 2].slice(0, 3.0) }}`,
 			fail.New(
 				1,
@@ -147,6 +160,7 @@ func TestFunctionGivesError(t *testing.T) {
 			),
 		},
 		{
+			130,
 			`{{ [1, 2].slice(0, nil) }}`,
 			fail.New(
 				1,
@@ -159,6 +173,7 @@ func TestFunctionGivesError(t *testing.T) {
 		},
 		// string join
 		{
+			140,
 			`{{ [1, 2].join(1) }}`,
 			fail.New(
 				1,
@@ -170,6 +185,7 @@ func TestFunctionGivesError(t *testing.T) {
 			),
 		},
 		{
+			150,
 			`{{ [1, 2].join({}) }}`,
 			fail.New(
 				1,
@@ -181,6 +197,7 @@ func TestFunctionGivesError(t *testing.T) {
 			),
 		},
 		{
+			160,
 			`{{ [1, 2].join([]) }}`,
 			fail.New(
 				1,
@@ -192,6 +209,7 @@ func TestFunctionGivesError(t *testing.T) {
 			),
 		},
 		{
+			170,
 			`{{ [1, 2].join(3.0) }}`,
 			fail.New(
 				1,
@@ -203,6 +221,7 @@ func TestFunctionGivesError(t *testing.T) {
 			),
 		},
 		{
+			180,
 			`{{ [1, 2].join(nil) }}`,
 			fail.New(
 				1,
@@ -215,6 +234,7 @@ func TestFunctionGivesError(t *testing.T) {
 		},
 		// string split
 		{
+			190,
 			`{{ "nice".split(1) }}`,
 			fail.New(
 				1,
@@ -226,6 +246,7 @@ func TestFunctionGivesError(t *testing.T) {
 			),
 		},
 		{
+			200,
 			`{{ "nice".split({}) }}`,
 			fail.New(
 				1,
@@ -237,6 +258,7 @@ func TestFunctionGivesError(t *testing.T) {
 			),
 		},
 		{
+			210,
 			`{{ "nice".split([]) }}`,
 			fail.New(
 				1,
@@ -248,6 +270,7 @@ func TestFunctionGivesError(t *testing.T) {
 			),
 		},
 		{
+			220,
 			`{{ "nice".split(3.0) }}`,
 			fail.New(
 				1,
@@ -259,6 +282,7 @@ func TestFunctionGivesError(t *testing.T) {
 			),
 		},
 		{
+			230,
 			`{{ "nice".split(nil) }}`,
 			fail.New(
 				1,
@@ -271,6 +295,7 @@ func TestFunctionGivesError(t *testing.T) {
 		},
 		// string trim
 		{
+			240,
 			`{{ "n".trim(1) }}`,
 			fail.New(
 				1,
@@ -282,6 +307,7 @@ func TestFunctionGivesError(t *testing.T) {
 			),
 		},
 		{
+			250,
 			`{{ "n".trim({}) }}`,
 			fail.New(
 				1,
@@ -293,6 +319,7 @@ func TestFunctionGivesError(t *testing.T) {
 			),
 		},
 		{
+			260,
 			`{{ "n".trim([]) }}`,
 			fail.New(
 				1,
@@ -304,6 +331,7 @@ func TestFunctionGivesError(t *testing.T) {
 			),
 		},
 		{
+			270,
 			`{{ "n".trim(3.0) }}`,
 			fail.New(
 				1,
@@ -315,6 +343,7 @@ func TestFunctionGivesError(t *testing.T) {
 			),
 		},
 		{
+			280,
 			`{{ "n".trim(nil) }}`,
 			fail.New(
 				1,
@@ -327,6 +356,7 @@ func TestFunctionGivesError(t *testing.T) {
 		},
 		// string trimRight
 		{
+			290,
 			`{{ "n".trimRight(1) }}`,
 			fail.New(
 				1,
@@ -338,6 +368,7 @@ func TestFunctionGivesError(t *testing.T) {
 			),
 		},
 		{
+			300,
 			`{{ "n".trimRight({}) }}`,
 			fail.New(
 				1,
@@ -349,6 +380,7 @@ func TestFunctionGivesError(t *testing.T) {
 			),
 		},
 		{
+			310,
 			`{{ "n".trimRight([]) }}`,
 			fail.New(
 				1,
@@ -360,6 +392,7 @@ func TestFunctionGivesError(t *testing.T) {
 			),
 		},
 		{
+			320,
 			`{{ "n".trimRight(3.0) }}`,
 			fail.New(
 				1,
@@ -371,6 +404,7 @@ func TestFunctionGivesError(t *testing.T) {
 			),
 		},
 		{
+			330,
 			`{{ "n".trimRight(nil) }}`,
 			fail.New(
 				1,
@@ -383,6 +417,7 @@ func TestFunctionGivesError(t *testing.T) {
 		},
 		// string trimLeft
 		{
+			340,
 			`{{ "n".trimLeft(1) }}`,
 			fail.New(
 				1,
@@ -394,6 +429,7 @@ func TestFunctionGivesError(t *testing.T) {
 			),
 		},
 		{
+			350,
 			`{{ "n".trimLeft({}) }}`,
 			fail.New(
 				1,
@@ -405,6 +441,7 @@ func TestFunctionGivesError(t *testing.T) {
 			),
 		},
 		{
+			360,
 			`{{ "n".trimLeft([]) }}`,
 			fail.New(
 				1,
@@ -416,6 +453,7 @@ func TestFunctionGivesError(t *testing.T) {
 			),
 		},
 		{
+			370,
 			`{{ "n".trimLeft(3.0) }}`,
 			fail.New(
 				1,
@@ -427,6 +465,7 @@ func TestFunctionGivesError(t *testing.T) {
 			),
 		},
 		{
+			380,
 			`{{ "n".trimLeft(nil) }}`,
 			fail.New(
 				1,
@@ -439,6 +478,7 @@ func TestFunctionGivesError(t *testing.T) {
 		},
 		// string repeat
 		{
+			390,
 			`{{ "n".repeat(true) }}`,
 			fail.New(
 				1,
@@ -450,6 +490,7 @@ func TestFunctionGivesError(t *testing.T) {
 			),
 		},
 		{
+			400,
 			`{{ "n".repeat(false) }}`,
 			fail.New(
 				1,
@@ -461,6 +502,7 @@ func TestFunctionGivesError(t *testing.T) {
 			),
 		},
 		{
+			410,
 			`{{ "n".repeat(nil) }}`,
 			fail.New(
 				1,
@@ -472,6 +514,7 @@ func TestFunctionGivesError(t *testing.T) {
 			),
 		},
 		{
+			420,
 			`{{ "n".repeat("3") }}`,
 			fail.New(
 				1,
@@ -483,6 +526,7 @@ func TestFunctionGivesError(t *testing.T) {
 			),
 		},
 		{
+			430,
 			`{{ "n".repeat() }}`,
 			fail.New(
 				1,
@@ -495,6 +539,7 @@ func TestFunctionGivesError(t *testing.T) {
 		},
 		// string contains
 		{
+			440,
 			`{{ "anna".contains() }}`,
 			fail.New(
 				1,
@@ -507,6 +552,7 @@ func TestFunctionGivesError(t *testing.T) {
 		},
 		// string truncate
 		{
+			450,
 			`{{ "anna serhii".truncate() }}`,
 			fail.New(
 				1,
@@ -518,6 +564,7 @@ func TestFunctionGivesError(t *testing.T) {
 			),
 		},
 		{
+			460,
 			`{{ "anna".truncate("hi") }}`,
 			fail.New(
 				1,
@@ -529,6 +576,7 @@ func TestFunctionGivesError(t *testing.T) {
 			),
 		},
 		{
+			470,
 			`{{ "anna".truncate(true) }}`,
 			fail.New(
 				1,
@@ -540,6 +588,7 @@ func TestFunctionGivesError(t *testing.T) {
 			),
 		},
 		{
+			480,
 			`{{ "anna".truncate([]) }}`,
 			fail.New(
 				1,
@@ -551,6 +600,7 @@ func TestFunctionGivesError(t *testing.T) {
 			),
 		},
 		{
+			490,
 			`{{ "anna".truncate({}) }}`,
 			fail.New(
 				1,
@@ -562,6 +612,7 @@ func TestFunctionGivesError(t *testing.T) {
 			),
 		},
 		{
+			500,
 			`{{ "anna".truncate(3.3) }}`,
 			fail.New(
 				1,
@@ -573,6 +624,7 @@ func TestFunctionGivesError(t *testing.T) {
 			),
 		},
 		{
+			510,
 			`{{ "anna".truncate(1, true) }}`,
 			fail.New(
 				1,
@@ -584,6 +636,7 @@ func TestFunctionGivesError(t *testing.T) {
 			),
 		},
 		{
+			520,
 			`{{ "anna".truncate(2, []) }}`,
 			fail.New(
 				1,
@@ -595,6 +648,7 @@ func TestFunctionGivesError(t *testing.T) {
 			),
 		},
 		{
+			530,
 			`{{ "anna".truncate(1, {}) }}`,
 			fail.New(
 				1,
@@ -606,6 +660,7 @@ func TestFunctionGivesError(t *testing.T) {
 			),
 		},
 		{
+			540,
 			`{{ "anna".truncate(1, 3.3) }}`,
 			fail.New(
 				1,
@@ -618,6 +673,7 @@ func TestFunctionGivesError(t *testing.T) {
 		},
 		// string decimal
 		{
+			550,
 			`{{ "100".decimal(1) }}`,
 			fail.New(
 				1,
@@ -629,6 +685,7 @@ func TestFunctionGivesError(t *testing.T) {
 			),
 		},
 		{
+			560,
 			`{{ "100".decimal(true) }}`,
 			fail.New(
 				1,
@@ -640,6 +697,7 @@ func TestFunctionGivesError(t *testing.T) {
 			),
 		},
 		{
+			570,
 			`{{ "100".decimal([]) }}`,
 			fail.New(
 				1,
@@ -651,6 +709,7 @@ func TestFunctionGivesError(t *testing.T) {
 			),
 		},
 		{
+			580,
 			`{{ "100".decimal({}) }}`,
 			fail.New(
 				1,
@@ -662,6 +721,7 @@ func TestFunctionGivesError(t *testing.T) {
 			),
 		},
 		{
+			590,
 			`{{ "100".decimal(1.1) }}`,
 			fail.New(
 				1,
@@ -673,6 +733,7 @@ func TestFunctionGivesError(t *testing.T) {
 			),
 		},
 		{
+			600,
 			`{{ "100".decimal("", "nice") }}`,
 			fail.New(
 				1,
@@ -684,6 +745,7 @@ func TestFunctionGivesError(t *testing.T) {
 			),
 		},
 		{
+			610,
 			`{{ "100".decimal("", true) }}`,
 			fail.New(
 				1,
@@ -695,6 +757,7 @@ func TestFunctionGivesError(t *testing.T) {
 			),
 		},
 		{
+			620,
 			`{{ "100".decimal("", []) }}`,
 			fail.New(
 				1,
@@ -706,6 +769,7 @@ func TestFunctionGivesError(t *testing.T) {
 			),
 		},
 		{
+			630,
 			`{{ "100".decimal("", {}) }}`,
 			fail.New(
 				1,
@@ -717,6 +781,7 @@ func TestFunctionGivesError(t *testing.T) {
 			),
 		},
 		{
+			640,
 			`{{ "100".decimal("", 1.1) }}`,
 			fail.New(
 				1,
@@ -729,6 +794,7 @@ func TestFunctionGivesError(t *testing.T) {
 		},
 		// integer decimal
 		{
+			650,
 			`{{ 100.decimal(1) }}`,
 			fail.New(
 				1,
@@ -740,6 +806,7 @@ func TestFunctionGivesError(t *testing.T) {
 			),
 		},
 		{
+			660,
 			`{{ 100.decimal(true) }}`,
 			fail.New(
 				1,
@@ -751,6 +818,7 @@ func TestFunctionGivesError(t *testing.T) {
 			),
 		},
 		{
+			670,
 			`{{ 100.decimal([]) }}`,
 			fail.New(
 				1,
@@ -762,6 +830,7 @@ func TestFunctionGivesError(t *testing.T) {
 			),
 		},
 		{
+			680,
 			`{{ 100.decimal({}) }}`,
 			fail.New(
 				1,
@@ -773,6 +842,7 @@ func TestFunctionGivesError(t *testing.T) {
 			),
 		},
 		{
+			690,
 			`{{ 100.decimal(1.1) }}`,
 			fail.New(
 				1,
@@ -784,6 +854,7 @@ func TestFunctionGivesError(t *testing.T) {
 			),
 		},
 		{
+			700,
 			`{{ 100.decimal("", "nice") }}`,
 			fail.New(
 				1,
@@ -795,6 +866,7 @@ func TestFunctionGivesError(t *testing.T) {
 			),
 		},
 		{
+			710,
 			`{{ 100.decimal("", true) }}`,
 			fail.New(
 				1,
@@ -806,6 +878,7 @@ func TestFunctionGivesError(t *testing.T) {
 			),
 		},
 		{
+			720,
 			`{{ 100.decimal("", []) }}`,
 			fail.New(
 				1,
@@ -817,6 +890,7 @@ func TestFunctionGivesError(t *testing.T) {
 			),
 		},
 		{
+			730,
 			`{{ 100.decimal("", {}) }}`,
 			fail.New(
 				1,
@@ -828,6 +902,7 @@ func TestFunctionGivesError(t *testing.T) {
 			),
 		},
 		{
+			740,
 			`{{ 100.decimal("", 1.1) }}`,
 			fail.New(
 				1,
@@ -840,6 +915,7 @@ func TestFunctionGivesError(t *testing.T) {
 		},
 		// boolean then
 		{
+			750,
 			`{{ true.then() }}`,
 			fail.New(
 				1,
@@ -851,6 +927,7 @@ func TestFunctionGivesError(t *testing.T) {
 			),
 		},
 		{
+			760,
 			`{{ false.then() }}`,
 			fail.New(
 				1,
@@ -863,6 +940,7 @@ func TestFunctionGivesError(t *testing.T) {
 		},
 		// array contains
 		{
+			770,
 			`{{ [1, 2].contains() }}`,
 			fail.New(
 				1,
@@ -875,6 +953,7 @@ func TestFunctionGivesError(t *testing.T) {
 		},
 		// array append
 		{
+			780,
 			`{{ [1, 2].append() }}`,
 			fail.New(
 				1,
@@ -887,6 +966,7 @@ func TestFunctionGivesError(t *testing.T) {
 		},
 		// array prepend
 		{
+			790,
 			`{{ [1, 2].prepend() }}`,
 			fail.New(
 				1,
@@ -904,15 +984,15 @@ func TestFunctionGivesError(t *testing.T) {
 		errObj, ok := evaluated.(*object.Error)
 
 		if !ok {
-			t.Fatalf("evaluation failed: %s", errObj.String())
+			t.Fatalf("Case %d: Evaluation failed: %s", tc.id, errObj.String())
 		}
 
 		if evaluated.Type() != object.ERR_OBJ {
-			t.Fatalf("expect object.ERR_OBJ, got=%T", evaluated)
+			t.Fatalf("Case %d: Expect object.ERR_OBJ, got=%T", tc.id, evaluated)
 		}
 
 		if errObj.String() != tc.err.String() {
-			t.Fatalf("expect error message=%q, got=%q", tc.err.String(), errObj.String())
+			t.Fatalf("Case %d: Expect error message=%q, got=%q", tc.id, tc.err.String(), errObj.String())
 		}
 	}
 }
