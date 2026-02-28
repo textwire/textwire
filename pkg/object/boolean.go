@@ -24,6 +24,10 @@ func (b *Bool) Dump(ident int) string {
 	return fmt.Sprintf(`<span style="%s">false</span>`, DUMP_KEYWORD)
 }
 
+func (b *Bool) JSON() (string, error) {
+	return fmt.Sprintf("%t", b.Value), nil
+}
+
 func (b *Bool) Val() any {
 	return b.Value
 }

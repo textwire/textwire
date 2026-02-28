@@ -23,6 +23,10 @@ func (s *Slot) Dump(ident int) string {
 	return fmt.Sprintf("@slot(%q)", s.Name)
 }
 
+func (s *Slot) JSON() (string, error) {
+	return "", nil
+}
+
 func (s *Slot) Val() any {
 	if s.Content == nil {
 		return ""

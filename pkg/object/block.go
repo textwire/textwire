@@ -37,6 +37,10 @@ func (b *Block) Dump(ident int) string {
 	return out.String()
 }
 
+func (b *Block) JSON() (string, error) {
+	return "", nil
+}
+
 func (b *Block) Val() any {
 	var result []any
 

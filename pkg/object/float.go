@@ -24,6 +24,10 @@ func (f *Float) Dump(ident int) string {
 	return fmt.Sprintf(`<span style="%s">%s</span>`, DUMP_NUM, f)
 }
 
+func (e *Float) JSON() (string, error) {
+	return e.String(), nil
+}
+
 func (f *Float) Val() any {
 	return f.Value
 }

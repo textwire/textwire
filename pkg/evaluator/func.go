@@ -35,6 +35,7 @@ var functions = map[object.ObjectType]map[string]*object.Builtin{
 		"contains": {Fn: arrayContainsFunc},
 		"append":   {Fn: arrayAppendFunc},
 		"prepend":  {Fn: arrayPrependFunc},
+		"json":     {Fn: jsonFunc},
 	},
 	object.FLOAT_OBJ: {
 		"int":   {Fn: floatIntFunc},
@@ -55,5 +56,16 @@ var functions = map[object.ObjectType]map[string]*object.Builtin{
 		"binary": {Fn: boolBinaryFunc},
 		"then":   {Fn: boolThenFunc},
 	},
-	object.OBJ_OBJ: {},
+	object.OBJ_OBJ: {
+		"json": {Fn: jsonFunc},
+	},
+}
+
+// jsonFunc convert value to json representation
+func jsonFunc(receiver object.Object, _ ...object.Object) (object.Object, error) {
+	json, err := receiver.JSON()
+	if err != nil {
+		return nil, err
+	}
+	return &object.Str{Value: json}, nil
 }

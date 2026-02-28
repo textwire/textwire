@@ -11,7 +11,11 @@ func (b *Break) String() string {
 }
 
 func (b *Break) Dump(ident int) string {
-	return "@break"
+	return ""
+}
+
+func (b *Break) JSON() (string, error) {
+	return "", nil
 }
 
 func (b *Break) Val() any {

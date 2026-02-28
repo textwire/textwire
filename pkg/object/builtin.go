@@ -15,7 +15,11 @@ func (b *Builtin) String() string {
 }
 
 func (b *Builtin) Dump(ident int) string {
-	return "builtin"
+	return ""
+}
+
+func (b *Builtin) JSON() (string, error) {
+	return "", nil
 }
 
 func (b *Builtin) Val() any {
