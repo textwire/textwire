@@ -735,13 +735,8 @@ func (e *Evaluator) infixExp(
 		return left
 	}
 
-	// Short-circuit evaluation for logical operators to prevent
-	// checking conditions if the left side is false.
-	if op == "&&" && !isTruthy(left) {
-		return &object.Bool{Value: false}
-	}
-	if op == "||" && isTruthy(left) {
-		return &object.Bool{Value: true}
+	if obj, ok := e.shortCircuit(left, op); ok {
+		return obj
 	}
 
 	right := e.Eval(rightNode, ctx)
@@ -754,6 +749,19 @@ func (e *Evaluator) infixExp(
 	}
 
 	return e.infixOpExp(op, left, right, leftNode, ctx)
+}
+
+// Short-circuit evaluation for logical operators to prevent
+// checking conditions if the left side is false.
+func (e *Evaluator) shortCircuit(left object.Object, op string) (object.Object, bool) {
+	if op == "&&" && !isTruthy(left) {
+		return &object.Bool{Value: false}, true
+	}
+	if op == "||" && isTruthy(left) {
+		return &object.Bool{Value: true}, true
+	}
+
+	return nil, false
 }
 
 func (e *Evaluator) postfixExp(postfixExp *ast.PostfixExp, ctx *Context) object.Object {
