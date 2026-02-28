@@ -2,17 +2,17 @@
 
 ## v3.3.0 (2026-03-03)
 
-- ✨ Added `hasValue()` global function which checks if variables are defined and have non-nullable values. If variable inside is "" empty string, 0 int, 0.0 float, nil, {} empty object, [] empty array or false, it returns `false`.
-- ✨ Added `format()` built-in function for strings that allows you to embed values into a string. `{{ "He has %s apples".format(apples.len()) }}`.
+- ✨ Added `hasValue()` global function which checks if variables are defined and have non-nullable values. If variable inside is "" empty string, 0 int, 0.0 float, nil, {} empty object, [] empty array or false, it returns `false`. Closes [#73](https://github.com/textwire/textwire/issues/73).
+- ✨ Added `format()` built-in function for strings that allows you to embed values into a string. `{{ "He has %s apples".format(apples.len()) }}`. Closes [#71](https://github.com/textwire/textwire/issues/71).
 - 🗑️ Deprecated `@breakIf` and `@continueIf`, use lowercase `@breakif` and `@continueif`.
-- ✨ Added conditional slots `@slotif` for components when you want to pass slot if some condition is `true`.
+- ✨ Added conditional slots `@slotif` for components when you want to pass slot if some condition is `true`. Closes [#72](https://github.com/textwire/textwire/issues/72).
     ```textwire
     @component('header')
         @slotif(isHome)
             some HTML is here...
         @end
     @end
-    ```
+- ✨ Added `json()` built-in function for arrays and objects that allows you convert any array or object into a JSON string. `{{ arr.json() }}`. Closes [#35](https://github.com/textwire/textwire/issues/35).
 
 ## v3.2.5 (2026-02-22)
 
