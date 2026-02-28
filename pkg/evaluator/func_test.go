@@ -992,7 +992,12 @@ func TestFunctionGivesError(t *testing.T) {
 		}
 
 		if errObj.String() != tc.err.String() {
-			t.Fatalf("Case: %d. Expect error message=%q, got=%q", tc.id, tc.err.String(), errObj.String())
+			t.Fatalf(
+				"Case: %d. Expect error message=%q, got=%q",
+				tc.id,
+				tc.err.String(),
+				errObj.String(),
+			)
 		}
 	}
 }

@@ -1,3 +1,5 @@
+- Try to not use string escaping if possible like that `\"`. Textwire supports double and single quotes. Plus, Go supports strings with backticks. With this in mind, you can write code clean.
+
 ## Description
 Textwire is a templating language for Go. It is designed to easily inject variables from Go code into a template file or just a regular string. It uses directives like `@if()`, `@for()`, `@each()`, and expressions like `{{ x + y }}` and `{{ "Hello, World!".lower() }}`.
 

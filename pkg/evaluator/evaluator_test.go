@@ -410,10 +410,18 @@ func TestEvalEachStmt(t *testing.T) {
 		{190, `@each(n in [1, 2, 3, 4, 5])@if(n == 3)@continue@end{{ n }}@end`, "1245"},
 		// test @breakif directive
 		{200, `@each(n in [1, 2, 3, 4, 5])@breakif(n == 3){{ n }}@end`, "12"},
-		{210, `@each(n in ["ann", "serhii", "sam"])@breakif(n == 'sam'){{ n }} @end`, "ann serhii "},
+		{
+			210,
+			`@each(n in ["ann", "serhii", "sam"])@breakif(n == 'sam'){{ n }} @end`,
+			"ann serhii ",
+		},
 		// test @continueif directive
 		{220, `@each(n in [1, 2, 3, 4, 5])@continueif(n == 3){{ n }}@end`, "1245"},
-		{230, `@each(n in ["ann", "serhii", "sam"])@continueif(n == 'sam'){{ n }} @end`, "ann serhii "},
+		{
+			230,
+			`@each(n in ["ann", "serhii", "sam"])@continueif(n == 'sam'){{ n }} @end`,
+			"ann serhii ",
+		},
 		// support continueIf and breakIf
 		{240, `@each(n in [1, 2])@continueIf(n == 2){{ n }}@end`, "1"},
 		{250, `@each(n in [1, 2, 3])@breakIf(n == 2){{ n }}@end`, "1"},
