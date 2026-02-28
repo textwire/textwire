@@ -19,6 +19,9 @@ func TestEvalArrayFunctions(t *testing.T) {
 		{50, `{{ ["one", "two", "three"].join(" ") }}`, "one two three"},
 		{60, `{{ ["one", "two", "three"].join() }}`, "one,two,three"},
 		{70, `{{ [].join() }}`, ""},
+		{75, `{{ [1, 2.5, true, 'text'].join('-') }}`, "1-2.5-1-text"},
+		{76, `{{ [1, nil, 3].join(', ') }}`, "1, , 3"},
+		{77, `{{ [[1, 2], [3, 4]].join('|') }}`, "1, 2|3, 4"},
 		// rand
 		{80, `{{ [].rand() }}`, ""},
 		{90, `{{ [1].rand() }}`, "1"},
@@ -40,6 +43,8 @@ func TestEvalArrayFunctions(t *testing.T) {
 		{230, `{{ ['one', 'two', 'three', "four"].slice(1, 2) }}`, "two"},
 		{240, `{{ ['one', 'two', 'three', "four"].slice(0, -3) }}`, "one, two, three, four"},
 		{250, `{{ [1, 2, 3, 4].slice(-3, -1) }}`, "1, 2, 3, 4"},
+		{251, `{{ [1, 2, 3].slice(2, 2) }}`, ""},
+		{252, `{{ [1, 2, 3, 4].slice(-2, 2) }}`, "1, 2"},
 		// shuffle
 		{260, `{{ [].shuffle() }}`, ""},
 		{270, `{{ [1].shuffle() }}`, "1"},
@@ -62,6 +67,11 @@ func TestEvalArrayFunctions(t *testing.T) {
 		{430, `{{ [[], [1], [2]].contains([2]) }}`, "1"},
 		{440, `{{ ![{}, 21].contains({age: 21}) }}`, "1"},
 		{450, `{{ ![[], [1], [2]].contains([2]) }}`, "0"},
+		{451, `{{ [1, nil, 3].contains(nil) }}`, "1"},
+		{452, `{{ [1, 0].contains(1) }}`, "1"},
+		{453, `{{ [1.5, 2.5].contains(1.5) }}`, "1"},
+		{454, `{{ [1, 'two', 3].contains('two') }}`, "1"},
+		{455, `{{ [[1, [2, 3]]].contains([1, [2, 3]]) }}`, "1"},
 		// append
 		{460, `{{ [].append(1) }}`, "1"},
 		{470, `{{ [1, 2, 3].append(4) }}`, "1, 2, 3, 4"},
@@ -78,9 +88,24 @@ func TestEvalArrayFunctions(t *testing.T) {
 		{570, `{{ [1, 2].prepend([3, 4]).len() }}`, "3"},
 		// json
 		{580, `{{ [].json() }}`, "[]"},
-		{590, `{{ [1, 2.1, true, false, nil, "Amy", []].json() }}`, `[1,2.1,true,false,null,"Amy",[]]`},
-		{600, `{{ [{name: "Chiori", game: "Genshin Impact"}, -10].json() }}`, `[{"game":"Genshin Impact","name":"Chiori"},-10]`},
+		{
+			590,
+			`{{ [1, 2.1, true, false, nil, "Amy", []].json() }}`,
+			`[1,2.1,true,false,null,"Amy",[]]`,
+		},
+		{
+			600,
+			`{{ [{name: "Chiori", game: "Genshin Impact"}, -10].json() }}`,
+			`[{"game":"Genshin Impact","name":"Chiori"},-10]`,
+		},
 		{610, `{{ [[[[[1,2]]]]].json() }}`, "[[[[[1,2]]]]]"},
+		{
+			611,
+			`{{ [{name: 'O Brien'}, {name: 'Line Break'}].json() }}`,
+			`[{"name":"O Brien"},{"name":"Line Break"}]`,
+		},
+		{612, `{{ [true, false, nil].json() }}`, "[true,false,null]"},
+		{613, `{{ [{a: [1, {b: 2}]}].json() }}`, `[{"a":[1,{"b":2}]}]`},
 	}
 
 	for _, tc := range cases {
