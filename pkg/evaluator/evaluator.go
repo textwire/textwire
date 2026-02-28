@@ -755,10 +755,10 @@ func (e *Evaluator) infixExp(
 // checking conditions if the left side is false.
 func (e *Evaluator) shortCircuit(left object.Object, op string) (object.Object, bool) {
 	if op == "&&" && !isTruthy(left) {
-		return &object.Bool{Value: false}, true
+		return FALSE, true
 	}
 	if op == "||" && isTruthy(left) {
-		return &object.Bool{Value: true}, true
+		return TRUE, true
 	}
 
 	return nil, false
