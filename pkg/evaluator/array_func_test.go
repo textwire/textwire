@@ -110,6 +110,10 @@ func TestEvalArrayFunctions(t *testing.T) {
 		},
 		{612, `{{ [true, false, nil].json() }}`, "[true,false,null]"},
 		{613, `{{ [{a: [1, {b: 2}]}].json() }}`, `[{"a":[1,{"b":2}]}]`},
+		{614, `{{ [0.0/0.0].json() }}`, "[null]"},
+		{615, `{{ [1.0/0.0].json() }}`, "[null]"},
+		{616, `{{ [-1.0/0.0].json() }}`, "[null]"},
+		{617, `{{ [1.0, (0.0/0.0), 3.0].json() }}`, "[1.0,null,3.0]"},
 	}
 
 	for _, tc := range cases {

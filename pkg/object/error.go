@@ -38,7 +38,7 @@ func (e *Error) Dump(ident int) string {
 }
 
 func (e *Error) JSON() (string, error) {
-	return e.Err.String(), nil
+	return fmt.Sprintf(`"%s"`, e.Err), nil
 }
 
 func (e *Error) Val() any {

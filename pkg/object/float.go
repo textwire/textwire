@@ -2,6 +2,7 @@ package object
 
 import (
 	"fmt"
+	"math"
 	"strconv"
 	"strings"
 
@@ -25,6 +26,9 @@ func (f *Float) Dump(ident int) string {
 }
 
 func (e *Float) JSON() (string, error) {
+	if math.IsNaN(e.Value) || math.IsInf(e.Value, 0) {
+		return "null", nil
+	}
 	return e.String(), nil
 }
 
