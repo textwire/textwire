@@ -1,3 +1,4 @@
 <p>@slot</p>
 <span>@slot('span')</span>
 <h2>@slot('h2')</h2>
+<h3>@slot('h3')</h3>

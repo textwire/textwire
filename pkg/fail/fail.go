@@ -31,7 +31,7 @@ const (
 
 	// Evaluator (interpreter) errors
 	ErrUnknownNodeType         = "unsupported expression type '%T'"
-	ErrInsertMustHaveContent   = "@insert() requires either a body or a second argument"
+	ErrInsertMustHaveContent   = "@insert() requires either a block (body) or a second argument"
 	ErrIndexNotSupported       = "type '%s' does not support indexing"
 	ErrUnknownOp               = "unknown operator '%s%s'"
 	ErrCannotSubFromFloat      = "cannot decrement from float '%s' due to error: %s"

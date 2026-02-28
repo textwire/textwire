@@ -3,5 +3,6 @@
 @slotif(true)Textwire@end
 @slotif(true, 'span')Go@end
 @slotif(false, 'h2')React@end
+@slotif("str", 'h3')Vue@end
 @end
 </section>
