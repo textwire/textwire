@@ -304,6 +304,17 @@ func TestNewTemplate(t *testing.T) {
 			data: map[string]any{"name": "Анна ♥️", "age": 20},
 			dir:  "comp-and-slots",
 		},
+		{
+			conf: &config.Config{},
+			view: "index",
+			data: map[string]any{
+				"person": struct {
+					Name string
+					Age  uint8
+				}{Name: "Anna", Age: 25},
+			},
+			dir: "json",
+		},
 	}
 
 	for _, tc := range cases {
