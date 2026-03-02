@@ -129,13 +129,15 @@ func strContainsFunc(receiver object.Object, args ...object.Object) (object.Obje
 	return nativeBoolToBoolObj(strings.Contains(val, substr)), nil
 }
 
-// strTruncateFunc returns a string truncated to the given length
+// strTruncateFunc truncates a string to a specified length and appends an ellipsis.
 func strTruncateFunc(receiver object.Object, args ...object.Object) (object.Object, error) {
+	// Validate that at least the limit argument is provided
 	if len(args) == 0 {
 		msg := fmt.Sprintf(fail.ErrFuncMissingArg, object.STR_OBJ, "truncate")
 		return nil, errors.New(msg)
 	}
 
+	// Validate that the first argument is an integer (the limit)
 	firstArg, ok := args[0].(*object.Int)
 	if !ok {
 		msg := fmt.Sprintf(fail.ErrFuncFirstArgInt, object.STR_OBJ, "truncate")
@@ -144,13 +146,19 @@ func strTruncateFunc(receiver object.Object, args ...object.Object) (object.Obje
 
 	val := receiver.(*object.Str).Value
 
-	limit := int(firstArg.Value)
+	// Handle negative limits by treating them as 0
+	// This prevents slice bounds errors when limit < 0
+	limit := max(int(firstArg.Value), 0)
+
+	// If the string is already shorter than or equal to the limit, return it unchanged
+	// This ensures we don't truncate strings that don't need truncation
 	if limit >= utf8.RuneCountInString(val) {
 		return &object.Str{Value: val}, nil
 	}
 
 	ellipsis := "..."
 
+	// If a custom suffix is provided as the second argument, use it instead
 	if len(args) > 1 {
 		secondArg, ok := args[1].(*object.Str)
 		if ok {
@@ -161,9 +169,8 @@ func strTruncateFunc(receiver object.Object, args ...object.Object) (object.Obje
 		}
 	}
 
-	newVal := val[:firstArg.Value] + ellipsis
-
-	return &object.Str{Value: newVal}, nil
+	// Truncate the string at the limit and append the suffix
+	return &object.Str{Value: val[:limit] + ellipsis}, nil
 }
 
 // strDecimalFunc returns a string formatted as a decimal number
@@ -264,7 +271,13 @@ func strRepeatFunc(receiver object.Object, args ...object.Object) (object.Object
 	}
 
 	val := receiver.(*object.Str).Value
-	repeated := strings.Repeat(val, int(firstArg.Value))
+	count := int(firstArg.Value)
+
+	if count < 0 {
+		return &object.Str{Value: ""}, nil
+	}
+
+	repeated := strings.Repeat(val, count)
 
 	return &object.Str{Value: repeated}, nil
 }
