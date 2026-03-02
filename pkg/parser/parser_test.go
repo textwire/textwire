@@ -1566,8 +1566,7 @@ func TestParseObjectStatement(t *testing.T) {
 
 	nested, ok := obj.Pairs["father"].(*ast.ObjectLiteral)
 	if !ok {
-		t.Fatalf("obj.Pairs['father'] is not a ObjectLiteral, got %T",
-			obj.Pairs["father"])
+		t.Fatalf("obj.Pairs['father'] is not a ObjectLiteral, got %T", obj.Pairs["father"])
 	}
 
 	testStringLiteral(t, nested.Pairs["name"], "John")
