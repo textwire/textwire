@@ -15,6 +15,8 @@ func TestEvalStringFunctions(t *testing.T) {
 		{40, `{{ "👋🏽🌍".len() }}`, "3"}, // 👋 + 🏽 skin tone modifier give length 2
 		// split
 		{50, `{{ "one two three".split() }}`, "one, two, three"},
+		{51, `{{ "".split() }}`, ""},
+		{52, `{{ "".split("|") }}`, ""},
 		{60, `{{ "one|two|three".split("|") }}`, "one, two, three"},
 		{70, `{{ "one-two".split("-") }}`, "one, two"},
 		{80, `{{ "我喜欢中文".split("欢") }}`, "我喜, 中文"},
@@ -181,10 +183,19 @@ func TestEvalStringFunctions(t *testing.T) {
 		{1270, `{{ "%.4f".format(3.14159) }}`, "%.4f"},
 		{1280, `{{ "%%%s%%".format("middle") }}`, "%%middle%%"},
 		{1290, `{{ "%s	%s".format("a", "b") }}`, "a	b"},
-		// empty string split
-		{1470, `{{ "".split() }}`, ""},
-		{1480, `{{ "".split("|") }}`, ""},
-		// method chaining
+	}
+
+	for _, tc := range cases {
+		evaluationExpected(t, tc.inp, tc.expect, tc.id)
+	}
+}
+
+func TestStringMethodChaining(t *testing.T) {
+	cases := []struct {
+		id     int
+		inp    string
+		expect string
+	}{
 		{600, `{{ "Hello, World!".lower().contains("world") }}`, "1"},
 		{1370, `{{ "HELLO".lower().upper() }}`, "HELLO"},
 		{1380, `{{ "test".upper().lower().upper() }}`, "TEST"},
