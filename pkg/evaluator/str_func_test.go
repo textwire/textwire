@@ -18,6 +18,12 @@ func TestEvalStringFunctions(t *testing.T) {
 		{60, `{{ "one|two|three".split("|") }}`, "one, two, three"},
 		{70, `{{ "one-two".split("-") }}`, "one, two"},
 		{80, `{{ "我喜欢中文".split("欢") }}`, "我喜, 中文"},
+		{1300, `{{ "abc".split("") }}`, "a, b, c"},
+		{1310, `{{ "".split("") }}`, ""},
+		{1320, `{{ "hello".split("x") }}`, "hello"},
+		{1330, `{{ "test".split("xyz") }}`, "test"},
+		{1420, `{{ "line1\nline2".split("\n") }}`, "line1, line2"},
+		{1430, `{{ "col1\tcol2".split("\t") }}`, "col1, col2"},
 		// raw
 		{90, `{{ "<h1>nice</h1>".raw() }}`, "<h1>nice</h1>"},
 		{100, `{{ "cool".raw() }}`, "cool"},
@@ -28,11 +34,16 @@ func TestEvalStringFunctions(t *testing.T) {
 		{140, `{{ "(no war!)".trim("()") }}`, "no war!"},
 		{150, `{{ " 中国很大   ".trim("中 大") }}`, "国很"},
 		{160, `{{ "😡 Elton 😂 Elton".trim("😡😤") }}`, " Elton 😂 Elton"},
+		{1340, `{{ "  test  ".trim("") }}`, "  test  "},
+		{1440, `{{ "test\n".trim() }}`, "test"},
+		{1450, `{{ "  \t\n  ".trim() }}`, ""},
+		{1460, `{{ "hello\r\n".trim() }}`, "hello"},
 		// trimRight
 		{170, `{{ " 	test		".trimRight() }}`, " 	test"},
 		{180, `{{ "ease".trimRight("e") }}`, "eas"},
 		{190, `{{ "(no war!)".trimRight("()") }}`, "(no war!"},
 		{200, `{{ " 中国很大   ".trimRight("中 大") }}`, " 中国很"},
+		{200, `{{ "nice\n".trimRight() }}`, "nice"},
 		// trimLeft
 		{210, `{{ " 	test		".trimLeft() }}`, "test		"},
 		{220, `{{ "Textwire".trimLeft('t') }}`, "Textwire"},
@@ -51,6 +62,12 @@ func TestEvalStringFunctions(t *testing.T) {
 		{340, `{{ "中国 ".repeat(4) }}`, "中国 中国 中国 中国 "},
 		{350, `{{ "просто ".repeat(2) }}`, "просто просто "},
 		{360, `{{ '🤣'.repeat(5) }}`, "🤣🤣🤣🤣🤣"},
+		{1350, `{{ "a".repeat(-1) }}`, ""},
+		{
+			1360,
+			`{{ "a".repeat(100) }}`,
+			"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+		},
 		// upper
 		{370, `{{ "Hello World".upper() }}`, "HELLO WORLD"},
 		{380, `{{ "upper_-1234567890!@#$%^*()=+".upper() }}`, "UPPER_-1234567890!@#$%^*()=+"},
@@ -78,9 +95,9 @@ func TestEvalStringFunctions(t *testing.T) {
 		{570, `{{ "Hello World 你好".contains("你好 ") }}`, "0"},
 		{580, `{{ "".contains("") }}`, "1"},
 		{590, `{{ "some".contains("") }}`, "1"},
-		{600, `{{ "Hello, World!".lower().contains("world") }}`, "1"},
-		{610, `{{ !"aaa".contains("a") }}`, "0"},
-		{620, `{{ !"aaa".contains("b") }}`, "1"},
+		{1490, `{{ "".contains("test") }}`, "0"},
+		{1500, `{{ "".contains("") }}`, "1"},
+		{1510, `{{ "test".contains("") }}`, "1"},
 		// truncate
 		{630, `{{ "Hello World".truncate(5) }}`, "Hello..."},
 		{640, `{{ "谢尔盖".truncate(3) }}`, "谢尔盖"},
@@ -91,6 +108,9 @@ func TestEvalStringFunctions(t *testing.T) {
 		{690, `{{ "1234567890".truncate(4, "~") }}`, "1234~"},
 		{700, `{{ "Hello World".truncate(0) }}`, "..."},
 		{710, `{{ "Hello World".truncate(0, "---") }}`, "---"},
+		{1520, `{{ "test".truncate(-1) }}`, "..."},
+		{1530, `{{ "test".truncate(100) }}`, "test"},
+		{1540, `{{ "".truncate(5) }}`, ""},
 		// decimal
 		{720, `{{ "".decimal() }}`, ""},
 		{730, `{{ "0".decimal() }}`, "0.00"},
@@ -105,6 +125,9 @@ func TestEvalStringFunctions(t *testing.T) {
 		{820, `{{ "12.02".decimal() }}`, "12.02"},
 		{830, `{{ "10,10".decimal() }}`, "10,10"},
 		{840, `{{ "-900".decimal(',') }}`, "-900,00"},
+		{1550, `{{ "0.001".decimal() }}`, "0.001"},
+		{1560, `{{ "1000000".decimal() }}`, "1000000.00"},
+		{1570, `{{ "-0.5".decimal() }}`, "-0.5"},
 		// at
 		{850, `{{ "Textwire is awesome".at() }}`, "T"},
 		{860, `{{ "Textwire is awesome".at(0) }}`, "T"},
@@ -158,6 +181,14 @@ func TestEvalStringFunctions(t *testing.T) {
 		{1270, `{{ "%.4f".format(3.14159) }}`, "%.4f"},
 		{1280, `{{ "%%%s%%".format("middle") }}`, "%%middle%%"},
 		{1290, `{{ "%s	%s".format("a", "b") }}`, "a	b"},
+		// empty string split
+		{1470, `{{ "".split() }}`, ""},
+		{1480, `{{ "".split("|") }}`, ""},
+		// method chaining
+		{600, `{{ "Hello, World!".lower().contains("world") }}`, "1"},
+		{1370, `{{ "HELLO".lower().upper() }}`, "HELLO"},
+		{1380, `{{ "test".upper().lower().upper() }}`, "TEST"},
+		{1410, `{{ "anna".reverse().upper() }}`, "ANNA"},
 	}
 
 	for _, tc := range cases {
