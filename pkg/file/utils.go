@@ -5,6 +5,26 @@ import (
 	"strings"
 )
 
+type PathAlias string
+
+const (
+	PathAliasComp PathAlias = "components/"
+	PathAliasUse  PathAlias = "layouts/"
+)
+
+// ReplacePathAlias replaces Textwire alias `~` with needed file prefix.
+func ReplacePathAlias(s string, shortenTo PathAlias) string {
+	if s == "" {
+		return ""
+	}
+
+	if s[0] == '~' {
+		s = string(shortenTo) + s[1:]
+	}
+
+	return s
+}
+
 // joinPaths safely joins 2 paths together treating slashes correctly.
 func JoinPaths(path1, path2 string) string {
 	return strings.TrimRight(path1, "/") + "/" + strings.TrimLeft(path2, "/")

@@ -5,7 +5,6 @@ import (
 
 	"github.com/textwire/textwire/v3/pkg/file"
 	"github.com/textwire/textwire/v3/pkg/token"
-	"github.com/textwire/textwire/v3/pkg/utils"
 
 	"slices"
 
@@ -444,7 +443,7 @@ func (p *Parser) useStmt() ast.Statement {
 
 	stmt.Name = ast.NewStringLiteral(
 		p.curToken,
-		utils.AliasPathShortcut(p.curToken.Literal, "layouts"),
+		file.ReplacePathAlias(p.curToken.Literal, file.PathAliasUse),
 	)
 
 	if !p.expectPeek(token.RPAREN) { // move to ")"
@@ -517,7 +516,7 @@ func (p *Parser) componentStmt() ast.Statement {
 
 	stmt.Name = ast.NewStringLiteral(
 		p.curToken,
-		utils.AliasPathShortcut(p.curToken.Literal, "components"),
+		file.ReplacePathAlias(p.curToken.Literal, file.PathAliasComp),
 	)
 
 	if p.peekTokenIs(token.COMMA) {
