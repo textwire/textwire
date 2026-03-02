@@ -4,13 +4,12 @@ import (
 	"testing"
 )
 
-func TestEvalObjectFunctions(t *testing.T) {
+func TestObjectJSON(t *testing.T) {
 	cases := []struct {
 		id     int
 		inp    string
 		expect string
 	}{
-		// json
 		{10, `{{ {}.json() }}`, "{}"},
 		{20, `{{ {one: {two: {}}}.json() }}`, `{"one":{"two":{}}}`},
 		{
@@ -51,7 +50,19 @@ func TestEvalObjectFunctions(t *testing.T) {
 			`{{ {nan: (0.0/0.0), inf: (1.0/0.0), ninf: (-1.0/0.0)}.json() }}`,
 			`{"inf":null,"nan":null,"ninf":null}`,
 		},
-		// camel
+	}
+
+	for _, tc := range cases {
+		evaluationExpected(t, tc.inp, tc.expect, tc.id)
+	}
+}
+
+func TestObjectCamel(t *testing.T) {
+	cases := []struct {
+		id     int
+		inp    string
+		expect string
+	}{
 		{
 			630,
 			`{{ {first_name: 1, LastName: 2}.camel() }}`,
@@ -133,7 +144,19 @@ func TestEvalObjectFunctions(t *testing.T) {
 			`{{ {user_data: {first_name: "John", last_name: "Doe"}}.camel() }}`,
 			`{userData: {firstName: "John", lastName: "Doe"}}`,
 		},
-		// get
+	}
+
+	for _, tc := range cases {
+		evaluationExpected(t, tc.inp, tc.expect, tc.id)
+	}
+}
+
+func TestObjectGet(t *testing.T) {
+	cases := []struct {
+		id     int
+		inp    string
+		expect string
+	}{
 		{810, `{{ {name: "Chiori"}.get('name') }}`, "Chiori"},
 		{820, `{{ {}.get('name') }}`, ""},
 		{821, `{{ {}.get('') }}`, ""},
