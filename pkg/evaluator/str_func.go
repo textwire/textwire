@@ -173,9 +173,25 @@ func strTruncateFunc(receiver object.Object, args ...object.Object) (object.Obje
 	return &object.Str{Value: val[:limit] + ellipsis}, nil
 }
 
-// strDecimalFunc returns a string formatted as a decimal number
+// strDecimalFunc returns a string formatted as a decimal number.
+// For integers: appends decimal places (e.g., "100" → "100.00")
+// For floats: ensures minimum decimal places (e.g., "-0.5" → "-0.50")
+// Non-numeric strings are returned unchanged.
 func strDecimalFunc(receiver object.Object, args ...object.Object) (object.Object, error) {
-	return addDecimals(receiver, object.STR_OBJ, args...)
+	val := receiver.(*object.Str).Value
+	separator, decimals, err := getDecimalConfig(object.STR_OBJ, args...)
+	if err != nil {
+		return nil, err
+	}
+
+	switch {
+	case strIsInt(val):
+		return &object.Str{Value: formatIntDecimals(val, separator, decimals)}, nil
+	case isValidFloat(val):
+		return &object.Str{Value: formatFloatDecimals(val, separator, decimals)}, nil
+	default:
+		return &object.Str{Value: val}, nil
+	}
 }
 
 // strAtFunc returns the character at the given index in the string
