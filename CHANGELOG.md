@@ -4,6 +4,7 @@
 
 - 🐛 Fixed issue where you couldn't have empty `@else` block for `@if`, `@each` and `@for` statements.
 - 🧑‍💻 Added a proper error message when you are accessing an object property that starts with a number, like `obj.1st`. Before, you'll get an unclear error because lexer was parsing `1st` as integer `1` and identifier `st`.
+- ✨ Added `camel()` built-in function for objects that recursively converts all keys on the object to camel case. Useful before converting to json.
 
 ## v3.3.0 (2026-02-28)
 

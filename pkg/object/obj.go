@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"sort"
 	"strings"
+
+	"github.com/textwire/textwire/v3/pkg/utils"
 )
 
 type Obj struct {
@@ -128,6 +130,21 @@ func (o *Obj) Val() any {
 
 func (o *Obj) Is(t ObjectType) bool {
 	return t == o.Type()
+}
+
+// ToCamel converts each key in a pair to camel case and returns it
+// without mutating it.
+func (o Obj) ToCamel() map[string]Object {
+	res := make(map[string]Object, len(o.Pairs))
+	for k, v := range o.Pairs {
+		key := utils.ToCamel(k)
+		if v.Is(OBJ_OBJ) {
+			v.(*Obj).Pairs = v.(*Obj).ToCamel()
+		}
+		res[key] = v
+	}
+
+	return res
 }
 
 func (o *Obj) sortedKeys() []string {
