@@ -463,8 +463,19 @@ func (l *Lexer) readString() string {
 
 	l.readChar() // skip the last quote
 
+	return handleEscapeSequences(result, quote)
+}
+
+func handleEscapeSequences(s string, quote byte) string {
 	// remove slashes before quotes
-	return strings.ReplaceAll(result, "\\"+string(quote), string(quote))
+	s = strings.ReplaceAll(s, "\\"+string(quote), string(quote))
+
+	// handle other escape sequences
+	s = strings.ReplaceAll(s, "\\n", "\n")
+	s = strings.ReplaceAll(s, "\\t", "\t")
+	s = strings.ReplaceAll(s, "\\r", "\r")
+
+	return strings.ReplaceAll(s, "\\\\", "\\")
 }
 
 func (l *Lexer) readNumber() (string, bool) {

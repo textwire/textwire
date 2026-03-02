@@ -3,6 +3,7 @@
 ## v3.4.0 (2026-03-03)
 
 - 🐛 Fixed issue where you couldn't have empty `@else` block for `@if`, `@each` and `@for` statements.
+- 🐛 Fixed bug with lexer escaping sequence. If you do something like `{{ "test\n".trim() }}` it wan't trimming new line before.
 - 🧑‍💻 Added a proper error message when you are accessing an object property that starts with a number, like `{{ obj.1st }}`. Before, you'll get an unclear error because lexer was parsing `1st` as integer `1` and identifier `st`.
 - 🧑‍💻 Added a proper error message when you are using empty string as an argument to `@use` directive. Like `@use('')`.
 - ✨ Added alias `~` for accessing `views/` directory in your handlers. Similar to components and layouts alias. Now you can do `Response(w, "~home", data)` instead of `Response(w, "views/home", data)`. Closes [#77](https://github.com/textwire/textwire/issues/77).
