@@ -5,6 +5,7 @@ import (
 
 	"github.com/textwire/textwire/v3/pkg/file"
 	"github.com/textwire/textwire/v3/pkg/token"
+	"github.com/textwire/textwire/v3/pkg/utils"
 
 	"slices"
 
@@ -443,7 +444,7 @@ func (p *Parser) useStmt() ast.Statement {
 
 	stmt.Name = ast.NewStringLiteral(
 		p.curToken,
-		p.parseAliasPathShortcut("layouts"),
+		utils.AliasPathShortcut(p.curToken.Literal, "layouts"),
 	)
 
 	if !p.expectPeek(token.RPAREN) { // move to ")"
@@ -510,9 +511,13 @@ func (p *Parser) componentStmt() ast.Statement {
 
 	p.nextToken() // skip "("
 
+	if p.curToken.Literal == "" {
+		p.newError(p.curToken.ErrorLine(), fail.ErrExpectedComponentName)
+	}
+
 	stmt.Name = ast.NewStringLiteral(
 		p.curToken,
-		p.parseAliasPathShortcut("components"),
+		utils.AliasPathShortcut(p.curToken.Literal, "components"),
 	)
 
 	if p.peekTokenIs(token.COMMA) {
@@ -563,21 +568,6 @@ func (p *Parser) assignSlotsToComp(stmt *ast.ComponentStmt) ast.Statement {
 	}
 
 	return nil
-}
-
-func (p *Parser) parseAliasPathShortcut(shortenTo string) string {
-	name := p.curToken.Literal
-
-	if name == "" {
-		p.newError(p.curToken.ErrorLine(), fail.ErrExpectedComponentName)
-		return ""
-	}
-
-	if name[0] == '~' {
-		name = shortenTo + "/" + name[1:]
-	}
-
-	return name
 }
 
 // slotStmt parses an external slot statement inside a component file.

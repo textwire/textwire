@@ -28,6 +28,18 @@ func FloatToStr(f float64) string {
 	return str
 }
 
+func AliasPathShortcut(s string, shortenTo string) string {
+	if s == "" {
+		return ""
+	}
+
+	if s[0] == '~' {
+		s = shortenTo + "/" + s[1:]
+	}
+
+	return s
+}
+
 func ToCamel(s string) string {
 	s = strings.TrimSpace(s)
 	if s == "" {
