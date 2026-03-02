@@ -1,7 +1,6 @@
 package evaluator
 
 import (
-	"errors"
 	"fmt"
 	"slices"
 	"strconv"
@@ -104,60 +103,65 @@ func hasCustomFunc(customFunc *config.Func, t object.ObjectType, funcName string
 	}
 }
 
-func addDecimals(
-	receiver object.Object,
+// getDecimalConfig extracts separator and decimal count from arguments.
+// Returns error if arguments are invalid.
+func getDecimalConfig(
 	objType object.ObjectType,
 	args ...object.Object,
-) (object.Object, error) {
-	var val string
-
-	switch objType {
-	case object.STR_OBJ:
-		val = receiver.(*object.Str).Value
-	case object.INT_OBJ:
-		val = receiver.(*object.Int).String()
-	}
-
-	if !strIsInt(val) {
-		return &object.Str{Value: val}, nil
-	}
-
-	separator := "."
-	decimals := 2
+) (separator string, decimals int, err error) {
+	separator = "."
+	decimals = 2
 
 	if len(args) > 2 {
-		msg := fmt.Sprintf(fail.ErrFuncMaxArgs, objType, "decimal", 2)
-		return nil, errors.New(msg)
+		return "", 0, fmt.Errorf(fail.ErrFuncMaxArgs, objType, "decimal", 2)
 	}
 
 	if len(args) >= 1 {
 		separatorArg, ok := args[0].(*object.Str)
-
 		if !ok {
-			msg := fmt.Sprintf(fail.ErrFuncFirstArgStr, objType, "decimal")
-			return nil, errors.New(msg)
+			return "", 0, fmt.Errorf(fail.ErrFuncFirstArgStr, objType, "decimal")
 		}
-
 		separator = separatorArg.Value
 	}
 
 	if len(args) == 2 {
 		decimalArg, ok := args[1].(*object.Int)
-
 		if !ok {
-			msg := fmt.Sprintf(fail.ErrFuncSecondArgInt, objType, "decimal")
-			return nil, errors.New(msg)
+			return "", 0, fmt.Errorf(fail.ErrFuncSecondArgInt, objType, "decimal")
 		}
-
 		decimals = int(decimalArg.Value)
 	}
 
-	zeros := strings.Repeat("0", decimals)
+	return separator, decimals, nil
+}
+
+// formatIntDecimals appends decimal places to an integer string.
+func formatIntDecimals(val, separator string, decimals int) string {
 	if decimals == 0 {
-		return &object.Str{Value: val}, nil
+		return val
+	}
+	return val + separator + strings.Repeat("0", decimals)
+}
+
+// formatFloatDecimals ensures a float string has at least the requested decimal places.
+func formatFloatDecimals(val, separator string, decimals int) string {
+	parts := strings.Split(val, ".")
+	if len(parts) == 2 && len(parts[1]) >= decimals {
+		return val
 	}
 
-	return &object.Str{Value: val + separator + zeros}, nil
+	f, _ := strconv.ParseFloat(val, 64)
+	result := fmt.Sprintf("%."+strconv.Itoa(decimals)+"f", f)
+	if separator != "." {
+		result = strings.Replace(result, ".", separator, 1)
+	}
+	return result
+}
+
+// isValidFloat checks if string represents a valid float.
+func isValidFloat(s string) bool {
+	_, err := strconv.ParseFloat(s, 64)
+	return err == nil
 }
 
 func strIsInt(s string) bool {

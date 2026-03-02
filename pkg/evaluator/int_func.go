@@ -39,7 +39,14 @@ func intLenFunc(receiver object.Object, _ ...object.Object) (object.Object, erro
 	return &object.Int{Value: int64(len(valStr))}, nil
 }
 
-// intDecimalFunc returns a string formatted as a decimal number
+// intDecimalFunc returns a string formatted as a decimal number.
+// Converts integer to string and appends decimal places (e.g., 100 → "100.00")
 func intDecimalFunc(receiver object.Object, args ...object.Object) (object.Object, error) {
-	return addDecimals(receiver, object.INT_OBJ, args...)
+	val := receiver.(*object.Int).String()
+	separator, decimals, err := getDecimalConfig(object.INT_OBJ, args...)
+	if err != nil {
+		return nil, err
+	}
+
+	return &object.Str{Value: formatIntDecimals(val, separator, decimals)}, nil
 }
