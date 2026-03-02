@@ -59,6 +59,7 @@ var functions = map[object.ObjectType]map[string]*object.Builtin{
 	object.OBJ_OBJ: {
 		"json":  {Fn: jsonFunc},
 		"camel": {Fn: objCamelFunc},
+		"get":   {Fn: objGetFunc},
 	},
 }
 
