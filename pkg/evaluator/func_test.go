@@ -980,7 +980,11 @@ func TestFunctionGivesError(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		evaluated := testEval(tc.inp)
+		evaluated, failure := testEval(tc.inp)
+		if failure != nil {
+			t.Fatalf("Case: %d. evaluation failed: %s", tc.id, failure)
+		}
+
 		errObj, ok := evaluated.(*object.Error)
 
 		if !ok {

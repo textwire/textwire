@@ -12,24 +12,31 @@ import (
 	"github.com/textwire/textwire/v3/pkg/parser"
 )
 
-func testEval(inp string) object.Object {
+func testEval(inp string) (object.Object, *fail.Error) {
 	l := lexer.New(inp)
 	p := parser.New(l, file.New("file", "to/file", "/path/to/file", nil))
 	prog := p.ParseProgram()
 	scope := object.NewScope()
 
+	if p.HasErrors() {
+		return nil, p.Errors()[0]
+	}
+
 	e := New(&config.Func{}, nil)
 	ctx := NewContext(scope, prog.AbsPath)
 
-	return e.Eval(prog, ctx)
+	return e.Eval(prog, ctx), nil
 }
 
 func evaluationExpected(t *testing.T, inp, expect string, idx int) {
-	evaluated := testEval(inp)
+	evaluated, failure := testEval(inp)
+	if failure != nil {
+		t.Fatalf("Case: %d. evaluation failed: %s", idx, failure)
+	}
 
 	errObj, ok := evaluated.(*object.Error)
 	if ok {
-		t.Fatalf("Case: %d. evaluation failed: %s", idx, errObj.String())
+		t.Fatalf("Case: %d. evaluation failed: %s", idx, errObj)
 	}
 
 	res := evaluated.String()
@@ -166,10 +173,14 @@ func TestEvalBooleanExp(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		evaluated := testEval(tc.inp)
+		evaluated, failure := testEval(tc.inp)
+		if failure != nil {
+			t.Fatalf("Case: %d. evaluation failed: %s", tc.id, failure)
+		}
+
 		err, ok := evaluated.(*object.Error)
 		if ok {
-			t.Errorf("Case: %d. Evaluation failed: %s", tc.id, err.String())
+			t.Errorf("Case: %d. Evaluation failed: %s", tc.id, err)
 			return
 		}
 
@@ -267,7 +278,11 @@ func TestEvalIfStmt(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		evaluated := testEval(tc.inp)
+		evaluated, failure := testEval(tc.inp)
+		if failure != nil {
+			t.Fatalf("Case: %d. evaluation failed: %s", tc.id, failure)
+		}
+
 		err, ok := evaluated.(*object.Error)
 		if ok {
 			t.Errorf("Case: %d. Evaluation failed: %s", tc.id, err)
@@ -494,7 +509,11 @@ func TestTypeMismatchErrors(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		evaluated := testEval(tc.inp)
+		evaluated, failure := testEval(tc.inp)
+		if failure != nil {
+			t.Fatalf("Case: %d. evaluation failed: %s", tc.id, failure)
+		}
+
 		err, ok := evaluated.(*object.Error)
 		if !ok {
 			t.Fatalf("Case: %d. Evaluation failed, got error %q", tc.id, err)
