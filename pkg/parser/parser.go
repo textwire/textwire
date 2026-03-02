@@ -998,6 +998,10 @@ func (p *Parser) elseifStmt() ast.Statement {
 }
 
 func (p *Parser) elseBlock() *ast.BlockStmt {
+	if !p.peekTokenIs(token.ELSE) {
+		return nil
+	}
+
 	p.nextToken() // move to "@else"
 
 	// Handle empty @else block
@@ -1063,18 +1067,7 @@ func (p *Parser) forStmt() ast.Statement {
 		return stmt
 	}
 
-	if p.peekTokenIs(token.ELSE) {
-		p.nextToken() // move to "@else"
-		p.nextToken() // skip "@else"
-
-		// Handle empty @else block
-		if p.curTokenIs(token.END) {
-			stmt.SetEndPosition(p.curToken.Pos)
-			return stmt
-		}
-
-		stmt.ElseBlock = p.blockStmt()
-	}
+	stmt.ElseBlock = p.elseBlock()
 
 	if !p.expectPeek(token.END) { // move to "@end"
 		return p.illegalNodeUntil(token.END)
@@ -1116,18 +1109,7 @@ func (p *Parser) eachStmt() ast.Statement {
 		return stmt
 	}
 
-	if p.peekTokenIs(token.ELSE) {
-		p.nextToken() // move to "@else"
-		p.nextToken() // skip "@else"
-
-		// Handle empty @else block
-		if p.curTokenIs(token.END) {
-			stmt.SetEndPosition(p.curToken.Pos)
-			return stmt
-		}
-
-		stmt.ElseBlock = p.blockStmt()
-	}
+	stmt.ElseBlock = p.elseBlock()
 
 	if !p.expectPeek(token.END) { // move to "@end"
 		return p.illegalNodeUntil(token.END)
