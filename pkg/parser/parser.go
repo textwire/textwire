@@ -847,6 +847,11 @@ func (p *Parser) postfixExp(left ast.Expression) ast.Expression {
 func (p *Parser) dotExp(left ast.Expression) ast.Expression {
 	exp := ast.NewDotExp(p.curToken, left)
 
+	if p.peekTokenIs(token.INT) {
+		p.newError(p.curToken.ErrorLine(), fail.ErrObjectKeyUseGet)
+		return nil
+	}
+
 	if !p.expectPeek(token.IDENT) { // skip "." and move to identifier
 		return p.illegalNode()
 	}

@@ -18,6 +18,7 @@ const (
 	ErrIllegalToken           = "illegal token '%s'"
 	ErrElseifCannotFollowElse = "'@elseif' cannot come after '@else'"
 	ErrExpectedObjectLiteral  = "expected object literal, got '%s'"
+	ErrObjectKeyUseGet        = "to access a property that starts with a number, use OBJECT.get('key') function"
 	ErrSlotNotDefined         = "@component('%s') references @slot('%s') which doesn't exist in the component file"
 	ErrDuplicateReserves      = "found duplicate @reserve('%s') inside of a layout file %s"
 	ErrDuplicateSlot          = "@slot('%s') used %d times in @component('%s')"
