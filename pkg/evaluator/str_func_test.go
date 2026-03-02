@@ -127,7 +127,7 @@ func TestEvalStringFunctions(t *testing.T) {
 		{840, `{{ "-900".decimal(',') }}`, "-900,00"},
 		{1550, `{{ "0.001".decimal() }}`, "0.001"},
 		{1560, `{{ "1000000".decimal() }}`, "1000000.00"},
-		{1570, `{{ "-0.5".decimal() }}`, "-0.5"},
+		{1570, `{{ "-0.5".decimal() }}`, "-0.50"},
 		// at
 		{850, `{{ "Textwire is awesome".at() }}`, "T"},
 		{860, `{{ "Textwire is awesome".at(0) }}`, "T"},
