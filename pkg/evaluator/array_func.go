@@ -78,9 +78,7 @@ func arrayReverseFunc(receiver object.Object, _ ...object.Object) (object.Object
 func arraySliceFunc(receiver object.Object, args ...object.Object) (object.Object, error) {
 	elems := receiver.(*object.Array).Elements
 
-	argsLen := len(args)
-	elemsLen := len(elems)
-	if argsLen == 0 {
+	if len(args) == 0 {
 		msg := fmt.Sprintf(fail.ErrFuncMissingArg, object.ARR_OBJ, "slice")
 		return nil, errors.New(msg)
 	}
@@ -92,9 +90,9 @@ func arraySliceFunc(receiver object.Object, args ...object.Object) (object.Objec
 	}
 
 	start := max(int(startFrom.Value), 0)
-	start = min(start, elemsLen)
+	start = min(start, len(elems))
 
-	if argsLen == 1 {
+	if len(args) == 1 {
 		return &object.Array{Elements: elems[start:]}, nil
 	}
 
@@ -105,8 +103,8 @@ func arraySliceFunc(receiver object.Object, args ...object.Object) (object.Objec
 	}
 
 	end := int(endAt.Value)
-	if end < 0 || end > elemsLen {
-		end = elemsLen
+	if end < 0 || end > len(elems) {
+		end = len(elems)
 	}
 
 	return &object.Array{Elements: elems[start:end]}, nil

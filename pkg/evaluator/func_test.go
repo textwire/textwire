@@ -977,6 +977,44 @@ func TestFunctionGivesError(t *testing.T) {
 				"prepend",
 			),
 		},
+		// object get
+		{
+			800,
+			`{{ {}.get() }}`,
+			fail.New(
+				1,
+				"/path/to/file",
+				"evaluator",
+				fail.ErrFuncMissingArg,
+				object.OBJ_OBJ,
+				"get",
+			),
+		},
+		{
+			810,
+			`{{ {}.get(1) }}`,
+			fail.New(
+				1,
+				"/path/to/file",
+				"evaluator",
+				fail.ErrFuncFirstArgStr,
+				object.OBJ_OBJ,
+				"get",
+			),
+		},
+		{
+			820,
+			`{{ {}.get("one.two", "three") }}`,
+			fail.New(
+				1,
+				"/path/to/file",
+				"evaluator",
+				fail.ErrFuncMaxArgs,
+				object.OBJ_OBJ,
+				"get",
+				1,
+			),
+		},
 	}
 
 	for _, tc := range cases {

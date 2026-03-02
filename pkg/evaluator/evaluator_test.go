@@ -41,7 +41,7 @@ func evaluationExpected(t *testing.T, inp, expect string, idx int) {
 
 	res := evaluated.String()
 	if res != expect {
-		t.Fatalf("Case: %d. Result is not %s, got %s", idx, expect, res)
+		t.Fatalf("Case: %d. Result is not '%s', got '%s'", idx, expect, res)
 	}
 }
 
