@@ -437,6 +437,10 @@ func (p *Parser) useStmt() ast.Statement {
 		)
 	}
 
+	if p.curToken.Literal == "" {
+		p.newError(p.curToken.ErrorLine(), fail.ErrExpectedUseName)
+	}
+
 	stmt.Name = ast.NewStringLiteral(
 		p.curToken,
 		p.parseAliasPathShortcut("layouts"),

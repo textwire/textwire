@@ -36,7 +36,7 @@ func parseStatements(t *testing.T, inp string, opts parseOpts) []ast.Statement {
 
 	if len(prog.Statements) != opts.stmtCount {
 		t.Fatalf(
-			"Program must have %d statementbut got %d for input %q",
+			"Program must have %d statement but got %d for input %q",
 			opts.stmtCount,
 			len(prog.Statements),
 			inp,
@@ -687,6 +687,10 @@ func TestErrorHandling(t *testing.T) {
 			inp: "{{ ) }}",
 			err: fail.New(1, "", "parser", fail.ErrNoPrefixParseFunc,
 				token.String(token.RPAREN)),
+		},
+		{
+			inp: "@use('')",
+			err: fail.New(1, "", "parser", fail.ErrExpectedUseName),
 		},
 		{
 			inp: "@component('')",
