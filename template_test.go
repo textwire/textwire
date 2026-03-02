@@ -309,9 +309,9 @@ func TestNewTemplate(t *testing.T) {
 			view: "index",
 			data: map[string]any{
 				"person": struct {
-					Name string
-					Age  uint8
-				}{Name: "Anna", Age: 25},
+					First_Name string
+					Age        uint8
+				}{First_Name: "Anna", Age: 25},
 			},
 			dir: "json",
 		},

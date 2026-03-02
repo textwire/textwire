@@ -1,1 +1,2 @@
 <filters :current-tag='{{ person.json() }}'></filters>
+<filters :current-tag='{{ person.camel().json() }}'></filters>
