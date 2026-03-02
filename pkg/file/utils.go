@@ -8,8 +8,9 @@ import (
 type PathAlias string
 
 const (
-	PathAliasComp PathAlias = "components/"
-	PathAliasUse  PathAlias = "layouts/"
+	PathAliasComp  PathAlias = "components/"
+	PathAliasUse   PathAlias = "layouts/"
+	PathAliasViews PathAlias = "views/"
 )
 
 // ReplacePathAlias replaces Textwire alias `~` with needed file prefix.

@@ -267,7 +267,7 @@ func TestNewTemplate(t *testing.T) {
 		{conf: &config.Config{}, view: "index", data: nil, dir: "slotif"},
 		{conf: &config.Config{}, view: "index", data: nil, dir: "slots-optional"},
 		{conf: &config.Config{}, view: "index", data: nil, dir: "reserve-inside-slot"},
-		{conf: &config.Config{}, view: "index", data: nil, dir: "no-stmts"},
+		{conf: &config.Config{}, view: "~index", data: nil, dir: "no-stmts"},
 		{conf: &config.Config{}, view: "index", data: nil, dir: "inserts"},
 		{conf: &config.Config{}, view: "index", data: nil, dir: "use-inside-if"},
 		{conf: &config.Config{}, view: "index", data: nil, dir: "comp"},
@@ -294,7 +294,7 @@ func TestNewTemplate(t *testing.T) {
 		},
 		{
 			conf: &config.Config{},
-			view: "views/index",
+			view: "~index",
 			data: map[string]any{"names": []string{"Anna", "Serhii", "Vladimir"}},
 			dir:  "each-and-comp",
 		},
