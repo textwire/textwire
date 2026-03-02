@@ -659,6 +659,10 @@ func TestErrorHandling(t *testing.T) {
 		err *fail.Error
 	}{
 		{
+			inp: `{{ { "1st": "nice" }.1st }}`,
+			err: fail.New(1, "", "parser", fail.ErrObjectKeyUseGet),
+		},
+		{
 			inp: "{{ 5 + }}",
 			err: fail.New(1, "", "parser", fail.ErrExpectedExpression),
 		},

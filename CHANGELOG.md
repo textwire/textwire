@@ -3,6 +3,7 @@
 ## v3.4.0 (2026-03-03)
 
 - 🐛 Fixed issue where you couldn't have empty `@else` block for `@if`, `@each` and `@for` statements.
+- 🧑‍💻 Added a proper error message when you are accessing an object property that starts with a number, like `obj.1st`. Before, you'll get an unclear error because lexer was parsing `1st` as integer `1` and identifier `st`.
 
 ## v3.3.0 (2026-02-28)
 
