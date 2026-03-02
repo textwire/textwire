@@ -663,6 +663,10 @@ func TestErrorHandling(t *testing.T) {
 			err: fail.New(1, "", "parser", fail.ErrObjectKeyUseGet),
 		},
 		{
+			inp: "<div>@slotif(true)No@end</div>",
+			err: fail.New(1, "", "parser", fail.ErrSlotifPosition),
+		},
+		{
 			inp: "{{ 5 + }}",
 			err: fail.New(1, "", "parser", fail.ErrExpectedExpression),
 		},
