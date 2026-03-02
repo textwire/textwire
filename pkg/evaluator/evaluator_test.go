@@ -243,6 +243,7 @@ func TestEvalIfStmt(t *testing.T) {
 		{70, `@if(false)Ana De Armaz@elseif(false)David@elseVladimir@end`, "Vladimir"},
 		{80, `@if(false)Will@elseif(false)Daria@elseif(true)Poll@end`, "Poll"},
 		{90, `@if(false)Lara@elseif(true)Susan@elseif(true)Smith@end`, "Susan"},
+		{91, `@if(false)1@else@end`, ""},
 		{100, `<h2>@if(true)Hello@end</h2>`, "<h2>Hello</h2>"},
 		{110, `<h2>@if(false)Hello@end</h2>`, "<h2></h2>"},
 		{120, `@if(true)Hello@end`, "Hello"},
@@ -356,6 +357,7 @@ func TestEvalForStmt(t *testing.T) {
 		{50, `@for(c = 1; false; c++){{ c }}@end`, ""},
 		{60, `@for(c = 1; c == 1; c++){{ c }}@end`, "1"},
 		// test @else directive
+		{61, `@for(c = 1; false; c++){{ c }}@else@end`, ""},
 		{70, `@for(c = 1; false; c++){{ c }}@else<b>Empty</b>@end`, "<b>Empty</b>"},
 		{80, `@for(c = 0; c < 0; c++){{ c }}@elseEmpty@end`, "Empty"},
 		// test @break directive

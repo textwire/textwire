@@ -994,8 +994,15 @@ func (p *Parser) elseifStmt() ast.Statement {
 
 func (p *Parser) elseBlock() *ast.BlockStmt {
 	p.nextToken() // move to "@else"
-	p.nextToken() // skip "@else"
 
+	// Handle empty @else block
+	if p.peekTokenIs(token.END) {
+		stmt := ast.NewBlockStmt(p.curToken)
+		stmt.SetEndPosition(p.curToken.Pos)
+		return stmt
+	}
+
+	p.nextToken() // skip "@else"
 	stmt := p.blockStmt()
 
 	if p.peekTokenIs(token.ELSE_IF) {
@@ -1054,6 +1061,13 @@ func (p *Parser) forStmt() ast.Statement {
 	if p.peekTokenIs(token.ELSE) {
 		p.nextToken() // move to "@else"
 		p.nextToken() // skip "@else"
+
+		// Handle empty @else block
+		if p.curTokenIs(token.END) {
+			stmt.SetEndPosition(p.curToken.Pos)
+			return stmt
+		}
+
 		stmt.ElseBlock = p.blockStmt()
 	}
 
@@ -1100,6 +1114,13 @@ func (p *Parser) eachStmt() ast.Statement {
 	if p.peekTokenIs(token.ELSE) {
 		p.nextToken() // move to "@else"
 		p.nextToken() // skip "@else"
+
+		// Handle empty @else block
+		if p.curTokenIs(token.END) {
+			stmt.SetEndPosition(p.curToken.Pos)
+			return stmt
+		}
+
 		stmt.ElseBlock = p.blockStmt()
 	}
 
