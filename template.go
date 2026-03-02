@@ -57,6 +57,7 @@ func (t *Template) String(name string, data map[string]any) (string, *fail.Error
 	}
 
 	t.linker.RLock()
+	name = file.ReplacePathAlias(name, file.PathAliasViews)
 	prog := ast.FindProg(name, t.linker.Programs)
 	t.linker.RUnlock()
 	if prog == nil {
