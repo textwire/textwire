@@ -1,5 +1,9 @@
 # Release notes
 
+## v3.4.0 (2026-03-03)
+
+- 🐛 Fixed issue where you couldn't have empty `@else` block for `@if`, `@each` and `@for` statements.
+
 ## v3.3.0 (2026-02-28)
 
 - ✨ Added `hasValue()` global function which checks if variables are defined and have non-nullable values. If variable inside is "" empty string, 0 int, 0.0 float, nil, {} empty object, [] empty array or false, it returns `false`. Closes [#73](https://github.com/textwire/textwire/issues/73).
