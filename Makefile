@@ -19,7 +19,7 @@ cover:
 .PHONY: test
 test:
 	@clear || true
-	go test ./...
+	go test -count=1 ./...
 	@echo "✅ All tests passed!"
 
 .PHONY: fmt
