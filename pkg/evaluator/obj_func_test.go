@@ -168,6 +168,24 @@ func TestEvalObjectFunctions(t *testing.T) {
 		{1110, `{{ {a: {b: {c: {d: {e: {f: {g: {h: {i: {j: "deep"}}}}}}}}}}.get('a.b.c.d.e.f.g.h.i.j') }}`, "deep"},
 		{1120, `{{ {a: {b: {c: {d: {e: {f: {g: {h: {i: {j: {k: {l: {m: "very_deep"}}}}}}}}}}}}}.get('a.b.c.d.e.f.g.h.i.j.k.l.m') }}`, "very_deep"},
 		{1130, `{{ {a: {b: {c: {d: {e: {f: {g: {h: {i: {j: "target"}}}}}}}}}}.get('a.b.c.d.e.f.g.h.i.j.k') }}`, ""},
+		// Dot key precedence and fallback
+		{1140, `{{ {"a.b": "direct", a: {b: "nested"}}.get('a.b') }}`, "direct"},
+		{1150, `{{ {a: {b: "path_value"}}.get('a.b') }}`, "path_value"},
+		{1160, `{{ {"a.b.c": "literal", a: {b: {c: "nested"}}}.get('a.b.c') }}`, "literal"},
+		{1170, `{{ {a: {b: {c: "deep_path"}}}.get('a.b.c') }}`, "deep_path"},
+		{1180, `{{ {"a.b": "exists"}.get('a.b') }}`, "exists"},
+		{1190, `{{ {}.get('a.b') }}`, ""},
+		// Edge cases with dots in keys
+		{1200, `{{ {".a": "leading_dot", "a.": "trailing_dot", ".": "just_dot"}.get('.a') }}`, "leading_dot"},
+		{1210, `{{ {".a": "leading_dot", "a.": "trailing_dot", ".": "just_dot"}.get('a.') }}`, "trailing_dot"},
+		{1220, `{{ {".a": "leading_dot", "a.": "trailing_dot", ".": "just_dot"}.get('.') }}`, "just_dot"},
+		{1230, `{{ {"a..b": "double_dot", a: {b: "single"}}.get('a..b') }}`, "double_dot"},
+		{1240, `{{ {"": {"b": "empty_key"}}.get('.b') }}`, "empty_key"},
+		// Mixed scenarios
+		{1250, `{{ {"x.y": "literal_xy", x: {y: "path_xy", z: "path_xz"}}.get('x.y') }}`, "literal_xy"},
+		{1260, `{{ {"x.y": "literal_xy", x: {y: "path_xy", z: "path_xz"}}.get('x.z') }}`, "path_xz"},
+		{1270, `{{ {"a.b": "ab", "a.b.c": "abc", a: {b: {c: "nested"}}}.get('a.b.c') }}`, "abc"},
+		{1280, `{{ {"a.b": "ab", a: {b: "path_b", c: "path_c"}}.get('a.c') }}`, "path_c"},
 	}
 
 	for _, tc := range cases {
