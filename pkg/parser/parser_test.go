@@ -1527,10 +1527,14 @@ func TestParseTwoExpression(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if err := testIntegerLiteral(stmts[0].(*ast.ExpressionStmt).Expression, 1); err != nil {
+
+	exp1 := stmts[0].(*ast.ExpressionStmt).Expression
+	if err := testIntegerLiteral(exp1, 1); err != nil {
 		t.Fatal(err)
 	}
-	if err := testIntegerLiteral(stmts[1].(*ast.ExpressionStmt).Expression, 2); err != nil {
+
+	exp2 := stmts[1].(*ast.ExpressionStmt).Expression
+	if err := testIntegerLiteral(exp2, 2); err != nil {
 		t.Fatal(err)
 	}
 }
@@ -1556,12 +1560,15 @@ func TestParseGlobalCallExp(t *testing.T) {
 	if err := testToken(exp, token.IDENT); err != nil {
 		t.Fatal(err)
 	}
+
 	if err := testIdentifier(exp.Function, "defined"); err != nil {
 		t.Fatal(err)
 	}
+
 	if err := testIdentifier(exp.Arguments[0], "var1"); err != nil {
 		t.Fatal(err)
 	}
+
 	if err := testIdentifier(exp.Arguments[1], "var2"); err != nil {
 		t.Fatal(err)
 	}
