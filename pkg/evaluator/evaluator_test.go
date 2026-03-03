@@ -263,9 +263,11 @@ func TestEvalIfStmt(t *testing.T) {
 		{130, `@if(false)Lara@elseif(true)Susan@elseif(true)Smith@end`, "Susan"},
 		{140, `@if(false)@elseif(false)@elsemy@mail.com@end`, "my@mail.com"},
 		{150, `@if(false)A@elseif(false)B@end`, ""},
-		// Boolean methods
+		// Functions
 		{160, `@if(true.binary())Hello@end`, "Hello"},
 		{170, `@if(false.binary())Hello@end`, ""},
+		{171, `@if("".len() > 0)Non empty@elseEmpty@end`, "Empty"},
+		{172, `@if("x".len() > 0)Non empty@elseEmpty@end`, "Non empty"},
 		// Truthy/falsy values
 		{180, `@if(1)Yes@end`, "Yes"},
 		{190, `@if(0)Yes@end`, ""},
@@ -289,9 +291,13 @@ func TestEvalIfStmt(t *testing.T) {
 		{340, `@if(1 != 2)Yes@end`, "Yes"},
 		{350, `@if(1 < 2)Yes@end`, "Yes"},
 		{360, `@if(2 > 1)Yes@end`, "Yes"},
+		{361, `@if(2 >= 2)Yes@end`, "Yes"},
+		{362, `@if(2 <= 2)Yes@end`, "Yes"},
 		// Expression results as conditions
 		{370, `@if(1 + 1 == 2)Yes@end`, "Yes"},
 		{380, `@if(5 - 3 == 1)Yes@end`, ""},
+		{381, `@if(2 - 2)No@elseYes@end`, "Yes"},
+		{382, `@if(-1 + 2)Yes@elseNo@end`, "Yes"},
 		// Nested if statements
 		{
 			390,
