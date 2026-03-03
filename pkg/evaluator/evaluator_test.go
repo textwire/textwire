@@ -498,30 +498,54 @@ func TestEvalForStmt(t *testing.T) {
 		inp    string
 		expect string
 	}{
+		// Basic for loops
 		{10, `@for(i = 0; i < 2; i++){{ i }}@end`, "01"},
 		{20, `@for(i = 1; i <= 3; i++){{ i }}@end`, "123"},
-		{30, `@for(i = 0; i < 2; i++){{ i }}@end`, "01"},
-		{40, `@for(; false;)Here@end`, ""},
-		{50, `@for(c = 1; false; c++){{ c }}@end`, ""},
-		{60, `@for(c = 1; c == 1; c++){{ c }}@end`, "1"},
-		// test @else directive
-		{61, `@for(c = 1; false; c++){{ c }}@else@end`, ""},
-		{70, `@for(c = 1; false; c++){{ c }}@else<b>Empty</b>@end`, "<b>Empty</b>"},
-		{80, `@for(c = 0; c < 0; c++){{ c }}@elseEmpty@end`, "Empty"},
-		// test @break directive
-		{90, `@for(i = 1; i <= 3; i++){{ i }}@break@end`, "1"},
-		{100, `@for(i = 1; i <= 3; i++)@break{{ i }}@end`, ""},
-		{110, `@for(i = 1; i <= 3; i++)@if(i == 3)@break@end{{ i }}@end`, "12"},
-		// test @continue directive
-		{120, `@for(i = 1; i <= 3; i++)@continue{{ i }}@end`, ""},
-		{130, `@for(i = 1; i <= 3; i++){{ i }}@continue@end`, "123"},
-		{140, `@for(i = 1; i <= 3; i++)@if(i == 2)@continue@end{{ i }}@end`, "13"},
-		// test @breakif directive
-		{150, `@for(i = 1; i <= 3; i++)@breakif(i == 3){{ i }}@end`, "12"},
-		{160, `@for(i = 1; i <= 3; i++)@breakif(i == 2){{ i }}@end`, "1"},
-		// test @continueif directive
-		{170, `@for(i = 1; i <= 3; i++)@continueif(i == 3){{ i }}@end`, "12"},
-		{180, `@for(i = 1; i <= 3; i++)@continueif(i == 2){{ i }}@end`, "13"},
+		{30, `@for(i = 5; i > 0; i--){{ i }}@end`, "54321"},
+		{40, `@for(i = 0; i < 4; i+2){{ i }}@end`, "02"},
+		// Empty loops
+		{50, `@for(; false;)Here@end`, ""},
+		{60, `@for(c = 1; false; c++){{ c }}@end`, ""},
+		{70, `@for(i = 0; i < 0; i++){{ i }}@end`, ""},
+		// Single iteration
+		{80, `@for(c = 1; c == 1; c++){{ c }}@end`, "1"},
+		{90, `@for(i = 0; i < 1; i++){{ i }}@end`, "0"},
+		// Infinite loop prevention (one iteration with break)
+		{100, `@for(;;){{ 1 }}@break@end`, "1"},
+		// @else directive
+		{110, `@for(c = 1; false; c++){{ c }}@else@end`, ""},
+		{120, `@for(c = 1; false; c++){{ c }}@else<b>Empty</b>@end`, "<b>Empty</b>"},
+		{130, `@for(c = 0; c < 0; c++){{ c }}@elseEmpty@end`, "Empty"},
+		// @break directive
+		{140, `@for(i = 1; i <= 3; i++){{ i }}@break@end`, "1"},
+		{150, `@for(i = 1; i <= 3; i++)@break{{ i }}@end`, ""},
+		{160, `@for(i = 1; i <= 3; i++)@if(i == 3)@break@end{{ i }}@end`, "12"},
+		{170, `@for(i = 0; i < 10; i++)@break@end`, ""},
+		// @continue directive
+		{180, `@for(i = 1; i <= 3; i++)@continue{{ i }}@end`, ""},
+		{190, `@for(i = 1; i <= 3; i++){{ i }}@continue@end`, "123"},
+		{200, `@for(i = 1; i <= 3; i++)@if(i == 2)@continue@end{{ i }}@end`, "13"},
+		{210, `@for(i = 1; i <= 5; i++)@if(i % 2 == 0)@continue@end{{ i }}@end`, "135"},
+		// @breakif directive
+		{220, `@for(i = 1; i <= 3; i++)@breakif(i == 3){{ i }}@end`, "12"},
+		{230, `@for(i = 1; i <= 3; i++)@breakif(i == 2){{ i }}@end`, "1"},
+		{240, `@for(i = 1; i <= 10; i++)@breakif(i > 5){{ i }}@end`, "12345"},
+		// @continueif directive
+		{250, `@for(i = 1; i <= 3; i++)@continueif(i == 3){{ i }}@end`, "12"},
+		{260, `@for(i = 1; i <= 3; i++)@continueif(i == 2){{ i }}@end`, "13"},
+		{270, `@for(i = 1; i <= 5; i++)@continueif(i % 2 == 0){{ i }}@end`, "135"},
+		// Nested for loops
+		{280, `@for(i = 0; i < 2; i++)@for(j = 0; j < 2; j++){{ i }}{{ j }}@end@end`, "00011011"},
+		{290, `@for(i = 1; i <= 2; i++)@for(j = 1; j <= 2; j++){{ i * j }}@end@end`, "1224"},
+		// For loop with HTML
+		{300, `<ul>@for(i = 1; i <= 3; i++)<li>{{ i }}</li>@end</ul>`, "<ul><li>1</li><li>2</li><li>3</li></ul>"},
+		// Variable modification in loop
+		{310, `{{ sum = 0 }}@for(i = 1; i <= 5; i++){{ sum = sum + i }}@end{{ sum }}`, "15"},
+		{320, `{{ count = 0 }}@for(i = 0; i < 3; i++){{ count = count + 1 }}@end{{ count }}`, "3"},
+		// Float iteration
+		{330, `@for(f = 0.0; f < 1.0; f + 0.5){{ f }}@end`, "0.00.5"},
+		// Multiple statements in loop body
+		{340, `@for(i = 0; i < 3; i++){{ i }};{{ i * 2 }}@end`, "0;01;22;4"},
 	}
 
 	for _, tc := range cases {

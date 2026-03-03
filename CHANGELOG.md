@@ -6,6 +6,7 @@
 - 🐛 Fixed issue where escape sequences (\n, \t, \r, \\) in string literals were not being converted to actual characters. Now `{{ "test\n".trim() }}` correctly trims the newline character.
 - 🐛 Fixed issue where `STRING.truncate()` on empty strings was returning `...` instead of an empty string. Also fixed panic when using negative limit values.
 - 🐛 Fixed issue where you couldn't use empty block for statements like `@if`, `@else`, `@each` and `@for`.
+- 🐛 Fixed issue with evaluation of infinite for loop like `@for(;;)@break@end`. It was causing panic.
 - 🧑‍💻 Added a proper error message when you are accessing an object property that starts with a number, like `{{ obj.1st }}`. Before, you'll get an unclear error because lexer was parsing `1st` as integer `1` and identifier `st`.
 - 🧑‍💻 Added a proper error message when you are using empty string as an argument to `@use` directive. Like `@use('')`.
 - 🧑‍💻 Added bunch of extra tests to cover some edge cases.
