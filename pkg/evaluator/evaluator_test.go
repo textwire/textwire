@@ -275,6 +275,10 @@ func TestEvalIfStmt(t *testing.T) {
 			`,
 			"Marry",
 		},
+		{130, `@if(false)@elseX@end`, "X"},
+		{140, `@if(true)X@else@end`, "X"},
+		{150, `@if(true)@else@end`, ""},
+		{160, `@if(false)@elseif(false)@elsemy@mail.com@end`, "my@mail.com"},
 	}
 
 	for _, tc := range cases {
