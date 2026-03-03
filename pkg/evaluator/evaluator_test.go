@@ -341,12 +341,43 @@ func TestEvalArray(t *testing.T) {
 		inp    string
 		expect string
 	}{
+		// Empty arrays
 		{10, `{{ [] }}`, ""},
-		{20, `{{ [[[[[]]]]] }}`, ""},
-		{30, `{{ [1, 2, 3] }}`, "1, 2, 3"},
-		{40, `{{ ["Anna", "Serhii" ] }}`, "Anna, Serhii"},
-		{50, `{{ [true, false] }}`, "1, 0"},
-		{60, `{{ [[1, [2]], 3] }}`, "1, 2, 3"},
+		{20, `{{ [[]] }}`, ""},
+		{30, `{{ [[[[[]]]]] }}`, ""},
+		// Integer arrays
+		{40, `{{ [1, 2, 3] }}`, "1, 2, 3"},
+		{50, `{{ [0] }}`, "0"},
+		{60, `{{ [-1, -2, -3] }}`, "-1, -2, -3"},
+		// Float arrays
+		{70, `{{ [1.5, 2.5, 3.5] }}`, "1.5, 2.5, 3.5"},
+		{80, `{{ [0.0] }}`, "0.0"},
+		// String arrays
+		{90, `{{ ["Anna", "Serhii" ] }}`, "Anna, Serhii"},
+		{100, `{{ ["hello"] }}`, "hello"},
+		{110, `{{ ["with space", "another"] }}`, "with space, another"},
+		// Boolean arrays
+		{120, `{{ [true, false] }}`, "1, 0"},
+		{130, `{{ [true] }}`, "1"},
+		{140, `{{ [false] }}`, "0"},
+		// Mixed type arrays
+		{150, `{{ [1, "hello", true] }}`, "1, hello, 1"},
+		{160, `{{ [0, "", false] }}`, "0, , 0"},
+		// Nested arrays
+		{170, `{{ [[1, 2], [3, 4]] }}`, "1, 2, 3, 4"},
+		{180, `{{ [[1, [2]], 3] }}`, "1, 2, 3"},
+		{190, `{{ [[[11]]] }}`, "11"},
+		// Arrays with expressions
+		{200, `{{ [1 + 2, 3 * 2] }}`, "3, 6"},
+		{210, `{{ [5 - 3, 10 / 2] }}`, "2, 5"},
+		// Arrays with variables
+		{220, `{{ a = 1; b = 2; [a, b] }}`, "1, 2"},
+		{230, `{{ x = "test"; [x, x] }}`, "test, test"},
+		// Arrays with ternary
+		{240, `{{ [true ? 1 : 0, false ? "yes" : "no"] }}`, "1, no"},
+		// Trailing comma
+		{250, `{{ [1, 2,] }}`, "1, 2"},
+		{260, `{{ ["a", "b",] }}`, "a, b"},
 	}
 
 	for _, tc := range cases {
