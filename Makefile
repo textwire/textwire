@@ -12,14 +12,14 @@ repl:
 
 .PHONY: cover
 cover:
-	go test -coverprofile=coverage.html
-	go tool cover -html=coverage.html
+	@go test -coverprofile=coverage.html
+	@go tool cover -html=coverage.html
 	rm coverage.html
 
 .PHONY: test
 test:
 	@clear || true
-	go test -count=1 ./...
+	@go test -count=1 ./...
 	@echo "✅ All tests passed!"
 
 .PHONY: fmt
