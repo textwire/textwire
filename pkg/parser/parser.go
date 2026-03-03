@@ -197,9 +197,9 @@ func (p *Parser) statement() ast.Statement {
 		return p.reserveStmt()
 	case token.INSERT:
 		return p.insertStmt()
-	case token.BREAK_IF:
+	case token.BREAKIF:
 		return p.breakifStmt()
-	case token.CONTINUE_IF:
+	case token.CONTINUEIF:
 		return p.continueifStmt()
 	case token.COMPONENT:
 		return p.componentStmt()
@@ -211,7 +211,7 @@ func (p *Parser) statement() ast.Statement {
 		return ast.NewBreakStmt(p.curToken)
 	case token.CONTINUE:
 		return ast.NewContinueStmt(p.curToken)
-	case token.SLOT_IF:
+	case token.SLOTIF:
 		p.newError(p.curToken.ErrorLine(), fail.ErrSlotifPosition)
 		return nil
 	default:
@@ -508,7 +508,7 @@ func (p *Parser) componentStmt() ast.Statement {
 		return illegal
 	}
 
-	if p.peekTokenIs(token.SLOT, token.SLOT_IF) {
+	if p.peekTokenIs(token.SLOT, token.SLOTIF) {
 		p.nextToken() // skip whitespace
 		if illegal := p.assignSlotsToComp(stmt); illegal != nil {
 			return illegal
@@ -627,13 +627,13 @@ func (p *Parser) dumpStmt() ast.Statement {
 func (p *Parser) slots(compName string) []ast.Statement {
 	var slots []ast.Statement
 
-	for p.curTokenIs(token.SLOT, token.SLOT_IF) {
+	for p.curTokenIs(token.SLOT, token.SLOTIF) {
 		slotName := ast.NewStringLiteral(p.curToken, "")
 
 		switch p.curToken.Type {
 		case token.SLOT:
 			slots = append(slots, p.localSlotStmt(slotName, compName))
-		case token.SLOT_IF:
+		case token.SLOTIF:
 			slots = append(slots, p.slotifStmt(slotName, compName))
 		default:
 			panic("Unknown slot token when parsing component slots")
@@ -975,7 +975,7 @@ func (p *Parser) ifStmt() ast.Statement {
 		return stmt
 	}
 
-	for p.curTokenIs(token.ELSE_IF) {
+	for p.curTokenIs(token.ELSEIF) {
 		elseifStmt := p.elseifStmt()
 		stmt.ElseifStmts = append(stmt.ElseifStmts, elseifStmt)
 	}
@@ -1040,7 +1040,7 @@ func (p *Parser) elseBlock() *ast.BlockStmt {
 
 	stmt := p.blockStmt()
 
-	if p.peekTokenIs(token.ELSE_IF) {
+	if p.peekTokenIs(token.ELSEIF) {
 		p.newError(p.peekToken.ErrorLine(), fail.ErrElseifCannotFollowElse)
 		return nil
 	}
@@ -1165,7 +1165,7 @@ func (p *Parser) eachStmtHeader(stmt *ast.EachStmt) *ast.IllegalNode {
 }
 
 func (p *Parser) blockStmt() *ast.BlockStmt {
-	if p.curTokenIs(token.ELSE, token.END) {
+	if p.curTokenIs(token.ELSE, token.ELSEIF, token.END) {
 		return nil
 	}
 
@@ -1180,7 +1180,7 @@ func (p *Parser) blockStmt() *ast.BlockStmt {
 			stmt.Statements = append(stmt.Statements, block)
 		}
 
-		if p.peekTokenIs(token.ELSE, token.ELSE_IF, token.END) {
+		if p.peekTokenIs(token.ELSE, token.ELSEIF, token.END) {
 			p.nextToken() // skip statement
 			break
 		}

@@ -29,7 +29,7 @@ func TestGetTokenMeta(t *testing.T) {
 		expect string
 	}{
 		{"@if token", token.IF, "en", "@if(condition)"},
-		{"@elseif token", token.ELSE_IF, "en", "@elseif(condition2)"},
+		{"@elseif token", token.ELSEIF, "en", "@elseif(condition2)"},
 		{"@each token", token.EACH, "en", "@each(item in items)"},
 		{"@for token", token.FOR, "en", "@for(i = 0; i < items.len(); i++)"},
 		{"@else token", token.ELSE, "en", "@else"},
@@ -42,8 +42,8 @@ func TestGetTokenMeta(t *testing.T) {
 		{"@end token", token.END, "en", "@end"},
 		{"@break token", token.BREAK, "en", "@break"},
 		{"@continue token", token.CONTINUE, "en", "@continue"},
-		{"@breakif token", token.BREAK_IF, "en", "@breakif(condition)"},
-		{"@continueif token", token.CONTINUE_IF, "en", "@continueif(condition)"},
+		{"@breakif token", token.BREAKIF, "en", "@breakif(condition)"},
+		{"@continueif token", token.CONTINUEIF, "en", "@continueif(condition)"},
 	}
 
 	for _, tc := range testCases {
