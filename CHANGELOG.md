@@ -8,6 +8,7 @@
 - 🐛 Fixed issue where you couldn't use empty block for statements like `@if`, `@else`, `@each` and `@for`.
 - 🧑‍💻 Added a proper error message when you are accessing an object property that starts with a number, like `{{ obj.1st }}`. Before, you'll get an unclear error because lexer was parsing `1st` as integer `1` and identifier `st`.
 - 🧑‍💻 Added a proper error message when you are using empty string as an argument to `@use` directive. Like `@use('')`.
+- 🧑‍💻 Added bunch of extra tests to cover some edge cases.
 - ✨ Added alias `~` for accessing `views/` directory in your handlers. Similar to components and layouts alias. Now you can do `Response(w, "~home", data)` instead of `Response(w, "views/home", data)`. Closes [#77](https://github.com/textwire/textwire/issues/77).
 - ✨ Added `STRING.camel()` built-in function for objects that recursively converts all keys on the object to camel case. Useful before converting to json. Closes [#81](https://github.com/textwire/textwire/issues/81).
 - ✨ Added `STRING.get()` built-in function for objects that retreives values by key. Closes [#83](https://github.com/textwire/textwire/issues/83).
