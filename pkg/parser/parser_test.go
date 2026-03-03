@@ -46,20 +46,6 @@ func parseStatements(inp string, opts parseOpts) ([]ast.Statement, error) {
 	return prog.Statements, nil
 }
 
-func checkParserErrors(t *testing.T, p *Parser) {
-	if !p.HasErrors() {
-		return
-	}
-
-	t.Errorf("Parser has %d errors", len(p.Errors()))
-
-	for _, msg := range p.Errors() {
-		t.Errorf("parser error: %q", msg)
-	}
-
-	t.FailNow()
-}
-
 func testInfixExp(t *testing.T, exp ast.Expression, left any, op string, right any) {
 	infix, ok := exp.(*ast.InfixExp)
 	if !ok {
@@ -737,10 +723,12 @@ func TestOpPrecedenceParsing(t *testing.T) {
 		p := New(l, nil)
 		prog := p.ParseProgram()
 
-		checkParserErrors(t, p)
+		if p.HasErrors() {
+			t.Fatalf("Case: %d. Parser error:  %v", tc.id, p.Errors()[0])
+		}
 
 		if prog.String() != tc.expect {
-			t.Fatalf("Test %d. Expect %s but got %s", tc.id, tc.expect, prog)
+			t.Fatalf("Case: %d. Expect %s but got %s", tc.id, tc.expect, prog)
 		}
 	}
 }
@@ -1875,6 +1863,7 @@ func TestParseObjectStatement(t *testing.T) {
 	}
 
 	testStringLiteral(t, nested.Pairs["name"], "John")
+
 	if err := testToken(obj, token.LBRACE); err != nil {
 		t.Fatal(err)
 	}
