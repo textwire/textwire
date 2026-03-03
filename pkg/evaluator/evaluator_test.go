@@ -432,20 +432,59 @@ func TestEvalAssignVariable(t *testing.T) {
 		inp    string
 		expect string
 	}{
+		// Integer assignment
 		{10, `{{ age = 18 }}`, ""},
 		{20, `{{ age = 18; age }}`, "18"},
-		{30, `{{ myAge = 33; herAge = 25; myAge + herAge }}`, "58"},
-		{40, `{{ age = 18; age + age }}`, "36"},
-		{50, `{{ herName = "Anna"; herName }}`, "Anna"},
-		{60, `{{ age = 18; age }}`, "18"},
-		{70, `{{ age = 18; age + 2 }}`, "20"},
-		{80, `{{ age = 18; age + age }}`, "36"},
-		{90, `{{ herName = "Anna"; herName }}`, "Anna"},
-		{100, `{{ she = "Anna"; me = "Serhii"; she + " " + me }}`, "Anna Serhii"},
-		{110, `{{ names = ["Anna", "Serhii"] }}`, ""},
-		{120, `{{ names = ["Anna", "Serhii"]; names }}`, "Anna, Serhii"},
-		{130, `{{ age = 18; age = 2; age }}`, "2"},
-		{140, `{{ city = "Kiev"; city = "Moscow"; city }}`, "Moscow"},
+		{30, `{{ age = -5; age }}`, "-5"},
+		{40, `{{ age = 0; age }}`, "0"},
+		// Float assignment
+		{50, `{{ pi = 3.14; pi }}`, "3.14"},
+		{60, `{{ price = 0.0; price }}`, "0.0"},
+		{70, `{{ negative = -2.5; negative }}`, "-2.5"},
+		// String assignment
+		{80, `{{ name = "Anna"; name }}`, "Anna"},
+		{90, `{{ empty = ""; empty }}`, ""},
+		{100, `{{ quote = "He said \"Hello\""; quote }}`, `He said "Hello"`},
+		// Boolean assignment
+		{110, `{{ flag = true; flag }}`, "1"},
+		{120, `{{ flag = false; flag }}`, "0"},
+		// Nil assignment
+		{130, `{{ nothing = nil; nothing }}`, ""},
+		// Array assignment
+		{140, `{{ names = ["Anna", "Serhii"]; names }}`, "Anna, Serhii"},
+		{150, `{{ empty = []; empty }}`, ""},
+		{160, `{{ nested = [[1, 2], [3, 4]]; nested }}`, "1, 2, 3, 4"},
+		// Object assignment
+		{170, `{{ user = {name: "John"}; user.name }}`, "John"},
+		{180, `{{ data = {"age": 25}; data.age }}`, "25"},
+		// Multiple assignments
+		{190, `{{ a = 1; b = 2; c = 3; a + b + c }}`, "6"},
+		{200, `{{ x = "Hello"; y = "World"; x + " " + y }}`, "Hello World"},
+		// Reassignment
+		{210, `{{ age = 18; age = 25; age }}`, "25"},
+		{220, `{{ name = "Anna"; name = "Maria"; name }}`, "Maria"},
+		{230, `{{ x = 1; x = x + 1; x = x + 1; x }}`, "3"},
+		// Assignment with expression
+		{240, `{{ sum = 5 + 3; sum }}`, "8"},
+		{250, `{{ calc = 10 * 2 - 5; calc }}`, "15"},
+		{260, `{{ result = (2 + 3) * 4; result }}`, "20"},
+		// Assignment with string concatenation
+		{270, `{{ full = "John" + " " + "Doe"; full }}`, "John Doe"},
+		{280, `{{ msg = "Count: " + 5.str(); msg }}`, "Count: 5"},
+		// Assignment with ternary
+		{290, `{{ val = true ? 1 : 0; val }}`, "1"},
+		{300, `{{ val = false ? "yes" : "no"; val }}`, "no"},
+		// Assignment with method call
+		{310, `{{ upper = "hello".upper(); upper }}`, "HELLO"},
+		{320, `{{ len = [1, 2, 3].len(); len }}`, "3"},
+		// Assignment with index
+		{330, `{{ arr = [10, 20, 30]; val = arr[1]; val }}`, "20"},
+		{340, `{{ str = "abc"; val = str.at(0); val }}`, "a"},
+		// Assignment in conditional
+		{350, `@if(true){{ x = 5 }}{{ x }}@end`, "5"},
+		{360, `@if(false){{ x = 5 }}{{ x }}@end`, ""},
+		// Assignment with loop variable
+		{370, `@each(n in [1, 2, 3]){{ x = n }}{{ x }}@end`, "123"},
 	}
 
 	for _, tc := range cases {
