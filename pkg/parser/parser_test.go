@@ -1894,25 +1894,39 @@ func TestParseEmptyBlock(t *testing.T) {
 		tok       token.TokenType
 	}{
 		{10, "@if(x)@end", 9, token.IF},
+		{11, "@if(x)    @end", 13, token.IF},
 		{20, "@if(x)1@else@end", 15, token.IF},
 		{30, "@if(x)@else@end", 14, token.IF},
 		{40, "@if(x)@else1@end", 15, token.IF},
+		{41, "@if(x) @else @end", 16, token.IF},
 		{50, "@each(x in a)@end", 16, token.EACH},
+		{51, "@each(x in a)  @end", 18, token.EACH},
 		{60, "@each(x in a)@else@end", 21, token.EACH},
 		{70, "@each(x in a)1@else@end", 22, token.EACH},
 		{80, "@each(x in a)@else1@end", 22, token.EACH},
+		{81, "@each(x in a) @else @end", 23, token.EACH},
 		{90, "@for(i = 0; i < x; i++)@end", 26, token.FOR},
 		{100, "@for(i = 0; i < x; i++)@else@end", 31, token.FOR},
 		{110, "@for(i = 0; i < x; i++)1@else@end", 32, token.FOR},
 		{120, "@for(i = 0; i < x; i++)@else1@end", 32, token.FOR},
+		{121, "@for(i = 0; i < x; i++) @else @end", 33, token.FOR},
 		{130, "@insert('x')@end", 15, token.INSERT},
-		{140, "@component('x')@slot@end@end", 27, token.COMPONENT},
+		{141, "@component('x')@slot@end@end", 27, token.COMPONENT},
+		{142, "@component('x') @slot@end @end", 29, token.COMPONENT},
+		{143, "@component('x') @slot  @end @end", 31, token.COMPONENT},
 		{150, "@component('x')@slot('x')@end@end", 32, token.COMPONENT},
 		{160, "@component('x')@slotif(x, 'x')@end@end", 37, token.COMPONENT},
 		{170, "@component('x')@slotif(x)@end@end", 32, token.COMPONENT},
 		{180, "@component('x')@slotif(x)@end@slotif(x, 'x')@end@end", 51, token.COMPONENT},
 		{190, "@component('x')@slot@end@slot('x')@end@end", 41, token.COMPONENT},
-		{190, "@component('x')@slot@end@slot('x')@end@slotif(x)@end@end", 55, token.COMPONENT},
+		{200, "@component('x')@slot@end@slot('x')@end@slotif(x)@end@end", 55, token.COMPONENT},
+		{201, "@component('x') @slot @end @slot('x') @end @slotif(x) @end @end", 62, token.COMPONENT},
+		{210, "@if(x)1@elseif(y)@end", 20, token.IF},
+		{220, "@if(x)@elseif(y)@end", 19, token.IF},
+		{230, "@if(x)@elseif(y)1@else@end", 25, token.IF},
+		{240, "@if(x)@elseif(y)@elseif(z)@end", 29, token.IF},
+		{250, "@if(x)@elseif(y)@elseif(z)1@else@end", 35, token.IF},
+		{260, "@if(x) @elseif(y) @elseif(z) @else @end", 38, token.IF},
 	}
 
 	for _, tc := range cases {
@@ -1923,7 +1937,7 @@ func TestParseEmptyBlock(t *testing.T) {
 
 		stmt, ok := stmts[0].(ast.NodeWithStatements)
 		if !ok {
-			t.Fatalf("Case: %d. stmts[0] is not a EachStmt, got %T", tc.id, stmts[0])
+			t.Fatalf("Case: %d. stmts[0] is not a NodeWithStatements, got %T", tc.id, stmts[0])
 		}
 
 		if err := testToken(stmt, tc.tok); err != nil {
@@ -2168,7 +2182,7 @@ func TestParseBreakifStmt(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if err := testToken(stmt, token.BREAK_IF); err != nil {
+	if err := testToken(stmt, token.BREAKIF); err != nil {
 		t.Fatal(err)
 	}
 
@@ -2203,7 +2217,7 @@ func TestParseContinueifStmt(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if err := testToken(stmt, token.CONTINUE_IF); err != nil {
+	if err := testToken(stmt, token.CONTINUEIF); err != nil {
 		t.Fatal(err)
 	}
 

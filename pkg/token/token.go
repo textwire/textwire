@@ -63,20 +63,20 @@ const (
 	// Directives
 	IF
 	ELSE
-	ELSE_IF
+	ELSEIF
 	END
 	FOR
 	USE
 	EACH
-	BREAK_IF
-	CONTINUE_IF
+	BREAKIF
+	CONTINUEIF
 	INSERT
 	RESERVE
 	BREAK
 	CONTINUE
 	COMPONENT
 	SLOT
-	SLOT_IF
+	SLOTIF
 	DUMP
 )
 
@@ -91,7 +91,7 @@ var keywords = map[string]TokenType{
 var directives = map[string]TokenType{
 	"@if":         IF,
 	"@else":       ELSE,
-	"@elseif":     ELSE_IF,
+	"@elseif":     ELSEIF,
 	"@end":        END,
 	"@use":        USE,
 	"@reserve":    RESERVE,
@@ -101,15 +101,15 @@ var directives = map[string]TokenType{
 	"@continue":   CONTINUE,
 	"@break":      BREAK,
 	"@component":  COMPONENT,
-	"@slotif":     SLOT_IF,
+	"@slotif":     SLOTIF,
 	"@slot":       SLOT,
 	"@dump":       DUMP,
-	"@continueif": CONTINUE_IF,
-	"@breakif":    BREAK_IF,
+	"@continueif": CONTINUEIF,
+	"@breakif":    BREAKIF,
 	// Deprecated: use @continueif. Will be removed in v4.0.0
-	"@continueIf": CONTINUE_IF,
+	"@continueIf": CONTINUEIF,
 	// Deprecated: use @breakif. Will be removed in v4.0.0
-	"@breakIf": BREAK_IF,
+	"@breakIf": BREAKIF,
 }
 
 func GetDirectives() map[string]TokenType {

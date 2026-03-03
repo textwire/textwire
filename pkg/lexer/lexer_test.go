@@ -135,7 +135,7 @@ func TestIfStmt(t *testing.T) {
 		{Type: token.RPAREN, Literal: ")", Pos: token.Position{StartCol: 11, EndCol: 11}},
 		{Type: token.RPAREN, Literal: ")", Pos: token.Position{StartCol: 12, EndCol: 12}},
 		{Type: token.HTML, Literal: "one", Pos: token.Position{StartCol: 13, EndCol: 15}},
-		{Type: token.ELSE_IF, Literal: "@elseif", Pos: token.Position{StartCol: 16, EndCol: 22}},
+		{Type: token.ELSEIF, Literal: "@elseif", Pos: token.Position{StartCol: 16, EndCol: 22}},
 		{Type: token.LPAREN, Literal: "(", Pos: token.Position{StartCol: 23, EndCol: 23}},
 		{Type: token.FALSE, Literal: "false", Pos: token.Position{StartCol: 24, EndCol: 28}},
 		{Type: token.RPAREN, Literal: ")", Pos: token.Position{StartCol: 29, EndCol: 29}},
@@ -680,7 +680,7 @@ func TestBreakDirectives(t *testing.T) {
 	inp := `@breakif(true) @break @continue @continueif(false)`
 
 	TokenizeString(t, inp, []token.Token{
-		{Type: token.BREAK_IF, Literal: "@breakif", Pos: token.Position{EndCol: 7}},
+		{Type: token.BREAKIF, Literal: "@breakif", Pos: token.Position{EndCol: 7}},
 		{Type: token.LPAREN, Literal: "(", Pos: token.Position{StartCol: 8, EndCol: 8}},
 		{Type: token.TRUE, Literal: "true", Pos: token.Position{StartCol: 9, EndCol: 12}},
 		{Type: token.RPAREN, Literal: ")", Pos: token.Position{StartCol: 13, EndCol: 13}},
@@ -690,7 +690,7 @@ func TestBreakDirectives(t *testing.T) {
 		{Type: token.CONTINUE, Literal: "@continue", Pos: token.Position{StartCol: 22, EndCol: 30}},
 		{Type: token.HTML, Literal: " ", Pos: token.Position{StartCol: 31, EndCol: 31}},
 		{
-			Type:    token.CONTINUE_IF,
+			Type:    token.CONTINUEIF,
 			Literal: "@continueif",
 			Pos:     token.Position{StartCol: 32, EndCol: 42},
 		},
@@ -853,7 +853,7 @@ func TestSlotIfDirective(t *testing.T) {
 	inp := `@slotif(true)HERE@end`
 
 	TokenizeString(t, inp, []token.Token{
-		{Type: token.SLOT_IF, Literal: "@slotif", Pos: token.Position{EndCol: 6}},
+		{Type: token.SLOTIF, Literal: "@slotif", Pos: token.Position{EndCol: 6}},
 		{Type: token.LPAREN, Literal: "(", Pos: token.Position{StartCol: 7, EndCol: 7}},
 		{Type: token.TRUE, Literal: "true", Pos: token.Position{StartCol: 8, EndCol: 11}},
 		{Type: token.RPAREN, Literal: ")", Pos: token.Position{StartCol: 12, EndCol: 12}},
