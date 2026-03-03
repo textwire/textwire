@@ -261,9 +261,11 @@ func TestParseIdentifier(t *testing.T) {
 	if err := testToken(stmt, token.IDENT); err != nil {
 		t.Fatal(err)
 	}
+
 	if err := testToken(stmt.Expression, token.IDENT); err != nil {
 		t.Fatal(err)
 	}
+
 	if err := testIdentifier(stmt.Expression, "myName"); err != nil {
 		t.Fatal(err)
 	}
@@ -306,6 +308,7 @@ func TestParseIntegerLiteral(t *testing.T) {
 	if err := testToken(stmt, token.INT); err != nil {
 		t.Fatal(err)
 	}
+
 	if err := testIntegerLiteral(stmt.Expression, 234); err != nil {
 		t.Fatal(err)
 	}
@@ -331,6 +334,7 @@ func TestParseFloatLiteral(t *testing.T) {
 	if err := testToken(stmt, token.FLOAT); err != nil {
 		t.Fatal(err)
 	}
+
 	if err := testFloatLiteral(stmt.Expression, 2.34149); err != nil {
 		t.Fatal(err)
 	}
@@ -357,6 +361,7 @@ func TestParseNilLiteral(t *testing.T) {
 	if err := testToken(stmt, token.NIL); err != nil {
 		t.Fatal(err)
 	}
+
 	if err := testNilLiteral(stmt.Expression); err != nil {
 		t.Fatal(err)
 	}
@@ -464,6 +469,7 @@ func TestExpression(t *testing.T) {
 	if err := testToken(stmt, token.INT); err != nil {
 		t.Fatal(err)
 	}
+
 	if err := testIntegerLiteral(exp.Right, 2); err != nil {
 		t.Fatal(err)
 	}
@@ -504,6 +510,7 @@ func TestGroupedExpression(t *testing.T) {
 	if err := testToken(stmt, token.LPAREN); err != nil {
 		t.Fatal(err)
 	}
+
 	if err := testIntegerLiteral(exp.Right, 2); err != nil {
 		t.Fatal(err)
 	}
@@ -876,9 +883,11 @@ func TestTernaryExp(t *testing.T) {
 	if err := testBooleanLiteral(exp.Condition, true); err != nil {
 		t.Fatal(err)
 	}
+
 	if err := testIntegerLiteral(exp.IfBlock, 100); err != nil {
 		t.Fatal(err)
 	}
+
 	if err := testStringLiteral(exp.ElseBlock, "Some string"); err != nil {
 		t.Fatal(err)
 	}
@@ -934,9 +943,11 @@ func TestParseIfElseStatement(t *testing.T) {
 	if err := testToken(stmt, token.IF); err != nil {
 		t.Fatal(err)
 	}
+
 	if err := testToken(stmt.IfBlock, token.HTML); err != nil {
 		t.Fatal(err)
 	}
+
 	if err := testToken(stmt.ElseBlock, token.HTML); err != nil {
 		t.Fatal(err)
 	}
@@ -990,9 +1001,11 @@ func TestParseNestedIfElseStatement(t *testing.T) {
 	if err := testToken(ifStmt, token.IF); err != nil {
 		t.Fatal(err)
 	}
+
 	if err := testToken(ifStmt.IfBlock, token.HTML); err != nil {
 		t.Fatal(err)
 	}
+
 	if err := testToken(ifStmt.ElseBlock, token.HTML); err != nil {
 		t.Fatal(err)
 	}
@@ -1400,6 +1413,7 @@ func TestParseArray(t *testing.T) {
 	if err := testIntegerLiteral(arr.Elements[0], 11); err != nil {
 		t.Fatal(err)
 	}
+
 	if err := testIntegerLiteral(arr.Elements[1], 234); err != nil {
 		t.Fatal(err)
 	}
@@ -1497,6 +1511,7 @@ func TestParseTwoStatements(t *testing.T) {
 	if err := testIdentifier(stmts[0].(*ast.AssignStmt).Left, "name"); err != nil {
 		t.Fatal(err)
 	}
+
 	if err := testToken(stmts[0], token.IDENT); err != nil {
 		t.Fatal(err)
 	}
@@ -1504,6 +1519,7 @@ func TestParseTwoStatements(t *testing.T) {
 	if err := testIdentifier(stmts[1].(*ast.ExpressionStmt).Expression, "name"); err != nil {
 		t.Fatal(err)
 	}
+
 	if err := testToken(stmts[0], token.IDENT); err != nil {
 		t.Fatal(err)
 	}
@@ -1619,6 +1635,7 @@ func TestParseCallExp(t *testing.T) {
 	if err := testStringLiteral(exp.Receiver, "Serhii Cho"); err != nil {
 		t.Fatal(err)
 	}
+
 	if err := testIdentifier(exp.Function, "split"); err != nil {
 		t.Fatal(err)
 	}
@@ -1687,9 +1704,11 @@ func TestParseCallExpWithEmptyString(t *testing.T) {
 	if err := testToken(callExp, token.IDENT); err != nil {
 		t.Fatal(err)
 	}
+
 	if err := testStringLiteral(callExp.Receiver, ""); err != nil {
 		t.Fatal(err)
 	}
+
 	if err := testIdentifier(callExp.Function, "len"); err != nil {
 		t.Fatal(err)
 	}
@@ -2085,6 +2104,7 @@ func TestParseDotExp(t *testing.T) {
 	if err := testIdentifier(exp.Key, "father"); err != nil {
 		t.Fatal(err)
 	}
+
 	if err := testIdentifier(exp.Left, "person"); err != nil {
 		t.Fatal(err)
 	}
@@ -2150,6 +2170,7 @@ func TestParseBreakIfDirective(t *testing.T) {
 	if err := testToken(stmt, token.BREAK_IF); err != nil {
 		t.Fatal(err)
 	}
+
 	if err := testBooleanLiteral(stmt.Condition, true); err != nil {
 		t.Fatal(err)
 	}
@@ -2184,6 +2205,7 @@ func TestParseContinueIfDirective(t *testing.T) {
 	if err := testToken(stmt, token.CONTINUE_IF); err != nil {
 		t.Fatal(err)
 	}
+
 	if err := testBooleanLiteral(stmt.Condition, false); err != nil {
 		t.Fatal(err)
 	}
@@ -2515,12 +2537,15 @@ func TestParseDumpStmt(t *testing.T) {
 	if err := testToken(stmt, token.DUMP); err != nil {
 		t.Fatal(err)
 	}
+
 	if err := testStringLiteral(stmt.Arguments[0], "test"); err != nil {
 		t.Fatal(err)
 	}
+
 	if err := testInfixExp(stmt.Arguments[1], 1, "+", 2); err != nil {
 		t.Fatal(err)
 	}
+
 	if err := testBooleanLiteral(stmt.Arguments[2], false); err != nil {
 		t.Fatal(err)
 	}
