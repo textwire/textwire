@@ -504,6 +504,25 @@ func (p *Parser) continueifStmt() ast.Statement {
 func (p *Parser) componentStmt() ast.Statement {
 	stmt := ast.NewComponentStmt(p.curToken)
 
+	if illegal := p.componentStmtHeader(stmt); illegal != nil {
+		return illegal
+	}
+
+	if p.peekTokenIs(token.SLOT, token.SLOT_IF) {
+		p.nextToken() // skip whitespace
+		if illegal := p.assignSlotsToComp(stmt); illegal != nil {
+			return illegal
+		}
+	}
+
+	p.components = append(p.components, stmt)
+
+	stmt.SetEndPosition(p.curToken.Pos)
+
+	return stmt
+}
+
+func (p *Parser) componentStmtHeader(stmt *ast.ComponentStmt) *ast.IllegalNode {
 	if !p.expectPeek(token.LPAREN) { // move to "("
 		return p.illegalNodeUntil(token.RPAREN)
 	}
@@ -540,18 +559,7 @@ func (p *Parser) componentStmt() ast.Statement {
 		p.nextToken() // move to ")"
 	}
 
-	if p.peekTokenIs(token.SLOT, token.SLOT_IF) {
-		p.nextToken() // skip whitespace
-		if illegal := p.assignSlotsToComp(stmt); illegal != nil {
-			return illegal
-		}
-	}
-
-	p.components = append(p.components, stmt)
-
-	stmt.SetEndPosition(p.curToken.Pos)
-
-	return stmt
+	return nil
 }
 
 func (p *Parser) assignSlotsToComp(stmt *ast.ComponentStmt) ast.Statement {
@@ -660,17 +668,12 @@ func (p *Parser) localSlotStmt(name *ast.StringLiteral, compName string) ast.Sta
 		p.nextToken() // skip "@slot"
 	}
 
-	hasEmptyBlock := p.curTokenIs(token.END)
-
-	if hasEmptyBlock {
-		p.nextToken() // skip "@end"
-		stmt.SetEndPosition(p.curToken.Pos)
-	} else {
+	if !p.curTokenIs(token.END) {
 		stmt.SetBlock(p.blockStmt())
-		stmt.SetEndPosition(p.curToken.Pos)
-		p.nextToken() // skip block statement
-		p.nextToken() // skip "@end"
 	}
+
+	p.nextToken() // skip "@end"
+	stmt.SetEndPosition(p.curToken.Pos)
 
 	return stmt
 }
@@ -678,8 +681,31 @@ func (p *Parser) localSlotStmt(name *ast.StringLiteral, compName string) ast.Sta
 func (p *Parser) slotifStmt(name *ast.StringLiteral, compName string) ast.Statement {
 	stmt := ast.NewSlotifStmt(p.curToken, name, compName)
 
+	if illegal := p.slotifStmtHeader(stmt, name); illegal != nil { // skips ")"
+		return illegal
+	}
+
+	if p.curTokenIs(token.END) {
+		stmt.SetEndPosition(p.curToken.Pos)
+		return stmt
+	}
+
+	stmt.SetBlock(p.blockStmt())
+
+	if !p.curTokenIs(token.END) {
+		return p.illegalNodeUntil(token.END)
+	}
+
+	stmt.SetEndPosition(p.curToken.Pos)
+
+	p.nextToken() // skip "@end"
+
+	return stmt
+}
+
+func (p *Parser) slotifStmtHeader(stmt *ast.SlotifStmt, name *ast.StringLiteral) *ast.IllegalNode {
 	if !p.expectPeek(token.LPAREN) { // move from "@slotif" to "("
-		p.illegalNode()
+		p.illegalNodeUntil(token.END)
 	}
 
 	p.nextToken() // skip "("
@@ -698,17 +724,12 @@ func (p *Parser) slotifStmt(name *ast.StringLiteral, compName string) ast.Statem
 	}
 
 	if !p.expectPeek(token.RPAREN) { // move to ")"
-		return p.illegalNode()
+		return p.illegalNodeUntil(token.END)
 	}
 
 	p.nextToken() // skip ")"
 
-	stmt.SetBlock(p.blockStmt())
-	stmt.SetEndPosition(p.curToken.Pos)
-	p.nextToken() // skip block statement
-	p.nextToken() // skip "@end"
-
-	return stmt
+	return nil
 }
 
 func (p *Parser) reserveStmt() ast.Statement {
@@ -749,8 +770,41 @@ func (p *Parser) reserveStmt() ast.Statement {
 func (p *Parser) insertStmt() ast.Statement {
 	stmt := ast.NewInsertStmt(p.curToken, p.file.Abs)
 
+	illegal, done := p.insertStmtHeader(stmt) // moves to ")"
+	if illegal != nil {
+		return illegal
+	}
+
+	if done {
+		return stmt
+	}
+
+	p.nextToken() // skip ")"
+
+	// Handle empty block
+	if p.curTokenIs(token.END) {
+		stmt.SetEndPosition(p.curToken.Pos)
+		return stmt
+	}
+
+	stmt.Block = p.blockStmt()
+
+	// skip block and move to @end
+	if !p.curTokenIs(token.END) {
+		return p.illegalNodeUntil(token.END)
+	}
+
+	stmt.SetEndPosition(p.curToken.Pos)
+
+	p.inserts[stmt.Name.Value] = stmt
+
+	return stmt
+}
+
+func (p *Parser) insertStmtHeader(stmt *ast.InsertStmt) (*ast.IllegalNode, bool) {
+	done := false
 	if !p.expectPeek(token.LPAREN) { // move to "("
-		return p.illegalNode()
+		return p.illegalNode(), done
 	}
 
 	p.nextToken() // skip "("
@@ -758,7 +812,7 @@ func (p *Parser) insertStmt() ast.Statement {
 	stmt.Name = ast.NewStringLiteral(p.curToken, p.curToken.Literal)
 
 	if ok := p.checkDuplicateInserts(stmt); ok {
-		return nil
+		return nil, done
 	}
 
 	// Handle inline @insert without block
@@ -768,39 +822,22 @@ func (p *Parser) insertStmt() ast.Statement {
 		stmt.Argument = p.expression(LOWEST)
 
 		if !p.expectPeek(token.RPAREN) { // move to ")"
-			return p.illegalNodeUntil(token.RBRACE)
+			return p.illegalNodeUntil(token.RBRACE), done
 		}
 
 		stmt.SetEndPosition(p.curToken.Pos)
 
 		p.inserts[stmt.Name.Value] = stmt
+		done = true
 
-		return stmt
+		return nil, done
 	}
 
 	if !p.expectPeek(token.RPAREN) { // move to ")"
-		return p.illegalNodeUntil(token.END)
+		return p.illegalNodeUntil(token.END), done
 	}
 
-	if p.peekTokenIs(token.END) {
-		p.nextToken() // move to "@end"
-		stmt.SetEndPosition(p.curToken.Pos)
-		return stmt
-	}
-
-	p.nextToken() // skip ")"
-	stmt.Block = p.blockStmt()
-
-	// skip block and move to @end
-	if !p.expectPeek(token.END) {
-		return p.illegalNodeUntil(token.END)
-	}
-
-	stmt.SetEndPosition(p.curToken.Pos)
-
-	p.inserts[stmt.Name.Value] = stmt
-
-	return stmt
+	return nil, done
 }
 
 func (p *Parser) checkDuplicateInserts(stmt *ast.InsertStmt) bool {
@@ -925,6 +962,34 @@ func (p *Parser) ternaryExp(left ast.Expression) ast.Expression {
 func (p *Parser) ifStmt() ast.Statement {
 	stmt := ast.NewIfStmt(p.curToken)
 
+	if illegal := p.ifStmtHeader(stmt); illegal != nil { // skips ")"
+		return illegal
+	}
+
+	stmt.IfBlock = p.blockStmt()
+
+	if p.curTokenIs(token.END) {
+		stmt.SetEndPosition(p.curToken.Pos)
+		return stmt
+	}
+
+	for p.curTokenIs(token.ELSE_IF) {
+		elseifStmt := p.elseifStmt()
+		stmt.ElseifStmts = append(stmt.ElseifStmts, elseifStmt)
+	}
+
+	stmt.ElseBlock = p.elseBlock()
+
+	if !p.curTokenIs(token.END) { // move to "@end"
+		return p.illegalNode()
+	}
+
+	stmt.SetEndPosition(p.curToken.Pos)
+
+	return stmt
+}
+
+func (p *Parser) ifStmtHeader(stmt *ast.IfStmt) *ast.IllegalNode {
 	if !p.expectPeek(token.LPAREN) { // move to "("
 		return p.illegalNodeUntil(token.END)
 	}
@@ -939,38 +1004,10 @@ func (p *Parser) ifStmt() ast.Statement {
 
 	p.nextToken() // skip ")"
 
-	stmt.IfBlock = p.blockStmt()
-	if stmt.IfBlock == nil {
-		stmt.SetEndPosition(p.curToken.Pos)
-		return stmt
-	}
-
-	for p.peekTokenIs(token.ELSE_IF) {
-		elseifStmt := p.elseifStmt()
-		stmt.ElseifStmts = append(stmt.ElseifStmts, elseifStmt)
-	}
-
-	if p.peekTokenIs(token.ELSE) {
-		stmt.ElseBlock = p.elseBlock()
-		if stmt.ElseBlock == nil {
-			return nil
-		}
-	}
-
-	if !p.expectPeek(token.END) { // move to "@end"
-		return p.illegalNode()
-	}
-
-	stmt.SetEndPosition(p.curToken.Pos)
-
-	return stmt
+	return nil
 }
 
 func (p *Parser) elseifStmt() ast.Statement {
-	if !p.expectPeek(token.ELSE_IF) { // move to "@elseif"
-		return p.illegalNode()
-	}
-
 	stmt := ast.NewElseIfStmt(p.curToken)
 
 	p.nextToken() // skip "@elseif"
@@ -991,20 +1028,14 @@ func (p *Parser) elseifStmt() ast.Statement {
 }
 
 func (p *Parser) elseBlock() *ast.BlockStmt {
-	if !p.peekTokenIs(token.ELSE) {
+	if p.curTokenIs(token.ELSE) {
+		p.nextToken() // skip "@else"
+	}
+
+	if p.curTokenIs(token.ELSE, token.END) {
 		return nil
 	}
 
-	p.nextToken() // move to "@else"
-
-	// Handle empty @else block
-	if p.peekTokenIs(token.END) {
-		stmt := ast.NewBlockStmt(p.curToken)
-		stmt.SetEndPosition(p.curToken.Pos)
-		return stmt
-	}
-
-	p.nextToken() // skip "@else"
 	stmt := p.blockStmt()
 
 	if p.peekTokenIs(token.ELSE_IF) {
@@ -1020,6 +1051,29 @@ func (p *Parser) elseBlock() *ast.BlockStmt {
 func (p *Parser) forStmt() ast.Statement {
 	stmt := ast.NewForStmt(p.curToken)
 
+	if illegal := p.forStmtHeader(stmt); illegal != nil { // skips ")"
+		return illegal
+	}
+
+	stmt.Block = p.blockStmt()
+
+	if p.curTokenIs(token.END) {
+		stmt.SetEndPosition(p.curToken.Pos)
+		return stmt
+	}
+
+	stmt.ElseBlock = p.elseBlock()
+
+	if !p.curTokenIs(token.END) {
+		return p.illegalNodeUntil(token.END)
+	}
+
+	stmt.SetEndPosition(p.curToken.Pos)
+
+	return stmt
+}
+
+func (p *Parser) forStmtHeader(stmt *ast.ForStmt) *ast.IllegalNode {
 	if !p.expectPeek(token.LPAREN) { // move to "("
 		return p.illegalNodeUntil(token.END)
 	}
@@ -1054,15 +1108,26 @@ func (p *Parser) forStmt() ast.Statement {
 
 	p.nextToken() // skip ")"
 
+	return nil
+}
+
+func (p *Parser) eachStmt() ast.Statement {
+	stmt := ast.NewEachStmt(p.curToken)
+
+	if illegal := p.eachStmtHeader(stmt); illegal != nil { // skips ")"
+		return illegal
+	}
+
 	stmt.Block = p.blockStmt()
-	if stmt.Block == nil {
+
+	if p.curTokenIs(token.END) {
 		stmt.SetEndPosition(p.curToken.Pos)
 		return stmt
 	}
 
 	stmt.ElseBlock = p.elseBlock()
 
-	if !p.expectPeek(token.END) { // move to "@end"
+	if !p.curTokenIs(token.END) {
 		return p.illegalNodeUntil(token.END)
 	}
 
@@ -1071,9 +1136,7 @@ func (p *Parser) forStmt() ast.Statement {
 	return stmt
 }
 
-func (p *Parser) eachStmt() ast.Statement {
-	stmt := ast.NewEachStmt(p.curToken)
-
+func (p *Parser) eachStmtHeader(stmt *ast.EachStmt) *ast.IllegalNode {
 	if !p.expectPeek(token.LPAREN) { // move to "("
 		return p.illegalNodeUntil(token.END)
 	}
@@ -1096,25 +1159,11 @@ func (p *Parser) eachStmt() ast.Statement {
 
 	p.nextToken() // skip ")"
 
-	stmt.Block = p.blockStmt()
-	if stmt.Block == nil {
-		stmt.SetEndPosition(p.curToken.Pos)
-		return stmt
-	}
-
-	stmt.ElseBlock = p.elseBlock()
-
-	if !p.expectPeek(token.END) { // move to "@end"
-		return p.illegalNodeUntil(token.END)
-	}
-
-	stmt.SetEndPosition(p.curToken.Pos)
-
-	return stmt
+	return nil
 }
 
 func (p *Parser) blockStmt() *ast.BlockStmt {
-	if p.curTokenIs(token.END) {
+	if p.curTokenIs(token.ELSE, token.END) {
 		return nil
 	}
 
@@ -1130,6 +1179,7 @@ func (p *Parser) blockStmt() *ast.BlockStmt {
 		}
 
 		if p.peekTokenIs(token.ELSE, token.ELSE_IF, token.END) {
+			p.nextToken() // skip statement
 			break
 		}
 
