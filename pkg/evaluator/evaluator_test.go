@@ -245,21 +245,56 @@ func TestEvalIfStmt(t *testing.T) {
 		inp    string
 		expect string
 	}{
+		// Basic if statements
 		{10, `@if(true)Hello@end`, "Hello"},
-		{20, `@if(true.binary())Hello@end`, "Hello"},
-		{30, `@if(false.binary())Hello@end`, ""},
-		{40, `@if(false)Hello@end`, ""},
-		{50, `@if(true)Anna@elseif(true)Lili@end`, "Anna"},
-		{60, `@if(false)Alan@elseif(true)Serhii@end`, "Serhii"},
-		{70, `@if(false)Ana De Armaz@elseif(false)David@elseVladimir@end`, "Vladimir"},
-		{80, `@if(false)Will@elseif(false)Daria@elseif(true)Poll@end`, "Poll"},
-		{90, `@if(false)Lara@elseif(true)Susan@elseif(true)Smith@end`, "Susan"},
-		{91, `@if(false)1@else@end`, ""},
-		{100, `<h2>@if(true)Hello@end</h2>`, "<h2>Hello</h2>"},
-		{110, `<h2>@if(false)Hello@end</h2>`, "<h2></h2>"},
-		{120, `@if(true)Hello@end`, "Hello"},
+		{20, `@if(false)Hello@end`, ""},
+		{30, `@if(true)X@else@end`, "X"},
+		{40, `@if(false)@elseX@end`, "X"},
+		{50, `@if(true)@else@end`, ""},
+		{60, `@if(false)1@else@end`, ""},
+		// HTML wrapper
+		{70, `<h2>@if(true)Hello@end</h2>`, "<h2>Hello</h2>"},
+		{80, `<h2>@if(false)Hello@end</h2>`, "<h2></h2>"},
+		// @elseif statements
+		{90, `@if(true)Anna@elseif(true)Lili@end`, "Anna"},
+		{100, `@if(false)Alan@elseif(true)Serhii@end`, "Serhii"},
+		{110, `@if(false)Ana De Armaz@elseif(false)David@elseVladimir@end`, "Vladimir"},
+		{120, `@if(false)Will@elseif(false)Daria@elseif(true)Poll@end`, "Poll"},
+		{130, `@if(false)Lara@elseif(true)Susan@elseif(true)Smith@end`, "Susan"},
+		{140, `@if(false)@elseif(false)@elsemy@mail.com@end`, "my@mail.com"},
+		{150, `@if(false)A@elseif(false)B@end`, ""},
+		// Boolean methods
+		{160, `@if(true.binary())Hello@end`, "Hello"},
+		{170, `@if(false.binary())Hello@end`, ""},
+		// Truthy/falsy values
+		{180, `@if(1)Yes@end`, "Yes"},
+		{190, `@if(0)Yes@end`, ""},
+		{200, `@if("")Yes@end`, ""},
+		{210, `@if([])Yes@end`, ""},
+		{220, `@if({})Yes@end`, ""},
+		{230, `@if(nil)Yes@end`, ""},
+		// Logical operators
+		{240, `@if(true && true)Yes@end`, "Yes"},
+		{250, `@if(true && false)Yes@end`, ""},
+		{260, `@if(false || true)Yes@end`, "Yes"},
+		{270, `@if(false || false)Yes@end`, ""},
+		// Boolean negation
+		{280, `@if(!true)Yes@end`, ""},
+		{290, `@if(!false)Yes@end`, "Yes"},
+		{300, `@if(!!true)Yes@end`, "Yes"},
+		{310, `@if(!!false)Yes@end`, ""},
+		// Comparison operators
+		{320, `@if(1 == 1)Yes@end`, "Yes"},
+		{330, `@if(1 == 2)Yes@end`, ""},
+		{340, `@if(1 != 2)Yes@end`, "Yes"},
+		{350, `@if(1 < 2)Yes@end`, "Yes"},
+		{360, `@if(2 > 1)Yes@end`, "Yes"},
+		// Expression results as conditions
+		{370, `@if(1 + 1 == 2)Yes@end`, "Yes"},
+		{380, `@if(5 - 3 == 1)Yes@end`, ""},
+		// Nested if statements
 		{
-			130,
+			390,
 			`
 				@if(true)
 					@if(false)
@@ -275,38 +310,6 @@ func TestEvalIfStmt(t *testing.T) {
 			`,
 			"Marry",
 		},
-		{130, `@if(false)@elseX@end`, "X"},
-		{140, `@if(true)X@else@end`, "X"},
-		{150, `@if(true)@else@end`, ""},
-		{160, `@if(false)@elseif(false)@elsemy@mail.com@end`, "my@mail.com"},
-		// Truthy/falsy values
-		{170, `@if(1)Yes@end`, "Yes"},
-		{180, `@if(0)Yes@end`, ""},
-		{190, `@if("")Yes@end`, ""},
-		{200, `@if([])Yes@end`, ""},
-		{210, `@if({})Yes@end`, ""},
-		{220, `@if(nil)Yes@end`, ""},
-		// Expression conditions
-		{230, `@if(true && true)Yes@end`, "Yes"},
-		{240, `@if(true && false)Yes@end`, ""},
-		{250, `@if(false || true)Yes@end`, "Yes"},
-		{260, `@if(false || false)Yes@end`, ""},
-		{270, `@if(!true)Yes@end`, ""},
-		{280, `@if(!false)Yes@end`, "Yes"},
-		// Comparison operators
-		{290, `@if(1 == 1)Yes@end`, "Yes"},
-		{300, `@if(1 == 2)Yes@end`, ""},
-		{310, `@if(1 != 2)Yes@end`, "Yes"},
-		{320, `@if(1 < 2)Yes@end`, "Yes"},
-		{330, `@if(2 > 1)Yes@end`, "Yes"},
-		// Boolean negation
-		{340, `@if(!!true)Yes@end`, "Yes"},
-		{350, `@if(!!false)Yes@end`, ""},
-		// All conditions false without else
-		{360, `@if(false)A@elseif(false)B@end`, ""},
-		// Expression results as conditions
-		{370, `@if(1 + 1 == 2)Yes@end`, "Yes"},
-		{380, `@if(5 - 3 == 1)Yes@end`, ""},
 	}
 
 	for _, tc := range cases {
