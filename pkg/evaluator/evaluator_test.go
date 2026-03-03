@@ -279,6 +279,34 @@ func TestEvalIfStmt(t *testing.T) {
 		{140, `@if(true)X@else@end`, "X"},
 		{150, `@if(true)@else@end`, ""},
 		{160, `@if(false)@elseif(false)@elsemy@mail.com@end`, "my@mail.com"},
+		// Truthy/falsy values
+		{170, `@if(1)Yes@end`, "Yes"},
+		{180, `@if(0)Yes@end`, ""},
+		{190, `@if("")Yes@end`, ""},
+		{200, `@if([])Yes@end`, ""},
+		{210, `@if({})Yes@end`, ""},
+		{220, `@if(nil)Yes@end`, ""},
+		// Expression conditions
+		{230, `@if(true && true)Yes@end`, "Yes"},
+		{240, `@if(true && false)Yes@end`, ""},
+		{250, `@if(false || true)Yes@end`, "Yes"},
+		{260, `@if(false || false)Yes@end`, ""},
+		{270, `@if(!true)Yes@end`, ""},
+		{280, `@if(!false)Yes@end`, "Yes"},
+		// Comparison operators
+		{290, `@if(1 == 1)Yes@end`, "Yes"},
+		{300, `@if(1 == 2)Yes@end`, ""},
+		{310, `@if(1 != 2)Yes@end`, "Yes"},
+		{320, `@if(1 < 2)Yes@end`, "Yes"},
+		{330, `@if(2 > 1)Yes@end`, "Yes"},
+		// Boolean negation
+		{340, `@if(!!true)Yes@end`, "Yes"},
+		{350, `@if(!!false)Yes@end`, ""},
+		// All conditions false without else
+		{360, `@if(false)A@elseif(false)B@end`, ""},
+		// Expression results as conditions
+		{370, `@if(1 + 1 == 2)Yes@end`, "Yes"},
+		{380, `@if(5 - 3 == 1)Yes@end`, ""},
 	}
 
 	for _, tc := range cases {
