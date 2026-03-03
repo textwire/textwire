@@ -317,7 +317,7 @@ func (e *Evaluator) component(compStmt *ast.ComponentStmt, ctx *Context) object.
 }
 
 func (e *Evaluator) _for(forStmt *ast.ForStmt, ctx *Context) object.Object {
-	forCtx := NewContext(ctx.scope.Child(), ctx.absPath)
+	forCtx := NewContext(ctx.scope, ctx.absPath)
 
 	var init object.Object
 	if forStmt.Init != nil {
