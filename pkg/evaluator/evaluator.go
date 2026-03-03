@@ -169,6 +169,10 @@ func (e *Evaluator) _if(ifStmt *ast.IfStmt, ctx *Context) object.Object {
 }
 
 func (e *Evaluator) block(blockStmt *ast.BlockStmt, ctx *Context) object.Object {
+	if blockStmt == nil {
+		return NIL
+	}
+
 	stmts := make([]object.Object, 0, len(blockStmt.Statements))
 
 	for i := range blockStmt.Statements {

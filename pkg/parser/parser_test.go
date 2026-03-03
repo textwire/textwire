@@ -898,159 +898,131 @@ func TestTernaryExp(t *testing.T) {
 }
 
 func TestParseIfStmt(t *testing.T) {
-	inp := `@if(true)1@end`
+	t.Run("regular @if", func(t *testing.T) {
+		inp := `@if(true)1@end`
 
-	stmts, err := parseStatements(inp, defaultParseOpts)
-	if err != nil {
-		t.Fatal(err)
-	}
-	stmt, ok := stmts[0].(*ast.IfStmt)
-	if !ok {
-		t.Fatalf("stmts[0] is not an IfStmt, got %T", stmts[0])
-	}
+		stmts, err := parseStatements(inp, defaultParseOpts)
+		if err != nil {
+			t.Fatal(err)
+		}
+		stmt, ok := stmts[0].(*ast.IfStmt)
+		if !ok {
+			t.Fatalf("stmts[0] is not an IfStmt, got %T", stmts[0])
+		}
 
-	if err := testToken(stmt, token.IF); err != nil {
-		t.Fatal(err)
-	}
+		if err := testToken(stmt, token.IF); err != nil {
+			t.Fatal(err)
+		}
 
-	err = testPosition(stmt.Position(), token.Position{
-		StartCol: 0,
-		EndCol:   13,
+		err = testPosition(stmt.Position(), token.Position{
+			StartCol: 0,
+			EndCol:   13,
+		})
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		if err := testIfBlock(stmt, true, "1"); err != nil {
+			t.Fatal(err)
+		}
+
+		if stmt.ElseBlock != nil {
+			t.Fatalf("ifStmt.ElseBlock is not nil, got %T", stmt.ElseBlock)
+		}
+
+		if len(stmt.ElseifStmts) != 0 {
+			t.Fatalf("ifStmt.ElseIfStmts is not empty, got %d", len(stmt.ElseifStmts))
+		}
 	})
-	if err != nil {
-		t.Fatal(err)
-	}
 
-	if err := testIfBlock(stmt, true, "1"); err != nil {
-		t.Fatal(err)
-	}
+	t.Run("@if with @else", func(t *testing.T) {
+		inp := `@if(true)1@else2@end`
 
-	if stmt.ElseBlock != nil {
-		t.Fatalf("ifStmt.ElseBlock is not nil, got %T", stmt.ElseBlock)
-	}
+		stmts, err := parseStatements(inp, defaultParseOpts)
+		if err != nil {
+			t.Fatal(err)
+		}
+		stmt, ok := stmts[0].(*ast.IfStmt)
+		if !ok {
+			t.Fatalf("stmts[0] is not an IfStmt, got %T", stmts[0])
+		}
 
-	if len(stmt.ElseifStmts) != 0 {
-		t.Fatalf("ifStmt.ElseIfStmts is not empty, got %d", len(stmt.ElseifStmts))
-	}
-}
+		if err := testToken(stmt, token.IF); err != nil {
+			t.Fatal(err)
+		}
 
-func TestParseIfElseStatement(t *testing.T) {
-	inp := `@if(true)1@else2@end`
+		if err := testToken(stmt.IfBlock, token.HTML); err != nil {
+			t.Fatal(err)
+		}
 
-	stmts, err := parseStatements(inp, defaultParseOpts)
-	if err != nil {
-		t.Fatal(err)
-	}
-	stmt, ok := stmts[0].(*ast.IfStmt)
-	if !ok {
-		t.Fatalf("stmts[0] is not an IfStmt, got %T", stmts[0])
-	}
+		if err := testToken(stmt.ElseBlock, token.HTML); err != nil {
+			t.Fatal(err)
+		}
 
-	if err := testToken(stmt, token.IF); err != nil {
-		t.Fatal(err)
-	}
+		if err := testIfBlock(stmt, true, "1"); err != nil {
+			t.Fatal(err)
+		}
 
-	if err := testToken(stmt.IfBlock, token.HTML); err != nil {
-		t.Fatal(err)
-	}
+		if err := testElseBlock(stmt.ElseBlock, "2"); err != nil {
+			t.Fatal(err)
+		}
 
-	if err := testToken(stmt.ElseBlock, token.HTML); err != nil {
-		t.Fatal(err)
-	}
-
-	if err := testIfBlock(stmt, true, "1"); err != nil {
-		t.Fatal(err)
-	}
-
-	if err := testElseBlock(stmt.ElseBlock, "2"); err != nil {
-		t.Fatal(err)
-	}
-
-	err = testPosition(stmt.Position(), token.Position{
-		StartCol: 0,
-		EndCol:   19,
+		err = testPosition(stmt.Position(), token.Position{
+			StartCol: 0,
+			EndCol:   19,
+		})
+		if err != nil {
+			t.Fatal(err)
+		}
 	})
-	if err != nil {
-		t.Fatal(err)
-	}
-}
 
-func TestParseNestedIfElseStatement(t *testing.T) {
-	inp := `
-        @if(true)
-            @if(false)
-                James
-            @elseif(false)
-                John
-            @else
-                @if(true){{ "Marry" }}@end
-            @end
-        @else
-            @if(true)Anna@end
-        @end`
+	t.Run("nested @if with @else", func(t *testing.T) {
+		inp := `
+		@if(true)
+			@if(false)
+				James
+			@elseif(false)
+				John
+			@else
+				@if(true){{ "Marry" }}@end
+			@end
+		@else
+			@if(true)Anna@end
+		@end`
 
-	stmts, err := parseStatements(inp, parseOpts{stmtCount: 2, checkErrors: true})
-	if err != nil {
-		t.Fatal(err)
-	}
+		stmts, err := parseStatements(inp, parseOpts{stmtCount: 2, checkErrors: true})
+		if err != nil {
+			t.Fatal(err)
+		}
 
-	if _, ok := stmts[0].(*ast.HTMLStmt); !ok {
-		t.Fatalf("stmts[0] is not an HTMLStmt, got %T", stmts[0])
-	}
+		if _, ok := stmts[0].(*ast.HTMLStmt); !ok {
+			t.Fatalf("stmts[0] is not an HTMLStmt, got %T", stmts[0])
+		}
 
-	ifStmt, isNotIfStmt := stmts[1].(*ast.IfStmt)
-	if !isNotIfStmt {
-		t.Fatalf("stmts[1] is not an IfStmt, got %T", stmts[1])
-	}
+		ifStmt, isNotIfStmt := stmts[1].(*ast.IfStmt)
+		if !isNotIfStmt {
+			t.Fatalf("stmts[1] is not an IfStmt, got %T", stmts[1])
+		}
 
-	if len(ifStmt.IfBlock.Statements) != 3 {
-		t.Fatalf(
-			"ifStmt.IfBlock.Statements does not contain 3 statement, got %d",
-			len(ifStmt.IfBlock.Statements),
-		)
-	}
+		if len(ifStmt.IfBlock.Statements) != 3 {
+			t.Fatalf(
+				"ifStmt.IfBlock.Statements does not contain 3 statement, got %d",
+				len(ifStmt.IfBlock.Statements),
+			)
+		}
 
-	if err := testToken(ifStmt, token.IF); err != nil {
-		t.Fatal(err)
-	}
+		if err := testToken(ifStmt, token.IF); err != nil {
+			t.Fatal(err)
+		}
 
-	if err := testToken(ifStmt.IfBlock, token.HTML); err != nil {
-		t.Fatal(err)
-	}
+		if err := testToken(ifStmt.IfBlock, token.HTML); err != nil {
+			t.Fatal(err)
+		}
 
-	if err := testToken(ifStmt.ElseBlock, token.HTML); err != nil {
-		t.Fatal(err)
-	}
-
-	err = testPosition(ifStmt.Position(), token.Position{
-		StartLine: 1,
-		EndLine:   11,
-		StartCol:  8,
-		EndCol:    11,
+		if err := testToken(ifStmt.ElseBlock, token.HTML); err != nil {
+			t.Fatal(err)
+		}
 	})
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	err = testPosition(ifStmt.IfBlock.Position(), token.Position{
-		StartLine: 1,
-		EndLine:   9,
-		StartCol:  17,
-		EndCol:    7,
-	})
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	err = testPosition(ifStmt.ElseBlock.Position(), token.Position{
-		StartLine: 9,
-		EndLine:   11,
-		StartCol:  13,
-		EndCol:    7,
-	})
-	if err != nil {
-		t.Fatal(err)
-	}
 }
 
 func TestParseIfElseIfStmt(t *testing.T) {
@@ -1316,7 +1288,7 @@ func TestParseReserveStmt(t *testing.T) {
 }
 
 func TestInsertStmt(t *testing.T) {
-	t.Run("Insert with block", func(t *testing.T) {
+	t.Run("@insert with block", func(t *testing.T) {
 		inp := `<h1>@insert("content")<h1>Some content</h1>@end</h1>`
 
 		stmts, err := parseStatements(inp, parseOpts{stmtCount: 3, checkErrors: true})
@@ -1353,8 +1325,8 @@ func TestInsertStmt(t *testing.T) {
 		}
 	})
 
-	t.Run("Insert with argument", func(t *testing.T) {
-		inp := `<h1>@insert("content", "Some content")</h1>`
+	t.Run("@insert with argument", func(t *testing.T) {
+		inp := "<h1>@insert('content', 'Some content')</h1>"
 
 		stmts, err := parseStatements(inp, parseOpts{stmtCount: 3, checkErrors: true})
 		if err != nil {
@@ -1734,182 +1706,204 @@ func TestParseCallExpWithEmptyString(t *testing.T) {
 }
 
 func TestParseForStmt(t *testing.T) {
-	inp := `@for(i = 0; i < 10; i++)
-        {{ i }}
-    @end`
+	t.Run("regular @for", func(t *testing.T) {
+		inp := "@for(i = 0; i < 10; i++){{ i }}@end"
 
-	stmts, err := parseStatements(inp, defaultParseOpts)
-	if err != nil {
-		t.Fatal(err)
-	}
+		stmts, err := parseStatements(inp, defaultParseOpts)
+		if err != nil {
+			t.Fatal(err)
+		}
 
-	stmt, ok := stmts[0].(*ast.ForStmt)
-	if !ok {
-		t.Fatalf("stmts[0] is not a ForStmt, got %T", stmts[0])
-	}
+		stmt, ok := stmts[0].(*ast.ForStmt)
+		if !ok {
+			t.Fatalf("stmts[0] is not a ForStmt, got %T", stmts[0])
+		}
 
-	if err := testToken(stmt, token.FOR); err != nil {
-		t.Fatal(err)
-	}
+		if err := testToken(stmt, token.FOR); err != nil {
+			t.Fatal(err)
+		}
 
-	err = testPosition(stmt.Pos, token.Position{
-		EndLine: 2,
-		EndCol:  7,
+		if err = testPosition(stmt.Pos, token.Position{EndCol: 34}); err != nil {
+			t.Fatal(err)
+		}
+
+		err = testPosition(stmt.Block.Pos, token.Position{StartCol: 24, EndCol: 30})
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		if stmt.Init.String() != `i = 0` {
+			t.Fatalf("stmt.Init.String() is not 'i = 0', got %s", stmt.Init)
+		}
+
+		if stmt.Condition.String() != `(i < 10)` {
+			t.Fatalf("stmt.Condition.String() is not '(i < 10)', got %s", stmt.Condition)
+		}
+
+		if stmt.Post.String() != `(i++)` {
+			t.Fatalf("stmt.Post.String() is not '(i++)', got %s", stmt.Post)
+		}
+
+		actual := strings.Trim(stmt.Block.String(), " \n\t")
+		if actual != "{{ i }}" {
+			t.Fatalf("actual is not '%q', got %q", "{{ i }}", actual)
+		}
+
+		if stmt.ElseBlock != nil {
+			t.Fatalf("stmt.ElseBlock is not nil, got %T", stmt.ElseBlock)
+		}
 	})
-	if err != nil {
-		t.Fatal(err)
-	}
 
-	err = testPosition(stmt.Block.Pos, token.Position{
-		EndLine:  2,
-		StartCol: 24,
-		EndCol:   3,
+	t.Run("@for with @else block", func(t *testing.T) {
+		inp := `@for(i = 0; i < 0; i++){{ i }}@elseEmpty@end`
+
+		stmts, err := parseStatements(inp, defaultParseOpts)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		stmt, ok := stmts[0].(*ast.ForStmt)
+		if !ok {
+			t.Fatalf("stmts[0] is not a ForStmt, got %T", stmts[0])
+		}
+
+		if err := testToken(stmt, token.FOR); err != nil {
+			t.Fatal(err)
+		}
+
+		if stmt.ElseBlock == nil {
+			t.Fatalf("stmt.ElseBlock is nil")
+		}
+
+		if stmt.ElseBlock.String() != "Empty" {
+			t.Fatalf("stmt.ElseBlock.String() is not 'Empty', got %s", stmt.ElseBlock)
+		}
 	})
-	if err != nil {
-		t.Fatal(err)
-	}
 
-	if stmt.Init.String() != `i = 0` {
-		t.Fatalf("stmt.Init.String() is not 'i = 0', got %s", stmt.Init)
-	}
+	t.Run("infinite @for", func(t *testing.T) {
+		inp := `@for(;;)1@end`
 
-	if stmt.Condition.String() != `(i < 10)` {
-		t.Fatalf("stmt.Condition.String() is not '(i < 10)', got %s", stmt.Condition)
-	}
+		stmts, err := parseStatements(inp, defaultParseOpts)
+		if err != nil {
+			t.Fatal(err)
+		}
 
-	if stmt.Post.String() != `(i++)` {
-		t.Fatalf("stmt.Post.String() is not '(i++)', got %s", stmt.Post)
-	}
+		stmt, ok := stmts[0].(*ast.ForStmt)
+		if !ok {
+			t.Fatalf("stmts[0] is not a ForStmt, got %T", stmts[0])
+		}
 
-	actual := strings.Trim(stmt.Block.String(), " \n\t")
-	if actual != "{{ i }}" {
-		t.Fatalf("actual is not '%q', got %q", "{{ i }}", actual)
-	}
+		if err := testToken(stmt, token.FOR); err != nil {
+			t.Fatal(err)
+		}
 
-	if stmt.ElseBlock != nil {
-		t.Fatalf("stmt.ElseBlock is not nil, got %T", stmt.ElseBlock)
-	}
-}
+		if stmt.Init != nil {
+			t.Fatalf("stmt.Init is not nil, got %s", stmt.Init)
+		}
 
-func TestParseForElseStatement(t *testing.T) {
-	inp := `@for(i = 0; i < 0; i++){{ i }}@elseEmpty@end`
+		if stmt.Condition != nil {
+			t.Fatalf("stmt.Condition is not nil, got %s", stmt.Condition)
+		}
 
-	stmts, err := parseStatements(inp, defaultParseOpts)
-	if err != nil {
-		t.Fatal(err)
-	}
+		if stmt.Post != nil {
+			t.Fatalf("stmt.Post is not nil, got %s", stmt.Post)
+		}
 
-	stmt, ok := stmts[0].(*ast.ForStmt)
-	if !ok {
-		t.Fatalf("stmts[0] is not a ForStmt, got %T", stmts[0])
-	}
-
-	if err := testToken(stmt, token.FOR); err != nil {
-		t.Fatal(err)
-	}
-
-	if stmt.ElseBlock == nil {
-		t.Fatalf("stmt.ElseBlock is nil")
-	}
-
-	if stmt.ElseBlock.String() != "Empty" {
-		t.Fatalf("stmt.ElseBlock.String() is not 'Empty', got %s", stmt.ElseBlock)
-	}
-}
-
-func TestParseInfiniteForStmt(t *testing.T) {
-	inp := `@for(;;)1@end`
-
-	stmts, err := parseStatements(inp, defaultParseOpts)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	stmt, ok := stmts[0].(*ast.ForStmt)
-	if !ok {
-		t.Fatalf("stmts[0] is not a ForStmt, got %T", stmts[0])
-	}
-
-	if err := testToken(stmt, token.FOR); err != nil {
-		t.Fatal(err)
-	}
-
-	if stmt.Init != nil {
-		t.Fatalf("stmt.Init is not nil, got %s", stmt.Init)
-	}
-
-	if stmt.Condition != nil {
-		t.Fatalf("stmt.Condition is not nil, got %s", stmt.Condition)
-	}
-
-	if stmt.Post != nil {
-		t.Fatalf("stmt.Post is not nil, got %s", stmt.Post)
-	}
-
-	if stmt.Block.String() != "1" {
-		t.Fatalf("stmt.Block.String() is not '1', got %s", stmt.Block)
-	}
+		if stmt.Block.String() != "1" {
+			t.Fatalf("stmt.Block.String() is not '1', got %s", stmt.Block)
+		}
+	})
 }
 
 func TestParseEachStmt(t *testing.T) {
-	inp := "@each(name in ['anna', 'serhii']){{ name }}@end"
+	t.Run("regular @each", func(t *testing.T) {
+		inp := "@each(name in ['anna', 'serhii']){{ name }}@end"
 
-	stmts, err := parseStatements(inp, defaultParseOpts)
-	if err != nil {
-		t.Fatal(err)
-	}
+		stmts, err := parseStatements(inp, defaultParseOpts)
+		if err != nil {
+			t.Fatal(err)
+		}
 
-	stmt, ok := stmts[0].(*ast.EachStmt)
-	if !ok {
-		t.Fatalf("stmts[0] is not a EachStmt, got %T", stmts[0])
-	}
+		stmt, ok := stmts[0].(*ast.EachStmt)
+		if !ok {
+			t.Fatalf("stmts[0] is not a EachStmt, got %T", stmts[0])
+		}
 
-	err = testPosition(stmt.Pos, token.Position{EndCol: 46})
-	if err != nil {
-		t.Fatal(err)
-	}
-	if err := testToken(stmt, token.EACH); err != nil {
-		t.Fatal(err)
-	}
+		err = testPosition(stmt.Pos, token.Position{EndCol: 46})
+		if err != nil {
+			t.Fatal(err)
+		}
+		if err := testToken(stmt, token.EACH); err != nil {
+			t.Fatal(err)
+		}
 
-	err = testPosition(stmt.Block.Pos, token.Position{
-		StartCol: 33,
-		EndCol:   42,
+		err = testPosition(stmt.Block.Pos, token.Position{
+			StartCol: 33,
+			EndCol:   42,
+		})
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		if stmt.Var.String() != `name` {
+			t.Fatalf("stmt.Var.String() is not 'name', got %s", stmt.Var)
+		}
+
+		if stmt.Array.String() != `["anna", "serhii"]` {
+			t.Fatalf(`stmt.Array.String() is not '["anna", "serhii"]', got %s`, stmt.Array)
+		}
+
+		actual := stmt.Block.String()
+		if actual != "{{ name }}" {
+			t.Fatalf("actual is not %q, got %q", "{{ name }}", actual)
+		}
+
+		if stmt.ElseBlock != nil {
+			t.Fatalf("stmt.ElseBlock is not nil, got %T", stmt.ElseBlock)
+		}
 	})
-	if err != nil {
-		t.Fatal(err)
-	}
 
-	if stmt.Var.String() != `name` {
-		t.Fatalf("stmt.Var.String() is not 'name', got %s", stmt.Var)
-	}
+	t.Run("@each with @else", func(t *testing.T) {
+		inp := `@each(v in []){{ v }}@elseTest@end`
 
-	if stmt.Array.String() != `["anna", "serhii"]` {
-		t.Fatalf(`stmt.Array.String() is not '["anna", "serhii"]', got %s`, stmt.Array)
-	}
+		stmts, err := parseStatements(inp, defaultParseOpts)
+		if err != nil {
+			t.Fatal(err)
+		}
 
-	actual := stmt.Block.String()
-	if actual != "{{ name }}" {
-		t.Fatalf("actual is not %q, got %q", "{{ name }}", actual)
-	}
+		stmt, ok := stmts[0].(*ast.EachStmt)
+		if !ok {
+			t.Fatalf("stmts[0] is not a EachStmt, got %T", stmts[0])
+		}
 
-	if stmt.ElseBlock != nil {
-		t.Fatalf("stmt.ElseBlock is not nil, got %T", stmt.ElseBlock)
-	}
+		if err := testToken(stmt, token.EACH); err != nil {
+			t.Fatal(err)
+		}
+
+		if stmt.ElseBlock.String() != "Test" {
+			t.Fatalf("stmt.ElseBlock.String() is not 'Test', got %s", stmt.ElseBlock)
+		}
+	})
 }
 
-func TestParseStmtCanHaveEmptyBlock(t *testing.T) {
+func TestParseEmptyBlock(t *testing.T) {
 	cases := []struct {
 		id        int
 		inp       string
 		endColPos uint
 		tok       token.TokenType
 	}{
-		{10, "@each(name in ['anna', 'serhii'])@end", 36, token.EACH},
-		{20, "@for(i = 0; i < 10; i++)@end", 27, token.FOR},
-		{30, "@if(true)@end", 12, token.IF},
-		{40, "@insert('content')@end", 21, token.INSERT},
-		{50, "@component('user')@slot('footer')@end@end", 40, token.COMPONENT},
+		{10, "@if(true)@end", 12, token.IF},
+		{20, "@if(true)1@else@end", 18, token.IF},
+		{30, "@if(true)@else@end", 17, token.IF},
+		{40, "@if(true)@else1@end", 18, token.IF},
+		{50, "@each(name in ['anna', 'serhii'])@end", 36, token.EACH},
+		{60, "@for(i = 0; i < 10; i++)@end", 27, token.FOR},
+		{70, "@for(i = 0; i < 10; i++)@else@end", 32, token.FOR},
+		{80, "@for(i = 0; i < 10; i++)1@else@end", 33, token.FOR},
+		{90, "@for(i = 0; i < 10; i++)@else1@end", 33, token.FOR},
+		{100, "@insert('content')@end", 21, token.INSERT},
+		{110, "@component('user')@slot('footer')@end@end", 40, token.COMPONENT},
 	}
 
 	for _, tc := range cases {
@@ -1934,28 +1928,6 @@ func TestParseStmtCanHaveEmptyBlock(t *testing.T) {
 		if len(stmt.Stmts()) != 0 {
 			t.Fatalf("len(stmt.Stmts()) has to be empty, got %d", len(stmt.Stmts()))
 		}
-	}
-}
-
-func TestParseEachElseStatement(t *testing.T) {
-	inp := `@each(v in []){{ v }}@elseTest@end`
-
-	stmts, err := parseStatements(inp, defaultParseOpts)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	stmt, ok := stmts[0].(*ast.EachStmt)
-	if !ok {
-		t.Fatalf("stmts[0] is not a EachStmt, got %T", stmts[0])
-	}
-
-	if err := testToken(stmt, token.EACH); err != nil {
-		t.Fatal(err)
-	}
-
-	if stmt.ElseBlock.String() != "Test" {
-		t.Fatalf("stmt.ElseBlock.String() is not 'Test', got %s", stmt.ElseBlock)
 	}
 }
 
@@ -2130,7 +2102,7 @@ func TestParseDotExp(t *testing.T) {
 	}
 }
 
-func TestParseBreakDirective(t *testing.T) {
+func TestParseBreakStmt(t *testing.T) {
 	inp := `@break`
 
 	stmts, err := parseStatements(inp, defaultParseOpts)
@@ -2148,7 +2120,7 @@ func TestParseBreakDirective(t *testing.T) {
 	}
 }
 
-func TestParseContinueDirective(t *testing.T) {
+func TestParseContinueStmt(t *testing.T) {
 	inp := `@continue`
 
 	stmts, err := parseStatements(inp, defaultParseOpts)
@@ -2166,7 +2138,7 @@ func TestParseContinueDirective(t *testing.T) {
 	}
 }
 
-func TestParseBreakIfDirective(t *testing.T) {
+func TestParseBreakifStmt(t *testing.T) {
 	inp := `@breakif(true)`
 
 	stmts, err := parseStatements(inp, defaultParseOpts)
@@ -2202,7 +2174,7 @@ func TestParseBreakIfDirective(t *testing.T) {
 	}
 }
 
-func TestParseContinueIfDirective(t *testing.T) {
+func TestParseContinueifStmt(t *testing.T) {
 	inp := "@continueif(false)"
 	stmts, err := parseStatements(inp, defaultParseOpts)
 	if err != nil {
@@ -2237,13 +2209,14 @@ func TestParseContinueIfDirective(t *testing.T) {
 	}
 }
 
-func TestParseComponentDirective(t *testing.T) {
+func TestParseComponentStmt(t *testing.T) {
 	t.Run("@component without slots", func(t *testing.T) {
 		inp := "<ul>@component('components/book-card', { c: card })</ul>"
 		stmts, err := parseStatements(inp, parseOpts{stmtCount: 3, checkErrors: true})
 		if err != nil {
 			t.Fatal(err)
 		}
+
 		stmt, ok := stmts[1].(*ast.ComponentStmt)
 		if !ok {
 			t.Fatalf("stmts[1] is not a ComponentStmt, got %T", stmts[1])
@@ -2253,6 +2226,7 @@ func TestParseComponentDirective(t *testing.T) {
 			StartCol: 4,
 			EndCol:   50,
 		})
+
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -2260,6 +2234,7 @@ func TestParseComponentDirective(t *testing.T) {
 		if err := testToken(stmt, token.COMPONENT); err != nil {
 			t.Fatal(err)
 		}
+
 		if err := testStringLiteral(stmt.Name, "components/book-card"); err != nil {
 			t.Fatal(err)
 		}
@@ -2282,7 +2257,39 @@ func TestParseComponentDirective(t *testing.T) {
 		}
 	})
 
-	t.Run("@component with 1 slot", func(t *testing.T) {
+	t.Run("@component with default slot", func(t *testing.T) {
+		inp := `@component("components/book-card")@slot<h1>Header</h1>@end@end`
+
+		stmts, err := parseStatements(inp, parseOpts{stmtCount: 1, checkErrors: true})
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		stmt, ok := stmts[0].(*ast.ComponentStmt)
+		if !ok {
+			t.Fatalf("stmts[0] is not a ComponentStmt, got %T", stmts[1])
+		}
+
+		if len(stmt.Slots) != 1 {
+			t.Fatalf("len(stmt.Slots) is not 1, got %d", len(stmt.Slots))
+		}
+
+		if err := testToken(stmt, token.COMPONENT); err != nil {
+			t.Fatal(err)
+		}
+
+		name := stmt.Slots[0].Name().Value
+		if name != "" {
+			t.Fatalf("name must be empty string, got: %s", name)
+		}
+
+		expect := `@slot<h1>Header</h1>@end`
+		if stmt.Slots[0].String() != expect {
+			t.Fatalf("stmt.Slots[0].String() is not '%q', got %q", expect, stmt.Slots[0])
+		}
+	})
+
+	t.Run("@component with 2 slots", func(t *testing.T) {
 		inp := `<ul>
 			@component("components/book-card", { c: card })
 				@slot("header")<h1>Header</h1>@end
@@ -2370,9 +2377,9 @@ func TestParseComponentDirective(t *testing.T) {
 	})
 }
 
-func TestParseSlotDirective(t *testing.T) {
+func TestParseSlotStmt(t *testing.T) {
 	t.Run("named slot", func(t *testing.T) {
-		inp := `<h2>@slot("header")</h2>`
+		inp := "<h2>@slot('header')</h2>"
 		stmts, err := parseStatements(inp, parseOpts{stmtCount: 3, checkErrors: true})
 		if err != nil {
 			t.Fatal(err)
@@ -2437,7 +2444,7 @@ func TestParseSlotDirective(t *testing.T) {
 	})
 }
 
-func TestParseSlotifDirective(t *testing.T) {
+func TestParseSlotifStmt(t *testing.T) {
 	t.Run("default slotif", func(t *testing.T) {
 		inp := `@component('test')@slotif(true)Test@end@end`
 		stmts, err := parseStatements(inp, parseOpts{stmtCount: 1, checkErrors: true})
