@@ -1910,6 +1910,9 @@ func TestParseEmptyBlock(t *testing.T) {
 		{150, "@component('x')@slot('x')@end@end", 32, token.COMPONENT},
 		{160, "@component('x')@slotif(x, 'x')@end@end", 37, token.COMPONENT},
 		{170, "@component('x')@slotif(x)@end@end", 32, token.COMPONENT},
+		{180, "@component('x')@slotif(x)@end@slotif(x, 'x')@end@end", 51, token.COMPONENT},
+		{190, "@component('x')@slot@end@slot('x')@end@end", 41, token.COMPONENT},
+		{190, "@component('x')@slot@end@slot('x')@end@slotif(x)@end@end", 55, token.COMPONENT},
 	}
 
 	for _, tc := range cases {
