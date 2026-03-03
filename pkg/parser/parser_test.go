@@ -204,36 +204,40 @@ func testLiteralExpression(exp ast.Expression, expect any) error {
 	}
 }
 
-func testIfBlock(t *testing.T, stmt ast.Statement, cond any, ifBlock string) {
+func testIfBlock(stmt ast.Statement, cond any, ifBlock string) error {
 	ifStmt, ok := stmt.(*ast.IfStmt)
 	if !ok {
-		t.Fatalf("stmt is not an IfStmt, got %T", stmt)
+		return fmt.Errorf("stmt is not an IfStmt, got %T", stmt)
 	}
 
 	if err := testLiteralExpression(ifStmt.Condition, cond); err != nil {
-		t.Fatal(err)
+		return err
 	}
 
 	if ifStmt.IfBlock.String() != ifBlock {
-		t.Fatalf("ifStmt.IfBlock.String() is not %q, got %q", ifBlock, ifStmt.IfBlock)
+		return fmt.Errorf("ifStmt.IfBlock.String() is not %q, got %q", ifBlock, ifStmt.IfBlock)
 	}
+
+	return nil
 }
 
-func testElseBlock(t *testing.T, elseBlock *ast.BlockStmt, elseVal string) {
+func testElseBlock(elseBlock *ast.BlockStmt, elseVal string) error {
 	if elseBlock == nil {
-		t.Fatalf("elseBlock is nil")
+		return fmt.Errorf("elseBlock is nil")
 	}
 
 	if len(elseBlock.Statements) != 1 {
-		t.Fatalf(
+		return fmt.Errorf(
 			"elseBlock.Statements does not contain 1 statement, got %d",
 			len(elseBlock.Statements),
 		)
 	}
 
 	if elseBlock.String() != elseVal {
-		t.Fatalf("elseBlock.String() is not %q, got %q", elseBlock, elseVal)
+		return fmt.Errorf("elseBlock.String() is not %q, got %q", elseBlock, elseVal)
 	}
+
+	return nil
 }
 
 func testToken(tok ast.Node, expect token.TokenType) error {
@@ -917,7 +921,9 @@ func TestParseIfStmt(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	testIfBlock(t, stmt, true, "1")
+	if err := testIfBlock(stmt, true, "1"); err != nil {
+		t.Fatal(err)
+	}
 
 	if stmt.ElseBlock != nil {
 		t.Fatalf("ifStmt.ElseBlock is not nil, got %T", stmt.ElseBlock)
@@ -951,8 +957,14 @@ func TestParseIfElseStatement(t *testing.T) {
 	if err := testToken(stmt.ElseBlock, token.HTML); err != nil {
 		t.Fatal(err)
 	}
-	testIfBlock(t, stmt, true, "1")
-	testElseBlock(t, stmt.ElseBlock, "2")
+
+	if err := testIfBlock(stmt, true, "1"); err != nil {
+		t.Fatal(err)
+	}
+
+	if err := testElseBlock(stmt.ElseBlock, "2"); err != nil {
+		t.Fatal(err)
+	}
 
 	err = testPosition(stmt.Position(), token.Position{
 		StartCol: 0,
@@ -1054,7 +1066,9 @@ func TestParseIfElseIfStmt(t *testing.T) {
 		t.Fatalf("stmts[0] is not an IfStmt, got %T", stmts[0])
 	}
 
-	testIfBlock(t, stmt, true, "first")
+	if err := testIfBlock(stmt, true, "first"); err != nil {
+		t.Fatal(err)
+	}
 
 	if stmt.ElseBlock != nil {
 		t.Fatalf("ifStmt.ElseBlock is not nil, got %T", stmt.ElseBlock)
@@ -1107,8 +1121,13 @@ func TestParseElseIfWithElseStatement(t *testing.T) {
 		t.Fatalf("stmts[0] is not an IfStmt, got %T", stmts[0])
 	}
 
-	testIfBlock(t, stmt, true, "1")
-	testElseBlock(t, stmt.ElseBlock, "3")
+	if err := testIfBlock(stmt, true, "1"); err != nil {
+		t.Fatal(err)
+	}
+
+	if err := testElseBlock(stmt.ElseBlock, "3"); err != nil {
+		t.Fatal(err)
+	}
 
 	if len(stmt.ElseifStmts) != 1 {
 		t.Fatalf(
@@ -1881,34 +1900,35 @@ func TestParseEachStmt(t *testing.T) {
 
 func TestParseStmtCanHaveEmptyBlock(t *testing.T) {
 	cases := []struct {
+		id        int
 		inp       string
 		endColPos uint
 		tok       token.TokenType
 	}{
-		{"@each(name in ['anna', 'serhii'])@end", 36, token.EACH},
-		{"@for(i = 0; i < 10; i++)@end", 27, token.FOR},
-		{"@if(true)@end", 12, token.IF},
-		{"@insert('content')@end", 21, token.INSERT},
-		{"@component('user')@slot('footer')@end@end", 40, token.COMPONENT},
+		{10, "@each(name in ['anna', 'serhii'])@end", 36, token.EACH},
+		{20, "@for(i = 0; i < 10; i++)@end", 27, token.FOR},
+		{30, "@if(true)@end", 12, token.IF},
+		{40, "@insert('content')@end", 21, token.INSERT},
+		{50, "@component('user')@slot('footer')@end@end", 40, token.COMPONENT},
 	}
 
 	for _, tc := range cases {
 		stmts, err := parseStatements(tc.inp, defaultParseOpts)
 		if err != nil {
-			t.Fatal(err)
+			t.Fatalf("Case: %d. %v", tc.id, err)
 		}
 
 		stmt, ok := stmts[0].(ast.NodeWithStatements)
 		if !ok {
-			t.Fatalf("stmts[0] is not a EachStmt, got %T", stmts[0])
+			t.Fatalf("Case: %d. stmts[0] is not a EachStmt, got %T", tc.id, stmts[0])
 		}
 
 		if err := testToken(stmt, tc.tok); err != nil {
-			t.Fatal(err)
+			t.Fatalf("Case: %d. %v", tc.id, err)
 		}
-		err = testPosition(stmt.Position(), token.Position{EndCol: tc.endColPos})
-		if err != nil {
-			t.Fatal(err)
+
+		if err = testPosition(stmt.Position(), token.Position{EndCol: tc.endColPos}); err != nil {
+			t.Fatalf("Case: %d. %v", tc.id, err)
 		}
 
 		if len(stmt.Stmts()) != 0 {
@@ -2575,31 +2595,32 @@ func TestParseBlockAsIllegalNode(t *testing.T) {
 
 func TestParseIllegalNode(t *testing.T) {
 	cases := []struct {
+		id        int
 		inp       string
 		stmtCount int
 	}{
-		{"@if(false", 1},
-		{"@if  (loop. {{ 'nice' }}@end", 1},
-		{"@if {{ 'nice' }}@end", 1},
-		{"@if( {{ 'nice' }}@end", 1},
-		{"@each( {{ 'nice' }}@end", 1},
-		{"@each() {{ 'nice' }}@end", 1},
-		{"@each (loop. {{ 'nice' }}@end", 1},
-		{"@each(nice in []{{ 'nice' }}@end", 1},
-		{"@each(nice in {{ 'nice' }}@end", 1},
-		{"@for( {{ 'nice' }}@end", 1},
-		{"@for() {{ 'nice' }}@end", 1},
-		{"@for(i {{ 'nice' }}@end", 1},
-		{"@for(i = 0; i < []; i++{{ 'nice' }}@end", 1},
-		{"@for(i = 0; i < [] {{ 'nice' }}@end", 1},
-		{"@component('~user'", 1},
-		{"@component   ('", 1},
-		{"@component", 1},
-		{"@insert('nice", 1},
-		{"@insert ('nice'", 1},
-		{"@insert('nice'@end", 1},
-		{"@insert    ('nice' {{ 'nice' }}@end", 1},
-		{`@if(loop.
+		{10, "@if(false", 1},
+		{20, "@if  (loop. {{ 'nice' }}@end", 1},
+		{30, "@if {{ 'nice' }}@end", 1},
+		{40, "@if( {{ 'nice' }}@end", 1},
+		{50, "@each( {{ 'nice' }}@end", 1},
+		{60, "@each() {{ 'nice' }}@end", 1},
+		{70, "@each (loop. {{ 'nice' }}@end", 1},
+		{80, "@each(nice in []{{ 'nice' }}@end", 1},
+		{90, "@each(nice in {{ 'nice' }}@end", 1},
+		{100, "@for( {{ 'nice' }}@end", 1},
+		{110, "@for() {{ 'nice' }}@end", 1},
+		{120, "@for(i {{ 'nice' }}@end", 1},
+		{130, "@for(i = 0; i < []; i++{{ 'nice' }}@end", 1},
+		{140, "@for(i = 0; i < [] {{ 'nice' }}@end", 1},
+		{150, "@component('~user'", 1},
+		{160, "@component   ('", 1},
+		{170, "@component", 1},
+		{180, "@insert('nice", 1},
+		{190, "@insert ('nice'", 1},
+		{200, "@insert('nice'@end", 1},
+		{210, "@insert    ('nice' {{ 'nice' }}@end", 1},
+		{220, `@if(loop.
             {{ loop.first }}
             Iteration number is {{ loop.iter }}
         @end`, 1},
@@ -2611,12 +2632,17 @@ func TestParseIllegalNode(t *testing.T) {
 			checkErrors: false,
 		})
 		if err != nil {
-			t.Fatal(err)
+			t.Fatalf("Case: %d. %v", tc.id, err)
 		}
 
 		_, ok := stmts[0].(*ast.IllegalNode)
 		if !ok {
-			t.Fatalf("stmts[0] is not an IllegalNode, got %T for %s", stmts[0], tc.inp)
+			t.Fatalf(
+				"Case: %d. stmts[0] is not an IllegalNode, got %T for %s",
+				tc.id,
+				stmts[0],
+				tc.inp,
+			)
 		}
 	}
 }
