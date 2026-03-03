@@ -685,8 +685,10 @@ func (p *Parser) slotifStmt(name *ast.StringLiteral, compName string) ast.Statem
 		return illegal
 	}
 
+	// Handle empty slotif body
 	if p.curTokenIs(token.END) {
 		stmt.SetEndPosition(p.curToken.Pos)
+		p.nextToken() // skip "@end"
 		return stmt
 	}
 
