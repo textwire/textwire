@@ -342,13 +342,15 @@ func (e *Evaluator) _for(forStmt *ast.ForStmt, ctx *Context) object.Object {
 
 	// Loop through the block until the user's condition is false
 	for {
-		cond := e.Eval(forStmt.Condition, forCtx)
-		if isError(cond) {
-			return cond
-		}
+		if forStmt.Condition != nil {
+			cond := e.Eval(forStmt.Condition, forCtx)
+			if isError(cond) {
+				return cond
+			}
 
-		if !isTruthy(cond) {
-			break
+			if !isTruthy(cond) {
+				break
+			}
 		}
 
 		block := e.Eval(forStmt.Block, forCtx)
@@ -357,18 +359,20 @@ func (e *Evaluator) _for(forStmt *ast.ForStmt, ctx *Context) object.Object {
 		}
 
 		blocks.WriteString(block.String())
-		post := e.Eval(forStmt.Post, forCtx)
-		if isError(post) {
-			return post
+
+		var post object.Object
+		if forStmt.Post != nil {
+			post = e.Eval(forStmt.Post, forCtx)
+			if isError(post) {
+				return post
+			}
 		}
 
-		if forStmt.Init == nil || forStmt.Post == nil {
-			continue
-		}
-
-		varName := forStmt.Init.(*ast.AssignStmt).Left.Name
-		if err := forCtx.scope.Set(varName, post); err != nil {
-			return e.newError(forStmt, forCtx, "%s", err.Error())
+		if post != nil {
+			varName := forStmt.Init.(*ast.AssignStmt).Left.Name
+			if err := forCtx.scope.Set(varName, post); err != nil {
+				return e.newError(forStmt, forCtx, "%s", err.Error())
+			}
 		}
 
 		if hasBreakStmt(block) {
