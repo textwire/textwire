@@ -810,31 +810,31 @@ func (e *Evaluator) callExp(callExp *ast.CallExp, ctx *Context) object.Object {
 	if hasCustomFunc(e.customFunc, receiverType, funcName) {
 		nativeArgs := e.objectsToNativeType(args)
 
-		switch receiverType {
-		case object.STR_OBJ:
+		switch r := receiver.(type) {
+		case *object.Str:
 			fun := e.customFunc.Str[funcName]
-			res := fun(receiver.String(), nativeArgs...)
+			res := fun(r.String(), nativeArgs...)
 			return object.NativeToObject(res)
-		case object.ARR_OBJ:
+		case *object.Array:
 			fun := e.customFunc.Arr[funcName]
-			nativeElems := e.objectsToNativeType(receiver.(*object.Array).Elements)
+			nativeElems := e.objectsToNativeType(r.Elements)
 			res := fun(nativeElems, nativeArgs...)
 			return object.NativeToObject(res)
-		case object.INT_OBJ:
+		case *object.Int:
 			fun := e.customFunc.Int[funcName]
-			res := fun(int(receiver.(*object.Int).Value), nativeArgs...)
+			res := fun(int(r.Value), nativeArgs...)
 			return object.NativeToObject(res)
-		case object.FLOAT_OBJ:
+		case *object.Float:
 			fun := e.customFunc.Float[funcName]
-			res := fun(receiver.(*object.Float).Value, nativeArgs...)
+			res := fun(r.Value, nativeArgs...)
 			return object.NativeToObject(res)
-		case object.BOOL_OBJ:
+		case *object.Bool:
 			fun := e.customFunc.Bool[funcName]
-			res := fun(receiver.(*object.Bool).Value, nativeArgs...)
+			res := fun(r.Value, nativeArgs...)
 			return object.NativeToObject(res)
-		case object.OBJ_OBJ:
+		case *object.Obj:
 			fun := e.customFunc.Obj[funcName]
-			firstArg := receiver.(*object.Obj).Val()
+			firstArg := r.Val()
 			res := fun(firstArg.(map[string]any), nativeArgs...)
 			return object.NativeToObject(res)
 		}
@@ -908,9 +908,9 @@ func (e *Evaluator) globalFuncHasValue(
 }
 
 func (e *Evaluator) objectsToNativeType(args []object.Object) []any {
-	result := make([]any, 0, len(args))
+	result := make([]any, len(args))
 	for i := range args {
-		result = append(result, args[i].Val())
+		result[i] = args[i].Val()
 	}
 
 	return result
@@ -922,27 +922,22 @@ func (e *Evaluator) postfixOpExp(
 	node ast.Node,
 	ctx *Context,
 ) object.Object {
-	if op == "++" {
-		if left.Is(object.INT_OBJ) {
-			val := left.(*object.Int).Value + 1
-			return &object.Int{Value: val}
+	switch op {
+	case "++":
+		if int, ok := left.(*object.Int); ok {
+			return &object.Int{Value: int.Value + 1}
 		}
 
-		if left.Is(object.FLOAT_OBJ) {
-			val := left.(*object.Float).Value + 1
-			return &object.Float{Value: val}
+		if fl, ok := left.(*object.Float); ok {
+			return &object.Float{Value: fl.Value + 1}
 		}
-	}
-
-	if op == "--" {
-		if left.Is(object.INT_OBJ) {
-			val := left.(*object.Int).Value - 1
-			return &object.Int{Value: val}
+	case "--":
+		if int, ok := left.(*object.Int); ok {
+			return &object.Int{Value: int.Value - 1}
 		}
 
-		if left.Is(object.FLOAT_OBJ) {
-			val := left.(*object.Float).Value
-			float := &object.Float{Value: val}
+		if fl, ok := left.(*object.Float); ok {
+			float := &object.Float{Value: fl.Value}
 
 			if err := float.SubtractFromFloat(1); err != nil {
 				return e.newError(node, ctx, fail.ErrCannotSubFromFloat, float, err)
@@ -966,12 +961,12 @@ func (e *Evaluator) infixOpExp(
 		return e.newError(leftNode, ctx, fail.ErrTypeMismatch, left.Type(), op, right.Type())
 	}
 
-	switch left.Type() {
-	case object.INT_OBJ:
+	switch left.(type) {
+	case *object.Int:
 		return e.intInfixExp(op, right, left, leftNode, ctx)
-	case object.FLOAT_OBJ:
+	case *object.Float:
 		return e.floatInfixExp(op, right, left, leftNode, ctx)
-	case object.STR_OBJ:
+	case *object.Str:
 		return e.stringInfixExp(op, right, left, leftNode, ctx)
 	}
 
@@ -1099,13 +1094,11 @@ func (e *Evaluator) minusPrefixOpExp(
 	node ast.Node,
 	ctx *Context,
 ) object.Object {
-	switch right.Type() {
-	case object.INT_OBJ:
-		val := right.(*object.Int).Value
-		return &object.Int{Value: -val}
-	case object.FLOAT_OBJ:
-		val := right.(*object.Float).Value
-		return &object.Float{Value: -val}
+	switch r := right.(type) {
+	case *object.Int:
+		return &object.Int{Value: -r.Value}
+	case *object.Float:
+		return &object.Float{Value: -r.Value}
 	}
 
 	return e.newError(node, ctx, fail.ErrPrefixOpIsWrong, "-", right.Type())
