@@ -640,10 +640,46 @@ func TestEvalComments(t *testing.T) {
 		inp    string
 		expect string
 	}{
+		// Basic comments
 		{10, "{{-- This is a comment --}}", ""},
-		{20, "<section>{{-- This is a comment --}}</section>", "<section></section>"},
-		{30, "Some {{-- --}}text", "Some text"},
-		{40, "{{-- @each(u in users){{ u }}@end --}}", ""},
+		{20, "{{-- --}}", ""},
+		{30, "{{--a--}}", ""},
+		// Comments in HTML
+		{40, "<section>{{-- This is a comment --}}</section>", "<section></section>"},
+		{50, "<div>{{-- comment --}}</div>", "<div></div>"},
+		// Comments with text around
+		{60, "Some {{-- --}}text", "Some text"},
+		{70, "Hello{{-- comment --}}World", "HelloWorld"},
+		{80, "Start{{-- middle --}}End", "StartEnd"},
+		// Empty or minimal comments
+		{90, "{{----}}", ""},
+		{100, "{{--     --}}", ""},
+		{110, "{{--\n--}}", ""},
+		// Comments with directives
+		{120, "{{-- @each(u in users){{ u }}@end --}}", ""},
+		{130, "{{-- @if(true)Hello@end --}}", ""},
+		{140, "{{-- @for(i=0;i<10;i++){{i}}@end --}}", ""},
+		// Comments with special characters
+		{150, "{{-- <html> &amp; @#$%^&*() --}}", ""},
+		{160, "{{-- Japanese: こんにちは --}}", ""},
+		{170, "{{-- Emoji: 😀🎉🚀 --}}", ""},
+		// Comments inside directives
+		{180, "@if(true){{-- comment --}}Yes@end", "Yes"},
+		{190, "@if(true)Yes{{-- comment --}}@end", "Yes"},
+		{200, "@each(n in [1,2]){{-- c --}}{{n}}@end", "12"},
+		// Multiple comments
+		{210, "{{-- a --}}Text{{-- b --}}", "Text"},
+		{220, "{{-- x --}}{{-- y --}}Result", "Result"},
+		{230, "A{{-- 1 --}}B{{-- 2 --}}C", "ABC"},
+		// Comments at boundaries
+		{240, "{{-- start --}}End", "End"},
+		{250, "Start{{-- end --}}", "Start"},
+		// Multi-line comments
+		{260, "{{-- Line 1\nLine 2\nLine 3 --}}", ""},
+		{270, "Before{{--\nmulti\nline\n--}}After", "BeforeAfter"},
+		// Nested comment-like text (should be treated as part of comment)
+		{280, "{{-- Contains {{-- and --}} inside --}}", ""},
+		{290, "{{-- {{ 1 + 1 }} inside --}}", ""},
 	}
 
 	for _, tc := range cases {
