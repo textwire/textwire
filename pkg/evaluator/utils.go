@@ -41,7 +41,7 @@ func isError(obj object.Object) bool {
 func isUndefinedError(obj object.Object) bool {
 	undefinedErrors := []string{
 		fail.ErrVariableIsUndefined,
-		fail.ErrPropertyOnNonObject,
+		fail.ErrKeyOnNonObject,
 	}
 
 	err, isErr := obj.(*object.Error)

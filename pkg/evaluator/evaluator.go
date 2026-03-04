@@ -647,7 +647,7 @@ func (e *Evaluator) dotExp(dotExp *ast.DotExp, ctx *Context) object.Object {
 	key := dotExp.Key.(*ast.Identifier)
 	obj, ok := left.(*object.Obj)
 	if !ok {
-		return e.newError(dotExp, ctx, fail.ErrPropertyOnNonObject, left.Type(), key)
+		return e.newError(dotExp, ctx, fail.ErrKeyOnNonObject, left.Type(), key)
 	}
 
 	return e.objectKeyExp(obj, key.Name)

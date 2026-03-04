@@ -41,10 +41,10 @@ func objGetFunc(receiver object.Object, args ...object.Object) (object.Object, e
 	}
 
 	props := strings.Split(patternStr, ".")
-	return findObjectProp(props, obj.Pairs), nil
+	return findObjectKey(props, obj.Pairs), nil
 }
 
-func findObjectProp(props []string, pairs map[string]object.Object) object.Object {
+func findObjectKey(props []string, pairs map[string]object.Object) object.Object {
 	current := pairs
 
 	for i := range props {
@@ -53,12 +53,12 @@ func findObjectProp(props []string, pairs map[string]object.Object) object.Objec
 			return NIL
 		}
 
-		// If this is the last property, return the value
+		// If this is the last key, return the value
 		if i == len(props)-1 {
 			return result
 		}
 
-		// If not last property, value must be an object to continue
+		// If not last key, value must be an object to continue
 		if result.Type() != object.OBJ_OBJ {
 			return NIL
 		}
