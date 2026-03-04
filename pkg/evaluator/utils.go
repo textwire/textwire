@@ -168,3 +168,23 @@ func strIsInt(s string) bool {
 	_, err := strconv.Atoi(s)
 	return err == nil
 }
+
+// capitalizeFirst returns the string with its first character uppercased using
+// a stack buffer to avoid heap allocations. Returns the original string
+// unchanged if the first character is not a lowercase ASCII letter.
+func capitalizeFirst(s string) string {
+	first := s[0]
+	if first < 'a' || first > 'z' {
+		return s
+	}
+
+	var buf [64]byte
+	if len(s) > 64 {
+		return string(first-32) + s[1:]
+	}
+
+	buf[0] = first - 32
+	copy(buf[1:], s[1:])
+
+	return string(buf[:len(s)])
+}
