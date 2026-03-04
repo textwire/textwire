@@ -618,15 +618,38 @@ func TestEvalObjectLiteral(t *testing.T) {
 		inp    string
 		expect string
 	}{
+		// Bracket and dot access
 		{10, `{{ {"name": "John"}['name'] }}`, "John"},
 		{20, `{{ {"name": "John"}.name }}`, "John"},
+
+		// Basic property access
 		{30, `{{ obj = {name: "John"}; obj.name }}`, "John"},
 		{40, `{{ o = {"name": "John", "age": 22}; o.age }}`, "22"},
+
+		// Nested objects
 		{50, `{{ user = {"father": {"name": "John"}}; user.father.name }}`, "John"},
 		{60, `{{ user = {"father": {"name": {"first": "Sam"}}}; user.father.name.first }}`, "Sam"},
 		{70, `{{ u = {"father": {name: {"first": "Sam",},},}; u['father']['name'].first }}`, "Sam"},
+
+		// Shorthand properties
 		{80, `{{ name = "Sam"; age = 12; obj = { name, age }; obj.name }}`, "Sam"},
 		{90, `{{ name = "Sam"; age = 12; obj = { name, age }; obj.age }}`, "12"},
+
+		// Case-insensitive first character access
+		{100, `{{ {"Name": "John"}.name }}`, "John"},
+		{110, `{{ {"name": "John"}.Name }}`, ""},
+
+		// Non-existent keys
+		{120, `{{ obj = {"name": "John"}; obj.age }}`, ""},
+		{130, `{{ obj = {"name": "John"}; obj['missing'] }}`, ""},
+
+		// Empty object
+		{140, `{{ {}.name }}`, ""},
+		{150, `{{ obj = {}; obj.name }}`, ""},
+
+		// Overwriting keys
+		{160, `{{ obj = {"name": "John"}; obj = {"name": "Jane"}; obj.name }}`, "Jane"},
+		{170, `{{ obj = {"name": "John"}; obj.name = "Ann"; obj.name }}`, "Ann"},
 	}
 
 	for _, tc := range cases {
