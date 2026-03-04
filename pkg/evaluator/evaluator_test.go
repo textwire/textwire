@@ -539,7 +539,11 @@ func TestEvalForStmt(t *testing.T) {
 		{280, `@for(i = 0; i < 2; i++)@for(j = 0; j < 2; j++){{ i }}{{ j }}@end@end`, "00011011"},
 		{290, `@for(i = 1; i <= 2; i++)@for(j = 1; j <= 2; j++){{ i * j }}@end@end`, "1224"},
 		// For loop with HTML
-		{300, `<ul>@for(i = 1; i <= 3; i++)<li>{{ i }}</li>@end</ul>`, "<ul><li>1</li><li>2</li><li>3</li></ul>"},
+		{
+			300,
+			`<ul>@for(i = 1; i <= 3; i++)<li>{{ i }}</li>@end</ul>`,
+			"<ul><li>1</li><li>2</li><li>3</li></ul>",
+		},
 		// Variable modification in loop
 		{310, `{{ sum = 0 }}@for(i = 1; i <= 5; i++){{ sum = sum + i }}@end{{ sum }}`, "15"},
 		{320, `{{ count = 0 }}@for(i = 0; i < 3; i++){{ count = count + 1 }}@end{{ count }}`, "3"},

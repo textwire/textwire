@@ -519,7 +519,7 @@ func TestErrorHandling(t *testing.T) {
 		},
 		{
 			inp:  `{{ user = {}; user.address.zip }}`,
-			err:  fail.New(1, "", "evaluator", fail.ErrPropertyOnNonObject, object.NIL_OBJ, "zip"),
+			err:  fail.New(1, "", "evaluator", fail.ErrKeyOnNonObject, object.NIL_OBJ, "zip"),
 			data: nil,
 		},
 		{
@@ -546,7 +546,7 @@ func TestErrorHandling(t *testing.T) {
 		},
 		{
 			inp:  `{{ obj = {name: "Amy"}; obj.name.id }}`,
-			err:  fail.New(1, "", "evaluator", fail.ErrPropertyOnNonObject, object.STR_OBJ, "id"),
+			err:  fail.New(1, "", "evaluator", fail.ErrKeyOnNonObject, object.STR_OBJ, "id"),
 			data: nil,
 		},
 		{

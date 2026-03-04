@@ -1920,7 +1920,12 @@ func TestParseEmptyBlock(t *testing.T) {
 		{180, "@component('x')@slotif(x)@end@slotif(x, 'x')@end@end", 51, token.COMPONENT},
 		{190, "@component('x')@slot@end@slot('x')@end@end", 41, token.COMPONENT},
 		{200, "@component('x')@slot@end@slot('x')@end@slotif(x)@end@end", 55, token.COMPONENT},
-		{201, "@component('x') @slot @end @slot('x') @end @slotif(x) @end @end", 62, token.COMPONENT},
+		{
+			201,
+			"@component('x') @slot @end @slot('x') @end @slotif(x) @end @end",
+			62,
+			token.COMPONENT,
+		},
 		{210, "@if(x)1@elseif(y)@end", 20, token.IF},
 		{220, "@if(x)@elseif(y)@end", 19, token.IF},
 		{230, "@if(x)@elseif(y)1@else@end", 25, token.IF},
@@ -2002,7 +2007,7 @@ func TestParseObjectStatement(t *testing.T) {
 	}
 }
 
-func TestParseObjectWithShorthandPropertyNotation(t *testing.T) {
+func TestParseObjectWithShorthandKeyNotation(t *testing.T) {
 	inp := `{{ { name, age } }}`
 
 	stmts, err := parseStatements(inp, defaultParseOpts)
