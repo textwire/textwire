@@ -37,10 +37,6 @@ lint:
 	@golangci-lint run
 	@echo "✅ Linting passed!"
 
-.PHONY: bench
-bench:
-	@go test ./textwire/example -bench=BenchmarkTestProject -benchmem
-
 .PHONY: todo
 todo:
 	@if grep -I --exclude="Makefile" --exclude-dir=".git" -r TODO .; then \
