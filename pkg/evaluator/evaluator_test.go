@@ -441,6 +441,7 @@ func TestEvalAssignVariable(t *testing.T) {
 		{50, `{{ pi = 3.14; pi }}`, "3.14"},
 		{60, `{{ price = 0.0; price }}`, "0.0"},
 		{70, `{{ negative = -2.5; negative }}`, "-2.5"},
+		{71, `{{ f = 0.0; f = f + 0.5; f }}`, "0.5"},
 		// String assignment
 		{80, `{{ name = "Anna"; name }}`, "Anna"},
 		{90, `{{ empty = ""; empty }}`, ""},
