@@ -11,7 +11,7 @@ type ForStmt struct {
 	BaseNode
 	Init      Statement  // Initialization statement; or nil
 	Condition Expression // Condition expression; or nil
-	Post      Expression // Post iteration expression; or nil
+	Post      Statement  // Post iteration statement; or nil
 	ElseBlock *BlockStmt // @else block
 	Block     *BlockStmt
 }

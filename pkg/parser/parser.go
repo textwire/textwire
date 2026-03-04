@@ -1101,8 +1101,7 @@ func (p *Parser) forStmtHeader(stmt *ast.ForStmt) *ast.IllegalNode {
 
 	// Parse Post statement
 	if !p.peekTokenIs(token.RPAREN) {
-		p.nextToken() // skip ";"
-		stmt.Post = p.expression(LOWEST)
+		stmt.Post = p.statement()
 	}
 
 	if !p.expectPeek(token.RPAREN) { // move to ")"

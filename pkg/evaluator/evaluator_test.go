@@ -504,15 +504,15 @@ func TestEvalForStmt(t *testing.T) {
 		{20, `@for(i = 1; i <= 3; i++){{ i }}@end`, "123"},
 		{30, `@for(i = 5; i > 0; i--){{ i }}@end`, "54321"},
 		{40, `@for(i = 0; i < 4; i+2){{ i }}@end`, "02"},
-		// Empty loops
+		// Empty loop header parts
 		{50, `@for(; false;)Here@end`, ""},
+		{51, `@for(; true;)x@break@end`, "x"},
 		{60, `@for(c = 1; false; c++){{ c }}@end`, ""},
 		{70, `@for(i = 0; i < 0; i++){{ i }}@end`, ""},
+		{71, `@for(;;){{ 1 }}@break@end`, "1"},
 		// Single iteration
 		{80, `@for(c = 1; c == 1; c++){{ c }}@end`, "1"},
 		{90, `@for(i = 0; i < 1; i++){{ i }}@end`, "0"},
-		// Infinite loop prevention (one iteration with break)
-		{100, `@for(;;){{ 1 }}@break@end`, "1"},
 		// @else directive
 		{110, `@for(c = 1; false; c++){{ c }}@else@end`, ""},
 		{120, `@for(c = 1; false; c++){{ c }}@else<b>Empty</b>@end`, "<b>Empty</b>"},
@@ -545,8 +545,9 @@ func TestEvalForStmt(t *testing.T) {
 		{320, `{{ count = 0 }}@for(i = 0; i < 3; i++){{ count = count + 1 }}@end{{ count }}`, "3"},
 		// Float iteration
 		{330, `@for(f = 0.0; f < 1.0; f + 0.5){{ f }}@end`, "0.00.5"},
+		{340, `@for(f = 0.0; f < 2.0; f + 1.0){{ f }}@end`, "0.01.0"},
 		// Multiple statements in loop body
-		{340, `@for(i = 0; i < 3; i++){{ i }};{{ i * 2 }}@end`, "0;01;22;4"},
+		{350, `@for(i = 0; i < 3; i++){{ i }};{{ i * 2 }}@end`, "0;01;22;4"},
 	}
 
 	for _, tc := range cases {

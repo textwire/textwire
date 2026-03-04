@@ -7,7 +7,7 @@
 - 🐛 Fixed issue where `STRING.truncate()` on empty strings was returning `...` instead of an empty string. Also fixed panic when using negative limit values.
 - 🐛 Fixed issue where you couldn't use empty block for statements like `@if`, `@else`, `@each` and `@for`.
 - 🐛 Fixed issue with evaluation of infinite for loop like `@for(;;)@break@end`. It was causing panic.
-- 🧑‍💻 Post condition in `@for` loop is now just an expression, not a statement.
+- 🐛 Fixed issue with panic when using empty init header in `@for` loop. You couldn't do this `{{ i = 0 }}@for(; i < 10; i++){{ i }}@end`.
 - 🧑‍💻 Added a proper error message when you are accessing an object property that starts with a number, like `{{ obj.1st }}`. Before, you'll get an unclear error because lexer was parsing `1st` as integer `1` and identifier `st`.
 - 🧑‍💻 Added a proper error message when you are using empty string as an argument to `@use` directive. Like `@use('')`.
 - 🧑‍💻 Added bunch of extra tests to cover some edge cases.
