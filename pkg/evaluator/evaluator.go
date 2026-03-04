@@ -625,19 +625,17 @@ func (e *Evaluator) arrayIndexExp(arrObj, idx object.Object) object.Object {
 }
 
 func (e *Evaluator) objectKeyExp(obj *object.Obj, key string) object.Object {
-	// First, try to get key as it is with regular case.
 	if pair, ok := obj.Pairs[key]; ok {
 		return pair
 	}
 
-	// Makes the first letter uppercase.
-	upperFirstCharKey := strings.ToUpper(key[:1]) + key[1:]
-
-	if pair, ok := obj.Pairs[upperFirstCharKey]; ok {
+	// Capitalize the first letter of the key and try again to support
+	// case insensitive key access for the first key character.
+	if pair, ok := obj.Pairs[capitalizeFirst(key)]; ok {
 		return pair
 	}
 
-	return NIL // Undefined props result in nil
+	return NIL
 }
 
 func (e *Evaluator) dotExp(dotExp *ast.DotExp, ctx *Context) object.Object {

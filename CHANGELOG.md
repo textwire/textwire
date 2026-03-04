@@ -1,5 +1,13 @@
 # Release notes
 
+## v3.4.1 (2026-03-05)
+
+- 🚀 Performance improvement for accessing uppercased object keys with lowercase letters. For example, when your property is `Name` and you are accessing it as `{{ user.name }}` instead of `{{ user.Name }}`. Look at the table below for number 1. Closes [#91](https://github.com/textwire/textwire/issues/91).
+
+| #   | Improved target                  | Speed              | Memory usage     | Allocations       |
+| --- | -------------------------------- | ------------------ | ---------------- | ----------------- |
+| 1   | Property access in the evaluator | ⚡ **2.0× faster** | 💾 **100% less** | 📉 **100% fewer** |
+
 ## v3.4.0 (2026-03-04)
 
 - 🐛 Fixed issue where escape sequences (\n, \t, \r, \\) in string literals were not being converted to actual characters. Now `{{ "test\n".trim() }}` correctly trims the newline character.
@@ -25,6 +33,7 @@
             some HTML is here...
         @end
     @end
+    ```
 - ✨ Added `json()` built-in function for arrays and objects that allows you convert any array or object into a JSON string. `{{ arr.json() }}`. Closes [#35](https://github.com/textwire/textwire/issues/35).
 
 ## v3.2.5 (2026-02-22)
@@ -53,7 +62,7 @@
 - 🧑‍💻 Accessing undefined property on an object does not give error anymore. It makes it consistant with accessing array on non-existant index. This `{{ {}.prop }}` returns nil now, but this `{{ {}.prop.second }}` causes error because you are trying to call property `second` on type `NIL`.
 - 🐛 Fixed global function `defined`, it was returning `true` in cases like this `{{ name = "john"; defined(name.somemethod()) }}` because it was returning `true` when any error happens inside `defined`. Now, it only checks for undefined variables and undefined properties on objects.
 - 🧑‍💻 Added so that now you can use any literal value in logical OR and logical AND expressions. Before, you could only use boolean on both sides. For example, now you can do `{{ "nice" && 13 ? "Yes" : "No" }}` and it returns `Yes` becuase non-empty string is `true` and non-zero int is also `true`.
-- 🧑‍💻 Performance improve ment for Go's slice convertion into Textwire array. Here are the benchmarks:
+- 🚀 Performance improvement for Go's slice convertion into Textwire array. Here are the benchmarks:
   | Size | ⚡ Speed | 💾 Memory | 📉 Allocations |
   |------|----------|-----------|----------------|
   | small | **1.38× faster** | **48.7% less** | **6.4% fewer** |
@@ -94,7 +103,7 @@
 ### 🧑‍💻 Improvements
 
 1. Improve error handling when trying to use `@use`, `@insert`, `@reserve` or `@component` directives in simple `EvaluateString` or `EvaluateFile` function calls. These directives are only allowed inside template files with `textwire.NewTemplate`.
-2. Improve memory and performance. Read about improvements [here](https://textwire.github.io/blog/2026/02/05/textwire-v3#memory-performance).
+2. 🚀 Improve memory and performance. Read about improvements [here](https://textwire.github.io/blog/2026/02/05/textwire-v3#memory-performance).
 3. Improve error messages. Now they are clearer.
 4. Added tons of tests to make sure version 3 is stable.
 5. You'll get a clear error when using 2 or more `@use` directives in the same template.
