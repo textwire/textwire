@@ -1,6 +1,6 @@
 # Release notes
 
-## v3.4.0 (2026-03-03)
+## v3.4.0 (2026-03-04)
 
 - 🐛 Fixed issue where you couldn't have empty `@else` block for `@if`, `@each` and `@for` statements.
 - 🐛 Fixed issue where escape sequences (\n, \t, \r, \\) in string literals were not being converted to actual characters. Now `{{ "test\n".trim() }}` correctly trims the newline character.
