@@ -661,14 +661,20 @@ func TestTypeMismatchErrors(t *testing.T) {
 	}{
 		{10, "{{ 3 + 2.0 }}", object.INT_OBJ, "+", object.FLOAT_OBJ},
 		{20, "{{ 2.0 + 3 }}", object.FLOAT_OBJ, "+", object.INT_OBJ},
-		{30, "{{ 'nice' - [] }}", object.STR_OBJ, "-", object.ARR_OBJ},
-		{40, "{{ {} - 'bad' }}", object.OBJ_OBJ, "-", object.STR_OBJ},
-		{50, "{{ 5 * 'bad' }}", object.INT_OBJ, "*", object.STR_OBJ},
-		{60, "{{ 'nice' / 2 }}", object.STR_OBJ, "/", object.INT_OBJ},
-		{70, "{{ true + 5 }}", object.BOOL_OBJ, "+", object.INT_OBJ},
-		{80, "{{ false - 2.0 }}", object.BOOL_OBJ, "-", object.FLOAT_OBJ},
-		{90, "{{ [] * {} }}", object.ARR_OBJ, "*", object.OBJ_OBJ},
-		{100, "{{ {} / [] }}", object.OBJ_OBJ, "/", object.ARR_OBJ},
+		{30, "{{ 'x' - [] }}", object.STR_OBJ, "-", object.ARR_OBJ},
+		{40, "{{ {} - 'x' }}", object.OBJ_OBJ, "-", object.STR_OBJ},
+		{50, "{{ 5 * 'x' }}", object.INT_OBJ, "*", object.STR_OBJ},
+		{60, "{{ 'x' * 3 }}", object.STR_OBJ, "*", object.INT_OBJ},
+		{70, "{{ 'x' / 2 }}", object.STR_OBJ, "/", object.INT_OBJ},
+		{80, "{{ 2 / 'x' }}", object.INT_OBJ, "/", object.STR_OBJ},
+		{90, "{{ true + 5 }}", object.BOOL_OBJ, "+", object.INT_OBJ},
+		{100, "{{ 5 - true }}", object.INT_OBJ, "-", object.BOOL_OBJ},
+		{110, "{{ false - 2.0 }}", object.BOOL_OBJ, "-", object.FLOAT_OBJ},
+		{120, "{{ 2.0 + true }}", object.FLOAT_OBJ, "+", object.BOOL_OBJ},
+		{130, "{{ [] * {} }}", object.ARR_OBJ, "*", object.OBJ_OBJ},
+		{140, "{{ {} / [] }}", object.OBJ_OBJ, "/", object.ARR_OBJ},
+		{150, "{{ [] + {} }}", object.ARR_OBJ, "+", object.OBJ_OBJ},
+		{160, "{{ 3 + {} }}", object.INT_OBJ, "+", object.OBJ_OBJ},
 	}
 
 	for _, tc := range cases {
