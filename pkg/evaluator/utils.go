@@ -64,8 +64,8 @@ func hasContinueStmt(obj object.Object) bool {
 }
 
 func hasControlStmt(obj object.Object, controlType object.ObjectType) bool {
-	block, isBlock := obj.(*object.Block)
-	if !isBlock {
+	block, ok := obj.(*object.Block)
+	if !ok {
 		return obj.Is(controlType)
 	}
 
