@@ -659,22 +659,64 @@ func TestTypeMismatchErrors(t *testing.T) {
 		op   string
 		objR object.ObjectType
 	}{
+		// Int + Float (both directions)
 		{10, "{{ 3 + 2.0 }}", object.INT_OBJ, "+", object.FLOAT_OBJ},
 		{20, "{{ 2.0 + 3 }}", object.FLOAT_OBJ, "+", object.INT_OBJ},
-		{30, "{{ 'x' - [] }}", object.STR_OBJ, "-", object.ARR_OBJ},
-		{40, "{{ {} - 'x' }}", object.OBJ_OBJ, "-", object.STR_OBJ},
-		{50, "{{ 5 * 'x' }}", object.INT_OBJ, "*", object.STR_OBJ},
-		{60, "{{ 'x' * 3 }}", object.STR_OBJ, "*", object.INT_OBJ},
-		{70, "{{ 'x' / 2 }}", object.STR_OBJ, "/", object.INT_OBJ},
-		{80, "{{ 2 / 'x' }}", object.INT_OBJ, "/", object.STR_OBJ},
-		{90, "{{ true + 5 }}", object.BOOL_OBJ, "+", object.INT_OBJ},
-		{100, "{{ 5 - true }}", object.INT_OBJ, "-", object.BOOL_OBJ},
-		{110, "{{ false - 2.0 }}", object.BOOL_OBJ, "-", object.FLOAT_OBJ},
-		{120, "{{ 2.0 + true }}", object.FLOAT_OBJ, "+", object.BOOL_OBJ},
-		{130, "{{ [] * {} }}", object.ARR_OBJ, "*", object.OBJ_OBJ},
-		{140, "{{ {} / [] }}", object.OBJ_OBJ, "/", object.ARR_OBJ},
-		{150, "{{ [] + {} }}", object.ARR_OBJ, "+", object.OBJ_OBJ},
-		{160, "{{ 3 + {} }}", object.INT_OBJ, "+", object.OBJ_OBJ},
+		{30, "{{ 5 - 1.5 }}", object.INT_OBJ, "-", object.FLOAT_OBJ},
+		{40, "{{ 4.5 - 2 }}", object.FLOAT_OBJ, "-", object.INT_OBJ},
+		{50, "{{ 3 * 2.5 }}", object.INT_OBJ, "*", object.FLOAT_OBJ},
+		{60, "{{ 2.5 * 4 }}", object.FLOAT_OBJ, "*", object.INT_OBJ},
+		{70, "{{ 10 / 2.5 }}", object.INT_OBJ, "/", object.FLOAT_OBJ},
+		{80, "{{ 7.5 / 3 }}", object.FLOAT_OBJ, "/", object.INT_OBJ},
+		// String with arrays/objects
+		{90, "{{ 'x' - [] }}", object.STR_OBJ, "-", object.ARR_OBJ},
+		{100, "{{ {} - 'x' }}", object.OBJ_OBJ, "-", object.STR_OBJ},
+		{110, "{{ 'str' + [] }}", object.STR_OBJ, "+", object.ARR_OBJ},
+		{120, "{{ {} + 'str' }}", object.OBJ_OBJ, "+", object.STR_OBJ},
+		// Arithmetic with strings
+		{130, "{{ 5 * 'x' }}", object.INT_OBJ, "*", object.STR_OBJ},
+		{140, "{{ 'x' * 3 }}", object.STR_OBJ, "*", object.INT_OBJ},
+		{150, "{{ 'x' / 2 }}", object.STR_OBJ, "/", object.INT_OBJ},
+		{160, "{{ 2 / 'x' }}", object.INT_OBJ, "/", object.STR_OBJ},
+		{170, "{{ 'a' - 2 }}", object.STR_OBJ, "-", object.INT_OBJ},
+		{180, "{{ 'a' / 3.0 }}", object.STR_OBJ, "/", object.FLOAT_OBJ},
+		// Arithmetic with booleans
+		{190, "{{ true + 5 }}", object.BOOL_OBJ, "+", object.INT_OBJ},
+		{200, "{{ 5 - true }}", object.INT_OBJ, "-", object.BOOL_OBJ},
+		{210, "{{ false - 2.0 }}", object.BOOL_OBJ, "-", object.FLOAT_OBJ},
+		{220, "{{ 2.0 + true }}", object.FLOAT_OBJ, "+", object.BOOL_OBJ},
+		{230, "{{ true * 1 }}", object.BOOL_OBJ, "*", object.INT_OBJ},
+		{240, "{{ true / 2 }}", object.BOOL_OBJ, "/", object.INT_OBJ},
+		// Boolean with strings
+		{250, "{{ true + 'str' }}", object.BOOL_OBJ, "+", object.STR_OBJ},
+		{260, "{{ 'str' - false }}", object.STR_OBJ, "-", object.BOOL_OBJ},
+		// Array/Object operations
+		{270, "{{ [] * {} }}", object.ARR_OBJ, "*", object.OBJ_OBJ},
+		{280, "{{ {} / [] }}", object.OBJ_OBJ, "/", object.ARR_OBJ},
+		{290, "{{ [] + {} }}", object.ARR_OBJ, "+", object.OBJ_OBJ},
+		{300, "{{ {} - [] }}", object.OBJ_OBJ, "-", object.ARR_OBJ},
+		{310, "{{ [] * 1 }}", object.ARR_OBJ, "*", object.INT_OBJ},
+		{320, "{{ {} / 1 }}", object.OBJ_OBJ, "/", object.INT_OBJ},
+		// Int/Object operations
+		{330, "{{ 3 + {} }}", object.INT_OBJ, "+", object.OBJ_OBJ},
+		{340, "{{ {} - 3 }}", object.OBJ_OBJ, "-", object.INT_OBJ},
+		{350, "{{ 5 * {} }}", object.INT_OBJ, "*", object.OBJ_OBJ},
+		// Array with arithmetic
+		{360, "{{ [] + 5 }}", object.ARR_OBJ, "+", object.INT_OBJ},
+		{370, "{{ 10 - [] }}", object.INT_OBJ, "-", object.ARR_OBJ},
+		{380, "{{ [] * 3 }}", object.ARR_OBJ, "*", object.INT_OBJ},
+		// Modulo operator
+		{390, "{{ 5 % 2.0 }}", object.INT_OBJ, "%", object.FLOAT_OBJ},
+		{400, "{{ 5.0 % 2 }}", object.FLOAT_OBJ, "%", object.INT_OBJ},
+		{410, "{{ 'a' % 2 }}", object.STR_OBJ, "%", object.INT_OBJ},
+		{420, "{{ true % 2 }}", object.BOOL_OBJ, "%", object.INT_OBJ},
+		// Nil operations
+		{430, "{{ nil + 5 }}", object.NIL_OBJ, "+", object.INT_OBJ},
+		{440, "{{ 5 - nil }}", object.INT_OBJ, "-", object.NIL_OBJ},
+		{450, "{{ nil * 'str' }}", object.NIL_OBJ, "*", object.STR_OBJ},
+		// Float with arrays/objects
+		{460, "{{ 3.14 + [] }}", object.FLOAT_OBJ, "+", object.ARR_OBJ},
+		{470, "{{ {} / 2.5 }}", object.OBJ_OBJ, "/", object.FLOAT_OBJ},
 	}
 
 	for _, tc := range cases {
