@@ -46,6 +46,8 @@ const (
 	ErrNotSupportedAssign      = "left side of an assign statement must be an identifier, index expression, or object key access, got '%T'"
 	ErrDivisionByZero          = "division by zero - divisor cannot be zero"
 	ErrEachDirWithNonArrArg    = "cannot use @each(item in ARRAY) with non-array type '%s' after 'in' keyword"
+	ErrArrayIndexInteger       = "array index must be an integer, got '%s'"
+	ErrArrayIndexOutOfBound    = "index %d out of bounds for array of length %d"
 	ErrSomeDirsOnlyInTemplates = "@use, @insert, @reserve, @component only allowed in templates"
 	ErrInsertRequiresUse       = "@insert('%s') cannot be used without @use()"
 	ErrUseStmtMissingLayout    = "@use('%s') missing layout file"
