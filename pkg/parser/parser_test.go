@@ -1163,6 +1163,13 @@ func TestParseAssignStmt(t *testing.T) {
 			startCol: 3,
 			endCol:   13,
 		},
+		{
+			id:       40,
+			inp:      `{{ arr[0] = 1 }}`,
+			str:      `(arr[0]) = 1`,
+			startCol: 3,
+			endCol:   12,
+		},
 	}
 
 	for _, tc := range cases {
@@ -1426,15 +1433,15 @@ func TestParseIndexExp(t *testing.T) {
 		t.Fatalf("stmt.Expression is not a IndexExp, got %T", stmt.Expression)
 	}
 
-	if err := testToken(exp, token.LBRACKET); err != nil {
+	if err := testToken(exp, token.IDENT); err != nil {
 		t.Fatal(err)
 	}
 
-	// testing the last index [2]
 	err = testPosition(exp.Position(), token.Position{
-		StartCol: 13,
+		StartCol: 3,
 		EndCol:   15,
 	})
+
 	if err != nil {
 		t.Fatal(err)
 	}

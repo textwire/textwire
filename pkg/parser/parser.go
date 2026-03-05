@@ -852,7 +852,7 @@ func (p *Parser) checkDuplicateInserts(stmt *ast.InsertStmt) bool {
 }
 
 func (p *Parser) indexExp(left ast.Expression) ast.Expression {
-	exp := ast.NewIndexExp(p.curToken, left)
+	exp := ast.NewIndexExp(*left.Tok(), left)
 
 	p.next() // skip "["
 
