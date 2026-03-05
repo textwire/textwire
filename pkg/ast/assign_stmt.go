@@ -8,11 +8,11 @@ import (
 
 type AssignStmt struct {
 	BaseNode
-	Left  *Identifier
+	Left  Expression
 	Right Expression
 }
 
-func NewAssignStmt(tok token.Token, left *Identifier) *AssignStmt {
+func NewAssignStmt(tok token.Token, left Expression) *AssignStmt {
 	return &AssignStmt{
 		BaseNode: NewBaseNode(tok),
 		Left:     left,
