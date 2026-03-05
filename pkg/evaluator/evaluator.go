@@ -196,10 +196,30 @@ func (e *Evaluator) assign(assignStmt *ast.AssignStmt, ctx *Context) object.Obje
 		return right
 	}
 
-	if err := ctx.scope.Set(assignStmt.Left.Name, right); err != nil {
-		return e.newError(assignStmt, ctx, "%s", err.Error())
+	switch left := assignStmt.Left.(type) {
+	case *ast.Identifier:
+		return e.assignIdentifier(left, right, ctx)
+	case *ast.IndexExp:
+		return e.assignIndexExp(left, right, ctx)
+	case *ast.DotExp:
+		return e.assignDotExp(left, right, ctx)
+	default:
+		return e.newError(assignStmt, ctx, fail.ErrNotSupportedAssign, left.Tok().Type)
 	}
+}
 
+func (e *Evaluator) assignIdentifier(ident *ast.Identifier, val object.Object, ctx *Context) object.Object {
+	if err := ctx.scope.Set(ident.Name, val); err != nil {
+		return e.newError(ident, ctx, "%s", err.Error())
+	}
+	return NIL
+}
+
+func (e *Evaluator) assignIndexExp(indexExp *ast.IndexExp, val object.Object, ctx *Context) object.Object {
+	return NIL
+}
+
+func (e *Evaluator) assignDotExp(dotExp *ast.DotExp, val object.Object, ctx *Context) object.Object {
 	return NIL
 }
 
@@ -369,7 +389,7 @@ func (e *Evaluator) _for(forStmt *ast.ForStmt, ctx *Context) object.Object {
 		}
 
 		if post != nil {
-			varName := forStmt.Init.(*ast.AssignStmt).Left.Name
+			varName := forStmt.Init.(*ast.AssignStmt).Left.(*ast.Identifier).Name
 			if err := forCtx.scope.Set(varName, post); err != nil {
 				return e.newError(forStmt, forCtx, "%s", err.Error())
 			}
