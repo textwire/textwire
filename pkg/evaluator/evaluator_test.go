@@ -499,7 +499,10 @@ func TestEvalAssign(t *testing.T) {
 		{440, `{{ names = ["Anna", "Serhii"]; names }}`, "Anna, Serhii"},
 		{450, `{{ empty = []; empty }}`, ""},
 		{460, `{{ nested = [[1, 2], [3, 4]]; nested }}`, "1, 2, 3, 4"},
-		{470, `{{ names = ['Serhii', 'Nastya']; names[1] = 'Anna'; names[1] }}`, "Anna"},
+		{470, `{{ names = ['Serhii', 'Nastya']; names[1] = 'Anna'; names }}`, "Serhii, Anna"},
+		{480, `{{ nums = [10, 20, 30]; nums[0] = 1; nums[1] = 2; nums }}`, "1, 2, 30"},
+		{490, `{{ x = [[[20]]]; x[0][0][0] = 30; x }}`, "30"},
+		{500, `{{ x = ['1', ['2', ['3', ['4']]]]; x[1][1][1][0] = '5'; x }}`, "1, 2, 3, 5"},
 	}
 
 	for _, tc := range cases {
