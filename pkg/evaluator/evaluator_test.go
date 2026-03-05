@@ -503,6 +503,10 @@ func TestEvalAssign(t *testing.T) {
 		{480, `{{ nums = [10, 20, 30]; nums[0] = 1; nums[1] = 2; nums }}`, "1, 2, 30"},
 		{490, `{{ x = [[[20]]]; x[0][0][0] = 30; x }}`, "30"},
 		{500, `{{ x = ['1', ['2', ['3', ['4']]]]; x[1][1][1][0] = '5'; x }}`, "1, 2, 3, 5"},
+		{501, `{{ x = [0]; newVal = 10; x[0] = newVal; x[0] }}`, "10"},
+		// Mixed assignment
+		{510, `{{ x = [{ name: 'Chiori' }]; x[0].name = 'Mavuika'; x[0].name }}`, "Mavuika"},
+		{520, `{{ name = 'Mavuika'; x = [{ name: 'Chiori' }]; x[0].name = name; x[0].name }}`, "Mavuika"},
 	}
 
 	for _, tc := range cases {
