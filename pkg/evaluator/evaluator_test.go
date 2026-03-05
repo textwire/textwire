@@ -507,6 +507,16 @@ func TestEvalAssign(t *testing.T) {
 		// Mixed assignment
 		{510, `{{ x = [{ name: 'Chiori' }]; x[0].name = 'Mavuika'; x[0].name }}`, "Mavuika"},
 		{520, `{{ name = 'Mavuika'; x = [{ name: 'Chiori' }]; x[0].name = name; x[0].name }}`, "Mavuika"},
+		// Index assignment edge cases
+		{540, `{{ arr = [1, 2]; arr[0] = {name: 'x'}; arr[0].name }}`, "x"},
+		{550, `{{ arr = [1, 2]; arr[0] = [3, 4]; arr[0][0] }}`, "3"},
+		{560, `{{ arr = [1, 2, 3]; arr[1 + 1] = 5; arr[2] }}`, "5"},
+		{570, `{{ arr = [[1], [2]]; arr[0][0] = 10; arr[0][0] }}`, "10"},
+		{580, `{{ x = 5; arr = [1, 2]; arr[0] = x; arr[0] }}`, "5"},
+		{590, `{{ arr = [1, 2]; arr[0] = arr[1]; arr[0] }}`, "2"},
+		{600, `{{ arr = [1, 2, 3]; arr[2] = 10; arr[2] }}`, "10"},
+		{610, `{{ arr = ['a', 'b', 'c']; arr[0] = arr[0] + 'x'; arr[0] }}`, "ax"},
+		{620, `{{ arr = [true, false]; arr[0] = false; arr[0] }}`, "0"},
 	}
 
 	for _, tc := range cases {
