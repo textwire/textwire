@@ -1190,6 +1190,7 @@ func (p *Parser) expressionStmt() ast.Statement {
 	prevTok := p.curToken
 
 	exp := p.expression(LOWEST)
+	exp.SetEndPosition(p.curToken.Pos)
 
 	stmt := ast.NewExpressionStmt(prevTok, exp)
 	stmt.SetEndPosition(p.curToken.Pos)
