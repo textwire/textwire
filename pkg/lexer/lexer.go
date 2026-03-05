@@ -600,22 +600,29 @@ func (l *Lexer) skipWhitespace() {
 }
 
 func (l *Lexer) skipComment() {
-	for l.char != 0 {
-		if l.char != '-' || l.peekChar() != '-' {
+	depth := 1
+
+	for l.char != 0 && depth > 0 {
+		if l.char == '{' && l.peekChar() == '{' {
 			l.readChar()
+			l.readChar()
+			depth++
 			continue
 		}
 
-		l.readChar() // skip "-"
-		l.readChar() // skip "-"
-
-		if l.char == '}' || l.peekChar() == '}' {
-			break
+		if l.char == '-' && l.peekChar() == '-' {
+			l.readChar()
+			l.readChar()
+			if l.char == '}' && l.peekChar() == '}' {
+				l.readChar()
+				l.readChar()
+				depth--
+			}
+			continue
 		}
+
+		l.readChar()
 	}
 
 	l.isHTML = true
-
-	l.readChar() // skip "}"
-	l.readChar() // skip "}"
 }
