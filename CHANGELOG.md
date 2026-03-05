@@ -1,5 +1,7 @@
 # Release notes
 
+## v3.4.2 (2026-03-05)
+
 ## v3.4.1 (2026-03-05)
 
 - 🐛 Fixed issue where you couldn't do nested comment like `{{-- Contains {{-- and --}} inside --}}`.
