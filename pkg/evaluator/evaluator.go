@@ -220,6 +220,24 @@ func (e *Evaluator) assignIndexExp(indexExp *ast.IndexExp, val object.Object, ct
 }
 
 func (e *Evaluator) assignDotExp(dotExp *ast.DotExp, val object.Object, ctx *Context) object.Object {
+	// Evaluate the left side to get the object
+	left := e.Eval(dotExp.Left, ctx)
+	if isError(left) {
+		return left
+	}
+
+	// Get the key (property name)
+	key := dotExp.Key.(*ast.Identifier).Name
+
+	// Type assert that left is an object
+	obj, ok := left.(*object.Obj)
+	if !ok {
+		return e.newError(dotExp, ctx, fail.ErrKeyOnNonObject, left.Type(), key)
+	}
+
+	// Set the value on the object
+	obj.Pairs[key] = val
+
 	return NIL
 }
 
