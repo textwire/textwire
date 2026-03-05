@@ -619,36 +619,36 @@ func TestEvalObjectLiteral(t *testing.T) {
 		expect string
 	}{
 		// Bracket and dot access
-		{10, `{{ {"name": "John"}['name'] }}`, "John"},
-		{20, `{{ {"name": "John"}.name }}`, "John"},
+		{10, `{{ {"name": "Ann"}['name'] }}`, "Ann"},
+		{20, `{{ {"name": "Ann"}.name }}`, "Ann"},
 
 		// Basic property access
-		{30, `{{ obj = {name: "John"}; obj.name }}`, "John"},
-		{40, `{{ o = {"name": "John", "age": 22}; o.age }}`, "22"},
+		{30, `{{ obj = {name: "Ann"}; obj.name }}`, "Ann"},
+		{40, `{{ o = {"name": "Ann", "age": 22}; o.age }}`, "22"},
 
 		// Nested objects
-		{50, `{{ user = {"father": {"name": "John"}}; user.father.name }}`, "John"},
-		{60, `{{ user = {"father": {"name": {"first": "Sam"}}}; user.father.name.first }}`, "Sam"},
-		{70, `{{ u = {"father": {name: {"first": "Sam",},},}; u['father']['name'].first }}`, "Sam"},
+		{50, `{{ user = {"father": {"name": "Ann"}}; user.father.name }}`, "Ann"},
+		{60, `{{ user = {"father": {"name": {"first": "Serhii"}}}; user.father.name.first }}`, "Serhii"},
+		{70, `{{ u = {"father": {name: {"first": "Serhii",},},}; u['father']['name'].first }}`, "Serhii"},
 
 		// Shorthand properties
-		{80, `{{ name = "Sam"; age = 12; obj = { name, age }; obj.name }}`, "Sam"},
-		{90, `{{ name = "Sam"; age = 12; obj = { name, age }; obj.age }}`, "12"},
+		{80, `{{ name = "Serhii"; age = 12; obj = { name, age }; obj.name }}`, "Serhii"},
+		{90, `{{ name = "Serhii"; age = 12; obj = { name, age }; obj.age }}`, "12"},
 
 		// Case-insensitive first character access
-		{100, `{{ {"Name": "John"}.name }}`, "John"},
-		{110, `{{ {"name": "John"}.Name }}`, ""},
+		{100, `{{ {"Name": "Ann"}.name }}`, "Ann"},
+		{110, `{{ {"name": "Ann"}.Name }}`, ""},
 
 		// Non-existent keys
-		{120, `{{ obj = {"name": "John"}; obj.age }}`, ""},
-		{130, `{{ obj = {"name": "John"}; obj['missing'] }}`, ""},
+		{120, `{{ obj = {"name": "Ann"}; obj.age }}`, ""},
+		{130, `{{ obj = {"name": "Ann"}; obj['missing'] }}`, ""},
 
 		// Empty object
 		{140, `{{ {}.name }}`, ""},
 		{150, `{{ obj = {}; obj.name }}`, ""},
 
 		// Overwriting keys
-		{160, `{{ obj = {"name": "John"}; obj = {"name": "Jane"}; obj.name }}`, "Jane"},
+		{160, `{{ obj = {"name": "Ann"}; obj = {"name": "Anna"}; obj.name }}`, "Anna"},
 	}
 
 	for _, tc := range cases {
