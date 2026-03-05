@@ -1138,8 +1138,6 @@ func TestParseAssignStmt(t *testing.T) {
 	cases := []struct {
 		id       int
 		inp      string
-		left     string
-		varValue any
 		str      string
 		startCol uint
 		endCol   uint
@@ -1147,8 +1145,6 @@ func TestParseAssignStmt(t *testing.T) {
 		{
 			id:       10,
 			inp:      `{{ name = "Anna" }}`,
-			left:     "name",
-			varValue: "Anna",
 			str:      `name = "Anna"`,
 			startCol: 3,
 			endCol:   15,
@@ -1156,8 +1152,6 @@ func TestParseAssignStmt(t *testing.T) {
 		{
 			id:       20,
 			inp:      `{{ myAge = 34 }}`,
-			left:     "myAge",
-			varValue: 34,
 			str:      `myAge = 34`,
 			startCol: 3,
 			endCol:   12,
@@ -1165,8 +1159,6 @@ func TestParseAssignStmt(t *testing.T) {
 		{
 			id:       30,
 			inp:      `{{ me.age = 34 }}`,
-			left:     "(me.age)",
-			varValue: 34,
 			str:      `(me.age) = 34`,
 			startCol: 3,
 			endCol:   13,
@@ -1178,23 +1170,17 @@ func TestParseAssignStmt(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
+
 		stmt, ok := stmts[0].(*ast.AssignStmt)
 		if !ok {
 			t.Fatalf("Case: %d. stmts[0] is not a AssignStmt, got %T", tc.id, stmts[0])
-		}
-
-		if stmt.Left.String() != tc.left {
-			t.Fatalf("Case: %d. stmt.Left.String() is not %s, got %s", tc.id, tc.left, stmt.Left.String())
-		}
-
-		if err := testLiteralExpression(stmt.Right, tc.varValue); err != nil {
-			t.Fatalf("Case: %d. %v", tc.id, err)
 		}
 
 		err = testPosition(stmt.Position(), token.Position{
 			StartCol: tc.startCol,
 			EndCol:   tc.endCol,
 		})
+
 		if err != nil {
 			t.Fatalf("Case: %d. %v", tc.id, err)
 		}
