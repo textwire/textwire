@@ -1027,13 +1027,13 @@ func (e *Evaluator) infixOpExp(
 		return e.newError(leftNode, ctx, fail.ErrTypeMismatch, left.Type(), op, right.Type())
 	}
 
-	switch left.(type) {
+	switch l := left.(type) {
 	case *object.Int:
-		return e.intInfixExp(op, right, left, leftNode, ctx)
+		return e.intInfixExp(op, right, l, leftNode, ctx)
 	case *object.Float:
-		return e.floatInfixExp(op, right, left, leftNode, ctx)
+		return e.floatInfixExp(op, right, l, leftNode, ctx)
 	case *object.Str:
-		return e.stringInfixExp(op, right, left, leftNode, ctx)
+		return e.stringInfixExp(op, right, l, leftNode, ctx)
 	}
 
 	return e.newError(leftNode, ctx, fail.ErrUnknownTypeForOp, left.Type(), op)
@@ -1058,12 +1058,12 @@ func (e *Evaluator) logicalExp(
 
 func (e *Evaluator) intInfixExp(
 	op string,
-	right,
-	left object.Object,
+	right object.Object,
+	left *object.Int,
 	leftNode ast.Node,
 	ctx *Context,
 ) object.Object {
-	leftVal := left.(*object.Int).Value
+	leftVal := left.Value
 	rightVal := right.(*object.Int).Value
 
 	switch op {
@@ -1099,12 +1099,12 @@ func (e *Evaluator) intInfixExp(
 
 func (e *Evaluator) stringInfixExp(
 	op string,
-	right,
-	left object.Object,
+	right object.Object,
+	left *object.Str,
 	leftNode ast.Node,
 	ctx *Context,
 ) object.Object {
-	leftVal := left.(*object.Str).Value
+	leftVal := left.Value
 	rightVal := right.(*object.Str).Value
 
 	switch op {
@@ -1121,12 +1121,12 @@ func (e *Evaluator) stringInfixExp(
 
 func (e *Evaluator) floatInfixExp(
 	op string,
-	right,
-	left object.Object,
+	right object.Object,
+	left *object.Float,
 	leftNode ast.Node,
 	ctx *Context,
 ) object.Object {
-	leftVal := left.(*object.Float).Value
+	leftVal := left.Value
 	rightVal := right.(*object.Float).Value
 
 	switch op {
