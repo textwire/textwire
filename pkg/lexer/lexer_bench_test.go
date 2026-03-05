@@ -15,7 +15,7 @@ func BenchmarkReadDirective(b *testing.B) {
 		lexer := New(code)
 
 		for {
-			tok := lexer.NextToken()
+			tok := lexer.Next()
 			if tok.Type == token.EOF {
 				break
 			}

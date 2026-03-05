@@ -10,7 +10,7 @@ func TokenizeString(t *testing.T, input string, expectTokens []token.Token) {
 	l := New(input)
 
 	for _, expectTok := range expectTokens {
-		tok := l.NextToken()
+		tok := l.Next()
 
 		if tok.Literal != expectTok.Literal {
 			t.Fatalf(
@@ -391,7 +391,7 @@ func TestErrorLineNumber(t *testing.T) {
 		l := New(tc.inp)
 		var lastTok token.Token
 
-		for tok := l.NextToken(); tok.Type != token.EOF; tok = l.NextToken() {
+		for tok := l.Next(); tok.Type != token.EOF; tok = l.Next() {
 			lastTok = tok
 		}
 
@@ -434,7 +434,7 @@ func TestTokenPosition(t *testing.T) {
 		var targetTok token.Token
 
 		for i := 0; i <= tokenIdx; i++ {
-			targetTok = l.NextToken()
+			targetTok = l.Next()
 		}
 
 		pos := token.Position{
