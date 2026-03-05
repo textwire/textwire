@@ -1137,7 +1137,7 @@ func TestParseElseIfWithElseStatement(t *testing.T) {
 func TestParseAssignStmt(t *testing.T) {
 	cases := []struct {
 		inp      string
-		varName  string
+		left     string
 		varValue any
 		str      string
 		startCol uint
@@ -1145,7 +1145,7 @@ func TestParseAssignStmt(t *testing.T) {
 	}{
 		{
 			inp:      `{{ name = "Anna" }}`,
-			varName:  "name",
+			left:     "name",
 			varValue: "Anna",
 			str:      `name = "Anna"`,
 			startCol: 3,
@@ -1153,7 +1153,7 @@ func TestParseAssignStmt(t *testing.T) {
 		},
 		{
 			inp:      `{{ myAge = 34 }}`,
-			varName:  "myAge",
+			left:     "myAge",
 			varValue: 34,
 			str:      `myAge = 34`,
 			startCol: 3,
@@ -1171,8 +1171,8 @@ func TestParseAssignStmt(t *testing.T) {
 			t.Fatalf("stmts[0] is not a AssignStmt, got %T", stmts[0])
 		}
 
-		if stmt.Left.Name != tc.varName {
-			t.Fatalf("stmt.Left.Name is not %s, got %s", tc.varName, stmt.Left.Name)
+		if stmt.Left.String() != tc.left {
+			t.Fatalf("stmt.Left.String() is not %s, got %s", tc.left, stmt.Left.String())
 		}
 
 		if err := testLiteralExpression(stmt.Right, tc.varValue); err != nil {
