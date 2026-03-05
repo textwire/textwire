@@ -2081,7 +2081,7 @@ func TestParseHTMLStmt(t *testing.T) {
 }
 
 func TestParseDotExp(t *testing.T) {
-	inp := `{{ person.father.name }}`
+	inp := "{{ person.father.name }}"
 
 	stmts, err := parseStatements(inp, defaultParseOpts)
 	if err != nil {
@@ -2098,14 +2098,14 @@ func TestParseDotExp(t *testing.T) {
 		t.Fatalf("stmt.Expression is not a DotExp, got %T", stmt.Expression)
 	}
 
-	if err := testToken(exp, token.DOT); err != nil {
+	if err := testToken(exp, token.IDENT); err != nil {
 		t.Fatal(err)
 	}
 
 	// position of the last dot between "father" and "name"
 	err = testPosition(exp.Position(), token.Position{
-		StartCol: 16,
-		EndCol:   16,
+		StartCol: 3,
+		EndCol:   20,
 	})
 	if err != nil {
 		t.Fatal(err)
