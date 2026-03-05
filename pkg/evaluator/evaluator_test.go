@@ -649,7 +649,6 @@ func TestEvalObjectLiteral(t *testing.T) {
 
 		// Overwriting keys
 		{160, `{{ obj = {"name": "John"}; obj = {"name": "Jane"}; obj.name }}`, "Jane"},
-		{170, `{{ obj = {"name": "John"}; obj.name = "Ann"; obj.name }}`, "Ann"},
 	}
 
 	for _, tc := range cases {

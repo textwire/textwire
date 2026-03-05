@@ -2,11 +2,11 @@
 
 ## v3.4.1 (2026-03-05)
 
-- 🚀 Performance improvement for accessing uppercased object keys with lowercase letters. For example, when your property is `Name` and you are accessing it as `{{ user.name }}` instead of `{{ user.Name }}`. Look at the table below for number 1. Closes [#91](https://github.com/textwire/textwire/issues/91).
-
-| #   | Improved target                  | Speed              | Memory usage     | Allocations       |
-| --- | -------------------------------- | ------------------ | ---------------- | ----------------- |
-| 1   | Property access in the evaluator | ⚡ **2.0× faster** | 💾 **100% less** | 📉 **100% fewer** |
+- 🐛 Fixed issue where you couldn't do nested comment like `{{-- Contains {{-- and --}} inside --}}`.
+- 🚀 Performance improvement for accessing uppercased object keys with lowercase letters. For example, when your property is `Name` and you are accessing it as `{{ user.name }}` instead of `{{ user.Name }}`. Look at the table below. Closes [#91](https://github.com/textwire/textwire/issues/91).
+    | Speed              | Memory usage     | Allocations       |
+    | ------------------ | ---------------- | ----------------- |
+    | ⚡ **2.0× faster** | 💾 **100% less** | 📉 **100% fewer** |
 
 ## v3.4.0 (2026-03-04)
 
