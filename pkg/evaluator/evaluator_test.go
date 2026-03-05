@@ -426,66 +426,80 @@ func TestEvalIndexExp(t *testing.T) {
 	}
 }
 
-func TestEvalAssignVariable(t *testing.T) {
+func TestEvalAssign(t *testing.T) {
 	cases := []struct {
 		id     int
 		inp    string
 		expect string
 	}{
 		// Integer assignment
-		{10, `{{ age = 18 }}`, ""},
-		{20, `{{ age = 18; age }}`, "18"},
-		{30, `{{ age = -5; age }}`, "-5"},
-		{40, `{{ age = 0; age }}`, "0"},
+		{20, `{{ age = 18 }}`, ""},
+		{30, `{{ age = 18; age }}`, "18"},
+		{40, `{{ age = -5; age }}`, "-5"},
+		{50, `{{ age = 0; age }}`, "0"},
 		// Float assignment
-		{50, `{{ pi = 3.14; pi }}`, "3.14"},
-		{60, `{{ price = 0.0; price }}`, "0.0"},
-		{70, `{{ negative = -2.5; negative }}`, "-2.5"},
-		{71, `{{ f = 0.0; f = f + 0.5; f }}`, "0.5"},
+		{60, `{{ pi = 3.14; pi }}`, "3.14"},
+		{70, `{{ price = 0.0; price }}`, "0.0"},
+		{80, `{{ negative = -2.5; negative }}`, "-2.5"},
+		{81, `{{ f = 0.0; f = f + 0.5; f }}`, "0.5"},
 		// String assignment
-		{80, `{{ name = "Anna"; name }}`, "Anna"},
-		{90, `{{ empty = ""; empty }}`, ""},
-		{100, `{{ quote = "He said \"Hello\""; quote }}`, `He said "Hello"`},
+		{90, `{{ name = "Anna"; name }}`, "Anna"},
+		{100, `{{ empty = ""; empty }}`, ""},
+		{110, `{{ quote = "He said \"Hello\""; quote }}`, `He said "Hello"`},
 		// Boolean assignment
-		{110, `{{ flag = true; flag }}`, "1"},
-		{120, `{{ flag = false; flag }}`, "0"},
+		{120, `{{ flag = true; flag }}`, "1"},
+		{130, `{{ flag = false; flag }}`, "0"},
 		// Nil assignment
-		{130, `{{ nothing = nil; nothing }}`, ""},
-		// Array assignment
-		{140, `{{ names = ["Anna", "Serhii"]; names }}`, "Anna, Serhii"},
-		{150, `{{ empty = []; empty }}`, ""},
-		{160, `{{ nested = [[1, 2], [3, 4]]; nested }}`, "1, 2, 3, 4"},
-		// Object assignment
-		{170, `{{ user = {name: "John"}; user.name }}`, "John"},
-		{180, `{{ data = {"age": 25}; data.age }}`, "25"},
+		{140, `{{ nothing = nil; nothing }}`, ""},
 		// Multiple assignments
-		{190, `{{ a = 1; b = 2; c = 3; a + b + c }}`, "6"},
-		{200, `{{ x = "Hello"; y = "World"; x + " " + y }}`, "Hello World"},
+		{200, `{{ a = 1; b = 2; c = 3; a + b + c }}`, "6"},
+		{210, `{{ x = "Hello"; y = "World"; x + " " + y }}`, "Hello World"},
 		// Reassignment
-		{210, `{{ age = 18; age = 25; age }}`, "25"},
-		{220, `{{ name = "Anna"; name = "Maria"; name }}`, "Maria"},
-		{230, `{{ x = 1; x = x + 1; x = x + 1; x }}`, "3"},
+		{220, `{{ age = 18; age = 25; age }}`, "25"},
+		{230, `{{ name = "Anna"; name = "Maria"; name }}`, "Maria"},
+		{240, `{{ x = 1; x = x + 1; x = x + 1; x }}`, "3"},
 		// Assignment with expression
-		{240, `{{ sum = 5 + 3; sum }}`, "8"},
-		{250, `{{ calc = 10 * 2 - 5; calc }}`, "15"},
-		{260, `{{ result = (2 + 3) * 4; result }}`, "20"},
+		{250, `{{ sum = 5 + 3; sum }}`, "8"},
+		{260, `{{ calc = 10 * 2 - 5; calc }}`, "15"},
+		{270, `{{ result = (2 + 3) * 4; result }}`, "20"},
 		// Assignment with string concatenation
-		{270, `{{ full = "John" + " " + "Doe"; full }}`, "John Doe"},
-		{280, `{{ msg = "Count: " + 5.str(); msg }}`, "Count: 5"},
+		{280, `{{ full = "John" + " " + "Doe"; full }}`, "John Doe"},
+		{290, `{{ msg = "Count: " + 5.str(); msg }}`, "Count: 5"},
 		// Assignment with ternary
-		{290, `{{ val = true ? 1 : 0; val }}`, "1"},
-		{300, `{{ val = false ? "yes" : "no"; val }}`, "no"},
+		{300, `{{ val = true ? 1 : 0; val }}`, "1"},
+		{310, `{{ val = false ? "yes" : "no"; val }}`, "no"},
 		// Assignment with method call
-		{310, `{{ upper = "hello".upper(); upper }}`, "HELLO"},
-		{320, `{{ len = [1, 2, 3].len(); len }}`, "3"},
+		{320, `{{ upper = "hello".upper(); upper }}`, "HELLO"},
+		{330, `{{ len = [1, 2, 3].len(); len }}`, "3"},
 		// Assignment with index
-		{330, `{{ arr = [10, 20, 30]; val = arr[1]; val }}`, "20"},
-		{340, `{{ str = "abc"; val = str.at(0); val }}`, "a"},
+		{340, `{{ arr = [10, 20, 30]; val = arr[1]; val }}`, "20"},
+		{350, `{{ str = "abc"; val = str.at(0); val }}`, "a"},
 		// Assignment in conditional
-		{350, `@if(true){{ x = 5 }}{{ x }}@end`, "5"},
-		{360, `@if(false){{ x = 5 }}{{ x }}@end`, ""},
+		{360, `@if(true){{ x = 5 }}{{ x }}@end`, "5"},
+		{370, `@if(false){{ x = 5 }}{{ x }}@end`, ""},
 		// Assignment with loop variable
-		{370, `@each(n in [1, 2, 3]){{ x = n }}{{ x }}@end`, "123"},
+		{380, `@each(n in [1, 2, 3]){{ x = n }}{{ x }}@end`, "123"},
+		// Object assignment
+		{381, `{{ user = {name: "John"}; user.name }}`, "John"},
+		{382, `{{ data = {"age": 25}; data.age }}`, "25"},
+		{390, `{{ user = {"name": "Ann"}; user = {"name": "Anna"}; user.name }}`, "Anna"},
+		{400, `{{ user = {}; user.name = "Anna"; user.name }}`, "Anna"},
+		{410, `{{ user = {}; user.name = "Anna"; user.name }}`, "Anna"},
+		{
+			id:     420,
+			inp:    `{{ user = {}; user.address = { street: "x" }; user.address.street = 'y'; user.address.street }}`,
+			expect: "y",
+		},
+		{
+			id:     430,
+			inp:    `{{ user = {}; user.address = {}; user.address.street = "Pushkina"; user.address.street }}`,
+			expect: "Pushkina",
+		},
+		// Array assignment
+		{440, `{{ names = ["Anna", "Serhii"]; names }}`, "Anna, Serhii"},
+		{450, `{{ empty = []; empty }}`, ""},
+		{460, `{{ nested = [[1, 2], [3, 4]]; nested }}`, "1, 2, 3, 4"},
+		{470, `{{ names = ['Serhii', 'Nastya']; names[1] = 'Anna'; names[1] }}`, "Anna"},
 	}
 
 	for _, tc := range cases {
@@ -646,9 +660,6 @@ func TestEvalObjectLiteral(t *testing.T) {
 		// Empty object
 		{140, `{{ {}.name }}`, ""},
 		{150, `{{ obj = {}; obj.name }}`, ""},
-
-		// Overwriting keys
-		{160, `{{ obj = {"name": "Ann"}; obj = {"name": "Anna"}; obj.name }}`, "Anna"},
 	}
 
 	for _, tc := range cases {
