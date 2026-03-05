@@ -1170,6 +1170,20 @@ func TestParseAssignStmt(t *testing.T) {
 			startCol: 3,
 			endCol:   12,
 		},
+		{
+			id:       50,
+			inp:      `{{ arr[234][2][23].name.first = "Anna" }}`,
+			str:      `(((((arr[234])[2])[23]).name).first) = "Anna"`,
+			startCol: 3,
+			endCol:   37,
+		},
+		{
+			id:       60,
+			inp:      `{{ (obj.one.two) = "test" }}`,
+			str:      `((obj.one).two) = "test"`,
+			startCol: 4,
+			endCol:   24,
+		},
 	}
 
 	for _, tc := range cases {
@@ -1183,6 +1197,11 @@ func TestParseAssignStmt(t *testing.T) {
 			t.Fatalf("Case: %d. stmts[0] is not a AssignStmt, got %T", tc.id, stmts[0])
 		}
 
+		stmtStr := stmt.String()
+		if stmtStr != tc.str {
+			t.Fatalf("Case: %d. stmt.String() is not %s, got %s", tc.id, tc.inp, stmtStr)
+		}
+
 		err = testPosition(stmt.Position(), token.Position{
 			StartCol: tc.startCol,
 			EndCol:   tc.endCol,
@@ -1190,10 +1209,6 @@ func TestParseAssignStmt(t *testing.T) {
 
 		if err != nil {
 			t.Fatalf("Case: %d. %v", tc.id, err)
-		}
-
-		if stmt.String() != tc.str {
-			t.Fatalf("Case: %d. stmt.String() is not %s, got %s", tc.id, tc.inp, stmt)
 		}
 	}
 }
