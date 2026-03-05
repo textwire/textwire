@@ -1190,8 +1190,6 @@ func (p *Parser) expressionStmt() ast.Statement {
 	prevTok := p.curToken
 
 	exp := p.expression(LOWEST)
-	exp.SetEndPosition(p.curToken.Pos)
-
 	stmt := ast.NewExpressionStmt(prevTok, exp)
 	stmt.SetEndPosition(p.curToken.Pos)
 
@@ -1230,6 +1228,10 @@ func (p *Parser) expression(precedence int) ast.Expression {
 		p.next()
 
 		leftExp = infix(leftExp)
+	}
+
+	if leftExp != nil {
+		leftExp.SetEndPosition(p.curToken.Pos)
 	}
 
 	return leftExp
