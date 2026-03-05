@@ -227,10 +227,6 @@ func (p *Parser) embeddedCode() ast.Statement {
 		return nil
 	}
 
-	if p.curToken.Type == token.IDENT && p.peekTokenIs(token.ASSIGN) {
-		return p.assignStmt()
-	}
-
 	return p.expressionStmt()
 }
 
@@ -395,9 +391,8 @@ func (p *Parser) htmlStmt() ast.Statement {
 	return ast.NewHTMLStmt(p.curToken)
 }
 
-func (p *Parser) assignStmt() ast.Statement {
-	ident := ast.NewIdentifier(p.curToken, p.curToken.Literal)
-	stmt := ast.NewAssignStmt(p.curToken, ident)
+func (p *Parser) assignStmt(left ast.Expression) ast.Statement {
+	stmt := ast.NewAssignStmt(*left.Tok(), left)
 
 	if !p.expectPeek(token.ASSIGN) { // move to "="
 		return p.illegalNode()
@@ -877,7 +872,7 @@ func (p *Parser) postfixExp(left ast.Expression) ast.Expression {
 }
 
 func (p *Parser) dotExp(left ast.Expression) ast.Expression {
-	exp := ast.NewDotExp(p.curToken, left)
+	exp := ast.NewDotExp(*left.Tok(), left)
 
 	if p.peekTokenIs(token.INT) {
 		p.newError(p.curToken.ErrorLine(), fail.ErrObjectKeyUseGet)
@@ -1201,6 +1196,10 @@ func (p *Parser) expressionStmt() ast.Statement {
 
 	if p.peekTokenIs(token.RBRACES) {
 		p.nextToken() // skip "}}"
+	}
+
+	if p.peekTokenIs(token.ASSIGN) {
+		return p.assignStmt(exp)
 	}
 
 	return stmt
