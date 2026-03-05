@@ -216,6 +216,34 @@ func (e *Evaluator) assignIdentifier(ident *ast.Identifier, val object.Object, c
 }
 
 func (e *Evaluator) assignIndexExp(indexExp *ast.IndexExp, val object.Object, ctx *Context) object.Object {
+	left := e.Eval(indexExp.Left, ctx)
+	if isError(left) {
+		return left
+	}
+
+	idx := e.Eval(indexExp.Index, ctx)
+	if isError(idx) {
+		return idx
+	}
+
+	if !left.Is(object.ARR_OBJ) {
+		return e.newError(indexExp, ctx, fail.ErrIndexNotSupported, left.Type())
+	}
+
+	// Index must be integer
+	if !idx.Is(object.INT_OBJ) {
+		return e.newError(indexExp, ctx, fail.ErrArrayIndexInteger, idx.Type())
+	}
+
+	arr := left.(*object.Array)
+	index := idx.(*object.Int).Value
+
+	if index < 0 || index >= int64(len(arr.Elements)) {
+		return e.newError(indexExp, ctx, fail.ErrArrayIndexOutOfBound, index, len(arr.Elements))
+	}
+
+	arr.Elements[index] = val
+
 	return NIL
 }
 
