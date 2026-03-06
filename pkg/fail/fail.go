@@ -37,7 +37,7 @@ const (
 	ErrIndexNotSupported       = "type '%s' does not support indexing"
 	ErrUnknownOp               = "unknown operator '%s%s'"
 	ErrCannotSubFromFloat      = "cannot decrement from float '%s' due to error: %s"
-	ErrTypeMismatch            = "type mismatch: cannot %s %s %s"
+	ErrCannotUseOperator       = "cannot use this operator for '%s %s %s'"
 	ErrUnknownTypeForOp        = "operator '%s' not supported for type '%s'"
 	ErrPrefixOpIsWrong         = "cannot apply prefix '%s' to type '%s'"
 	ErrVariableIsUndefined     = "variable '%s' is not defined"

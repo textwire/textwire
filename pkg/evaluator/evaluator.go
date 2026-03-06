@@ -1037,7 +1037,7 @@ func (e *Evaluator) operatorExp(
 		return e.stringInfixExp(op, right, l, leftNode, ctx)
 	}
 
-	return e.newError(leftNode, ctx, fail.ErrTypeMismatch, left.Type(), op, right.Type())
+	return e.newError(leftNode, ctx, fail.ErrCannotUseOperator, left.Type(), op, right.Type())
 }
 
 func (e *Evaluator) logicalExp(
@@ -1066,7 +1066,7 @@ func (e *Evaluator) intInfixExp(
 ) object.Object {
 	r, ok := right.(*object.Int)
 	if !ok {
-		return e.newError(leftNode, ctx, fail.ErrTypeMismatch, l.Type(), op, right.Type())
+		return e.newError(leftNode, ctx, fail.ErrCannotUseOperator, l.Type(), op, right.Type())
 	}
 
 	switch op {
@@ -1141,7 +1141,7 @@ func (e *Evaluator) stringInfixExp(
 ) object.Object {
 	r, ok := right.(*object.Str)
 	if !ok {
-		return e.newError(leftNode, ctx, fail.ErrTypeMismatch, l.Type(), op, right.Type())
+		return e.newError(leftNode, ctx, fail.ErrCannotUseOperator, l.Type(), op, right.Type())
 	}
 
 	if op == "+" {
@@ -1160,7 +1160,7 @@ func (e *Evaluator) floatInfixExp(
 ) object.Object {
 	r, ok := right.(*object.Float)
 	if !ok {
-		return e.newError(leftNode, ctx, fail.ErrTypeMismatch, l.Type(), op, right.Type())
+		return e.newError(leftNode, ctx, fail.ErrCannotUseOperator, l.Type(), op, right.Type())
 	}
 
 	switch op {
