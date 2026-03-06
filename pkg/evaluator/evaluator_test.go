@@ -782,7 +782,11 @@ func TestEvalAssign(t *testing.T) {
 		{460, `{{ x = [0]; newVal = 10; x[0] = newVal; x[0] }}`, "10"},
 		// Mixed assignment
 		{470, `{{ x = [{ name: 'Chiori' }]; x[0].name = 'Mavuika'; x[0].name }}`, "Mavuika"},
-		{480, `{{ name = 'Mavuika'; x = [{ name: 'Chiori' }]; x[0].name = name; x[0].name }}`, "Mavuika"},
+		{
+			480,
+			`{{ name = 'Mavuika'; x = [{ name: 'Chiori' }]; x[0].name = name; x[0].name }}`,
+			"Mavuika",
+		},
 		// Index assignment edge cases
 		{490, `{{ arr = [1, 2]; arr[0] = {name: 'x'}; arr[0].name }}`, "x"},
 		{500, `{{ arr = [1, 2]; arr[0] = [3, 4]; arr[0][0] }}`, "3"},
@@ -933,8 +937,16 @@ func TestEvalObjectLiteral(t *testing.T) {
 		{40, `{{ o = {"name": "Ann", "age": 22}; o.age }}`, "22"},
 		// Nested objects
 		{50, `{{ user = {"father": {"name": "Ann"}}; user.father.name }}`, "Ann"},
-		{60, `{{ user = {"father": {"name": {"first": "Serhii"}}}; user.father.name.first }}`, "Serhii"},
-		{70, `{{ u = {"father": {name: {"first": "Serhii",},},}; u['father']['name'].first }}`, "Serhii"},
+		{
+			60,
+			`{{ user = {"father": {"name": {"first": "Serhii"}}}; user.father.name.first }}`,
+			"Serhii",
+		},
+		{
+			70,
+			`{{ u = {"father": {name: {"first": "Serhii",},},}; u['father']['name'].first }}`,
+			"Serhii",
+		},
 		// Shorthand properties
 		{80, `{{ name = "Serhii"; age = 12; obj = { name, age }; obj.name }}`, "Serhii"},
 		{90, `{{ name = "Serhii"; age = 12; obj = { name, age }; obj.age }}`, "12"},
