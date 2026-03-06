@@ -28,7 +28,7 @@ func testEval(inp string) (object.Object, *fail.Error) {
 	return e.Eval(prog, ctx), nil
 }
 
-func evaluationExpected(t *testing.T, inp, expect string, idx int) {
+func evaluationExpected(t *testing.T, inp, expect string, idx uint) {
 	evaluated, failure := testEval(inp)
 	if failure != nil {
 		t.Fatalf("Case: %d. evaluation failed: %s", idx, failure)
@@ -47,7 +47,7 @@ func evaluationExpected(t *testing.T, inp, expect string, idx int) {
 
 func TestEvalHTML(t *testing.T) {
 	cases := []struct {
-		id     int
+		id     uint
 		inp    string
 		expect string
 	}{
@@ -74,7 +74,7 @@ func TestEvalHTML(t *testing.T) {
 
 func TestEvalNumericExp(t *testing.T) {
 	cases := []struct {
-		id     int
+		id     uint
 		inp    string
 		expect string
 	}{
@@ -113,7 +113,7 @@ func TestEvalNumericExp(t *testing.T) {
 
 func TestEvalBooleanExp(t *testing.T) {
 	cases := []struct {
-		id     int
+		id     uint
 		inp    string
 		expect string
 	}{
@@ -367,7 +367,7 @@ func TestEvalNilExp(t *testing.T) {
 
 func TestEvalStringExp(t *testing.T) {
 	cases := []struct {
-		id     int
+		id     uint
 		inp    string
 		expect string
 	}{
@@ -388,7 +388,7 @@ func TestEvalStringExp(t *testing.T) {
 
 func TestEvalTernaryExp(t *testing.T) {
 	cases := []struct {
-		id     int
+		id     uint
 		inp    string
 		expect string
 	}{
@@ -411,7 +411,7 @@ func TestEvalTernaryExp(t *testing.T) {
 
 func TestEvalIfStmt(t *testing.T) {
 	cases := []struct {
-		id     int
+		id     uint
 		inp    string
 		expect string
 	}{
@@ -507,7 +507,7 @@ func TestEvalIfStmt(t *testing.T) {
 
 func TestEvalArray(t *testing.T) {
 	cases := []struct {
-		id     int
+		id     uint
 		inp    string
 		expect string
 	}{
@@ -557,7 +557,7 @@ func TestEvalArray(t *testing.T) {
 
 func TestEvalIndexExp(t *testing.T) {
 	cases := []struct {
-		id     int
+		id     uint
 		inp    string
 		expect string
 	}{
@@ -598,7 +598,7 @@ func TestEvalIndexExp(t *testing.T) {
 
 func TestEvalAssign(t *testing.T) {
 	cases := []struct {
-		id     int
+		id     uint
 		inp    string
 		expect string
 	}{
@@ -696,7 +696,7 @@ func TestEvalAssign(t *testing.T) {
 
 func TestEvalForStmt(t *testing.T) {
 	cases := []struct {
-		id     int
+		id     uint
 		inp    string
 		expect string
 	}{
@@ -762,7 +762,7 @@ func TestEvalForStmt(t *testing.T) {
 
 func TestEvalEachStmt(t *testing.T) {
 	cases := []struct {
-		id     int
+		id     uint
 		inp    string
 		expect string
 	}{
@@ -815,7 +815,7 @@ func TestEvalEachStmt(t *testing.T) {
 
 func TestEvalObjectLiteral(t *testing.T) {
 	cases := []struct {
-		id     int
+		id     uint
 		inp    string
 		expect string
 	}{
@@ -856,7 +856,7 @@ func TestEvalObjectLiteral(t *testing.T) {
 
 func TestEvalComments(t *testing.T) {
 	cases := []struct {
-		id     int
+		id     uint
 		inp    string
 		expect string
 	}{
@@ -909,7 +909,7 @@ func TestEvalComments(t *testing.T) {
 
 func TestTypeMismatchErrors(t *testing.T) {
 	cases := []struct {
-		id   int
+		id   uint
 		inp  string
 		objL object.ObjectType
 		op   string

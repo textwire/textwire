@@ -4,7 +4,7 @@ import "testing"
 
 func TestEvalStringFunctions(t *testing.T) {
 	cases := []struct {
-		id     int
+		id     uint
 		inp    string
 		expect string
 	}{
@@ -192,7 +192,7 @@ func TestEvalStringFunctions(t *testing.T) {
 
 func TestStringMethodChaining(t *testing.T) {
 	cases := []struct {
-		id     int
+		id     uint
 		inp    string
 		expect string
 	}{

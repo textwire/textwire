@@ -689,7 +689,7 @@ func TestPrefixExp(t *testing.T) {
 
 func TestOpPrecedenceParsing(t *testing.T) {
 	cases := []struct {
-		id     int
+		id     uint
 		inp    string
 		expect string
 	}{
@@ -1136,7 +1136,7 @@ func TestParseElseIfWithElseStatement(t *testing.T) {
 
 func TestParseAssignStmt(t *testing.T) {
 	cases := []struct {
-		id       int
+		id       uint
 		inp      string
 		str      string
 		startCol uint
@@ -1908,7 +1908,7 @@ func TestParseEachStmt(t *testing.T) {
 
 func TestParseEmptyBlock(t *testing.T) {
 	cases := []struct {
-		id        int
+		id        uint
 		inp       string
 		endColPos uint
 		tok       token.TokenType
