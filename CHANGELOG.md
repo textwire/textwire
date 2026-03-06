@@ -1,5 +1,9 @@
 # Release notes
 
+## v3.5.0 (2026-03-07)
+
+- ✨ Added so that `==` and `!=` work with any types on both side. If types mismatch, instead of giving an error `type mismatch: cannot %s %s %s` you'll get `false` in return.
+
 ## v3.4.2 (2026-03-06)
 
 - 🐛 Fixed issue where you couldn't use `nil` and `boolean` with `!=` and `==` comparrison operators.
