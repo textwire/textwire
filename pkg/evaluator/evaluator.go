@@ -1054,7 +1054,7 @@ func (e *Evaluator) logicalExp(
 		return &object.Bool{Value: isTruthy(left) || isTruthy(right)}
 	}
 
-	return e.newError(leftNode, ctx, fail.ErrUnknownTypeForOp, left.Type(), op)
+	return e.newError(leftNode, ctx, fail.ErrCannotUseOperator, op, left.Type(), op, right.Type())
 }
 
 func (e *Evaluator) intInfixExp(
@@ -1093,7 +1093,7 @@ func (e *Evaluator) intInfixExp(
 		return nativeBoolToBoolObj(l.Value <= r.Value)
 	}
 
-	return e.newError(leftNode, ctx, fail.ErrUnknownTypeForOp, l.Type(), op)
+	return e.newError(leftNode, ctx, fail.ErrCannotUseOperator, op, l.Type(), op, right.Type())
 }
 
 func (e *Evaluator) comparrisonInfixExp(
@@ -1122,7 +1122,7 @@ func (e *Evaluator) comparrisonInfixExp(
 	case *object.Nil:
 		result = true
 	default:
-		return e.newError(leftNode, ctx, fail.ErrUnknownTypeForOp, left.Type(), op)
+		e.newError(leftNode, ctx, fail.ErrCannotUseOperator, op, l.Type(), op, right.Type())
 	}
 
 	if op == "!=" {
@@ -1148,7 +1148,7 @@ func (e *Evaluator) stringInfixExp(
 		return &object.Str{Value: l.Value + r.Value}
 	}
 
-	return e.newError(leftNode, ctx, fail.ErrUnknownTypeForOp, l.Type(), op)
+	return e.newError(leftNode, ctx, fail.ErrCannotUseOperator, op, l.Type(), op, right.Type())
 }
 
 func (e *Evaluator) floatInfixExp(
@@ -1182,7 +1182,7 @@ func (e *Evaluator) floatInfixExp(
 		return nativeBoolToBoolObj(l.Value <= r.Value)
 	}
 
-	return e.newError(leftNode, ctx, fail.ErrUnknownTypeForOp, l.Type(), op)
+	return e.newError(leftNode, ctx, fail.ErrCannotUseOperator, op, l.Type(), op, right.Type())
 }
 
 func (e *Evaluator) minusPrefixOpExp(
