@@ -209,14 +209,22 @@ func (e *Evaluator) assign(assignStmt *ast.AssignStmt, ctx *Context) object.Obje
 	}
 }
 
-func (e *Evaluator) assignIdentifier(ident *ast.Identifier, val object.Object, ctx *Context) object.Object {
+func (e *Evaluator) assignIdentifier(
+	ident *ast.Identifier,
+	val object.Object,
+	ctx *Context,
+) object.Object {
 	if err := ctx.scope.Set(ident.Name, val); err != nil {
 		return e.newError(ident, ctx, "%s", err.Error())
 	}
 	return NIL
 }
 
-func (e *Evaluator) assignIndexExp(indexExp *ast.IndexExp, val object.Object, ctx *Context) object.Object {
+func (e *Evaluator) assignIndexExp(
+	indexExp *ast.IndexExp,
+	val object.Object,
+	ctx *Context,
+) object.Object {
 	left := e.Eval(indexExp.Left, ctx)
 	if isError(left) {
 		return left
@@ -248,7 +256,11 @@ func (e *Evaluator) assignIndexExp(indexExp *ast.IndexExp, val object.Object, ct
 	return NIL
 }
 
-func (e *Evaluator) assignDotExp(dotExp *ast.DotExp, val object.Object, ctx *Context) object.Object {
+func (e *Evaluator) assignDotExp(
+	dotExp *ast.DotExp,
+	val object.Object,
+	ctx *Context,
+) object.Object {
 	// Evaluate the left side to get the object
 	left := e.Eval(dotExp.Left, ctx)
 	if isError(left) {
