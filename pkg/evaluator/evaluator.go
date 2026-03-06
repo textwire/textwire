@@ -1037,7 +1037,7 @@ func (e *Evaluator) operatorExp(
 		return e.stringInfixExp(op, right, l, leftNode, ctx)
 	}
 
-	return e.newError(leftNode, ctx, fail.ErrUnknownTypeForOp, left.Type(), op)
+	return e.newError(leftNode, ctx, fail.ErrTypeMismatch, left.Type(), op, right.Type())
 }
 
 func (e *Evaluator) logicalExp(

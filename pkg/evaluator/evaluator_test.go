@@ -992,6 +992,29 @@ func TestTypeMismatchError(t *testing.T) {
 		{240, "{{ 5.0 % 2 }}", object.FLOAT_OBJ, "%", object.INT_OBJ},
 		{250, "{{ 'a' % 2 }}", object.STR_OBJ, "%", object.INT_OBJ},
 		{260, "{{ true % 2 }}", object.BOOL_OBJ, "%", object.INT_OBJ},
+		// Array/Object operations
+		{10, "{{ [] * {} }}", object.ARR_OBJ, "*", object.OBJ_OBJ},
+		{20, "{{ {} / [] }}", object.OBJ_OBJ, "/", object.ARR_OBJ},
+		{30, "{{ [] + {} }}", object.ARR_OBJ, "+", object.OBJ_OBJ},
+		{40, "{{ {} - [] }}", object.OBJ_OBJ, "-", object.ARR_OBJ},
+		{50, "{{ [] * 1 }}", object.ARR_OBJ, "*", object.INT_OBJ},
+		{60, "{{ {} / 1 }}", object.OBJ_OBJ, "/", object.INT_OBJ},
+		// Int/Object operations
+		{70, "{{ 3 + {} }}", object.INT_OBJ, "+", object.OBJ_OBJ},
+		{80, "{{ {} - 3 }}", object.OBJ_OBJ, "-", object.INT_OBJ},
+		{90, "{{ 5 * {} }}", object.INT_OBJ, "*", object.OBJ_OBJ},
+		// Array with arithmetic
+		{100, "{{ [] + 5 }}", object.ARR_OBJ, "+", object.INT_OBJ},
+		{110, "{{ 10 - [] }}", object.INT_OBJ, "-", object.ARR_OBJ},
+		{120, "{{ [] * 3 }}", object.ARR_OBJ, "*", object.INT_OBJ},
+		// Float with arrays/objects
+		{130, "{{ 3.14 + [] }}", object.FLOAT_OBJ, "+", object.ARR_OBJ},
+		{140, "{{ {} / 2.5 }}", object.OBJ_OBJ, "/", object.FLOAT_OBJ},
+		// String with arrays/objects
+		{150, "{{ 'x' - [] }}", object.STR_OBJ, "-", object.ARR_OBJ},
+		{160, "{{ {} - 'x' }}", object.OBJ_OBJ, "-", object.STR_OBJ},
+		{170, "{{ 'str' + [] }}", object.STR_OBJ, "+", object.ARR_OBJ},
+		{180, "{{ {} + 'str' }}", object.OBJ_OBJ, "+", object.STR_OBJ},
 	}
 
 	for _, tc := range cases {
@@ -1026,31 +1049,7 @@ func TestNotSupportedTypeError(t *testing.T) {
 		inp string
 		op  string
 		t   object.ObjectType
-	}{
-		// Array/Object operations
-		{10, "{{ [] * {} }}", "*", object.ARR_OBJ},
-		{20, "{{ {} / [] }}", "/", object.ARR_OBJ},
-		{30, "{{ [] + {} }}", "+", object.ARR_OBJ},
-		{40, "{{ {} - [] }}", "-", object.ARR_OBJ},
-		{50, "{{ [] * 1 }}", "*", object.ARR_OBJ},
-		{60, "{{ {} / 1 }}", "/", object.OBJ_OBJ},
-		// Int/Object operations
-		{70, "{{ 3 + {} }}", "+", object.OBJ_OBJ},
-		{80, "{{ {} - 3 }}", "-", object.OBJ_OBJ},
-		{90, "{{ 5 * {} }}", "*", object.OBJ_OBJ},
-		// Array with arithmetic
-		{100, "{{ [] + 5 }}", "+", object.ARR_OBJ},
-		{110, "{{ 10 - [] }}", "-", object.ARR_OBJ},
-		{120, "{{ [] * 3 }}", "*", object.ARR_OBJ},
-		// Float with arrays/objects
-		{130, "{{ 3.14 + [] }}", "+", object.ARR_OBJ},
-		{140, "{{ {} / 2.5 }}", "/", object.OBJ_OBJ},
-		// String with arrays/objects
-		{150, "{{ 'x' - [] }}", "-", object.ARR_OBJ},
-		{160, "{{ {} - 'x' }}", "-", object.OBJ_OBJ},
-		{170, "{{ 'str' + [] }}", "+", object.ARR_OBJ},
-		{180, "{{ {} + 'str' }}", "+", object.OBJ_OBJ},
-	}
+	}{}
 
 	for _, tc := range cases {
 		evaluated, failure := testEval(tc.inp)
