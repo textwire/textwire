@@ -1024,6 +1024,26 @@ func TestCannotUseOperatorError(t *testing.T) {
 		{500, "{{ 'a' <= 'b' }}", object.STR_OBJ, "<=", object.STR_OBJ},
 		{510, "{{ 'a' >= 'b' }}", object.STR_OBJ, ">=", object.STR_OBJ},
 		{520, "{{ 'a' % 'b' }}", object.STR_OBJ, "%", object.STR_OBJ},
+		// String + number (addition not supported for strings)
+		{530, "{{ 'test' + 5 }}", object.STR_OBJ, "+", object.INT_OBJ},
+		{540, "{{ 5 + 'test' }}", object.INT_OBJ, "+", object.STR_OBJ},
+		{550, "{{ 'test' + 5.5 }}", object.STR_OBJ, "+", object.FLOAT_OBJ},
+		{560, "{{ 5.5 + 'test' }}", object.FLOAT_OBJ, "+", object.STR_OBJ},
+		// Boolean - string
+		{570, "{{ true - 'str' }}", object.BOOL_OBJ, "-", object.STR_OBJ},
+		{580, "{{ 'str' - true }}", object.STR_OBJ, "-", object.BOOL_OBJ},
+		// Float modulo operations
+		{590, "{{ 3.14 % 2.0 }}", object.FLOAT_OBJ, "%", object.FLOAT_OBJ},
+		{600, "{{ 3.14 % 2 }}", object.FLOAT_OBJ, "%", object.INT_OBJ},
+		// Array / array
+		{610, "{{ [] / [] }}", object.ARR_OBJ, "/", object.ARR_OBJ},
+		// Object / object
+		{620, "{{ {} / {} }}", object.OBJ_OBJ, "/", object.OBJ_OBJ},
+		// Nil with arithmetic operators
+		{630, "{{ nil + 1 }}", object.NIL_OBJ, "+", object.INT_OBJ},
+		{640, "{{ nil - 1 }}", object.NIL_OBJ, "-", object.INT_OBJ},
+		{650, "{{ nil * 1 }}", object.NIL_OBJ, "*", object.INT_OBJ},
+		{660, "{{ nil / 1 }}", object.NIL_OBJ, "/", object.INT_OBJ},
 	}
 
 	for _, tc := range cases {
