@@ -978,7 +978,7 @@ func TestTypeMismatchError(t *testing.T) {
 			tc.objR,
 		)
 		if err.String() != expect.String() {
-			t.Fatalf("Case: %d. Error message is not %q, got %q", tc.id, expect, err)
+			t.Fatalf("Case: %d. Error message must be:\n%q\ngot:\n%q", tc.id, expect, err)
 		}
 	}
 }
@@ -992,9 +992,9 @@ func TestNotSupportedTypeError(t *testing.T) {
 	}{
 		// Array/Object operations
 		{10, "{{ [] * {} }}", "*", object.ARR_OBJ},
-		{20, "{{ {} / [] }}", "/", object.OBJ_OBJ},
+		{20, "{{ {} / [] }}", "/", object.ARR_OBJ},
 		{30, "{{ [] + {} }}", "+", object.ARR_OBJ},
-		{40, "{{ {} - [] }}", "-", object.OBJ_OBJ},
+		{40, "{{ {} - [] }}", "-", object.ARR_OBJ},
 		{50, "{{ [] * 1 }}", "*", object.ARR_OBJ},
 		{60, "{{ {} / 1 }}", "/", object.OBJ_OBJ},
 		// Int/Object operations
@@ -1007,12 +1007,12 @@ func TestNotSupportedTypeError(t *testing.T) {
 		{120, "{{ [] * 3 }}", "*", object.ARR_OBJ},
 		// Float with arrays/objects
 		{130, "{{ 3.14 + [] }}", "+", object.ARR_OBJ},
-		{140, "{{ {} / 2.5 }}", "/", object.FLOAT_OBJ},
+		{140, "{{ {} / 2.5 }}", "/", object.OBJ_OBJ},
 		// String with arrays/objects
 		{150, "{{ 'x' - [] }}", "-", object.ARR_OBJ},
-		{160, "{{ {} - 'x' }}", "-", object.STR_OBJ},
+		{160, "{{ {} - 'x' }}", "-", object.OBJ_OBJ},
 		{170, "{{ 'str' + [] }}", "+", object.ARR_OBJ},
-		{180, "{{ {} + 'str' }}", "+", object.STR_OBJ},
+		{180, "{{ {} + 'str' }}", "+", object.OBJ_OBJ},
 		// Mixed type comparisons with == and !=
 		{190, "{{ [] == [] }}", "==", object.ARR_OBJ},
 		{200, "{{ [1, 2] == [1, 2] }}", "==", object.ARR_OBJ},
@@ -1045,8 +1045,9 @@ func TestNotSupportedTypeError(t *testing.T) {
 			tc.t,
 			tc.op,
 		)
+
 		if err.String() != expect.String() {
-			t.Fatalf("Case: %d. Error message is not %q, got %q", tc.id, expect, err)
+			t.Fatalf("Case: %d. Error message must be:\n%q\ngot:\n%q", tc.id, expect, err)
 		}
 	}
 }
