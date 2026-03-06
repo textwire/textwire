@@ -417,14 +417,37 @@ func TestEvalStringExp(t *testing.T) {
 		inp    string
 		expect string
 	}{
+		// Basic string output
 		{10, `{{ "Hello World" }}`, "Hello World"},
+		{11, `{{ 'Hello World 2' }}`, "Hello World 2"},
+		// String in HTML attributes
 		{20, `<div {{ 'data-attr="Test"' }}></div>`, `<div data-attr="Test"></div>`},
 		{30, `<div {{ "data-attr='Test'" }}></div>`, `<div data-attr='Test'></div>`},
+		// String with escaped characters
 		{40, `{{ "She \"is\" pretty" }}`, `She "is" pretty`},
+		// String concatenation
 		{50, `{{ "Korotchaeva" + " " + "Anna" }}`, "Korotchaeva Anna"},
 		{60, `{{ "She" + " " + "is" + " " + "nice" }}`, "She is nice"},
+		// Empty string
 		{70, "{{ '' }}", ""},
+		{71, `{{ "" }}`, ""},
+		// String with HTML escaping
 		{80, `{{ "<h1>Test</h1>" }}`, "&lt;h1&gt;Test&lt;/h1&gt;"},
+		// String concatenation with variables
+		{90, `{{ name = "Anna"; "Hello " + name }}`, "Hello Anna"},
+		{100, `{{ a = "Hello"; b = "World"; a + " " + b }}`, "Hello World"},
+		// String with numbers
+		{110, `{{ "Count: " + 5.str() }}`, "Count: 5"},
+		{120, `{{ "Pi: " + 3.14.str() }}`, "Pi: 3.14"},
+		// Empty string concatenation
+		{130, `{{ "" + "test" }}`, "test"},
+		{140, `{{ "test" + "" }}`, "test"},
+		{150, `{{ "" + "" }}`, ""},
+		// String with special characters
+		{160, `{{ "test\nline" }}`, "test\nline"},
+		{170, `{{ "tab\there" }}`, "tab\there"},
+		// Long string concatenation
+		{180, `{{ "a" + "b" + "c" + "d" + "e" }}`, "abcde"},
 	}
 
 	for _, tc := range cases {
@@ -438,16 +461,41 @@ func TestEvalTernaryExp(t *testing.T) {
 		inp    string
 		expect string
 	}{
+		// Basic boolean conditions
 		{10, `{{ true ? "Yes" : "No" }}`, "Yes"},
 		{20, `{{ false ? "Yes" : "No" }}`, "No"},
+		// Falsy values
 		{30, `{{ nil ? "Yes" : "No" }}`, "No"},
 		{40, `{{ 1 ? "Yes" : "No" }}`, "Yes"},
 		{50, `{{ 0 ? "Yes" : "No" }}`, "No"},
 		{60, `{{ "" ? "Yes" : "No" }}`, "No"},
+		// Negation
 		{70, `{{ !true ? "Yes" : "No" }}`, "No"},
 		{80, `{{ !false ? "Yes" : "No" }}`, "Yes"},
+		// Double negation
 		{90, `{{ !!true ? 1 : 0 }}`, "1"},
 		{100, `{{ !!false ? 1 : 0 }}`, "0"},
+		// Comparison operators
+		{110, `{{ 1 == 1 ? "Yes" : "No" }}`, "Yes"},
+		{120, `{{ 1 == 2 ? "Yes" : "No" }}`, "No"},
+		{130, `{{ 5 > 3 ? "Yes" : "No" }}`, "Yes"},
+		{140, `{{ 3 > 5 ? "Yes" : "No" }}`, "No"},
+		// String comparison
+		{150, `{{ "a" == "a" ? "Yes" : "No" }}`, "Yes"},
+		{160, `{{ "a" == "b" ? "Yes" : "No" }}`, "No"},
+		// Array truthiness
+		{170, `{{ [] ? "Yes" : "No" }}`, "No"},
+		{180, `{{ [1] ? "Yes" : "No" }}`, "Yes"},
+		// Object truthiness
+		{190, `{{ {} ? "Yes" : "No" }}`, "No"},
+		{200, `{{ {x: 1} ? "Yes" : "No" }}`, "Yes"},
+		// Nested ternary
+		{210, `{{ true ? (true ? "A" : "B") : "C" }}`, "A"},
+		{220, `{{ true ? (false ? "A" : "B") : "C" }}`, "B"},
+		{230, `{{ false ? (true ? "A" : "B") : "C" }}`, "C"},
+		// Arithmetic expressions
+		{240, `{{ 1 + 1 == 2 ? "Yes" : "No" }}`, "Yes"},
+		{250, `{{ 10 - 5 > 3 ? "Yes" : "No" }}`, "Yes"},
 	}
 
 	for _, tc := range cases {
@@ -868,28 +916,22 @@ func TestEvalObjectLiteral(t *testing.T) {
 		// Bracket and dot access
 		{10, `{{ {"name": "Ann"}['name'] }}`, "Ann"},
 		{20, `{{ {"name": "Ann"}.name }}`, "Ann"},
-
 		// Basic property access
 		{30, `{{ obj = {name: "Ann"}; obj.name }}`, "Ann"},
 		{40, `{{ o = {"name": "Ann", "age": 22}; o.age }}`, "22"},
-
 		// Nested objects
 		{50, `{{ user = {"father": {"name": "Ann"}}; user.father.name }}`, "Ann"},
 		{60, `{{ user = {"father": {"name": {"first": "Serhii"}}}; user.father.name.first }}`, "Serhii"},
 		{70, `{{ u = {"father": {name: {"first": "Serhii",},},}; u['father']['name'].first }}`, "Serhii"},
-
 		// Shorthand properties
 		{80, `{{ name = "Serhii"; age = 12; obj = { name, age }; obj.name }}`, "Serhii"},
 		{90, `{{ name = "Serhii"; age = 12; obj = { name, age }; obj.age }}`, "12"},
-
 		// Case-insensitive first character access
 		{100, `{{ {"Name": "Ann"}.name }}`, "Ann"},
 		{110, `{{ {"name": "Ann"}.Name }}`, ""},
-
 		// Non-existent keys
 		{120, `{{ obj = {"name": "Ann"}; obj.age }}`, ""},
 		{130, `{{ obj = {"name": "Ann"}; obj['missing'] }}`, ""},
-
 		// Empty object
 		{140, `{{ {}.name }}`, ""},
 		{150, `{{ obj = {}; obj.name }}`, ""},
