@@ -419,35 +419,47 @@ func TestEvalStringExp(t *testing.T) {
 	}{
 		// Basic string output
 		{10, `{{ "Hello World" }}`, "Hello World"},
-		{11, `{{ 'Hello World 2' }}`, "Hello World 2"},
+		{20, `{{ 'Hello World 2' }}`, "Hello World 2"},
 		// String in HTML attributes
-		{20, `<div {{ 'data-attr="Test"' }}></div>`, `<div data-attr="Test"></div>`},
-		{30, `<div {{ "data-attr='Test'" }}></div>`, `<div data-attr='Test'></div>`},
+		{30, `<div {{ 'data-attr="Test"' }}></div>`, `<div data-attr="Test"></div>`},
+		{40, `<div {{ "data-attr='Test'" }}></div>`, `<div data-attr='Test'></div>`},
 		// String with escaped characters
-		{40, `{{ "She \"is\" pretty" }}`, `She "is" pretty`},
+		{50, `{{ "She \"is\" pretty" }}`, `She "is" pretty`},
 		// String concatenation
-		{50, `{{ "Korotchaeva" + " " + "Anna" }}`, "Korotchaeva Anna"},
-		{60, `{{ "She" + " " + "is" + " " + "nice" }}`, "She is nice"},
+		{60, `{{ "Korotchaeva" + " " + "Anna" }}`, "Korotchaeva Anna"},
+		{70, `{{ "She" + " " + "is" + " " + "nice" }}`, "She is nice"},
 		// Empty string
-		{70, "{{ '' }}", ""},
-		{71, `{{ "" }}`, ""},
+		{80, "{{ '' }}", ""},
+		{90, `{{ "" }}`, ""},
 		// String with HTML escaping
-		{80, `{{ "<h1>Test</h1>" }}`, "&lt;h1&gt;Test&lt;/h1&gt;"},
+		{100, `{{ "<h1>Test</h1>" }}`, "&lt;h1&gt;Test&lt;/h1&gt;"},
+		{110, `{{ "<div>Hello</div>" }}`, "&lt;div&gt;Hello&lt;/div&gt;"},
+		{120, `{{ "<script>alert('xss')</script>" }}`, "&lt;script&gt;alert('xss')&lt;/script&gt;"},
+		{130, `{{ "<img src='test.jpg'>" }}`, "&lt;img src='test.jpg'&gt;"},
+		{140, `{{ "&amp;" }}`, "&amp;amp;"},
+		{150, `{{ "<br/>" }}`, "&lt;br/&gt;"},
+		{160, `{{ "<a href='#'>Link</a>" }}`, "&lt;a href='#'&gt;Link&lt;/a&gt;"},
+		{170, `{{ "<p class='text'>Content</p>" }}`, "&lt;p class='text'&gt;Content&lt;/p&gt;"},
+		{180, `{{ "<ul><li>Item</li></ul>" }}`, "&lt;ul&gt;&lt;li&gt;Item&lt;/li&gt;&lt;/ul&gt;"},
+		{190, `{{ "<input type='text' value='test'>" }}`, "&lt;input type='text' value='test'&gt;"},
 		// String concatenation with variables
-		{90, `{{ name = "Anna"; "Hello " + name }}`, "Hello Anna"},
-		{100, `{{ a = "Hello"; b = "World"; a + " " + b }}`, "Hello World"},
+		{200, `{{ name = "Anna"; "Hello " + name }}`, "Hello Anna"},
+		{210, `{{ a = "Hello"; b = "World"; a + " " + b }}`, "Hello World"},
 		// String with numbers
-		{110, `{{ "Count: " + 5.str() }}`, "Count: 5"},
-		{120, `{{ "Pi: " + 3.14.str() }}`, "Pi: 3.14"},
+		{220, `{{ "Count: " + 5.str() }}`, "Count: 5"},
+		{230, `{{ "Pi: " + 3.14.str() }}`, "Pi: 3.14"},
 		// Empty string concatenation
-		{130, `{{ "" + "test" }}`, "test"},
-		{140, `{{ "test" + "" }}`, "test"},
-		{150, `{{ "" + "" }}`, ""},
+		{240, `{{ "" + "test" }}`, "test"},
+		{250, `{{ "test" + "" }}`, "test"},
+		{260, `{{ "" + "" }}`, ""},
+		{270, `{{ '' + '' }}`, ""},
+		{280, `{{ '' + "" }}`, ""},
+		{290, `{{ "" + '' }}`, ""},
 		// String with special characters
-		{160, `{{ "test\nline" }}`, "test\nline"},
-		{170, `{{ "tab\there" }}`, "tab\there"},
+		{300, `{{ "test\nline" }}`, "test\nline"},
+		{310, `{{ "tab\there" }}`, "tab\there"},
 		// Long string concatenation
-		{180, `{{ "a" + "b" + "c" + "d" + "e" }}`, "abcde"},
+		{320, `{{ "a" + "b" + "c" + "d" + "e" }}`, "abcde"},
 	}
 
 	for _, tc := range cases {
