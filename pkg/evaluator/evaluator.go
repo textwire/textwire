@@ -205,7 +205,12 @@ func (e *Evaluator) assign(assignStmt *ast.AssignStmt, ctx *Context) object.Obje
 	case *ast.DotExp:
 		return e.assignDotExp(left, right, ctx)
 	default:
-		return e.newError(assignStmt, ctx, fail.ErrNotSupportedAssign, left.Tok().Type)
+		return e.newError(
+			assignStmt,
+			ctx,
+			fail.ErrNotSupportedAssign,
+			object.FromTokenToObjectType(left.Tok().Type),
+		)
 	}
 }
 

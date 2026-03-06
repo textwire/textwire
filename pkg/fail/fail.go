@@ -42,7 +42,7 @@ const (
 	ErrVariableIsUndefined     = "variable '%s' is not defined"
 	ErrReservedIdentifiers     = "'loop' and 'global' are reserved variable names"
 	ErrIdentifierTypeMismatch  = "cannot assign identifier '%s' of type '%s' to type '%s'"
-	ErrNotSupportedAssign      = "left side of an assign statement must be an identifier, index expression, or object key access, got '%T'"
+	ErrNotSupportedAssign      = "left side of an assign statement must be an identifier, index expression, or object key access, got '%s'"
 	ErrDivisionByZero          = "division by zero - divisor cannot be zero"
 	ErrEachDirWithNonArrArg    = "cannot use @each(item in ARRAY) with non-array type '%s' after 'in' keyword"
 	ErrArrayIndexInteger       = "array index must be an integer, got '%s'"
