@@ -2,6 +2,7 @@ package evaluator
 
 import (
 	"html"
+	"reflect"
 	"strings"
 
 	"github.com/textwire/textwire/v3/config"
@@ -820,7 +821,7 @@ func (e *Evaluator) infixExp(
 		return e.logicalExp(op, right, left, leftNode, ctx)
 	}
 
-	return e.infixOpExp(op, left, right, leftNode, ctx)
+	return e.operatorExp(op, left, right, leftNode, ctx)
 }
 
 // Short-circuit evaluation for logical operators to prevent
@@ -1016,19 +1017,15 @@ func (e *Evaluator) postfixOpExp(
 	return e.newError(node, ctx, fail.ErrUnknownOp, left.Type(), op)
 }
 
-func (e *Evaluator) infixOpExp(
+func (e *Evaluator) operatorExp(
 	op string,
 	left,
 	right object.Object,
 	leftNode ast.Node,
 	ctx *Context,
 ) object.Object {
-	if left.Is(object.NIL_OBJ) || right.Is(object.NIL_OBJ) {
-		return e.nilInfixExp(op, right, left, leftNode, ctx)
-	}
-
-	if err := e.validateInfixType(op, right, left, leftNode, ctx); err != nil {
-		return err
+	if op == "==" || op == "!=" {
+		return e.comparrisonInfixExp(op, right, left, leftNode, ctx)
 	}
 
 	switch l := left.(type) {
@@ -1038,32 +1035,9 @@ func (e *Evaluator) infixOpExp(
 		return e.floatInfixExp(op, right, l, leftNode, ctx)
 	case *object.Str:
 		return e.stringInfixExp(op, right, l, leftNode, ctx)
-	case *object.Bool:
-		return e.boolInfixExp(op, right, l, leftNode, ctx)
 	}
 
 	return e.newError(leftNode, ctx, fail.ErrUnknownTypeForOp, left.Type(), op)
-}
-func (e *Evaluator) validateInfixType(
-	op string,
-	right,
-	left object.Object,
-	node ast.Node,
-	ctx *Context,
-) *object.Error {
-	if left.Is(object.ARR_OBJ) || right.Is(object.ARR_OBJ) {
-		return e.newError(node, ctx, fail.ErrUnknownTypeForOp, object.ARR_OBJ, op)
-	}
-
-	if left.Is(object.OBJ_OBJ) || right.Is(object.OBJ_OBJ) {
-		return e.newError(node, ctx, fail.ErrUnknownTypeForOp, object.OBJ_OBJ, op)
-	}
-
-	if left.Type() != right.Type() {
-		return e.newError(node, ctx, fail.ErrTypeMismatch, left.Type(), op, right.Type())
-	}
-
-	return nil
 }
 
 func (e *Evaluator) logicalExp(
@@ -1086,148 +1060,129 @@ func (e *Evaluator) logicalExp(
 func (e *Evaluator) intInfixExp(
 	op string,
 	right object.Object,
-	left *object.Int,
+	l *object.Int,
 	leftNode ast.Node,
 	ctx *Context,
 ) object.Object {
-	leftVal := left.Value
-	rightVal := right.(*object.Int).Value
+	r, ok := right.(*object.Int)
+	if !ok {
+		return e.newError(leftNode, ctx, fail.ErrTypeMismatch, l.Type(), op, right.Type())
+	}
 
 	switch op {
 	case "+":
-		return &object.Int{Value: leftVal + rightVal}
+		return &object.Int{Value: l.Value + r.Value}
 	case "-":
-		return &object.Int{Value: leftVal - rightVal}
+		return &object.Int{Value: l.Value - r.Value}
 	case "*":
-		return &object.Int{Value: leftVal * rightVal}
+		return &object.Int{Value: l.Value * r.Value}
 	case "/":
-		if rightVal == 0 {
+		if r.Value == 0 {
 			return e.newError(leftNode, ctx, fail.ErrDivisionByZero)
 		}
-		return &object.Int{Value: leftVal / rightVal}
+		return &object.Int{Value: l.Value / r.Value}
 	case "%":
-		return &object.Int{Value: leftVal % rightVal}
-	case "==":
-		return nativeBoolToBoolObj(leftVal == rightVal)
-	case "!=":
-		return nativeBoolToBoolObj(leftVal != rightVal)
+		return &object.Int{Value: l.Value % r.Value}
 	case ">":
-		return nativeBoolToBoolObj(leftVal > rightVal)
+		return nativeBoolToBoolObj(l.Value > r.Value)
 	case "<":
-		return nativeBoolToBoolObj(leftVal < rightVal)
+		return nativeBoolToBoolObj(l.Value < r.Value)
 	case ">=":
-		return nativeBoolToBoolObj(leftVal >= rightVal)
+		return nativeBoolToBoolObj(l.Value >= r.Value)
 	case "<=":
-		return nativeBoolToBoolObj(leftVal <= rightVal)
+		return nativeBoolToBoolObj(l.Value <= r.Value)
 	}
 
-	return e.newError(leftNode, ctx, fail.ErrUnknownTypeForOp, left.Type(), op)
+	return e.newError(leftNode, ctx, fail.ErrUnknownTypeForOp, l.Type(), op)
 }
 
-func (e *Evaluator) nilInfixExp(
-	op string,
+func (e *Evaluator) comparrisonInfixExp(
+	op string, // == or !=
 	right,
 	left object.Object,
 	leftNode ast.Node,
 	ctx *Context,
 ) object.Object {
-	if right.Is(object.NIL_OBJ) {
-		switch op {
-		case "==":
-			return nativeBoolToBoolObj(left.Is(object.NIL_OBJ))
-		case "!=":
-			return nativeBoolToBoolObj(!left.Is(object.NIL_OBJ))
-		}
+	if left.Type() != right.Type() {
+		return nativeBoolToBoolObj(op == "!=")
+	}
+	var result bool
+
+	switch l := left.(type) {
+	case *object.Int:
+		result = l.Value == right.(*object.Int).Value
+	case *object.Float:
+		result = l.Value == right.(*object.Float).Value
+	case *object.Str:
+		result = l.Value == right.(*object.Str).Value
+	case *object.Bool:
+		result = l.Value == right.(*object.Bool).Value
+	case *object.Array, *object.Obj:
+		result = reflect.DeepEqual(left, right)
+	case *object.Nil:
+		result = true
+	default:
+		return e.newError(leftNode, ctx, fail.ErrUnknownTypeForOp, left.Type(), op)
 	}
 
-	if left.Is(object.NIL_OBJ) {
-		switch op {
-		case "==":
-			return nativeBoolToBoolObj(right.Is(object.NIL_OBJ))
-		case "!=":
-			return nativeBoolToBoolObj(!right.Is(object.NIL_OBJ))
-		}
+	if op == "!=" {
+		result = !result
 	}
 
-	return e.newError(leftNode, ctx, fail.ErrUnknownTypeForOp, left.Type(), op)
-}
-
-func (e *Evaluator) boolInfixExp(
-	op string,
-	right object.Object,
-	left *object.Bool,
-	leftNode ast.Node,
-	ctx *Context,
-) object.Object {
-	leftVal := left.Value
-	rightVal := right.(*object.Bool).Value
-
-	switch op {
-	case "==":
-		return nativeBoolToBoolObj(leftVal == rightVal)
-	case "!=":
-		return nativeBoolToBoolObj(leftVal != rightVal)
-	}
-
-	return e.newError(leftNode, ctx, fail.ErrUnknownTypeForOp, left.Type(), op)
+	return nativeBoolToBoolObj(result)
 }
 
 func (e *Evaluator) stringInfixExp(
 	op string,
 	right object.Object,
-	left *object.Str,
+	l *object.Str,
 	leftNode ast.Node,
 	ctx *Context,
 ) object.Object {
-	leftVal := left.Value
-	rightVal := right.(*object.Str).Value
-
-	switch op {
-	case "==":
-		return nativeBoolToBoolObj(leftVal == rightVal)
-	case "!=":
-		return nativeBoolToBoolObj(leftVal != rightVal)
-	case "+":
-		return &object.Str{Value: leftVal + rightVal}
+	r, ok := right.(*object.Str)
+	if !ok {
+		return e.newError(leftNode, ctx, fail.ErrTypeMismatch, l.Type(), op, right.Type())
 	}
 
-	return e.newError(leftNode, ctx, fail.ErrUnknownTypeForOp, left.Type(), op)
+	if op == "+" {
+		return &object.Str{Value: l.Value + r.Value}
+	}
+
+	return e.newError(leftNode, ctx, fail.ErrUnknownTypeForOp, l.Type(), op)
 }
 
 func (e *Evaluator) floatInfixExp(
 	op string,
 	right object.Object,
-	left *object.Float,
+	l *object.Float,
 	leftNode ast.Node,
 	ctx *Context,
 ) object.Object {
-	leftVal := left.Value
-	rightVal := right.(*object.Float).Value
+	r, ok := right.(*object.Float)
+	if !ok {
+		return e.newError(leftNode, ctx, fail.ErrTypeMismatch, l.Type(), op, right.Type())
+	}
 
 	switch op {
 	case "+":
-		return &object.Float{Value: leftVal + rightVal}
+		return &object.Float{Value: l.Value + r.Value}
 	case "-":
-		return &object.Float{Value: leftVal - rightVal}
+		return &object.Float{Value: l.Value - r.Value}
 	case "*":
-		return &object.Float{Value: leftVal * rightVal}
+		return &object.Float{Value: l.Value * r.Value}
 	case "/":
-		return &object.Float{Value: leftVal / rightVal}
-	case "==":
-		return nativeBoolToBoolObj(leftVal == rightVal)
-	case "!=":
-		return nativeBoolToBoolObj(leftVal != rightVal)
+		return &object.Float{Value: l.Value / r.Value}
 	case ">":
-		return nativeBoolToBoolObj(leftVal > rightVal)
+		return nativeBoolToBoolObj(l.Value > r.Value)
 	case "<":
-		return nativeBoolToBoolObj(leftVal < rightVal)
+		return nativeBoolToBoolObj(l.Value < r.Value)
 	case ">=":
-		return nativeBoolToBoolObj(leftVal >= rightVal)
+		return nativeBoolToBoolObj(l.Value >= r.Value)
 	case "<=":
-		return nativeBoolToBoolObj(leftVal <= rightVal)
+		return nativeBoolToBoolObj(l.Value <= r.Value)
 	}
 
-	return e.newError(leftNode, ctx, fail.ErrUnknownTypeForOp, left.Type(), op)
+	return e.newError(leftNode, ctx, fail.ErrUnknownTypeForOp, l.Type(), op)
 }
 
 func (e *Evaluator) minusPrefixOpExp(

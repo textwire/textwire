@@ -357,7 +357,7 @@ func TestEvalBooleanExp(t *testing.T) {
 		{1260, "{{ [1, 2] != [1, 2] }}", "0"},
 		{1270, "{{ [1] == [2] }}", "0"},
 		{1280, "{{ [1] != [2] }}", "1"},
-		{1290, "{{ [1] = [1] }}", "1"},
+		{1290, "{{ [1] == [1] }}", "1"},
 		{1300, "{{ [1] != [1] }}", "0"},
 		{1310, "{{ [[[1]]] == [[[1]]] }}", "1"},
 		{1320, "{{ [[[1]]] != [[[1]]] }}", "0"},
@@ -371,10 +371,21 @@ func TestEvalBooleanExp(t *testing.T) {
 		{1380, "{{ {name: 'test'} != {name: 'test'} }}", "0"},
 		{1390, "{{ {x: 1} == {x: 1} }}", "1"},
 		{1400, "{{ {x: 1} != {x: 1} }}", "0"},
-		{1410, "{{ {x: {y: 2}}} == {x: {y: 2}} }}", "1"},
-		{1420, "{{ {x: {y: 2}}} != {x: {y: 2}} }}", "0"},
+		{1410, "{{ {x: {y: 2}} == {x: {y: 2}} }}", "1"},
+		{1420, "{{ {x: {y: 2}} != {x: {y: 2}} }}", "0"},
 		{1430, "{{ {x: {y: {z: 'Anna'}}} == {x: {y: {z: 'Anna'}}} }}", "1"},
 		{1440, "{{ {x: {y: {z: 'Anna'}}} != {x: {y: {z: 'Anna'}}} }}", "0"},
+		// Mixed type comparisons with == and !=
+		{1450, "{{ 1 == '1' }}", "0"},
+		{1460, "{{ '1' == 1 }}", "0"},
+		{1470, "{{ true == 1 }}", "0"},
+		{1480, "{{ 1 == true }}", "0"},
+		{1490, "{{ false == 0 }}", "0"},
+		{1500, "{{ 0 == false }}", "0"},
+		{1510, "{{ 1.0 == 1 }}", "0"},
+		{1520, "{{ 1 == 1.0 }}", "0"},
+		{1530, "{{ {} == 1 }}", "0"},
+		{1540, "{{ [] == 1 }}", "0"},
 	}
 
 	for _, tc := range cases {
@@ -981,15 +992,6 @@ func TestTypeMismatchError(t *testing.T) {
 		{240, "{{ 5.0 % 2 }}", object.FLOAT_OBJ, "%", object.INT_OBJ},
 		{250, "{{ 'a' % 2 }}", object.STR_OBJ, "%", object.INT_OBJ},
 		{260, "{{ true % 2 }}", object.BOOL_OBJ, "%", object.INT_OBJ},
-		// Mixed type comparisons with == and !=
-		{270, "{{ 1 == '1' }}", object.INT_OBJ, "==", object.STR_OBJ},
-		{280, "{{ '1' == 1 }}", object.STR_OBJ, "==", object.INT_OBJ},
-		{290, "{{ true == 1 }}", object.BOOL_OBJ, "==", object.INT_OBJ},
-		{300, "{{ 1 == true }}", object.INT_OBJ, "==", object.BOOL_OBJ},
-		{310, "{{ false == 0 }}", object.BOOL_OBJ, "==", object.INT_OBJ},
-		{320, "{{ 0 == false }}", object.INT_OBJ, "==", object.BOOL_OBJ},
-		{330, "{{ 1.0 == 1 }}", object.FLOAT_OBJ, "==", object.INT_OBJ},
-		{340, "{{ 1 == 1.0 }}", object.INT_OBJ, "==", object.FLOAT_OBJ},
 	}
 
 	for _, tc := range cases {
