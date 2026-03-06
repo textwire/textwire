@@ -479,6 +479,7 @@ func TestErrorHandling(t *testing.T) {
 				"",
 				"evaluator",
 				fail.ErrCannotUseOperator,
+				"+",
 				object.INT_OBJ,
 				"+",
 				object.STR_OBJ,

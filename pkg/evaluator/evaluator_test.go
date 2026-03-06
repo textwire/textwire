@@ -1033,6 +1033,7 @@ func TestCannotUseOperatorError(t *testing.T) {
 			"/path/to/file",
 			"evaluator",
 			fail.ErrCannotUseOperator,
+			tc.op,
 			tc.left,
 			tc.op,
 			tc.right,
