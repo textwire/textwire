@@ -907,7 +907,7 @@ func TestEvalComments(t *testing.T) {
 	}
 }
 
-func TestTypeMismatchErrors(t *testing.T) {
+func TestTypeMismatchError(t *testing.T) {
 	cases := []struct {
 		id   uint
 		inp  string
@@ -924,11 +924,6 @@ func TestTypeMismatchErrors(t *testing.T) {
 		{60, "{{ 2.5 * 4 }}", object.FLOAT_OBJ, "*", object.INT_OBJ},
 		{70, "{{ 10 / 2.5 }}", object.INT_OBJ, "/", object.FLOAT_OBJ},
 		{80, "{{ 7.5 / 3 }}", object.FLOAT_OBJ, "/", object.INT_OBJ},
-		// String with arrays/objects
-		{90, "{{ 'x' - [] }}", object.STR_OBJ, "-", object.ARR_OBJ},
-		{100, "{{ {} - 'x' }}", object.OBJ_OBJ, "-", object.STR_OBJ},
-		{110, "{{ 'str' + [] }}", object.STR_OBJ, "+", object.ARR_OBJ},
-		{120, "{{ {} + 'str' }}", object.OBJ_OBJ, "+", object.STR_OBJ},
 		// Arithmetic with strings
 		{130, "{{ 5 * 'x' }}", object.INT_OBJ, "*", object.STR_OBJ},
 		{140, "{{ 'x' * 3 }}", object.STR_OBJ, "*", object.INT_OBJ},
@@ -946,29 +941,20 @@ func TestTypeMismatchErrors(t *testing.T) {
 		// Boolean with strings
 		{250, "{{ true + 'str' }}", object.BOOL_OBJ, "+", object.STR_OBJ},
 		{260, "{{ 'str' - false }}", object.STR_OBJ, "-", object.BOOL_OBJ},
-		// Array/Object operations
-		{270, "{{ [] * {} }}", object.ARR_OBJ, "*", object.OBJ_OBJ},
-		{280, "{{ {} / [] }}", object.OBJ_OBJ, "/", object.ARR_OBJ},
-		{290, "{{ [] + {} }}", object.ARR_OBJ, "+", object.OBJ_OBJ},
-		{300, "{{ {} - [] }}", object.OBJ_OBJ, "-", object.ARR_OBJ},
-		{310, "{{ [] * 1 }}", object.ARR_OBJ, "*", object.INT_OBJ},
-		{320, "{{ {} / 1 }}", object.OBJ_OBJ, "/", object.INT_OBJ},
-		// Int/Object operations
-		{330, "{{ 3 + {} }}", object.INT_OBJ, "+", object.OBJ_OBJ},
-		{340, "{{ {} - 3 }}", object.OBJ_OBJ, "-", object.INT_OBJ},
-		{350, "{{ 5 * {} }}", object.INT_OBJ, "*", object.OBJ_OBJ},
-		// Array with arithmetic
-		{360, "{{ [] + 5 }}", object.ARR_OBJ, "+", object.INT_OBJ},
-		{370, "{{ 10 - [] }}", object.INT_OBJ, "-", object.ARR_OBJ},
-		{380, "{{ [] * 3 }}", object.ARR_OBJ, "*", object.INT_OBJ},
 		// Modulo operator
 		{390, "{{ 5 % 2.0 }}", object.INT_OBJ, "%", object.FLOAT_OBJ},
 		{400, "{{ 5.0 % 2 }}", object.FLOAT_OBJ, "%", object.INT_OBJ},
 		{410, "{{ 'a' % 2 }}", object.STR_OBJ, "%", object.INT_OBJ},
 		{420, "{{ true % 2 }}", object.BOOL_OBJ, "%", object.INT_OBJ},
-		// Float with arrays/objects
-		{460, "{{ 3.14 + [] }}", object.FLOAT_OBJ, "+", object.ARR_OBJ},
-		{470, "{{ {} / 2.5 }}", object.OBJ_OBJ, "/", object.FLOAT_OBJ},
+		// Mixed type comparisons with == and !=
+		{480, "{{ 1 == '1' }}", object.INT_OBJ, "==", object.STR_OBJ},
+		{490, "{{ '1' == 1 }}", object.STR_OBJ, "==", object.INT_OBJ},
+		{500, "{{ true == 1 }}", object.BOOL_OBJ, "==", object.INT_OBJ},
+		{510, "{{ 1 == true }}", object.INT_OBJ, "==", object.BOOL_OBJ},
+		{520, "{{ false == 0 }}", object.BOOL_OBJ, "==", object.INT_OBJ},
+		{530, "{{ 0 == false }}", object.INT_OBJ, "==", object.BOOL_OBJ},
+		{540, "{{ 1.0 == 1 }}", object.FLOAT_OBJ, "==", object.INT_OBJ},
+		{550, "{{ 1 == 1.0 }}", object.INT_OBJ, "==", object.FLOAT_OBJ},
 	}
 
 	for _, tc := range cases {
@@ -990,6 +976,74 @@ func TestTypeMismatchErrors(t *testing.T) {
 			tc.objL,
 			tc.op,
 			tc.objR,
+		)
+		if err.String() != expect.String() {
+			t.Fatalf("Case: %d. Error message is not %q, got %q", tc.id, expect, err)
+		}
+	}
+}
+
+func TestNotSupportedTypeError(t *testing.T) {
+	cases := []struct {
+		id  uint
+		inp string
+		op  string
+		t   object.ObjectType
+	}{
+		// Array/Object operations
+		{270, "{{ [] * {} }}", "*", object.ARR_OBJ},
+		{280, "{{ {} / [] }}", "/", object.OBJ_OBJ},
+		{290, "{{ [] + {} }}", "+", object.ARR_OBJ},
+		{300, "{{ {} - [] }}", "-", object.OBJ_OBJ},
+		{310, "{{ [] * 1 }}", "*", object.ARR_OBJ},
+		{320, "{{ {} / 1 }}", "/", object.OBJ_OBJ},
+		// Int/Object operations
+		{330, "{{ 3 + {} }}", "+", object.OBJ_OBJ},
+		{340, "{{ {} - 3 }}", "-", object.OBJ_OBJ},
+		{350, "{{ 5 * {} }}", "*", object.OBJ_OBJ},
+		// Array with arithmetic
+		{360, "{{ [] + 5 }}", "+", object.ARR_OBJ},
+		{370, "{{ 10 - [] }}", "-", object.ARR_OBJ},
+		{380, "{{ [] * 3 }}", "*", object.ARR_OBJ},
+		// Float with arrays/objects
+		{460, "{{ 3.14 + [] }}", "+", object.ARR_OBJ},
+		{470, "{{ {} / 2.5 }}", "/", object.FLOAT_OBJ},
+		// String with arrays/objects
+		{90, "{{ 'x' - [] }}", "-", object.ARR_OBJ},
+		{100, "{{ {} - 'x' }}", "-", object.STR_OBJ},
+		{110, "{{ 'str' + [] }}", "+", object.ARR_OBJ},
+		{120, "{{ {} + 'str' }}", "+", object.STR_OBJ},
+		// Mixed type comparisons with == and !=
+		{560, "{{ [] == [] }}", "==", object.ARR_OBJ},
+		{570, "{{ [1, 2] == [1, 2] }}", "==", object.ARR_OBJ},
+		{580, "{{ [1] == [2] }}", "==", object.ARR_OBJ},
+		{590, "{{ [] != [] }}", "!=", object.ARR_OBJ},
+		{600, "{{ [1] != [1] }}", "!=", object.ARR_OBJ},
+		{610, "{{ {} == {} }}", "==", object.OBJ_OBJ},
+		{620, "{{ {a: 1} == {a: 1} }}", "==", object.OBJ_OBJ},
+		{630, "{{ {a: 1} == {a: 2} }}", "==", object.OBJ_OBJ},
+		{640, "{{ {} != {} }}", "!=", object.OBJ_OBJ},
+		{650, "{{ {a: 1} != {a: 1} }}", "!=", object.OBJ_OBJ},
+	}
+
+	for _, tc := range cases {
+		evaluated, failure := testEval(tc.inp)
+		if failure != nil {
+			t.Fatalf("Case: %d. evaluation failed: %s", tc.id, failure)
+		}
+
+		err, ok := evaluated.(*object.Error)
+		if !ok {
+			t.Fatalf("Case: %d. Evaluation failed, got error %q", tc.id, err)
+		}
+
+		expect := fail.New(
+			1,
+			"/path/to/file",
+			"evaluator",
+			fail.ErrUnknownTypeForOp,
+			tc.t,
+			tc.op,
 		)
 		if err.String() != expect.String() {
 			t.Fatalf("Case: %d. Error message is not %q, got %q", tc.id, expect, err)
