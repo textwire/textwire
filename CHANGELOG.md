@@ -1,6 +1,6 @@
 # Release notes
 
-## v3.5.0 (2026-03-07)
+## v3.4.3 (2026-03-06)
 
 - ✨ Added so that `==` and `!=` work with any types on both side. If types mismatch, instead of giving an error `type mismatch: cannot %s %s %s` you'll get `false` in return.
 

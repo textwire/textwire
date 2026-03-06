@@ -1,5 +1,9 @@
 package object
 
+import (
+	"github.com/textwire/textwire/v3/pkg/token"
+)
+
 type ObjectType string
 
 const (
@@ -44,4 +48,23 @@ type Object interface {
 	// move Dump and JSON to Literal object in v4.0.0
 	Dump(ident int) string
 	JSON() (string, error)
+}
+
+func FromTokenToObjectType(astType token.TokenType) ObjectType {
+	switch astType {
+	case token.INT:
+		return INT_OBJ
+	case token.LBRACE:
+		return OBJ_OBJ
+	case token.LBRACKET:
+		return ARR_OBJ
+	case token.FLOAT:
+		return FLOAT_OBJ
+	case token.TRUE, token.FALSE:
+		return BOOL_OBJ
+	case token.STR:
+		return STR_OBJ
+	default:
+		return NIL_OBJ
+	}
 }

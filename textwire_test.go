@@ -563,14 +563,53 @@ func TestErrorHandling(t *testing.T) {
 			data: nil,
 		},
 		{
-			inp: `@each(v in {}){{ v }}@end`,
-			err: fail.New(
-				1,
-				"",
-				"evaluator",
-				fail.ErrEachDirWithNonArrArg,
-				object.OBJ_OBJ,
-			),
+			inp:  `@each(v in {}){{ v }}@end`,
+			err:  fail.New(1, "", "evaluator", fail.ErrEachDirWithNonArrArg, object.OBJ_OBJ),
+			data: nil,
+		},
+		{
+			inp:  `{{ 1 = 10 }}`,
+			err:  fail.New(1, "", "evaluator", fail.ErrNotSupportedAssign, object.INT_OBJ),
+			data: nil,
+		},
+		{
+			inp:  `{{ {} = 10 }}`,
+			err:  fail.New(1, "", "evaluator", fail.ErrNotSupportedAssign, object.OBJ_OBJ),
+			data: nil,
+		},
+		{
+			inp:  `{{ [] = 10 }}`,
+			err:  fail.New(1, "", "evaluator", fail.ErrNotSupportedAssign, object.ARR_OBJ),
+			data: nil,
+		},
+		{
+			inp:  `{{ 1.1 = 10 }}`,
+			err:  fail.New(1, "", "evaluator", fail.ErrNotSupportedAssign, object.FLOAT_OBJ),
+			data: nil,
+		},
+		{
+			inp:  `{{ true = 10 }}`,
+			err:  fail.New(1, "", "evaluator", fail.ErrNotSupportedAssign, object.BOOL_OBJ),
+			data: nil,
+		},
+		{
+			inp:  `{{ 'anna' = 10 }}`,
+			err:  fail.New(1, "", "evaluator", fail.ErrNotSupportedAssign, object.STR_OBJ),
+			data: nil,
+		},
+		{
+			inp:  `{{ "serhii" = 10 }}`,
+			err:  fail.New(1, "", "evaluator", fail.ErrNotSupportedAssign, object.STR_OBJ),
+			data: nil,
+		},
+		{
+			inp:  `{{ false = 10 }}`,
+			err:  fail.New(1, "", "evaluator", fail.ErrNotSupportedAssign, object.BOOL_OBJ),
+			data: nil,
+		},
+		{
+			inp:  `{{ nil = 10 }}`,
+			err:  fail.New(1, "", "evaluator", fail.ErrNotSupportedAssign, object.NIL_OBJ),
 			data: nil,
 		},
 	}
