@@ -3,7 +3,7 @@
 ## v3.4.2 (2026-03-06)
 
 - 🐛 Fixed issue where you couldn't use `nil` and `boolean` with `!=` and `==` comparrison operators.
-- 🐛 Fixed issue with assignment statement. It was only working for variable assignment. Object properties and array items weren't supported. Now, you can do complex assignments like `{{ arr[10][2].address.street = "New" }}`. [#93](https://github.com/textwire/textwire/issues/93)
+- 🐛 Fixed issue with assignment statement. It was only working for variable assignments. Object properties and array items weren't supported. Now, you can do complex assignments like `{{ arr[10][2].address.street = "New" }}`. [#93](https://github.com/textwire/textwire/issues/93)
 
 ## v3.4.1 (2026-03-05)
 
