@@ -1015,6 +1015,15 @@ func TestCannotUseOperatorError(t *testing.T) {
 		{160, "{{ {} - 'x' }}", object.OBJ_OBJ, "-", object.STR_OBJ},
 		{170, "{{ 'str' + [] }}", object.STR_OBJ, "+", object.ARR_OBJ},
 		{180, "{{ {} + 'str' }}", object.OBJ_OBJ, "+", object.STR_OBJ},
+		// Strings
+		{10, "{{ 'a' - 'b' }}", object.STR_OBJ, "-", object.STR_OBJ},
+		{20, "{{ 'a' * 'b' }}", object.STR_OBJ, "*", object.STR_OBJ},
+		{30, "{{ 'a' / 'b' }}", object.STR_OBJ, "/", object.STR_OBJ},
+		{40, "{{ 'a' < 'b' }}", object.STR_OBJ, "<", object.STR_OBJ},
+		{50, "{{ 'a' > 'b' }}", object.STR_OBJ, ">", object.STR_OBJ},
+		{60, "{{ 'a' <= 'b' }}", object.STR_OBJ, "<=", object.STR_OBJ},
+		{70, "{{ 'a' >= 'b' }}", object.STR_OBJ, ">=", object.STR_OBJ},
+		{80, "{{ 'a' % 'b' }}", object.STR_OBJ, "%", object.STR_OBJ},
 	}
 
 	for _, tc := range cases {
@@ -1038,50 +1047,6 @@ func TestCannotUseOperatorError(t *testing.T) {
 			tc.op,
 			tc.right,
 		)
-		if err.String() != expect.String() {
-			t.Fatalf("Case: %d. Error message must be:\n%q\ngot:\n%q", tc.id, expect, err)
-		}
-	}
-}
-
-func TestNotSupportedTypeError(t *testing.T) {
-	cases := []struct {
-		id  uint
-		inp string
-		op  string
-		t   object.ObjectType
-	}{
-		// Strings with unsupported operators (same type)
-		{10, "{{ 'a' - 'b' }}", "-", object.STR_OBJ},
-		{20, "{{ 'a' * 'b' }}", "*", object.STR_OBJ},
-		{30, "{{ 'a' / 'b' }}", "/", object.STR_OBJ},
-		{40, "{{ 'a' < 'b' }}", "<", object.STR_OBJ},
-		{50, "{{ 'a' > 'b' }}", ">", object.STR_OBJ},
-		{60, "{{ 'a' <= 'b' }}", "<=", object.STR_OBJ},
-		{70, "{{ 'a' >= 'b' }}", ">=", object.STR_OBJ},
-		{80, "{{ 'a' % 'b' }}", "%", object.STR_OBJ},
-	}
-
-	for _, tc := range cases {
-		evaluated, failure := testEval(tc.inp)
-		if failure != nil {
-			t.Fatalf("Case: %d. evaluation failed: %s", tc.id, failure)
-		}
-
-		err, ok := evaluated.(*object.Error)
-		if !ok {
-			t.Fatalf("Case: %d. Evaluation failed, got error %q", tc.id, err)
-		}
-
-		expect := fail.New(
-			1,
-			"/path/to/file",
-			"evaluator",
-			fail.ErrUnknownTypeForOp,
-			tc.t,
-			tc.op,
-		)
-
 		if err.String() != expect.String() {
 			t.Fatalf("Case: %d. Error message must be:\n%q\ngot:\n%q", tc.id, expect, err)
 		}
