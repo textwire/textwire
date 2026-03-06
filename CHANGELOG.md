@@ -1,6 +1,8 @@
 # Release notes
 
-## v3.4.2 (2026-03-05)
+## v3.4.2 (2026-03-06)
+
+- 🐛 Fixed issue where you couldn't use `nil` with `!=` and `==` comparrison operators.
 
 ## v3.4.1 (2026-03-05)
 

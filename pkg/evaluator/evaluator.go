@@ -1023,8 +1023,12 @@ func (e *Evaluator) infixOpExp(
 	leftNode ast.Node,
 	ctx *Context,
 ) object.Object {
-	if left.Type() != right.Type() {
-		return e.newError(leftNode, ctx, fail.ErrTypeMismatch, left.Type(), op, right.Type())
+	if left.Is(object.NIL_OBJ) || right.Is(object.NIL_OBJ) {
+		return e.nilInfixExp(op, right, left, leftNode, ctx)
+	}
+
+	if err := e.validateInfixType(op, right, left, leftNode, ctx); err != nil {
+		return err
 	}
 
 	switch l := left.(type) {
@@ -1034,9 +1038,32 @@ func (e *Evaluator) infixOpExp(
 		return e.floatInfixExp(op, right, l, leftNode, ctx)
 	case *object.Str:
 		return e.stringInfixExp(op, right, l, leftNode, ctx)
+	case *object.Bool:
+		return e.boolInfixExp(op, right, l, leftNode, ctx)
 	}
 
 	return e.newError(leftNode, ctx, fail.ErrUnknownTypeForOp, left.Type(), op)
+}
+func (e *Evaluator) validateInfixType(
+	op string,
+	right,
+	left object.Object,
+	node ast.Node,
+	ctx *Context,
+) *object.Error {
+	if left.Is(object.ARR_OBJ) || right.Is(object.ARR_OBJ) {
+		return e.newError(node, ctx, fail.ErrUnknownTypeForOp, object.ARR_OBJ, op)
+	}
+
+	if left.Is(object.OBJ_OBJ) || right.Is(object.OBJ_OBJ) {
+		return e.newError(node, ctx, fail.ErrUnknownTypeForOp, object.OBJ_OBJ, op)
+	}
+
+	if left.Type() != right.Type() {
+		return e.newError(node, ctx, fail.ErrTypeMismatch, left.Type(), op, right.Type())
+	}
+
+	return nil
 }
 
 func (e *Evaluator) logicalExp(
@@ -1092,6 +1119,54 @@ func (e *Evaluator) intInfixExp(
 		return nativeBoolToBoolObj(leftVal >= rightVal)
 	case "<=":
 		return nativeBoolToBoolObj(leftVal <= rightVal)
+	}
+
+	return e.newError(leftNode, ctx, fail.ErrUnknownTypeForOp, left.Type(), op)
+}
+
+func (e *Evaluator) nilInfixExp(
+	op string,
+	right,
+	left object.Object,
+	leftNode ast.Node,
+	ctx *Context,
+) object.Object {
+	if right.Is(object.NIL_OBJ) {
+		switch op {
+		case "==":
+			return nativeBoolToBoolObj(left.Is(object.NIL_OBJ))
+		case "!=":
+			return nativeBoolToBoolObj(!left.Is(object.NIL_OBJ))
+		}
+	}
+
+	if left.Is(object.NIL_OBJ) {
+		switch op {
+		case "==":
+			return nativeBoolToBoolObj(right.Is(object.NIL_OBJ))
+		case "!=":
+			return nativeBoolToBoolObj(!right.Is(object.NIL_OBJ))
+		}
+	}
+
+	return e.newError(leftNode, ctx, fail.ErrUnknownTypeForOp, left.Type(), op)
+}
+
+func (e *Evaluator) boolInfixExp(
+	op string,
+	right object.Object,
+	left *object.Bool,
+	leftNode ast.Node,
+	ctx *Context,
+) object.Object {
+	leftVal := left.Value
+	rightVal := right.(*object.Bool).Value
+
+	switch op {
+	case "==":
+		return nativeBoolToBoolObj(leftVal == rightVal)
+	case "!=":
+		return nativeBoolToBoolObj(leftVal != rightVal)
 	}
 
 	return e.newError(leftNode, ctx, fail.ErrUnknownTypeForOp, left.Type(), op)
