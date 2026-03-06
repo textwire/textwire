@@ -6,7 +6,7 @@ import (
 
 func TestObjectJSON(t *testing.T) {
 	cases := []struct {
-		id     int
+		id     uint
 		inp    string
 		expect string
 	}{
@@ -59,7 +59,7 @@ func TestObjectJSON(t *testing.T) {
 
 func TestObjectCamel(t *testing.T) {
 	cases := []struct {
-		id     int
+		id     uint
 		inp    string
 		expect string
 	}{
@@ -153,7 +153,7 @@ func TestObjectCamel(t *testing.T) {
 
 func TestObjectGet(t *testing.T) {
 	cases := []struct {
-		id     int
+		id     uint
 		inp    string
 		expect string
 	}{

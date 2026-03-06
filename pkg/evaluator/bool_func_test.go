@@ -4,7 +4,7 @@ import "testing"
 
 func TestEvalBinaryFunctions(t *testing.T) {
 	cases := []struct {
-		id     int
+		id     uint
 		inp    string
 		expect string
 	}{
