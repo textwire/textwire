@@ -1049,7 +1049,17 @@ func TestNotSupportedTypeError(t *testing.T) {
 		inp string
 		op  string
 		t   object.ObjectType
-	}{}
+	}{
+		// Strings with unsupported operators (same type)
+		{10, "{{ 'a' - 'b' }}", "-", object.STR_OBJ},
+		{20, "{{ 'a' * 'b' }}", "*", object.STR_OBJ},
+		{30, "{{ 'a' / 'b' }}", "/", object.STR_OBJ},
+		{40, "{{ 'a' < 'b' }}", "<", object.STR_OBJ},
+		{50, "{{ 'a' > 'b' }}", ">", object.STR_OBJ},
+		{60, "{{ 'a' <= 'b' }}", "<=", object.STR_OBJ},
+		{70, "{{ 'a' >= 'b' }}", ">=", object.STR_OBJ},
+		{80, "{{ 'a' % 'b' }}", "%", object.STR_OBJ},
+	}
 
 	for _, tc := range cases {
 		evaluated, failure := testEval(tc.inp)
