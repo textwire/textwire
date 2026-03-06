@@ -170,6 +170,59 @@ func TestEvalBooleanExp(t *testing.T) {
 		{460, "{{ 1.1 > 2.1 }}", "0"},
 		{470, "{{ 1.1 <= 2.1 }}", "1"},
 		{480, "{{ 1.1 >= 2.1 }}", "0"},
+		// Nils
+		{490, "{{ true == nil }}", "0"},
+		{500, "{{ nil == true }}", "0"},
+		{510, "{{ false == nil }}", "0"},
+		{520, "{{ nil == false }}", "0"},
+		{530, "{{ nil == 0 }}", "0"},
+		{540, "{{ 0 == nil }}", "0"},
+		// Nil with integers
+		{541, "{{ nil == 1 }}", "0"},
+		{542, "{{ 1 == nil }}", "0"},
+		{543, "{{ nil != 0 }}", "1"},
+		{544, "{{ 0 != nil }}", "1"},
+		{545, "{{ nil != 5 }}", "1"},
+		{546, "{{ 5 != nil }}", "1"},
+		// Nil with floats
+		{547, "{{ nil == 0.0 }}", "0"},
+		{548, "{{ 0.0 == nil }}", "0"},
+		{549, "{{ nil == 1.5 }}", "0"},
+		{550, "{{ 1.5 == nil }}", "0"},
+		{551, "{{ nil != 0.0 }}", "1"},
+		{552, "{{ 0.0 != nil }}", "1"},
+		{553, "{{ nil != 3.14 }}", "1"},
+		{554, "{{ 3.14 != nil }}", "1"},
+		// Nil with strings
+		{555, "{{ nil == '' }}", "0"},
+		{556, "{{ '' == nil }}", "0"},
+		{557, "{{ nil == 'test' }}", "0"},
+		{558, "{{ 'test' == nil }}", "0"},
+		{559, "{{ nil != '' }}", "1"},
+		{560, "{{ '' != nil }}", "1"},
+		{561, "{{ nil != 'hello' }}", "1"},
+		{562, "{{ 'hello' != nil }}", "1"},
+		// Nil with arrays
+		{563, "{{ nil == [] }}", "0"},
+		{564, "{{ [] == nil }}", "0"},
+		{565, "{{ nil == [1, 2] }}", "0"},
+		{566, "{{ [1, 2] == nil }}", "0"},
+		{567, "{{ nil != [] }}", "1"},
+		{568, "{{ [] != nil }}", "1"},
+		{569, "{{ nil != [1] }}", "1"},
+		{570, "{{ [1] != nil }}", "1"},
+		// Nil with objects
+		{571, "{{ nil == {} }}", "0"},
+		{572, "{{ {} == nil }}", "0"},
+		{573, "{{ nil == {name: 'test'} }}", "0"},
+		{574, "{{ {name: 'test'} == nil }}", "0"},
+		{575, "{{ nil != {} }}", "1"},
+		{576, "{{ {} != nil }}", "1"},
+		{577, "{{ nil != {x: 1} }}", "1"},
+		{578, "{{ {x: 1} != nil }}", "1"},
+		// Nil with nil
+		{579, "{{ nil == nil }}", "1"},
+		{580, "{{ nil != nil }}", "0"},
 	}
 
 	for _, tc := range cases {
@@ -796,10 +849,6 @@ func TestTypeMismatchErrors(t *testing.T) {
 		{400, "{{ 5.0 % 2 }}", object.FLOAT_OBJ, "%", object.INT_OBJ},
 		{410, "{{ 'a' % 2 }}", object.STR_OBJ, "%", object.INT_OBJ},
 		{420, "{{ true % 2 }}", object.BOOL_OBJ, "%", object.INT_OBJ},
-		// Nil operations
-		{430, "{{ nil + 5 }}", object.NIL_OBJ, "+", object.INT_OBJ},
-		{440, "{{ 5 - nil }}", object.INT_OBJ, "-", object.NIL_OBJ},
-		{450, "{{ nil * 'str' }}", object.NIL_OBJ, "*", object.STR_OBJ},
 		// Float with arrays/objects
 		{460, "{{ 3.14 + [] }}", object.FLOAT_OBJ, "+", object.ARR_OBJ},
 		{470, "{{ {} / 2.5 }}", object.OBJ_OBJ, "/", object.FLOAT_OBJ},
