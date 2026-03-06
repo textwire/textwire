@@ -953,13 +953,13 @@ func TestEvalComments(t *testing.T) {
 	}
 }
 
-func TestTypeMismatchError(t *testing.T) {
+func TestCannotUseOperatorError(t *testing.T) {
 	cases := []struct {
-		id   uint
-		inp  string
-		objL object.ObjectType
-		op   string
-		objR object.ObjectType
+		id    uint
+		inp   string
+		left  object.ObjectType
+		op    string
+		right object.ObjectType
 	}{
 		// Int + Float (both directions)
 		{10, "{{ 3 + 2.0 }}", object.INT_OBJ, "+", object.FLOAT_OBJ},
@@ -1032,10 +1032,10 @@ func TestTypeMismatchError(t *testing.T) {
 			1,
 			"/path/to/file",
 			"evaluator",
-			fail.ErrTypeMismatch,
-			tc.objL,
+			fail.ErrCannotUseOperator,
+			tc.left,
 			tc.op,
-			tc.objR,
+			tc.right,
 		)
 		if err.String() != expect.String() {
 			t.Fatalf("Case: %d. Error message must be:\n%q\ngot:\n%q", tc.id, expect, err)
