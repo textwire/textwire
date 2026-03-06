@@ -64,7 +64,9 @@ func FromTokenToObjectType(astType token.TokenType) ObjectType {
 		return BOOL_OBJ
 	case token.STR:
 		return STR_OBJ
-	default:
+	case token.NIL:
 		return NIL_OBJ
+	default:
+		return ERR_OBJ
 	}
 }
