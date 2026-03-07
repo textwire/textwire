@@ -1,5 +1,9 @@
 # Release notes
 
+## v3.4.4 (2026-03-07)
+
+- 🐛 Fixed bug with the file watcher. When you create a new Textwire file, file watcher needed to be restarted to start seeing that file. Now, new files are automatically added to file watcher's scope.
+
 ## v3.4.3 (2026-03-06)
 
 - ✨ Added so that `==` and `!=` work with any types on both side. If types mismatch, instead of giving an error `type mismatch: cannot %s %s %s` you'll get `false` in return.

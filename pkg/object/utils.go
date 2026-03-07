@@ -78,12 +78,12 @@ func convertToInterfaceSlice(slice any) []any {
 		panic("InterfaceSlice() given a non-slice type")
 	}
 
-	values := make([]any, s.Len())
+	vals := make([]any, s.Len())
 	for i := 0; i < s.Len(); i++ {
-		values[i] = s.Index(i).Interface()
+		vals[i] = s.Index(i).Interface()
 	}
 
-	return values
+	return vals
 }
 
 func nativeStructToObject(val any) Object {

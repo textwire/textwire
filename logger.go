@@ -20,15 +20,36 @@ func NewWatcherLogger() *WatcherLogger {
 }
 
 func (l *WatcherLogger) Info(text string) {
-	fmt.Printf("%s[Watcher]%s %s(info)%s %s\n", colorYellow, colorReset, colorCyan, colorReset, text)
+	fmt.Printf(
+		"%s[Watcher]%s %s(info)%s %s\n",
+		colorYellow,
+		colorReset,
+		colorCyan,
+		colorReset,
+		text,
+	)
 }
 
 func (l *WatcherLogger) Success(text string) {
-	fmt.Printf("%s[Watcher]%s %s(good)%s %s\n", colorYellow, colorReset, colorGreen, colorReset, text)
+	fmt.Printf(
+		"%s[Watcher]%s %s(good)%s %s\n",
+		colorYellow,
+		colorReset,
+		colorGreen,
+		colorReset,
+		text,
+	)
 }
 
 func (l *WatcherLogger) Error(text string) {
-	fmt.Printf("%s[Watcher]%s %s(error)%s %s\n", colorYellow, colorReset, colorRed, colorReset, text)
+	fmt.Printf(
+		"%s[Watcher]%s %s(error)%s %s\n",
+		colorYellow,
+		colorReset,
+		colorRed,
+		colorReset,
+		text,
+	)
 }
 
 func (l *WatcherLogger) Fatal(text string) {
