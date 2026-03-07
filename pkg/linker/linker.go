@@ -11,8 +11,9 @@ import (
 // for evaluator. It will connect @insert to @reserve, @use to layout file,
 // @component to its corresponding component file, etc.
 type NodeLinker struct {
-	Programs []*ast.Program
-	mu       sync.RWMutex
+	Programs  []*ast.Program
+	LinkError *fail.Error // Stores the last linking error, if any
+	mu        sync.RWMutex
 }
 
 func New(progs []*ast.Program) *NodeLinker {

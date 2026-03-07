@@ -51,6 +51,14 @@ func NewTemplate(opt *config.Config) (*Template, error) {
 
 // String returns final evaluated template result represented as a string.
 func (t *Template) String(name string, data map[string]any) (string, *fail.Error) {
+	t.linker.RLock()
+	linkErr := t.linker.LinkError
+	t.linker.RUnlock()
+
+	if linkErr != nil {
+		return "", linkErr
+	}
+
 	scope, err := object.NewScopeFromMap(data)
 	if err != nil {
 		return "", err
