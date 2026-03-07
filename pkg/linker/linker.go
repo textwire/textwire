@@ -26,6 +26,8 @@ func New(progs []*ast.Program) *NodeLinker {
 // For example, we need to add component program to @component('book'), where
 // CompProg is the parsed program AST of the `book.tw` component.
 func (nl *NodeLinker) LinkNodes() *fail.Error {
+	nl.unlinkAll()
+
 	for _, prog := range nl.Programs {
 		if err := nl.handleLayoutLinking(prog); err != nil {
 			return err
@@ -39,6 +41,22 @@ func (nl *NodeLinker) LinkNodes() *fail.Error {
 	}
 
 	return nil
+}
+
+// unlinkAll unlinks everything from AST nodes to ensure clean state.
+func (nl *NodeLinker) unlinkAll() {
+	for _, prog := range nl.Programs {
+		// Unlink components
+		for _, comp := range prog.Components {
+			comp.CompProg = nil
+		}
+
+		// Unlink layouts and inserts
+		if prog.UseStmt != nil {
+			prog.UseStmt.LayoutProg = nil
+			prog.UseStmt.Inserts = nil
+		}
+	}
 }
 
 // handleLayoutLinking links layout directives to template directives
