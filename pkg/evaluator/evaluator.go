@@ -992,12 +992,12 @@ func (e *Evaluator) globalFuncHasValue(
 }
 
 func (e *Evaluator) objectsToNativeType(args []object.Object) []any {
-	nativeVals := make([]any, len(args))
+	vals := make([]any, len(args))
 	for i := range args {
-		nativeVals[i] = args[i].Val()
+		vals[i] = args[i].Val()
 	}
 
-	return nativeVals
+	return vals
 }
 
 func (e *Evaluator) postfixOpExp(

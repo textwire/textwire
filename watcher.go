@@ -237,12 +237,19 @@ func (fw *fileWatcher) markNewFilesForParsing(oldFiles []*file.SourceFile) {
 
 func (fw *fileWatcher) countFiles() int {
 	count := 0
-	filepath.WalkDir(userConf.TemplateDir, func(path string, d os.DirEntry, err error) error {
-		if err == nil && !d.IsDir() && strings.HasSuffix(path, userConf.TemplateExt) {
-			count++
-		}
-		return nil
-	})
+	err := filepath.WalkDir(
+		userConf.TemplateDir,
+		func(path string, d os.DirEntry, err error) error {
+			if err == nil && !d.IsDir() && strings.HasSuffix(path, userConf.TemplateExt) {
+				count++
+			}
+			return nil
+		},
+	)
+
+	if err != nil {
+		fw.logger.Error("error couting files " + err.Error())
+	}
 
 	return count
 }
