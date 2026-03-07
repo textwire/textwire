@@ -87,7 +87,7 @@ func RegisterArrFunc(name string, fn config.ArrayCustomFunc) error {
 // e.g. `{{ {name: 'Sydney'}.myFunc() }}`
 func RegisterObjFunc(name string, fn config.MapCustomFunc) error {
 	if _, ok := customFunc.Map[name]; ok {
-		return fail.New(0, "", "API", fail.ErrFuncAlreadyDefined, name, "objects").Error()
+		return fail.New(0, "", "API", fail.ErrFuncAlreadyDefined, name, "maps").Error()
 	}
 
 	customFunc.Map[name] = fn
