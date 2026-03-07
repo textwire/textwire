@@ -14,13 +14,13 @@ import (
 func isTruthy(obj object.Object) bool {
 	switch obj := obj.(type) {
 	case *object.Bool:
-		return obj.Value
+		return obj.Val
 	case *object.Int:
-		return obj.Value != 0
+		return obj.Val != 0
 	case *object.Float:
-		return obj.Value != 0.0
+		return obj.Val != 0.0
 	case *object.Str:
-		return obj.Value != ""
+		return obj.Val != ""
 	case *object.Nil:
 		return false
 	case *object.Obj:
@@ -121,7 +121,7 @@ func getDecimalConfig(
 		if !ok {
 			return "", 0, fmt.Errorf(fail.ErrFuncFirstArgStr, objType, "decimal")
 		}
-		separator = separatorArg.Value
+		separator = separatorArg.Val
 	}
 
 	if len(args) == 2 {
@@ -129,7 +129,7 @@ func getDecimalConfig(
 		if !ok {
 			return "", 0, fmt.Errorf(fail.ErrFuncSecondArgInt, objType, "decimal")
 		}
-		decimals = int(decimalArg.Value)
+		decimals = int(decimalArg.Val)
 	}
 
 	return separator, decimals, nil

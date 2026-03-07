@@ -44,7 +44,7 @@ type Object interface {
 	Type() ObjectType
 	String() string
 	Is(ObjectType) bool
-	Val() any
+	Native() any
 	// move Dump and JSON to Literal object in v4.0.0
 	Dump(ident int) string
 	JSON() (string, error)

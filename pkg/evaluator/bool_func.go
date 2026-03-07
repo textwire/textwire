@@ -11,10 +11,10 @@ import (
 // boolBinaryFunc returns an integer 1 if the receiver is true, 0 otherwise
 func boolBinaryFunc(receiver object.Object, _ ...object.Object) (object.Object, error) {
 	if isTruthy(receiver) {
-		return &object.Int{Value: 1}, nil
+		return &object.Int{Val: 1}, nil
 	}
 
-	return &object.Int{Value: 0}, nil
+	return &object.Int{Val: 0}, nil
 }
 
 // boolThenFunc returns the first argument if the receiver is true, the second argument or nil otherwise

@@ -558,7 +558,7 @@ func (p *Parser) componentStmtHeader(stmt *ast.ComponentStmt) *ast.IllegalNode {
 }
 
 func (p *Parser) assignSlotsToComp(stmt *ast.ComponentStmt) ast.Statement {
-	slots := p.slots(stmt.Name.Value)
+	slots := p.slots(stmt.Name.Val)
 	stmt.Slots = make([]ast.SlotStatement, len(slots))
 	for i := range slots {
 		slot, ok := slots[i].(ast.SlotStatement)
@@ -652,7 +652,7 @@ func (p *Parser) localSlotStmt(name *ast.StringLiteral, compName string) ast.Sta
 		p.next() // skip "("
 
 		name.Token = p.curToken
-		name.Value = p.curToken.Literal
+		name.Val = p.curToken.Literal
 
 		if !p.expectPeek(token.RPAREN) { // move to ")"
 			return p.illegalNode() // create an error
@@ -715,7 +715,7 @@ func (p *Parser) slotifStmtHeader(stmt *ast.SlotifStmt, name *ast.StringLiteral)
 		p.next() // skip ","
 
 		name.Token = p.curToken
-		name.Value = p.curToken.Literal
+		name.Val = p.curToken.Literal
 	} else {
 		stmt.SetIsDefault(true)
 	}
@@ -754,12 +754,12 @@ func (p *Parser) reserveStmt() ast.Statement {
 	stmt.SetEndPosition(p.curToken.Pos)
 
 	// Check for duplicate reserve statements
-	if _, ok := p.reserves[stmt.Name.Value]; ok {
-		p.newError(stmt.Token.ErrorLine(), fail.ErrDuplicateReserves, stmt.Name.Value, p.file.Abs)
+	if _, ok := p.reserves[stmt.Name.Val]; ok {
+		p.newError(stmt.Token.ErrorLine(), fail.ErrDuplicateReserves, stmt.Name.Val, p.file.Abs)
 		return nil
 	}
 
-	p.reserves[stmt.Name.Value] = stmt
+	p.reserves[stmt.Name.Val] = stmt
 
 	return stmt
 }
@@ -793,7 +793,7 @@ func (p *Parser) insertStmt() ast.Statement {
 
 	stmt.SetEndPosition(p.curToken.Pos)
 
-	p.inserts[stmt.Name.Value] = stmt
+	p.inserts[stmt.Name.Val] = stmt
 
 	return stmt
 }
@@ -824,7 +824,7 @@ func (p *Parser) insertStmtHeader(stmt *ast.InsertStmt) (*ast.IllegalNode, bool)
 
 		stmt.SetEndPosition(p.curToken.Pos)
 
-		p.inserts[stmt.Name.Value] = stmt
+		p.inserts[stmt.Name.Val] = stmt
 		done = true
 
 		return nil, done
@@ -838,11 +838,11 @@ func (p *Parser) insertStmtHeader(stmt *ast.InsertStmt) (*ast.IllegalNode, bool)
 }
 
 func (p *Parser) checkDuplicateInserts(stmt *ast.InsertStmt) bool {
-	if _, hasDuplicate := p.inserts[stmt.Name.Value]; hasDuplicate {
+	if _, hasDuplicate := p.inserts[stmt.Name.Val]; hasDuplicate {
 		p.newError(
 			stmt.Token.ErrorLine(),
 			fail.ErrDuplicateInserts,
-			stmt.Name.Value,
+			stmt.Name.Val,
 		)
 
 		return true

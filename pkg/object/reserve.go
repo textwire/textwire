@@ -24,11 +24,11 @@ func (r *Reserve) JSON() (string, error) {
 	return "", nil
 }
 
-func (r *Reserve) Val() any {
+func (r *Reserve) Native() any {
 	if r.Insert == nil {
-		panic("Insert field on Reseve object must not be nil when calling Val()")
+		panic("Insert field on Reseve object must not be nil when calling Native()")
 	}
-	return r.Insert.Val()
+	return r.Insert.Native()
 }
 
 func (r *Reserve) Is(t ObjectType) bool {

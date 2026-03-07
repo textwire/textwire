@@ -20,7 +20,7 @@ func (n *Nil) JSON() (string, error) {
 	return "null", nil
 }
 
-func (n *Nil) Val() any {
+func (n *Nil) Native() any {
 	return nil
 }
 

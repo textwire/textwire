@@ -18,7 +18,7 @@ func (b *Break) JSON() (string, error) {
 	return "", nil
 }
 
-func (b *Break) Val() any {
+func (b *Break) Native() any {
 	return nil
 }
 

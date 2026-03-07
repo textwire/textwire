@@ -41,7 +41,7 @@ func (e *Error) JSON() (string, error) {
 	return fmt.Sprintf(`"%s"`, e.Err), nil
 }
 
-func (e *Error) Val() any {
+func (e *Error) Native() any {
 	return e.String()
 }
 

@@ -10,7 +10,7 @@ import (
 )
 
 type Float struct {
-	Value float64
+	Val float64
 }
 
 func (f *Float) Type() ObjectType {
@@ -18,7 +18,7 @@ func (f *Float) Type() ObjectType {
 }
 
 func (f *Float) String() string {
-	return utils.FloatToStr(f.Value)
+	return utils.FloatToStr(f.Val)
 }
 
 func (f *Float) Dump(ident int) string {
@@ -26,26 +26,26 @@ func (f *Float) Dump(ident int) string {
 }
 
 func (e *Float) JSON() (string, error) {
-	if math.IsNaN(e.Value) || math.IsInf(e.Value, 0) {
+	if math.IsNaN(e.Val) || math.IsInf(e.Val, 0) {
 		return "null", nil
 	}
 	return e.String(), nil
 }
 
-func (f *Float) Val() any {
-	return f.Value
+func (f *Float) Native() any {
+	return f.Val
 }
 
 func (f *Float) SubtractFromFloat(num uint) error {
 	// Convert the float to a string
-	strValue := strconv.FormatFloat(f.Value, 'f', -1, 64)
+	strVal := strconv.FormatFloat(f.Val, 'f', -1, 64)
 
-	if !strings.Contains(strValue, ".") {
-		f.Value -= float64(num)
+	if !strings.Contains(strVal, ".") {
+		f.Val -= float64(num)
 		return nil
 	}
 
-	nums := strings.Split(strValue, ".")
+	nums := strings.Split(strVal, ".")
 
 	// Parse the integer part
 	intPart, err := strconv.ParseUint(nums[0], 10, 64)
@@ -65,7 +65,7 @@ func (f *Float) SubtractFromFloat(num uint) error {
 		return err
 	}
 
-	f.Value = result
+	f.Val = result
 
 	return nil
 }

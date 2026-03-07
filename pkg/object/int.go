@@ -5,7 +5,7 @@ import (
 )
 
 type Int struct {
-	Value int64
+	Val int64
 }
 
 func (i *Int) Type() ObjectType {
@@ -13,19 +13,19 @@ func (i *Int) Type() ObjectType {
 }
 
 func (i *Int) String() string {
-	return fmt.Sprintf("%d", i.Value)
+	return fmt.Sprintf("%d", i.Val)
 }
 
 func (i *Int) Dump(ident int) string {
-	return fmt.Sprintf(`<span style="%s">%d</span>`, DUMP_NUM, i.Value)
+	return fmt.Sprintf(`<span style="%s">%d</span>`, DUMP_NUM, i.Val)
 }
 
 func (i *Int) JSON() (string, error) {
-	return fmt.Sprintf("%d", i.Value), nil
+	return fmt.Sprintf("%d", i.Val), nil
 }
 
-func (i *Int) Val() any {
-	return i.Value
+func (i *Int) Native() any {
+	return i.Val
 }
 
 func (i *Int) Is(t ObjectType) bool {

@@ -13,8 +13,8 @@ import (
 
 var (
 	NIL      = &object.Nil{}
-	TRUE     = &object.Bool{Value: true}
-	FALSE    = &object.Bool{Value: false}
+	TRUE     = &object.Bool{Val: true}
+	FALSE    = &object.Bool{Val: false}
 	BREAK    = &object.Break{}
 	CONTINUE = &object.Continue{}
 )
@@ -43,7 +43,7 @@ func (e *Evaluator) Eval(node ast.Node, ctx *Context) object.Object {
 	case *ast.Program:
 		return e.program(node, ctx)
 	case *ast.HTMLStmt:
-		return &object.HTML{Value: node.String()}
+		return &object.HTML{Val: node.String()}
 	case *ast.ExpressionStmt:
 		return e.Eval(node.Expression, ctx)
 	case *ast.IfStmt:
@@ -89,13 +89,13 @@ func (e *Evaluator) Eval(node ast.Node, ctx *Context) object.Object {
 	case *ast.DotExp:
 		return e.dotExp(node, ctx)
 	case *ast.IntegerLiteral:
-		return &object.Int{Value: node.Value}
+		return &object.Int{Val: node.Val}
 	case *ast.FloatLiteral:
-		return &object.Float{Value: node.Value}
+		return &object.Float{Val: node.Val}
 	case *ast.StringLiteral:
 		return e.stringLit(node)
 	case *ast.BooleanLiteral:
-		return nativeBoolToBoolObj(node.Value)
+		return nativeBoolToBoolObj(node.Val)
 	case *ast.ObjectLiteral:
 		return e.objectLit(node, ctx)
 	case *ast.ArrayLiteral:
@@ -132,7 +132,7 @@ func (e *Evaluator) program(prog *ast.Program, ctx *Context) object.Object {
 		stmts.WriteString(stmt.String())
 	}
 
-	return &object.HTML{Value: stmts.String()}
+	return &object.HTML{Val: stmts.String()}
 }
 
 func (e *Evaluator) _if(ifStmt *ast.IfStmt, ctx *Context) object.Object {
@@ -250,7 +250,7 @@ func (e *Evaluator) assignIndexExp(
 	}
 
 	arr := left.(*object.Array)
-	index := idx.(*object.Int).Value
+	index := idx.(*object.Int).Val
 
 	if index < 0 || index >= int64(len(arr.Elements)) {
 		return e.newError(indexExp, ctx, fail.ErrArrayIndexOutOfBound, index, len(arr.Elements))
@@ -290,7 +290,7 @@ func (e *Evaluator) assignDotExp(
 func (e *Evaluator) use(useStmt *ast.UseStmt, ctx *Context) object.Object {
 	if useStmt.LayoutProg == nil {
 		if e.usingTemplates {
-			return e.newError(useStmt, ctx, fail.ErrUseStmtMissingLayout, useStmt.Name.Value)
+			return e.newError(useStmt, ctx, fail.ErrUseStmtMissingLayout, useStmt.Name.Val)
 		}
 		return e.newError(useStmt, ctx, fail.ErrSomeDirsOnlyInTemplates)
 	}
@@ -321,7 +321,7 @@ func (e *Evaluator) use(useStmt *ast.UseStmt, ctx *Context) object.Object {
 	}
 
 	return &object.Use{
-		Path:   useStmt.Name.Value,
+		Path:   useStmt.Name.Val,
 		Layout: layout,
 	}
 }
@@ -331,7 +331,7 @@ func (e *Evaluator) reserve(reserveStmt *ast.ReserveStmt, ctx *Context) object.O
 		return e.newError(reserveStmt, ctx, fail.ErrSomeDirsOnlyInTemplates)
 	}
 
-	name := reserveStmt.Name.Value
+	name := reserveStmt.Name.Val
 	insert, ok := ctx.inserts[name]
 	if !ok {
 		// Inserts are optional, NIL when not provided or fallback argument
@@ -355,7 +355,7 @@ func (e *Evaluator) component(compStmt *ast.ComponentStmt, ctx *Context) object.
 		return e.newError(compStmt, ctx, fail.ErrSomeDirsOnlyInTemplates)
 	}
 
-	name := compStmt.Name.Value
+	name := compStmt.Name.Val
 	if compStmt.CompProg == nil {
 		return e.newError(compStmt, ctx, fail.ErrUndefinedComponent, name)
 	}
@@ -373,7 +373,7 @@ func (e *Evaluator) component(compStmt *ast.ComponentStmt, ctx *Context) object.
 			compCtx.slots[name] = map[string]object.Object{}
 		}
 
-		compCtx.slots[name][slotStmt.Name().Value] = slot
+		compCtx.slots[name][slotStmt.Name().Val] = slot
 	}
 
 	if compStmt.Argument != nil {
@@ -468,7 +468,7 @@ func (e *Evaluator) _for(forStmt *ast.ForStmt, ctx *Context) object.Object {
 		}
 	}
 
-	return &object.HTML{Value: blocks.String()}
+	return &object.HTML{Val: blocks.String()}
 }
 
 func (e *Evaluator) each(eachStmt *ast.EachStmt, ctx *Context) object.Object {
@@ -501,10 +501,10 @@ func (e *Evaluator) each(eachStmt *ast.EachStmt, ctx *Context) object.Object {
 		}
 
 		eachCtx.scope.SetLoopVar(map[string]object.Object{
-			"index": &object.Int{Value: int64(i)},
+			"index": &object.Int{Val: int64(i)},
 			"first": nativeBoolToBoolObj(i == 0),
 			"last":  nativeBoolToBoolObj(i == len(arrElems)-1),
-			"iter":  &object.Int{Value: int64(i + 1)},
+			"iter":  &object.Int{Val: int64(i + 1)},
 		})
 
 		block := e.Eval(eachStmt.Block, eachCtx)
@@ -522,7 +522,7 @@ func (e *Evaluator) each(eachStmt *ast.EachStmt, ctx *Context) object.Object {
 		}
 	}
 
-	return &object.HTML{Value: blocks.String()}
+	return &object.HTML{Val: blocks.String()}
 }
 
 func (e *Evaluator) breakif(breakifStmt *ast.BreakifStmt, ctx *Context) object.Object {
@@ -574,13 +574,13 @@ func (e *Evaluator) slotif(slotifStmt *ast.SlotifStmt, ctx *Context) object.Obje
 	}
 
 	return &object.Slot{
-		Name:    slotifStmt.Name().Value,
+		Name:    slotifStmt.Name().Val,
 		Content: block,
 	}
 }
 
 func (e *Evaluator) externalSlotStmt(slotStmt *ast.SlotStmt, ctx *Context) object.Object {
-	name := slotStmt.Name().Value
+	name := slotStmt.Name().Val
 	compName := slotStmt.CompName
 
 	// Get slot's content from the context
@@ -607,7 +607,7 @@ func (e *Evaluator) localSlotStmt(slotStmt *ast.SlotStmt, ctx *Context) object.O
 	}
 
 	return &object.Slot{
-		Name:    slotStmt.Name().Value,
+		Name:    slotStmt.Name().Val,
 		Content: block,
 	}
 }
@@ -617,7 +617,7 @@ func (e *Evaluator) insert(insertStmt *ast.InsertStmt, ctx *Context) object.Obje
 		return e.newError(insertStmt, ctx, fail.ErrSomeDirsOnlyInTemplates)
 	}
 
-	name := insertStmt.Name.Value
+	name := insertStmt.Name.Val
 	if !e.usingUseStmt {
 		return e.newError(insertStmt, ctx, fail.ErrInsertRequiresUse, name)
 	}
@@ -659,7 +659,7 @@ func (e *Evaluator) dump(dumpStmt *ast.DumpStmt, ctx *Context) object.Object {
 		values = append(values, evaluated.Dump(0))
 	}
 
-	return &object.Dump{Values: values}
+	return &object.Dump{Vals: values}
 }
 
 func (e *Evaluator) ident(ident *ast.Identifier, ctx *Context) object.Object {
@@ -690,7 +690,7 @@ func (e *Evaluator) indexExp(indexExp *ast.IndexExp, ctx *Context) object.Object
 	case left.Is(object.ARR_OBJ) && idx.Is(object.INT_OBJ):
 		return e.arrayIndexExp(left, idx)
 	case left.Is(object.OBJ_OBJ) && idx.Is(object.STR_OBJ):
-		return e.objectKeyExp(left.(*object.Obj), idx.(*object.Str).Value)
+		return e.objectKeyExp(left.(*object.Obj), idx.(*object.Str).Val)
 	}
 
 	return e.newError(indexExp, ctx, fail.ErrIndexNotSupported, left.Type())
@@ -698,7 +698,7 @@ func (e *Evaluator) indexExp(indexExp *ast.IndexExp, ctx *Context) object.Object
 
 func (e *Evaluator) arrayIndexExp(arrObj, idx object.Object) object.Object {
 	arr := arrObj.(*object.Array)
-	index := idx.(*object.Int).Value
+	index := idx.(*object.Int).Val
 	max := int64(len(arr.Elements) - 1)
 
 	if index < 0 || index > max {
@@ -738,13 +738,13 @@ func (e *Evaluator) dotExp(dotExp *ast.DotExp, ctx *Context) object.Object {
 }
 
 func (e *Evaluator) stringLit(strLit *ast.StringLiteral) object.Object {
-	str := html.EscapeString(strLit.Value)
+	str := html.EscapeString(strLit.Val)
 
 	// unescape single and double quotes
 	str = strings.ReplaceAll(str, "&#34;", `"`)
 	str = strings.ReplaceAll(str, "&#39;", `'`)
 
-	return &object.Str{Value: str}
+	return &object.Str{Val: str}
 }
 
 func (e *Evaluator) prefixExp(prefixExp *ast.PrefixExp, ctx *Context) object.Object {
@@ -906,19 +906,19 @@ func (e *Evaluator) callExp(callExp *ast.CallExp, ctx *Context) object.Object {
 			return object.NativeToObject(res)
 		case *object.Int:
 			fun := e.customFunc.Int[funcName]
-			res := fun(int(r.Value), nativeArgs...)
+			res := fun(int(r.Val), nativeArgs...)
 			return object.NativeToObject(res)
 		case *object.Float:
 			fun := e.customFunc.Float[funcName]
-			res := fun(r.Value, nativeArgs...)
+			res := fun(r.Val, nativeArgs...)
 			return object.NativeToObject(res)
 		case *object.Bool:
 			fun := e.customFunc.Bool[funcName]
-			res := fun(r.Value, nativeArgs...)
+			res := fun(r.Val, nativeArgs...)
 			return object.NativeToObject(res)
 		case *object.Obj:
 			fun := e.customFunc.Obj[funcName]
-			firstArg := r.Val()
+			firstArg := r.Native()
 			res := fun(firstArg.(map[string]any), nativeArgs...)
 			return object.NativeToObject(res)
 		}
@@ -994,7 +994,7 @@ func (e *Evaluator) globalFuncHasValue(
 func (e *Evaluator) objectsToNativeType(args []object.Object) []any {
 	vals := make([]any, len(args))
 	for i := range args {
-		vals[i] = args[i].Val()
+		vals[i] = args[i].Native()
 	}
 
 	return vals
@@ -1009,19 +1009,19 @@ func (e *Evaluator) postfixOpExp(
 	switch op {
 	case "++":
 		if int, ok := left.(*object.Int); ok {
-			return &object.Int{Value: int.Value + 1}
+			return &object.Int{Val: int.Val + 1}
 		}
 
 		if fl, ok := left.(*object.Float); ok {
-			return &object.Float{Value: fl.Value + 1}
+			return &object.Float{Val: fl.Val + 1}
 		}
 	case "--":
 		if int, ok := left.(*object.Int); ok {
-			return &object.Int{Value: int.Value - 1}
+			return &object.Int{Val: int.Val - 1}
 		}
 
 		if fl, ok := left.(*object.Float); ok {
-			float := &object.Float{Value: fl.Value}
+			float := &object.Float{Val: fl.Val}
 
 			if err := float.SubtractFromFloat(1); err != nil {
 				return e.newError(node, ctx, fail.ErrCannotSubFromFloat, float, err)
@@ -1066,9 +1066,9 @@ func (e *Evaluator) logicalExp(
 ) object.Object {
 	switch op {
 	case "&&":
-		return &object.Bool{Value: isTruthy(left) && isTruthy(right)}
+		return &object.Bool{Val: isTruthy(left) && isTruthy(right)}
 	case "||":
-		return &object.Bool{Value: isTruthy(left) || isTruthy(right)}
+		return &object.Bool{Val: isTruthy(left) || isTruthy(right)}
 	}
 
 	return e.newError(leftNode, ctx, fail.ErrCannotUseOperator, op, left.Type(), op, right.Type())
@@ -1088,26 +1088,26 @@ func (e *Evaluator) intInfixExp(
 
 	switch op {
 	case "+":
-		return &object.Int{Value: l.Value + r.Value}
+		return &object.Int{Val: l.Val + r.Val}
 	case "-":
-		return &object.Int{Value: l.Value - r.Value}
+		return &object.Int{Val: l.Val - r.Val}
 	case "*":
-		return &object.Int{Value: l.Value * r.Value}
+		return &object.Int{Val: l.Val * r.Val}
 	case "/":
-		if r.Value == 0 {
+		if r.Val == 0 {
 			return e.newError(leftNode, ctx, fail.ErrDivisionByZero)
 		}
-		return &object.Int{Value: l.Value / r.Value}
+		return &object.Int{Val: l.Val / r.Val}
 	case "%":
-		return &object.Int{Value: l.Value % r.Value}
+		return &object.Int{Val: l.Val % r.Val}
 	case ">":
-		return nativeBoolToBoolObj(l.Value > r.Value)
+		return nativeBoolToBoolObj(l.Val > r.Val)
 	case "<":
-		return nativeBoolToBoolObj(l.Value < r.Value)
+		return nativeBoolToBoolObj(l.Val < r.Val)
 	case ">=":
-		return nativeBoolToBoolObj(l.Value >= r.Value)
+		return nativeBoolToBoolObj(l.Val >= r.Val)
 	case "<=":
-		return nativeBoolToBoolObj(l.Value <= r.Value)
+		return nativeBoolToBoolObj(l.Val <= r.Val)
 	}
 
 	return e.newError(leftNode, ctx, fail.ErrCannotUseOperator, op, l.Type(), op, right.Type())
@@ -1127,13 +1127,13 @@ func (e *Evaluator) comparrisonInfixExp(
 
 	switch l := left.(type) {
 	case *object.Int:
-		areEqual = l.Value == right.(*object.Int).Value
+		areEqual = l.Val == right.(*object.Int).Val
 	case *object.Float:
-		areEqual = l.Value == right.(*object.Float).Value
+		areEqual = l.Val == right.(*object.Float).Val
 	case *object.Str:
-		areEqual = l.Value == right.(*object.Str).Value
+		areEqual = l.Val == right.(*object.Str).Val
 	case *object.Bool:
-		areEqual = l.Value == right.(*object.Bool).Value
+		areEqual = l.Val == right.(*object.Bool).Val
 	case *object.Array, *object.Obj:
 		areEqual = reflect.DeepEqual(left, right)
 	case *object.Nil:
@@ -1162,7 +1162,7 @@ func (e *Evaluator) stringInfixExp(
 	}
 
 	if op == "+" {
-		return &object.Str{Value: l.Value + r.Value}
+		return &object.Str{Val: l.Val + r.Val}
 	}
 
 	return e.newError(leftNode, ctx, fail.ErrCannotUseOperator, op, l.Type(), op, right.Type())
@@ -1182,21 +1182,21 @@ func (e *Evaluator) floatInfixExp(
 
 	switch op {
 	case "+":
-		return &object.Float{Value: l.Value + r.Value}
+		return &object.Float{Val: l.Val + r.Val}
 	case "-":
-		return &object.Float{Value: l.Value - r.Value}
+		return &object.Float{Val: l.Val - r.Val}
 	case "*":
-		return &object.Float{Value: l.Value * r.Value}
+		return &object.Float{Val: l.Val * r.Val}
 	case "/":
-		return &object.Float{Value: l.Value / r.Value}
+		return &object.Float{Val: l.Val / r.Val}
 	case ">":
-		return nativeBoolToBoolObj(l.Value > r.Value)
+		return nativeBoolToBoolObj(l.Val > r.Val)
 	case "<":
-		return nativeBoolToBoolObj(l.Value < r.Value)
+		return nativeBoolToBoolObj(l.Val < r.Val)
 	case ">=":
-		return nativeBoolToBoolObj(l.Value >= r.Value)
+		return nativeBoolToBoolObj(l.Val >= r.Val)
 	case "<=":
-		return nativeBoolToBoolObj(l.Value <= r.Value)
+		return nativeBoolToBoolObj(l.Val <= r.Val)
 	}
 
 	return e.newError(leftNode, ctx, fail.ErrCannotUseOperator, op, l.Type(), op, right.Type())
@@ -1209,9 +1209,9 @@ func (e *Evaluator) minusPrefixOpExp(
 ) object.Object {
 	switch r := right.(type) {
 	case *object.Int:
-		return &object.Int{Value: -r.Value}
+		return &object.Int{Val: -r.Val}
 	case *object.Float:
-		return &object.Float{Value: -r.Value}
+		return &object.Float{Val: -r.Val}
 	}
 
 	return e.newError(node, ctx, fail.ErrPrefixOpIsWrong, "-", right.Type())

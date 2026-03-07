@@ -6,13 +6,13 @@ import (
 
 type BooleanLiteral struct {
 	BaseNode
-	Value bool
+	Val bool
 }
 
 func NewBooleanLiteral(tok token.Token, val bool) *BooleanLiteral {
 	return &BooleanLiteral{
 		BaseNode: NewBaseNode(tok),
-		Value:    val,
+		Val:      val,
 	}
 }
 

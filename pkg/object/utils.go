@@ -7,33 +7,33 @@ import (
 func NativeToObject(val any) Object {
 	switch v := val.(type) {
 	case string:
-		return &Str{Value: v}
+		return &Str{Val: v}
 	case bool:
-		return &Bool{Value: v}
+		return &Bool{Val: v}
 	case float32:
-		return &Float{Value: float64(v)}
+		return &Float{Val: float64(v)}
 	case float64:
-		return &Float{Value: v}
+		return &Float{Val: v}
 	case int64:
-		return &Int{Value: v}
+		return &Int{Val: v}
 	case int:
-		return &Int{Value: int64(v)}
+		return &Int{Val: int64(v)}
 	case int8:
-		return &Int{Value: int64(v)}
+		return &Int{Val: int64(v)}
 	case int16:
-		return &Int{Value: int64(v)}
+		return &Int{Val: int64(v)}
 	case int32:
-		return &Int{Value: int64(v)}
+		return &Int{Val: int64(v)}
 	case uint:
-		return &Int{Value: int64(v)}
+		return &Int{Val: int64(v)}
 	case uint8:
-		return &Int{Value: int64(v)}
+		return &Int{Val: int64(v)}
 	case uint16:
-		return &Int{Value: int64(v)}
+		return &Int{Val: int64(v)}
 	case uint32:
-		return &Int{Value: int64(v)}
+		return &Int{Val: int64(v)}
 	case uint64:
-		return &Int{Value: int64(v)}
+		return &Int{Val: int64(v)}
 	case nil:
 		return new(Nil)
 	}

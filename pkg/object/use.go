@@ -24,11 +24,11 @@ func (u *Use) JSON() (string, error) {
 	return "", nil
 }
 
-func (u *Use) Val() any {
+func (u *Use) Native() any {
 	if u.Layout == nil {
-		panic("Layout field on Use object must not be nil when calling Val()")
+		panic("Layout field on Use object must not be nil when calling Native()")
 	}
-	return u.Layout.Val()
+	return u.Layout.Native()
 }
 
 func (u *Use) Is(t ObjectType) bool {

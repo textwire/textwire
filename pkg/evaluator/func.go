@@ -69,5 +69,5 @@ func jsonFunc(receiver object.Object, _ ...object.Object) (object.Object, error)
 	if err != nil {
 		return nil, err
 	}
-	return &object.Str{Value: json}, nil
+	return &object.Str{Val: json}, nil
 }

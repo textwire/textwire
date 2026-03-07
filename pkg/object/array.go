@@ -90,11 +90,11 @@ func (a *Array) JSON() (string, error) {
 	return out.String(), nil
 }
 
-func (a *Array) Val() any {
+func (a *Array) Native() any {
 	var vals []any
 
 	for _, elem := range a.Elements {
-		vals = append(vals, elem.Val())
+		vals = append(vals, elem.Native())
 	}
 
 	return vals

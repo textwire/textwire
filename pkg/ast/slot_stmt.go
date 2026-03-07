@@ -50,7 +50,7 @@ func (ss *SlotStmt) String() string {
 	var out strings.Builder
 	out.Grow(6)
 
-	if ss.name.Value == "" {
+	if ss.name.Val == "" {
 		out.WriteString("@slot")
 	} else {
 		out.WriteString("@slot(")

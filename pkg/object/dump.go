@@ -25,7 +25,7 @@ var outputHTML = `
 </div>`
 
 type Dump struct {
-	Values []string
+	Vals []string
 }
 
 func (d *Dump) Type() ObjectType {
@@ -34,7 +34,7 @@ func (d *Dump) Type() ObjectType {
 
 func (d *Dump) String() string {
 	var out bytes.Buffer
-	for _, v := range d.Values {
+	for _, v := range d.Vals {
 		fmt.Fprintf(&out, outputHTML, v)
 	}
 
@@ -42,19 +42,19 @@ func (d *Dump) String() string {
 }
 
 func (d *Dump) Dump(ident int) string {
-	return fmt.Sprintf("@dump(%s)", strings.Join(d.Values, ", "))
+	return fmt.Sprintf("@dump(%s)", strings.Join(d.Vals, ", "))
 }
 
 func (d *Dump) JSON() (string, error) {
 	return "", nil
 }
 
-func (d *Dump) Val() any {
-	var values []any
-	for i := range d.Values {
-		values = append(values, d.Values[i])
+func (d *Dump) Native() any {
+	var vals []any
+	for i := range d.Vals {
+		vals = append(vals, d.Vals[i])
 	}
-	return values
+	return vals
 }
 
 func (d *Dump) Is(t ObjectType) bool {

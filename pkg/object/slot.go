@@ -27,11 +27,11 @@ func (s *Slot) JSON() (string, error) {
 	return "", nil
 }
 
-func (s *Slot) Val() any {
+func (s *Slot) Native() any {
 	if s.Content == nil {
 		return ""
 	}
-	return s.Content.Val()
+	return s.Content.Native()
 }
 
 func (s *Slot) Is(t ObjectType) bool {

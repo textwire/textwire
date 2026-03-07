@@ -1,7 +1,7 @@
 package object
 
 type HTML struct {
-	Value string
+	Val string
 }
 
 func (h *HTML) Type() ObjectType {
@@ -9,7 +9,7 @@ func (h *HTML) Type() ObjectType {
 }
 
 func (h *HTML) String() string {
-	return h.Value
+	return h.Val
 }
 
 func (h *HTML) Dump(ident int) string {
@@ -20,8 +20,8 @@ func (h *HTML) JSON() (string, error) {
 	return "", nil
 }
 
-func (h *HTML) Val() any {
-	return h.Value
+func (h *HTML) Native() any {
+	return h.Val
 }
 
 func (h *HTML) Is(t ObjectType) bool {

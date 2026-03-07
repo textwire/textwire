@@ -8,13 +8,13 @@ import (
 
 type StringLiteral struct {
 	BaseNode
-	Value string
+	Val string
 }
 
 func NewStringLiteral(tok token.Token, val string) *StringLiteral {
 	return &StringLiteral{
 		BaseNode: NewBaseNode(tok),
-		Value:    val,
+		Val:      val,
 	}
 }
 

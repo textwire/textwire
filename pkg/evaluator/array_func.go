@@ -17,7 +17,7 @@ import (
 func arrayLenFunc(receiver object.Object, _ ...object.Object) (object.Object, error) {
 	elems := receiver.(*object.Array).Elements
 	length := len(elems)
-	return &object.Int{Value: int64(length)}, nil
+	return &object.Int{Val: int64(length)}, nil
 }
 
 // arrayJoinFunc joins the elements of the given array with the given separator
@@ -33,7 +33,7 @@ func arrayJoinFunc(receiver object.Object, args ...object.Object) (object.Object
 			return nil, errors.New(msg)
 		}
 
-		separator = str.Value
+		separator = str.Val
 	}
 
 	elems := receiver.(*object.Array).Elements
@@ -49,7 +49,7 @@ func arrayJoinFunc(receiver object.Object, args ...object.Object) (object.Object
 		out.WriteString(elems[i].String())
 	}
 
-	return &object.Str{Value: out.String()}, nil
+	return &object.Str{Val: out.String()}, nil
 }
 
 // arrayRandFunc returns a random element from the given array
@@ -89,7 +89,7 @@ func arraySliceFunc(receiver object.Object, args ...object.Object) (object.Objec
 		return nil, errors.New(msg)
 	}
 
-	start := max(int(startFrom.Value), 0)
+	start := max(int(startFrom.Val), 0)
 	start = min(start, len(elems))
 
 	if len(args) == 1 {
@@ -102,7 +102,7 @@ func arraySliceFunc(receiver object.Object, args ...object.Object) (object.Objec
 		return nil, errors.New(msg)
 	}
 
-	end := int(endAt.Value)
+	end := int(endAt.Val)
 	if end < 0 || end > len(elems) {
 		end = len(elems)
 	}
@@ -161,7 +161,7 @@ func arrayContainsFunc(receiver object.Object, args ...object.Object) (object.Ob
 			continue
 		}
 
-		if el.Val() == target.Val() {
+		if el.Native() == target.Native() {
 			return TRUE, nil
 		}
 	}

@@ -68,7 +68,7 @@ func (nl *NodeLinker) handleLayoutLinking(prog *ast.Program) *fail.Error {
 
 	prog.UseStmt.Inserts = prog.Inserts
 
-	layoutName := prog.UseStmt.Name.Value
+	layoutName := prog.UseStmt.Name.Val
 	layoutProg := ast.FindProg(layoutName, nl.Programs)
 	if layoutProg == nil {
 		return fail.New(prog.Line(), prog.AbsPath, "API", fail.ErrUseStmtMissingLayout, layoutName)
@@ -91,7 +91,7 @@ func (nl *NodeLinker) handleCompLinking(prog *ast.Program) *fail.Error {
 	}
 
 	for _, comp := range prog.Components {
-		compName := comp.Name.Value
+		compName := comp.Name.Val
 		compProg := ast.FindProg(compName, nl.Programs)
 		if compProg == nil {
 			return fail.New(prog.Line(), prog.AbsPath, "API", fail.ErrUndefinedComponent, compName)
