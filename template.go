@@ -52,7 +52,7 @@ func NewTemplate(opt *config.Config) (*Template, error) {
 // String returns final evaluated template result represented as a string.
 func (t *Template) String(name string, data map[string]any) (string, *fail.Error) {
 	t.linker.RLock()
-	linkErr := t.linker.LinkError
+	linkErr, progs := t.linker.LinkError, t.linker.Programs
 	t.linker.RUnlock()
 
 	if linkErr != nil {
@@ -64,10 +64,8 @@ func (t *Template) String(name string, data map[string]any) (string, *fail.Error
 		return "", err
 	}
 
-	t.linker.RLock()
 	name = file.ReplacePathAlias(name, file.PathAliasViews)
-	prog := ast.FindProg(name, t.linker.Programs)
-	t.linker.RUnlock()
+	prog := ast.FindProg(name, progs)
 	if prog == nil {
 		relPath := file.NameToRelPath(name, userConf.TemplateDir, userConf.TemplateExt)
 		return "", fail.New(0, relPath, "template", fail.ErrTemplateNotFound, name)
