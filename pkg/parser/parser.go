@@ -1261,21 +1261,21 @@ func (p *Parser) groupedExpression() ast.Expression {
 }
 
 func (p *Parser) expressionList(endTok token.TokenType) []ast.Expression {
-	var result []ast.Expression
+	var expressions []ast.Expression
 
 	if p.peekIs(endTok) {
 		p.next() // skip endTok token
-		return result
+		return expressions
 	}
 
 	if p.peekIs(token.END) {
-		result = append(result, p.illegalNode())
-		return result
+		expressions = append(expressions, p.illegalNode())
+		return expressions
 	}
 
 	p.next() // move to first expression
 
-	result = append(result, p.expression(LOWEST))
+	expressions = append(expressions, p.expression(LOWEST))
 
 	for p.peekIs(token.COMMA) && !p.curTokenIs(token.EOF) {
 		p.next() // move to ","
@@ -1286,15 +1286,15 @@ func (p *Parser) expressionList(endTok token.TokenType) []ast.Expression {
 		}
 
 		p.next() // skip ","
-		result = append(result, p.expression(LOWEST))
+		expressions = append(expressions, p.expression(LOWEST))
 	}
 
 	if !p.expectPeek(endTok) { // move to endTok
-		result = append(result, ast.NewIllegalNode(p.curToken))
-		return result
+		expressions = append(expressions, ast.NewIllegalNode(p.curToken))
+		return expressions
 	}
 
-	return result
+	return expressions
 }
 
 func (p *Parser) illegalNode() *ast.IllegalNode {

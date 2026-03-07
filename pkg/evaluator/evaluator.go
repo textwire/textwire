@@ -801,7 +801,7 @@ func (e *Evaluator) objectLit(objLit *ast.ObjectLiteral, ctx *Context) object.Ob
 }
 
 func (e *Evaluator) evalExpressions(exps []ast.Expression, ctx *Context) []object.Object {
-	result := make([]object.Object, 0, len(exps))
+	evaluatedObjs := make([]object.Object, 0, len(exps))
 
 	for i := range exps {
 		evaluated := e.Eval(exps[i], ctx)
@@ -809,10 +809,10 @@ func (e *Evaluator) evalExpressions(exps []ast.Expression, ctx *Context) []objec
 			return []object.Object{evaluated}
 		}
 
-		result = append(result, evaluated)
+		evaluatedObjs = append(evaluatedObjs, evaluated)
 	}
 
-	return result
+	return evaluatedObjs
 }
 
 func (e *Evaluator) infixExp(
@@ -992,12 +992,12 @@ func (e *Evaluator) globalFuncHasValue(
 }
 
 func (e *Evaluator) objectsToNativeType(args []object.Object) []any {
-	result := make([]any, len(args))
+	nativeVals := make([]any, len(args))
 	for i := range args {
-		result[i] = args[i].Val()
+		nativeVals[i] = args[i].Val()
 	}
 
-	return result
+	return nativeVals
 }
 
 func (e *Evaluator) postfixOpExp(
@@ -1123,30 +1123,30 @@ func (e *Evaluator) comparrisonInfixExp(
 	if left.Type() != right.Type() {
 		return nativeBoolToBoolObj(op == "!=")
 	}
-	var result bool
+	var areEqual bool
 
 	switch l := left.(type) {
 	case *object.Int:
-		result = l.Value == right.(*object.Int).Value
+		areEqual = l.Value == right.(*object.Int).Value
 	case *object.Float:
-		result = l.Value == right.(*object.Float).Value
+		areEqual = l.Value == right.(*object.Float).Value
 	case *object.Str:
-		result = l.Value == right.(*object.Str).Value
+		areEqual = l.Value == right.(*object.Str).Value
 	case *object.Bool:
-		result = l.Value == right.(*object.Bool).Value
+		areEqual = l.Value == right.(*object.Bool).Value
 	case *object.Array, *object.Obj:
-		result = reflect.DeepEqual(left, right)
+		areEqual = reflect.DeepEqual(left, right)
 	case *object.Nil:
-		result = true
+		areEqual = true
 	default:
 		e.newError(leftNode, ctx, fail.ErrCannotUseOperator, op, l.Type(), op, right.Type())
 	}
 
 	if op == "!=" {
-		result = !result
+		areEqual = !areEqual
 	}
 
-	return nativeBoolToBoolObj(result)
+	return nativeBoolToBoolObj(areEqual)
 }
 
 func (e *Evaluator) stringInfixExp(

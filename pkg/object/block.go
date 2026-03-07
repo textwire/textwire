@@ -42,13 +42,13 @@ func (b *Block) JSON() (string, error) {
 }
 
 func (b *Block) Val() any {
-	var result []any
+	var nativeVals []any
 
 	for _, e := range b.Elements {
-		result = append(result, e.Val())
+		nativeVals = append(nativeVals, e.Val())
 	}
 
-	return result
+	return nativeVals
 }
 
 func (b *Block) Is(t ObjectType) bool {
