@@ -81,8 +81,8 @@ func (fw *fileWatcher) handleNewOrDeletedFiles() {
 	if err != nil {
 		fw.logger.Fatal("error locating files " + err.Error())
 	}
-	fw.files = files
 
+	fw.files = files
 	fw.markNewFilesForParsing(oldFiles)
 	fw.cleanupDeletedPrograms(oldFiles)
 }
@@ -177,6 +177,7 @@ func (fw *fileWatcher) findDeletedFiles(oldFiles []*file.SourceFile) map[string]
 			deleted[name] = true
 		}
 	}
+
 	return deleted
 }
 
@@ -189,6 +190,7 @@ func (fw *fileWatcher) removeProgramByName(name string) {
 				newProgs = append(newProgs, prog)
 			}
 		}
+
 		fw.linker.Programs = newProgs
 	})
 }
@@ -200,6 +202,7 @@ func (fw *fileWatcher) fileExists(name string) bool {
 			return true
 		}
 	}
+
 	return false
 }
 
@@ -240,5 +243,6 @@ func (fw *fileWatcher) countFiles() int {
 		}
 		return nil
 	})
+
 	return count
 }

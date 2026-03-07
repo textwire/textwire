@@ -91,11 +91,11 @@ func parseFile(f *file.SourceFile) (*ast.Program, *fail.Error, error) {
 
 // makeFileNameSet returns a set of file names for quick lookup.
 func makeFileNameSet(files []*file.SourceFile) map[string]bool {
-	result := make(map[string]bool, len(files))
+	set := make(map[string]bool, len(files))
 	for _, f := range files {
-		result[f.Name] = true
+		set[f.Name] = true
 	}
-	return result
+	return set
 }
 
 // locateFiles recursively finds all Textwire files in the templates directory,
