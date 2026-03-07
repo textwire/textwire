@@ -101,7 +101,7 @@ func (fw *fileWatcher) updateFileIfModified(f *file.SourceFile) {
 		return
 	}
 
-	fw.info("update " + f.Rel)
+	fw.info("updated " + f.Rel)
 	f.ModTime = modTime
 
 	prog, failure, parseErr := parseFile(f)
@@ -251,15 +251,15 @@ func (fw *fileWatcher) countTemplateFiles() int {
 }
 
 func (fw *fileWatcher) info(text string) {
-	fmt.Printf("%s[Watcher] %s%s\n", colorCyan, colorReset, text)
+	fmt.Printf("%s[Watcher]%s %sinfo%s %s\n", colorYellow, colorReset, colorCyan, colorReset, text)
 }
 
 func (fw *fileWatcher) success(text string) {
-	fmt.Printf("%s[Watcher] %s%s\n", colorGreen, text, colorReset)
+	fmt.Printf("%s[Watcher]%s %sgood%s %s\n", colorYellow, colorReset, colorGreen, colorReset, text)
 }
 
 func (fw *fileWatcher) error(text string) {
-	fmt.Printf("%s[Watcher] %s%s\n", colorRed, text, colorReset)
+	fmt.Printf("%s[Watcher]%s %serror%s %s\n", colorYellow, colorReset, colorRed, colorReset, text)
 }
 
 func (fw *fileWatcher) fatal(text string) {
