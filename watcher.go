@@ -123,25 +123,7 @@ func (fw *fileWatcher) refreshPrograms(prog *ast.Program) {
 		fw.oldLinker.Programs = append(fw.oldLinker.Programs, prog)
 	}
 
-	fw.linkAndUpdateErrors()
-}
-
-func (fw *fileWatcher) linkAndUpdateErrors() {
-	ln := linker.New(fw.oldLinker.Programs)
-	failure := ln.LinkNodes()
-
-	if failure != nil {
-		errMsg := failure.Error().Error()
-		if errMsg != fw.lastError {
-			fw.info(errMsg)
-			fw.lastError = errMsg
-		}
-	} else if fw.lastError != "" {
-		fw.info("Errors resolved")
-		fw.lastError = ""
-	}
-
-	fw.oldLinker.Programs = ln.Programs
+	// Note: linking is done in relinkAll() to ensure single link pass per tick
 }
 
 // fetchModTime fetches the file's info and retrieves last modified date.
@@ -222,5 +204,24 @@ func (fw *fileWatcher) relinkAll() {
 	fw.oldLinker.Lock()
 	defer fw.oldLinker.Unlock()
 
-	fw.linkAndUpdateErrors()
+	ln := linker.New(fw.oldLinker.Programs)
+	failure := ln.LinkNodes()
+
+	if failure != nil {
+		errMsg := failure.Error().Error()
+		if errMsg != fw.lastError {
+			fw.info(errMsg)
+			fw.lastError = errMsg
+		}
+		// Store the error in the linker so Template can access it
+		fw.oldLinker.LinkError = failure
+	} else {
+		if fw.lastError != "" {
+			fw.info("Errors resolved")
+			fw.lastError = ""
+		}
+		fw.oldLinker.LinkError = nil
+	}
+
+	fw.oldLinker.Programs = ln.Programs
 }
