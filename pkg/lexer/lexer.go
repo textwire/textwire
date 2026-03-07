@@ -437,14 +437,14 @@ func (l *Lexer) isPotentiallyLong(tok token.TokenType) bool {
 
 func (l *Lexer) readString() string {
 	quote := l.char
-	result := ""
+	strLiteral := ""
 
 	l.tokenBegins()
 	l.readChar() // skip the first quote
 
 	if l.char == quote {
 		l.readChar() // skip the last quote
-		return result
+		return strLiteral
 	}
 
 	pos := l.pos
@@ -459,11 +459,11 @@ func (l *Lexer) readString() string {
 		}
 	}
 
-	result = l.input[pos:l.pos]
+	strLiteral = l.input[pos:l.pos]
 
 	l.readChar() // skip the last quote
 
-	return handleEscapeSequences(result, quote)
+	return handleEscapeSequences(strLiteral, quote)
 }
 
 func handleEscapeSequences(s string, quote byte) string {

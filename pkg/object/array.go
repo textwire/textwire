@@ -91,13 +91,13 @@ func (a *Array) JSON() (string, error) {
 }
 
 func (a *Array) Val() any {
-	var result []any
+	var nativeVals []any
 
 	for _, elem := range a.Elements {
-		result = append(result, elem.Val())
+		nativeVals = append(nativeVals, elem.Val())
 	}
 
-	return result
+	return nativeVals
 }
 
 func (a *Array) Is(t ObjectType) bool {

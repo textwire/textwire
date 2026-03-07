@@ -151,11 +151,11 @@ func formatFloatDecimals(val, separator string, decimals int) string {
 	}
 
 	f, _ := strconv.ParseFloat(val, 64)
-	result := fmt.Sprintf("%."+strconv.Itoa(decimals)+"f", f)
+	formatted := fmt.Sprintf("%."+strconv.Itoa(decimals)+"f", f)
 	if separator != "." {
-		result = strings.Replace(result, ".", separator, 1)
+		formatted = strings.Replace(formatted, ".", separator, 1)
 	}
-	return result
+	return formatted
 }
 
 // isValidFloat checks if string represents a valid float.
