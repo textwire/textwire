@@ -7,18 +7,18 @@ import (
 
 type FloatLiteral struct {
 	BaseNode
-	Value float64
+	Val float64
 }
 
 func NewFloatLiteral(tok token.Token, val float64) *FloatLiteral {
 	return &FloatLiteral{
 		BaseNode: NewBaseNode(tok),
-		Value:    val,
+		Val:      val,
 	}
 }
 
 func (fl *FloatLiteral) expressionNode() {}
 
 func (fl *FloatLiteral) String() string {
-	return utils.FloatToStr(fl.Value)
+	return utils.FloatToStr(fl.Val)
 }

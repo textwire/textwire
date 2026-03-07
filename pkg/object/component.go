@@ -21,12 +21,12 @@ func (c *Component) JSON() (string, error) {
 	return "", nil
 }
 
-func (c *Component) Val() any {
+func (c *Component) Native() any {
 	if c.Content == nil {
-		panic("Content field on Component object must not be nil when calling Val()")
+		panic("Content field on Component object must not be nil when calling Native()")
 	}
 
-	return c.Content.Val()
+	return c.Content.Native()
 }
 
 func (c *Component) Is(t ObjectType) bool {

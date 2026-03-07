@@ -3,7 +3,7 @@ package object
 import "fmt"
 
 type Str struct {
-	Value string
+	Val string
 }
 
 func (s *Str) Type() ObjectType {
@@ -11,19 +11,19 @@ func (s *Str) Type() ObjectType {
 }
 
 func (s *Str) String() string {
-	return s.Value
+	return s.Val
 }
 
 func (s *Str) Dump(ident int) string {
-	return fmt.Sprintf(`<span style="%s">%q</span>`, DUMP_STR, s.Value)
+	return fmt.Sprintf(`<span style="%s">%q</span>`, DUMP_STR, s.Val)
 }
 
 func (s *Str) JSON() (string, error) {
-	return fmt.Sprintf("%q", s.Value), nil
+	return fmt.Sprintf("%q", s.Val), nil
 }
 
-func (s *Str) Val() any {
-	return s.Value
+func (s *Str) Native() any {
+	return s.Val
 }
 
 func (s *Str) Is(t ObjectType) bool {

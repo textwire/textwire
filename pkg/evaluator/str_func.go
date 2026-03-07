@@ -15,9 +15,9 @@ const defaultCharTrim = "\t \n\r"
 
 // strLenFunc returns the length of the given string
 func strLenFunc(receiver object.Object, _ ...object.Object) (object.Object, error) {
-	val := receiver.(*object.Str).Value
+	val := receiver.(*object.Str).Val
 	chars := []rune(val)
-	return &object.Int{Value: int64(len(chars))}, nil
+	return &object.Int{Val: int64(len(chars))}, nil
 }
 
 // strSplitFunc returns a list of strings split by the given separator
@@ -31,16 +31,16 @@ func strSplitFunc(receiver object.Object, args ...object.Object) (object.Object,
 			return nil, errors.New(msg)
 		}
 
-		separator = str.Value
+		separator = str.Val
 	}
 
-	val := receiver.(*object.Str).Value
+	val := receiver.(*object.Str).Val
 	stringItems := strings.Split(val, separator)
 
 	var elems []object.Object
 
 	for _, val := range stringItems {
-		elems = append(elems, &object.Str{Value: val})
+		elems = append(elems, &object.Str{Val: val})
 	}
 
 	return &object.Array{Elements: elems}, nil
@@ -48,8 +48,8 @@ func strSplitFunc(receiver object.Object, args ...object.Object) (object.Object,
 
 // strRawFunc prevents escaping HTML tags in a string
 func strRawFunc(receiver object.Object, _ ...object.Object) (object.Object, error) {
-	val := receiver.(*object.Str).Value
-	return &object.Str{Value: html.UnescapeString(val)}, nil
+	val := receiver.(*object.Str).Val
+	return &object.Str{Val: html.UnescapeString(val)}, nil
 }
 
 // strTrimFunc returns a string with leading and trailing whitespace removed
@@ -63,41 +63,41 @@ func strTrimFunc(receiver object.Object, args ...object.Object) (object.Object, 
 			return nil, errors.New(msg)
 		}
 
-		chars = str.Value
+		chars = str.Val
 	}
 
-	val := receiver.(*object.Str).Value
+	val := receiver.(*object.Str).Val
 
-	return &object.Str{Value: strings.Trim(val, chars)}, nil
+	return &object.Str{Val: strings.Trim(val, chars)}, nil
 }
 
 // strUpperFunc returns a string with all characters in uppercase
 func strUpperFunc(receiver object.Object, _ ...object.Object) (object.Object, error) {
-	val := receiver.(*object.Str).Value
-	return &object.Str{Value: strings.ToUpper(val)}, nil
+	val := receiver.(*object.Str).Val
+	return &object.Str{Val: strings.ToUpper(val)}, nil
 }
 
 // strLowerFunc returns a string with all characters in lowercase
 func strLowerFunc(receiver object.Object, _ ...object.Object) (object.Object, error) {
 	str := receiver.(*object.Str)
-	return &object.Str{Value: strings.ToLower(str.Value)}, nil
+	return &object.Str{Val: strings.ToLower(str.Val)}, nil
 }
 
 // strCapitalizeFunc returns a string with the first character capitalized
 func strCapitalizeFunc(receiver object.Object, _ ...object.Object) (object.Object, error) {
-	val := receiver.(*object.Str).Value
+	val := receiver.(*object.Str).Val
 	if len(val) == 0 {
-		return &object.Str{Value: ""}, nil
+		return &object.Str{Val: ""}, nil
 	}
 
 	newVal := strings.ToUpper(val[:1]) + val[1:]
 
-	return &object.Str{Value: newVal}, nil
+	return &object.Str{Val: newVal}, nil
 }
 
 // strReverseFunc returns a string with the characters reversed
 func strReverseFunc(receiver object.Object, _ ...object.Object) (object.Object, error) {
-	val := receiver.(*object.Str).Value
+	val := receiver.(*object.Str).Val
 
 	runes := []rune(val)
 	n := len(runes)
@@ -107,7 +107,7 @@ func strReverseFunc(receiver object.Object, _ ...object.Object) (object.Object, 
 		runes[i], runes[n-1-i] = runes[n-1-i], runes[i]
 	}
 
-	return &object.Str{Value: string(runes)}, nil
+	return &object.Str{Val: string(runes)}, nil
 }
 
 // strContainsFunc returns true if the string contains the given substring, false otherwise
@@ -123,8 +123,8 @@ func strContainsFunc(receiver object.Object, args ...object.Object) (object.Obje
 		return nil, errors.New(msg)
 	}
 
-	val := receiver.(*object.Str).Value
-	substr := firstArg.Value
+	val := receiver.(*object.Str).Val
+	substr := firstArg.Val
 
 	return nativeBoolToBoolObj(strings.Contains(val, substr)), nil
 }
@@ -144,16 +144,16 @@ func strTruncateFunc(receiver object.Object, args ...object.Object) (object.Obje
 		return nil, errors.New(msg)
 	}
 
-	val := receiver.(*object.Str).Value
+	val := receiver.(*object.Str).Val
 
 	// Handle negative limits by treating them as 0
 	// This prevents slice bounds errors when limit < 0
-	limit := max(int(firstArg.Value), 0)
+	limit := max(int(firstArg.Val), 0)
 
 	// If the string is already shorter than or equal to the limit, return it unchanged
 	// This ensures we don't truncate strings that don't need truncation
 	if limit >= utf8.RuneCountInString(val) {
-		return &object.Str{Value: val}, nil
+		return &object.Str{Val: val}, nil
 	}
 
 	ellipsis := "..."
@@ -162,7 +162,7 @@ func strTruncateFunc(receiver object.Object, args ...object.Object) (object.Obje
 	if len(args) > 1 {
 		secondArg, ok := args[1].(*object.Str)
 		if ok {
-			ellipsis = secondArg.Value
+			ellipsis = secondArg.Val
 		} else {
 			msg := fmt.Sprintf(fail.ErrFuncSecondArgStr, object.STR_OBJ, "truncate")
 			return nil, errors.New(msg)
@@ -170,7 +170,7 @@ func strTruncateFunc(receiver object.Object, args ...object.Object) (object.Obje
 	}
 
 	// Truncate the string at the limit and append the suffix
-	return &object.Str{Value: val[:limit] + ellipsis}, nil
+	return &object.Str{Val: val[:limit] + ellipsis}, nil
 }
 
 // strDecimalFunc returns a string formatted as a decimal number.
@@ -178,7 +178,7 @@ func strTruncateFunc(receiver object.Object, args ...object.Object) (object.Obje
 // For floats: ensures minimum decimal places (e.g., "-0.5" → "-0.50")
 // Non-numeric strings are returned unchanged.
 func strDecimalFunc(receiver object.Object, args ...object.Object) (object.Object, error) {
-	val := receiver.(*object.Str).Value
+	val := receiver.(*object.Str).Val
 	separator, decimals, err := getDecimalConfig(object.STR_OBJ, args...)
 	if err != nil {
 		return nil, err
@@ -186,11 +186,11 @@ func strDecimalFunc(receiver object.Object, args ...object.Object) (object.Objec
 
 	switch {
 	case strIsInt(val):
-		return &object.Str{Value: formatIntDecimals(val, separator, decimals)}, nil
+		return &object.Str{Val: formatIntDecimals(val, separator, decimals)}, nil
 	case isValidFloat(val):
-		return &object.Str{Value: formatFloatDecimals(val, separator, decimals)}, nil
+		return &object.Str{Val: formatFloatDecimals(val, separator, decimals)}, nil
 	default:
-		return &object.Str{Value: val}, nil
+		return &object.Str{Val: val}, nil
 	}
 }
 
@@ -205,10 +205,10 @@ func strAtFunc(receiver object.Object, args ...object.Object) (object.Object, er
 			return nil, errors.New(msg)
 		}
 
-		index = int(firstArg.Value)
+		index = int(firstArg.Val)
 	}
 
-	val := receiver.(*object.Str).Value
+	val := receiver.(*object.Str).Val
 
 	chars := []rune(val)
 	if len(chars) == 0 {
@@ -223,17 +223,17 @@ func strAtFunc(receiver object.Object, args ...object.Object) (object.Object, er
 		return &object.Nil{}, nil
 	}
 
-	return &object.Str{Value: string(chars[index])}, nil
+	return &object.Str{Val: string(chars[index])}, nil
 }
 
 // strFirstFunc returns the first character in the string
 func strFirstFunc(receiver object.Object, _ ...object.Object) (object.Object, error) {
-	return strAtFunc(receiver, &object.Int{Value: 0})
+	return strAtFunc(receiver, &object.Int{Val: 0})
 }
 
 // strLastFunc returns the last character in the string
 func strLastFunc(receiver object.Object, _ ...object.Object) (object.Object, error) {
-	return strAtFunc(receiver, &object.Int{Value: -1})
+	return strAtFunc(receiver, &object.Int{Val: -1})
 }
 
 // strTrimRightFunc returns a string with trailing whitespace removed from the right
@@ -246,12 +246,12 @@ func strTrimRightFunc(receiver object.Object, args ...object.Object) (object.Obj
 			return nil, errors.New(msg)
 		}
 
-		chars = str.Value
+		chars = str.Val
 	}
 
-	val := receiver.(*object.Str).Value
+	val := receiver.(*object.Str).Val
 
-	return &object.Str{Value: strings.TrimRight(val, chars)}, nil
+	return &object.Str{Val: strings.TrimRight(val, chars)}, nil
 }
 
 // strTrimLeftFunc returns a string with trailing whitespace removed from the left
@@ -265,12 +265,12 @@ func strTrimLeftFunc(receiver object.Object, args ...object.Object) (object.Obje
 			return nil, errors.New(msg)
 		}
 
-		chars = str.Value
+		chars = str.Val
 	}
 
-	val := receiver.(*object.Str).Value
+	val := receiver.(*object.Str).Val
 
-	return &object.Str{Value: strings.TrimLeft(val, chars)}, nil
+	return &object.Str{Val: strings.TrimLeft(val, chars)}, nil
 }
 
 // strRepeatFunc returns a string repeated n times
@@ -286,16 +286,16 @@ func strRepeatFunc(receiver object.Object, args ...object.Object) (object.Object
 		return nil, errors.New(msg)
 	}
 
-	val := receiver.(*object.Str).Value
-	count := int(firstArg.Value)
+	val := receiver.(*object.Str).Val
+	count := int(firstArg.Val)
 
 	if count < 0 {
-		return &object.Str{Value: ""}, nil
+		return &object.Str{Val: ""}, nil
 	}
 
 	repeated := strings.Repeat(val, count)
 
-	return &object.Str{Value: repeated}, nil
+	return &object.Str{Val: repeated}, nil
 }
 
 // strFormatFunc embeds values into a string. Similar to sprintf in C.
@@ -305,7 +305,7 @@ func strFormatFunc(receiver object.Object, args ...object.Object) (object.Object
 		return nil, errors.New(msg)
 	}
 
-	str := receiver.(*object.Str).Value
+	str := receiver.(*object.Str).Val
 
 	var argIdx int
 	var out strings.Builder
@@ -329,5 +329,5 @@ func strFormatFunc(receiver object.Object, args ...object.Object) (object.Object
 		i++
 	}
 
-	return &object.Str{Value: out.String()}, nil
+	return &object.Str{Val: out.String()}, nil
 }

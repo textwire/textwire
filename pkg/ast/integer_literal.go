@@ -4,13 +4,13 @@ import "github.com/textwire/textwire/v3/pkg/token"
 
 type IntegerLiteral struct {
 	BaseNode
-	Value int64
+	Val int64
 }
 
 func NewIntegerLiteral(tok token.Token, val int64) *IntegerLiteral {
 	return &IntegerLiteral{
 		BaseNode: NewBaseNode(tok),
-		Value:    val,
+		Val:      val,
 	}
 }
 

@@ -9,9 +9,9 @@ import (
 func TestFindSlotIndex(t *testing.T) {
 	t.Run("found", func(t *testing.T) {
 		slots := []Statement{
-			NewSlotStmt(token.Token{}, &StringLiteral{Value: "country"}, "", false),
-			NewSlotStmt(token.Token{}, &StringLiteral{Value: "city"}, "", false),
-			NewSlotStmt(token.Token{}, &StringLiteral{Value: "street"}, "", false),
+			NewSlotStmt(token.Token{}, &StringLiteral{Val: "country"}, "", false),
+			NewSlotStmt(token.Token{}, &StringLiteral{Val: "city"}, "", false),
+			NewSlotStmt(token.Token{}, &StringLiteral{Val: "street"}, "", false),
 		}
 
 		if idx := findSlotIndex(slots, "city"); idx != 1 {
@@ -21,9 +21,9 @@ func TestFindSlotIndex(t *testing.T) {
 
 	t.Run("not found", func(t *testing.T) {
 		slots := []Statement{
-			NewSlotStmt(token.Token{}, &StringLiteral{Value: "country"}, "", false),
-			NewSlotStmt(token.Token{}, &StringLiteral{Value: "city"}, "", false),
-			NewSlotStmt(token.Token{}, &StringLiteral{Value: "street"}, "", false),
+			NewSlotStmt(token.Token{}, &StringLiteral{Val: "country"}, "", false),
+			NewSlotStmt(token.Token{}, &StringLiteral{Val: "city"}, "", false),
+			NewSlotStmt(token.Token{}, &StringLiteral{Val: "street"}, "", false),
 		}
 
 		if idx := findSlotIndex(slots, "name"); idx != -1 {
@@ -37,11 +37,11 @@ func TestFindDuplicateSlot(t *testing.T) {
 		expectTimes := 3
 		expectDupl := "firstName"
 		slots := []SlotStatement{
-			NewSlotStmt(token.Token{}, &StringLiteral{Value: "lastname"}, "", false),
-			NewSlotStmt(token.Token{}, &StringLiteral{Value: "lastName"}, "", false),
-			NewSlotStmt(token.Token{}, &StringLiteral{Value: expectDupl}, "", false),
-			NewSlotStmt(token.Token{}, &StringLiteral{Value: expectDupl}, "", false),
-			NewSlotStmt(token.Token{}, &StringLiteral{Value: expectDupl}, "", false),
+			NewSlotStmt(token.Token{}, &StringLiteral{Val: "lastname"}, "", false),
+			NewSlotStmt(token.Token{}, &StringLiteral{Val: "lastName"}, "", false),
+			NewSlotStmt(token.Token{}, &StringLiteral{Val: expectDupl}, "", false),
+			NewSlotStmt(token.Token{}, &StringLiteral{Val: expectDupl}, "", false),
+			NewSlotStmt(token.Token{}, &StringLiteral{Val: expectDupl}, "", false),
 		}
 
 		slot, times := findDuplicateSlot(slots)
@@ -53,18 +53,18 @@ func TestFindDuplicateSlot(t *testing.T) {
 			t.Fatalf("Function returned nil instead of slot")
 		}
 
-		if slot.Name().Value != expectDupl {
-			t.Fatalf("The duplicate slot name must be %s, got %s", expectDupl, slot.Name().Value)
+		if slot.Name().Val != expectDupl {
+			t.Fatalf("The duplicate slot name must be %s, got %s", expectDupl, slot.Name().Val)
 		}
 	})
 
 	t.Run("returns nil and 0 for no duplicates", func(t *testing.T) {
 		slots := []SlotStatement{
-			NewSlotStmt(token.Token{}, &StringLiteral{Value: "lastname"}, "", false),
-			NewSlotStmt(token.Token{}, &StringLiteral{Value: "lastName"}, "", false),
-			NewSlotStmt(token.Token{}, &StringLiteral{Value: "last_name"}, "", false),
-			NewSlotStmt(token.Token{}, &StringLiteral{Value: "last-name"}, "", false),
-			NewSlotStmt(token.Token{}, &StringLiteral{Value: "LastName"}, "", false),
+			NewSlotStmt(token.Token{}, &StringLiteral{Val: "lastname"}, "", false),
+			NewSlotStmt(token.Token{}, &StringLiteral{Val: "lastName"}, "", false),
+			NewSlotStmt(token.Token{}, &StringLiteral{Val: "last_name"}, "", false),
+			NewSlotStmt(token.Token{}, &StringLiteral{Val: "last-name"}, "", false),
+			NewSlotStmt(token.Token{}, &StringLiteral{Val: "LastName"}, "", false),
 		}
 
 		slot, times := findDuplicateSlot(slots)

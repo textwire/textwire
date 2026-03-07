@@ -18,7 +18,7 @@ func (c *Continue) JSON() (string, error) {
 	return "", nil
 }
 
-func (c *Continue) Val() any {
+func (c *Continue) Native() any {
 	return nil
 }
 

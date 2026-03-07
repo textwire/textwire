@@ -93,8 +93,8 @@ func testIntegerLiteral(exp ast.Expression, value int64) error {
 		return fmt.Errorf("exp is not an IntegerLiteral, got %T", exp)
 	}
 
-	if integer.Value != value {
-		return fmt.Errorf("integer.Value is not %d, got %d", value, integer.Value)
+	if integer.Val != value {
+		return fmt.Errorf("integer.Val is not %d, got %d", value, integer.Val)
 	}
 
 	if integer.Tok().Literal != strconv.FormatInt(value, 10) {
@@ -110,8 +110,8 @@ func testFloatLiteral(exp ast.Expression, value float64) error {
 		return fmt.Errorf("exp is not a FloatLiteral, got %T", exp)
 	}
 
-	if float.Value != value {
-		return fmt.Errorf("float.Value is not %f, got %f", value, float.Value)
+	if float.Val != value {
+		return fmt.Errorf("float.Val is not %f, got %f", value, float.Val)
 	}
 
 	if float.String() != utils.FloatToStr(value) {
@@ -140,8 +140,8 @@ func testStringLiteral(exp ast.Expression, value string) error {
 		return fmt.Errorf("exp is not a StringLiteral, got %T", exp)
 	}
 
-	if str.Value != value {
-		return fmt.Errorf("str.Value is not %s, got %s", value, str.Value)
+	if str.Val != value {
+		return fmt.Errorf("str.Val is not %s, got %s", value, str.Val)
 	}
 
 	if str.Tok().Literal != value {
@@ -157,8 +157,8 @@ func testBooleanLiteral(exp ast.Expression, value bool) error {
 		return fmt.Errorf("exp not *ast.Boolean, got %T", exp)
 	}
 
-	if b.Value != value {
-		return fmt.Errorf("bo.Value not %t, got %t", value, b.Value)
+	if b.Val != value {
+		return fmt.Errorf("bo.Val not %t, got %t", value, b.Val)
 	}
 
 	if b.Tok().Literal != fmt.Sprintf("%t", value) {
@@ -1226,8 +1226,8 @@ func TestParseUseStmt(t *testing.T) {
 		t.Fatalf("stmts[0] is not a UseStmt, got %T", stmts[0])
 	}
 
-	if stmt.Name.Value != "main" {
-		t.Fatalf("stmt.Path.Value is not 'main', got %s", stmt.Name.Value)
+	if stmt.Name.Val != "main" {
+		t.Fatalf("stmt.Path.Val is not 'main', got %s", stmt.Name.Val)
 	}
 
 	if err := testToken(stmt, token.USE); err != nil {
@@ -1259,7 +1259,7 @@ func TestParseReserveStmt(t *testing.T) {
 		checkErrors: true,
 		inserts: map[string]*ast.InsertStmt{
 			"content": {
-				Name: &ast.StringLiteral{Value: "content"},
+				Name: &ast.StringLiteral{Val: "content"},
 				Block: &ast.BlockStmt{
 					Statements: []ast.Statement{
 						&ast.HTMLStmt{
@@ -1298,8 +1298,8 @@ func TestParseReserveStmt(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if stmt.Name.Value != "content" {
-		t.Fatalf("stmt.Name.Value is not 'content', got %s", stmt.Name.Value)
+	if stmt.Name.Val != "content" {
+		t.Fatalf("stmt.Name.Val is not 'content', got %s", stmt.Name.Val)
 	}
 
 	if stmt.String() == inp {
@@ -1333,8 +1333,8 @@ func TestInsertStmt(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		if stmt.Name.Value != "content" {
-			t.Fatalf("stmt.Name.Value is not 'content', got %s", stmt.Name.Value)
+		if stmt.Name.Val != "content" {
+			t.Fatalf("stmt.Name.Val is not 'content', got %s", stmt.Name.Val)
 		}
 
 		if stmt.Block.String() != "<h1>Some content</h1>" {
@@ -1370,8 +1370,8 @@ func TestInsertStmt(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		if stmt.Name.Value != "content" {
-			t.Fatalf("stmt.Name.Value is not 'content', got %s", stmt.Name.Value)
+		if stmt.Name.Val != "content" {
+			t.Fatalf("stmt.Name.Val is not 'content', got %s", stmt.Name.Val)
 		}
 
 		if stmt.Block != nil {
@@ -2326,7 +2326,7 @@ func TestParseComponentStmt(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		name := stmt.Slots[0].Name().Value
+		name := stmt.Slots[0].Name().Val
 		if name != "" {
 			t.Fatalf("name must be empty string, got: %s", name)
 		}
@@ -2570,8 +2570,8 @@ func TestParseSlotifStmt(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		if slot.Name().Value != "name" {
-			t.Fatalf("slot.Name().Value is not 'name', got %s", slot.Name())
+		if slot.Name().Val != "name" {
+			t.Fatalf("slot.Name().Val is not 'name', got %s", slot.Name())
 		}
 
 		body := slot.Block().String()

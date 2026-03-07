@@ -54,7 +54,7 @@ func (sis *SlotifStmt) String() string {
 	out.WriteString("(")
 	out.WriteString(sis.Condition.String())
 
-	if sis.name.Value != "" {
+	if sis.name.Val != "" {
 		out.WriteString(", ")
 		out.WriteString(sis.name.String())
 	}

@@ -25,12 +25,12 @@ func (i *Insert) JSON() (string, error) {
 	return "", nil
 }
 
-func (r *Insert) Val() any {
+func (r *Insert) Native() any {
 	if r.Block == nil {
-		panic("Block field on Insert object must not be nil when calling Val()")
+		panic("Block field on Insert object must not be nil when calling Native()")
 	}
 
-	return r.Block.Val()
+	return r.Block.Native()
 }
 
 func (i *Insert) Is(t ObjectType) bool {

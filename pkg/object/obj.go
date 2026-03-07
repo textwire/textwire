@@ -119,10 +119,10 @@ func (o *Obj) Dump(ident int) string {
 	return out.String()
 }
 
-func (o *Obj) Val() any {
+func (o *Obj) Native() any {
 	res := map[string]any{}
 	for k, v := range o.Pairs {
-		res[k] = v.Val()
+		res[k] = v.Native()
 	}
 
 	return res

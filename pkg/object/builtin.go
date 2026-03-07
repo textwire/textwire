@@ -22,6 +22,6 @@ func (b *Builtin) JSON() (string, error) {
 	return "", nil
 }
 
-func (b *Builtin) Val() any {
+func (b *Builtin) Native() any {
 	return b.Fn
 }

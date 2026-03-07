@@ -41,11 +41,11 @@ func (b *Block) JSON() (string, error) {
 	return "", nil
 }
 
-func (b *Block) Val() any {
+func (b *Block) Native() any {
 	var vals []any
 
 	for _, e := range b.Elements {
-		vals = append(vals, e.Val())
+		vals = append(vals, e.Native())
 	}
 
 	return vals

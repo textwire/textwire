@@ -20,7 +20,7 @@ func CheckUnusedInserts(prog *Program, inserts map[string]*InsertStmt) *fail.Err
 
 		line := inserts[name].Line()
 		path := inserts[name].AbsPath
-		name := inserts[name].Name.Value
+		name := inserts[name].Name.Val
 
 		return fail.New(line, path, "parser", fail.ErrUnusedInsertDetected, name, name)
 	}
@@ -35,7 +35,7 @@ func findSlotIndex(stmts []Statement, slotName string) int {
 			continue
 		}
 
-		if slot.Name().Value == slotName {
+		if slot.Name().Val == slotName {
 			return i
 		}
 	}
@@ -51,7 +51,7 @@ func findDuplicateSlot(slots []SlotStatement) (SlotStatement, int) {
 	var maxCount int
 
 	for _, slot := range slots {
-		name := slot.Name().Value
+		name := slot.Name().Val
 		counts[name]++
 
 		if firstSeen[name] == nil {

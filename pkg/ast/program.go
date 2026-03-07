@@ -69,7 +69,7 @@ func (p *Program) LinkLayoutToUse(layoutProg *Program) {
 
 func (p *Program) LinkCompProg(compName string, prog *Program, absPath string) *fail.Error {
 	for _, comp := range p.Components {
-		if comp.Name.Value != compName {
+		if comp.Name.Val != compName {
 			continue
 		}
 
@@ -91,14 +91,14 @@ func (p *Program) LinkCompProg(compName string, prog *Program, absPath string) *
 				absPath,
 				"parser",
 				fail.ErrDuplicateSlot,
-				duplicate.Name().Value,
+				duplicate.Name().Val,
 				times,
 				compName,
 			)
 		}
 
 		for _, slot := range comp.Slots {
-			name := slot.Name().Value
+			name := slot.Name().Val
 			idx := findSlotIndex(prog.Statements, name)
 			if idx != -1 {
 				prog.Statements[idx].(SlotStatement).SetBlock(slot.Block())
