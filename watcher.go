@@ -21,7 +21,7 @@ type fileWatcher struct {
 	ticker    *time.Ticker
 	files     []*file.SourceFile
 	fileCount int
-	lastError string // Tracks last error to avoid spamming
+	lastError string
 }
 
 func newFileWatcher(oldLinker *linker.NodeLinker) *fileWatcher {
@@ -47,7 +47,6 @@ func (fw *fileWatcher) Watch() {
 	fw.info("Watching files for changes...")
 
 	var err error
-
 	fw.files, err = locateFiles()
 	if err != nil {
 		fw.fatal("Error locating files: " + err.Error())
@@ -60,16 +59,7 @@ func (fw *fileWatcher) Watch() {
 		for range fw.ticker.C {
 			currentCount := fw.countFiles()
 			if currentCount != fw.fileCount {
-				fw.info("File count changed, re-locating files...")
-				oldFiles := fw.files
-
-				fw.files, err = locateFiles()
-				if err != nil {
-					fw.fatal("Error locating files: " + err.Error())
-				}
-
-				fw.markNewFiles(oldFiles)
-				fw.removeDeletedPrograms()
+				fw.handleFileCountChange()
 				fw.fileCount = currentCount
 			}
 
@@ -82,20 +72,33 @@ func (fw *fileWatcher) Watch() {
 	}()
 }
 
+func (fw *fileWatcher) handleFileCountChange() {
+	fw.info("File count changed, re-locating files...")
+	oldFiles := fw.files
+
+	files, err := locateFiles()
+	if err != nil {
+		fw.fatal("Error locating files: " + err.Error())
+	}
+	fw.files = files
+
+	fw.markNewFiles(oldFiles)
+	fw.removeDeletedPrograms(oldFiles)
+}
+
 func (fw *fileWatcher) updateFileIfModified(f *file.SourceFile) {
 	modTime := fw.fetchModTime(f)
-	if !modTime.After(f.ModTime) {
+	if modTime.IsZero() || !modTime.After(f.ModTime) {
 		return
 	}
 
 	fw.info("Refreshing file: " + f.Rel)
-
 	f.ModTime = modTime
 
 	prog, failure, parseErr := parseFile(f)
 	if parseErr != nil {
 		fw.info(parseErr.Error())
-		fw.removeProgram(f.Name)
+		fw.removePrograms(f.Name)
 		return
 	}
 
@@ -107,88 +110,101 @@ func (fw *fileWatcher) updateFileIfModified(f *file.SourceFile) {
 }
 
 func (fw *fileWatcher) refreshPrograms(prog *ast.Program) {
-	fw.oldLinker.Lock()
-	defer fw.oldLinker.Unlock()
-
-	found := false
-	for i := range fw.oldLinker.Programs {
-		if fw.oldLinker.Programs[i].Name == prog.Name {
-			fw.oldLinker.Programs[i] = prog
-			found = true
-			break
+	fw.withLock(func() {
+		for i := range fw.oldLinker.Programs {
+			if fw.oldLinker.Programs[i].Name == prog.Name {
+				fw.oldLinker.Programs[i] = prog
+				return
+			}
 		}
-	}
-
-	if !found {
 		fw.oldLinker.Programs = append(fw.oldLinker.Programs, prog)
+	})
+}
+
+func (fw *fileWatcher) relinkAll() {
+	fw.withLock(func() {
+		ln := linker.New(fw.oldLinker.Programs)
+		failure := ln.LinkNodes()
+
+		if failure != nil {
+			errMsg := failure.Error().Error()
+			if errMsg != fw.lastError {
+				fw.info(errMsg)
+				fw.lastError = errMsg
+			}
+			fw.oldLinker.LinkError = failure
+		} else {
+			if fw.lastError != "" {
+				fw.info("Errors resolved")
+				fw.lastError = ""
+			}
+			fw.oldLinker.LinkError = nil
+		}
+
+		fw.oldLinker.Programs = ln.Programs
+	})
+}
+
+func (fw *fileWatcher) removeDeletedPrograms(oldFiles []*file.SourceFile) {
+	oldMap := make(map[string]bool, len(oldFiles))
+	for _, f := range oldFiles {
+		oldMap[f.Name] = true
 	}
 
-	// Note: linking is done in relinkAll() to ensure single link pass per tick
+	fw.withLock(func() {
+		newProgs := fw.oldLinker.Programs[:0]
+		for _, prog := range fw.oldLinker.Programs {
+			if !oldMap[prog.Name] || fw.fileExists(prog.Name) {
+				newProgs = append(newProgs, prog)
+			}
+		}
+		fw.oldLinker.Programs = newProgs
+	})
 }
 
-// fetchModTime fetches the file's info and retrieves last modified date.
-func (fw *fileWatcher) fetchModTime(f *file.SourceFile) time.Time {
-	fileInfo, err := os.Stat(f.Abs)
-	if err != nil {
-		fw.fatal(err.Error())
+func (fw *fileWatcher) removePrograms(names ...string) {
+	removeSet := make(map[string]bool, len(names))
+	for _, name := range names {
+		removeSet[name] = true
 	}
 
-	return fileInfo.ModTime()
+	fw.withLock(func() {
+		newProgs := fw.oldLinker.Programs[:0]
+		for _, prog := range fw.oldLinker.Programs {
+			if !removeSet[prog.Name] {
+				newProgs = append(newProgs, prog)
+			}
+		}
+		fw.oldLinker.Programs = newProgs
+	})
 }
 
-func (fw *fileWatcher) info(text string) {
-	fmt.Printf("[Textwire File Watch]: %s\n", text)
-}
-
-func (fw *fileWatcher) fatal(text string) {
-	fw.info(text)
-	os.Exit(1)
-}
-
-func (fw *fileWatcher) countFiles() int {
-	cmd := exec.Command("find", userConf.TemplateDir, "-name", "*"+userConf.TemplateExt)
-	output, err := cmd.Output()
-	if err != nil {
-		return 0
-	}
-	return strings.Count(string(output), "\n")
-}
-
-func (fw *fileWatcher) removeDeletedPrograms() {
-	fw.oldLinker.Lock()
-	defer fw.oldLinker.Unlock()
-
-	filesMap := make(map[string]bool)
+func (fw *fileWatcher) fileExists(name string) bool {
 	for _, f := range fw.files {
-		filesMap[f.Name] = true
-	}
-
-	newPrograms := make([]*ast.Program, 0, len(fw.oldLinker.Programs))
-	for _, prog := range fw.oldLinker.Programs {
-		if filesMap[prog.Name] {
-			newPrograms = append(newPrograms, prog)
+		if f.Name == name {
+			return true
 		}
 	}
-
-	fw.oldLinker.Programs = newPrograms
+	return false
 }
 
-func (fw *fileWatcher) removeProgram(name string) {
+func (fw *fileWatcher) withLock(fn func()) {
 	fw.oldLinker.Lock()
 	defer fw.oldLinker.Unlock()
+	fn()
+}
 
-	newPrograms := make([]*ast.Program, 0, len(fw.oldLinker.Programs))
-	for _, prog := range fw.oldLinker.Programs {
-		if prog.Name != name {
-			newPrograms = append(newPrograms, prog)
-		}
+func (fw *fileWatcher) fetchModTime(f *file.SourceFile) time.Time {
+	info, err := os.Stat(f.Abs)
+	if err != nil {
+		fw.info("Failed to stat file: " + f.Abs)
+		return time.Time{}
 	}
-
-	fw.oldLinker.Programs = newPrograms
+	return info.ModTime()
 }
 
 func (fw *fileWatcher) markNewFiles(oldFiles []*file.SourceFile) {
-	oldMap := make(map[string]bool)
+	oldMap := make(map[string]bool, len(oldFiles))
 	for _, f := range oldFiles {
 		oldMap[f.Name] = true
 	}
@@ -200,28 +216,20 @@ func (fw *fileWatcher) markNewFiles(oldFiles []*file.SourceFile) {
 	}
 }
 
-func (fw *fileWatcher) relinkAll() {
-	fw.oldLinker.Lock()
-	defer fw.oldLinker.Unlock()
-
-	ln := linker.New(fw.oldLinker.Programs)
-	failure := ln.LinkNodes()
-
-	if failure != nil {
-		errMsg := failure.Error().Error()
-		if errMsg != fw.lastError {
-			fw.info(errMsg)
-			fw.lastError = errMsg
-		}
-		// Store the error in the linker so Template can access it
-		fw.oldLinker.LinkError = failure
-	} else {
-		if fw.lastError != "" {
-			fw.info("Errors resolved")
-			fw.lastError = ""
-		}
-		fw.oldLinker.LinkError = nil
+func (fw *fileWatcher) countFiles() int {
+	cmd := exec.Command("find", userConf.TemplateDir, "-name", "*"+userConf.TemplateExt)
+	output, err := cmd.Output()
+	if err != nil {
+		return 0
 	}
+	return strings.Count(string(output), "\n")
+}
 
-	fw.oldLinker.Programs = ln.Programs
+func (fw *fileWatcher) info(text string) {
+	fmt.Printf("[Textwire File Watch]: %s\n", text)
+}
+
+func (fw *fileWatcher) fatal(text string) {
+	fw.info(text)
+	os.Exit(1)
 }
