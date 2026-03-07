@@ -3,7 +3,7 @@ package textwire
 import (
 	"fmt"
 	"os"
-	"os/exec"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -52,19 +52,23 @@ func (fw *fileWatcher) Watch() {
 
 	go func() {
 		for range fw.ticker.C {
-			currentCount := fw.countTemplateFiles()
-			if currentCount != fw.fileCount {
-				fw.handleNewOrDeletedFiles()
-				fw.fileCount = currentCount
-			}
-
-			for i := range fw.files {
-				fw.updateFileIfModified(fw.files[i])
-			}
-
-			fw.relinkPrograms()
+			fw.tick()
 		}
 	}()
+}
+
+func (fw *fileWatcher) tick() {
+	currentCount := fw.countTemplateFiles()
+	if currentCount != fw.fileCount {
+		fw.handleNewOrDeletedFiles()
+		fw.fileCount = currentCount
+	}
+
+	for i := range fw.files {
+		fw.updateFileIfModified(fw.files[i])
+	}
+
+	fw.relinkPrograms()
 }
 
 // handleNewOrDeletedFiles re-locates files and updates tracking when file count changes.
@@ -150,22 +154,28 @@ func (fw *fileWatcher) trackLinkingError(failure *fail.Error) {
 	fw.oldLinker.LinkError = failure
 }
 
-// cleanupDeletedPrograms removes programs that no longer exist on disk.
 func (fw *fileWatcher) cleanupDeletedPrograms(oldFiles []*file.SourceFile) {
-	oldMap := make(map[string]bool, len(oldFiles))
-	for _, f := range oldFiles {
-		oldMap[f.Name] = true
-	}
+	deletedFiles := fw.findDeletedFiles(oldFiles)
 
 	fw.withLock(func() {
 		newProgs := fw.oldLinker.Programs[:0]
 		for _, prog := range fw.oldLinker.Programs {
-			if !oldMap[prog.Name] || fw.fileExists(prog.Name) {
+			if !deletedFiles[prog.Name] {
 				newProgs = append(newProgs, prog)
 			}
 		}
 		fw.oldLinker.Programs = newProgs
 	})
+}
+
+func (fw *fileWatcher) findDeletedFiles(oldFiles []*file.SourceFile) map[string]bool {
+	deleted := make(map[string]bool)
+	for _, f := range oldFiles {
+		if !fw.fileExists(f.Name) {
+			deleted[f.Name] = true
+		}
+	}
+	return deleted
 }
 
 // removeProgramsByName removes programs with the specified names from the linker.
@@ -211,6 +221,7 @@ func (fw *fileWatcher) getFileModTime(f *file.SourceFile) time.Time {
 		fw.info("Failed to stat file: " + f.Abs)
 		return time.Time{}
 	}
+
 	return info.ModTime()
 }
 
@@ -228,22 +239,21 @@ func (fw *fileWatcher) markNewFilesForParsing(oldFiles []*file.SourceFile) {
 	}
 }
 
-// countTemplateFiles returns the number of template files using the find command.
 func (fw *fileWatcher) countTemplateFiles() int {
-	cmd := exec.Command("find", userConf.TemplateDir, "-name", "*"+userConf.TemplateExt)
-	output, err := cmd.Output()
-	if err != nil {
-		return 0
-	}
-	return strings.Count(string(output), "\n")
+	count := 0
+	filepath.WalkDir(userConf.TemplateDir, func(path string, d os.DirEntry, err error) error {
+		if err == nil && !d.IsDir() && strings.HasSuffix(path, userConf.TemplateExt) {
+			count++
+		}
+		return nil
+	})
+	return count
 }
 
-// info prints an informational message to stdout.
 func (fw *fileWatcher) info(text string) {
 	fmt.Printf("[Textwire File Watch]: %s\n", text)
 }
 
-// fatal prints an error message and exits the process.
 func (fw *fileWatcher) fatal(text string) {
 	fw.info(text)
 	os.Exit(1)
