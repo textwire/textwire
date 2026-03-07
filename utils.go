@@ -89,6 +89,15 @@ func parseFile(f *file.SourceFile) (*ast.Program, *fail.Error, error) {
 	return prog, nil, nil
 }
 
+// makeFileNameSet returns a set of file names for quick lookup.
+func makeFileNameSet(files []*file.SourceFile) map[string]bool {
+	result := make(map[string]bool, len(files))
+	for _, f := range files {
+		result[f.Name] = true
+	}
+	return result
+}
+
 // locateFiles recursively finds all Textwire files in the templates directory,
 // creates a *file wrapper for each of them, and returns the discovered files.
 func locateFiles() ([]*file.SourceFile, error) {
