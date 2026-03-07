@@ -13,17 +13,17 @@ import (
 
 func isTruthy(obj object.Object) bool {
 	switch obj := obj.(type) {
-	case *object.Bool:
+	case *object.Boolean:
 		return obj.Val
-	case *object.Int:
+	case *object.Integer:
 		return obj.Val != 0
 	case *object.Float:
 		return obj.Val != 0.0
-	case *object.Str:
+	case *object.String:
 		return obj.Val != ""
 	case *object.Nil:
 		return false
-	case *object.Obj:
+	case *object.Map:
 		return len(obj.Pairs) > 0
 	case *object.Array:
 		return len(obj.Elements) != 0
@@ -41,7 +41,7 @@ func isError(obj object.Object) bool {
 func isUndefinedError(obj object.Object) bool {
 	undefinedErrors := []string{
 		fail.ErrVariableIsUndefined,
-		fail.ErrKeyOnNonObject,
+		fail.ErrIllegalAttributeAccess,
 	}
 
 	err, isErr := obj.(*object.Error)
@@ -86,18 +86,18 @@ func hasCustomFunc(customFunc *config.Func, t object.ObjectType, funcName string
 	}
 
 	switch t {
-	case object.STR_OBJ:
-		return customFunc.Str[funcName] != nil
-	case object.ARR_OBJ:
-		return customFunc.Arr[funcName] != nil
-	case object.INT_OBJ:
-		return customFunc.Int[funcName] != nil
+	case object.STRING_OBJ:
+		return customFunc.String[funcName] != nil
+	case object.ARRARY_OBJ:
+		return customFunc.Array[funcName] != nil
+	case object.INTEGER_OBJ:
+		return customFunc.Integer[funcName] != nil
 	case object.FLOAT_OBJ:
 		return customFunc.Float[funcName] != nil
-	case object.BOOL_OBJ:
-		return customFunc.Bool[funcName] != nil
-	case object.OBJ_OBJ:
-		return customFunc.Obj[funcName] != nil
+	case object.BOOLEAN_OBJ:
+		return customFunc.Boolean[funcName] != nil
+	case object.MAP_OBJ:
+		return customFunc.Map[funcName] != nil
 	default:
 		return false
 	}
@@ -117,7 +117,7 @@ func getDecimalConfig(
 	}
 
 	if len(args) >= 1 {
-		separatorArg, ok := args[0].(*object.Str)
+		separatorArg, ok := args[0].(*object.String)
 		if !ok {
 			return "", 0, fmt.Errorf(fail.ErrFuncFirstArgStr, objType, "decimal")
 		}
@@ -125,7 +125,7 @@ func getDecimalConfig(
 	}
 
 	if len(args) == 2 {
-		decimalArg, ok := args[1].(*object.Int)
+		decimalArg, ok := args[1].(*object.Integer)
 		if !ok {
 			return "", 0, fmt.Errorf(fail.ErrFuncSecondArgInt, objType, "decimal")
 		}

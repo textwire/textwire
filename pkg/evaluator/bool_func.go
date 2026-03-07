@@ -11,16 +11,16 @@ import (
 // boolBinaryFunc returns an integer 1 if the receiver is true, 0 otherwise
 func boolBinaryFunc(receiver object.Object, _ ...object.Object) (object.Object, error) {
 	if isTruthy(receiver) {
-		return &object.Int{Val: 1}, nil
+		return &object.Integer{Val: 1}, nil
 	}
 
-	return &object.Int{Val: 0}, nil
+	return &object.Integer{Val: 0}, nil
 }
 
 // boolThenFunc returns the first argument if the receiver is true, the second argument or nil otherwise
 func boolThenFunc(receiver object.Object, args ...object.Object) (object.Object, error) {
 	if len(args) == 0 {
-		msg := fmt.Sprintf(fail.ErrFuncMissingArg, object.BOOL_OBJ, "then")
+		msg := fmt.Sprintf(fail.ErrFuncMissingArg, object.BOOLEAN_OBJ, "then")
 		return nil, errors.New(msg)
 	}
 

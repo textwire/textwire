@@ -69,10 +69,10 @@ func (e *Scope) SetLoopVar(pairs map[string]Object) {
 }
 
 func (e *Scope) AddGlobal(key string, val any) {
-	var globalObj *Obj
+	var globalObj *Map
 
 	switch v := e.vars["global"].(type) {
-	case *Obj:
+	case *Map:
 		globalObj = v
 	case nil:
 		globalObj = NewObj(nil)

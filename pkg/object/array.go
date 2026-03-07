@@ -11,7 +11,7 @@ type Array struct {
 }
 
 func (a *Array) Type() ObjectType {
-	return ARR_OBJ
+	return ARRARY_OBJ
 }
 
 func (a *Array) String() string {

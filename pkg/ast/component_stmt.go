@@ -9,7 +9,7 @@ import (
 type ComponentStmt struct {
 	BaseNode
 	Name     *StringLiteral // Relative path to the component 'components/book'
-	Argument *ObjectLiteral
+	Argument *MapLiteral
 	CompProg *Program        // AST node of the component file Name
 	Slots    []SlotStatement // Each slot of the component's block
 }

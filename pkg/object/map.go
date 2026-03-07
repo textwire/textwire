@@ -8,22 +8,22 @@ import (
 	"github.com/textwire/textwire/v3/pkg/utils"
 )
 
-type Obj struct {
+type Map struct {
 	Pairs map[string]Object
 }
 
-func NewObj(pairs map[string]Object) *Obj {
+func NewObj(pairs map[string]Object) *Map {
 	if pairs == nil {
 		pairs = map[string]Object{}
 	}
-	return &Obj{Pairs: pairs}
+	return &Map{Pairs: pairs}
 }
 
-func (o *Obj) Type() ObjectType {
-	return OBJ_OBJ
+func (o *Map) Type() ObjectType {
+	return MAP_OBJ
 }
 
-func (o *Obj) String() string {
+func (o *Map) String() string {
 	if o.Pairs == nil {
 		return "{}"
 	}
@@ -40,7 +40,7 @@ func (o *Obj) String() string {
 			out.WriteString(", ")
 		}
 
-		if _, isStr := pair.(*Str); isStr {
+		if _, isStr := pair.(*String); isStr {
 			out.WriteString(k + `: "` + pair.String() + `"`)
 		} else {
 			out.WriteString(k + ": " + pair.String())
@@ -52,7 +52,7 @@ func (o *Obj) String() string {
 	return out.String()
 }
 
-func (o *Obj) JSON() (string, error) {
+func (o *Map) JSON() (string, error) {
 	if o.Pairs == nil {
 		return "{}", nil
 	}
@@ -82,7 +82,7 @@ func (o *Obj) JSON() (string, error) {
 	return out.String(), nil
 }
 
-func (o *Obj) Dump(ident int) string {
+func (o *Map) Dump(ident int) string {
 	if o.Pairs == nil {
 		return "{}"
 	}
@@ -119,7 +119,7 @@ func (o *Obj) Dump(ident int) string {
 	return out.String()
 }
 
-func (o *Obj) Native() any {
+func (o *Map) Native() any {
 	res := map[string]any{}
 	for k, v := range o.Pairs {
 		res[k] = v.Native()
@@ -128,18 +128,18 @@ func (o *Obj) Native() any {
 	return res
 }
 
-func (o *Obj) Is(t ObjectType) bool {
+func (o *Map) Is(t ObjectType) bool {
 	return t == o.Type()
 }
 
 // ToCamel converts each key in a pair to camel case and returns it
 // without mutating it.
-func (o Obj) ToCamel() map[string]Object {
+func (o Map) ToCamel() map[string]Object {
 	res := make(map[string]Object, len(o.Pairs))
 	for k, v := range o.Pairs {
 		key := utils.ToCamel(k)
-		if v.Is(OBJ_OBJ) {
-			v.(*Obj).Pairs = v.(*Obj).ToCamel()
+		if v.Is(MAP_OBJ) {
+			v.(*Map).Pairs = v.(*Map).ToCamel()
 		}
 		res[key] = v
 	}
@@ -147,7 +147,7 @@ func (o Obj) ToCamel() map[string]Object {
 	return res
 }
 
-func (o *Obj) sortedKeys() []string {
+func (o *Map) sortedKeys() []string {
 	keys := make([]string, 0, len(o.Pairs))
 	for k := range o.Pairs {
 		keys = append(keys, k)

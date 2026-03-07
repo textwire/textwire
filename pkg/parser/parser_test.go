@@ -797,7 +797,7 @@ func TestErrorHandling(t *testing.T) {
 	}{
 		{
 			inp: `{{ { "1st": "nice" }.1st }}`,
-			err: fail.New(1, "", "parser", fail.ErrObjectKeyUseGet),
+			err: fail.New(1, "", "parser", fail.ErrMapKeyUseGet),
 		},
 		{
 			inp: "<div>@slotif(true)No@end</div>",
@@ -1992,7 +1992,7 @@ func TestParseObjectStatement(t *testing.T) {
 		t.Fatalf("stmts[0] is not a ExpressionStmt, got %T", stmts[0])
 	}
 
-	obj, ok := stmt.Expression.(*ast.ObjectLiteral)
+	obj, ok := stmt.Expression.(*ast.MapLiteral)
 	if !ok {
 		t.Fatalf("stmts[0] is not a ExpressionStmt, got %T", stmts[0])
 	}
@@ -2013,9 +2013,9 @@ func TestParseObjectStatement(t *testing.T) {
 		t.Fatalf(`obj.String() is not '{"father": {"name": "John" }}', got %s`, obj)
 	}
 
-	nested, ok := obj.Pairs["father"].(*ast.ObjectLiteral)
+	nested, ok := obj.Pairs["father"].(*ast.MapLiteral)
 	if !ok {
-		t.Fatalf("obj.Pairs['father'] is not a ObjectLiteral, got %T", obj.Pairs["father"])
+		t.Fatalf("obj.Pairs['father'] is not a MapLiteral, got %T", obj.Pairs["father"])
 	}
 
 	if err := testStringLiteral(nested.Pairs["name"], "John"); err != nil {
@@ -2040,7 +2040,7 @@ func TestParseObjectWithShorthandKeyNotation(t *testing.T) {
 		t.Fatalf("stmts[0] is not a ExpressionStmt, got %T", stmts[0])
 	}
 
-	obj, ok := stmt.Expression.(*ast.ObjectLiteral)
+	obj, ok := stmt.Expression.(*ast.MapLiteral)
 	if !ok {
 		t.Fatalf("stmts[0] is not a ExpressionStmt, got %T", stmts[0])
 	}

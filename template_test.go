@@ -372,7 +372,7 @@ func TestTemplateResponse(t *testing.T) {
 				absPath+"prod-error-page/home.tw",
 				"parser",
 				fail.ErrEachDirWithNonArrArg,
-				object.STR_OBJ,
+				object.STRING_OBJ,
 			),
 		},
 	}

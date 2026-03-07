@@ -7,15 +7,17 @@ import (
 type ObjectType string
 
 const (
-	NIL_OBJ = "NIL"
 	ERR_OBJ = "ERROR"
 
-	INT_OBJ       ObjectType = "INTEGER"
-	FLOAT_OBJ     ObjectType = "FLOAT"
-	BOOL_OBJ      ObjectType = "BOOLEAN"
-	STR_OBJ       ObjectType = "STRING"
-	ARR_OBJ       ObjectType = "ARRAY"
-	OBJ_OBJ       ObjectType = "OBJECT"
+	// Literals
+	INTEGER_OBJ ObjectType = "INTEGER"
+	FLOAT_OBJ   ObjectType = "FLOAT"
+	BOOLEAN_OBJ ObjectType = "BOOLEAN"
+	STRING_OBJ  ObjectType = "STRING"
+	ARRARY_OBJ  ObjectType = "ARRAY"
+	MAP_OBJ     ObjectType = "OBJECT"
+	NIL_OBJ                = "NIL"
+
 	HTML_OBJ      ObjectType = "HTML"
 	USE_OBJ       ObjectType = "LAYOUT"
 	RESERVE_OBJ   ObjectType = "RESERVE"
@@ -53,17 +55,17 @@ type Object interface {
 func FromTokenToObjectType(astType token.TokenType) ObjectType {
 	switch astType {
 	case token.INT:
-		return INT_OBJ
+		return INTEGER_OBJ
 	case token.LBRACE:
-		return OBJ_OBJ
+		return MAP_OBJ
 	case token.LBRACKET:
-		return ARR_OBJ
+		return ARRARY_OBJ
 	case token.FLOAT:
 		return FLOAT_OBJ
 	case token.TRUE, token.FALSE:
-		return BOOL_OBJ
+		return BOOLEAN_OBJ
 	case token.STR:
-		return STR_OBJ
+		return STRING_OBJ
 	case token.NIL:
 		return NIL_OBJ
 	default:

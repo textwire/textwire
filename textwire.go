@@ -59,12 +59,12 @@ func EvaluateFile(absPath string, data map[string]any) (string, error) {
 // RegisterStrFunc registers a custom function with the given name for the
 // string type. You'll be able to use it in your Textwire files.
 // e.g. `{{ "Sydney".myFunc() }}`
-func RegisterStrFunc(name string, fn config.StrCustomFunc) error {
-	if _, ok := customFunc.Str[name]; ok {
+func RegisterStrFunc(name string, fn config.StringCustomFunc) error {
+	if _, ok := customFunc.String[name]; ok {
 		return fail.New(0, "", "API", fail.ErrFuncAlreadyDefined, name, "strings").Error()
 	}
 
-	customFunc.Str[name] = fn
+	customFunc.String[name] = fn
 
 	return nil
 }
@@ -73,11 +73,11 @@ func RegisterStrFunc(name string, fn config.StrCustomFunc) error {
 // array type. You'll be able to use it in your Textwire files.
 // e.g. `{{ [1, 2].myFunc() }}`
 func RegisterArrFunc(name string, fn config.ArrayCustomFunc) error {
-	if _, ok := customFunc.Arr[name]; ok {
+	if _, ok := customFunc.Array[name]; ok {
 		return fail.New(0, "", "API", fail.ErrFuncAlreadyDefined, name, "arrays").Error()
 	}
 
-	customFunc.Arr[name] = fn
+	customFunc.Array[name] = fn
 
 	return nil
 }
@@ -85,12 +85,12 @@ func RegisterArrFunc(name string, fn config.ArrayCustomFunc) error {
 // RegisterObjFunc registers a custom function with the given name for the
 // object type. You'll be able to use it in your Textwire files.
 // e.g. `{{ {name: 'Sydney'}.myFunc() }}`
-func RegisterObjFunc(name string, fn config.ObjectCustomFunc) error {
-	if _, ok := customFunc.Obj[name]; ok {
+func RegisterObjFunc(name string, fn config.MapCustomFunc) error {
+	if _, ok := customFunc.Map[name]; ok {
 		return fail.New(0, "", "API", fail.ErrFuncAlreadyDefined, name, "objects").Error()
 	}
 
-	customFunc.Obj[name] = fn
+	customFunc.Map[name] = fn
 
 	return nil
 }
@@ -98,12 +98,12 @@ func RegisterObjFunc(name string, fn config.ObjectCustomFunc) error {
 // RegisterIntFunc registers a custom function with the given name for the
 // integer type. You'll be able to use it in your Textwire files.
 // e.g. `{{ 1.myFunc() }}`
-func RegisterIntFunc(name string, fn config.IntCustomFunc) error {
-	if _, ok := customFunc.Int[name]; ok {
+func RegisterIntFunc(name string, fn config.IntegerCustomFunc) error {
+	if _, ok := customFunc.Integer[name]; ok {
 		return fail.New(0, "", "API", fail.ErrFuncAlreadyDefined, name, "integers").Error()
 	}
 
-	customFunc.Int[name] = fn
+	customFunc.Integer[name] = fn
 
 	return nil
 }
@@ -124,12 +124,12 @@ func RegisterFloatFunc(name string, fn config.FloatCustomFunc) error {
 // RegisterBoolFunc registers a custom function with the given name for the
 // boolean type. You'll be able to use it in your Textwire files.
 // e.g. `{{ true.myFunc() }}`
-func RegisterBoolFunc(name string, fn config.BoolCustomFunc) error {
-	if _, ok := customFunc.Bool[name]; ok {
+func RegisterBoolFunc(name string, fn config.BooleanCustomFunc) error {
+	if _, ok := customFunc.Boolean[name]; ok {
 		return fail.New(0, "", "API", fail.ErrFuncAlreadyDefined, name, "booleans").Error()
 	}
 
-	customFunc.Bool[name] = fn
+	customFunc.Boolean[name] = fn
 
 	return nil
 }

@@ -348,7 +348,7 @@ func (p *Parser) arrayLiteral() ast.Expression {
 }
 
 func (p *Parser) objectLiteral() ast.Expression {
-	obj := ast.NewObjectLiteral(p.curToken)
+	obj := ast.NewMapLiteral(p.curToken)
 
 	obj.Pairs = map[string]ast.Expression{}
 
@@ -537,9 +537,9 @@ func (p *Parser) componentStmtHeader(stmt *ast.ComponentStmt) *ast.IllegalNode {
 		p.next() // move to ","
 		p.next() // skip ","
 
-		obj, ok := p.expression(LOWEST).(*ast.ObjectLiteral)
+		obj, ok := p.expression(LOWEST).(*ast.MapLiteral)
 		if !ok {
-			p.newError(p.curToken.ErrorLine(), fail.ErrExpectedObjectLiteral, p.curToken.Literal)
+			p.newError(p.curToken.ErrorLine(), fail.ErrExpectedMapLiteral, p.curToken.Literal)
 			return nil
 		}
 
@@ -875,7 +875,7 @@ func (p *Parser) dotExp(left ast.Expression) ast.Expression {
 	exp := ast.NewDotExp(*left.Tok(), left)
 
 	if p.peekIs(token.INT) {
-		p.newError(p.curToken.ErrorLine(), fail.ErrObjectKeyUseGet)
+		p.newError(p.curToken.ErrorLine(), fail.ErrMapKeyUseGet)
 		return nil
 	}
 

@@ -17,8 +17,8 @@ const (
 	ErrNoPrefixParseFunc      = "unexpected token '%s' at start of expression"
 	ErrIllegalToken           = "illegal token '%s'"
 	ErrElseifCannotFollowElse = "'@elseif' cannot come after '@else'"
-	ErrExpectedObjectLiteral  = "expected object literal, got '%s'"
-	ErrObjectKeyUseGet        = "to access a key that starts with a number, use OBJECT.get('key') function"
+	ErrExpectedMapLiteral     = "expected map literal, got '%s'"
+	ErrMapKeyUseGet           = "to access a key that starts with a number, use MAP.get('key') function"
 	ErrSlotNotDefined         = "@component('%s') references @slot('%s') which doesn't exist in the component file"
 	ErrDuplicateReserves      = "found duplicate @reserve('%s') inside of a layout file %s"
 	ErrDuplicateSlot          = "@slot('%s') used %d times in @component('%s')"
@@ -42,7 +42,7 @@ const (
 	ErrVariableIsUndefined     = "variable '%s' is not defined"
 	ErrReservedIdentifiers     = "'loop' and 'global' are reserved variable names"
 	ErrIdentifierTypeMismatch  = "cannot assign identifier '%s' of type '%s' to type '%s'"
-	ErrNotSupportedAssign      = "left side of an assign statement must be an identifier, index expression, or object key access, got '%s'"
+	ErrNotSupportedAssign      = "left side of an assign statement must be an identifier, index expression, or map key access, got '%s'"
 	ErrDivisionByZero          = "division by zero - divisor cannot be zero"
 	ErrEachDirWithNonArrArg    = "cannot use @each(item in ARRAY) with non-array type '%s' after 'in' keyword"
 	ErrArrayIndexInteger       = "array index must be an integer, got '%s'"
@@ -51,7 +51,7 @@ const (
 	ErrInsertRequiresUse       = "@insert('%s') cannot be used without @use()"
 	ErrUseStmtMissingLayout    = "@use('%s') missing layout file"
 	ErrGlobalFuncMissing       = "global function %s() not found"
-	ErrKeyOnNonObject          = "'%s' type does not support attribute '%s' access"
+	ErrIllegalAttributeAccess  = "'%s' type does not support attribute '%s' access"
 
 	// Functions
 	ErrFuncNotDefined   = "%s.%s() is not defined"

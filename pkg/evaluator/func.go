@@ -5,7 +5,7 @@ import (
 )
 
 var functions = map[object.ObjectType]map[string]*object.Builtin{
-	object.STR_OBJ: {
+	object.STRING_OBJ: {
 		"len":        {Fn: strLenFunc},
 		"split":      {Fn: strSplitFunc},
 		"raw":        {Fn: strRawFunc},
@@ -25,7 +25,7 @@ var functions = map[object.ObjectType]map[string]*object.Builtin{
 		"repeat":     {Fn: strRepeatFunc},
 		"format":     {Fn: strFormatFunc},
 	},
-	object.ARR_OBJ: {
+	object.ARRARY_OBJ: {
 		"len":      {Fn: arrayLenFunc},
 		"join":     {Fn: arrayJoinFunc},
 		"rand":     {Fn: arrayRandFunc},
@@ -45,18 +45,18 @@ var functions = map[object.ObjectType]map[string]*object.Builtin{
 		"floor": {Fn: floatFloorFunc},
 		"round": {Fn: floatRoundFunc},
 	},
-	object.INT_OBJ: {
+	object.INTEGER_OBJ: {
 		"float":   {Fn: intFloatFunc},
 		"abs":     {Fn: intAbsFunc},
 		"str":     {Fn: intStrFunc},
 		"len":     {Fn: intLenFunc},
 		"decimal": {Fn: intDecimalFunc},
 	},
-	object.BOOL_OBJ: {
+	object.BOOLEAN_OBJ: {
 		"binary": {Fn: boolBinaryFunc},
 		"then":   {Fn: boolThenFunc},
 	},
-	object.OBJ_OBJ: {
+	object.MAP_OBJ: {
 		"json":  {Fn: jsonFunc},
 		"camel": {Fn: objCamelFunc},
 		"get":   {Fn: objGetFunc},
@@ -69,5 +69,5 @@ func jsonFunc(receiver object.Object, _ ...object.Object) (object.Object, error)
 	if err != nil {
 		return nil, err
 	}
-	return &object.Str{Val: json}, nil
+	return &object.String{Val: json}, nil
 }

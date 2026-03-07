@@ -100,14 +100,14 @@ func TestEvaluateString(t *testing.T) {
 			data:   map[string]any{"n1": 1, "n2": 2},
 		},
 		{
-			name:   "First letter of the object property is case insensitive",
+			name:   "First letter of the map key is case insensitive",
 			inp:    "{{ user.iD.str() + ' ' + user.ID.str() }}",
 			expect: "1 1",
 			data: map[string]any{
 				"user": struct{ ID uint }{1}},
 		},
 		{
-			name:   "Accessing user.name.firstName property",
+			name:   "Accessing user.name.firstName key",
 			inp:    "{{ user.name.firstName }}",
 			expect: "Ann",
 			data: map[string]any{
@@ -447,7 +447,7 @@ func TestErrorHandling(t *testing.T) {
 				"",
 				"evaluator",
 				fail.ErrFuncNotDefined,
-				object.STR_OBJ,
+				object.STRING_OBJ,
 				"undefinedFunc",
 			),
 			data: map[string]any{"name": "Anna"},
@@ -480,9 +480,9 @@ func TestErrorHandling(t *testing.T) {
 				"evaluator",
 				fail.ErrCannotUseOperator,
 				"+",
-				object.INT_OBJ,
+				object.INTEGER_OBJ,
 				"+",
-				object.STR_OBJ,
+				object.STRING_OBJ,
 			),
 			data: nil,
 		},
@@ -513,14 +513,14 @@ func TestErrorHandling(t *testing.T) {
 				"evaluator",
 				fail.ErrIdentifierTypeMismatch,
 				"n",
-				object.INT_OBJ,
-				object.STR_OBJ,
+				object.INTEGER_OBJ,
+				object.STRING_OBJ,
 			),
 			data: nil,
 		},
 		{
 			inp:  `{{ user = {}; user.address.zip }}`,
-			err:  fail.New(1, "", "evaluator", fail.ErrKeyOnNonObject, object.NIL_OBJ, "zip"),
+			err:  fail.New(1, "", "evaluator", fail.ErrIllegalAttributeAccess, object.NIL_OBJ, "zip"),
 			data: nil,
 		},
 		{
@@ -530,7 +530,7 @@ func TestErrorHandling(t *testing.T) {
 				"",
 				"evaluator",
 				fail.ErrFuncNotDefined,
-				object.INT_OBJ,
+				object.INTEGER_OBJ,
 				"someFunction",
 			),
 			data: nil,
@@ -547,7 +547,7 @@ func TestErrorHandling(t *testing.T) {
 		},
 		{
 			inp:  `{{ obj = {name: "Amy"}; obj.name.id }}`,
-			err:  fail.New(1, "", "evaluator", fail.ErrKeyOnNonObject, object.STR_OBJ, "id"),
+			err:  fail.New(1, "", "evaluator", fail.ErrIllegalAttributeAccess, object.STRING_OBJ, "id"),
 			data: nil,
 		},
 		{
@@ -564,22 +564,22 @@ func TestErrorHandling(t *testing.T) {
 		},
 		{
 			inp:  `@each(v in {}){{ v }}@end`,
-			err:  fail.New(1, "", "evaluator", fail.ErrEachDirWithNonArrArg, object.OBJ_OBJ),
+			err:  fail.New(1, "", "evaluator", fail.ErrEachDirWithNonArrArg, object.MAP_OBJ),
 			data: nil,
 		},
 		{
 			inp:  `{{ 1 = 10 }}`,
-			err:  fail.New(1, "", "evaluator", fail.ErrNotSupportedAssign, object.INT_OBJ),
+			err:  fail.New(1, "", "evaluator", fail.ErrNotSupportedAssign, object.INTEGER_OBJ),
 			data: nil,
 		},
 		{
 			inp:  `{{ {} = 10 }}`,
-			err:  fail.New(1, "", "evaluator", fail.ErrNotSupportedAssign, object.OBJ_OBJ),
+			err:  fail.New(1, "", "evaluator", fail.ErrNotSupportedAssign, object.MAP_OBJ),
 			data: nil,
 		},
 		{
 			inp:  `{{ [] = 10 }}`,
-			err:  fail.New(1, "", "evaluator", fail.ErrNotSupportedAssign, object.ARR_OBJ),
+			err:  fail.New(1, "", "evaluator", fail.ErrNotSupportedAssign, object.ARRARY_OBJ),
 			data: nil,
 		},
 		{
@@ -589,22 +589,22 @@ func TestErrorHandling(t *testing.T) {
 		},
 		{
 			inp:  `{{ true = 10 }}`,
-			err:  fail.New(1, "", "evaluator", fail.ErrNotSupportedAssign, object.BOOL_OBJ),
+			err:  fail.New(1, "", "evaluator", fail.ErrNotSupportedAssign, object.BOOLEAN_OBJ),
 			data: nil,
 		},
 		{
 			inp:  `{{ 'anna' = 10 }}`,
-			err:  fail.New(1, "", "evaluator", fail.ErrNotSupportedAssign, object.STR_OBJ),
+			err:  fail.New(1, "", "evaluator", fail.ErrNotSupportedAssign, object.STRING_OBJ),
 			data: nil,
 		},
 		{
 			inp:  `{{ "serhii" = 10 }}`,
-			err:  fail.New(1, "", "evaluator", fail.ErrNotSupportedAssign, object.STR_OBJ),
+			err:  fail.New(1, "", "evaluator", fail.ErrNotSupportedAssign, object.STRING_OBJ),
 			data: nil,
 		},
 		{
 			inp:  `{{ false = 10 }}`,
-			err:  fail.New(1, "", "evaluator", fail.ErrNotSupportedAssign, object.BOOL_OBJ),
+			err:  fail.New(1, "", "evaluator", fail.ErrNotSupportedAssign, object.BOOLEAN_OBJ),
 			data: nil,
 		},
 		{

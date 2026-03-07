@@ -11,26 +11,26 @@ import (
 
 // objCamelFunc converts object keys to camel case recursively
 func objCamelFunc(receiver object.Object, _ ...object.Object) (object.Object, error) {
-	obj := receiver.(*object.Obj)
-	return &object.Obj{Pairs: obj.ToCamel()}, nil
+	obj := receiver.(*object.Map)
+	return &object.Map{Pairs: obj.ToCamel()}, nil
 }
 
 func objGetFunc(receiver object.Object, args ...object.Object) (object.Object, error) {
-	obj := receiver.(*object.Obj)
+	obj := receiver.(*object.Map)
 
 	if len(args) == 0 {
-		msg := fmt.Sprintf(fail.ErrFuncMissingArg, object.OBJ_OBJ, "get")
+		msg := fmt.Sprintf(fail.ErrFuncMissingArg, object.MAP_OBJ, "get")
 		return nil, errors.New(msg)
 	}
 
 	if len(args) > 1 {
-		msg := fmt.Sprintf(fail.ErrFuncMaxArgs, object.OBJ_OBJ, "get", 1)
+		msg := fmt.Sprintf(fail.ErrFuncMaxArgs, object.MAP_OBJ, "get", 1)
 		return nil, errors.New(msg)
 	}
 
-	pattern, ok := args[0].(*object.Str)
+	pattern, ok := args[0].(*object.String)
 	if !ok {
-		msg := fmt.Sprintf(fail.ErrFuncFirstArgStr, object.OBJ_OBJ, "get")
+		msg := fmt.Sprintf(fail.ErrFuncFirstArgStr, object.MAP_OBJ, "get")
 		return nil, errors.New(msg)
 	}
 
@@ -59,11 +59,11 @@ func findObjectKey(props []string, pairs map[string]object.Object) object.Object
 		}
 
 		// If not last key, value must be an object to continue
-		if result.Type() != object.OBJ_OBJ {
+		if result.Type() != object.MAP_OBJ {
 			return NIL
 		}
 
-		current = result.(*object.Obj).Pairs
+		current = result.(*object.Map).Pairs
 	}
 
 	return NIL

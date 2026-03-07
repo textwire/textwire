@@ -6,20 +6,20 @@ import (
 	"github.com/textwire/textwire/v3/pkg/token"
 )
 
-type ObjectLiteral struct {
+type MapLiteral struct {
 	BaseNode
 	Pairs map[string]Expression // Key-value pairs; { key: value }
 }
 
-func NewObjectLiteral(tok token.Token) *ObjectLiteral {
-	return &ObjectLiteral{
+func NewMapLiteral(tok token.Token) *MapLiteral {
+	return &MapLiteral{
 		BaseNode: NewBaseNode(tok),
 	}
 }
 
-func (ol *ObjectLiteral) expressionNode() {}
+func (ol *MapLiteral) expressionNode() {}
 
-func (ol *ObjectLiteral) String() string {
+func (ol *MapLiteral) String() string {
 	var out strings.Builder
 	estimateSize := 2 + len(ol.Pairs)
 	estimateSize += 2 + len(ol.Pairs) // quotes

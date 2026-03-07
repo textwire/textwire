@@ -2,30 +2,30 @@ package object
 
 import "fmt"
 
-type Str struct {
+type String struct {
 	Val string
 }
 
-func (s *Str) Type() ObjectType {
-	return STR_OBJ
+func (s *String) Type() ObjectType {
+	return STRING_OBJ
 }
 
-func (s *Str) String() string {
+func (s *String) String() string {
 	return s.Val
 }
 
-func (s *Str) Dump(ident int) string {
+func (s *String) Dump(ident int) string {
 	return fmt.Sprintf(`<span style="%s">%q</span>`, DUMP_STR, s.Val)
 }
 
-func (s *Str) JSON() (string, error) {
+func (s *String) JSON() (string, error) {
 	return fmt.Sprintf("%q", s.Val), nil
 }
 
-func (s *Str) Native() any {
+func (s *String) Native() any {
 	return s.Val
 }
 
-func (s *Str) Is(t ObjectType) bool {
+func (s *String) Is(t ObjectType) bool {
 	return t == s.Type()
 }
