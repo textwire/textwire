@@ -13,6 +13,14 @@ import (
 	"github.com/textwire/textwire/v3/pkg/linker"
 )
 
+const (
+	colorReset  = "\033[0m"
+	colorRed    = "\033[31m"
+	colorGreen  = "\033[32m"
+	colorYellow = "\033[33m"
+	colorCyan   = "\033[36m"
+)
+
 // fileWatcher monitors template files for changes and refreshes parsed AST nodes.
 // It is designed for development use only due to performance implications.
 type fileWatcher struct {
@@ -36,15 +44,15 @@ func newFileWatcher(oldLinker *linker.NodeLinker) *fileWatcher {
 // It detects file creation, deletion, and modifications, then reparses and relinks accordingly.
 func (fw *fileWatcher) Watch() {
 	if userConf.UsesFS() {
-		fw.fatal("Cannot use config.FileWatcher when using config.TemplateFS")
+		fw.fatal("cannot use config.FileWatcher when using config.TemplateFS")
 	}
 
-	fw.log("Watching files for changes...", "👁️")
+	fw.info("watching files for changes...")
 
 	var err error
 	fw.files, err = locateFiles()
 	if err != nil {
-		fw.fatal("Error locating files: " + err.Error())
+		fw.fatal("error locating files " + err.Error())
 	}
 
 	fw.fileCount = fw.countTemplateFiles()
@@ -73,12 +81,12 @@ func (fw *fileWatcher) tick() {
 
 // handleNewOrDeletedFiles re-locates files and updates tracking when file count changes.
 func (fw *fileWatcher) handleNewOrDeletedFiles() {
-	fw.log("File count changed, re-scanning...", "🔍")
+	fw.info("file count changed, updating...")
 	oldFiles := fw.files
 
 	files, err := locateFiles()
 	if err != nil {
-		fw.fatal("Error locating files: " + err.Error())
+		fw.fatal("error locating files " + err.Error())
 	}
 	fw.files = files
 
@@ -93,18 +101,18 @@ func (fw *fileWatcher) updateFileIfModified(f *file.SourceFile) {
 		return
 	}
 
-	fw.log("Re-scanning file: "+f.Rel, "🔍")
+	fw.info("update " + f.Rel)
 	f.ModTime = modTime
 
 	prog, failure, parseErr := parseFile(f)
 	if parseErr != nil {
-		fw.log(parseErr.Error(), "⛔")
+		fw.error(parseErr.Error())
 		fw.removeProgramByName(f.Name)
 		return
 	}
 
 	if failure != nil {
-		fw.log(failure.Error().Error(), "⛔")
+		fw.error(failure.Error().Error())
 	}
 
 	fw.updateOrAddProgram(prog)
@@ -138,7 +146,7 @@ func (fw *fileWatcher) relinkPrograms() {
 func (fw *fileWatcher) trackLinkingError(failure *fail.Error) {
 	if failure == nil {
 		if fw.lastError != "" {
-			fw.log("All linking errors resolved, templates are valid!", "✅")
+			fw.success("all templates are valid!")
 			fw.lastError = ""
 		}
 		fw.linker.LinkError = nil
@@ -147,7 +155,7 @@ func (fw *fileWatcher) trackLinkingError(failure *fail.Error) {
 
 	errMsg := failure.Error().Error()
 	if errMsg != fw.lastError {
-		fw.log(errMsg, "ℹ️")
+		fw.error(errMsg)
 		fw.lastError = errMsg
 	}
 
@@ -214,7 +222,7 @@ func (fw *fileWatcher) withLock(fn func()) {
 func (fw *fileWatcher) getFileModTime(f *file.SourceFile) time.Time {
 	info, err := os.Stat(f.Abs)
 	if err != nil {
-		fw.log(" Failed to stat file: "+f.Abs, "ℹ️")
+		fw.error("failed to stat file " + f.Abs)
 		return time.Time{}
 	}
 
@@ -242,12 +250,20 @@ func (fw *fileWatcher) countTemplateFiles() int {
 	return count
 }
 
-func (fw *fileWatcher) log(text, icon string) {
-	fmt.Printf("[Watcher]: %s  %s\n", icon, text)
+func (fw *fileWatcher) info(text string) {
+	fmt.Printf("%s[Watcher] %s%s\n", colorCyan, colorReset, text)
+}
+
+func (fw *fileWatcher) success(text string) {
+	fmt.Printf("%s[Watcher] %s%s\n", colorGreen, text, colorReset)
+}
+
+func (fw *fileWatcher) error(text string) {
+	fmt.Printf("%s[Watcher] %s%s\n", colorRed, text, colorReset)
 }
 
 func (fw *fileWatcher) fatal(text string) {
-	fw.log(text, "⛔")
+	fw.error(text)
 	os.Exit(1)
 }
 
