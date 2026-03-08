@@ -8,7 +8,7 @@ import (
 	"github.com/textwire/textwire/v3/config"
 	"github.com/textwire/textwire/v3/pkg/fail"
 	"github.com/textwire/textwire/v3/pkg/file"
-	"github.com/textwire/textwire/v3/pkg/object"
+	"github.com/textwire/textwire/v3/pkg/value"
 )
 
 func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
@@ -372,7 +372,7 @@ func TestTemplateResponse(t *testing.T) {
 				absPath+"prod-error-page/home.tw",
 				"parser",
 				fail.ErrEachDirWithNonArrArg,
-				object.STR_OBJ,
+				value.STR_OBJ,
 			),
 		},
 	}

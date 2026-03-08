@@ -1,11 +1,11 @@
-package object
+package value
 
 type Use struct {
 	Path   string
-	Layout Object
+	Layout Value
 }
 
-func (u *Use) Type() ObjectType {
+func (u *Use) Type() ValueType {
 	return USE_OBJ
 }
 
@@ -31,6 +31,6 @@ func (u *Use) Native() any {
 	return u.Layout.Native()
 }
 
-func (u *Use) Is(t ObjectType) bool {
+func (u *Use) Is(t ValueType) bool {
 	return t == u.Type()
 }

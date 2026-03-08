@@ -1,8 +1,8 @@
-package object
+package value
 
 type Continue struct{}
 
-func (c *Continue) Type() ObjectType {
+func (c *Continue) Type() ValueType {
 	return CONTINUE_OBJ
 }
 
@@ -22,6 +22,6 @@ func (c *Continue) Native() any {
 	return nil
 }
 
-func (c *Continue) Is(t ObjectType) bool {
+func (c *Continue) Is(t ValueType) bool {
 	return t == c.Type()
 }

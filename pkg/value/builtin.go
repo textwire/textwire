@@ -1,12 +1,12 @@
-package object
+package value
 
-type BuiltinFunction func(receiver Object, args ...Object) (Object, error)
+type BuiltinFunction func(receiver Value, args ...Value) (Value, error)
 
 type Builtin struct {
 	Fn BuiltinFunction
 }
 
-func (b *Builtin) Type() ObjectType {
+func (b *Builtin) Type() ValueType {
 	return BUILTIN_OBJ
 }
 

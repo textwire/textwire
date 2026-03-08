@@ -1,4 +1,4 @@
-package object
+package value
 
 import (
 	"fmt"
@@ -8,7 +8,7 @@ type Int struct {
 	Val int64
 }
 
-func (i *Int) Type() ObjectType {
+func (i *Int) Type() ValueType {
 	return INT_OBJ
 }
 
@@ -28,6 +28,6 @@ func (i *Int) Native() any {
 	return i.Val
 }
 
-func (i *Int) Is(t ObjectType) bool {
+func (i *Int) Is(t ValueType) bool {
 	return t == i.Type()
 }

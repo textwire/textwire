@@ -8,15 +8,15 @@ import (
 	"github.com/textwire/textwire/v3/config"
 	"github.com/textwire/textwire/v3/pkg/ast"
 	"github.com/textwire/textwire/v3/pkg/fail"
-	"github.com/textwire/textwire/v3/pkg/object"
+	"github.com/textwire/textwire/v3/pkg/value"
 )
 
 var (
-	NIL      = &object.Nil{}
-	TRUE     = &object.Bool{Val: true}
-	FALSE    = &object.Bool{Val: false}
-	BREAK    = &object.Break{}
-	CONTINUE = &object.Continue{}
+	NIL      = &value.Nil{}
+	TRUE     = &value.Bool{Val: true}
+	FALSE    = &value.Bool{Val: false}
+	BREAK    = &value.Break{}
+	CONTINUE = &value.Continue{}
 )
 
 type Evaluator struct {
@@ -37,13 +37,13 @@ func New(customFunc *config.Func, conf *config.Config) *Evaluator {
 	}
 }
 
-func (e *Evaluator) Eval(node ast.Node, ctx *Context) object.Object {
+func (e *Evaluator) Eval(node ast.Node, ctx *Context) value.Value {
 	switch node := node.(type) {
 	// Statements
 	case *ast.Program:
 		return e.program(node, ctx)
 	case *ast.HTMLStmt:
-		return &object.HTML{Val: node.String()}
+		return &value.HTML{Val: node.String()}
 	case *ast.ExpressionStmt:
 		return e.Eval(node.Expression, ctx)
 	case *ast.IfStmt:
@@ -89,9 +89,9 @@ func (e *Evaluator) Eval(node ast.Node, ctx *Context) object.Object {
 	case *ast.DotExp:
 		return e.dotExp(node, ctx)
 	case *ast.IntegerLiteral:
-		return &object.Int{Val: node.Val}
+		return &value.Int{Val: node.Val}
 	case *ast.FloatLiteral:
-		return &object.Float{Val: node.Val}
+		return &value.Float{Val: node.Val}
 	case *ast.StringLiteral:
 		return e.stringLit(node)
 	case *ast.BooleanLiteral:
@@ -119,7 +119,7 @@ func (e *Evaluator) Eval(node ast.Node, ctx *Context) object.Object {
 	return e.newError(node, ctx, fail.ErrUnknownNodeType, node)
 }
 
-func (e *Evaluator) program(prog *ast.Program, ctx *Context) object.Object {
+func (e *Evaluator) program(prog *ast.Program, ctx *Context) value.Value {
 	var stmts strings.Builder
 	stmts.Grow(len(prog.Statements))
 
@@ -132,10 +132,10 @@ func (e *Evaluator) program(prog *ast.Program, ctx *Context) object.Object {
 		stmts.WriteString(stmt.String())
 	}
 
-	return &object.HTML{Val: stmts.String()}
+	return &value.HTML{Val: stmts.String()}
 }
 
-func (e *Evaluator) _if(ifStmt *ast.IfStmt, ctx *Context) object.Object {
+func (e *Evaluator) _if(ifStmt *ast.IfStmt, ctx *Context) value.Value {
 	cond := e.Eval(ifStmt.Condition, ctx)
 	if isError(cond) {
 		return cond
@@ -169,12 +169,12 @@ func (e *Evaluator) _if(ifStmt *ast.IfStmt, ctx *Context) object.Object {
 	return NIL
 }
 
-func (e *Evaluator) block(blockStmt *ast.BlockStmt, ctx *Context) object.Object {
+func (e *Evaluator) block(blockStmt *ast.BlockStmt, ctx *Context) value.Value {
 	if blockStmt == nil {
 		return NIL
 	}
 
-	stmts := make([]object.Object, 0, len(blockStmt.Statements))
+	stmts := make([]value.Value, 0, len(blockStmt.Statements))
 
 	for i := range blockStmt.Statements {
 		stmt := e.Eval(blockStmt.Statements[i], ctx)
@@ -188,10 +188,10 @@ func (e *Evaluator) block(blockStmt *ast.BlockStmt, ctx *Context) object.Object 
 		}
 	}
 
-	return &object.Block{Elements: stmts}
+	return &value.Block{Elements: stmts}
 }
 
-func (e *Evaluator) assign(assignStmt *ast.AssignStmt, ctx *Context) object.Object {
+func (e *Evaluator) assign(assignStmt *ast.AssignStmt, ctx *Context) value.Value {
 	right := e.Eval(assignStmt.Right, ctx)
 	if isError(right) {
 		return right
@@ -209,16 +209,16 @@ func (e *Evaluator) assign(assignStmt *ast.AssignStmt, ctx *Context) object.Obje
 			assignStmt,
 			ctx,
 			fail.ErrNotSupportedAssign,
-			object.FromTokenToObjectType(left.Tok().Type),
+			value.FromTokenToObjectType(left.Tok().Type),
 		)
 	}
 }
 
 func (e *Evaluator) assignIdentifier(
 	ident *ast.Identifier,
-	val object.Object,
+	val value.Value,
 	ctx *Context,
-) object.Object {
+) value.Value {
 	if err := ctx.scope.Set(ident.Name, val); err != nil {
 		return e.newError(ident, ctx, "%s", err.Error())
 	}
@@ -227,9 +227,9 @@ func (e *Evaluator) assignIdentifier(
 
 func (e *Evaluator) assignIndexExp(
 	indexExp *ast.IndexExp,
-	val object.Object,
+	val value.Value,
 	ctx *Context,
-) object.Object {
+) value.Value {
 	left := e.Eval(indexExp.Left, ctx)
 	if isError(left) {
 		return left
@@ -240,17 +240,17 @@ func (e *Evaluator) assignIndexExp(
 		return idx
 	}
 
-	if !left.Is(object.ARR_OBJ) {
+	if !left.Is(value.ARR_OBJ) {
 		return e.newError(indexExp, ctx, fail.ErrIndexNotSupported, left.Type())
 	}
 
 	// Index must be integer
-	if !idx.Is(object.INT_OBJ) {
+	if !idx.Is(value.INT_OBJ) {
 		return e.newError(indexExp, ctx, fail.ErrArrayIndexInteger, idx.Type())
 	}
 
-	arr := left.(*object.Array)
-	index := idx.(*object.Int).Val
+	arr := left.(*value.Array)
+	index := idx.(*value.Int).Val
 
 	if index < 0 || index >= int64(len(arr.Elements)) {
 		return e.newError(indexExp, ctx, fail.ErrArrayIndexOutOfBound, index, len(arr.Elements))
@@ -263,9 +263,9 @@ func (e *Evaluator) assignIndexExp(
 
 func (e *Evaluator) assignDotExp(
 	dotExp *ast.DotExp,
-	val object.Object,
+	val value.Value,
 	ctx *Context,
-) object.Object {
+) value.Value {
 	// Evaluate the left side to get the object
 	left := e.Eval(dotExp.Left, ctx)
 	if isError(left) {
@@ -276,7 +276,7 @@ func (e *Evaluator) assignDotExp(
 	key := dotExp.Key.(*ast.Identifier).Name
 
 	// Type assert that left is an object
-	obj, ok := left.(*object.Obj)
+	obj, ok := left.(*value.Obj)
 	if !ok {
 		return e.newError(dotExp, ctx, fail.ErrKeyOnNonObject, left.Type(), key)
 	}
@@ -287,7 +287,7 @@ func (e *Evaluator) assignDotExp(
 	return NIL
 }
 
-func (e *Evaluator) use(useStmt *ast.UseStmt, ctx *Context) object.Object {
+func (e *Evaluator) use(useStmt *ast.UseStmt, ctx *Context) value.Value {
 	if useStmt.LayoutProg == nil {
 		if e.usingTemplates {
 			return e.newError(useStmt, ctx, fail.ErrUseStmtMissingLayout, useStmt.Name.Val)
@@ -303,7 +303,7 @@ func (e *Evaluator) use(useStmt *ast.UseStmt, ctx *Context) object.Object {
 	}
 
 	// Create new layout context and pass inserts to it
-	layoutCtx := NewContext(object.NewScope(), useStmt.LayoutProg.AbsPath)
+	layoutCtx := NewContext(value.NewScope(), useStmt.LayoutProg.AbsPath)
 
 	// Evaluate @inserts and map them into new context for layout
 	for name, insertStmt := range useStmt.Inserts {
@@ -320,13 +320,13 @@ func (e *Evaluator) use(useStmt *ast.UseStmt, ctx *Context) object.Object {
 		return layout
 	}
 
-	return &object.Use{
+	return &value.Use{
 		Path:   useStmt.Name.Val,
 		Layout: layout,
 	}
 }
 
-func (e *Evaluator) reserve(reserveStmt *ast.ReserveStmt, ctx *Context) object.Object {
+func (e *Evaluator) reserve(reserveStmt *ast.ReserveStmt, ctx *Context) value.Value {
 	if !e.usingTemplates {
 		return e.newError(reserveStmt, ctx, fail.ErrSomeDirsOnlyInTemplates)
 	}
@@ -344,13 +344,13 @@ func (e *Evaluator) reserve(reserveStmt *ast.ReserveStmt, ctx *Context) object.O
 	// delete reserve after it's been used by reserve
 	defer delete(ctx.inserts, name)
 
-	return &object.Reserve{
+	return &value.Reserve{
 		Name:   name,
 		Insert: insert,
 	}
 }
 
-func (e *Evaluator) component(compStmt *ast.ComponentStmt, ctx *Context) object.Object {
+func (e *Evaluator) component(compStmt *ast.ComponentStmt, ctx *Context) value.Value {
 	if !e.usingTemplates {
 		return e.newError(compStmt, ctx, fail.ErrSomeDirsOnlyInTemplates)
 	}
@@ -360,7 +360,7 @@ func (e *Evaluator) component(compStmt *ast.ComponentStmt, ctx *Context) object.
 		return e.newError(compStmt, ctx, fail.ErrUndefinedComponent, name)
 	}
 
-	compCtx := NewContext(object.NewScope(), compStmt.CompProg.AbsPath)
+	compCtx := NewContext(value.NewScope(), compStmt.CompProg.AbsPath)
 
 	// Evaluate local slots and add them to component context
 	for _, slotStmt := range compStmt.Slots {
@@ -370,7 +370,7 @@ func (e *Evaluator) component(compStmt *ast.ComponentStmt, ctx *Context) object.
 		}
 
 		if compCtx.slots[name] == nil {
-			compCtx.slots[name] = map[string]object.Object{}
+			compCtx.slots[name] = map[string]value.Value{}
 		}
 
 		compCtx.slots[name][slotStmt.Name().Val] = slot
@@ -394,16 +394,16 @@ func (e *Evaluator) component(compStmt *ast.ComponentStmt, ctx *Context) object.
 		return content
 	}
 
-	return &object.Component{
+	return &value.Component{
 		Name:    name,
 		Content: content,
 	}
 }
 
-func (e *Evaluator) _for(forStmt *ast.ForStmt, ctx *Context) object.Object {
+func (e *Evaluator) _for(forStmt *ast.ForStmt, ctx *Context) value.Value {
 	forCtx := NewContext(ctx.scope, ctx.absPath)
 
-	var init object.Object
+	var init value.Value
 	if forStmt.Init != nil {
 		if init = e.Eval(forStmt.Init, forCtx); isError(init) {
 			return init
@@ -444,7 +444,7 @@ func (e *Evaluator) _for(forStmt *ast.ForStmt, ctx *Context) object.Object {
 
 		blocks.WriteString(block.String())
 
-		var post object.Object
+		var post value.Value
 		if forStmt.Post != nil {
 			post = e.Eval(forStmt.Post, forCtx)
 			if isError(post) {
@@ -468,10 +468,10 @@ func (e *Evaluator) _for(forStmt *ast.ForStmt, ctx *Context) object.Object {
 		}
 	}
 
-	return &object.HTML{Val: blocks.String()}
+	return &value.HTML{Val: blocks.String()}
 }
 
-func (e *Evaluator) each(eachStmt *ast.EachStmt, ctx *Context) object.Object {
+func (e *Evaluator) each(eachStmt *ast.EachStmt, ctx *Context) value.Value {
 	eachCtx := NewContext(ctx.scope.Child(), ctx.absPath)
 	varName := eachStmt.Var.Name
 
@@ -480,7 +480,7 @@ func (e *Evaluator) each(eachStmt *ast.EachStmt, ctx *Context) object.Object {
 		return arrObj
 	}
 
-	arr, ok := arrObj.(*object.Array)
+	arr, ok := arrObj.(*value.Array)
 	if !ok {
 		return e.newError(eachStmt, eachCtx, fail.ErrEachDirWithNonArrArg, arrObj.Type())
 	}
@@ -500,11 +500,11 @@ func (e *Evaluator) each(eachStmt *ast.EachStmt, ctx *Context) object.Object {
 			return e.newError(eachStmt, eachCtx, "%s", err.Error())
 		}
 
-		eachCtx.scope.SetLoopVar(map[string]object.Object{
-			"index": &object.Int{Val: int64(i)},
+		eachCtx.scope.SetLoopVar(map[string]value.Value{
+			"index": &value.Int{Val: int64(i)},
 			"first": nativeBoolToBoolObj(i == 0),
 			"last":  nativeBoolToBoolObj(i == len(arrElems)-1),
-			"iter":  &object.Int{Val: int64(i + 1)},
+			"iter":  &value.Int{Val: int64(i + 1)},
 		})
 
 		block := e.Eval(eachStmt.Block, eachCtx)
@@ -522,10 +522,10 @@ func (e *Evaluator) each(eachStmt *ast.EachStmt, ctx *Context) object.Object {
 		}
 	}
 
-	return &object.HTML{Val: blocks.String()}
+	return &value.HTML{Val: blocks.String()}
 }
 
-func (e *Evaluator) breakif(breakifStmt *ast.BreakifStmt, ctx *Context) object.Object {
+func (e *Evaluator) breakif(breakifStmt *ast.BreakifStmt, ctx *Context) value.Value {
 	cond := e.Eval(breakifStmt.Condition, ctx)
 	if isError(cond) {
 		return cond
@@ -538,7 +538,7 @@ func (e *Evaluator) breakif(breakifStmt *ast.BreakifStmt, ctx *Context) object.O
 	return NIL
 }
 
-func (e *Evaluator) continueif(contifStmt *ast.ContinueifStmt, ctx *Context) object.Object {
+func (e *Evaluator) continueif(contifStmt *ast.ContinueifStmt, ctx *Context) value.Value {
 	cond := e.Eval(contifStmt.Condition, ctx)
 	if isError(cond) {
 		return cond
@@ -551,14 +551,14 @@ func (e *Evaluator) continueif(contifStmt *ast.ContinueifStmt, ctx *Context) obj
 	return NIL
 }
 
-func (e *Evaluator) slot(slotStmt *ast.SlotStmt, ctx *Context) object.Object {
+func (e *Evaluator) slot(slotStmt *ast.SlotStmt, ctx *Context) value.Value {
 	if slotStmt.IsLocal {
 		return e.localSlotStmt(slotStmt, ctx)
 	}
 	return e.externalSlotStmt(slotStmt, ctx)
 }
 
-func (e *Evaluator) slotif(slotifStmt *ast.SlotifStmt, ctx *Context) object.Object {
+func (e *Evaluator) slotif(slotifStmt *ast.SlotifStmt, ctx *Context) value.Value {
 	cond := e.Eval(slotifStmt.Condition, ctx)
 	if isError(cond) {
 		return cond
@@ -573,13 +573,13 @@ func (e *Evaluator) slotif(slotifStmt *ast.SlotifStmt, ctx *Context) object.Obje
 		return block
 	}
 
-	return &object.Slot{
+	return &value.Slot{
 		Name:    slotifStmt.Name().Val,
 		Content: block,
 	}
 }
 
-func (e *Evaluator) externalSlotStmt(slotStmt *ast.SlotStmt, ctx *Context) object.Object {
+func (e *Evaluator) externalSlotStmt(slotStmt *ast.SlotStmt, ctx *Context) value.Value {
 	name := slotStmt.Name().Val
 	compName := slotStmt.CompName
 
@@ -593,11 +593,11 @@ func (e *Evaluator) externalSlotStmt(slotStmt *ast.SlotStmt, ctx *Context) objec
 	// delete slot after it's been used by external component
 	defer delete(ctx.slots[compName], name)
 
-	return &object.Slot{Name: name, Content: content}
+	return &value.Slot{Name: name, Content: content}
 }
 
-func (e *Evaluator) localSlotStmt(slotStmt *ast.SlotStmt, ctx *Context) object.Object {
-	var block object.Object = NIL
+func (e *Evaluator) localSlotStmt(slotStmt *ast.SlotStmt, ctx *Context) value.Value {
+	var block value.Value = NIL
 
 	if slotStmt.Block() != nil {
 		block = e.Eval(slotStmt.Block(), ctx)
@@ -606,13 +606,13 @@ func (e *Evaluator) localSlotStmt(slotStmt *ast.SlotStmt, ctx *Context) object.O
 		}
 	}
 
-	return &object.Slot{
+	return &value.Slot{
 		Name:    slotStmt.Name().Val,
 		Content: block,
 	}
 }
 
-func (e *Evaluator) insert(insertStmt *ast.InsertStmt, ctx *Context) object.Object {
+func (e *Evaluator) insert(insertStmt *ast.InsertStmt, ctx *Context) value.Value {
 	if !e.usingTemplates {
 		return e.newError(insertStmt, ctx, fail.ErrSomeDirsOnlyInTemplates)
 	}
@@ -627,7 +627,7 @@ func (e *Evaluator) insert(insertStmt *ast.InsertStmt, ctx *Context) object.Obje
 		return block
 	}
 
-	return &object.Insert{
+	return &value.Insert{
 		Name:  name,
 		Block: block,
 	}
@@ -635,7 +635,7 @@ func (e *Evaluator) insert(insertStmt *ast.InsertStmt, ctx *Context) object.Obje
 
 // combineInsertContent combines insert Argument and Block (depending what user has)
 // into a single object that we can work with.
-func (e *Evaluator) combineInsertContent(insertStmt *ast.InsertStmt, ctx *Context) object.Object {
+func (e *Evaluator) combineInsertContent(insertStmt *ast.InsertStmt, ctx *Context) value.Value {
 	if insertStmt.Argument != nil {
 		arg := e.Eval(insertStmt.Argument, ctx)
 		if isError(arg) {
@@ -651,7 +651,7 @@ func (e *Evaluator) combineInsertContent(insertStmt *ast.InsertStmt, ctx *Contex
 	return e.Eval(insertStmt.Block, ctx)
 }
 
-func (e *Evaluator) dump(dumpStmt *ast.DumpStmt, ctx *Context) object.Object {
+func (e *Evaluator) dump(dumpStmt *ast.DumpStmt, ctx *Context) value.Value {
 	values := make([]string, 0, len(dumpStmt.Arguments))
 
 	for i := range dumpStmt.Arguments {
@@ -659,13 +659,13 @@ func (e *Evaluator) dump(dumpStmt *ast.DumpStmt, ctx *Context) object.Object {
 		values = append(values, evaluated.Dump(0))
 	}
 
-	return &object.Dump{Vals: values}
+	return &value.Dump{Vals: values}
 }
 
-func (e *Evaluator) ident(ident *ast.Identifier, ctx *Context) object.Object {
+func (e *Evaluator) ident(ident *ast.Identifier, ctx *Context) value.Value {
 	varName := ident.Name
 	if varName == "global" && e.config != nil && e.config.GlobalData != nil {
-		return object.NativeToObject(e.config.GlobalData)
+		return value.NativeToObject(e.config.GlobalData)
 	}
 
 	if val, ok := ctx.scope.Get(varName); ok {
@@ -675,7 +675,7 @@ func (e *Evaluator) ident(ident *ast.Identifier, ctx *Context) object.Object {
 	return e.newError(ident, ctx, fail.ErrVariableIsUndefined, ident.Name)
 }
 
-func (e *Evaluator) indexExp(indexExp *ast.IndexExp, ctx *Context) object.Object {
+func (e *Evaluator) indexExp(indexExp *ast.IndexExp, ctx *Context) value.Value {
 	left := e.Eval(indexExp.Left, ctx)
 	if isError(left) {
 		return left
@@ -687,18 +687,18 @@ func (e *Evaluator) indexExp(indexExp *ast.IndexExp, ctx *Context) object.Object
 	}
 
 	switch {
-	case left.Is(object.ARR_OBJ) && idx.Is(object.INT_OBJ):
+	case left.Is(value.ARR_OBJ) && idx.Is(value.INT_OBJ):
 		return e.arrayIndexExp(left, idx)
-	case left.Is(object.OBJ_OBJ) && idx.Is(object.STR_OBJ):
-		return e.objectKeyExp(left.(*object.Obj), idx.(*object.Str).Val)
+	case left.Is(value.OBJ_OBJ) && idx.Is(value.STR_OBJ):
+		return e.objectKeyExp(left.(*value.Obj), idx.(*value.Str).Val)
 	}
 
 	return e.newError(indexExp, ctx, fail.ErrIndexNotSupported, left.Type())
 }
 
-func (e *Evaluator) arrayIndexExp(arrObj, idx object.Object) object.Object {
-	arr := arrObj.(*object.Array)
-	index := idx.(*object.Int).Val
+func (e *Evaluator) arrayIndexExp(arrObj, idx value.Value) value.Value {
+	arr := arrObj.(*value.Array)
+	index := idx.(*value.Int).Val
 	max := int64(len(arr.Elements) - 1)
 
 	if index < 0 || index > max {
@@ -708,7 +708,7 @@ func (e *Evaluator) arrayIndexExp(arrObj, idx object.Object) object.Object {
 	return arr.Elements[index]
 }
 
-func (e *Evaluator) objectKeyExp(obj *object.Obj, key string) object.Object {
+func (e *Evaluator) objectKeyExp(obj *value.Obj, key string) value.Value {
 	if pair, ok := obj.Pairs[key]; ok {
 		return pair
 	}
@@ -722,14 +722,14 @@ func (e *Evaluator) objectKeyExp(obj *object.Obj, key string) object.Object {
 	return NIL
 }
 
-func (e *Evaluator) dotExp(dotExp *ast.DotExp, ctx *Context) object.Object {
+func (e *Evaluator) dotExp(dotExp *ast.DotExp, ctx *Context) value.Value {
 	left := e.Eval(dotExp.Left, ctx)
 	if isError(left) {
 		return left
 	}
 
 	key := dotExp.Key.(*ast.Identifier)
-	obj, ok := left.(*object.Obj)
+	obj, ok := left.(*value.Obj)
 	if !ok {
 		return e.newError(dotExp, ctx, fail.ErrKeyOnNonObject, left.Type(), key)
 	}
@@ -737,17 +737,17 @@ func (e *Evaluator) dotExp(dotExp *ast.DotExp, ctx *Context) object.Object {
 	return e.objectKeyExp(obj, key.Name)
 }
 
-func (e *Evaluator) stringLit(strLit *ast.StringLiteral) object.Object {
+func (e *Evaluator) stringLit(strLit *ast.StringLiteral) value.Value {
 	str := html.EscapeString(strLit.Val)
 
 	// unescape single and double quotes
 	str = strings.ReplaceAll(str, "&#34;", `"`)
 	str = strings.ReplaceAll(str, "&#39;", `'`)
 
-	return &object.Str{Val: str}
+	return &value.Str{Val: str}
 }
 
-func (e *Evaluator) prefixExp(prefixExp *ast.PrefixExp, ctx *Context) object.Object {
+func (e *Evaluator) prefixExp(prefixExp *ast.PrefixExp, ctx *Context) value.Value {
 	right := e.Eval(prefixExp.Right, ctx)
 	if isError(right) {
 		return right
@@ -763,7 +763,7 @@ func (e *Evaluator) prefixExp(prefixExp *ast.PrefixExp, ctx *Context) object.Obj
 	return e.newError(prefixExp, ctx, fail.ErrUnknownOp, prefixExp.Op, right.Type())
 }
 
-func (e *Evaluator) ternaryExp(ternExp *ast.TernaryExp, ctx *Context) object.Object {
+func (e *Evaluator) ternaryExp(ternExp *ast.TernaryExp, ctx *Context) value.Value {
 	cond := e.Eval(ternExp.Condition, ctx)
 	if isError(cond) {
 		return cond
@@ -776,17 +776,17 @@ func (e *Evaluator) ternaryExp(ternExp *ast.TernaryExp, ctx *Context) object.Obj
 	return e.Eval(ternExp.ElseBlock, ctx)
 }
 
-func (e *Evaluator) arrayLit(arrLit *ast.ArrayLiteral, ctx *Context) object.Object {
+func (e *Evaluator) arrayLit(arrLit *ast.ArrayLiteral, ctx *Context) value.Value {
 	elems := e.evalExpressions(arrLit.Elements, ctx)
 	if len(elems) == 1 && isError(elems[0]) {
 		return elems[0]
 	}
 
-	return &object.Array{Elements: elems}
+	return &value.Array{Elements: elems}
 }
 
-func (e *Evaluator) objectLit(objLit *ast.ObjectLiteral, ctx *Context) object.Object {
-	pairs := make(map[string]object.Object, len(objLit.Pairs))
+func (e *Evaluator) objectLit(objLit *ast.ObjectLiteral, ctx *Context) value.Value {
+	pairs := make(map[string]value.Value, len(objLit.Pairs))
 
 	for key, val := range objLit.Pairs {
 		valObj := e.Eval(val, ctx)
@@ -797,16 +797,16 @@ func (e *Evaluator) objectLit(objLit *ast.ObjectLiteral, ctx *Context) object.Ob
 		pairs[key] = valObj
 	}
 
-	return object.NewObj(pairs)
+	return value.NewObj(pairs)
 }
 
-func (e *Evaluator) evalExpressions(exps []ast.Expression, ctx *Context) []object.Object {
-	evaluatedObjs := make([]object.Object, 0, len(exps))
+func (e *Evaluator) evalExpressions(exps []ast.Expression, ctx *Context) []value.Value {
+	evaluatedObjs := make([]value.Value, 0, len(exps))
 
 	for i := range exps {
 		evaluated := e.Eval(exps[i], ctx)
 		if isError(evaluated) {
-			return []object.Object{evaluated}
+			return []value.Value{evaluated}
 		}
 
 		evaluatedObjs = append(evaluatedObjs, evaluated)
@@ -819,7 +819,7 @@ func (e *Evaluator) infixExp(
 	op string,
 	leftNode, rightNode ast.Expression,
 	ctx *Context,
-) object.Object {
+) value.Value {
 	left := e.Eval(leftNode, ctx)
 	if isError(left) {
 		return left
@@ -843,7 +843,7 @@ func (e *Evaluator) infixExp(
 
 // Short-circuit evaluation for logical operators to prevent
 // checking conditions if the left side is false.
-func (e *Evaluator) shortCircuit(left object.Object, op string) (object.Object, bool) {
+func (e *Evaluator) shortCircuit(left value.Value, op string) (value.Value, bool) {
 	if op == "&&" && !isTruthy(left) {
 		return FALSE, true
 	}
@@ -854,7 +854,7 @@ func (e *Evaluator) shortCircuit(left object.Object, op string) (object.Object, 
 	return nil, false
 }
 
-func (e *Evaluator) postfixExp(postfixExp *ast.PostfixExp, ctx *Context) object.Object {
+func (e *Evaluator) postfixExp(postfixExp *ast.PostfixExp, ctx *Context) value.Value {
 	leftObj := e.Eval(postfixExp.Left, ctx)
 	if isError(leftObj) {
 		return leftObj
@@ -863,7 +863,7 @@ func (e *Evaluator) postfixExp(postfixExp *ast.PostfixExp, ctx *Context) object.
 	return e.postfixOpExp(leftObj, postfixExp.Op, postfixExp, ctx)
 }
 
-func (e *Evaluator) callExp(callExp *ast.CallExp, ctx *Context) object.Object {
+func (e *Evaluator) callExp(callExp *ast.CallExp, ctx *Context) value.Value {
 	receiver := e.Eval(callExp.Receiver, ctx)
 	funcName := callExp.Function.Name
 	if isError(receiver) {
@@ -895,39 +895,39 @@ func (e *Evaluator) callExp(callExp *ast.CallExp, ctx *Context) object.Object {
 		nativeArgs := e.objectsToNativeType(args)
 
 		switch r := receiver.(type) {
-		case *object.Str:
+		case *value.Str:
 			fun := e.customFunc.Str[funcName]
 			res := fun(r.String(), nativeArgs...)
-			return object.NativeToObject(res)
-		case *object.Array:
+			return value.NativeToObject(res)
+		case *value.Array:
 			fun := e.customFunc.Arr[funcName]
 			nativeElems := e.objectsToNativeType(r.Elements)
 			res := fun(nativeElems, nativeArgs...)
-			return object.NativeToObject(res)
-		case *object.Int:
+			return value.NativeToObject(res)
+		case *value.Int:
 			fun := e.customFunc.Int[funcName]
 			res := fun(int(r.Val), nativeArgs...)
-			return object.NativeToObject(res)
-		case *object.Float:
+			return value.NativeToObject(res)
+		case *value.Float:
 			fun := e.customFunc.Float[funcName]
 			res := fun(r.Val, nativeArgs...)
-			return object.NativeToObject(res)
-		case *object.Bool:
+			return value.NativeToObject(res)
+		case *value.Bool:
 			fun := e.customFunc.Bool[funcName]
 			res := fun(r.Val, nativeArgs...)
-			return object.NativeToObject(res)
-		case *object.Obj:
+			return value.NativeToObject(res)
+		case *value.Obj:
 			fun := e.customFunc.Obj[funcName]
 			firstArg := r.Native()
 			res := fun(firstArg.(map[string]any), nativeArgs...)
-			return object.NativeToObject(res)
+			return value.NativeToObject(res)
 		}
 	}
 
 	return e.newError(callExp, ctx, fail.ErrFuncNotDefined, receiver.Type(), callExp.Function.Name)
 }
 
-func (e *Evaluator) globalCallExp(globalCallExp *ast.GlobalCallExp, ctx *Context) object.Object {
+func (e *Evaluator) globalCallExp(globalCallExp *ast.GlobalCallExp, ctx *Context) value.Value {
 	switch globalCallExp.Function.Name {
 	case "defined":
 		return e.globalFuncDefined(globalCallExp, ctx)
@@ -946,7 +946,7 @@ func (e *Evaluator) globalCallExp(globalCallExp *ast.GlobalCallExp, ctx *Context
 func (e *Evaluator) globalFuncDefined(
 	globalCallExp *ast.GlobalCallExp,
 	ctx *Context,
-) object.Object {
+) value.Value {
 	for i := range globalCallExp.Arguments {
 		evaluated := e.Eval(globalCallExp.Arguments[i], ctx)
 		if isUndefinedError(evaluated) {
@@ -964,7 +964,7 @@ func (e *Evaluator) globalFuncDefined(
 func (e *Evaluator) globalFuncHasValue(
 	globalCallExp *ast.GlobalCallExp,
 	ctx *Context,
-) object.Object {
+) value.Value {
 	// Check if all arguments are defined first
 	areDefined := e.globalFuncDefined(globalCallExp, ctx)
 	if isError(areDefined) {
@@ -991,7 +991,7 @@ func (e *Evaluator) globalFuncHasValue(
 	return TRUE
 }
 
-func (e *Evaluator) objectsToNativeType(args []object.Object) []any {
+func (e *Evaluator) objectsToNativeType(args []value.Value) []any {
 	vals := make([]any, len(args))
 	for i := range args {
 		vals[i] = args[i].Native()
@@ -1001,27 +1001,27 @@ func (e *Evaluator) objectsToNativeType(args []object.Object) []any {
 }
 
 func (e *Evaluator) postfixOpExp(
-	left object.Object,
+	left value.Value,
 	op string,
 	node ast.Node,
 	ctx *Context,
-) object.Object {
+) value.Value {
 	switch op {
 	case "++":
-		if int, ok := left.(*object.Int); ok {
-			return &object.Int{Val: int.Val + 1}
+		if int, ok := left.(*value.Int); ok {
+			return &value.Int{Val: int.Val + 1}
 		}
 
-		if fl, ok := left.(*object.Float); ok {
-			return &object.Float{Val: fl.Val + 1}
+		if fl, ok := left.(*value.Float); ok {
+			return &value.Float{Val: fl.Val + 1}
 		}
 	case "--":
-		if int, ok := left.(*object.Int); ok {
-			return &object.Int{Val: int.Val - 1}
+		if int, ok := left.(*value.Int); ok {
+			return &value.Int{Val: int.Val - 1}
 		}
 
-		if fl, ok := left.(*object.Float); ok {
-			float := &object.Float{Val: fl.Val}
+		if fl, ok := left.(*value.Float); ok {
+			float := &value.Float{Val: fl.Val}
 
 			if err := float.SubtractFromFloat(1); err != nil {
 				return e.newError(node, ctx, fail.ErrCannotSubFromFloat, float, err)
@@ -1037,20 +1037,20 @@ func (e *Evaluator) postfixOpExp(
 func (e *Evaluator) operatorExp(
 	op string,
 	left,
-	right object.Object,
+	right value.Value,
 	leftNode ast.Node,
 	ctx *Context,
-) object.Object {
+) value.Value {
 	if op == "==" || op == "!=" {
 		return e.comparrisonInfixExp(op, right, left, leftNode, ctx)
 	}
 
 	switch l := left.(type) {
-	case *object.Int:
+	case *value.Int:
 		return e.intInfixExp(op, right, l, leftNode, ctx)
-	case *object.Float:
+	case *value.Float:
 		return e.floatInfixExp(op, right, l, leftNode, ctx)
-	case *object.Str:
+	case *value.Str:
 		return e.stringInfixExp(op, right, l, leftNode, ctx)
 	}
 
@@ -1060,15 +1060,15 @@ func (e *Evaluator) operatorExp(
 func (e *Evaluator) logicalExp(
 	op string,
 	right,
-	left object.Object,
+	left value.Value,
 	leftNode ast.Node,
 	ctx *Context,
-) object.Object {
+) value.Value {
 	switch op {
 	case "&&":
-		return &object.Bool{Val: isTruthy(left) && isTruthy(right)}
+		return &value.Bool{Val: isTruthy(left) && isTruthy(right)}
 	case "||":
-		return &object.Bool{Val: isTruthy(left) || isTruthy(right)}
+		return &value.Bool{Val: isTruthy(left) || isTruthy(right)}
 	}
 
 	return e.newError(leftNode, ctx, fail.ErrCannotUseOperator, op, left.Type(), op, right.Type())
@@ -1076,30 +1076,30 @@ func (e *Evaluator) logicalExp(
 
 func (e *Evaluator) intInfixExp(
 	op string,
-	right object.Object,
-	l *object.Int,
+	right value.Value,
+	l *value.Int,
 	leftNode ast.Node,
 	ctx *Context,
-) object.Object {
-	r, ok := right.(*object.Int)
+) value.Value {
+	r, ok := right.(*value.Int)
 	if !ok {
 		return e.newError(leftNode, ctx, fail.ErrCannotUseOperator, op, l.Type(), op, right.Type())
 	}
 
 	switch op {
 	case "+":
-		return &object.Int{Val: l.Val + r.Val}
+		return &value.Int{Val: l.Val + r.Val}
 	case "-":
-		return &object.Int{Val: l.Val - r.Val}
+		return &value.Int{Val: l.Val - r.Val}
 	case "*":
-		return &object.Int{Val: l.Val * r.Val}
+		return &value.Int{Val: l.Val * r.Val}
 	case "/":
 		if r.Val == 0 {
 			return e.newError(leftNode, ctx, fail.ErrDivisionByZero)
 		}
-		return &object.Int{Val: l.Val / r.Val}
+		return &value.Int{Val: l.Val / r.Val}
 	case "%":
-		return &object.Int{Val: l.Val % r.Val}
+		return &value.Int{Val: l.Val % r.Val}
 	case ">":
 		return nativeBoolToBoolObj(l.Val > r.Val)
 	case "<":
@@ -1116,27 +1116,27 @@ func (e *Evaluator) intInfixExp(
 func (e *Evaluator) comparrisonInfixExp(
 	op string, // == or !=
 	right,
-	left object.Object,
+	left value.Value,
 	leftNode ast.Node,
 	ctx *Context,
-) object.Object {
+) value.Value {
 	if left.Type() != right.Type() {
 		return nativeBoolToBoolObj(op == "!=")
 	}
 	var areEqual bool
 
 	switch l := left.(type) {
-	case *object.Int:
-		areEqual = l.Val == right.(*object.Int).Val
-	case *object.Float:
-		areEqual = l.Val == right.(*object.Float).Val
-	case *object.Str:
-		areEqual = l.Val == right.(*object.Str).Val
-	case *object.Bool:
-		areEqual = l.Val == right.(*object.Bool).Val
-	case *object.Array, *object.Obj:
+	case *value.Int:
+		areEqual = l.Val == right.(*value.Int).Val
+	case *value.Float:
+		areEqual = l.Val == right.(*value.Float).Val
+	case *value.Str:
+		areEqual = l.Val == right.(*value.Str).Val
+	case *value.Bool:
+		areEqual = l.Val == right.(*value.Bool).Val
+	case *value.Array, *value.Obj:
 		areEqual = reflect.DeepEqual(left, right)
-	case *object.Nil:
+	case *value.Nil:
 		areEqual = true
 	default:
 		e.newError(leftNode, ctx, fail.ErrCannotUseOperator, op, l.Type(), op, right.Type())
@@ -1151,18 +1151,18 @@ func (e *Evaluator) comparrisonInfixExp(
 
 func (e *Evaluator) stringInfixExp(
 	op string,
-	right object.Object,
-	l *object.Str,
+	right value.Value,
+	l *value.Str,
 	leftNode ast.Node,
 	ctx *Context,
-) object.Object {
-	r, ok := right.(*object.Str)
+) value.Value {
+	r, ok := right.(*value.Str)
 	if !ok {
 		return e.newError(leftNode, ctx, fail.ErrCannotUseOperator, op, l.Type(), op, right.Type())
 	}
 
 	if op == "+" {
-		return &object.Str{Val: l.Val + r.Val}
+		return &value.Str{Val: l.Val + r.Val}
 	}
 
 	return e.newError(leftNode, ctx, fail.ErrCannotUseOperator, op, l.Type(), op, right.Type())
@@ -1170,25 +1170,25 @@ func (e *Evaluator) stringInfixExp(
 
 func (e *Evaluator) floatInfixExp(
 	op string,
-	right object.Object,
-	l *object.Float,
+	right value.Value,
+	l *value.Float,
 	leftNode ast.Node,
 	ctx *Context,
-) object.Object {
-	r, ok := right.(*object.Float)
+) value.Value {
+	r, ok := right.(*value.Float)
 	if !ok {
 		return e.newError(leftNode, ctx, fail.ErrCannotUseOperator, op, l.Type(), op, right.Type())
 	}
 
 	switch op {
 	case "+":
-		return &object.Float{Val: l.Val + r.Val}
+		return &value.Float{Val: l.Val + r.Val}
 	case "-":
-		return &object.Float{Val: l.Val - r.Val}
+		return &value.Float{Val: l.Val - r.Val}
 	case "*":
-		return &object.Float{Val: l.Val * r.Val}
+		return &value.Float{Val: l.Val * r.Val}
 	case "/":
-		return &object.Float{Val: l.Val / r.Val}
+		return &value.Float{Val: l.Val / r.Val}
 	case ">":
 		return nativeBoolToBoolObj(l.Val > r.Val)
 	case "<":
@@ -1203,21 +1203,21 @@ func (e *Evaluator) floatInfixExp(
 }
 
 func (e *Evaluator) minusPrefixOpExp(
-	right object.Object,
+	right value.Value,
 	node ast.Node,
 	ctx *Context,
-) object.Object {
+) value.Value {
 	switch r := right.(type) {
-	case *object.Int:
-		return &object.Int{Val: -r.Val}
-	case *object.Float:
-		return &object.Float{Val: -r.Val}
+	case *value.Int:
+		return &value.Int{Val: -r.Val}
+	case *value.Float:
+		return &value.Float{Val: -r.Val}
 	}
 
 	return e.newError(node, ctx, fail.ErrPrefixOpIsWrong, "-", right.Type())
 }
 
-func (e *Evaluator) bangOpExp(right object.Object, node ast.Node, ctx *Context) object.Object {
+func (e *Evaluator) bangOpExp(right value.Value, node ast.Node, ctx *Context) value.Value {
 	switch right {
 	case FALSE:
 		return TRUE
@@ -1230,8 +1230,8 @@ func (e *Evaluator) bangOpExp(right object.Object, node ast.Node, ctx *Context) 
 	return e.newError(node, ctx, fail.ErrPrefixOpIsWrong, "!", right.Type())
 }
 
-func (e *Evaluator) newError(node ast.Node, ctx *Context, format string, a ...any) *object.Error {
-	return &object.Error{
+func (e *Evaluator) newError(node ast.Node, ctx *Context, format string, a ...any) *value.Error {
+	return &value.Error{
 		Err:     fail.New(node.Line(), ctx.absPath, "evaluator", format, a...),
 		ErrorID: format,
 	}

@@ -1,4 +1,4 @@
-package object
+package value
 
 import (
 	"testing"
@@ -41,7 +41,7 @@ func TestNewScopeFromMap(t *testing.T) {
 		"rates32":  []float32{float32val, float32val, float32val},
 	}
 
-	expect := map[string]Object{
+	expect := map[string]Value{
 		"title":    &Str{Val: "Hello, World!"},
 		"n":        &Int{Val: -1},
 		"num":      &Int{Val: -2},
@@ -58,26 +58,26 @@ func TestNewScopeFromMap(t *testing.T) {
 		"height":   &Float{Val: 5.7},
 		"weight":   &Float{Val: float64(float32val)},
 		"nothing":  new(Nil),
-		"ages":     &Array{Elements: []Object{&Int{Val: 1}, &Int{Val: 2}, &Int{Val: 3}}},
-		"ages64":   &Array{Elements: []Object{&Int{Val: 1}, &Int{Val: 2}, &Int{Val: 3}}},
-		"ages32":   &Array{Elements: []Object{&Int{Val: 1}, &Int{Val: 2}, &Int{Val: 3}}},
-		"ages16":   &Array{Elements: []Object{&Int{Val: 1}, &Int{Val: 2}, &Int{Val: 3}}},
-		"ages8":    &Array{Elements: []Object{&Int{Val: 1}, &Int{Val: 2}, &Int{Val: 3}}},
-		"nums":     &Array{Elements: []Object{&Int{Val: 1}, &Int{Val: 2}, &Int{Val: 3}}},
-		"nums64":   &Array{Elements: []Object{&Int{Val: 1}, &Int{Val: 2}, &Int{Val: 3}}},
-		"nums32":   &Array{Elements: []Object{&Int{Val: 1}, &Int{Val: 2}, &Int{Val: 3}}},
-		"nums16":   &Array{Elements: []Object{&Int{Val: 1}, &Int{Val: 2}, &Int{Val: 3}}},
-		"nums8":    &Array{Elements: []Object{&Int{Val: 1}, &Int{Val: 2}, &Int{Val: 3}}},
-		"names":    &Array{Elements: []Object{&Str{Val: "John"}, &Str{Val: "Jane"}}},
-		"statuses": &Array{Elements: []Object{&Bool{Val: false}, &Bool{Val: true}}},
+		"ages":     &Array{Elements: []Value{&Int{Val: 1}, &Int{Val: 2}, &Int{Val: 3}}},
+		"ages64":   &Array{Elements: []Value{&Int{Val: 1}, &Int{Val: 2}, &Int{Val: 3}}},
+		"ages32":   &Array{Elements: []Value{&Int{Val: 1}, &Int{Val: 2}, &Int{Val: 3}}},
+		"ages16":   &Array{Elements: []Value{&Int{Val: 1}, &Int{Val: 2}, &Int{Val: 3}}},
+		"ages8":    &Array{Elements: []Value{&Int{Val: 1}, &Int{Val: 2}, &Int{Val: 3}}},
+		"nums":     &Array{Elements: []Value{&Int{Val: 1}, &Int{Val: 2}, &Int{Val: 3}}},
+		"nums64":   &Array{Elements: []Value{&Int{Val: 1}, &Int{Val: 2}, &Int{Val: 3}}},
+		"nums32":   &Array{Elements: []Value{&Int{Val: 1}, &Int{Val: 2}, &Int{Val: 3}}},
+		"nums16":   &Array{Elements: []Value{&Int{Val: 1}, &Int{Val: 2}, &Int{Val: 3}}},
+		"nums8":    &Array{Elements: []Value{&Int{Val: 1}, &Int{Val: 2}, &Int{Val: 3}}},
+		"names":    &Array{Elements: []Value{&Str{Val: "John"}, &Str{Val: "Jane"}}},
+		"statuses": &Array{Elements: []Value{&Bool{Val: false}, &Bool{Val: true}}},
 		"rates64": &Array{
-			Elements: []Object{&Float{Val: 23.4}, &Float{Val: 56.7}, &Float{Val: 89.0}},
+			Elements: []Value{&Float{Val: 23.4}, &Float{Val: 56.7}, &Float{Val: 89.0}},
 		},
 		"values": &Array{
-			Elements: []Object{&Float{Val: 23.4}, &Float{Val: 56.7}, &Float{Val: 89.0}},
+			Elements: []Value{&Float{Val: 23.4}, &Float{Val: 56.7}, &Float{Val: 89.0}},
 		},
 		"rates32": &Array{
-			Elements: []Object{
+			Elements: []Value{
 				&Float{Val: float64(float32val)},
 				&Float{Val: float64(float32val)},
 				&Float{Val: float64(float32val)},
@@ -112,7 +112,7 @@ func TestAddGlobalData(t *testing.T) {
 		key       string
 		val       any
 		expectKey string
-		expectVal Object
+		expectVal Value
 	}{
 		{
 			name:      "add string global identifier",
@@ -203,7 +203,7 @@ func TestAddGlobalData(t *testing.T) {
 			key:       "numbers",
 			val:       []int{1, 2, 3},
 			expectKey: "numbers",
-			expectVal: &Array{Elements: []Object{
+			expectVal: &Array{Elements: []Value{
 				&Int{Val: 1},
 				&Int{Val: 2},
 				&Int{Val: 3},
@@ -214,7 +214,7 @@ func TestAddGlobalData(t *testing.T) {
 			key:       "names",
 			val:       []string{"Alice", "Bob", "Charlie"},
 			expectKey: "names",
-			expectVal: &Array{Elements: []Object{
+			expectVal: &Array{Elements: []Value{
 				&Str{Val: "Alice"},
 				&Str{Val: "Bob"},
 				&Str{Val: "Charlie"},
@@ -225,7 +225,7 @@ func TestAddGlobalData(t *testing.T) {
 			key:       "mixed",
 			val:       []any{"hello", 42, true},
 			expectKey: "mixed",
-			expectVal: &Array{Elements: []Object{
+			expectVal: &Array{Elements: []Value{
 				&Str{Val: "hello"},
 				&Int{Val: 42},
 				&Bool{Val: true},
@@ -236,14 +236,14 @@ func TestAddGlobalData(t *testing.T) {
 			key:       "emptySlice",
 			val:       []int{},
 			expectKey: "emptySlice",
-			expectVal: &Array{Elements: []Object{}},
+			expectVal: &Array{Elements: []Value{}},
 		},
 		{
 			name:      "add object/map global identifier",
 			key:       "user",
 			val:       map[string]any{"name": "John", "age": 30},
 			expectKey: "user",
-			expectVal: NewObj(map[string]Object{
+			expectVal: NewObj(map[string]Value{
 				"name": &Str{Val: "John"},
 				"age":  &Int{Val: 30},
 			}),
@@ -258,8 +258,8 @@ func TestAddGlobalData(t *testing.T) {
 				},
 			},
 			expectKey: "config",
-			expectVal: NewObj(map[string]Object{
-				"database": NewObj(map[string]Object{
+			expectVal: NewObj(map[string]Value{
+				"database": NewObj(map[string]Value{
 					"host": &Str{Val: "localhost"},
 					"port": &Int{Val: 5432},
 				}),
@@ -270,8 +270,8 @@ func TestAddGlobalData(t *testing.T) {
 			key:       "data",
 			val:       map[string]any{"tags": []string{"go", "test", "unit"}, "count": 3},
 			expectKey: "data",
-			expectVal: NewObj(map[string]Object{
-				"tags": &Array{Elements: []Object{
+			expectVal: NewObj(map[string]Value{
+				"tags": &Array{Elements: []Value{
 					&Str{Val: "go"},
 					&Str{Val: "test"},
 					&Str{Val: "unit"},
@@ -287,12 +287,12 @@ func TestAddGlobalData(t *testing.T) {
 				{"name": "Bob", "age": 30},
 			},
 			expectKey: "users",
-			expectVal: &Array{Elements: []Object{
-				NewObj(map[string]Object{
+			expectVal: &Array{Elements: []Value{
+				NewObj(map[string]Value{
 					"name": &Str{Val: "Alice"},
 					"age":  &Int{Val: 25},
 				}),
-				NewObj(map[string]Object{
+				NewObj(map[string]Value{
 					"name": &Str{Val: "Bob"},
 					"age":  &Int{Val: 30},
 				}),
@@ -303,7 +303,7 @@ func TestAddGlobalData(t *testing.T) {
 			key:       "nilSlice",
 			val:       []any(nil),
 			expectKey: "nilSlice",
-			expectVal: &Array{Elements: []Object{}},
+			expectVal: &Array{Elements: []Value{}},
 		},
 		{
 			name:      "add empty object global identifier",

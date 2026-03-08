@@ -1,4 +1,4 @@
-package object
+package value
 
 import (
 	"bytes"
@@ -7,10 +7,10 @@ import (
 )
 
 type Array struct {
-	Elements []Object
+	Elements []Value
 }
 
-func (a *Array) Type() ObjectType {
+func (a *Array) Type() ValueType {
 	return ARR_OBJ
 }
 
@@ -100,6 +100,6 @@ func (a *Array) Native() any {
 	return vals
 }
 
-func (a *Array) Is(t ObjectType) bool {
+func (a *Array) Is(t ValueType) bool {
 	return t == a.Type()
 }

@@ -1,4 +1,4 @@
-package object
+package value
 
 import (
 	"errors"
@@ -8,12 +8,12 @@ import (
 )
 
 type Scope struct {
-	vars   map[string]Object
+	vars   map[string]Value
 	parent *Scope
 }
 
 func NewScope() *Scope {
-	vars := map[string]Object{}
+	vars := map[string]Value{}
 	vars["global"] = NewObj(nil)
 
 	return &Scope{vars: vars}
@@ -42,7 +42,7 @@ func (s *Scope) Child() *Scope {
 	return child
 }
 
-func (e *Scope) Get(name string) (Object, bool) {
+func (e *Scope) Get(name string) (Value, bool) {
 	obj, ok := e.vars[name]
 	if !ok && e.parent != nil {
 		obj, ok = e.parent.Get(name)
@@ -50,7 +50,7 @@ func (e *Scope) Get(name string) (Object, bool) {
 	return obj, ok
 }
 
-func (e *Scope) Set(key string, val Object) error {
+func (e *Scope) Set(key string, val Value) error {
 	if key == "loop" || key == "global" {
 		return errors.New(fail.ErrReservedIdentifiers)
 	}
@@ -64,7 +64,7 @@ func (e *Scope) Set(key string, val Object) error {
 	return nil
 }
 
-func (e *Scope) SetLoopVar(pairs map[string]Object) {
+func (e *Scope) SetLoopVar(pairs map[string]Value) {
 	e.vars["loop"] = NewObj(pairs)
 }
 
@@ -84,18 +84,18 @@ func (e *Scope) AddGlobal(key string, val any) {
 
 	// Ensure Pairs map is initialized
 	if globalObj.Pairs == nil {
-		globalObj.Pairs = map[string]Object{}
+		globalObj.Pairs = map[string]Value{}
 	}
 
 	globalObj.Pairs[key] = NativeToObject(val)
 }
 
-func (e *Scope) isTypeMismatch(key string, val Object) (Object, bool) {
+func (e *Scope) isTypeMismatch(key string, val Value) (Value, bool) {
 	oldVar, ok := e.Get(key)
 	return oldVar, (ok && oldVar != nil && oldVar.Type() != val.Type())
 }
 
-func (e *Scope) identifierMismatchError(key string, oldVar, val Object) error {
+func (e *Scope) identifierMismatchError(key string, oldVar, val Value) error {
 	msg := fmt.Sprintf(fail.ErrIdentifierTypeMismatch, key, oldVar.Type(), val.Type())
 	return errors.New(msg)
 }

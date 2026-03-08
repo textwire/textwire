@@ -1,11 +1,11 @@
-package object
+package value
 
 type Component struct {
 	Name    string
-	Content Object
+	Content Value
 }
 
-func (c *Component) Type() ObjectType {
+func (c *Component) Type() ValueType {
 	return COMPONENT_OBJ
 }
 
@@ -29,6 +29,6 @@ func (c *Component) Native() any {
 	return c.Content.Native()
 }
 
-func (c *Component) Is(t ObjectType) bool {
+func (c *Component) Is(t ValueType) bool {
 	return t == c.Type()
 }

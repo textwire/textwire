@@ -3,29 +3,29 @@ package evaluator
 import (
 	"testing"
 
-	"github.com/textwire/textwire/v3/pkg/object"
+	"github.com/textwire/textwire/v3/pkg/value"
 )
 
 func TestIsTruthy(t *testing.T) {
 	cases := []struct {
-		inp    object.Object
+		inp    value.Value
 		expect bool
 	}{
 		{nil, false},
 		{NIL, false},
 		{TRUE, true},
 		{FALSE, false},
-		{&object.Int{Val: 0}, false},
-		{&object.Int{Val: 1}, true},
-		{&object.Int{Val: -1}, true},
-		{&object.Float{Val: 0.0}, false},
-		{&object.Float{Val: 1.0}, true},
-		{&object.Float{Val: -1.0}, true},
-		{&object.Str{Val: ""}, false},
-		{&object.Str{Val: "x"}, true},
-		{&object.Str{Val: "anna"}, true},
-		{&object.Array{Elements: nil}, false},
-		{&object.Obj{Pairs: nil}, false},
+		{&value.Int{Val: 0}, false},
+		{&value.Int{Val: 1}, true},
+		{&value.Int{Val: -1}, true},
+		{&value.Float{Val: 0.0}, false},
+		{&value.Float{Val: 1.0}, true},
+		{&value.Float{Val: -1.0}, true},
+		{&value.Str{Val: ""}, false},
+		{&value.Str{Val: "x"}, true},
+		{&value.Str{Val: "anna"}, true},
+		{&value.Array{Elements: nil}, false},
+		{&value.Obj{Pairs: nil}, false},
 	}
 
 	for _, tc := range cases {
@@ -40,7 +40,7 @@ func TestIsTruthy(t *testing.T) {
 func TestNativeBoolToBoolObj(t *testing.T) {
 	cases := []struct {
 		inp    bool
-		expect object.Object
+		expect value.Value
 	}{
 		{true, TRUE},
 		{false, FALSE},

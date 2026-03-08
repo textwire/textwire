@@ -1,4 +1,4 @@
-package object
+package value
 
 import (
 	"fmt"
@@ -13,7 +13,7 @@ type Float struct {
 	Val float64
 }
 
-func (f *Float) Type() ObjectType {
+func (f *Float) Type() ValueType {
 	return FLOAT_OBJ
 }
 
@@ -70,6 +70,6 @@ func (f *Float) SubtractFromFloat(num uint) error {
 	return nil
 }
 
-func (f *Float) Is(t ObjectType) bool {
+func (f *Float) Is(t ValueType) bool {
 	return t == f.Type()
 }

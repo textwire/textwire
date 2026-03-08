@@ -4,8 +4,8 @@ import (
 	"testing"
 
 	"github.com/textwire/textwire/v3/pkg/lexer"
-	"github.com/textwire/textwire/v3/pkg/object"
 	"github.com/textwire/textwire/v3/pkg/parser"
+	"github.com/textwire/textwire/v3/pkg/value"
 )
 
 var inp = `<div>
@@ -42,12 +42,12 @@ func BenchmarkEvaluator(b *testing.B) {
 	}
 
 	e := New(nil, nil)
-	ctx := NewContext(object.NewScope(), prog.AbsPath)
+	ctx := NewContext(value.NewScope(), prog.AbsPath)
 
 	b.ResetTimer()
 	for b.Loop() {
 		evaluated := e.Eval(prog, ctx)
-		if err, ok := evaluated.(*object.Error); ok {
+		if err, ok := evaluated.(*value.Error); ok {
 			b.Fatalf("evaluated is error: %v", err)
 		}
 	}

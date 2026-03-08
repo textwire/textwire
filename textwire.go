@@ -5,7 +5,7 @@ import (
 	"github.com/textwire/textwire/v3/pkg/evaluator"
 	"github.com/textwire/textwire/v3/pkg/fail"
 	"github.com/textwire/textwire/v3/pkg/file"
-	"github.com/textwire/textwire/v3/pkg/object"
+	"github.com/textwire/textwire/v3/pkg/value"
 )
 
 var (
@@ -22,7 +22,7 @@ func EvaluateString(inp string, data map[string]any) (string, error) {
 		return "", errs[0].Error()
 	}
 
-	scope, err := object.NewScopeFromMap(data)
+	scope, err := value.NewScopeFromMap(data)
 	if err != nil {
 		return "", err.Error()
 	}
@@ -30,8 +30,8 @@ func EvaluateString(inp string, data map[string]any) (string, error) {
 	e := evaluator.New(customFunc, nil)
 	ctx := evaluator.NewContext(scope, prog.AbsPath)
 	evaluated := e.Eval(prog, ctx)
-	if evaluated.Is(object.ERR_OBJ) {
-		return "", evaluated.(*object.Error).Err.Error()
+	if evaluated.Is(value.ERR_OBJ) {
+		return "", evaluated.(*value.Error).Err.Error()
 	}
 
 	return evaluated.String(), nil

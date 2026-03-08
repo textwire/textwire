@@ -3,50 +3,50 @@ package evaluator
 import (
 	"strconv"
 
-	"github.com/textwire/textwire/v3/pkg/object"
+	"github.com/textwire/textwire/v3/pkg/value"
 )
 
 // intFloatFunc converts an integer to a float and returns it
-func intFloatFunc(receiver object.Object, _ ...object.Object) (object.Object, error) {
-	val := receiver.(*object.Int).Val
-	return &object.Float{Val: float64(val)}, nil
+func intFloatFunc(receiver value.Value, _ ...value.Value) (value.Value, error) {
+	val := receiver.(*value.Int).Val
+	return &value.Float{Val: float64(val)}, nil
 }
 
 // intAbsFunc returns the absolute value of an integer
-func intAbsFunc(receiver object.Object, _ ...object.Object) (object.Object, error) {
-	val := receiver.(*object.Int).Val
+func intAbsFunc(receiver value.Value, _ ...value.Value) (value.Value, error) {
+	val := receiver.(*value.Int).Val
 	if val < 0 {
-		return &object.Int{Val: -val}, nil
+		return &value.Int{Val: -val}, nil
 	}
 
 	return receiver, nil
 }
 
 // intStrFunc converts an integer to a string and returns it
-func intStrFunc(receiver object.Object, _ ...object.Object) (object.Object, error) {
-	val := receiver.(*object.Int).Val
-	return &object.Str{Val: strconv.FormatInt(val, 10)}, nil
+func intStrFunc(receiver value.Value, _ ...value.Value) (value.Value, error) {
+	val := receiver.(*value.Int).Val
+	return &value.Str{Val: strconv.FormatInt(val, 10)}, nil
 }
 
 // intLenFunc returns the number of digits in an integer
-func intLenFunc(receiver object.Object, _ ...object.Object) (object.Object, error) {
-	val := receiver.(*object.Int).Val
+func intLenFunc(receiver value.Value, _ ...value.Value) (value.Value, error) {
+	val := receiver.(*value.Int).Val
 	valStr := strconv.FormatInt(val, 10)
 	if val < 0 {
-		return &object.Int{Val: int64(len(valStr) - 1)}, nil
+		return &value.Int{Val: int64(len(valStr) - 1)}, nil
 	}
 
-	return &object.Int{Val: int64(len(valStr))}, nil
+	return &value.Int{Val: int64(len(valStr))}, nil
 }
 
 // intDecimalFunc returns a string formatted as a decimal number.
 // Converts integer to string and appends decimal places (e.g., 100 → "100.00")
-func intDecimalFunc(receiver object.Object, args ...object.Object) (object.Object, error) {
-	val := receiver.(*object.Int).String()
-	separator, decimals, err := getDecimalConfig(object.INT_OBJ, args...)
+func intDecimalFunc(receiver value.Value, args ...value.Value) (value.Value, error) {
+	val := receiver.(*value.Int).String()
+	separator, decimals, err := getDecimalConfig(value.INT_OBJ, args...)
 	if err != nil {
 		return nil, err
 	}
 
-	return &object.Str{Val: formatIntDecimals(val, separator, decimals)}, nil
+	return &value.Str{Val: formatIntDecimals(val, separator, decimals)}, nil
 }

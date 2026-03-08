@@ -1,13 +1,13 @@
-package object
+package value
 
 import "fmt"
 
 type Slot struct {
 	Name    string
-	Content Object
+	Content Value
 }
 
-func (s *Slot) Type() ObjectType {
+func (s *Slot) Type() ValueType {
 	return SLOT_OBJ
 }
 
@@ -34,6 +34,6 @@ func (s *Slot) Native() any {
 	return s.Content.Native()
 }
 
-func (s *Slot) Is(t ObjectType) bool {
+func (s *Slot) Is(t ValueType) bool {
 	return t == s.Type()
 }

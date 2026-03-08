@@ -1,10 +1,10 @@
-package object
+package value
 
 import (
 	"reflect"
 )
 
-func NativeToObject(val any) Object {
+func NativeToObject(val any) Value {
 	switch v := val.(type) {
 	case string:
 		return &Str{Val: v}
@@ -60,7 +60,7 @@ func NativeToObject(val any) Object {
 	return nil
 }
 
-func nativeMapToObject(val any) Object {
+func nativeMapToObject(val any) Value {
 	obj := NewObj(nil)
 
 	valValue := reflect.ValueOf(val)
@@ -86,7 +86,7 @@ func convertToInterfaceSlice(slice any) []any {
 	return vals
 }
 
-func nativeStructToObject(val any) Object {
+func nativeStructToObject(val any) Value {
 	obj := NewObj(nil)
 
 	valType := reflect.TypeOf(val)
@@ -108,7 +108,7 @@ func nativeStructToObject(val any) Object {
 
 func nativeSliceToArrayObject(slice []any) *Array {
 	arr := new(Array)
-	arr.Elements = make([]Object, len(slice))
+	arr.Elements = make([]Value, len(slice))
 	for i := range slice {
 		arr.Elements[i] = NativeToObject(slice[i])
 	}

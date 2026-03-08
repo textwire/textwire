@@ -6,31 +6,31 @@ import (
 	"strings"
 
 	"github.com/textwire/textwire/v3/pkg/fail"
-	"github.com/textwire/textwire/v3/pkg/object"
+	"github.com/textwire/textwire/v3/pkg/value"
 )
 
 // objCamelFunc converts object keys to camel case recursively
-func objCamelFunc(receiver object.Object, _ ...object.Object) (object.Object, error) {
-	obj := receiver.(*object.Obj)
-	return &object.Obj{Pairs: obj.ToCamel()}, nil
+func objCamelFunc(receiver value.Value, _ ...value.Value) (value.Value, error) {
+	obj := receiver.(*value.Obj)
+	return &value.Obj{Pairs: obj.ToCamel()}, nil
 }
 
-func objGetFunc(receiver object.Object, args ...object.Object) (object.Object, error) {
-	obj := receiver.(*object.Obj)
+func objGetFunc(receiver value.Value, args ...value.Value) (value.Value, error) {
+	obj := receiver.(*value.Obj)
 
 	if len(args) == 0 {
-		msg := fmt.Sprintf(fail.ErrFuncMissingArg, object.OBJ_OBJ, "get")
+		msg := fmt.Sprintf(fail.ErrFuncMissingArg, value.OBJ_OBJ, "get")
 		return nil, errors.New(msg)
 	}
 
 	if len(args) > 1 {
-		msg := fmt.Sprintf(fail.ErrFuncMaxArgs, object.OBJ_OBJ, "get", 1)
+		msg := fmt.Sprintf(fail.ErrFuncMaxArgs, value.OBJ_OBJ, "get", 1)
 		return nil, errors.New(msg)
 	}
 
-	pattern, ok := args[0].(*object.Str)
+	pattern, ok := args[0].(*value.Str)
 	if !ok {
-		msg := fmt.Sprintf(fail.ErrFuncFirstArgStr, object.OBJ_OBJ, "get")
+		msg := fmt.Sprintf(fail.ErrFuncFirstArgStr, value.OBJ_OBJ, "get")
 		return nil, errors.New(msg)
 	}
 
@@ -44,7 +44,7 @@ func objGetFunc(receiver object.Object, args ...object.Object) (object.Object, e
 	return findObjectKey(props, obj.Pairs), nil
 }
 
-func findObjectKey(props []string, pairs map[string]object.Object) object.Object {
+func findObjectKey(props []string, pairs map[string]value.Value) value.Value {
 	current := pairs
 
 	for i := range props {
@@ -59,11 +59,11 @@ func findObjectKey(props []string, pairs map[string]object.Object) object.Object
 		}
 
 		// If not last key, value must be an object to continue
-		if result.Type() != object.OBJ_OBJ {
+		if result.Type() != value.OBJ_OBJ {
 			return NIL
 		}
 
-		current = result.(*object.Obj).Pairs
+		current = result.(*value.Obj).Pairs
 	}
 
 	return NIL
