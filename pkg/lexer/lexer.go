@@ -163,7 +163,7 @@ func (l *Lexer) directiveToken() token.Token {
 		return l.illegalToken()
 	}
 
-	l.isDirective = l.char == '(' || l.peekInlineCharIs('(')
+	l.isDirective = l.char == '(' || l.nextNonSpaceIs('(')
 	l.isText = !l.isDirective
 
 	return l.newToken(tok, keyword)
@@ -586,17 +586,16 @@ func (l *Lexer) isWhitespace(char byte) bool {
 	return char == ' ' || char == '\t' || char == '\n' || char == '\r'
 }
 
-// peekInlineCharIs checks if the next non-space/tab character matches
+// nextNonSpaceIs checks if the next non-space/tab character matches
 // the given character without consuming any input.
-func (l *Lexer) peekInlineCharIs(char byte) bool {
+func (l *Lexer) nextNonSpaceIs(char byte) bool {
 	pos := l.readPos
 	for pos < len(l.input) {
 		c := l.input[pos]
-		if c == ' ' || c == '\t' {
-			pos++
-			continue
+		if c != ' ' && c != '\t' {
+			return c == char
 		}
-		return c == char
+		pos++
 	}
 	return false
 }
