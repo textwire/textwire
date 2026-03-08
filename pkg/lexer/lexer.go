@@ -353,7 +353,7 @@ func (l *Lexer) readDirective() (token.TokenType, string) {
 
 		l.readChar()
 
-		if !l.isPotentiallyLong(tok) && tok != token.ILLEGAL {
+		if !l.hasIfVariant(tok) && tok != token.ILLEGAL {
 			break
 		}
 	}
@@ -393,8 +393,8 @@ func (l *Lexer) isDirectiveToken() (isDirectory bool, escapedDirectory bool) {
 	return false, false
 }
 
-func (l *Lexer) isPotentiallyLong(tok token.TokenType) bool {
-	// Tokens that can be extended with "If" variants
+func (l *Lexer) hasIfVariant(tok token.TokenType) bool {
+	// Tokens that can be extended with "if" variants, like @breakif
 	longTokens := map[token.TokenType]struct{}{
 		token.ELSE:     {},
 		token.BREAK:    {},
@@ -406,7 +406,7 @@ func (l *Lexer) isPotentiallyLong(tok token.TokenType) bool {
 		return false
 	}
 
-	return l.charsAre('I', 'f') || l.charsAre('i', 'f')
+	return l.charsAre('i', 'f')
 }
 
 func (l *Lexer) readString() string {
