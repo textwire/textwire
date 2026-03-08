@@ -94,16 +94,16 @@ func (l *Lexer) Next() token.Token {
 		return l.newToken(token.EOF, "")
 	}
 
-	if l.charsAre('{', '{', '-', '-') {
+	if l.startsWith('{', '{', '-', '-') {
 		l.skipComment()
 		return l.Next()
 	}
 
-	if l.charsAre('{', '{') {
+	if l.startsWith('{', '{') {
 		return l.bracesToken(token.LBRACES, "{{")
 	}
 
-	if l.charsAre('}', '}') && l.countCurlyBraces == 0 {
+	if l.startsWith('}', '}') && l.countCurlyBraces == 0 {
 		return l.bracesToken(token.RBRACES, "}}")
 	}
 
@@ -118,7 +118,7 @@ func (l *Lexer) Next() token.Token {
 	return l.newToken(token.TEXT, l.readText())
 }
 
-func (l *Lexer) charsAre(chars ...byte) bool {
+func (l *Lexer) startsWith(chars ...byte) bool {
 	if len(chars) == 0 {
 		return false
 	}
@@ -397,7 +397,7 @@ func (l *Lexer) hasIfVariant(tok token.TokenType) bool {
 		return false
 	}
 
-	return l.charsAre('i', 'f')
+	return l.startsWith('i', 'f')
 }
 
 func (l *Lexer) readString() string {
@@ -465,7 +465,7 @@ func (l *Lexer) readNumber() (string, bool) {
 }
 
 func (l *Lexer) areBracesToken() (areBraces bool, escapedBraces bool) {
-	braces := l.charsAre('{', '{')
+	braces := l.startsWith('{', '{')
 	escapedBraces = l.prevChar() == '\\' && braces
 
 	return braces && l.prevChar() != '\\', escapedBraces
@@ -578,13 +578,13 @@ func (l *Lexer) skipComment() {
 	l.readChars(4) // skip "{{--"
 
 	for l.char != 0 && depth > 0 {
-		if l.charsAre('{', '{', '-', '-') {
+		if l.startsWith('{', '{', '-', '-') {
 			l.readChars(4) // skip "{{--"
 			depth++
 			continue
 		}
 
-		if l.charsAre('-', '-', '}', '}') {
+		if l.startsWith('-', '-', '}', '}') {
 			l.readChars(4) // skip "--}}"
 			depth--
 			continue
