@@ -72,7 +72,7 @@ func RegisterStrFunc(name string, fn config.StrCustomFunc) error {
 // RegisterArrFunc registers a custom function with the given name for the
 // array type. You'll be able to use it in your Textwire files.
 // e.g. `{{ [1, 2].myFunc() }}`
-func RegisterArrFunc(name string, fn config.ArrayCustomFunc) error {
+func RegisterArrFunc(name string, fn config.ArrCustomFunc) error {
 	if _, ok := customFunc.Arr[name]; ok {
 		return fail.New(0, "", "API", fail.ErrFuncAlreadyDefined, name, "arrays").Error()
 	}
@@ -85,7 +85,7 @@ func RegisterArrFunc(name string, fn config.ArrayCustomFunc) error {
 // RegisterObjFunc registers a custom function with the given name for the
 // object type. You'll be able to use it in your Textwire files.
 // e.g. `{{ {name: 'Sydney'}.myFunc() }}`
-func RegisterObjFunc(name string, fn config.ObjectCustomFunc) error {
+func RegisterObjFunc(name string, fn config.ObjCustomFunc) error {
 	if _, ok := customFunc.Obj[name]; ok {
 		return fail.New(0, "", "API", fail.ErrFuncAlreadyDefined, name, "objects").Error()
 	}

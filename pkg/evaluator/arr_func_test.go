@@ -4,7 +4,7 @@ import (
 	"testing"
 )
 
-func TestEvalArrayFunctions(t *testing.T) {
+func TestEvalArrFunctions(t *testing.T) {
 	cases := []struct {
 		id     uint
 		inp    string

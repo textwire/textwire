@@ -6,20 +6,20 @@ import (
 	"github.com/textwire/textwire/v3/pkg/token"
 )
 
-type ArrayLiteral struct {
+type ArrLit struct {
 	BaseNode
 	Elements []Expression
 }
 
-func NewArrayLiteral(tok token.Token) *ArrayLiteral {
-	return &ArrayLiteral{
+func NewArrLit(tok token.Token) *ArrLit {
+	return &ArrLit{
 		BaseNode: NewBaseNode(tok),
 	}
 }
 
-func (al *ArrayLiteral) expressionNode() {}
+func (al *ArrLit) expressionNode() {}
 
-func (al *ArrayLiteral) String() string {
+func (al *ArrLit) String() string {
 	var out bytes.Buffer
 	out.Grow(len(al.Elements) + (2 * len(al.Elements)))
 

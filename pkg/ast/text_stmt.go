@@ -16,5 +16,5 @@ func NewTextStmt(tok token.Token) *TextStmt {
 func (hs *TextStmt) statementNode() {}
 
 func (hs *TextStmt) String() string {
-	return hs.Token.Literal
+	return hs.Token.Lit
 }

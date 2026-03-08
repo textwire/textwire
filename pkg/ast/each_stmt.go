@@ -9,9 +9,9 @@ import (
 
 type EachStmt struct {
 	BaseNode
-	Var       *Identifier // Variable name
-	Array     Expression  // Array to loop over
-	ElseBlock *BlockStmt  // @else<ElseBlock>@end
+	Var       *Ident     // Variable name
+	Arr       Expression // Arr to loop over
+	ElseBlock *BlockStmt // @else<ElseBlock>@end
 	Block     *BlockStmt
 }
 
@@ -34,7 +34,7 @@ func (es *EachStmt) String() string {
 	var out strings.Builder
 	out.Grow(26)
 
-	fmt.Fprintf(&out, "@each(%s in %s)\n%s\n", es.Var, es.Array, es.Block)
+	fmt.Fprintf(&out, "@each(%s in %s)\n%s\n", es.Var, es.Arr, es.Block)
 
 	if es.ElseBlock != nil {
 		out.WriteString("@else\n")

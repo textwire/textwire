@@ -15,5 +15,5 @@ func NewContinueStmt(tok token.Token) *ContinueStmt {
 func (cs *ContinueStmt) statementNode() {}
 
 func (cs *ContinueStmt) String() string {
-	return cs.Token.Literal
+	return cs.Token.Lit
 }

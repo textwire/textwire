@@ -4,7 +4,7 @@ import (
 	"testing"
 )
 
-func TestObjectJSON(t *testing.T) {
+func TestObjJSON(t *testing.T) {
 	cases := []struct {
 		id     uint
 		inp    string
@@ -57,7 +57,7 @@ func TestObjectJSON(t *testing.T) {
 	}
 }
 
-func TestObjectCamel(t *testing.T) {
+func TestObjCamel(t *testing.T) {
 	cases := []struct {
 		id     uint
 		inp    string
@@ -151,7 +151,7 @@ func TestObjectCamel(t *testing.T) {
 	}
 }
 
-func TestObjectGet(t *testing.T) {
+func TestObjGet(t *testing.T) {
 	cases := []struct {
 		id     uint
 		inp    string

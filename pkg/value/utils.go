@@ -44,7 +44,7 @@ func NativeToValue(val any) Value {
 	case reflect.Struct:
 		return nativeStructToValue(val)
 	case reflect.Slice:
-		return nativeSliceToArrayValue(convertToInterfaceSlice(val))
+		return nativeSliceToArrValue(convertToInterfaceSlice(val))
 	case reflect.Map:
 		return nativeMapToValue(val)
 	case reflect.Pointer:
@@ -106,7 +106,7 @@ func nativeStructToValue(val any) Value {
 	return obj
 }
 
-func nativeSliceToArrayValue(slice []any) *Arr {
+func nativeSliceToArrValue(slice []any) *Arr {
 	arr := new(Arr)
 	arr.Elements = make([]Value, len(slice))
 	for i := range slice {

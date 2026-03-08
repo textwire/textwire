@@ -117,9 +117,9 @@ func GetDirectives() map[string]TokenType {
 }
 
 type Token struct {
-	Type    TokenType
-	Literal string
-	Pos     Position
+	Type TokenType
+	Lit  string
+	Pos  Position
 }
 
 // ErrorLine returns the start line position of the token.

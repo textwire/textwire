@@ -20,5 +20,5 @@ func NewBreakIfStmt(tok token.Token) *BreakifStmt {
 func (bis *BreakifStmt) statementNode() {}
 
 func (bis *BreakifStmt) String() string {
-	return fmt.Sprintf("%s(%s)", bis.Token.Literal, bis.Condition)
+	return fmt.Sprintf("%s(%s)", bis.Token.Lit, bis.Condition)
 }

@@ -23,7 +23,7 @@ func (c *Component) JSON() (string, error) {
 
 func (c *Component) Native() any {
 	if c.Content == nil {
-		panic("Content field on Component object must not be nil when calling Native()")
+		panic("Content field on Component must not be nil when calling Native()")
 	}
 
 	return c.Content.Native()

@@ -82,24 +82,24 @@ func (e *Evaluator) Eval(node ast.Node, ctx *Context) value.Value {
 		return NIL
 
 	// Expressions
-	case *ast.Identifier:
+	case *ast.Ident:
 		return e.ident(node, ctx)
 	case *ast.IndexExp:
 		return e.indexExp(node, ctx)
 	case *ast.DotExp:
 		return e.dotExp(node, ctx)
-	case *ast.IntegerLiteral:
+	case *ast.IntLit:
 		return &value.Int{Val: node.Val}
-	case *ast.FloatLiteral:
+	case *ast.FloatLit:
 		return &value.Float{Val: node.Val}
-	case *ast.StringLiteral:
-		return e.stringLit(node)
-	case *ast.BooleanLiteral:
+	case *ast.StrLit:
+		return e.strLit(node)
+	case *ast.BoolLit:
 		return nativeBoolToBoolObj(node.Val)
-	case *ast.ObjectLiteral:
-		return e.objectLit(node, ctx)
-	case *ast.ArrayLiteral:
-		return e.arrayLit(node, ctx)
+	case *ast.ObjLit:
+		return e.objLit(node, ctx)
+	case *ast.ArrLit:
+		return e.arrLit(node, ctx)
 	case *ast.PrefixExp:
 		return e.prefixExp(node, ctx)
 	case *ast.TernaryExp:
@@ -112,7 +112,7 @@ func (e *Evaluator) Eval(node ast.Node, ctx *Context) value.Value {
 		return e.callExp(node, ctx)
 	case *ast.GlobalCallExp:
 		return e.globalCallExp(node, ctx)
-	case *ast.NilLiteral:
+	case *ast.NilLit:
 		return NIL
 	}
 
@@ -198,7 +198,7 @@ func (e *Evaluator) assign(assignStmt *ast.AssignStmt, ctx *Context) value.Value
 	}
 
 	switch left := assignStmt.Left.(type) {
-	case *ast.Identifier:
+	case *ast.Ident:
 		return e.assignIdentifier(left, right, ctx)
 	case *ast.IndexExp:
 		return e.assignIndexExp(left, right, ctx)
@@ -215,7 +215,7 @@ func (e *Evaluator) assign(assignStmt *ast.AssignStmt, ctx *Context) value.Value
 }
 
 func (e *Evaluator) assignIdentifier(
-	ident *ast.Identifier,
+	ident *ast.Ident,
 	val value.Value,
 	ctx *Context,
 ) value.Value {
@@ -246,14 +246,14 @@ func (e *Evaluator) assignIndexExp(
 
 	// Index must be integer
 	if !idx.Is(value.INT_VAL) {
-		return e.newError(indexExp, ctx, fail.ErrArrayIndexInteger, idx.Type())
+		return e.newError(indexExp, ctx, fail.ErrArrIndexInt, idx.Type())
 	}
 
 	arr := left.(*value.Arr)
 	index := idx.(*value.Int).Val
 
 	if index < 0 || index >= int64(len(arr.Elements)) {
-		return e.newError(indexExp, ctx, fail.ErrArrayIndexOutOfBound, index, len(arr.Elements))
+		return e.newError(indexExp, ctx, fail.ErrArrIndexOutOfBound, index, len(arr.Elements))
 	}
 
 	arr.Elements[index] = val
@@ -273,12 +273,12 @@ func (e *Evaluator) assignDotExp(
 	}
 
 	// Get the key (property name)
-	key := dotExp.Key.(*ast.Identifier).Name
+	key := dotExp.Key.(*ast.Ident).Name
 
 	// Type assert that left is a value
 	obj, ok := left.(*value.Obj)
 	if !ok {
-		return e.newError(dotExp, ctx, fail.ErrKeyOnNonObject, left.Type(), key)
+		return e.newError(dotExp, ctx, fail.ErrKeyOnNonObj, left.Type(), key)
 	}
 
 	obj.Pairs[key] = val
@@ -452,7 +452,7 @@ func (e *Evaluator) _for(forStmt *ast.ForStmt, ctx *Context) value.Value {
 		}
 
 		if post != nil {
-			varName := forStmt.Init.(*ast.AssignStmt).Left.(*ast.Identifier).Name
+			varName := forStmt.Init.(*ast.AssignStmt).Left.(*ast.Ident).Name
 			if err := forCtx.scope.Set(varName, post); err != nil {
 				return e.newError(forStmt, forCtx, "%s", err.Error())
 			}
@@ -474,7 +474,7 @@ func (e *Evaluator) each(eachStmt *ast.EachStmt, ctx *Context) value.Value {
 	eachCtx := NewContext(ctx.scope.Child(), ctx.absPath)
 	varName := eachStmt.Var.Name
 
-	arrObj := e.Eval(eachStmt.Array, eachCtx)
+	arrObj := e.Eval(eachStmt.Arr, eachCtx)
 	if isError(arrObj) {
 		return arrObj
 	}
@@ -661,7 +661,7 @@ func (e *Evaluator) dump(dumpStmt *ast.DumpStmt, ctx *Context) value.Value {
 	return &value.Dump{Vals: values}
 }
 
-func (e *Evaluator) ident(ident *ast.Identifier, ctx *Context) value.Value {
+func (e *Evaluator) ident(ident *ast.Ident, ctx *Context) value.Value {
 	varName := ident.Name
 	if varName == "global" && e.config != nil && e.config.GlobalData != nil {
 		return value.NativeToValue(e.config.GlobalData)
@@ -687,15 +687,15 @@ func (e *Evaluator) indexExp(indexExp *ast.IndexExp, ctx *Context) value.Value {
 
 	switch {
 	case left.Is(value.ARR_VAL) && idx.Is(value.INT_VAL):
-		return e.arrayIndexExp(left, idx)
+		return e.arrIndexExp(left, idx)
 	case left.Is(value.OBJ_VAL) && idx.Is(value.STR_VAL):
-		return e.objectKeyExp(left.(*value.Obj), idx.(*value.Str).Val)
+		return e.objKeyExp(left.(*value.Obj), idx.(*value.Str).Val)
 	}
 
 	return e.newError(indexExp, ctx, fail.ErrIndexNotSupported, left.Type())
 }
 
-func (e *Evaluator) arrayIndexExp(arrObj, idx value.Value) value.Value {
+func (e *Evaluator) arrIndexExp(arrObj, idx value.Value) value.Value {
 	arr := arrObj.(*value.Arr)
 	index := idx.(*value.Int).Val
 	max := int64(len(arr.Elements) - 1)
@@ -707,7 +707,7 @@ func (e *Evaluator) arrayIndexExp(arrObj, idx value.Value) value.Value {
 	return arr.Elements[index]
 }
 
-func (e *Evaluator) objectKeyExp(obj *value.Obj, key string) value.Value {
+func (e *Evaluator) objKeyExp(obj *value.Obj, key string) value.Value {
 	if pair, ok := obj.Pairs[key]; ok {
 		return pair
 	}
@@ -727,16 +727,16 @@ func (e *Evaluator) dotExp(dotExp *ast.DotExp, ctx *Context) value.Value {
 		return left
 	}
 
-	key := dotExp.Key.(*ast.Identifier)
+	key := dotExp.Key.(*ast.Ident)
 	obj, ok := left.(*value.Obj)
 	if !ok {
-		return e.newError(dotExp, ctx, fail.ErrKeyOnNonObject, left.Type(), key)
+		return e.newError(dotExp, ctx, fail.ErrKeyOnNonObj, left.Type(), key)
 	}
 
-	return e.objectKeyExp(obj, key.Name)
+	return e.objKeyExp(obj, key.Name)
 }
 
-func (e *Evaluator) stringLit(strLit *ast.StringLiteral) value.Value {
+func (e *Evaluator) strLit(strLit *ast.StrLit) value.Value {
 	str := html.EscapeString(strLit.Val)
 
 	// unescape single and double quotes
@@ -775,7 +775,7 @@ func (e *Evaluator) ternaryExp(ternExp *ast.TernaryExp, ctx *Context) value.Valu
 	return e.Eval(ternExp.ElseBlock, ctx)
 }
 
-func (e *Evaluator) arrayLit(arrLit *ast.ArrayLiteral, ctx *Context) value.Value {
+func (e *Evaluator) arrLit(arrLit *ast.ArrLit, ctx *Context) value.Value {
 	elems := e.evalExpressions(arrLit.Elements, ctx)
 	if len(elems) == 1 && isError(elems[0]) {
 		return elems[0]
@@ -784,7 +784,7 @@ func (e *Evaluator) arrayLit(arrLit *ast.ArrayLiteral, ctx *Context) value.Value
 	return &value.Arr{Elements: elems}
 }
 
-func (e *Evaluator) objectLit(objLit *ast.ObjectLiteral, ctx *Context) value.Value {
+func (e *Evaluator) objLit(objLit *ast.ObjLit, ctx *Context) value.Value {
 	pairs := make(map[string]value.Value, len(objLit.Pairs))
 
 	for key, val := range objLit.Pairs {

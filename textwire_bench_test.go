@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-func BenchmarkArrayJoinFunc(b *testing.B) {
+func BenchmarkArrJoinFunc(b *testing.B) {
 	arr := make([]string, 10000)
 	code := "{{ arr.join(' ') }}"
 
@@ -19,7 +19,7 @@ func BenchmarkArrayJoinFunc(b *testing.B) {
 	}
 }
 
-func BenchmarkArrayAppendFunc(b *testing.B) {
+func BenchmarkArrAppendFunc(b *testing.B) {
 	arr := make([]struct{}, 10000)
 	o1 := struct{}{}
 	o2 := struct{}{}
@@ -43,7 +43,7 @@ func BenchmarkArrayAppendFunc(b *testing.B) {
 	}
 }
 
-func BenchmarkArrayPrependFunc(b *testing.B) {
+func BenchmarkArrPrependFunc(b *testing.B) {
 	arr := make([]struct{}, 10000)
 	o1 := struct{}{}
 	o2 := struct{}{}

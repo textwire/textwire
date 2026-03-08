@@ -8,7 +8,7 @@ import (
 
 type UseStmt struct {
 	BaseNode
-	Name       *StringLiteral         // Relative path to the layout like 'layouts/main'
+	Name       *StrLit                // Relative path to the layout like 'layouts/main'
 	LayoutProg *Program               // AST node of the layout file Name
 	Inserts    map[string]*InsertStmt // @use connection to @insert directives
 }

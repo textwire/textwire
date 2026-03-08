@@ -8,14 +8,14 @@ import (
 
 type SlotStmt struct {
 	BaseNode
-	IsLocal   bool           // If the slot from the external comp or local
-	CompName  string         // Component name
-	isDefault bool           // Whether the slot is named or default
-	name      *StringLiteral // Empty when @slot is default
-	block     *BlockStmt     // Optional block statement, can be nil
+	IsLocal   bool       // If the slot from the external comp or local
+	CompName  string     // Component name
+	isDefault bool       // Whether the slot is named or default
+	name      *StrLit    // Empty when @slot is default
+	block     *BlockStmt // Optional block statement, can be nil
 }
 
-func NewSlotStmt(tok token.Token, name *StringLiteral, compName string, isLocal bool) *SlotStmt {
+func NewSlotStmt(tok token.Token, name *StrLit, compName string, isLocal bool) *SlotStmt {
 	return &SlotStmt{
 		BaseNode: NewBaseNode(tok),
 		name:     name,
@@ -26,7 +26,7 @@ func NewSlotStmt(tok token.Token, name *StringLiteral, compName string, isLocal 
 
 func (ss *SlotStmt) statementNode() {}
 
-func (ss *SlotStmt) Name() *StringLiteral {
+func (ss *SlotStmt) Name() *StrLit {
 	return ss.name
 }
 

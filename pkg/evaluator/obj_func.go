@@ -41,10 +41,10 @@ func objGetFunc(receiver value.Value, args ...value.Value) (value.Value, error) 
 	}
 
 	props := strings.Split(patternStr, ".")
-	return findObjectKey(props, obj.Pairs), nil
+	return findObjKey(props, obj.Pairs), nil
 }
 
-func findObjectKey(props []string, pairs map[string]value.Value) value.Value {
+func findObjKey(props []string, pairs map[string]value.Value) value.Value {
 	current := pairs
 
 	for i := range props {

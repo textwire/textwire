@@ -13,14 +13,14 @@ import "github.com/textwire/textwire/v3/pkg/value"
 type SlotsStore = map[string]map[string]value.Value
 
 // Context is evaluator context that is being passed through all
-// the evaluator objects to carry scope and path to the current file.
+// the evaluator values to carry scope and path to the current file.
 type Context struct {
-	scope   *value.Scope // current object's scope
+	scope   *value.Scope // current value's scope
 	absPath string       // absolute path to the file being executed
 
 	// inserts should be used inside of layouts.
 	// - key is the name of the insert.
-	// - value is evaluated ASTs into object.
+	// - value is evaluated ASTs into value.
 	inserts map[string]value.Value
 
 	// slots should be used inside component files.

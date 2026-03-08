@@ -4,8 +4,8 @@ import "testing"
 
 func TestContains(t *testing.T) {
 	tokenVar := Token{
-		Type:    IDENT,
-		Literal: "foo",
+		Type: IDENT,
+		Lit:  "foo",
 		Pos: Position{
 			StartLine: 4,
 			StartCol:  5,
@@ -15,8 +15,8 @@ func TestContains(t *testing.T) {
 	}
 
 	tokenText := Token{
-		Type:    TEXT,
-		Literal: "<div>\n    <h1>Hello</h1>\n</div>",
+		Type: TEXT,
+		Lit:  "<div>\n    <h1>Hello</h1>\n</div>",
 		Pos: Position{
 			StartLine: 2,
 			StartCol:  0,
@@ -45,8 +45,8 @@ func TestContains(t *testing.T) {
 			line: 0,
 			col:  0,
 			token: Token{
-				Type:    IDENT,
-				Literal: "foo",
+				Type: IDENT,
+				Lit:  "foo",
 				Pos: Position{
 					StartLine: 0,
 					StartCol:  0,

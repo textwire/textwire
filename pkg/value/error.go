@@ -20,7 +20,7 @@ func (e *Error) Type() ValueType {
 
 func (e *Error) String() string {
 	if e.Err == nil {
-		panic("Err field on Error object must not be nil when calling String()")
+		panic("Err field on Error must not be nil when calling String()")
 	}
 	return e.Err.String()
 }

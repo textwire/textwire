@@ -9,7 +9,7 @@ import (
 
 type InsertStmt struct {
 	BaseNode
-	Name *StringLiteral
+	Name *StrLit
 	// Argument to the insert statement; nil if has block
 	Argument Expression
 	// Block of the insert statement; nil if has argument

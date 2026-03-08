@@ -11,7 +11,7 @@ func (i *Insert) Type() ValueType {
 
 func (i *Insert) String() string {
 	if i.Block == nil {
-		panic("Block field on Insert object must not be nil when calling String()")
+		panic("Block field on Insert must not be nil when calling String()")
 	}
 
 	return i.Block.String()
@@ -27,7 +27,7 @@ func (i *Insert) JSON() (string, error) {
 
 func (r *Insert) Native() any {
 	if r.Block == nil {
-		panic("Block field on Insert object must not be nil when calling Native()")
+		panic("Block field on Insert must not be nil when calling Native()")
 	}
 
 	return r.Block.Native()
