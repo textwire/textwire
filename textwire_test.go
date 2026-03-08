@@ -32,7 +32,7 @@ func readFile(fileName string) (string, error) {
 	return string(bytes), nil
 }
 
-func TestEvaluateString(t *testing.T) {
+func TestEvalStr(t *testing.T) {
 	var age *int
 
 	cases := []struct {

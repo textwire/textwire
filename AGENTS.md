@@ -88,13 +88,13 @@ go test -cover ./parser/
 ```go
 type Identifier struct {
     BaseNode
-    Value string
+    Val string
 }
 
 func NewIdentifier(tok token.Token, val string) *Identifier {
     return &Identifier{
         BaseNode: NewBaseNode(tok),
-        Value:    val,
+        Val:    val,
     }
 }
 ```
