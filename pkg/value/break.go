@@ -1,8 +1,8 @@
-package object
+package value
 
 type Break struct{}
 
-func (b *Break) Type() ObjectType {
+func (b *Break) Type() ValueType {
 	return BREAK_OBJ
 }
 
@@ -22,6 +22,6 @@ func (b *Break) Native() any {
 	return nil
 }
 
-func (b *Break) Is(t ObjectType) bool {
+func (b *Break) Is(t ValueType) bool {
 	return t == b.Type()
 }

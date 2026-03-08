@@ -9,8 +9,8 @@ import (
 	"github.com/textwire/textwire/v3/pkg/evaluator"
 	"github.com/textwire/textwire/v3/pkg/fail"
 	"github.com/textwire/textwire/v3/pkg/lexer"
-	"github.com/textwire/textwire/v3/pkg/object"
 	"github.com/textwire/textwire/v3/pkg/parser"
+	"github.com/textwire/textwire/v3/pkg/value"
 )
 
 const PROMPT = ">>> "
@@ -25,7 +25,7 @@ func main() {
 
 func Start(in io.Reader, out io.Writer) error {
 	scanner := bufio.NewScanner(in)
-	scope := object.NewScope()
+	scope := value.NewScope()
 
 	for {
 		fmt.Print(PROMPT)

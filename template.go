@@ -10,7 +10,7 @@ import (
 	"github.com/textwire/textwire/v3/pkg/fail"
 	"github.com/textwire/textwire/v3/pkg/file"
 	"github.com/textwire/textwire/v3/pkg/linker"
-	"github.com/textwire/textwire/v3/pkg/object"
+	"github.com/textwire/textwire/v3/pkg/value"
 )
 
 // Template holds all necessary data which it will use when individual
@@ -59,7 +59,7 @@ func (t *Template) String(name string, data map[string]any) (string, *fail.Error
 		return "", linkErr
 	}
 
-	scope, err := object.NewScopeFromMap(data)
+	scope, err := value.NewScopeFromMap(data)
 	if err != nil {
 		return "", err
 	}
@@ -74,8 +74,8 @@ func (t *Template) String(name string, data map[string]any) (string, *fail.Error
 	e := evaluator.New(customFunc, userConf)
 	ctx := evaluator.NewContext(scope, prog.AbsPath)
 	evaluated := e.Eval(prog, ctx)
-	if evaluated.Is(object.ERR_OBJ) {
-		return "", evaluated.(*object.Error).Err
+	if evaluated.Is(value.ERR_OBJ) {
+		return "", evaluated.(*value.Error).Err
 	}
 
 	return evaluated.String(), nil

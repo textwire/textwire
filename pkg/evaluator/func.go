@@ -1,11 +1,11 @@
 package evaluator
 
 import (
-	"github.com/textwire/textwire/v3/pkg/object"
+	"github.com/textwire/textwire/v3/pkg/value"
 )
 
-var functions = map[object.ObjectType]map[string]*object.Builtin{
-	object.STR_OBJ: {
+var functions = map[value.ValueType]map[string]*value.Builtin{
+	value.STR_OBJ: {
 		"len":        {Fn: strLenFunc},
 		"split":      {Fn: strSplitFunc},
 		"raw":        {Fn: strRawFunc},
@@ -25,7 +25,7 @@ var functions = map[object.ObjectType]map[string]*object.Builtin{
 		"repeat":     {Fn: strRepeatFunc},
 		"format":     {Fn: strFormatFunc},
 	},
-	object.ARR_OBJ: {
+	value.ARR_OBJ: {
 		"len":      {Fn: arrayLenFunc},
 		"join":     {Fn: arrayJoinFunc},
 		"rand":     {Fn: arrayRandFunc},
@@ -37,7 +37,7 @@ var functions = map[object.ObjectType]map[string]*object.Builtin{
 		"prepend":  {Fn: arrayPrependFunc},
 		"json":     {Fn: jsonFunc},
 	},
-	object.FLOAT_OBJ: {
+	value.FLOAT_OBJ: {
 		"int":   {Fn: floatIntFunc},
 		"str":   {Fn: floatStrFunc},
 		"abs":   {Fn: floatAbsFunc},
@@ -45,18 +45,18 @@ var functions = map[object.ObjectType]map[string]*object.Builtin{
 		"floor": {Fn: floatFloorFunc},
 		"round": {Fn: floatRoundFunc},
 	},
-	object.INT_OBJ: {
+	value.INT_OBJ: {
 		"float":   {Fn: intFloatFunc},
 		"abs":     {Fn: intAbsFunc},
 		"str":     {Fn: intStrFunc},
 		"len":     {Fn: intLenFunc},
 		"decimal": {Fn: intDecimalFunc},
 	},
-	object.BOOL_OBJ: {
+	value.BOOL_OBJ: {
 		"binary": {Fn: boolBinaryFunc},
 		"then":   {Fn: boolThenFunc},
 	},
-	object.OBJ_OBJ: {
+	value.OBJ_OBJ: {
 		"json":  {Fn: jsonFunc},
 		"camel": {Fn: objCamelFunc},
 		"get":   {Fn: objGetFunc},
@@ -64,10 +64,10 @@ var functions = map[object.ObjectType]map[string]*object.Builtin{
 }
 
 // jsonFunc convert value to json representation
-func jsonFunc(receiver object.Object, _ ...object.Object) (object.Object, error) {
+func jsonFunc(receiver value.Value, _ ...value.Value) (value.Value, error) {
 	json, err := receiver.JSON()
 	if err != nil {
 		return nil, err
 	}
-	return &object.Str{Val: json}, nil
+	return &value.Str{Val: json}, nil
 }

@@ -1,4 +1,4 @@
-package object
+package value
 
 import (
 	"bytes"
@@ -14,7 +14,7 @@ type Error struct {
 	ErrorID string
 }
 
-func (e *Error) Type() ObjectType {
+func (e *Error) Type() ValueType {
 	return ERR_OBJ
 }
 
@@ -45,6 +45,6 @@ func (e *Error) Native() any {
 	return e.String()
 }
 
-func (e *Error) Is(t ObjectType) bool {
+func (e *Error) Is(t ValueType) bool {
 	return t == e.Type()
 }

@@ -1,4 +1,4 @@
-package object
+package value
 
 import "fmt"
 
@@ -6,7 +6,7 @@ type Str struct {
 	Val string
 }
 
-func (s *Str) Type() ObjectType {
+func (s *Str) Type() ValueType {
 	return STR_OBJ
 }
 
@@ -26,6 +26,6 @@ func (s *Str) Native() any {
 	return s.Val
 }
 
-func (s *Str) Is(t ObjectType) bool {
+func (s *Str) Is(t ValueType) bool {
 	return t == s.Type()
 }

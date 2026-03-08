@@ -1,11 +1,11 @@
-package object
+package value
 
 type Reserve struct {
 	Name   string
-	Insert Object
+	Insert Value
 }
 
-func (r *Reserve) Type() ObjectType {
+func (r *Reserve) Type() ValueType {
 	return RESERVE_OBJ
 }
 
@@ -31,6 +31,6 @@ func (r *Reserve) Native() any {
 	return r.Insert.Native()
 }
 
-func (r *Reserve) Is(t ObjectType) bool {
+func (r *Reserve) Is(t ValueType) bool {
 	return t == r.Type()
 }

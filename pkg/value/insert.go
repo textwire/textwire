@@ -1,11 +1,11 @@
-package object
+package value
 
 type Insert struct {
 	Name  string
-	Block Object //@insert(name)<Block>@end or @insert(name, <Block>)
+	Block Value //@insert(name)<Block>@end or @insert(name, <Block>)
 }
 
-func (i *Insert) Type() ObjectType {
+func (i *Insert) Type() ValueType {
 	return RESERVE_OBJ
 }
 
@@ -33,6 +33,6 @@ func (r *Insert) Native() any {
 	return r.Block.Native()
 }
 
-func (i *Insert) Is(t ObjectType) bool {
+func (i *Insert) Is(t ValueType) bool {
 	return t == i.Type()
 }

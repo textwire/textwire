@@ -8,24 +8,24 @@ import (
 
 	"github.com/textwire/textwire/v3/config"
 	"github.com/textwire/textwire/v3/pkg/fail"
-	"github.com/textwire/textwire/v3/pkg/object"
+	"github.com/textwire/textwire/v3/pkg/value"
 )
 
-func isTruthy(obj object.Object) bool {
+func isTruthy(obj value.Value) bool {
 	switch obj := obj.(type) {
-	case *object.Bool:
+	case *value.Bool:
 		return obj.Val
-	case *object.Int:
+	case *value.Int:
 		return obj.Val != 0
-	case *object.Float:
+	case *value.Float:
 		return obj.Val != 0.0
-	case *object.Str:
+	case *value.Str:
 		return obj.Val != ""
-	case *object.Nil:
+	case *value.Nil:
 		return false
-	case *object.Obj:
+	case *value.Obj:
 		return len(obj.Pairs) > 0
-	case *object.Array:
+	case *value.Array:
 		return len(obj.Elements) != 0
 	case nil:
 		return false
@@ -34,37 +34,37 @@ func isTruthy(obj object.Object) bool {
 	return true
 }
 
-func isError(obj object.Object) bool {
-	return obj.Is(object.ERR_OBJ)
+func isError(obj value.Value) bool {
+	return obj.Is(value.ERR_OBJ)
 }
 
-func isUndefinedError(obj object.Object) bool {
+func isUndefinedError(obj value.Value) bool {
 	undefinedErrors := []string{
 		fail.ErrVariableIsUndefined,
 		fail.ErrKeyOnNonObject,
 	}
 
-	err, isErr := obj.(*object.Error)
+	err, isErr := obj.(*value.Error)
 	return isErr && slices.Contains(undefinedErrors, err.ErrorID)
 }
 
-func nativeBoolToBoolObj(input bool) object.Object {
+func nativeBoolToBoolObj(input bool) value.Value {
 	if input {
 		return TRUE
 	}
 	return FALSE
 }
 
-func hasBreakStmt(obj object.Object) bool {
-	return hasControlStmt(obj, object.BREAK_OBJ)
+func hasBreakStmt(obj value.Value) bool {
+	return hasControlStmt(obj, value.BREAK_OBJ)
 }
 
-func hasContinueStmt(obj object.Object) bool {
-	return hasControlStmt(obj, object.CONTINUE_OBJ)
+func hasContinueStmt(obj value.Value) bool {
+	return hasControlStmt(obj, value.CONTINUE_OBJ)
 }
 
-func hasControlStmt(obj object.Object, controlType object.ObjectType) bool {
-	block, ok := obj.(*object.Block)
+func hasControlStmt(obj value.Value, controlType value.ValueType) bool {
+	block, ok := obj.(*value.Block)
 	if !ok {
 		return obj.Is(controlType)
 	}
@@ -80,23 +80,23 @@ func hasControlStmt(obj object.Object, controlType object.ObjectType) bool {
 }
 
 // hasCustomFunc checks if the object has a custom function
-func hasCustomFunc(customFunc *config.Func, t object.ObjectType, funcName string) bool {
+func hasCustomFunc(customFunc *config.Func, t value.ValueType, funcName string) bool {
 	if customFunc == nil {
 		return false
 	}
 
 	switch t {
-	case object.STR_OBJ:
+	case value.STR_OBJ:
 		return customFunc.Str[funcName] != nil
-	case object.ARR_OBJ:
+	case value.ARR_OBJ:
 		return customFunc.Arr[funcName] != nil
-	case object.INT_OBJ:
+	case value.INT_OBJ:
 		return customFunc.Int[funcName] != nil
-	case object.FLOAT_OBJ:
+	case value.FLOAT_OBJ:
 		return customFunc.Float[funcName] != nil
-	case object.BOOL_OBJ:
+	case value.BOOL_OBJ:
 		return customFunc.Bool[funcName] != nil
-	case object.OBJ_OBJ:
+	case value.OBJ_OBJ:
 		return customFunc.Obj[funcName] != nil
 	default:
 		return false
@@ -106,8 +106,8 @@ func hasCustomFunc(customFunc *config.Func, t object.ObjectType, funcName string
 // getDecimalConfig extracts separator and decimal count from arguments.
 // Returns error if arguments are invalid.
 func getDecimalConfig(
-	objType object.ObjectType,
-	args ...object.Object,
+	objType value.ValueType,
+	args ...value.Value,
 ) (separator string, decimals int, err error) {
 	separator = "."
 	decimals = 2
@@ -117,7 +117,7 @@ func getDecimalConfig(
 	}
 
 	if len(args) >= 1 {
-		separatorArg, ok := args[0].(*object.Str)
+		separatorArg, ok := args[0].(*value.Str)
 		if !ok {
 			return "", 0, fmt.Errorf(fail.ErrFuncFirstArgStr, objType, "decimal")
 		}
@@ -125,7 +125,7 @@ func getDecimalConfig(
 	}
 
 	if len(args) == 2 {
-		decimalArg, ok := args[1].(*object.Int)
+		decimalArg, ok := args[1].(*value.Int)
 		if !ok {
 			return "", 0, fmt.Errorf(fail.ErrFuncSecondArgInt, objType, "decimal")
 		}

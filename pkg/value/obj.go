@@ -1,4 +1,4 @@
-package object
+package value
 
 import (
 	"fmt"
@@ -9,17 +9,17 @@ import (
 )
 
 type Obj struct {
-	Pairs map[string]Object
+	Pairs map[string]Value
 }
 
-func NewObj(pairs map[string]Object) *Obj {
+func NewObj(pairs map[string]Value) *Obj {
 	if pairs == nil {
-		pairs = map[string]Object{}
+		pairs = map[string]Value{}
 	}
 	return &Obj{Pairs: pairs}
 }
 
-func (o *Obj) Type() ObjectType {
+func (o *Obj) Type() ValueType {
 	return OBJ_OBJ
 }
 
@@ -128,14 +128,14 @@ func (o *Obj) Native() any {
 	return res
 }
 
-func (o *Obj) Is(t ObjectType) bool {
+func (o *Obj) Is(t ValueType) bool {
 	return t == o.Type()
 }
 
 // ToCamel converts each key in a pair to camel case and returns it
 // without mutating it.
-func (o Obj) ToCamel() map[string]Object {
-	res := make(map[string]Object, len(o.Pairs))
+func (o Obj) ToCamel() map[string]Value {
+	res := make(map[string]Value, len(o.Pairs))
 	for k, v := range o.Pairs {
 		key := utils.ToCamel(k)
 		if v.Is(OBJ_OBJ) {

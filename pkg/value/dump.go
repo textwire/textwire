@@ -1,4 +1,4 @@
-package object
+package value
 
 import (
 	"bytes"
@@ -28,7 +28,7 @@ type Dump struct {
 	Vals []string
 }
 
-func (d *Dump) Type() ObjectType {
+func (d *Dump) Type() ValueType {
 	return DUMP_OBJ
 }
 
@@ -57,6 +57,6 @@ func (d *Dump) Native() any {
 	return vals
 }
 
-func (d *Dump) Is(t ObjectType) bool {
+func (d *Dump) Is(t ValueType) bool {
 	return t == d.Type()
 }

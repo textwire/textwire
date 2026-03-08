@@ -3,46 +3,46 @@ package evaluator
 import (
 	"math"
 
-	"github.com/textwire/textwire/v3/pkg/object"
 	"github.com/textwire/textwire/v3/pkg/utils"
+	"github.com/textwire/textwire/v3/pkg/value"
 )
 
 // floatIntFunc returns the integer part of the given float
-func floatIntFunc(receiver object.Object, _ ...object.Object) (object.Object, error) {
-	val := receiver.(*object.Float).Val
-	return &object.Int{Val: int64(val)}, nil
+func floatIntFunc(receiver value.Value, _ ...value.Value) (value.Value, error) {
+	val := receiver.(*value.Float).Val
+	return &value.Int{Val: int64(val)}, nil
 }
 
 // floatStrFunc converts a float to a string and returns it
-func floatStrFunc(receiver object.Object, _ ...object.Object) (object.Object, error) {
-	val := receiver.(*object.Float).Val
-	return &object.Str{Val: utils.FloatToStr(val)}, nil
+func floatStrFunc(receiver value.Value, _ ...value.Value) (value.Value, error) {
+	val := receiver.(*value.Float).Val
+	return &value.Str{Val: utils.FloatToStr(val)}, nil
 }
 
 // floatAbsFunc returns the absolute value of an float
-func floatAbsFunc(receiver object.Object, _ ...object.Object) (object.Object, error) {
-	val := receiver.(*object.Float).Val
+func floatAbsFunc(receiver value.Value, _ ...value.Value) (value.Value, error) {
+	val := receiver.(*value.Float).Val
 	if val < 0 {
-		return &object.Float{Val: -val}, nil
+		return &value.Float{Val: -val}, nil
 	}
 
 	return receiver, nil
 }
 
 // floatCeilFunc returns the rounded up value of a float to the nearest integer
-func floatCeilFunc(receiver object.Object, _ ...object.Object) (object.Object, error) {
-	val := receiver.(*object.Float).Val
-	return &object.Int{Val: int64(math.Ceil(val))}, nil
+func floatCeilFunc(receiver value.Value, _ ...value.Value) (value.Value, error) {
+	val := receiver.(*value.Float).Val
+	return &value.Int{Val: int64(math.Ceil(val))}, nil
 }
 
 // floatFloorFunc returns the rounded down value of a float to the nearest integer
-func floatFloorFunc(receiver object.Object, _ ...object.Object) (object.Object, error) {
-	val := receiver.(*object.Float).Val
-	return &object.Int{Val: int64(math.Floor(val))}, nil
+func floatFloorFunc(receiver value.Value, _ ...value.Value) (value.Value, error) {
+	val := receiver.(*value.Float).Val
+	return &value.Int{Val: int64(math.Floor(val))}, nil
 }
 
 // floatRoundFunc returns the rounded value of a float to the nearest integer
-func floatRoundFunc(receiver object.Object, _ ...object.Object) (object.Object, error) {
-	val := receiver.(*object.Float).Val
-	return &object.Int{Val: int64(math.Round(val))}, nil
+func floatRoundFunc(receiver value.Value, _ ...value.Value) (value.Value, error) {
+	val := receiver.(*value.Float).Val
+	return &value.Int{Val: int64(math.Round(val))}, nil
 }

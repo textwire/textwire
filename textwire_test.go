@@ -8,8 +8,8 @@ import (
 
 	"github.com/textwire/textwire/v3/pkg/fail"
 	"github.com/textwire/textwire/v3/pkg/file"
-	"github.com/textwire/textwire/v3/pkg/object"
 	"github.com/textwire/textwire/v3/pkg/token"
+	"github.com/textwire/textwire/v3/pkg/value"
 )
 
 func readFile(fileName string) (string, error) {
@@ -447,7 +447,7 @@ func TestErrorHandling(t *testing.T) {
 				"",
 				"evaluator",
 				fail.ErrFuncNotDefined,
-				object.STR_OBJ,
+				value.STR_OBJ,
 				"undefinedFunc",
 			),
 			data: map[string]any{"name": "Anna"},
@@ -480,9 +480,9 @@ func TestErrorHandling(t *testing.T) {
 				"evaluator",
 				fail.ErrCannotUseOperator,
 				"+",
-				object.INT_OBJ,
+				value.INT_OBJ,
 				"+",
-				object.STR_OBJ,
+				value.STR_OBJ,
 			),
 			data: nil,
 		},
@@ -513,14 +513,14 @@ func TestErrorHandling(t *testing.T) {
 				"evaluator",
 				fail.ErrIdentifierTypeMismatch,
 				"n",
-				object.INT_OBJ,
-				object.STR_OBJ,
+				value.INT_OBJ,
+				value.STR_OBJ,
 			),
 			data: nil,
 		},
 		{
 			inp:  `{{ user = {}; user.address.zip }}`,
-			err:  fail.New(1, "", "evaluator", fail.ErrKeyOnNonObject, object.NIL_OBJ, "zip"),
+			err:  fail.New(1, "", "evaluator", fail.ErrKeyOnNonObject, value.NIL_OBJ, "zip"),
 			data: nil,
 		},
 		{
@@ -530,7 +530,7 @@ func TestErrorHandling(t *testing.T) {
 				"",
 				"evaluator",
 				fail.ErrFuncNotDefined,
-				object.INT_OBJ,
+				value.INT_OBJ,
 				"someFunction",
 			),
 			data: nil,
@@ -547,7 +547,7 @@ func TestErrorHandling(t *testing.T) {
 		},
 		{
 			inp:  `{{ obj = {name: "Amy"}; obj.name.id }}`,
-			err:  fail.New(1, "", "evaluator", fail.ErrKeyOnNonObject, object.STR_OBJ, "id"),
+			err:  fail.New(1, "", "evaluator", fail.ErrKeyOnNonObject, value.STR_OBJ, "id"),
 			data: nil,
 		},
 		{
@@ -564,52 +564,52 @@ func TestErrorHandling(t *testing.T) {
 		},
 		{
 			inp:  `@each(v in {}){{ v }}@end`,
-			err:  fail.New(1, "", "evaluator", fail.ErrEachDirWithNonArrArg, object.OBJ_OBJ),
+			err:  fail.New(1, "", "evaluator", fail.ErrEachDirWithNonArrArg, value.OBJ_OBJ),
 			data: nil,
 		},
 		{
 			inp:  `{{ 1 = 10 }}`,
-			err:  fail.New(1, "", "evaluator", fail.ErrNotSupportedAssign, object.INT_OBJ),
+			err:  fail.New(1, "", "evaluator", fail.ErrNotSupportedAssign, value.INT_OBJ),
 			data: nil,
 		},
 		{
 			inp:  `{{ {} = 10 }}`,
-			err:  fail.New(1, "", "evaluator", fail.ErrNotSupportedAssign, object.OBJ_OBJ),
+			err:  fail.New(1, "", "evaluator", fail.ErrNotSupportedAssign, value.OBJ_OBJ),
 			data: nil,
 		},
 		{
 			inp:  `{{ [] = 10 }}`,
-			err:  fail.New(1, "", "evaluator", fail.ErrNotSupportedAssign, object.ARR_OBJ),
+			err:  fail.New(1, "", "evaluator", fail.ErrNotSupportedAssign, value.ARR_OBJ),
 			data: nil,
 		},
 		{
 			inp:  `{{ 1.1 = 10 }}`,
-			err:  fail.New(1, "", "evaluator", fail.ErrNotSupportedAssign, object.FLOAT_OBJ),
+			err:  fail.New(1, "", "evaluator", fail.ErrNotSupportedAssign, value.FLOAT_OBJ),
 			data: nil,
 		},
 		{
 			inp:  `{{ true = 10 }}`,
-			err:  fail.New(1, "", "evaluator", fail.ErrNotSupportedAssign, object.BOOL_OBJ),
+			err:  fail.New(1, "", "evaluator", fail.ErrNotSupportedAssign, value.BOOL_OBJ),
 			data: nil,
 		},
 		{
 			inp:  `{{ 'anna' = 10 }}`,
-			err:  fail.New(1, "", "evaluator", fail.ErrNotSupportedAssign, object.STR_OBJ),
+			err:  fail.New(1, "", "evaluator", fail.ErrNotSupportedAssign, value.STR_OBJ),
 			data: nil,
 		},
 		{
 			inp:  `{{ "serhii" = 10 }}`,
-			err:  fail.New(1, "", "evaluator", fail.ErrNotSupportedAssign, object.STR_OBJ),
+			err:  fail.New(1, "", "evaluator", fail.ErrNotSupportedAssign, value.STR_OBJ),
 			data: nil,
 		},
 		{
 			inp:  `{{ false = 10 }}`,
-			err:  fail.New(1, "", "evaluator", fail.ErrNotSupportedAssign, object.BOOL_OBJ),
+			err:  fail.New(1, "", "evaluator", fail.ErrNotSupportedAssign, value.BOOL_OBJ),
 			data: nil,
 		},
 		{
 			inp:  `{{ nil = 10 }}`,
-			err:  fail.New(1, "", "evaluator", fail.ErrNotSupportedAssign, object.NIL_OBJ),
+			err:  fail.New(1, "", "evaluator", fail.ErrNotSupportedAssign, value.NIL_OBJ),
 			data: nil,
 		},
 	}

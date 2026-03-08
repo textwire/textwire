@@ -5,22 +5,22 @@ import (
 	"fmt"
 
 	"github.com/textwire/textwire/v3/pkg/fail"
-	"github.com/textwire/textwire/v3/pkg/object"
+	"github.com/textwire/textwire/v3/pkg/value"
 )
 
 // boolBinaryFunc returns an integer 1 if the receiver is true, 0 otherwise
-func boolBinaryFunc(receiver object.Object, _ ...object.Object) (object.Object, error) {
+func boolBinaryFunc(receiver value.Value, _ ...value.Value) (value.Value, error) {
 	if isTruthy(receiver) {
-		return &object.Int{Val: 1}, nil
+		return &value.Int{Val: 1}, nil
 	}
 
-	return &object.Int{Val: 0}, nil
+	return &value.Int{Val: 0}, nil
 }
 
 // boolThenFunc returns the first argument if the receiver is true, the second argument or nil otherwise
-func boolThenFunc(receiver object.Object, args ...object.Object) (object.Object, error) {
+func boolThenFunc(receiver value.Value, args ...value.Value) (value.Value, error) {
 	if len(args) == 0 {
-		msg := fmt.Sprintf(fail.ErrFuncMissingArg, object.BOOL_OBJ, "then")
+		msg := fmt.Sprintf(fail.ErrFuncMissingArg, value.BOOL_OBJ, "then")
 		return nil, errors.New(msg)
 	}
 
@@ -29,7 +29,7 @@ func boolThenFunc(receiver object.Object, args ...object.Object) (object.Object,
 	}
 
 	if len(args) == 1 {
-		return &object.Nil{}, nil
+		return &value.Nil{}, nil
 	}
 
 	return args[1], nil

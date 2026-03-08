@@ -1,4 +1,4 @@
-package object
+package value
 
 import (
 	"bytes"
@@ -6,10 +6,10 @@ import (
 )
 
 type Block struct {
-	Elements []Object
+	Elements []Value
 }
 
-func (b *Block) Type() ObjectType {
+func (b *Block) Type() ValueType {
 	return BLOCK_OBJ
 }
 
@@ -51,6 +51,6 @@ func (b *Block) Native() any {
 	return vals
 }
 
-func (b *Block) Is(t ObjectType) bool {
+func (b *Block) Is(t ValueType) bool {
 	return t == b.Type()
 }
