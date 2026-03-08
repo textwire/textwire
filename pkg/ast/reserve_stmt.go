@@ -8,7 +8,7 @@ import (
 
 type ReserveStmt struct {
 	BaseNode
-	Name *StringLiteral
+	Name *StrLit
 	// Fallback is the second argument; nil if not present
 	Fallback Expression
 }

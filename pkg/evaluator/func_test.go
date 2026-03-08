@@ -938,7 +938,7 @@ func TestFunctionGivesError(t *testing.T) {
 				"then",
 			),
 		},
-		// array contains
+		// arr contains
 		{
 			770,
 			`{{ [1, 2].contains() }}`,
@@ -951,7 +951,7 @@ func TestFunctionGivesError(t *testing.T) {
 				"contains",
 			),
 		},
-		// array append
+		// arr append
 		{
 			780,
 			`{{ [1, 2].append() }}`,
@@ -964,7 +964,7 @@ func TestFunctionGivesError(t *testing.T) {
 				"append",
 			),
 		},
-		// array prepend
+		// arr prepend
 		{
 			790,
 			`{{ [1, 2].prepend() }}`,

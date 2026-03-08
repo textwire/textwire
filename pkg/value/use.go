@@ -11,7 +11,7 @@ func (u *Use) Type() ValueType {
 
 func (u *Use) String() string {
 	if u.Layout == nil {
-		panic("Layout field on Use object must not be nil when calling String()")
+		panic("Layout field on Use must not be nil when calling String()")
 	}
 	return u.Layout.String()
 }
@@ -26,7 +26,7 @@ func (u *Use) JSON() (string, error) {
 
 func (u *Use) Native() any {
 	if u.Layout == nil {
-		panic("Layout field on Use object must not be nil when calling Native()")
+		panic("Layout field on Use must not be nil when calling Native()")
 	}
 	return u.Layout.Native()
 }

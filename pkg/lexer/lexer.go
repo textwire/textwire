@@ -348,9 +348,9 @@ func (l *Lexer) newToken(tokType token.TokenType, literal string) token.Token {
 	}
 
 	return token.Token{
-		Type:    tokType,
-		Literal: literal,
-		Pos:     pos,
+		Type: tokType,
+		Lit:  literal,
+		Pos:  pos,
 	}
 }
 

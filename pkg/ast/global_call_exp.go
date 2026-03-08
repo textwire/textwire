@@ -9,11 +9,11 @@ import (
 
 type GlobalCallExp struct {
 	BaseNode
-	Function  *Identifier // Function being called
+	Function  *Ident // Function being called
 	Arguments []Expression
 }
 
-func NewGlobalCallExp(tok token.Token, function *Identifier) *GlobalCallExp {
+func NewGlobalCallExp(tok token.Token, function *Ident) *GlobalCallExp {
 	return &GlobalCallExp{
 		BaseNode: NewBaseNode(tok),
 		Function: function,

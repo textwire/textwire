@@ -47,7 +47,7 @@ type Value interface {
 	String() string
 	Is(ValueType) bool
 	Native() any
-	// move Dump and JSON to Literal object in v4.0.0
+	// move Dump and JSON to LiteralValue in v4.0.0
 	Dump(ident int) string
 	JSON() (string, error)
 }

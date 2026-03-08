@@ -17,5 +17,5 @@ func NewBreakStmt(tok token.Token) *BreakStmt {
 func (bs *BreakStmt) statementNode() {}
 
 func (bs *BreakStmt) String() string {
-	return bs.Token.Literal
+	return bs.Token.Lit
 }

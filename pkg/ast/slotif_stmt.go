@@ -10,13 +10,13 @@ import (
 type SlotifStmt struct {
 	BaseNode  // @slotif(bool, 'name'?)
 	Condition Expression
-	CompName  string         // Component name
-	isDefault bool           // Whether the slot is named or default
-	name      *StringLiteral // Empty when @slot is default
-	block     *BlockStmt     // Required, cannot be nil
+	CompName  string     // Component name
+	isDefault bool       // Whether the slot is named or default
+	name      *StrLit    // Empty when @slot is default
+	block     *BlockStmt // Required, cannot be nil
 }
 
-func NewSlotifStmt(tok token.Token, name *StringLiteral, compName string) *SlotifStmt {
+func NewSlotifStmt(tok token.Token, name *StrLit, compName string) *SlotifStmt {
 	return &SlotifStmt{
 		BaseNode: NewBaseNode(tok),
 		name:     name,
@@ -26,7 +26,7 @@ func NewSlotifStmt(tok token.Token, name *StringLiteral, compName string) *Sloti
 
 func (sis *SlotifStmt) statementNode() {}
 
-func (sis *SlotifStmt) Name() *StringLiteral {
+func (sis *SlotifStmt) Name() *StrLit {
 	return sis.name
 }
 
@@ -50,7 +50,7 @@ func (sis *SlotifStmt) String() string {
 	var out strings.Builder
 	out.Grow(6)
 
-	out.WriteString(sis.Token.Literal)
+	out.WriteString(sis.Token.Lit)
 	out.WriteString("(")
 	out.WriteString(sis.Condition.String())
 

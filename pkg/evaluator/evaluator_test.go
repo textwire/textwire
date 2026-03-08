@@ -611,7 +611,7 @@ func TestEvalIfStmt(t *testing.T) {
 	}
 }
 
-func TestEvalArray(t *testing.T) {
+func TestEvalArr(t *testing.T) {
 	cases := []struct {
 		id     uint
 		inp    string
@@ -923,7 +923,7 @@ func TestEvalEachStmt(t *testing.T) {
 	}
 }
 
-func TestEvalObjectLiteral(t *testing.T) {
+func TestEvalObjLit(t *testing.T) {
 	cases := []struct {
 		id     uint
 		inp    string

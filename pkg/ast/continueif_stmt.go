@@ -20,5 +20,5 @@ func NewContinueIfStmt(tok token.Token) *ContinueifStmt {
 func (cis *ContinueifStmt) statementNode() {}
 
 func (cis *ContinueifStmt) String() string {
-	return fmt.Sprintf("%s(%s)", cis.Token.Literal, cis.Condition)
+	return fmt.Sprintf("%s(%s)", cis.Token.Lit, cis.Condition)
 }

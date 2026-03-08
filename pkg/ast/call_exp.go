@@ -9,12 +9,12 @@ import (
 
 type CallExp struct {
 	BaseNode
-	Receiver  Expression  // Receiver of the call
-	Function  *Identifier // Function being called
+	Receiver  Expression // Receiver of the call
+	Function  *Ident     // Function being called
 	Arguments []Expression
 }
 
-func NewCallExp(tok token.Token, receiver Expression, function *Identifier) *CallExp {
+func NewCallExp(tok token.Token, receiver Expression, function *Ident) *CallExp {
 	return &CallExp{
 		BaseNode: NewBaseNode(tok),
 		Receiver: receiver,

@@ -4,7 +4,7 @@ import (
 	"testing"
 )
 
-func BenchmarkNativeSliceToArrayValue(b *testing.B) {
+func BenchmarkNativeSliceToArrValue(b *testing.B) {
 	cases := []struct {
 		name string
 		size int
@@ -34,7 +34,7 @@ func BenchmarkNativeSliceToArrayValue(b *testing.B) {
 			b.ResetTimer()
 
 			for b.Loop() {
-				_ = nativeSliceToArrayValue(slice)
+				_ = nativeSliceToArrValue(slice)
 			}
 		})
 	}

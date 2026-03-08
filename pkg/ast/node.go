@@ -23,7 +23,7 @@ type NodeWithStatements interface {
 
 type SlotStatement interface {
 	Node
-	Name() *StringLiteral
+	Name() *StrLit
 	IsDefault() bool
 	SetIsDefault(bool)
 	Block() *BlockStmt

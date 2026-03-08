@@ -11,7 +11,7 @@ func (r *Reserve) Type() ValueType {
 
 func (r *Reserve) String() string {
 	if r.Insert == nil {
-		panic("Insert field on Reseve object must not be nil when calling String()")
+		panic("Insert field on Reseve must not be nil when calling String()")
 	}
 	return r.Insert.String()
 }
@@ -26,7 +26,7 @@ func (r *Reserve) JSON() (string, error) {
 
 func (r *Reserve) Native() any {
 	if r.Insert == nil {
-		panic("Insert field on Reseve object must not be nil when calling Native()")
+		panic("Insert field on Reseve must not be nil when calling Native()")
 	}
 	return r.Insert.Native()
 }

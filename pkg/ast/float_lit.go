@@ -5,20 +5,20 @@ import (
 	"github.com/textwire/textwire/v3/pkg/utils"
 )
 
-type FloatLiteral struct {
+type FloatLit struct {
 	BaseNode
 	Val float64
 }
 
-func NewFloatLiteral(tok token.Token, val float64) *FloatLiteral {
-	return &FloatLiteral{
+func NewFloatLit(tok token.Token, val float64) *FloatLit {
+	return &FloatLit{
 		BaseNode: NewBaseNode(tok),
 		Val:      val,
 	}
 }
 
-func (fl *FloatLiteral) expressionNode() {}
+func (fl *FloatLit) expressionNode() {}
 
-func (fl *FloatLiteral) String() string {
+func (fl *FloatLit) String() string {
 	return utils.FloatToStr(fl.Val)
 }
