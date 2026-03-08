@@ -482,17 +482,16 @@ func TestTokenPosition(t *testing.T) {
 	}
 }
 
-func TestIsDirectoryToken(t *testing.T) {
+func TestIsDirectiveToken(t *testing.T) {
 	t.Run("Not a directive token", func(t *testing.T) {
 		input := "test@email.com"
 		l := New(input)
 
-		isDir, escaped := l.isDirectiveToken()
-		if isDir {
+		if l.isDirectiveToken() {
 			t.Errorf("Expected %q not to be a directive token", input)
 		}
 
-		if escaped {
+		if l.isEscapedDirective() {
 			t.Errorf("Expected %q not to be escaped directive token", input)
 		}
 	})
@@ -501,12 +500,11 @@ func TestIsDirectoryToken(t *testing.T) {
 		input := "@break"
 		l := New(input)
 
-		isDir, escaped := l.isDirectiveToken()
-		if !isDir {
+		if !l.isDirectiveToken() {
 			t.Errorf("Expected %q to be a directive token", input)
 		}
 
-		if escaped {
+		if l.isEscapedDirective() {
 			t.Errorf("Expected %q not to be an escaped directive token", input)
 		}
 	})
@@ -516,12 +514,11 @@ func TestIsDirectoryToken(t *testing.T) {
 		l := New(input)
 		l.readChar() // skip the backslash
 
-		isDir, escaped := l.isDirectiveToken()
-		if isDir {
+		if l.isDirectiveToken() {
 			t.Errorf("Expected %q not to be a directive", input)
 		}
 
-		if !escaped {
+		if !l.isEscapedDirective() {
 			t.Errorf("Expected %q to be escaped directive", input)
 		}
 	})

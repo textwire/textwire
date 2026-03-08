@@ -107,7 +107,7 @@ func (l *Lexer) Next() token.Token {
 		return l.bracesToken(token.RBRACES, "}}")
 	}
 
-	if isDirective, _ := l.isDirectiveToken(); isDirective {
+	if l.isDirectiveToken() {
 		return l.directiveToken()
 	}
 
@@ -355,36 +355,33 @@ func (l *Lexer) readDirective() (token.TokenType, string) {
 	return tok, keyword.String()
 }
 
-func (l *Lexer) isDirectiveToken() (isDirectory bool, escapedDirectory bool) {
+func (l *Lexer) hasDirectivePrefix() bool {
 	if l.char != '@' {
-		return false, false
+		return false
 	}
 
 	pos := l.pos
-
 	longestDir := token.LongestDirective()
 
 	for i := 1; i <= longestDir; i++ {
 		if pos+i > len(l.input) {
-			return false, false
+			return false
 		}
 
-		keyword := l.input[pos : pos+i]
-
-		tok := token.LookupDirective(keyword)
-
-		if tok == token.ILLEGAL {
-			continue
+		if token.LookupDirective(l.input[pos:pos+i]) != token.ILLEGAL {
+			return true
 		}
-
-		if l.prevChar() == '\\' {
-			return false, true
-		}
-
-		return true, false
 	}
 
-	return false, false
+	return false
+}
+
+func (l *Lexer) isDirectiveToken() bool {
+	return l.prevChar() != '\\' && l.hasDirectivePrefix()
+}
+
+func (l *Lexer) isEscapedDirective() bool {
+	return l.prevChar() == '\\' && l.hasDirectivePrefix()
 }
 
 func (l *Lexer) hasIfVariant(tok token.TokenType) bool {
@@ -484,14 +481,13 @@ func (l *Lexer) readText() string {
 	l.tokenBegins()
 
 	for l.isText && l.char != 0 {
-		isDirective, escapedDir := l.isDirectiveToken()
 		areBraces, escapedBraces := l.areBracesToken()
 
-		if areBraces || isDirective {
+		if areBraces || l.isDirectiveToken() {
 			break
 		}
 
-		if escapedDir || escapedBraces {
+		if escapedBraces || l.isEscapedDirective() {
 			out.Truncate(out.Len() - 1)
 		}
 
