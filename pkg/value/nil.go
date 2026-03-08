@@ -5,7 +5,7 @@ import "fmt"
 type Nil struct{}
 
 func (n *Nil) Type() ValueType {
-	return NIL_OBJ
+	return NIL_VAL
 }
 
 func (n *Nil) String() string {

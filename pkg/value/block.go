@@ -10,7 +10,7 @@ type Block struct {
 }
 
 func (b *Block) Type() ValueType {
-	return BLOCK_OBJ
+	return BLOCK_VAL
 }
 
 func (b *Block) String() string {

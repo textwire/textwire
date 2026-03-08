@@ -26,7 +26,7 @@ func (bs *BlockStmt) String() string {
 	for _, s := range bs.Statements {
 		str := s.String()
 
-		if s.Tok().Type == token.HTML {
+		if s.Tok().Type == token.TEXT {
 			out.WriteString(str)
 		} else if strings.HasPrefix(str, "@") {
 			out.WriteString(str)

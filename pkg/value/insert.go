@@ -6,7 +6,7 @@ type Insert struct {
 }
 
 func (i *Insert) Type() ValueType {
-	return RESERVE_OBJ
+	return RESERVE_VAL
 }
 
 func (i *Insert) String() string {

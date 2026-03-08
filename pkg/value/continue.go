@@ -3,7 +3,7 @@ package value
 type Continue struct{}
 
 func (c *Continue) Type() ValueType {
-	return CONTINUE_OBJ
+	return CONTINUE_VAL
 }
 
 func (c *Continue) String() string {

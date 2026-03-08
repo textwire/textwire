@@ -15,7 +15,7 @@ type Error struct {
 }
 
 func (e *Error) Type() ValueType {
-	return ERR_OBJ
+	return ERR_VAL
 }
 
 func (e *Error) String() string {

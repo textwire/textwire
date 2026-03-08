@@ -6,8 +6,8 @@ import "github.com/textwire/textwire/v3/pkg/value"
 //
 //	SlotsStore{
 //	    "components/book": {
-//	        "title": object.Object{},
-//	        "author": object.Object{},
+//		    "title": value.Value{},
+//		    "author": value.Value{},
 //	    },
 //	}
 type SlotsStore = map[string]map[string]value.Value

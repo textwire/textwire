@@ -9,7 +9,7 @@ const (
 	IDENT                    // foo, bar
 
 	// Literals
-	HTML  // HTML code
+	TEXT  // Text
 	INT   // Integer
 	FLOAT // Float
 	STR   // String

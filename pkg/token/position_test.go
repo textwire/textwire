@@ -14,8 +14,8 @@ func TestContains(t *testing.T) {
 		},
 	}
 
-	tokenHTML := Token{
-		Type:    HTML,
+	tokenText := Token{
+		Type:    TEXT,
 		Literal: "<div>\n    <h1>Hello</h1>\n</div>",
 		Pos: Position{
 			StartLine: 2,
@@ -101,7 +101,7 @@ func TestContains(t *testing.T) {
 			desc:   "Cursor is inside a multi-line token (start line)",
 			line:   2, // Assuming token line is 2-4
 			col:    0,
-			token:  tokenHTML,
+			token:  tokenText,
 			expect: true,
 		},
 		{
@@ -109,7 +109,7 @@ func TestContains(t *testing.T) {
 			desc:   "Cursor is inside a multi-line token (middle line)",
 			line:   3, // Assuming token line is 2-4
 			col:    9,
-			token:  tokenHTML,
+			token:  tokenText,
 			expect: true,
 		},
 		{
@@ -117,7 +117,7 @@ func TestContains(t *testing.T) {
 			desc:   "Cursor is inside a multi-line token (last line)",
 			line:   4, // Assuming token line is 2-4
 			col:    5,
-			token:  tokenHTML,
+			token:  tokenText,
 			expect: true,
 		},
 		{
@@ -125,7 +125,7 @@ func TestContains(t *testing.T) {
 			desc:   "Cursor is one column after token",
 			line:   4,
 			col:    6,
-			token:  tokenHTML,
+			token:  tokenText,
 			expect: false,
 		},
 	}

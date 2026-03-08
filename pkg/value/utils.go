@@ -4,7 +4,7 @@ import (
 	"reflect"
 )
 
-func NativeToObject(val any) Value {
+func NativeToValue(val any) Value {
 	switch v := val.(type) {
 	case string:
 		return &Str{Val: v}
@@ -42,30 +42,30 @@ func NativeToObject(val any) Value {
 
 	switch valType.Kind() {
 	case reflect.Struct:
-		return nativeStructToObject(val)
+		return nativeStructToValue(val)
 	case reflect.Slice:
-		return nativeSliceToArrayObject(convertToInterfaceSlice(val))
+		return nativeSliceToArrayValue(convertToInterfaceSlice(val))
 	case reflect.Map:
-		return nativeMapToObject(val)
+		return nativeMapToValue(val)
 	case reflect.Pointer:
 		v := reflect.ValueOf(val)
 		if v.IsNil() {
 			return new(Nil)
 		}
 
-		// NativeToObject is used recursively here
-		return NativeToObject(v.Elem().Interface())
+		// NativeToValue is used recursively here
+		return NativeToValue(v.Elem().Interface())
 	}
 
 	return nil
 }
 
-func nativeMapToObject(val any) Value {
+func nativeMapToValue(val any) Value {
 	obj := NewObj(nil)
 
 	valValue := reflect.ValueOf(val)
 	for _, key := range valValue.MapKeys() {
-		obj.Pairs[key.String()] = NativeToObject(valValue.MapIndex(key).Interface())
+		obj.Pairs[key.String()] = NativeToValue(valValue.MapIndex(key).Interface())
 	}
 
 	return obj
@@ -86,7 +86,7 @@ func convertToInterfaceSlice(slice any) []any {
 	return vals
 }
 
-func nativeStructToObject(val any) Value {
+func nativeStructToValue(val any) Value {
 	obj := NewObj(nil)
 
 	valType := reflect.TypeOf(val)
@@ -100,17 +100,17 @@ func nativeStructToObject(val any) Value {
 
 		fieldVal := reflect.ValueOf(val).Field(i).Interface()
 
-		obj.Pairs[field.Name] = NativeToObject(fieldVal)
+		obj.Pairs[field.Name] = NativeToValue(fieldVal)
 	}
 
 	return obj
 }
 
-func nativeSliceToArrayObject(slice []any) *Array {
-	arr := new(Array)
+func nativeSliceToArrayValue(slice []any) *Arr {
+	arr := new(Arr)
 	arr.Elements = make([]Value, len(slice))
 	for i := range slice {
-		arr.Elements[i] = NativeToObject(slice[i])
+		arr.Elements[i] = NativeToValue(slice[i])
 	}
 
 	return arr

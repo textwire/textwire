@@ -42,8 +42,8 @@ func (e *Evaluator) Eval(node ast.Node, ctx *Context) value.Value {
 	// Statements
 	case *ast.Program:
 		return e.program(node, ctx)
-	case *ast.HTMLStmt:
-		return &value.HTML{Val: node.String()}
+	case *ast.TextStmt:
+		return &value.Text{Val: node.String()}
 	case *ast.ExpressionStmt:
 		return e.Eval(node.Expression, ctx)
 	case *ast.IfStmt:
@@ -132,7 +132,7 @@ func (e *Evaluator) program(prog *ast.Program, ctx *Context) value.Value {
 		stmts.WriteString(stmt.String())
 	}
 
-	return &value.HTML{Val: stmts.String()}
+	return &value.Text{Val: stmts.String()}
 }
 
 func (e *Evaluator) _if(ifStmt *ast.IfStmt, ctx *Context) value.Value {
@@ -209,7 +209,7 @@ func (e *Evaluator) assign(assignStmt *ast.AssignStmt, ctx *Context) value.Value
 			assignStmt,
 			ctx,
 			fail.ErrNotSupportedAssign,
-			value.FromTokenToObjectType(left.Tok().Type),
+			value.FromTokenToValueType(left.Tok().Type),
 		)
 	}
 }
@@ -240,16 +240,16 @@ func (e *Evaluator) assignIndexExp(
 		return idx
 	}
 
-	if !left.Is(value.ARR_OBJ) {
+	if !left.Is(value.ARR_VAL) {
 		return e.newError(indexExp, ctx, fail.ErrIndexNotSupported, left.Type())
 	}
 
 	// Index must be integer
-	if !idx.Is(value.INT_OBJ) {
+	if !idx.Is(value.INT_VAL) {
 		return e.newError(indexExp, ctx, fail.ErrArrayIndexInteger, idx.Type())
 	}
 
-	arr := left.(*value.Array)
+	arr := left.(*value.Arr)
 	index := idx.(*value.Int).Val
 
 	if index < 0 || index >= int64(len(arr.Elements)) {
@@ -266,7 +266,7 @@ func (e *Evaluator) assignDotExp(
 	val value.Value,
 	ctx *Context,
 ) value.Value {
-	// Evaluate the left side to get the object
+	// Evaluate the left side to get the value
 	left := e.Eval(dotExp.Left, ctx)
 	if isError(left) {
 		return left
@@ -275,13 +275,12 @@ func (e *Evaluator) assignDotExp(
 	// Get the key (property name)
 	key := dotExp.Key.(*ast.Identifier).Name
 
-	// Type assert that left is an object
+	// Type assert that left is a value
 	obj, ok := left.(*value.Obj)
 	if !ok {
 		return e.newError(dotExp, ctx, fail.ErrKeyOnNonObject, left.Type(), key)
 	}
 
-	// Set the value on the object
 	obj.Pairs[key] = val
 
 	return NIL
@@ -468,7 +467,7 @@ func (e *Evaluator) _for(forStmt *ast.ForStmt, ctx *Context) value.Value {
 		}
 	}
 
-	return &value.HTML{Val: blocks.String()}
+	return &value.Text{Val: blocks.String()}
 }
 
 func (e *Evaluator) each(eachStmt *ast.EachStmt, ctx *Context) value.Value {
@@ -480,7 +479,7 @@ func (e *Evaluator) each(eachStmt *ast.EachStmt, ctx *Context) value.Value {
 		return arrObj
 	}
 
-	arr, ok := arrObj.(*value.Array)
+	arr, ok := arrObj.(*value.Arr)
 	if !ok {
 		return e.newError(eachStmt, eachCtx, fail.ErrEachDirWithNonArrArg, arrObj.Type())
 	}
@@ -522,7 +521,7 @@ func (e *Evaluator) each(eachStmt *ast.EachStmt, ctx *Context) value.Value {
 		}
 	}
 
-	return &value.HTML{Val: blocks.String()}
+	return &value.Text{Val: blocks.String()}
 }
 
 func (e *Evaluator) breakif(breakifStmt *ast.BreakifStmt, ctx *Context) value.Value {
@@ -634,7 +633,7 @@ func (e *Evaluator) insert(insertStmt *ast.InsertStmt, ctx *Context) value.Value
 }
 
 // combineInsertContent combines insert Argument and Block (depending what user has)
-// into a single object that we can work with.
+// into a single value that we can work with.
 func (e *Evaluator) combineInsertContent(insertStmt *ast.InsertStmt, ctx *Context) value.Value {
 	if insertStmt.Argument != nil {
 		arg := e.Eval(insertStmt.Argument, ctx)
@@ -665,7 +664,7 @@ func (e *Evaluator) dump(dumpStmt *ast.DumpStmt, ctx *Context) value.Value {
 func (e *Evaluator) ident(ident *ast.Identifier, ctx *Context) value.Value {
 	varName := ident.Name
 	if varName == "global" && e.config != nil && e.config.GlobalData != nil {
-		return value.NativeToObject(e.config.GlobalData)
+		return value.NativeToValue(e.config.GlobalData)
 	}
 
 	if val, ok := ctx.scope.Get(varName); ok {
@@ -687,9 +686,9 @@ func (e *Evaluator) indexExp(indexExp *ast.IndexExp, ctx *Context) value.Value {
 	}
 
 	switch {
-	case left.Is(value.ARR_OBJ) && idx.Is(value.INT_OBJ):
+	case left.Is(value.ARR_VAL) && idx.Is(value.INT_VAL):
 		return e.arrayIndexExp(left, idx)
-	case left.Is(value.OBJ_OBJ) && idx.Is(value.STR_OBJ):
+	case left.Is(value.OBJ_VAL) && idx.Is(value.STR_VAL):
 		return e.objectKeyExp(left.(*value.Obj), idx.(*value.Str).Val)
 	}
 
@@ -697,7 +696,7 @@ func (e *Evaluator) indexExp(indexExp *ast.IndexExp, ctx *Context) value.Value {
 }
 
 func (e *Evaluator) arrayIndexExp(arrObj, idx value.Value) value.Value {
-	arr := arrObj.(*value.Array)
+	arr := arrObj.(*value.Arr)
 	index := idx.(*value.Int).Val
 	max := int64(len(arr.Elements) - 1)
 
@@ -782,7 +781,7 @@ func (e *Evaluator) arrayLit(arrLit *ast.ArrayLiteral, ctx *Context) value.Value
 		return elems[0]
 	}
 
-	return &value.Array{Elements: elems}
+	return &value.Arr{Elements: elems}
 }
 
 func (e *Evaluator) objectLit(objLit *ast.ObjectLiteral, ctx *Context) value.Value {
@@ -892,35 +891,35 @@ func (e *Evaluator) callExp(callExp *ast.CallExp, ctx *Context) value.Value {
 	}
 
 	if hasCustomFunc(e.customFunc, receiverType, funcName) {
-		nativeArgs := e.objectsToNativeType(args)
+		nativeArgs := e.valuesToNativeType(args)
 
 		switch r := receiver.(type) {
 		case *value.Str:
 			fun := e.customFunc.Str[funcName]
 			res := fun(r.String(), nativeArgs...)
-			return value.NativeToObject(res)
-		case *value.Array:
+			return value.NativeToValue(res)
+		case *value.Arr:
 			fun := e.customFunc.Arr[funcName]
-			nativeElems := e.objectsToNativeType(r.Elements)
+			nativeElems := e.valuesToNativeType(r.Elements)
 			res := fun(nativeElems, nativeArgs...)
-			return value.NativeToObject(res)
+			return value.NativeToValue(res)
 		case *value.Int:
 			fun := e.customFunc.Int[funcName]
 			res := fun(int(r.Val), nativeArgs...)
-			return value.NativeToObject(res)
+			return value.NativeToValue(res)
 		case *value.Float:
 			fun := e.customFunc.Float[funcName]
 			res := fun(r.Val, nativeArgs...)
-			return value.NativeToObject(res)
+			return value.NativeToValue(res)
 		case *value.Bool:
 			fun := e.customFunc.Bool[funcName]
 			res := fun(r.Val, nativeArgs...)
-			return value.NativeToObject(res)
+			return value.NativeToValue(res)
 		case *value.Obj:
 			fun := e.customFunc.Obj[funcName]
 			firstArg := r.Native()
 			res := fun(firstArg.(map[string]any), nativeArgs...)
-			return value.NativeToObject(res)
+			return value.NativeToValue(res)
 		}
 	}
 
@@ -991,7 +990,7 @@ func (e *Evaluator) globalFuncHasValue(
 	return TRUE
 }
 
-func (e *Evaluator) objectsToNativeType(args []value.Value) []any {
+func (e *Evaluator) valuesToNativeType(args []value.Value) []any {
 	vals := make([]any, len(args))
 	for i := range args {
 		vals[i] = args[i].Native()
@@ -1134,7 +1133,7 @@ func (e *Evaluator) comparrisonInfixExp(
 		areEqual = l.Val == right.(*value.Str).Val
 	case *value.Bool:
 		areEqual = l.Val == right.(*value.Bool).Val
-	case *value.Array, *value.Obj:
+	case *value.Arr, *value.Obj:
 		areEqual = reflect.DeepEqual(left, right)
 	case *value.Nil:
 		areEqual = true

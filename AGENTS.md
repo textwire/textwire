@@ -54,7 +54,7 @@ go test -cover ./parser/
 - `pkg/evaluator/` - Evaluates AST nodes to produce output
 - `pkg/token/` - Token definitions and utilities
 - `pkg/ast/` - Abstract Syntax Tree node definitions
-- `pkg/object/` - Runtime object system
+- `pkg/value/` - Runtime object system
 
 ### Support Packages
 - `config/` - Configuration management

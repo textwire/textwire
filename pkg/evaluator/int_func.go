@@ -43,7 +43,7 @@ func intLenFunc(receiver value.Value, _ ...value.Value) (value.Value, error) {
 // Converts integer to string and appends decimal places (e.g., 100 → "100.00")
 func intDecimalFunc(receiver value.Value, args ...value.Value) (value.Value, error) {
 	val := receiver.(*value.Int).String()
-	separator, decimals, err := getDecimalConfig(value.INT_OBJ, args...)
+	separator, decimals, err := getDecimalConfig(value.INT_VAL, args...)
 	if err != nil {
 		return nil, err
 	}

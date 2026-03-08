@@ -6,15 +6,15 @@ import (
 	"strings"
 )
 
-type Array struct {
+type Arr struct {
 	Elements []Value
 }
 
-func (a *Array) Type() ValueType {
-	return ARR_OBJ
+func (a *Arr) Type() ValueType {
+	return ARR_VAL
 }
 
-func (a *Array) String() string {
+func (a *Arr) String() string {
 	if len(a.Elements) == 0 {
 		return ""
 	}
@@ -31,7 +31,7 @@ func (a *Array) String() string {
 	return out.String()
 }
 
-func (a *Array) Dump(ident int) string {
+func (a *Arr) Dump(ident int) string {
 	spaces := strings.Repeat("  ", ident)
 	ident += 1
 
@@ -66,7 +66,7 @@ func (a *Array) Dump(ident int) string {
 	return res + spaces + fmt.Sprintf(`<span style="%s">]</span>`, DUMP_BRACE)
 }
 
-func (a *Array) JSON() (string, error) {
+func (a *Arr) JSON() (string, error) {
 	var out strings.Builder
 	out.Grow(len(a.Elements) + 2)
 
@@ -90,7 +90,7 @@ func (a *Array) JSON() (string, error) {
 	return out.String(), nil
 }
 
-func (a *Array) Native() any {
+func (a *Arr) Native() any {
 	var vals []any
 
 	for _, elem := range a.Elements {
@@ -100,6 +100,6 @@ func (a *Array) Native() any {
 	return vals
 }
 
-func (a *Array) Is(t ValueType) bool {
+func (a *Arr) Is(t ValueType) bool {
 	return t == a.Type()
 }

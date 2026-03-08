@@ -19,18 +19,18 @@ func objGetFunc(receiver value.Value, args ...value.Value) (value.Value, error) 
 	obj := receiver.(*value.Obj)
 
 	if len(args) == 0 {
-		msg := fmt.Sprintf(fail.ErrFuncMissingArg, value.OBJ_OBJ, "get")
+		msg := fmt.Sprintf(fail.ErrFuncMissingArg, value.OBJ_VAL, "get")
 		return nil, errors.New(msg)
 	}
 
 	if len(args) > 1 {
-		msg := fmt.Sprintf(fail.ErrFuncMaxArgs, value.OBJ_OBJ, "get", 1)
+		msg := fmt.Sprintf(fail.ErrFuncMaxArgs, value.OBJ_VAL, "get", 1)
 		return nil, errors.New(msg)
 	}
 
 	pattern, ok := args[0].(*value.Str)
 	if !ok {
-		msg := fmt.Sprintf(fail.ErrFuncFirstArgStr, value.OBJ_OBJ, "get")
+		msg := fmt.Sprintf(fail.ErrFuncFirstArgStr, value.OBJ_VAL, "get")
 		return nil, errors.New(msg)
 	}
 
@@ -59,7 +59,7 @@ func findObjectKey(props []string, pairs map[string]value.Value) value.Value {
 		}
 
 		// If not last key, value must be an object to continue
-		if result.Type() != value.OBJ_OBJ {
+		if result.Type() != value.OBJ_VAL {
 			return NIL
 		}
 

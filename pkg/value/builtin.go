@@ -7,7 +7,7 @@ type Builtin struct {
 }
 
 func (b *Builtin) Type() ValueType {
-	return BUILTIN_OBJ
+	return BUILTIN_VAL
 }
 
 func (b *Builtin) String() string {

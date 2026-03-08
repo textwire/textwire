@@ -24,7 +24,7 @@ func TestIsTruthy(t *testing.T) {
 		{&value.Str{Val: ""}, false},
 		{&value.Str{Val: "x"}, true},
 		{&value.Str{Val: "anna"}, true},
-		{&value.Array{Elements: nil}, false},
+		{&value.Arr{Elements: nil}, false},
 		{&value.Obj{Pairs: nil}, false},
 	}
 

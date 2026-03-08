@@ -7,7 +7,7 @@ type Bool struct {
 }
 
 func (b *Bool) Type() ValueType {
-	return BOOL_OBJ
+	return BOOL_VAL
 }
 
 func (b *Bool) String() string {

@@ -6,7 +6,7 @@ type Reserve struct {
 }
 
 func (r *Reserve) Type() ValueType {
-	return RESERVE_OBJ
+	return RESERVE_VAL
 }
 
 func (r *Reserve) String() string {

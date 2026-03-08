@@ -181,8 +181,8 @@ func (p *Parser) HasErrors() bool {
 
 func (p *Parser) statement() ast.Statement {
 	switch p.curToken.Type {
-	case token.HTML:
-		return p.htmlStmt()
+	case token.TEXT:
+		return p.textStmt()
 	case token.LBRACES, token.SEMI:
 		return p.embeddedCode()
 	case token.IF:
@@ -387,8 +387,8 @@ func (p *Parser) objectLiteral() ast.Expression {
 	return obj
 }
 
-func (p *Parser) htmlStmt() ast.Statement {
-	return ast.NewHTMLStmt(p.curToken)
+func (p *Parser) textStmt() ast.Statement {
+	return ast.NewTextStmt(p.curToken)
 }
 
 func (p *Parser) assignStmt(left ast.Expression) ast.Statement {
@@ -547,10 +547,10 @@ func (p *Parser) componentStmtHeader(stmt *ast.ComponentStmt) *ast.IllegalNode {
 	}
 
 	if !p.expectPeek(token.RPAREN) { // move to ")"
-		return p.illegalNodeUntil(token.HTML)
+		return p.illegalNodeUntil(token.TEXT)
 	}
 
-	if p.peekIs(token.HTML) && isWhitespace(p.peekToken.Literal) {
+	if p.peekIs(token.TEXT) && isWhitespace(p.peekToken.Literal) {
 		p.next() // move to ")"
 	}
 
@@ -634,7 +634,7 @@ func (p *Parser) slots(compName string) []ast.Statement {
 			panic("Unknown slot token when parsing component slots")
 		}
 
-		for p.curTokenIs(token.HTML) {
+		for p.curTokenIs(token.TEXT) {
 			p.next() // skip whitespace
 		}
 	}

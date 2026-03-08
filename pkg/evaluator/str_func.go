@@ -27,7 +27,7 @@ func strSplitFunc(receiver value.Value, args ...value.Value) (value.Value, error
 	if len(args) > 0 {
 		str, ok := args[0].(*value.Str)
 		if !ok {
-			msg := fmt.Sprintf(fail.ErrFuncFirstArgStr, value.STR_OBJ, "split")
+			msg := fmt.Sprintf(fail.ErrFuncFirstArgStr, value.STR_VAL, "split")
 			return nil, errors.New(msg)
 		}
 
@@ -43,7 +43,7 @@ func strSplitFunc(receiver value.Value, args ...value.Value) (value.Value, error
 		elems = append(elems, &value.Str{Val: val})
 	}
 
-	return &value.Array{Elements: elems}, nil
+	return &value.Arr{Elements: elems}, nil
 }
 
 // strRawFunc prevents escaping HTML tags in a string
@@ -59,7 +59,7 @@ func strTrimFunc(receiver value.Value, args ...value.Value) (value.Value, error)
 	if len(args) > 0 {
 		str, ok := args[0].(*value.Str)
 		if !ok {
-			msg := fmt.Sprintf(fail.ErrFuncFirstArgStr, value.STR_OBJ, "trim")
+			msg := fmt.Sprintf(fail.ErrFuncFirstArgStr, value.STR_VAL, "trim")
 			return nil, errors.New(msg)
 		}
 
@@ -113,13 +113,13 @@ func strReverseFunc(receiver value.Value, _ ...value.Value) (value.Value, error)
 // strContainsFunc returns true if the string contains the given substring, false otherwise
 func strContainsFunc(receiver value.Value, args ...value.Value) (value.Value, error) {
 	if len(args) == 0 {
-		msg := fmt.Sprintf(fail.ErrFuncMissingArg, value.STR_OBJ, "contains")
+		msg := fmt.Sprintf(fail.ErrFuncMissingArg, value.STR_VAL, "contains")
 		return nil, errors.New(msg)
 	}
 
 	firstArg, ok := args[0].(*value.Str)
 	if !ok {
-		msg := fmt.Sprintf(fail.ErrFuncFirstArgStr, value.STR_OBJ, "contains")
+		msg := fmt.Sprintf(fail.ErrFuncFirstArgStr, value.STR_VAL, "contains")
 		return nil, errors.New(msg)
 	}
 
@@ -133,14 +133,14 @@ func strContainsFunc(receiver value.Value, args ...value.Value) (value.Value, er
 func strTruncateFunc(receiver value.Value, args ...value.Value) (value.Value, error) {
 	// Validate that at least the limit argument is provided
 	if len(args) == 0 {
-		msg := fmt.Sprintf(fail.ErrFuncMissingArg, value.STR_OBJ, "truncate")
+		msg := fmt.Sprintf(fail.ErrFuncMissingArg, value.STR_VAL, "truncate")
 		return nil, errors.New(msg)
 	}
 
 	// Validate that the first argument is an integer (the limit)
 	firstArg, ok := args[0].(*value.Int)
 	if !ok {
-		msg := fmt.Sprintf(fail.ErrFuncFirstArgInt, value.STR_OBJ, "truncate")
+		msg := fmt.Sprintf(fail.ErrFuncFirstArgInt, value.STR_VAL, "truncate")
 		return nil, errors.New(msg)
 	}
 
@@ -164,7 +164,7 @@ func strTruncateFunc(receiver value.Value, args ...value.Value) (value.Value, er
 		if ok {
 			ellipsis = secondArg.Val
 		} else {
-			msg := fmt.Sprintf(fail.ErrFuncSecondArgStr, value.STR_OBJ, "truncate")
+			msg := fmt.Sprintf(fail.ErrFuncSecondArgStr, value.STR_VAL, "truncate")
 			return nil, errors.New(msg)
 		}
 	}
@@ -179,7 +179,7 @@ func strTruncateFunc(receiver value.Value, args ...value.Value) (value.Value, er
 // Non-numeric strings are returned unchanged.
 func strDecimalFunc(receiver value.Value, args ...value.Value) (value.Value, error) {
 	val := receiver.(*value.Str).Val
-	separator, decimals, err := getDecimalConfig(value.STR_OBJ, args...)
+	separator, decimals, err := getDecimalConfig(value.STR_VAL, args...)
 	if err != nil {
 		return nil, err
 	}
@@ -201,7 +201,7 @@ func strAtFunc(receiver value.Value, args ...value.Value) (value.Value, error) {
 	if len(args) != 0 {
 		firstArg, ok := args[0].(*value.Int)
 		if !ok {
-			msg := fmt.Sprintf(fail.ErrFuncFirstArgInt, value.STR_OBJ, "at")
+			msg := fmt.Sprintf(fail.ErrFuncFirstArgInt, value.STR_VAL, "at")
 			return nil, errors.New(msg)
 		}
 
@@ -242,7 +242,7 @@ func strTrimRightFunc(receiver value.Value, args ...value.Value) (value.Value, e
 	if len(args) > 0 {
 		str, ok := args[0].(*value.Str)
 		if !ok {
-			msg := fmt.Sprintf(fail.ErrFuncFirstArgStr, value.STR_OBJ, "trimRight")
+			msg := fmt.Sprintf(fail.ErrFuncFirstArgStr, value.STR_VAL, "trimRight")
 			return nil, errors.New(msg)
 		}
 
@@ -261,7 +261,7 @@ func strTrimLeftFunc(receiver value.Value, args ...value.Value) (value.Value, er
 		str, ok := args[0].(*value.Str)
 
 		if !ok {
-			msg := fmt.Sprintf(fail.ErrFuncFirstArgStr, value.STR_OBJ, "trimLeft")
+			msg := fmt.Sprintf(fail.ErrFuncFirstArgStr, value.STR_VAL, "trimLeft")
 			return nil, errors.New(msg)
 		}
 
@@ -276,13 +276,13 @@ func strTrimLeftFunc(receiver value.Value, args ...value.Value) (value.Value, er
 // strRepeatFunc returns a string repeated n times
 func strRepeatFunc(receiver value.Value, args ...value.Value) (value.Value, error) {
 	if len(args) == 0 {
-		msg := fmt.Sprintf(fail.ErrFuncMissingArg, value.STR_OBJ, "repeat")
+		msg := fmt.Sprintf(fail.ErrFuncMissingArg, value.STR_VAL, "repeat")
 		return nil, errors.New(msg)
 	}
 
 	firstArg, ok := args[0].(*value.Int)
 	if !ok {
-		msg := fmt.Sprintf(fail.ErrFuncFirstArgInt, value.STR_OBJ, "repeat")
+		msg := fmt.Sprintf(fail.ErrFuncFirstArgInt, value.STR_VAL, "repeat")
 		return nil, errors.New(msg)
 	}
 
@@ -301,7 +301,7 @@ func strRepeatFunc(receiver value.Value, args ...value.Value) (value.Value, erro
 // strFormatFunc embeds values into a string. Similar to sprintf in C.
 func strFormatFunc(receiver value.Value, args ...value.Value) (value.Value, error) {
 	if len(args) == 0 {
-		msg := fmt.Sprintf(fail.ErrFuncMissingArg, value.STR_OBJ, "format")
+		msg := fmt.Sprintf(fail.ErrFuncMissingArg, value.STR_VAL, "format")
 		return nil, errors.New(msg)
 	}
 

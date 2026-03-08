@@ -45,7 +45,7 @@ func evaluationExpected(t *testing.T, inp, expect string, idx uint) {
 	}
 }
 
-func TestEvalHTML(t *testing.T) {
+func TestEvalText(t *testing.T) {
 	cases := []struct {
 		id     uint
 		inp    string
@@ -1028,88 +1028,88 @@ func TestCannotUseOperatorError(t *testing.T) {
 		right value.ValueType
 	}{
 		// Int + Float (both directions)
-		{10, "{{ 3 + 2.0 }}", value.INT_OBJ, "+", value.FLOAT_OBJ},
-		{20, "{{ 2.0 + 3 }}", value.FLOAT_OBJ, "+", value.INT_OBJ},
-		{30, "{{ 5 - 1.5 }}", value.INT_OBJ, "-", value.FLOAT_OBJ},
-		{40, "{{ 4.5 - 2 }}", value.FLOAT_OBJ, "-", value.INT_OBJ},
-		{50, "{{ 3 * 2.5 }}", value.INT_OBJ, "*", value.FLOAT_OBJ},
-		{60, "{{ 2.5 * 4 }}", value.FLOAT_OBJ, "*", value.INT_OBJ},
-		{70, "{{ 10 / 2.5 }}", value.INT_OBJ, "/", value.FLOAT_OBJ},
-		{80, "{{ 7.5 / 3 }}", value.FLOAT_OBJ, "/", value.INT_OBJ},
+		{10, "{{ 3 + 2.0 }}", value.INT_VAL, "+", value.FLOAT_VAL},
+		{20, "{{ 2.0 + 3 }}", value.FLOAT_VAL, "+", value.INT_VAL},
+		{30, "{{ 5 - 1.5 }}", value.INT_VAL, "-", value.FLOAT_VAL},
+		{40, "{{ 4.5 - 2 }}", value.FLOAT_VAL, "-", value.INT_VAL},
+		{50, "{{ 3 * 2.5 }}", value.INT_VAL, "*", value.FLOAT_VAL},
+		{60, "{{ 2.5 * 4 }}", value.FLOAT_VAL, "*", value.INT_VAL},
+		{70, "{{ 10 / 2.5 }}", value.INT_VAL, "/", value.FLOAT_VAL},
+		{80, "{{ 7.5 / 3 }}", value.FLOAT_VAL, "/", value.INT_VAL},
 		// Arithmetic with strings
-		{90, "{{ 5 * 'x' }}", value.INT_OBJ, "*", value.STR_OBJ},
-		{100, "{{ 'x' * 3 }}", value.STR_OBJ, "*", value.INT_OBJ},
-		{110, "{{ 'x' / 2 }}", value.STR_OBJ, "/", value.INT_OBJ},
-		{120, "{{ 2 / 'x' }}", value.INT_OBJ, "/", value.STR_OBJ},
-		{130, "{{ 'a' - 2 }}", value.STR_OBJ, "-", value.INT_OBJ},
-		{140, "{{ 'a' / 3.0 }}", value.STR_OBJ, "/", value.FLOAT_OBJ},
+		{90, "{{ 5 * 'x' }}", value.INT_VAL, "*", value.STR_VAL},
+		{100, "{{ 'x' * 3 }}", value.STR_VAL, "*", value.INT_VAL},
+		{110, "{{ 'x' / 2 }}", value.STR_VAL, "/", value.INT_VAL},
+		{120, "{{ 2 / 'x' }}", value.INT_VAL, "/", value.STR_VAL},
+		{130, "{{ 'a' - 2 }}", value.STR_VAL, "-", value.INT_VAL},
+		{140, "{{ 'a' / 3.0 }}", value.STR_VAL, "/", value.FLOAT_VAL},
 		// Arithmetic with booleans
-		{150, "{{ true + 5 }}", value.BOOL_OBJ, "+", value.INT_OBJ},
-		{160, "{{ 5 - true }}", value.INT_OBJ, "-", value.BOOL_OBJ},
-		{170, "{{ false - 2.0 }}", value.BOOL_OBJ, "-", value.FLOAT_OBJ},
-		{180, "{{ 2.0 + true }}", value.FLOAT_OBJ, "+", value.BOOL_OBJ},
-		{190, "{{ true * 1 }}", value.BOOL_OBJ, "*", value.INT_OBJ},
-		{200, "{{ true / 2 }}", value.BOOL_OBJ, "/", value.INT_OBJ},
+		{150, "{{ true + 5 }}", value.BOOL_VAL, "+", value.INT_VAL},
+		{160, "{{ 5 - true }}", value.INT_VAL, "-", value.BOOL_VAL},
+		{170, "{{ false - 2.0 }}", value.BOOL_VAL, "-", value.FLOAT_VAL},
+		{180, "{{ 2.0 + true }}", value.FLOAT_VAL, "+", value.BOOL_VAL},
+		{190, "{{ true * 1 }}", value.BOOL_VAL, "*", value.INT_VAL},
+		{200, "{{ true / 2 }}", value.BOOL_VAL, "/", value.INT_VAL},
 		// Boolean with strings
-		{210, "{{ true + 'str' }}", value.BOOL_OBJ, "+", value.STR_OBJ},
-		{220, "{{ 'str' - false }}", value.STR_OBJ, "-", value.BOOL_OBJ},
+		{210, "{{ true + 'str' }}", value.BOOL_VAL, "+", value.STR_VAL},
+		{220, "{{ 'str' - false }}", value.STR_VAL, "-", value.BOOL_VAL},
 		// Modulo operator
-		{230, "{{ 5 % 2.0 }}", value.INT_OBJ, "%", value.FLOAT_OBJ},
-		{240, "{{ 5.0 % 2 }}", value.FLOAT_OBJ, "%", value.INT_OBJ},
-		{250, "{{ 'a' % 2 }}", value.STR_OBJ, "%", value.INT_OBJ},
-		{260, "{{ true % 2 }}", value.BOOL_OBJ, "%", value.INT_OBJ},
+		{230, "{{ 5 % 2.0 }}", value.INT_VAL, "%", value.FLOAT_VAL},
+		{240, "{{ 5.0 % 2 }}", value.FLOAT_VAL, "%", value.INT_VAL},
+		{250, "{{ 'a' % 2 }}", value.STR_VAL, "%", value.INT_VAL},
+		{260, "{{ true % 2 }}", value.BOOL_VAL, "%", value.INT_VAL},
 		// Array/Object operations
-		{270, "{{ [] * {} }}", value.ARR_OBJ, "*", value.OBJ_OBJ},
-		{280, "{{ {} / [] }}", value.OBJ_OBJ, "/", value.ARR_OBJ},
-		{290, "{{ [] + {} }}", value.ARR_OBJ, "+", value.OBJ_OBJ},
-		{300, "{{ {} - [] }}", value.OBJ_OBJ, "-", value.ARR_OBJ},
-		{310, "{{ [] * 1 }}", value.ARR_OBJ, "*", value.INT_OBJ},
-		{320, "{{ {} / 1 }}", value.OBJ_OBJ, "/", value.INT_OBJ},
+		{270, "{{ [] * {} }}", value.ARR_VAL, "*", value.OBJ_VAL},
+		{280, "{{ {} / [] }}", value.OBJ_VAL, "/", value.ARR_VAL},
+		{290, "{{ [] + {} }}", value.ARR_VAL, "+", value.OBJ_VAL},
+		{300, "{{ {} - [] }}", value.OBJ_VAL, "-", value.ARR_VAL},
+		{310, "{{ [] * 1 }}", value.ARR_VAL, "*", value.INT_VAL},
+		{320, "{{ {} / 1 }}", value.OBJ_VAL, "/", value.INT_VAL},
 		// Int/Object operations
-		{330, "{{ 3 + {} }}", value.INT_OBJ, "+", value.OBJ_OBJ},
-		{340, "{{ {} - 3 }}", value.OBJ_OBJ, "-", value.INT_OBJ},
-		{350, "{{ 5 * {} }}", value.INT_OBJ, "*", value.OBJ_OBJ},
+		{330, "{{ 3 + {} }}", value.INT_VAL, "+", value.OBJ_VAL},
+		{340, "{{ {} - 3 }}", value.OBJ_VAL, "-", value.INT_VAL},
+		{350, "{{ 5 * {} }}", value.INT_VAL, "*", value.OBJ_VAL},
 		// Array with arithmetic
-		{360, "{{ [] + 5 }}", value.ARR_OBJ, "+", value.INT_OBJ},
-		{370, "{{ 10 - [] }}", value.INT_OBJ, "-", value.ARR_OBJ},
-		{380, "{{ [] * 3 }}", value.ARR_OBJ, "*", value.INT_OBJ},
+		{360, "{{ [] + 5 }}", value.ARR_VAL, "+", value.INT_VAL},
+		{370, "{{ 10 - [] }}", value.INT_VAL, "-", value.ARR_VAL},
+		{380, "{{ [] * 3 }}", value.ARR_VAL, "*", value.INT_VAL},
 		// Float with arrays/objects
-		{390, "{{ 3.14 + [] }}", value.FLOAT_OBJ, "+", value.ARR_OBJ},
-		{400, "{{ {} / 2.5 }}", value.OBJ_OBJ, "/", value.FLOAT_OBJ},
+		{390, "{{ 3.14 + [] }}", value.FLOAT_VAL, "+", value.ARR_VAL},
+		{400, "{{ {} / 2.5 }}", value.OBJ_VAL, "/", value.FLOAT_VAL},
 		// String with arrays/objects
-		{410, "{{ 'x' - [] }}", value.STR_OBJ, "-", value.ARR_OBJ},
-		{420, "{{ {} - 'x' }}", value.OBJ_OBJ, "-", value.STR_OBJ},
-		{430, "{{ 'str' + [] }}", value.STR_OBJ, "+", value.ARR_OBJ},
-		{440, "{{ {} + 'str' }}", value.OBJ_OBJ, "+", value.STR_OBJ},
+		{410, "{{ 'x' - [] }}", value.STR_VAL, "-", value.ARR_VAL},
+		{420, "{{ {} - 'x' }}", value.OBJ_VAL, "-", value.STR_VAL},
+		{430, "{{ 'str' + [] }}", value.STR_VAL, "+", value.ARR_VAL},
+		{440, "{{ {} + 'str' }}", value.OBJ_VAL, "+", value.STR_VAL},
 		// Strings
-		{450, "{{ 'a' - 'b' }}", value.STR_OBJ, "-", value.STR_OBJ},
-		{460, "{{ 'a' * 'b' }}", value.STR_OBJ, "*", value.STR_OBJ},
-		{470, "{{ 'a' / 'b' }}", value.STR_OBJ, "/", value.STR_OBJ},
-		{480, "{{ 'a' < 'b' }}", value.STR_OBJ, "<", value.STR_OBJ},
-		{490, "{{ 'a' > 'b' }}", value.STR_OBJ, ">", value.STR_OBJ},
-		{500, "{{ 'a' <= 'b' }}", value.STR_OBJ, "<=", value.STR_OBJ},
-		{510, "{{ 'a' >= 'b' }}", value.STR_OBJ, ">=", value.STR_OBJ},
-		{520, "{{ 'a' % 'b' }}", value.STR_OBJ, "%", value.STR_OBJ},
+		{450, "{{ 'a' - 'b' }}", value.STR_VAL, "-", value.STR_VAL},
+		{460, "{{ 'a' * 'b' }}", value.STR_VAL, "*", value.STR_VAL},
+		{470, "{{ 'a' / 'b' }}", value.STR_VAL, "/", value.STR_VAL},
+		{480, "{{ 'a' < 'b' }}", value.STR_VAL, "<", value.STR_VAL},
+		{490, "{{ 'a' > 'b' }}", value.STR_VAL, ">", value.STR_VAL},
+		{500, "{{ 'a' <= 'b' }}", value.STR_VAL, "<=", value.STR_VAL},
+		{510, "{{ 'a' >= 'b' }}", value.STR_VAL, ">=", value.STR_VAL},
+		{520, "{{ 'a' % 'b' }}", value.STR_VAL, "%", value.STR_VAL},
 		// String + number (addition not supported for strings)
-		{530, "{{ 'test' + 5 }}", value.STR_OBJ, "+", value.INT_OBJ},
-		{540, "{{ 5 + 'test' }}", value.INT_OBJ, "+", value.STR_OBJ},
-		{550, "{{ 'test' + 5.5 }}", value.STR_OBJ, "+", value.FLOAT_OBJ},
-		{560, "{{ 5.5 + 'test' }}", value.FLOAT_OBJ, "+", value.STR_OBJ},
+		{530, "{{ 'test' + 5 }}", value.STR_VAL, "+", value.INT_VAL},
+		{540, "{{ 5 + 'test' }}", value.INT_VAL, "+", value.STR_VAL},
+		{550, "{{ 'test' + 5.5 }}", value.STR_VAL, "+", value.FLOAT_VAL},
+		{560, "{{ 5.5 + 'test' }}", value.FLOAT_VAL, "+", value.STR_VAL},
 		// Boolean - string
-		{570, "{{ true - 'str' }}", value.BOOL_OBJ, "-", value.STR_OBJ},
-		{580, "{{ 'str' - true }}", value.STR_OBJ, "-", value.BOOL_OBJ},
+		{570, "{{ true - 'str' }}", value.BOOL_VAL, "-", value.STR_VAL},
+		{580, "{{ 'str' - true }}", value.STR_VAL, "-", value.BOOL_VAL},
 		// Float modulo operations
-		{590, "{{ 3.14 % 2.0 }}", value.FLOAT_OBJ, "%", value.FLOAT_OBJ},
-		{600, "{{ 3.14 % 2 }}", value.FLOAT_OBJ, "%", value.INT_OBJ},
+		{590, "{{ 3.14 % 2.0 }}", value.FLOAT_VAL, "%", value.FLOAT_VAL},
+		{600, "{{ 3.14 % 2 }}", value.FLOAT_VAL, "%", value.INT_VAL},
 		// Array / array
-		{610, "{{ [] / [] }}", value.ARR_OBJ, "/", value.ARR_OBJ},
+		{610, "{{ [] / [] }}", value.ARR_VAL, "/", value.ARR_VAL},
 		// Object / object
-		{620, "{{ {} / {} }}", value.OBJ_OBJ, "/", value.OBJ_OBJ},
+		{620, "{{ {} / {} }}", value.OBJ_VAL, "/", value.OBJ_VAL},
 		// Nil with arithmetic operators
-		{630, "{{ nil + 1 }}", value.NIL_OBJ, "+", value.INT_OBJ},
-		{640, "{{ nil - 1 }}", value.NIL_OBJ, "-", value.INT_OBJ},
-		{650, "{{ nil * 1 }}", value.NIL_OBJ, "*", value.INT_OBJ},
-		{660, "{{ nil / 1 }}", value.NIL_OBJ, "/", value.INT_OBJ},
+		{630, "{{ nil + 1 }}", value.NIL_VAL, "+", value.INT_VAL},
+		{640, "{{ nil - 1 }}", value.NIL_VAL, "-", value.INT_VAL},
+		{650, "{{ nil * 1 }}", value.NIL_VAL, "*", value.INT_VAL},
+		{660, "{{ nil / 1 }}", value.NIL_VAL, "/", value.INT_VAL},
 	}
 
 	for _, tc := range cases {

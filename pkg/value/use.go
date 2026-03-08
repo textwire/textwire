@@ -6,7 +6,7 @@ type Use struct {
 }
 
 func (u *Use) Type() ValueType {
-	return USE_OBJ
+	return USE_VAL
 }
 
 func (u *Use) String() string {

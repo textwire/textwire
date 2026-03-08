@@ -9,7 +9,7 @@ type Int struct {
 }
 
 func (i *Int) Type() ValueType {
-	return INT_OBJ
+	return INT_VAL
 }
 
 func (i *Int) String() string {

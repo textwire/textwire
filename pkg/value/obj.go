@@ -20,7 +20,7 @@ func NewObj(pairs map[string]Value) *Obj {
 }
 
 func (o *Obj) Type() ValueType {
-	return OBJ_OBJ
+	return OBJ_VAL
 }
 
 func (o *Obj) String() string {
@@ -138,7 +138,7 @@ func (o Obj) ToCamel() map[string]Value {
 	res := make(map[string]Value, len(o.Pairs))
 	for k, v := range o.Pairs {
 		key := utils.ToCamel(k)
-		if v.Is(OBJ_OBJ) {
+		if v.Is(OBJ_VAL) {
 			v.(*Obj).Pairs = v.(*Obj).ToCamel()
 		}
 		res[key] = v
