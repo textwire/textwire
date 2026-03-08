@@ -190,37 +190,13 @@ func (l *Lexer) embeddedCodeToken() token.Token {
 	case '"', '\'':
 		return l.newToken(token.STR, l.readString())
 	case '<':
-		if l.peek(0) == '=' {
-			return l.twoCharToken(token.LTHAN_EQ, "<=")
-		}
-
-		l.tokenBegins()
-		l.readChar() // skip "<"
-		return l.newToken(token.LTHAN, "<")
+		return l.operatorToken('=', token.LTHAN_EQ, token.LTHAN, "<=", "<")
 	case '>':
-		if l.peek(0) == '=' {
-			return l.twoCharToken(token.GTHAN_EQ, ">=")
-		}
-
-		l.tokenBegins()
-		l.readChar() // skip ">"
-		return l.newToken(token.GTHAN, ">")
+		return l.operatorToken('=', token.GTHAN_EQ, token.GTHAN, ">=", ">")
 	case '!':
-		if l.peek(0) == '=' {
-			return l.twoCharToken(token.NOT_EQ, "!=")
-		}
-
-		l.tokenBegins()
-		l.readChar() // skip "!"
-		return l.newToken(token.NOT, "!")
+		return l.operatorToken('=', token.NOT_EQ, token.NOT, "!=", "!")
 	case '-':
-		if l.peek(0) == '-' {
-			return l.twoCharToken(token.DEC, "--")
-		}
-
-		l.tokenBegins()
-		l.readChar() // skip "-"
-		return l.newToken(token.SUB, "-")
+		return l.operatorToken('-', token.DEC, token.SUB, "--", "-")
 	case '&':
 		if l.peek(0) == '&' {
 			return l.twoCharToken(token.AND, "&&")
@@ -232,15 +208,9 @@ func (l *Lexer) embeddedCodeToken() token.Token {
 		}
 		fallthrough
 	case '+':
-		if l.peek(0) == '+' {
-			return l.twoCharToken(token.INC, "++")
-		}
-		return l.addToken()
+		return l.operatorToken('+', token.INC, token.ADD, "++", "+")
 	case '=':
-		if l.peek(0) == '=' {
-			return l.twoCharToken(token.EQ, "==")
-		}
-		return l.assignToken()
+		return l.operatorToken('=', token.EQ, token.ASSIGN, "==", "=")
 	}
 
 	if isIdent(l.char) {
@@ -253,18 +223,6 @@ func (l *Lexer) embeddedCodeToken() token.Token {
 	}
 
 	return l.illegalToken()
-}
-
-func (l *Lexer) addToken() token.Token {
-	l.tokenBegins()
-	l.readChar() // skip "+"
-	return l.newToken(token.ADD, "+")
-}
-
-func (l *Lexer) assignToken() token.Token {
-	l.tokenBegins()
-	l.readChar() // skip "="
-	return l.newToken(token.ASSIGN, "=")
 }
 
 func (l *Lexer) numberToken() token.Token {
@@ -324,6 +282,23 @@ func (l *Lexer) twoCharToken(tokType token.TokenType, literal string) token.Toke
 	l.tokenBegins()
 	l.readChars(2)
 	return l.newToken(tokType, literal)
+}
+
+// operatorToken handles the common pattern of checking for a two-char operator
+// or falling back to single-char.
+func (l *Lexer) operatorToken(
+	second byte,
+	twoCharTok, singleTok token.TokenType,
+	twoCharLit, singleLit string,
+) token.Token {
+	if l.peek(0) == second {
+		return l.twoCharToken(twoCharTok, twoCharLit)
+	}
+
+	l.tokenBegins()
+	l.readChar()
+
+	return l.newToken(singleTok, singleLit)
 }
 
 func (l *Lexer) newToken(tokType token.TokenType, literal string) token.Token {
