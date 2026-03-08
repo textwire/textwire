@@ -59,30 +59,58 @@ func (fw *fileWatcher) Watch() {
 }
 
 func (fw *fileWatcher) tick() {
+	fw.detectAndHandleFileChanges()
+	fw.processModifiedFiles()
+	fw.relinkPrograms()
+}
+
+func (fw *fileWatcher) detectAndHandleFileChanges() {
 	currentCount := fw.countFiles()
-	if currentCount != fw.fileCount {
-		fw.handleNewOrDeletedFiles()
-		fw.fileCount = currentCount
+	if currentCount == fw.fileCount {
+		return
 	}
 
-	// Update files and filter out deleted ones
-	validFiles := fw.files[:0]
-	for _, f := range fw.files {
-		if fw.updateFileIfModified(f) {
-			validFiles = append(validFiles, f)
-		}
-	}
+	fw.handleNewOrDeletedFiles()
+	fw.fileCount = currentCount
+}
 
-	// If files were removed, re-locate to find any new files (renames)
-	if len(validFiles) < len(fw.files) {
-		fw.files = validFiles
+func (fw *fileWatcher) processModifiedFiles() {
+	if fw.removeDeletedFiles() > 0 {
 		fw.handleNewOrDeletedFiles()
 		fw.fileCount = fw.countFiles()
-	} else {
-		fw.files = validFiles
+		return
 	}
 
-	fw.relinkPrograms()
+	for _, f := range fw.files {
+		fw.updateFileIfModified(f)
+	}
+}
+
+func (fw *fileWatcher) removeDeletedFiles() int {
+	validFiles := fw.files[:0]
+	deletedCount := 0
+
+	for _, f := range fw.files {
+		if fw.fileWasDeleted(f) {
+			fw.handleDeletedFile(f)
+			deletedCount++
+			continue
+		}
+		validFiles = append(validFiles, f)
+	}
+
+	fw.files = validFiles
+	return deletedCount
+}
+
+func (fw *fileWatcher) fileWasDeleted(f *file.SourceFile) bool {
+	_, err := os.Stat(f.Abs)
+	return os.IsNotExist(err)
+}
+
+func (fw *fileWatcher) handleDeletedFile(f *file.SourceFile) {
+	fw.logger.Info("removed " + f.Rel)
+	fw.removeProgramByName(f.Name)
 }
 
 // handleNewOrDeletedFiles re-locates files and updates tracking when file count changes.
@@ -101,23 +129,10 @@ func (fw *fileWatcher) handleNewOrDeletedFiles() {
 }
 
 // updateFileIfModified reparses a file if it has been modified since last check.
-// Returns true if the file should be kept in the file list, false if it was deleted.
-func (fw *fileWatcher) updateFileIfModified(f *file.SourceFile) bool {
+func (fw *fileWatcher) updateFileIfModified(f *file.SourceFile) {
 	modTime := fw.getFileModTime(f)
-
-	// File was deleted (doesn't exist anymore)
-	if modTime.IsZero() {
-		if _, err := os.Stat(f.Abs); os.IsNotExist(err) {
-			fw.logger.Info("removed " + f.Rel)
-			fw.removeProgramByName(f.Name)
-			return false
-		}
-		// File exists but stat failed for other reasons
-		return true
-	}
-
-	if !modTime.After(f.ModTime) {
-		return true
+	if modTime.IsZero() || !modTime.After(f.ModTime) {
+		return
 	}
 
 	fw.logger.Info("updated " + f.Rel)
@@ -127,7 +142,7 @@ func (fw *fileWatcher) updateFileIfModified(f *file.SourceFile) bool {
 	if parseErr != nil {
 		fw.logger.Error(parseErr.Error())
 		fw.removeProgramByName(f.Name)
-		return true
+		return
 	}
 
 	if failure != nil {
@@ -135,7 +150,6 @@ func (fw *fileWatcher) updateFileIfModified(f *file.SourceFile) bool {
 	}
 
 	fw.updateOrAddProgram(prog)
-	return true
 }
 
 // updateOrAddProgram updates an existing program or adds a new one to the linker.
