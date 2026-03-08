@@ -136,8 +136,7 @@ func (l *Lexer) bracesToken(tok token.TokenType, literal string) token.Token {
 	l.isText = tok != token.LBRACES
 
 	l.tokenBegins()
-	l.readChar() // skip first brace
-	l.readChar() // skip second brace
+	l.readChars(2) // skip braces
 
 	return l.newToken(tok, literal)
 }
@@ -322,8 +321,7 @@ func (l *Lexer) rightParenthesesToken() token.Token {
 
 func (l *Lexer) twoCharToken(tokType token.TokenType, literal string) token.Token {
 	l.tokenBegins()
-	l.readChar() // skip first char
-	l.readChar() // skip second car
+	l.readChars(s)
 	return l.newToken(tokType, literal)
 }
 
