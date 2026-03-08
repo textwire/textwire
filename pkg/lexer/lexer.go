@@ -60,6 +60,8 @@ type Lexer struct {
 	// line is the current index on the line.
 	line uint
 
+	current string
+
 	// prevLine is the line index of the previous character.
 	// NOT THE PREVIOUS LINE, BUT THE LINE OF THE PREVIOUS CHARACTER.
 	prevLine uint
@@ -106,15 +108,13 @@ func (l *Lexer) Next() token.Token {
 		return l.newToken(token.EOF, "")
 	}
 
+	if l.char == '{' && l.peek(0) == '{' && l.peek(1) == '-' && l.peek(2) == '-' {
+		l.skipComment()
+		return l.Next()
+	}
+
 	if l.char == '{' && l.peek(0) == '{' {
-		tok := l.bracesToken(token.LBRACES, "{{")
-
-		if l.char == '-' && l.peek(0) == '-' {
-			l.skipComment()
-			return l.Next()
-		}
-
-		return tok
+		return l.bracesToken(token.LBRACES, "{{")
 	}
 
 	if l.char == '}' && l.peek(0) == '}' && l.countCurlyBraces == 0 {
@@ -547,8 +547,10 @@ func (l *Lexer) readChar() {
 
 	if l.readPos >= len(l.input) {
 		l.char = 0
+		l.current = "0"
 	} else {
 		l.char = l.input[l.readPos]
+		l.current = string(l.char)
 	}
 
 	l.pos = l.readPos
@@ -568,6 +570,12 @@ func (l *Lexer) readChar() {
 	}
 
 	l.shouldResetCol = l.char == '\n'
+}
+
+func (l *Lexer) readChars(chars int) {
+	for range chars {
+		l.readChar()
+	}
 }
 
 func (l *Lexer) peek(ahead int) byte {
@@ -602,20 +610,20 @@ func (l *Lexer) skipWhitespace() {
 func (l *Lexer) skipComment() {
 	depth := 1
 
+	l.readChars(4) // skip "{{--"
+
 	for l.char != 0 && depth > 0 {
 		if l.char == '{' && l.peek(0) == '{' {
-			l.readChar()
-			l.readChar()
+			l.readChars(2) // skip "{{"
 			depth++
 			continue
 		}
 
 		if l.char == '-' && l.peek(0) == '-' {
-			l.readChar()
-			l.readChar()
+			l.readChars(2) // skip "--"
+
 			if l.char == '}' && l.peek(0) == '}' {
-				l.readChar()
-				l.readChar()
+				l.readChars(2) // skip "}}"
 				depth--
 			}
 			continue
