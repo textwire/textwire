@@ -65,8 +65,21 @@ func (fw *fileWatcher) tick() {
 		fw.fileCount = currentCount
 	}
 
-	for i := range fw.files {
-		fw.updateFileIfModified(fw.files[i])
+	// Update files and filter out deleted ones
+	validFiles := fw.files[:0]
+	for _, f := range fw.files {
+		if fw.updateFileIfModified(f) {
+			validFiles = append(validFiles, f)
+		}
+	}
+
+	// If files were removed, re-locate to find any new files (renames)
+	if len(validFiles) < len(fw.files) {
+		fw.files = validFiles
+		fw.handleNewOrDeletedFiles()
+		fw.fileCount = fw.countFiles()
+	} else {
+		fw.files = validFiles
 	}
 
 	fw.relinkPrograms()
@@ -88,10 +101,23 @@ func (fw *fileWatcher) handleNewOrDeletedFiles() {
 }
 
 // updateFileIfModified reparses a file if it has been modified since last check.
-func (fw *fileWatcher) updateFileIfModified(f *file.SourceFile) {
+// Returns true if the file should be kept in the file list, false if it was deleted.
+func (fw *fileWatcher) updateFileIfModified(f *file.SourceFile) bool {
 	modTime := fw.getFileModTime(f)
-	if modTime.IsZero() || !modTime.After(f.ModTime) {
-		return
+
+	// File was deleted (doesn't exist anymore)
+	if modTime.IsZero() {
+		if _, err := os.Stat(f.Abs); os.IsNotExist(err) {
+			fw.logger.Info("removed " + f.Rel)
+			fw.removeProgramByName(f.Name)
+			return false
+		}
+		// File exists but stat failed for other reasons
+		return true
+	}
+
+	if !modTime.After(f.ModTime) {
+		return true
 	}
 
 	fw.logger.Info("updated " + f.Rel)
@@ -101,7 +127,7 @@ func (fw *fileWatcher) updateFileIfModified(f *file.SourceFile) {
 	if parseErr != nil {
 		fw.logger.Error(parseErr.Error())
 		fw.removeProgramByName(f.Name)
-		return
+		return true
 	}
 
 	if failure != nil {
@@ -109,6 +135,7 @@ func (fw *fileWatcher) updateFileIfModified(f *file.SourceFile) {
 	}
 
 	fw.updateOrAddProgram(prog)
+	return true
 }
 
 // updateOrAddProgram updates an existing program or adds a new one to the linker.
@@ -139,7 +166,7 @@ func (fw *fileWatcher) relinkPrograms() {
 func (fw *fileWatcher) trackLinkingError(failure *fail.Error) {
 	if failure == nil {
 		if fw.lastError != "" {
-			fw.logger.Success("all templates are valid!")
+			fw.logger.Info("all templates are valid!")
 			fw.lastError = ""
 		}
 		fw.linker.LinkError = nil
@@ -214,8 +241,12 @@ func (fw *fileWatcher) withLock(fn func()) {
 }
 
 // getFileModTime retrieves the last modification time of a file.
-// Returns zero time if the file cannot be accessed.
+// Returns zero time if the file does not exist or cannot be accessed.
 func (fw *fileWatcher) getFileModTime(f *file.SourceFile) time.Time {
+	if _, err := os.Stat(f.Abs); os.IsNotExist(err) {
+		return time.Time{}
+	}
+
 	info, err := os.Stat(f.Abs)
 	if err != nil {
 		fw.logger.Error("failed to stat file " + f.Abs)
