@@ -342,20 +342,14 @@ func (l *Lexer) readIdentifier() string {
 
 func (l *Lexer) readDirective() (token.TokenType, string) {
 	var keyword strings.Builder
-	var tok token.TokenType
+	tok := token.ILLEGAL
 
 	l.tokenBegins()
 
-	for isLetterWord(l.char) {
+	for isLetterWord(l.char) && (l.hasIfVariant(tok) || tok == token.ILLEGAL) {
 		keyword.WriteByte(l.char)
-
 		tok = token.LookupDirective(keyword.String())
-
 		l.readChar()
-
-		if !l.hasIfVariant(tok) && tok != token.ILLEGAL {
-			break
-		}
 	}
 
 	return tok, keyword.String()
