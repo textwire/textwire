@@ -913,9 +913,6 @@ func TestEvalEachStmt(t *testing.T) {
 			`@each(n in ["ann", "serhii", "sam"])@continueif(n == 'sam'){{ n }} @end`,
 			"ann serhii ",
 		},
-		// support continueIf and breakIf
-		{220, `@each(n in [1, 2])@continueIf(n == 2){{ n }}@end`, "1"},
-		{230, `@each(n in [1, 2, 3])@breakIf(n == 2){{ n }}@end`, "1"},
 	}
 
 	for _, tc := range cases {

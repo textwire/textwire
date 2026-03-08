@@ -106,10 +106,6 @@ var directives = map[string]TokenType{
 	"@dump":       DUMP,
 	"@continueif": CONTINUEIF,
 	"@breakif":    BREAKIF,
-	// Deprecated: use @continueif. Will be removed in v4.0.0
-	"@continueIf": CONTINUEIF,
-	// Deprecated: use @breakif. Will be removed in v4.0.0
-	"@breakIf": BREAKIF,
 }
 
 func GetDirectives() map[string]TokenType {

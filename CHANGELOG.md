@@ -2,7 +2,8 @@
 
 ## v4.0.0 (2026-03-20)
 
-- ⚠️ BREAKING CHANGES! Changed increment and decrement expressions into statements to match Go's style. `{{ x++ }}` and `{{ x-- }}`  are not returning any value now, they equivalent to `{{ x = x + 1 }}` and `{{ x = x - 1 }}`. Closes [#88](https://github.com/textwire/textwire/issues/88). [Read more about this change](https://textwire.github.io/blog/2026-03-20-textwire-v4).
+- ⚠️ BREAKING CHANGE! Changed increment and decrement expressions into statements to match Go's style. `{{ x++ }}` and `{{ x-- }}`  are not returning any value now, they equivalent to `{{ x = x + 1 }}` and `{{ x = x - 1 }}`. Closes [#88](https://github.com/textwire/textwire/issues/88). [Read more about this change](https://textwire.github.io/blog/2026-03-20-textwire-v4).
+- ⚠️ BREAKING CHANGE! Remove support for `@breakIf` and `@continueIf`, use lovercased versions `@breakif` and `@continueif`.
 
 ## [Release Notes V1](.github/CHANGELOG-V1.md)
 
