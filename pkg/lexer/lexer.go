@@ -20,18 +20,6 @@ var simpleTokens = map[byte]token.TokenType{
 	':': token.COLON,
 }
 
-var tokensWithoutParens = map[token.TokenType]bool{
-	token.ELSE:     true,
-	token.END:      true,
-	token.BREAK:    true,
-	token.CONTINUE: true,
-	token.SLOT:     true,
-}
-
-var tokensWithOptionalParens = map[token.TokenType]bool{
-	token.SLOT: true,
-}
-
 type Lexer struct {
 	// input is the input string to be tokenized.
 	input string
@@ -175,10 +163,7 @@ func (l *Lexer) directiveToken() token.Token {
 		return l.illegalToken()
 	}
 
-	hasOptionalParens := tokensWithOptionalParens[tok] && (l.char == '(' || l.peekCharIs('('))
-	hasNoParens := tokensWithoutParens[tok]
-
-	l.isDirective = hasOptionalParens || !hasNoParens
+	l.isDirective = l.char == '(' || l.peekInlineCharIs('(')
 	l.isText = !l.isDirective
 
 	return l.newToken(tok, keyword)
@@ -597,19 +582,23 @@ func (l *Lexer) peek(ahead int) byte {
 	return l.input[l.readPos+ahead]
 }
 
-// peekCharIs returns true if the next non-whitespace character matches
-// the given character. Advances past any whitespace (spaces, tabs, newlines)
-// without consuming characters.
-func (l *Lexer) peekCharIs(char byte) bool {
-	pos := l.readPos
-	for pos < len(l.input) && l.isWhitespace(l.input[pos]) {
-		pos++
-	}
-	return pos < len(l.input) && l.input[pos] == char
-}
-
 func (l *Lexer) isWhitespace(char byte) bool {
 	return char == ' ' || char == '\t' || char == '\n' || char == '\r'
+}
+
+// peekInlineCharIs checks if the next non-space/tab character matches
+// the given character without consuming any input.
+func (l *Lexer) peekInlineCharIs(char byte) bool {
+	pos := l.readPos
+	for pos < len(l.input) {
+		c := l.input[pos]
+		if c == ' ' || c == '\t' {
+			pos++
+			continue
+		}
+		return c == char
+	}
+	return false
 }
 
 func (l *Lexer) skipWhitespace() {
