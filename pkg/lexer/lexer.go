@@ -321,7 +321,7 @@ func (l *Lexer) rightParenthesesToken() token.Token {
 
 func (l *Lexer) twoCharToken(tokType token.TokenType, literal string) token.Token {
 	l.tokenBegins()
-	l.readChars(s)
+	l.readChars(2)
 	return l.newToken(tokType, literal)
 }
 
