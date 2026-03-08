@@ -624,19 +624,15 @@ func (l *Lexer) skipComment() {
 	l.readChars(4) // skip "{{--"
 
 	for l.char != 0 && depth > 0 {
-		if l.charsAre('{', '{') {
-			l.readChars(2) // skip "{{"
+		if l.charsAre('{', '{', '-', '-') {
+			l.readChars(4) // skip "{{--"
 			depth++
 			continue
 		}
 
-		if l.charsAre('-', '-') {
-			l.readChars(2) // skip "--"
-
-			if l.charsAre('}', '}') {
-				l.readChars(2) // skip "}}"
-				depth--
-			}
+		if l.charsAre('-', '-', '}', '}') {
+			l.readChars(4) // skip "--}}"
+			depth--
 			continue
 		}
 

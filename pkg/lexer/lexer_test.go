@@ -23,7 +23,7 @@ func TokenizeString(t *testing.T, input string, expectTokens []token.Token) {
 
 		if tok.Type != expectTok.Type {
 			t.Fatalf(
-				"token %q - tokentype wrong. expect='%s', got='%s'",
+				"token %q - token type wrong. expect='%s', got='%s'",
 				tok.Lit,
 				token.String(expectTok.Type),
 				token.String(tok.Type),
@@ -789,7 +789,7 @@ func TestComponentSlotDirective(t *testing.T) {
 }
 
 // Comments should be ignored by the lexer
-func TestCommentStatement(t *testing.T) {
+func TestComments(t *testing.T) {
 	t.Run("Simple comment", func(t *testing.T) {
 		inp := `<div>{{-- This is a comment --}}</div>`
 
@@ -800,11 +800,24 @@ func TestCommentStatement(t *testing.T) {
 		})
 	})
 
-	t.Run("Commented code", func(t *testing.T) {
-		inp := `{{-- @each(u in users){{ u }}@end --}}`
+	t.Run("Comment with braces inside", func(t *testing.T) {
+		inp := `{{-- {{ --}}`
+		TokenizeString(t, inp, []token.Token{
+			{Type: token.EOF, Lit: "", Pos: token.Position{StartCol: 12, EndCol: 12}},
+		})
+	})
 
+	t.Run("Directive with comment", func(t *testing.T) {
+		inp := `{{-- @each(u in users){{ u }}@end --}}`
 		TokenizeString(t, inp, []token.Token{
 			{Type: token.EOF, Lit: "", Pos: token.Position{StartCol: 38, EndCol: 38}},
+		})
+	})
+
+	t.Run("Nested comment", func(t *testing.T) {
+		inp := `{{-- Contains {{-- and --}} inside --}}`
+		TokenizeString(t, inp, []token.Token{
+			{Type: token.EOF, Lit: "", Pos: token.Position{StartCol: 39, EndCol: 39}},
 		})
 	})
 }
