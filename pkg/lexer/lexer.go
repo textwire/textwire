@@ -448,16 +448,17 @@ func (l *Lexer) readNumber() (string, bool) {
 	isInt := true
 	l.tokenBegins()
 
-	for isNumber(l.char) || l.char == '.' {
-		if l.char == '.' {
-			if !isNumber(l.peek(0)) {
-				break
-			}
-
-			isInt = false
-		}
-
+	for isNumber(l.char) {
 		l.readChar()
+	}
+
+	if l.char == '.' && isNumber(l.peek(0)) {
+		isInt = false
+		l.readChar()
+
+		for isNumber(l.char) {
+			l.readChar()
+		}
 	}
 
 	return l.input[pos:l.pos], isInt
