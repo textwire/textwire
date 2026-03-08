@@ -106,10 +106,10 @@ func (l *Lexer) Next() token.Token {
 		return l.newToken(token.EOF, "")
 	}
 
-	if l.char == '{' && l.peek() == '{' {
+	if l.char == '{' && l.peek(0) == '{' {
 		tok := l.bracesToken(token.LBRACES, "{{")
 
-		if l.char == '-' && l.peek() == '-' {
+		if l.char == '-' && l.peek(0) == '-' {
 			l.skipComment()
 			return l.Next()
 		}
@@ -117,7 +117,7 @@ func (l *Lexer) Next() token.Token {
 		return tok
 	}
 
-	if l.char == '}' && l.peek() == '}' && l.countCurlyBraces == 0 {
+	if l.char == '}' && l.peek(0) == '}' && l.countCurlyBraces == 0 {
 		return l.bracesToken(token.RBRACES, "}}")
 	}
 
@@ -190,7 +190,7 @@ func (l *Lexer) embeddedCodeToken() token.Token {
 	case '"', '\'':
 		return l.newToken(token.STR, l.readString())
 	case '<':
-		if l.peek() == '=' {
+		if l.peek(0) == '=' {
 			return l.twoCharToken(token.LTHAN_EQ, "<=")
 		}
 
@@ -198,7 +198,7 @@ func (l *Lexer) embeddedCodeToken() token.Token {
 		l.readChar() // skip "<"
 		return l.newToken(token.LTHAN, "<")
 	case '>':
-		if l.peek() == '=' {
+		if l.peek(0) == '=' {
 			return l.twoCharToken(token.GTHAN_EQ, ">=")
 		}
 
@@ -206,7 +206,7 @@ func (l *Lexer) embeddedCodeToken() token.Token {
 		l.readChar() // skip ">"
 		return l.newToken(token.GTHAN, ">")
 	case '!':
-		if l.peek() == '=' {
+		if l.peek(0) == '=' {
 			return l.twoCharToken(token.NOT_EQ, "!=")
 		}
 
@@ -214,7 +214,7 @@ func (l *Lexer) embeddedCodeToken() token.Token {
 		l.readChar() // skip "!"
 		return l.newToken(token.NOT, "!")
 	case '-':
-		if l.peek() == '-' {
+		if l.peek(0) == '-' {
 			return l.twoCharToken(token.DEC, "--")
 		}
 
@@ -222,22 +222,22 @@ func (l *Lexer) embeddedCodeToken() token.Token {
 		l.readChar() // skip "-"
 		return l.newToken(token.SUB, "-")
 	case '&':
-		if l.peek() == '&' {
+		if l.peek(0) == '&' {
 			return l.twoCharToken(token.AND, "&&")
 		}
 		fallthrough
 	case '|':
-		if l.peek() == '|' {
+		if l.peek(0) == '|' {
 			return l.twoCharToken(token.OR, "||")
 		}
 		fallthrough
 	case '+':
-		if l.peek() == '+' {
+		if l.peek(0) == '+' {
 			return l.twoCharToken(token.INC, "++")
 		}
 		return l.addToken()
 	case '=':
-		if l.peek() == '=' {
+		if l.peek(0) == '=' {
 			return l.twoCharToken(token.EQ, "==")
 		}
 		return l.assignToken()
@@ -432,7 +432,7 @@ func (l *Lexer) isPotentiallyLong(tok token.TokenType) bool {
 		return false
 	}
 
-	return (l.char == 'I' || l.char == 'i') && l.peek() == 'f'
+	return (l.char == 'I' || l.char == 'i') && l.peek(0) == 'f'
 }
 
 func (l *Lexer) readString() string {
@@ -485,7 +485,7 @@ func (l *Lexer) readNumber() (string, bool) {
 
 	for isNumber(l.char) || l.char == '.' {
 		if l.char == '.' {
-			if !isNumber(l.peek()) {
+			if !isNumber(l.peek(0)) {
 				break
 			}
 
@@ -499,7 +499,7 @@ func (l *Lexer) readNumber() (string, bool) {
 }
 
 func (l *Lexer) areBracesToken() (areBraces bool, escapedBraces bool) {
-	braces := l.char == '{' && l.peek() == '{'
+	braces := l.char == '{' && l.peek(0) == '{'
 	escapedBraces = l.prevChar() == '\\' && braces
 
 	return braces && l.prevChar() != '\\', escapedBraces
@@ -570,12 +570,12 @@ func (l *Lexer) readChar() {
 	l.shouldResetCol = l.char == '\n'
 }
 
-func (l *Lexer) peek() byte {
+func (l *Lexer) peek(ahead int) byte {
 	if l.readPos >= len(l.input) {
 		return 0
 	}
 
-	return l.input[l.readPos]
+	return l.input[l.readPos+ahead]
 }
 
 // peekCharIs returns true if the next non-whitespace character matches
@@ -603,17 +603,17 @@ func (l *Lexer) skipComment() {
 	depth := 1
 
 	for l.char != 0 && depth > 0 {
-		if l.char == '{' && l.peek() == '{' {
+		if l.char == '{' && l.peek(0) == '{' {
 			l.readChar()
 			l.readChar()
 			depth++
 			continue
 		}
 
-		if l.char == '-' && l.peek() == '-' {
+		if l.char == '-' && l.peek(0) == '-' {
 			l.readChar()
 			l.readChar()
-			if l.char == '}' && l.peek() == '}' {
+			if l.char == '}' && l.peek(0) == '}' {
 				l.readChar()
 				l.readChar()
 				depth--
