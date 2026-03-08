@@ -1,8 +1,9 @@
 # Release notes
 
-## v3.4.4 (2026-03-07)
+## v3.4.4 (2026-03-08)
 
 - 🐛 Fixed bug with the file watcher. When you create a new Textwire file, file watcher needed to be restarted to start seeing that file. Now, new files are automatically added to file watcher's scope.
+- ♻️ Lots of refactoring and improvements to the codebase.
 
 ## v3.4.3 (2026-03-06)
 
