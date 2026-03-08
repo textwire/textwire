@@ -113,7 +113,8 @@ func (fw *fileWatcher) handleDeletedFile(f *file.SourceFile) {
 	fw.removeProgramByName(f.Name)
 }
 
-// handleNewOrDeletedFiles re-locates files and updates tracking when file count changes.
+// handleNewOrDeletedFiles re-locates files and updates tracking when file
+// count changes.
 func (fw *fileWatcher) handleNewOrDeletedFiles() {
 	fw.logger.Info("file count changed, updating...")
 	oldFiles := fw.files
@@ -196,6 +197,7 @@ func (fw *fileWatcher) trackLinkingError(failure *fail.Error) {
 	fw.linker.LinkError = failure
 }
 
+// cleanupDeletedPrograms removes programs from the linker that no longer exist on disk.
 func (fw *fileWatcher) cleanupDeletedPrograms(oldFiles []*file.SourceFile) {
 	deletedFiles := fw.findDeletedFiles(oldFiles)
 
@@ -210,6 +212,8 @@ func (fw *fileWatcher) cleanupDeletedPrograms(oldFiles []*file.SourceFile) {
 	})
 }
 
+// findDeletedFiles returns a map of file names that existed in oldFiles but no longer
+// exist in fw.files.
 func (fw *fileWatcher) findDeletedFiles(oldFiles []*file.SourceFile) map[string]bool {
 	oldSet := makeFileNameSet(oldFiles)
 	deleted := make(map[string]bool)
