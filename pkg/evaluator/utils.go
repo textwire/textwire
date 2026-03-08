@@ -25,7 +25,7 @@ func isTruthy(obj value.Value) bool {
 		return false
 	case *value.Obj:
 		return len(obj.Pairs) > 0
-	case *value.Array:
+	case *value.Arr:
 		return len(obj.Elements) != 0
 	case nil:
 		return false
@@ -35,7 +35,7 @@ func isTruthy(obj value.Value) bool {
 }
 
 func isError(obj value.Value) bool {
-	return obj.Is(value.ERR_OBJ)
+	return obj.Is(value.ERR_VAL)
 }
 
 func isUndefinedError(obj value.Value) bool {
@@ -56,11 +56,11 @@ func nativeBoolToBoolObj(input bool) value.Value {
 }
 
 func hasBreakStmt(obj value.Value) bool {
-	return hasControlStmt(obj, value.BREAK_OBJ)
+	return hasControlStmt(obj, value.BREAK_VAL)
 }
 
 func hasContinueStmt(obj value.Value) bool {
-	return hasControlStmt(obj, value.CONTINUE_OBJ)
+	return hasControlStmt(obj, value.CONTINUE_VAL)
 }
 
 func hasControlStmt(obj value.Value, controlType value.ValueType) bool {
@@ -86,17 +86,17 @@ func hasCustomFunc(customFunc *config.Func, t value.ValueType, funcName string) 
 	}
 
 	switch t {
-	case value.STR_OBJ:
+	case value.STR_VAL:
 		return customFunc.Str[funcName] != nil
-	case value.ARR_OBJ:
+	case value.ARR_VAL:
 		return customFunc.Arr[funcName] != nil
-	case value.INT_OBJ:
+	case value.INT_VAL:
 		return customFunc.Int[funcName] != nil
-	case value.FLOAT_OBJ:
+	case value.FLOAT_VAL:
 		return customFunc.Float[funcName] != nil
-	case value.BOOL_OBJ:
+	case value.BOOL_VAL:
 		return customFunc.Bool[funcName] != nil
-	case value.OBJ_OBJ:
+	case value.OBJ_VAL:
 		return customFunc.Obj[funcName] != nil
 	default:
 		return false

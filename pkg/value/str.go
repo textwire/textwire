@@ -7,7 +7,7 @@ type Str struct {
 }
 
 func (s *Str) Type() ValueType {
-	return STR_OBJ
+	return STR_VAL
 }
 
 func (s *Str) String() string {

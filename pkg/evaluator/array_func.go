@@ -15,7 +15,7 @@ import (
 
 // arrayLenFunc returns the length of the given array
 func arrayLenFunc(receiver value.Value, _ ...value.Value) (value.Value, error) {
-	elems := receiver.(*value.Array).Elements
+	elems := receiver.(*value.Arr).Elements
 	length := len(elems)
 	return &value.Int{Val: int64(length)}, nil
 }
@@ -29,14 +29,14 @@ func arrayJoinFunc(receiver value.Value, args ...value.Value) (value.Value, erro
 	} else {
 		str, ok := args[0].(*value.Str)
 		if !ok {
-			msg := fmt.Sprintf(fail.ErrFuncFirstArgStr, value.ARR_OBJ, "join")
+			msg := fmt.Sprintf(fail.ErrFuncFirstArgStr, value.ARR_VAL, "join")
 			return nil, errors.New(msg)
 		}
 
 		separator = str.Val
 	}
 
-	elems := receiver.(*value.Array).Elements
+	elems := receiver.(*value.Arr).Elements
 
 	var out strings.Builder
 	out.Grow(len(elems))
@@ -54,7 +54,7 @@ func arrayJoinFunc(receiver value.Value, args ...value.Value) (value.Value, erro
 
 // arrayRandFunc returns a random element from the given array
 func arrayRandFunc(receiver value.Value, _ ...value.Value) (value.Value, error) {
-	elems := receiver.(*value.Array).Elements
+	elems := receiver.(*value.Arr).Elements
 	if len(elems) == 0 {
 		return &value.Nil{}, nil
 	}
@@ -64,28 +64,28 @@ func arrayRandFunc(receiver value.Value, _ ...value.Value) (value.Value, error) 
 
 // arrayReverseFunc reverses the elements of the given array
 func arrayReverseFunc(receiver value.Value, _ ...value.Value) (value.Value, error) {
-	elems := receiver.(*value.Array).Elements
+	elems := receiver.(*value.Arr).Elements
 	if len(elems) == 0 {
 		return receiver, nil
 	}
 
 	slices.Reverse(elems)
 
-	return &value.Array{Elements: elems}, nil
+	return &value.Arr{Elements: elems}, nil
 }
 
 // arraySliceFunc returns a slice of the given array
 func arraySliceFunc(receiver value.Value, args ...value.Value) (value.Value, error) {
-	elems := receiver.(*value.Array).Elements
+	elems := receiver.(*value.Arr).Elements
 
 	if len(args) == 0 {
-		msg := fmt.Sprintf(fail.ErrFuncMissingArg, value.ARR_OBJ, "slice")
+		msg := fmt.Sprintf(fail.ErrFuncMissingArg, value.ARR_VAL, "slice")
 		return nil, errors.New(msg)
 	}
 
 	startFrom, ok := args[0].(*value.Int)
 	if !ok {
-		msg := fmt.Sprintf(fail.ErrFuncFirstArgInt, value.ARR_OBJ, "slice")
+		msg := fmt.Sprintf(fail.ErrFuncFirstArgInt, value.ARR_VAL, "slice")
 		return nil, errors.New(msg)
 	}
 
@@ -93,12 +93,12 @@ func arraySliceFunc(receiver value.Value, args ...value.Value) (value.Value, err
 	start = min(start, len(elems))
 
 	if len(args) == 1 {
-		return &value.Array{Elements: elems[start:]}, nil
+		return &value.Arr{Elements: elems[start:]}, nil
 	}
 
 	endAt, ok := args[1].(*value.Int)
 	if !ok {
-		msg := fmt.Sprintf(fail.ErrFuncSecondArgInt, value.ARR_OBJ, "slice")
+		msg := fmt.Sprintf(fail.ErrFuncSecondArgInt, value.ARR_VAL, "slice")
 		return nil, errors.New(msg)
 	}
 
@@ -107,12 +107,12 @@ func arraySliceFunc(receiver value.Value, args ...value.Value) (value.Value, err
 		end = len(elems)
 	}
 
-	return &value.Array{Elements: elems[start:end]}, nil
+	return &value.Arr{Elements: elems[start:end]}, nil
 }
 
 // arrayShuffleFunc shuffles the elements of the given array
 func arrayShuffleFunc(receiver value.Value, _ ...value.Value) (value.Value, error) {
-	elems := receiver.(*value.Array).Elements
+	elems := receiver.(*value.Arr).Elements
 
 	length := len(elems)
 	if length == 0 {
@@ -132,17 +132,17 @@ func arrayShuffleFunc(receiver value.Value, _ ...value.Value) (value.Value, erro
 		shuffled[i], shuffled[j] = shuffled[j], shuffled[i] // Swap elements
 	}
 
-	return &value.Array{Elements: shuffled}, nil
+	return &value.Arr{Elements: shuffled}, nil
 }
 
 // arrayContainsFunc checks if the given array contains the given element
 func arrayContainsFunc(receiver value.Value, args ...value.Value) (value.Value, error) {
 	if len(args) == 0 {
-		msg := fmt.Sprintf(fail.ErrFuncMissingArg, value.ARR_OBJ, "contains")
+		msg := fmt.Sprintf(fail.ErrFuncMissingArg, value.ARR_VAL, "contains")
 		return nil, errors.New(msg)
 	}
 
-	elems := receiver.(*value.Array).Elements
+	elems := receiver.(*value.Arr).Elements
 	if len(elems) == 0 {
 		return FALSE, nil
 	}
@@ -150,8 +150,8 @@ func arrayContainsFunc(receiver value.Value, args ...value.Value) (value.Value, 
 	target := args[0]
 
 	for _, el := range elems {
-		isObj := el.Type() == value.OBJ_OBJ && target.Type() == value.OBJ_OBJ
-		isArr := el.Type() == value.ARR_OBJ && target.Type() == value.ARR_OBJ
+		isObj := el.Type() == value.OBJ_VAL && target.Type() == value.OBJ_VAL
+		isArr := el.Type() == value.ARR_VAL && target.Type() == value.ARR_VAL
 
 		if isObj || isArr {
 			if reflect.DeepEqual(el, target) {
@@ -172,11 +172,11 @@ func arrayContainsFunc(receiver value.Value, args ...value.Value) (value.Value, 
 // arrayAppendFunc appends the given elements to the given array
 func arrayAppendFunc(receiver value.Value, args ...value.Value) (value.Value, error) {
 	if len(args) == 0 {
-		msg := fmt.Sprintf(fail.ErrFuncMissingArg, value.ARR_OBJ, "append")
+		msg := fmt.Sprintf(fail.ErrFuncMissingArg, value.ARR_VAL, "append")
 		return nil, errors.New(msg)
 	}
 
-	arr := receiver.(*value.Array)
+	arr := receiver.(*value.Arr)
 	newElems := make(
 		[]value.Value,
 		len(arr.Elements)+len(args),
@@ -188,17 +188,17 @@ func arrayAppendFunc(receiver value.Value, args ...value.Value) (value.Value, er
 		newElems[len(arr.Elements)+i] = args[i]
 	}
 
-	return &value.Array{Elements: newElems}, nil
+	return &value.Arr{Elements: newElems}, nil
 }
 
 // arrayPrependFunc prepends the given elements to the given array
 func arrayPrependFunc(receiver value.Value, args ...value.Value) (value.Value, error) {
 	if len(args) == 0 {
-		msg := fmt.Sprintf(fail.ErrFuncMissingArg, value.ARR_OBJ, "prepend")
+		msg := fmt.Sprintf(fail.ErrFuncMissingArg, value.ARR_VAL, "prepend")
 		return nil, errors.New(msg)
 	}
 
-	arr := receiver.(*value.Array)
+	arr := receiver.(*value.Arr)
 	newElems := make([]value.Value, len(arr.Elements)+len(args))
 
 	copy(newElems, args)
@@ -207,5 +207,5 @@ func arrayPrependFunc(receiver value.Value, args ...value.Value) (value.Value, e
 		newElems[len(args)+i] = arr.Elements[i]
 	}
 
-	return &value.Array{Elements: newElems}, nil
+	return &value.Arr{Elements: newElems}, nil
 }

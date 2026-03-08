@@ -29,7 +29,7 @@ type Dump struct {
 }
 
 func (d *Dump) Type() ValueType {
-	return DUMP_OBJ
+	return DUMP_VAL
 }
 
 func (d *Dump) String() string {

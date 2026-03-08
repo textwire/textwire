@@ -14,7 +14,7 @@ type Float struct {
 }
 
 func (f *Float) Type() ValueType {
-	return FLOAT_OBJ
+	return FLOAT_VAL
 }
 
 func (f *Float) String() string {

@@ -20,7 +20,7 @@ func boolBinaryFunc(receiver value.Value, _ ...value.Value) (value.Value, error)
 // boolThenFunc returns the first argument if the receiver is true, the second argument or nil otherwise
 func boolThenFunc(receiver value.Value, args ...value.Value) (value.Value, error) {
 	if len(args) == 0 {
-		msg := fmt.Sprintf(fail.ErrFuncMissingArg, value.BOOL_OBJ, "then")
+		msg := fmt.Sprintf(fail.ErrFuncMissingArg, value.BOOL_VAL, "then")
 		return nil, errors.New(msg)
 	}
 

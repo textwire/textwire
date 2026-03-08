@@ -1,14 +1,14 @@
 package token
 
 var tokens = [...]string{
-	ILLEGAL: "ILLEGAL",
-	EOF:     "EOF",
+	ILLEGAL: "illegal",
+	EOF:     "eof",
 
-	IDENT: "IDENT",
-	HTML:  "HTML",
-	INT:   "INT",
-	FLOAT: "FLOAT",
-	STR:   "STR",
+	IDENT: "identifier",
+	TEXT:  "text",
+	INT:   "integer",
+	FLOAT: "float",
+	STR:   "string",
 
 	ADD: "+",
 	SUB: "-",

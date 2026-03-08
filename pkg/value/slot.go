@@ -8,7 +8,7 @@ type Slot struct {
 }
 
 func (s *Slot) Type() ValueType {
-	return SLOT_OBJ
+	return SLOT_VAL
 }
 
 func (s *Slot) String() string {

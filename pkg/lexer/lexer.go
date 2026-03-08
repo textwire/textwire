@@ -67,8 +67,8 @@ type Lexer struct {
 	// startLine is the start index on the line.
 	startLine uint
 
-	// isHTML determines if current character is in HTML or Textwire.
-	isHTML bool
+	// isText determines if current character is in text or Textwire.
+	isText bool
 
 	// isDirective determines if current character is a part of directive.
 	isDirective bool
@@ -79,14 +79,14 @@ type Lexer struct {
 
 	// If this is 0 and we find "}}" then it's the closing token.
 	// We increment it when we find "{" and decrement when we find "}".
-	// It helps to determine if we are in HTML or Textwire.
+	// It helps to determine if we are in text or Textwire.
 	countCurlyBraces int
 }
 
 func New(input string) *Lexer {
 	l := &Lexer{
 		input:       input,
-		isHTML:      true,
+		isText:      true,
 		isDirective: false,
 	}
 
@@ -97,7 +97,7 @@ func New(input string) *Lexer {
 }
 
 func (l *Lexer) Next() token.Token {
-	if !l.isHTML {
+	if !l.isText {
 		l.skipWhitespace()
 	}
 
@@ -125,15 +125,15 @@ func (l *Lexer) Next() token.Token {
 		return l.directiveToken()
 	}
 
-	if !l.isHTML {
+	if !l.isText {
 		return l.embeddedCodeToken()
 	}
 
-	return l.newToken(token.HTML, l.readHTML())
+	return l.newToken(token.TEXT, l.readText())
 }
 
 func (l *Lexer) bracesToken(tok token.TokenType, literal string) token.Token {
-	l.isHTML = tok != token.LBRACES
+	l.isText = tok != token.LBRACES
 
 	l.tokenBegins()
 	l.readChar() // skip first brace
@@ -164,7 +164,7 @@ func (l *Lexer) directiveToken() token.Token {
 	hasNoParens := tokensWithoutParens[tok]
 
 	l.isDirective = hasOptionalParens || !hasNoParens
-	l.isHTML = !l.isDirective
+	l.isText = !l.isDirective
 
 	return l.newToken(tok, keyword)
 }
@@ -311,7 +311,7 @@ func (l *Lexer) rightParenthesesToken() token.Token {
 
 	if l.isDirective && l.countDirectiveParentheses == 0 {
 		l.isDirective = false
-		l.isHTML = true
+		l.isText = true
 	}
 
 	l.tokenBegins()
@@ -510,12 +510,12 @@ func (l *Lexer) tokenBegins() {
 	l.startLine = l.line
 }
 
-func (l *Lexer) readHTML() string {
+func (l *Lexer) readText() string {
 	var out bytes.Buffer
 	out.Grow(32) // 32 is approximate capacity
 	l.tokenBegins()
 
-	for l.isHTML && l.char != 0 {
+	for l.isText && l.char != 0 {
 		isDirective, escapedDir := l.isDirectiveToken()
 		areBraces, escapedBraces := l.areBracesToken()
 
@@ -624,5 +624,5 @@ func (l *Lexer) skipComment() {
 		l.readChar()
 	}
 
-	l.isHTML = true
+	l.isText = true
 }

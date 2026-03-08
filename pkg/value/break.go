@@ -3,7 +3,7 @@ package value
 type Break struct{}
 
 func (b *Break) Type() ValueType {
-	return BREAK_OBJ
+	return BREAK_VAL
 }
 
 func (b *Break) String() string {

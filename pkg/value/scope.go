@@ -23,7 +23,7 @@ func NewScopeFromMap(data map[string]any) (*Scope, *fail.Error) {
 	scope := NewScope()
 
 	for key, val := range data {
-		obj := NativeToObject(val)
+		obj := NativeToValue(val)
 		if obj == nil {
 			return nil, fail.New(0, "", "template", fail.ErrUnsupportedType, val)
 		}
@@ -87,7 +87,7 @@ func (e *Scope) AddGlobal(key string, val any) {
 		globalObj.Pairs = map[string]Value{}
 	}
 
-	globalObj.Pairs[key] = NativeToObject(val)
+	globalObj.Pairs[key] = NativeToValue(val)
 }
 
 func (e *Scope) isTypeMismatch(key string, val Value) (Value, bool) {

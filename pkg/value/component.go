@@ -6,7 +6,7 @@ type Component struct {
 }
 
 func (c *Component) Type() ValueType {
-	return COMPONENT_OBJ
+	return COMPONENT_VAL
 }
 
 func (c *Component) String() string {

@@ -951,11 +951,11 @@ func TestParseIfStmt(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		if err := testToken(stmt.IfBlock, token.HTML); err != nil {
+		if err := testToken(stmt.IfBlock, token.TEXT); err != nil {
 			t.Fatal(err)
 		}
 
-		if err := testToken(stmt.ElseBlock, token.HTML); err != nil {
+		if err := testToken(stmt.ElseBlock, token.TEXT); err != nil {
 			t.Fatal(err)
 		}
 
@@ -995,8 +995,8 @@ func TestParseIfStmt(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		if _, ok := stmts[0].(*ast.HTMLStmt); !ok {
-			t.Fatalf("stmts[0] is not an HTMLStmt, got %T", stmts[0])
+		if _, ok := stmts[0].(*ast.TextStmt); !ok {
+			t.Fatalf("stmts[0] is not an TextStmt, got %T", stmts[0])
 		}
 
 		ifStmt, isNotIfStmt := stmts[1].(*ast.IfStmt)
@@ -1015,11 +1015,11 @@ func TestParseIfStmt(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		if err := testToken(ifStmt.IfBlock, token.HTML); err != nil {
+		if err := testToken(ifStmt.IfBlock, token.TEXT); err != nil {
 			t.Fatal(err)
 		}
 
-		if err := testToken(ifStmt.ElseBlock, token.HTML); err != nil {
+		if err := testToken(ifStmt.ElseBlock, token.TEXT); err != nil {
 			t.Fatal(err)
 		}
 	})
@@ -1063,16 +1063,16 @@ func TestParseIfElseIfStmt(t *testing.T) {
 			)
 		}
 
-		htmlStmt, ok := elseifStmt.Block.Statements[0].(*ast.HTMLStmt)
+		textStmt, ok := elseifStmt.Block.Statements[0].(*ast.TextStmt)
 		if !ok {
 			t.Fatalf(
-				"elseifStmt.Block.Statements[0] is not an HTMLStmt, got %T",
+				"elseifStmt.Block.Statements[0] is not an TextStmt, got %T",
 				elseifStmt.Block.Statements[0],
 			)
 		}
 
-		if htmlStmt.String() != "second" {
-			t.Fatalf("htmlStmt.String() is not %q, got %q", "second", htmlStmt)
+		if textStmt.String() != "second" {
+			t.Fatalf("textStmt.String() is not %q, got %q", "second", textStmt)
 		}
 
 		return
@@ -1120,16 +1120,16 @@ func TestParseElseIfWithElseStatement(t *testing.T) {
 			)
 		}
 
-		htmlStmt, ok := elseifStmt.Block.Statements[0].(*ast.HTMLStmt)
+		textStmt, ok := elseifStmt.Block.Statements[0].(*ast.TextStmt)
 		if !ok {
 			t.Fatalf(
-				"elseifStmt.Block.Statements[0] is not an HTMLStmt, got %T",
+				"elseifStmt.Block.Statements[0] is not an TextStmt, got %T",
 				elseifStmt.Block.Statements[0],
 			)
 		}
 
-		if htmlStmt.String() != "2" {
-			t.Fatalf("htmlStmt.String() is not %s, got %s", "2", htmlStmt)
+		if textStmt.String() != "2" {
+			t.Fatalf("TextStmt.String() is not %s, got %s", "2", textStmt)
 		}
 	}
 }
@@ -1262,10 +1262,10 @@ func TestParseReserveStmt(t *testing.T) {
 				Name: &ast.StringLiteral{Val: "content"},
 				Block: &ast.BlockStmt{
 					Statements: []ast.Statement{
-						&ast.HTMLStmt{
+						&ast.TextStmt{
 							BaseNode: ast.BaseNode{
 								Token: token.Token{
-									Type:    token.HTML,
+									Type:    token.TEXT,
 									Literal: "<h1>Some content</h1>",
 								},
 							},
@@ -2062,7 +2062,7 @@ func TestParseObjectWithShorthandKeyNotation(t *testing.T) {
 	}
 }
 
-func TestParseHTMLStmt(t *testing.T) {
+func TestParseTextStmt(t *testing.T) {
 	inp := "<div><span>Hello</span></div>"
 
 	stmts, err := parseStatements(inp, defaultParseOpts)
@@ -2070,12 +2070,12 @@ func TestParseHTMLStmt(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	stmt, ok := stmts[0].(*ast.HTMLStmt)
+	stmt, ok := stmts[0].(*ast.TextStmt)
 	if !ok {
-		t.Fatalf("stmts[0] is not a HTMLStmt, got %T", stmts[0])
+		t.Fatalf("stmts[0] is not a TextStmt, got %T", stmts[0])
 	}
 
-	if err := testToken(stmt, token.HTML); err != nil {
+	if err := testToken(stmt, token.TEXT); err != nil {
 		t.Fatal(err)
 	}
 
@@ -2413,14 +2413,14 @@ func TestParseComponentStmt(t *testing.T) {
 			t.Fatalf("stmt.String() is not `%s`, got `%s`", expect, stmt)
 		}
 
-		htmlStmt, htmlOk := stmts[1].(*ast.HTMLStmt)
-		if !htmlOk {
-			t.Fatalf("stmts[1] is not a HTMLStmt, got %T", stmts[1])
+		textStmt, ok := stmts[1].(*ast.TextStmt)
+		if !ok {
+			t.Fatalf("stmts[1] is not a TextStmt, got %T", stmts[1])
 		}
 
 		expect = "\n <b>Book</b>"
-		if htmlStmt.String() != expect {
-			t.Fatalf("htmlStmt.String() is not `%s`, got `%s`", expect, htmlStmt)
+		if textStmt.String() != expect {
+			t.Fatalf("textStmt.String() is not `%s`, got `%s`", expect, textStmt)
 		}
 	})
 }

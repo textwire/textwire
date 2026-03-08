@@ -30,7 +30,7 @@ func EvaluateString(inp string, data map[string]any) (string, error) {
 	e := evaluator.New(customFunc, nil)
 	ctx := evaluator.NewContext(scope, prog.AbsPath)
 	evaluated := e.Eval(prog, ctx)
-	if evaluated.Is(value.ERR_OBJ) {
+	if evaluated.Is(value.ERR_VAL) {
 		return "", evaluated.(*value.Error).Err.Error()
 	}
 

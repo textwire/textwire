@@ -47,12 +47,12 @@ func TokenizeString(t *testing.T, input string, expectTokens []token.Token) {
 	}
 }
 
-func TestHTML(t *testing.T) {
+func TestText(t *testing.T) {
 	inp := `<h2 class="container">The winter is test@mail.com</h2>`
 
 	TokenizeString(t, inp, []token.Token{
 		{
-			Type:    token.HTML,
+			Type:    token.TEXT,
 			Literal: `<h2 class="container">The winter is test@mail.com</h2>`,
 			Pos:     token.Position{EndCol: 53},
 		},
@@ -68,7 +68,7 @@ func TestIntegers(t *testing.T) {
 	inp := "<div>{{ 0 1 2 3 4 5 6 7 8 9 234 -41 }}</div>"
 
 	TokenizeString(t, inp, []token.Token{
-		{Type: token.HTML, Literal: "<div>", Pos: token.Position{EndCol: 4}},
+		{Type: token.TEXT, Literal: "<div>", Pos: token.Position{EndCol: 4}},
 		{Type: token.LBRACES, Literal: "{{", Pos: token.Position{StartCol: 5, EndCol: 6}},
 		{Type: token.INT, Literal: "0", Pos: token.Position{StartCol: 8, EndCol: 8}},
 		{Type: token.INT, Literal: "1", Pos: token.Position{StartCol: 10, EndCol: 10}},
@@ -84,7 +84,7 @@ func TestIntegers(t *testing.T) {
 		{Type: token.SUB, Literal: "-", Pos: token.Position{StartCol: 32, EndCol: 32}},
 		{Type: token.INT, Literal: "41", Pos: token.Position{StartCol: 33, EndCol: 34}},
 		{Type: token.RBRACES, Literal: "}}", Pos: token.Position{StartCol: 36, EndCol: 37}},
-		{Type: token.HTML, Literal: "</div>", Pos: token.Position{StartCol: 38, EndCol: 43}},
+		{Type: token.TEXT, Literal: "</div>", Pos: token.Position{StartCol: 38, EndCol: 43}},
 		{Type: token.EOF, Literal: "", Pos: token.Position{StartCol: 44, EndCol: 44}},
 	})
 }
@@ -134,7 +134,7 @@ func TestIfStmt(t *testing.T) {
 		{Type: token.RPAREN, Literal: ")", Pos: token.Position{StartCol: 10, EndCol: 10}},
 		{Type: token.RPAREN, Literal: ")", Pos: token.Position{StartCol: 11, EndCol: 11}},
 		{Type: token.RPAREN, Literal: ")", Pos: token.Position{StartCol: 12, EndCol: 12}},
-		{Type: token.HTML, Literal: "one", Pos: token.Position{StartCol: 13, EndCol: 15}},
+		{Type: token.TEXT, Literal: "one", Pos: token.Position{StartCol: 13, EndCol: 15}},
 		{Type: token.ELSEIF, Literal: "@elseif", Pos: token.Position{StartCol: 16, EndCol: 22}},
 		{Type: token.LPAREN, Literal: "(", Pos: token.Position{StartCol: 23, EndCol: 23}},
 		{Type: token.FALSE, Literal: "false", Pos: token.Position{StartCol: 24, EndCol: 28}},
@@ -143,9 +143,9 @@ func TestIfStmt(t *testing.T) {
 		{Type: token.STR, Literal: "nice", Pos: token.Position{StartCol: 33, EndCol: 38}},
 		{Type: token.RBRACES, Literal: "}}", Pos: token.Position{StartCol: 40, EndCol: 41}},
 		{Type: token.ELSE, Literal: "@else", Pos: token.Position{StartCol: 42, EndCol: 46}},
-		{Type: token.HTML, Literal: "three", Pos: token.Position{StartCol: 47, EndCol: 51}},
+		{Type: token.TEXT, Literal: "three", Pos: token.Position{StartCol: 47, EndCol: 51}},
 		{Type: token.END, Literal: "@end", Pos: token.Position{StartCol: 52, EndCol: 55}},
-		{Type: token.HTML, Literal: "four", Pos: token.Position{StartCol: 56, EndCol: 59}},
+		{Type: token.TEXT, Literal: "four", Pos: token.Position{StartCol: 56, EndCol: 59}},
 		{Type: token.EOF, Literal: "", Pos: token.Position{StartCol: 60, EndCol: 60}},
 	})
 }
@@ -154,12 +154,12 @@ func TestUseStmt(t *testing.T) {
 	inp := `<div>@use("layouts/main")</div>`
 
 	TokenizeString(t, inp, []token.Token{
-		{Type: token.HTML, Literal: "<div>", Pos: token.Position{EndCol: 4}},
+		{Type: token.TEXT, Literal: "<div>", Pos: token.Position{EndCol: 4}},
 		{Type: token.USE, Literal: "@use", Pos: token.Position{StartCol: 5, EndCol: 8}},
 		{Type: token.LPAREN, Literal: "(", Pos: token.Position{StartCol: 9, EndCol: 9}},
 		{Type: token.STR, Literal: "layouts/main", Pos: token.Position{StartCol: 10, EndCol: 23}},
 		{Type: token.RPAREN, Literal: ")", Pos: token.Position{StartCol: 24, EndCol: 24}},
-		{Type: token.HTML, Literal: "</div>", Pos: token.Position{StartCol: 25, EndCol: 30}},
+		{Type: token.TEXT, Literal: "</div>", Pos: token.Position{StartCol: 25, EndCol: 30}},
 		{Type: token.EOF, Literal: "", Pos: token.Position{StartCol: 31, EndCol: 31}},
 	})
 }
@@ -168,12 +168,12 @@ func TestReserveStmt(t *testing.T) {
 	inp := `<div>@reserve("title")</div>`
 
 	TokenizeString(t, inp, []token.Token{
-		{Type: token.HTML, Literal: "<div>", Pos: token.Position{EndCol: 4}},
+		{Type: token.TEXT, Literal: "<div>", Pos: token.Position{EndCol: 4}},
 		{Type: token.RESERVE, Literal: "@reserve", Pos: token.Position{StartCol: 5, EndCol: 12}},
 		{Type: token.LPAREN, Literal: "(", Pos: token.Position{StartCol: 13, EndCol: 13}},
 		{Type: token.STR, Literal: "title", Pos: token.Position{StartCol: 14, EndCol: 20}},
 		{Type: token.RPAREN, Literal: ")", Pos: token.Position{StartCol: 21, EndCol: 21}},
-		{Type: token.HTML, Literal: "</div>", Pos: token.Position{StartCol: 22, EndCol: 27}},
+		{Type: token.TEXT, Literal: "</div>", Pos: token.Position{StartCol: 22, EndCol: 27}},
 		{Type: token.EOF, Literal: "", Pos: token.Position{StartCol: 28, EndCol: 28}},
 	})
 }
@@ -187,7 +187,7 @@ func TestInsertStmt(t *testing.T) {
 		{Type: token.STR, Literal: "title", Pos: token.Position{StartCol: 8, EndCol: 14}},
 		{Type: token.RPAREN, Literal: ")", Pos: token.Position{StartCol: 15, EndCol: 15}},
 		{
-			Type:    token.HTML,
+			Type:    token.TEXT,
 			Literal: "<div>Nice one</div>",
 			Pos:     token.Position{StartCol: 16, EndCol: 34},
 		},
@@ -269,7 +269,7 @@ func TestTernary(t *testing.T) {
 	inp := `<small>{{ true ? "Yes!" : "No!" }}</small>`
 
 	TokenizeString(t, inp, []token.Token{
-		{Type: token.HTML, Literal: "<small>", Pos: token.Position{EndCol: 6}},
+		{Type: token.TEXT, Literal: "<small>", Pos: token.Position{EndCol: 6}},
 		{Type: token.LBRACES, Literal: "{{", Pos: token.Position{StartCol: 7, EndCol: 8}},
 		{Type: token.TRUE, Literal: "true", Pos: token.Position{StartCol: 10, EndCol: 13}},
 		{Type: token.QUESTION, Literal: "?", Pos: token.Position{StartCol: 15, EndCol: 15}},
@@ -277,7 +277,7 @@ func TestTernary(t *testing.T) {
 		{Type: token.COLON, Literal: ":", Pos: token.Position{StartCol: 24, EndCol: 24}},
 		{Type: token.STR, Literal: "No!", Pos: token.Position{StartCol: 26, EndCol: 30}},
 		{Type: token.RBRACES, Literal: "}}", Pos: token.Position{StartCol: 32, EndCol: 33}},
-		{Type: token.HTML, Literal: "</small>", Pos: token.Position{StartCol: 34, EndCol: 41}},
+		{Type: token.TEXT, Literal: "</small>", Pos: token.Position{StartCol: 34, EndCol: 41}},
 		{Type: token.EOF, Literal: "", Pos: token.Position{StartCol: 42, EndCol: 42}},
 	})
 }
@@ -684,11 +684,11 @@ func TestBreakDirectives(t *testing.T) {
 		{Type: token.LPAREN, Literal: "(", Pos: token.Position{StartCol: 8, EndCol: 8}},
 		{Type: token.TRUE, Literal: "true", Pos: token.Position{StartCol: 9, EndCol: 12}},
 		{Type: token.RPAREN, Literal: ")", Pos: token.Position{StartCol: 13, EndCol: 13}},
-		{Type: token.HTML, Literal: " ", Pos: token.Position{StartCol: 14, EndCol: 14}},
+		{Type: token.TEXT, Literal: " ", Pos: token.Position{StartCol: 14, EndCol: 14}},
 		{Type: token.BREAK, Literal: "@break", Pos: token.Position{StartCol: 15, EndCol: 20}},
-		{Type: token.HTML, Literal: " ", Pos: token.Position{StartCol: 21, EndCol: 21}},
+		{Type: token.TEXT, Literal: " ", Pos: token.Position{StartCol: 21, EndCol: 21}},
 		{Type: token.CONTINUE, Literal: "@continue", Pos: token.Position{StartCol: 22, EndCol: 30}},
-		{Type: token.HTML, Literal: " ", Pos: token.Position{StartCol: 31, EndCol: 31}},
+		{Type: token.TEXT, Literal: " ", Pos: token.Position{StartCol: 31, EndCol: 31}},
 		{
 			Type:    token.CONTINUEIF,
 			Literal: "@continueif",
@@ -761,7 +761,7 @@ func TestComponentSlotDirective(t *testing.T) {
 			{Type: token.STR, Literal: "top", Pos: token.Position{StartCol: 24, EndCol: 28}},
 			{Type: token.RPAREN, Literal: ")", Pos: token.Position{StartCol: 29, EndCol: 29}},
 			{
-				Type:    token.HTML,
+				Type:    token.TEXT,
 				Literal: "<h1>Hello</h1>",
 				Pos:     token.Position{StartCol: 30, EndCol: 43},
 			},
@@ -780,7 +780,7 @@ func TestComponentSlotDirective(t *testing.T) {
 			{Type: token.STR, Literal: "card", Pos: token.Position{StartCol: 12, EndCol: 17}},
 			{Type: token.RPAREN, Literal: ")", Pos: token.Position{StartCol: 18, EndCol: 18}},
 			{Type: token.SLOT, Literal: "@slot", Pos: token.Position{StartCol: 19, EndCol: 23}},
-			{Type: token.HTML, Literal: "NICE", Pos: token.Position{StartCol: 24, EndCol: 27}},
+			{Type: token.TEXT, Literal: "NICE", Pos: token.Position{StartCol: 24, EndCol: 27}},
 			{Type: token.END, Literal: "@end", Pos: token.Position{StartCol: 28, EndCol: 31}},
 			{Type: token.END, Literal: "@end", Pos: token.Position{StartCol: 32, EndCol: 35}},
 			{Type: token.EOF, Literal: "", Pos: token.Position{StartCol: 36, EndCol: 36}},
@@ -794,8 +794,8 @@ func TestCommentStatement(t *testing.T) {
 		inp := `<div>{{-- This is a comment --}}</div>`
 
 		TokenizeString(t, inp, []token.Token{
-			{Type: token.HTML, Literal: "<div>", Pos: token.Position{EndCol: 4}},
-			{Type: token.HTML, Literal: "</div>", Pos: token.Position{StartCol: 32, EndCol: 37}},
+			{Type: token.TEXT, Literal: "<div>", Pos: token.Position{EndCol: 4}},
+			{Type: token.TEXT, Literal: "</div>", Pos: token.Position{StartCol: 32, EndCol: 37}},
 			{Type: token.EOF, Literal: "", Pos: token.Position{StartCol: 38, EndCol: 38}},
 		})
 	})
@@ -828,7 +828,7 @@ func TestReserveInsideSlot(t *testing.T) {
 	inp := `<head>@component('comp')@slot@reserve('title')@end@end</head>`
 
 	TokenizeString(t, inp, []token.Token{
-		{Type: token.HTML, Literal: "<head>", Pos: token.Position{EndCol: 5}},
+		{Type: token.TEXT, Literal: "<head>", Pos: token.Position{EndCol: 5}},
 		{
 			Type:    token.COMPONENT,
 			Literal: "@component",
@@ -844,7 +844,7 @@ func TestReserveInsideSlot(t *testing.T) {
 		{Type: token.RPAREN, Literal: ")", Pos: token.Position{StartCol: 45, EndCol: 45}},
 		{Type: token.END, Literal: "@end", Pos: token.Position{StartCol: 46, EndCol: 49}},
 		{Type: token.END, Literal: "@end", Pos: token.Position{StartCol: 50, EndCol: 53}},
-		{Type: token.HTML, Literal: "</head>", Pos: token.Position{StartCol: 54, EndCol: 60}},
+		{Type: token.TEXT, Literal: "</head>", Pos: token.Position{StartCol: 54, EndCol: 60}},
 		{Type: token.EOF, Literal: "", Pos: token.Position{StartCol: 61, EndCol: 61}},
 	})
 }
@@ -857,7 +857,7 @@ func TestSlotIfDirective(t *testing.T) {
 		{Type: token.LPAREN, Literal: "(", Pos: token.Position{StartCol: 7, EndCol: 7}},
 		{Type: token.TRUE, Literal: "true", Pos: token.Position{StartCol: 8, EndCol: 11}},
 		{Type: token.RPAREN, Literal: ")", Pos: token.Position{StartCol: 12, EndCol: 12}},
-		{Type: token.HTML, Literal: "HERE", Pos: token.Position{StartCol: 13, EndCol: 16}},
+		{Type: token.TEXT, Literal: "HERE", Pos: token.Position{StartCol: 13, EndCol: 16}},
 		{Type: token.END, Literal: "@end", Pos: token.Position{StartCol: 17, EndCol: 20}},
 		{Type: token.EOF, Literal: "", Pos: token.Position{StartCol: 21, EndCol: 21}},
 	})

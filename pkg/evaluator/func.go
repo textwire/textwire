@@ -5,7 +5,7 @@ import (
 )
 
 var functions = map[value.ValueType]map[string]*value.Builtin{
-	value.STR_OBJ: {
+	value.STR_VAL: {
 		"len":        {Fn: strLenFunc},
 		"split":      {Fn: strSplitFunc},
 		"raw":        {Fn: strRawFunc},
@@ -25,7 +25,7 @@ var functions = map[value.ValueType]map[string]*value.Builtin{
 		"repeat":     {Fn: strRepeatFunc},
 		"format":     {Fn: strFormatFunc},
 	},
-	value.ARR_OBJ: {
+	value.ARR_VAL: {
 		"len":      {Fn: arrayLenFunc},
 		"join":     {Fn: arrayJoinFunc},
 		"rand":     {Fn: arrayRandFunc},
@@ -37,7 +37,7 @@ var functions = map[value.ValueType]map[string]*value.Builtin{
 		"prepend":  {Fn: arrayPrependFunc},
 		"json":     {Fn: jsonFunc},
 	},
-	value.FLOAT_OBJ: {
+	value.FLOAT_VAL: {
 		"int":   {Fn: floatIntFunc},
 		"str":   {Fn: floatStrFunc},
 		"abs":   {Fn: floatAbsFunc},
@@ -45,18 +45,18 @@ var functions = map[value.ValueType]map[string]*value.Builtin{
 		"floor": {Fn: floatFloorFunc},
 		"round": {Fn: floatRoundFunc},
 	},
-	value.INT_OBJ: {
+	value.INT_VAL: {
 		"float":   {Fn: intFloatFunc},
 		"abs":     {Fn: intAbsFunc},
 		"str":     {Fn: intStrFunc},
 		"len":     {Fn: intLenFunc},
 		"decimal": {Fn: intDecimalFunc},
 	},
-	value.BOOL_OBJ: {
+	value.BOOL_VAL: {
 		"binary": {Fn: boolBinaryFunc},
 		"then":   {Fn: boolThenFunc},
 	},
-	value.OBJ_OBJ: {
+	value.OBJ_VAL: {
 		"json":  {Fn: jsonFunc},
 		"camel": {Fn: objCamelFunc},
 		"get":   {Fn: objGetFunc},
