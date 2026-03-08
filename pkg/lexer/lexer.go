@@ -60,8 +60,6 @@ type Lexer struct {
 	// line is the current index on the line.
 	line uint
 
-	current string
-
 	// prevLine is the line index of the previous character.
 	// NOT THE PREVIOUS LINE, BUT THE LINE OF THE PREVIOUS CHARACTER.
 	prevLine uint
@@ -108,16 +106,16 @@ func (l *Lexer) Next() token.Token {
 		return l.newToken(token.EOF, "")
 	}
 
-	if l.char == '{' && l.peek(0) == '{' && l.peek(1) == '-' && l.peek(2) == '-' {
+	if l.charsAre('{', '{', '-', '-') {
 		l.skipComment()
 		return l.Next()
 	}
 
-	if l.char == '{' && l.peek(0) == '{' {
+	if l.charsAre('{', '{') {
 		return l.bracesToken(token.LBRACES, "{{")
 	}
 
-	if l.char == '}' && l.peek(0) == '}' && l.countCurlyBraces == 0 {
+	if l.charsAre('}', '}') && l.countCurlyBraces == 0 {
 		return l.bracesToken(token.RBRACES, "}}")
 	}
 
@@ -130,6 +128,24 @@ func (l *Lexer) Next() token.Token {
 	}
 
 	return l.newToken(token.TEXT, l.readText())
+}
+
+func (l *Lexer) charsAre(chars ...byte) bool {
+	if len(chars) == 0 {
+		return false
+	}
+
+	if chars[0] != l.char {
+		return false
+	}
+
+	for i := 1; i < len(chars); i++ {
+		if l.peek(i-1) != chars[i] {
+			return false
+		}
+	}
+
+	return true
 }
 
 func (l *Lexer) bracesToken(tok token.TokenType, literal string) token.Token {
@@ -430,7 +446,7 @@ func (l *Lexer) isPotentiallyLong(tok token.TokenType) bool {
 		return false
 	}
 
-	return (l.char == 'I' || l.char == 'i') && l.peek(0) == 'f'
+	return l.charsAre('I', 'f') || l.charsAre('i', 'f')
 }
 
 func (l *Lexer) readString() string {
@@ -497,7 +513,7 @@ func (l *Lexer) readNumber() (string, bool) {
 }
 
 func (l *Lexer) areBracesToken() (areBraces bool, escapedBraces bool) {
-	braces := l.char == '{' && l.peek(0) == '{'
+	braces := l.charsAre('{', '{')
 	escapedBraces = l.prevChar() == '\\' && braces
 
 	return braces && l.prevChar() != '\\', escapedBraces
@@ -536,7 +552,6 @@ func (l *Lexer) prevChar() byte {
 	if l.pos > 0 {
 		return l.input[l.pos-1]
 	}
-
 	return 0
 }
 
@@ -545,10 +560,8 @@ func (l *Lexer) readChar() {
 
 	if l.readPos >= len(l.input) {
 		l.char = 0
-		l.current = "0"
 	} else {
 		l.char = l.input[l.readPos]
-		l.current = string(l.char)
 	}
 
 	l.pos = l.readPos
@@ -611,16 +624,16 @@ func (l *Lexer) skipComment() {
 	l.readChars(4) // skip "{{--"
 
 	for l.char != 0 && depth > 0 {
-		if l.char == '{' && l.peek(0) == '{' {
+		if l.charsAre('{', '{') {
 			l.readChars(2) // skip "{{"
 			depth++
 			continue
 		}
 
-		if l.char == '-' && l.peek(0) == '-' {
+		if l.charsAre('-', '-') {
 			l.readChars(2) // skip "--"
 
-			if l.char == '}' && l.peek(0) == '}' {
+			if l.charsAre('}', '}') {
 				l.readChars(2) // skip "}}"
 				depth--
 			}
