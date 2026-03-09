@@ -58,10 +58,10 @@ const (
 	// Functions
 	ErrFuncNotDefined   = "%s.%s() is not defined"
 	ErrFuncMissingArg   = "%s.%s(arg) missing required argument"
-	ErrFuncFirstArgInt  = "argument 1 on %s.%s() must be INTEGER"
-	ErrFuncFirstArgStr  = "argument 1 on %s.%s() must be STRING"
-	ErrFuncSecondArgInt = "argument 2 on %s.%s() must be INTEGER"
-	ErrFuncSecondArgStr = "argument 2 on %s.%s() must be STRING"
+	ErrFuncFirstArgInt  = "argument 1 on %s.%s() must be 'integer'"
+	ErrFuncFirstArgStr  = "argument 1 on %s.%s() must be 'string'"
+	ErrFuncSecondArgInt = "argument 2 on %s.%s() must be 'integer'"
+	ErrFuncSecondArgStr = "argument 2 on %s.%s() must be 'string'"
 	ErrFuncMaxArgs      = "%s.%s() takes at most %d arguments"
 
 	// Template errors
