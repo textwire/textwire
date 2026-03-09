@@ -139,21 +139,13 @@ func (p *Parser) ParseProgram() *ast.Program {
 	prog.Chunks = []ast.Chunk{}
 
 	for !p.curTokenIs(token.EOF) {
-		c := p.chunk()
-
-		// if the end of the {{ expression }}
-		if p.curTokenIs(token.RBRACES) {
-			prog.Chunks = append(prog.Chunks, c)
-			p.next()
-			continue
-		}
-
-		if c == nil {
+		chunk := p.chunk()
+		if chunk == nil {
 			p.next() // skip to next token
 			continue
 		}
 
-		prog.Chunks = append(prog.Chunks, c)
+		prog.Chunks = append(prog.Chunks, chunk)
 
 		p.next() // skip to next token
 	}
@@ -179,7 +171,7 @@ func (p *Parser) chunk() ast.Chunk {
 	switch p.curToken.Type {
 	case token.TEXT:
 		return p.text()
-	case token.LBRACES, token.SEMI:
+	case token.LBRACES:
 		return p.embedded()
 	case token.IF:
 		return p.ifDir()
@@ -207,12 +199,9 @@ func (p *Parser) chunk() ast.Chunk {
 		return ast.NewBreakDir(p.curToken)
 	case token.CONTINUE:
 		return ast.NewContinueDir(p.curToken)
-	case token.SLOTIF:
-		p.newError(p.curToken.ErrorLine(), fail.ErrSlotifPosition)
-		return nil
-	default:
-		return p.illegalNode(ast.ChunkKindDirective)
 	}
+
+	return p.illegalNode(ast.ChunkKindDirective)
 }
 
 func (p *Parser) embedded() ast.Chunk {
@@ -226,8 +215,8 @@ func (p *Parser) embedded() ast.Chunk {
 	}
 
 	for !p.curTokenIs(token.RBRACES, token.EOF) {
-		if stmt := p.statement(); stmt != nil {
-			chunk.Statements = append(chunk.Statements, stmt)
+		if elem := p.embeddedElement(); elem != nil {
+			chunk.Elements = append(chunk.Elements, elem)
 		}
 	}
 
@@ -1005,7 +994,7 @@ func (p *Parser) ifStmtHeader(stmt *ast.IfDir) *ast.IllegalNode {
 
 	p.next() // skip "("
 
-	stmt.Condition = p.expression(LOWEST)
+	stmt.Cond = p.expression(LOWEST)
 
 	if !p.expectPeek(token.RPAREN) { // move to ")"
 		return p.illegalNodeUntil(token.END, ast.ChunkKindDirective)
@@ -1198,7 +1187,7 @@ func (p *Parser) block() *ast.Block {
 	return block
 }
 
-func (p *Parser) statement() ast.Statement {
+func (p *Parser) embeddedElement() ast.EmbeddedElement {
 	prevTok := p.curToken
 
 	expr := p.expression(LOWEST)

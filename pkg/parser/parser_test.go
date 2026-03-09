@@ -14,18 +14,18 @@ import (
 )
 
 type parseOpts struct {
-	stmtCount   int
+	chunksCount int
 	inserts     map[string]*ast.InsertDir
 	checkErrors bool
 }
 
 var defaultParseOpts = parseOpts{
-	stmtCount:   1,
+	chunksCount: 1,
 	inserts:     nil,
 	checkErrors: true,
 }
 
-func parseStmts(inp string, opts parseOpts) ([]ast.Statement, error) {
+func parseChunks(inp string, opts parseOpts) ([]ast.Chunk, error) {
 	l := lexer.New(inp)
 	p := New(l, nil)
 	prog := p.ParseProgram()
@@ -34,10 +34,10 @@ func parseStmts(inp string, opts parseOpts) ([]ast.Statement, error) {
 		return nil, p.Errors()[0].Error()
 	}
 
-	if len(prog.Chunks) != opts.stmtCount {
+	if len(prog.Chunks) != opts.chunksCount {
 		return nil, fmt.Errorf(
-			"Program must have %d statement but got %d for input %q",
-			opts.stmtCount,
+			"Program must have %d chunks but got %d for input %q",
+			opts.chunksCount,
 			len(prog.Chunks),
 			inp,
 		)
@@ -46,13 +46,13 @@ func parseStmts(inp string, opts parseOpts) ([]ast.Statement, error) {
 	return prog.Chunks, nil
 }
 
-func testInfixExp(exp ast.Expression, left any, op string, right any) error {
-	infix, ok := exp.(*ast.InfixExpr)
+func testInfixExpr(expr ast.Expression, left any, op string, right any) error {
+	infix, ok := expr.(*ast.InfixExpr)
 	if !ok {
-		return fmt.Errorf("Variable exp is not an InfixExp, got %T", exp)
+		return fmt.Errorf("Variable expr is not an InfixExpr, got %T", expr)
 	}
 
-	if err := testLitExp(infix.Left, left); err != nil {
+	if err := testLiteralExpr(infix.Left, left); err != nil {
 		return err
 	}
 
@@ -60,7 +60,7 @@ func testInfixExp(exp ast.Expression, left any, op string, right any) error {
 		return fmt.Errorf("infix.Op is not %s, got %s", op, infix.Op)
 	}
 
-	if err := testLitExp(infix.Right, right); err != nil {
+	if err := testLiteralExpr(infix.Right, right); err != nil {
 		return err
 	}
 
@@ -87,154 +87,154 @@ func testPosition(actual, expect token.Position) error {
 	return nil
 }
 
-func testIntLit(exp ast.Expression, value int64) error {
-	integer, ok := exp.(*ast.IntExpr)
+func testIntExpr(expr ast.Expression, val int64) error {
+	integer, ok := expr.(*ast.IntExpr)
 	if !ok {
-		return fmt.Errorf("exp is not an IntLit, got %T", exp)
+		return fmt.Errorf("expr is not an IntExpr, got %T", expr)
 	}
 
-	if integer.Val != value {
-		return fmt.Errorf("integer.Val is not %d, got %d", value, integer.Val)
+	if integer.Val != val {
+		return fmt.Errorf("integer.Val is not %d, got %d", val, integer.Val)
 	}
 
-	if integer.Tok().Lit != strconv.FormatInt(value, 10) {
-		return fmt.Errorf("integer.Tok().Lit is not %d, got %s", value, integer.Tok().Lit)
+	if integer.Tok().Lit != strconv.FormatInt(val, 10) {
+		return fmt.Errorf("integer.Tok().Lit is not %d, got %s", val, integer.Tok().Lit)
 	}
 
 	return nil
 }
 
-func testFloatLit(exp ast.Expression, value float64) error {
-	float, ok := exp.(*ast.FloatExpr)
+func testFloatExpr(expr ast.Expression, val float64) error {
+	float, ok := expr.(*ast.FloatExpr)
 	if !ok {
-		return fmt.Errorf("exp is not a FloatLit, got %T", exp)
+		return fmt.Errorf("expr is not a FloatExpr, got %T", expr)
 	}
 
-	if float.Val != value {
-		return fmt.Errorf("float.Val is not %f, got %f", value, float.Val)
+	if float.Val != val {
+		return fmt.Errorf("float.Val is not %f, got %f", val, float.Val)
 	}
 
-	if float.String() != utils.FloatToStr(value) {
-		return fmt.Errorf("float.String() is not %f, got %s", value, float)
+	if float.String() != utils.FloatToStr(val) {
+		return fmt.Errorf("float.String() is not %f, got %s", val, float)
 	}
 
 	return nil
 }
 
-func testNilLit(exp ast.Expression) error {
-	nilLit, ok := exp.(*ast.NilExpr)
+func testNilExpr(expr ast.Expression) error {
+	nilExpr, ok := expr.(*ast.NilExpr)
 	if !ok {
-		return fmt.Errorf("exp is not a NilLit, got %T", exp)
+		return fmt.Errorf("expr is not a NilExpr, got %T", expr)
 	}
 
-	if nilLit.Tok().Lit != "nil" {
-		return fmt.Errorf("nilLit.Tok().Lit is not 'nil', got %s", nilLit.Tok().Lit)
+	if nilExpr.Tok().Lit != "nil" {
+		return fmt.Errorf("nilExpr.Tok().Lit is not 'nil', got %s", nilExpr.Tok().Lit)
 	}
 
 	return nil
 }
 
-func testStrLit(exp ast.Expression, value string) error {
-	str, ok := exp.(*ast.StrExpr)
+func testStrExpr(expr ast.Expression, val string) error {
+	str, ok := expr.(*ast.StrExpr)
 	if !ok {
-		return fmt.Errorf("exp is not a StrLit, got %T", exp)
+		return fmt.Errorf("expr is not a StrExpr, got %T", expr)
 	}
 
-	if str.Val != value {
-		return fmt.Errorf("str.Val is not %s, got %s", value, str.Val)
+	if str.Val != val {
+		return fmt.Errorf("str.Val is not %s, got %s", val, str.Val)
 	}
 
-	if str.Tok().Lit != value {
-		return fmt.Errorf("str.Tok().Lit is not %s, got %s", value, str.Tok().Lit)
+	if str.Tok().Lit != val {
+		return fmt.Errorf("str.Tok().Lit is not %s, got %s", val, str.Tok().Lit)
 	}
 
 	return nil
 }
 
-func testBoolLit(exp ast.Expression, value bool) error {
-	b, ok := exp.(*ast.BoolExpr)
+func testBoolExpr(expr ast.Expression, val bool) error {
+	boolean, ok := expr.(*ast.BoolExpr)
 	if !ok {
-		return fmt.Errorf("exp not *ast.Boolean, got %T", exp)
+		return fmt.Errorf("expr not *ast.BoolExpr, got %T", expr)
 	}
 
-	if b.Val != value {
-		return fmt.Errorf("bo.Val not %t, got %t", value, b.Val)
+	if boolean.Val != val {
+		return fmt.Errorf("boolean.Val not %t, got %t", val, boolean.Val)
 	}
 
-	if b.Tok().Lit != fmt.Sprintf("%t", value) {
-		return fmt.Errorf("b.Tok().Lit is not %t, got %s", value, b.Tok().Lit)
+	if boolean.Tok().Lit != fmt.Sprintf("%t", val) {
+		return fmt.Errorf("boolean.Tok().Lit is not %t, got %s", val, boolean.Tok().Lit)
 	}
 
 	return nil
 }
 
-func testIdent(exp ast.Expression, value string) error {
-	ident, ok := exp.(*ast.IdentExpr)
+func testIdentExpr(expr ast.Expression, val string) error {
+	ident, ok := expr.(*ast.IdentExpr)
 	if !ok {
-		return fmt.Errorf("exp is not an Identifier, got %T", exp)
+		return fmt.Errorf("expr is not an IdentExpr, got %T", expr)
 	}
 
-	if ident.Name != value {
-		return fmt.Errorf("ident.Name is not %s, got %s", value, ident.Name)
+	if ident.Name != val {
+		return fmt.Errorf("ident.Name is not %s, got %s", val, ident.Name)
 	}
 
-	if ident.Tok().Lit != value {
-		return fmt.Errorf("ident.Tok().Lit is not %s, got %s", value, ident.Tok().Lit)
+	if ident.Tok().Lit != val {
+		return fmt.Errorf("ident.Tok().Lit is not %s, got %s", val, ident.Tok().Lit)
 	}
 
 	return nil
 }
 
-func testLitExp(exp ast.Expression, expect any) error {
+func testLiteralExpr(expr ast.Expression, expect any) error {
 	switch v := expect.(type) {
 	case int:
-		return testIntLit(exp, int64(v))
+		return testIntExpr(expr, int64(v))
 	case int64:
-		return testIntLit(exp, v)
+		return testIntExpr(expr, v)
 	case float64:
-		return testFloatLit(exp, v)
+		return testFloatExpr(expr, v)
 	case string:
-		return testStrLit(exp, v)
+		return testStrExpr(expr, v)
 	case bool:
-		return testBoolLit(exp, v)
+		return testBoolExpr(expr, v)
 	case nil:
-		return testNilLit(exp)
+		return testNilExpr(expr)
 	default:
-		return fmt.Errorf("type of exp not handled. got %T", exp)
+		return fmt.Errorf("type of expr not handled. got %T", expr)
 	}
 }
 
-func testIfBlock(stmt ast.Statement, cond any, ifBlock string) error {
-	ifStmt, ok := stmt.(*ast.IfDir)
+func testIfDir(dir ast.Chunk, cond any, ifBlock string) error {
+	ifDir, ok := dir.(*ast.IfDir)
 	if !ok {
-		return fmt.Errorf("stmt is not an IfStmt, got %T", stmt)
+		return fmt.Errorf("dir is not an IfDir, got %T", dir)
 	}
 
-	if err := testLitExp(ifStmt.Condition, cond); err != nil {
+	if err := testLiteralExpr(ifDir.Cond, cond); err != nil {
 		return err
 	}
 
-	if ifStmt.IfBlock.String() != ifBlock {
-		return fmt.Errorf("ifStmt.IfBlock.String() is not %q, got %q", ifBlock, ifStmt.IfBlock)
+	if ifDir.IfBlock.String() != ifBlock {
+		return fmt.Errorf("ifDir.IfBlock.String() is not %q, got %q", ifBlock, ifDir.IfBlock)
 	}
 
 	return nil
 }
 
-func testElseBlock(elseBlock *ast.Block, elseVal string) error {
-	if elseBlock == nil {
-		return fmt.Errorf("elseBlock is nil")
+func testBlock(block *ast.Block, val string) error {
+	if block == nil {
+		return fmt.Errorf("block is nil")
 	}
 
-	if len(elseBlock.Chunks) != 1 {
+	if len(block.Chunks) != 1 {
 		return fmt.Errorf(
-			"elseBlock.Statements does not contain 1 statement, got %d",
-			len(elseBlock.Chunks),
+			"block.Chunks must contain 1 chunk, got %d",
+			len(block.Chunks),
 		)
 	}
 
-	if elseBlock.String() != elseVal {
-		return fmt.Errorf("elseBlock.String() is not %q, got %q", elseBlock, elseVal)
+	if block.String() != val {
+		return fmt.Errorf("block.String() is not %q, got %q", block, val)
 	}
 
 	return nil
@@ -252,31 +252,40 @@ func testToken(tok ast.Node, expect token.TokenType) error {
 }
 
 func TestParseIdentifier(t *testing.T) {
-	stmts, err := parseStmts("{{ myName }}", defaultParseOpts)
+	chunks, err := parseChunks("{{ myName }}", defaultParseOpts)
 	if err != nil {
 		t.Fatal(err)
 	}
-	stmt, ok := stmts[0].(*ast.ExpressionStmt)
 
+	chunk, ok := chunks[0].(*ast.Embedded)
 	if !ok {
-		t.Fatalf("stmts[0] is not an ExpressionStmt, got %T", stmts[0])
+		t.Fatalf("chunks[0] is not an Embedded, got %T", chunks[0])
 	}
 
-	if err := testToken(stmt, token.IDENT); err != nil {
+	if len(chunk.Elements) != 1 {
+		t.Fatalf("chunk.Statements must contain 1 statement, got %d", len(chunk.Elements))
+	}
+
+	stmt, ok := chunk.Elements[0].(*ast.IdentExpr)
+	if !ok {
+		t.Fatalf("chunk.Statements[0] is not an IdentExpr, got %T", chunk.Elements[0])
+	}
+
+	if err := testToken(ident, token.IDENT); err != nil {
 		t.Fatal(err)
 	}
 
-	if err := testToken(stmt.Expression, token.IDENT); err != nil {
+	if err := testToken(ident.Expression, token.IDENT); err != nil {
 		t.Fatal(err)
 	}
 
-	if err := testIdent(stmt.Expression, "myName"); err != nil {
+	if err := testIdentExpr(ident.Expression, "myName"); err != nil {
 		t.Fatal(err)
 	}
 }
 
 func TestParseExpressionStatement(t *testing.T) {
-	stmts, err := parseStmts("{{ 3 / 2 }}", defaultParseOpts)
+	stmts, err := parseChunks("{{ 3 / 2 }}", defaultParseOpts)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -300,7 +309,7 @@ func TestParseExpressionStatement(t *testing.T) {
 }
 
 func TestParseIntLit(t *testing.T) {
-	stmts, err := parseStmts("{{ 234 }}", defaultParseOpts)
+	stmts, err := parseChunks("{{ 234 }}", defaultParseOpts)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -313,7 +322,7 @@ func TestParseIntLit(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if err := testIntLit(stmt.Expression, 234); err != nil {
+	if err := testIntExpr(stmt.Expression, 234); err != nil {
 		t.Fatal(err)
 	}
 	err = testPosition(stmt.Expression.Position(), token.Position{
@@ -326,7 +335,7 @@ func TestParseIntLit(t *testing.T) {
 }
 
 func TestParseFloatLit(t *testing.T) {
-	stmts, err := parseStmts("{{ 2.34149 }}", defaultParseOpts)
+	stmts, err := parseChunks("{{ 2.34149 }}", defaultParseOpts)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -339,7 +348,7 @@ func TestParseFloatLit(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if err := testFloatLit(stmt.Expression, 2.34149); err != nil {
+	if err := testFloatExpr(stmt.Expression, 2.34149); err != nil {
 		t.Fatal(err)
 	}
 	err = testPosition(stmt.Expression.Position(), token.Position{
@@ -352,7 +361,7 @@ func TestParseFloatLit(t *testing.T) {
 }
 
 func TestParseNilLit(t *testing.T) {
-	stmts, err := parseStmts("{{ nil }}", defaultParseOpts)
+	stmts, err := parseChunks("{{ nil }}", defaultParseOpts)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -393,7 +402,7 @@ func TestParseStrLit(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		stmts, err := parseStmts(tc.inp, defaultParseOpts)
+		stmts, err := parseChunks(tc.inp, defaultParseOpts)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -421,7 +430,7 @@ func TestParseStrLit(t *testing.T) {
 func TestStrConcatenation(t *testing.T) {
 	inp := `{{ "Serhii" + " Anna" }}`
 
-	stmts, err := parseStmts(inp, defaultParseOpts)
+	stmts, err := parseChunks(inp, defaultParseOpts)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -456,7 +465,7 @@ func TestStrConcatenation(t *testing.T) {
 func TestExpression(t *testing.T) {
 	test := "{{ 5 + 2 }}"
 
-	stmts, err := parseStmts(test, defaultParseOpts)
+	stmts, err := parseChunks(test, defaultParseOpts)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -474,7 +483,7 @@ func TestExpression(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if err := testIntLit(exp.Right, 2); err != nil {
+	if err := testIntExpr(exp.Right, 2); err != nil {
 		t.Fatal(err)
 	}
 	err = testPosition(exp.Position(), token.Position{
@@ -489,7 +498,7 @@ func TestExpression(t *testing.T) {
 		t.Fatalf("exp.Op is not %s, got %s", "+", exp.Op)
 	}
 
-	if err := testIntLit(exp.Left, 5); err != nil {
+	if err := testIntExpr(exp.Left, 5); err != nil {
 		t.Fatal(err)
 	}
 }
@@ -497,7 +506,7 @@ func TestExpression(t *testing.T) {
 func TestGroupedExpression(t *testing.T) {
 	test := "{{ (5 + 5) * 2 }}"
 
-	stmts, err := parseStmts(test, defaultParseOpts)
+	stmts, err := parseChunks(test, defaultParseOpts)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -515,7 +524,7 @@ func TestGroupedExpression(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if err := testIntLit(exp.Right, 2); err != nil {
+	if err := testIntExpr(exp.Right, 2); err != nil {
 		t.Fatal(err)
 	}
 
@@ -528,7 +537,7 @@ func TestGroupedExpression(t *testing.T) {
 		t.Fatalf("exp.Left is not an InfixExp, got %T", exp.Left)
 	}
 
-	if err := testIntLit(infix.Left, 5); err != nil {
+	if err := testIntExpr(infix.Left, 5); err != nil {
 		t.Fatal(err)
 	}
 
@@ -536,7 +545,7 @@ func TestGroupedExpression(t *testing.T) {
 		t.Fatalf("infix.Op is not %s, got %s", "+", infix.Op)
 	}
 
-	if err := testLitExp(infix.Right, 5); err != nil {
+	if err := testLiteralExpr(infix.Right, 5); err != nil {
 		t.Fatal(err)
 	}
 }
@@ -567,7 +576,7 @@ func TestInfixExp(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		stmts, err := parseStmts(tc.inp, defaultParseOpts)
+		stmts, err := parseChunks(tc.inp, defaultParseOpts)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -607,7 +616,7 @@ func TestBooleanExpression(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		stmts, err := parseStmts(tc.inp, defaultParseOpts)
+		stmts, err := parseChunks(tc.inp, defaultParseOpts)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -636,7 +645,7 @@ func TestPrefixExp(t *testing.T) {
 	cases := []struct {
 		inp    string
 		op     string
-		value  any
+		val    any
 		endCol uint
 		expTok token.TokenType
 	}{
@@ -652,7 +661,7 @@ func TestPrefixExp(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		stmts, err := parseStmts(tc.inp, defaultParseOpts)
+		stmts, err := parseChunks(tc.inp, defaultParseOpts)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -681,7 +690,7 @@ func TestPrefixExp(t *testing.T) {
 			t.Fatalf("exp.Op is not %s, got %s", tc.op, exp.Op)
 		}
 
-		if err := testLitExp(exp.Right, tc.value); err != nil {
+		if err := testLiteralExpr(exp.Right, tc.val); err != nil {
 			t.Fatal(err)
 		}
 	}
@@ -800,10 +809,6 @@ func TestErrorHandling(t *testing.T) {
 			err: fail.New(1, "", "parser", fail.ErrObjKeyUseGet),
 		},
 		{
-			inp: "<div>@slotif(true)No@end</div>",
-			err: fail.New(1, "", "parser", fail.ErrSlotifPosition),
-		},
-		{
 			inp: "{{ 5 + }}",
 			err: fail.New(1, "", "parser", fail.ErrExpectedExpression),
 		},
@@ -857,7 +862,7 @@ func TestErrorHandling(t *testing.T) {
 func TestTernaryExp(t *testing.T) {
 	inp := `{{ true ? 100 : "Some string" }}`
 
-	stmts, err := parseStmts(inp, defaultParseOpts)
+	stmts, err := parseChunks(inp, defaultParseOpts)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -888,7 +893,7 @@ func TestTernaryExp(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if err := testIntLit(exp.IfExpr, 100); err != nil {
+	if err := testIntExpr(exp.IfExpr, 100); err != nil {
 		t.Fatal(err)
 	}
 
@@ -901,7 +906,7 @@ func TestParseIfStmt(t *testing.T) {
 	t.Run("regular @if", func(t *testing.T) {
 		inp := `@if(true)1@end`
 
-		stmts, err := parseStmts(inp, defaultParseOpts)
+		stmts, err := parseChunks(inp, defaultParseOpts)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -922,7 +927,7 @@ func TestParseIfStmt(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		if err := testIfBlock(stmt, true, "1"); err != nil {
+		if err := testIfDir(stmt, true, "1"); err != nil {
 			t.Fatal(err)
 		}
 
@@ -938,7 +943,7 @@ func TestParseIfStmt(t *testing.T) {
 	t.Run("@if with @else", func(t *testing.T) {
 		inp := `@if(true)1@else2@end`
 
-		stmts, err := parseStmts(inp, defaultParseOpts)
+		stmts, err := parseChunks(inp, defaultParseOpts)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -959,11 +964,11 @@ func TestParseIfStmt(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		if err := testIfBlock(stmt, true, "1"); err != nil {
+		if err := testIfDir(stmt, true, "1"); err != nil {
 			t.Fatal(err)
 		}
 
-		if err := testElseBlock(stmt.ElseBlock, "2"); err != nil {
+		if err := testBlock(stmt.ElseBlock, "2"); err != nil {
 			t.Fatal(err)
 		}
 
@@ -990,7 +995,7 @@ func TestParseIfStmt(t *testing.T) {
 			@if(true)Anna@end
 		@end`
 
-		stmts, err := parseStmts(inp, parseOpts{stmtCount: 2, checkErrors: true})
+		stmts, err := parseChunks(inp, parseOpts{chunksCount: 2, checkErrors: true})
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -1028,7 +1033,7 @@ func TestParseIfStmt(t *testing.T) {
 func TestParseIfElseIfStmt(t *testing.T) {
 	inp := `@if(true)first@elseif(false)second@end`
 
-	stmts, err := parseStmts(inp, defaultParseOpts)
+	stmts, err := parseChunks(inp, defaultParseOpts)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -1038,7 +1043,7 @@ func TestParseIfElseIfStmt(t *testing.T) {
 		t.Fatalf("stmts[0] is not an IfStmt, got %T", stmts[0])
 	}
 
-	if err := testIfBlock(stmt, true, "first"); err != nil {
+	if err := testIfDir(stmt, true, "first"); err != nil {
 		t.Fatal(err)
 	}
 
@@ -1084,7 +1089,7 @@ func TestParseIfElseIfStmt(t *testing.T) {
 func TestParseElseIfWithElseStatement(t *testing.T) {
 	inp := `@if(true)1@elseif(false)2@else3@end`
 
-	stmts, err := parseStmts(inp, defaultParseOpts)
+	stmts, err := parseChunks(inp, defaultParseOpts)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -1093,11 +1098,11 @@ func TestParseElseIfWithElseStatement(t *testing.T) {
 		t.Fatalf("stmts[0] is not an IfStmt, got %T", stmts[0])
 	}
 
-	if err := testIfBlock(stmt, true, "1"); err != nil {
+	if err := testIfDir(stmt, true, "1"); err != nil {
 		t.Fatal(err)
 	}
 
-	if err := testElseBlock(stmt.ElseBlock, "3"); err != nil {
+	if err := testBlock(stmt.ElseBlock, "3"); err != nil {
 		t.Fatal(err)
 	}
 
@@ -1187,7 +1192,7 @@ func TestParseAssignStmt(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		stmts, err := parseStmts(tc.inp, defaultParseOpts)
+		stmts, err := parseChunks(tc.inp, defaultParseOpts)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -1216,7 +1221,7 @@ func TestParseAssignStmt(t *testing.T) {
 func TestParseUseStmt(t *testing.T) {
 	inp := `@use("main")`
 
-	stmts, err := parseStmts(inp, defaultParseOpts)
+	stmts, err := parseChunks(inp, defaultParseOpts)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -1255,7 +1260,7 @@ func TestParseReserveStmt(t *testing.T) {
 	inp := `<div>@reserve("content")</div>`
 
 	opts := parseOpts{
-		stmtCount:   3,
+		chunksCount: 3,
 		checkErrors: true,
 		inserts: map[string]*ast.InsertDir{
 			"content": {
@@ -1276,7 +1281,7 @@ func TestParseReserveStmt(t *testing.T) {
 		},
 	}
 
-	stmts, err := parseStmts(inp, opts)
+	stmts, err := parseChunks(inp, opts)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -1311,7 +1316,7 @@ func TestInsertStmt(t *testing.T) {
 	t.Run("@insert with block", func(t *testing.T) {
 		inp := `<h1>@insert("content")<h1>Some content</h1>@end</h1>`
 
-		stmts, err := parseStmts(inp, parseOpts{stmtCount: 3, checkErrors: true})
+		stmts, err := parseChunks(inp, parseOpts{chunksCount: 3, checkErrors: true})
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -1348,7 +1353,7 @@ func TestInsertStmt(t *testing.T) {
 	t.Run("@insert with argument", func(t *testing.T) {
 		inp := "<h1>@insert('content', 'Some content')</h1>"
 
-		stmts, err := parseStmts(inp, parseOpts{stmtCount: 3, checkErrors: true})
+		stmts, err := parseChunks(inp, parseOpts{chunksCount: 3, checkErrors: true})
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -1390,7 +1395,7 @@ func TestInsertStmt(t *testing.T) {
 func TestParseArr(t *testing.T) {
 	inp := `{{ [11, 234,] }}`
 
-	stmts, err := parseStmts(inp, defaultParseOpts)
+	stmts, err := parseChunks(inp, defaultParseOpts)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -1421,11 +1426,11 @@ func TestParseArr(t *testing.T) {
 		t.Fatalf("len(arr.Elements) is not 2, got %d", len(arr.Elements))
 	}
 
-	if err := testIntLit(arr.Elements[0], 11); err != nil {
+	if err := testIntExpr(arr.Elements[0], 11); err != nil {
 		t.Fatal(err)
 	}
 
-	if err := testIntLit(arr.Elements[1], 234); err != nil {
+	if err := testIntExpr(arr.Elements[1], 234); err != nil {
 		t.Fatal(err)
 	}
 }
@@ -1433,7 +1438,7 @@ func TestParseArr(t *testing.T) {
 func TestParseIndexExp(t *testing.T) {
 	inp := `{{ arr[1 + 2][2] }}`
 
-	stmts, err := parseStmts(inp, defaultParseOpts)
+	stmts, err := parseChunks(inp, defaultParseOpts)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -1469,7 +1474,7 @@ func TestParseIndexExp(t *testing.T) {
 func TestParseIncStmt(t *testing.T) {
 	inp := "{{ i++ }}"
 
-	stmts, err := parseStmts(inp, defaultParseOpts)
+	stmts, err := parseChunks(inp, defaultParseOpts)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -1483,7 +1488,7 @@ func TestParseIncStmt(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if err := testIdent(stmt.Left, "i"); err != nil {
+	if err := testIdentExpr(stmt.Left, "i"); err != nil {
 		t.Fatal(err)
 	}
 
@@ -1495,7 +1500,7 @@ func TestParseIncStmt(t *testing.T) {
 func TestParseDecStmt(t *testing.T) {
 	inp := "{{ i-- }}"
 
-	stmts, err := parseStmts(inp, defaultParseOpts)
+	stmts, err := parseChunks(inp, defaultParseOpts)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -1509,7 +1514,7 @@ func TestParseDecStmt(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if err := testIdent(stmt.Left, "i"); err != nil {
+	if err := testIdentExpr(stmt.Left, "i"); err != nil {
 		t.Fatal(err)
 	}
 
@@ -1521,12 +1526,12 @@ func TestParseDecStmt(t *testing.T) {
 func TestParseTwoStatements(t *testing.T) {
 	inp := `{{ name = "Anna"; name }}`
 
-	stmts, err := parseStmts(inp, parseOpts{stmtCount: 2, checkErrors: true})
+	stmts, err := parseChunks(inp, parseOpts{chunksCount: 2, checkErrors: true})
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	if err := testIdent(stmts[0].(*ast.AssignStmt).Left, "name"); err != nil {
+	if err := testIdentExpr(stmts[0].(*ast.AssignStmt).Left, "name"); err != nil {
 		t.Fatal(err)
 	}
 
@@ -1534,7 +1539,7 @@ func TestParseTwoStatements(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if err := testIdent(stmts[1].(*ast.ExpressionStmt).Expression, "name"); err != nil {
+	if err := testIdentExpr(stmts[1].(*ast.ExpressionStmt).Expression, "name"); err != nil {
 		t.Fatal(err)
 	}
 
@@ -1557,18 +1562,18 @@ func TestParseTwoStatements(t *testing.T) {
 
 func TestParseTwoExpression(t *testing.T) {
 	inp := `{{ 1; 2 }}`
-	stmts, err := parseStmts(inp, parseOpts{stmtCount: 2, checkErrors: true})
+	stmts, err := parseChunks(inp, parseOpts{chunksCount: 2, checkErrors: true})
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	exp1 := stmts[0].(*ast.ExpressionStmt).Expression
-	if err := testIntLit(exp1, 1); err != nil {
+	if err := testIntExpr(exp1, 1); err != nil {
 		t.Fatal(err)
 	}
 
 	exp2 := stmts[1].(*ast.ExpressionStmt).Expression
-	if err := testIntLit(exp2, 2); err != nil {
+	if err := testIntExpr(exp2, 2); err != nil {
 		t.Fatal(err)
 	}
 }
@@ -1576,7 +1581,7 @@ func TestParseTwoExpression(t *testing.T) {
 func TestParseGlobalCallExp(t *testing.T) {
 	inp := `{{ defined(var1, var2) }}`
 
-	stmts, err := parseStmts(inp, defaultParseOpts)
+	stmts, err := parseChunks(inp, defaultParseOpts)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -1595,15 +1600,15 @@ func TestParseGlobalCallExp(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if err := testIdent(exp.Function, "defined"); err != nil {
+	if err := testIdentExpr(exp.Function, "defined"); err != nil {
 		t.Fatal(err)
 	}
 
-	if err := testIdent(exp.Arguments[0], "var1"); err != nil {
+	if err := testIdentExpr(exp.Arguments[0], "var1"); err != nil {
 		t.Fatal(err)
 	}
 
-	if err := testIdent(exp.Arguments[1], "var2"); err != nil {
+	if err := testIdentExpr(exp.Arguments[1], "var2"); err != nil {
 		t.Fatal(err)
 	}
 
@@ -1623,7 +1628,7 @@ func TestParseGlobalCallExp(t *testing.T) {
 func TestParseCallExp(t *testing.T) {
 	inp := `{{ "Serhii Cho".split(" ") }}`
 
-	stmts, err := parseStmts(inp, defaultParseOpts)
+	stmts, err := parseChunks(inp, defaultParseOpts)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -1654,7 +1659,7 @@ func TestParseCallExp(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if err := testIdent(exp.Function, "split"); err != nil {
+	if err := testIdentExpr(exp.Function, "split"); err != nil {
 		t.Fatal(err)
 	}
 
@@ -1670,7 +1675,7 @@ func TestParseCallExp(t *testing.T) {
 func TestParseCallExpWithExpressionList(t *testing.T) {
 	inp := `{{ "nice".replace("n", "") }}`
 
-	stmts, err := parseStmts(inp, defaultParseOpts)
+	stmts, err := parseChunks(inp, defaultParseOpts)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -1705,7 +1710,7 @@ func TestParseCallExpWithExpressionList(t *testing.T) {
 func TestParseCallExpWithEmptyString(t *testing.T) {
 	inp := `{{ "".len() }}`
 
-	stmts, err := parseStmts(inp, defaultParseOpts)
+	stmts, err := parseChunks(inp, defaultParseOpts)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -1727,7 +1732,7 @@ func TestParseCallExpWithEmptyString(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if err := testIdent(callExp.Function, "len"); err != nil {
+	if err := testIdentExpr(callExp.Function, "len"); err != nil {
 		t.Fatal(err)
 	}
 }
@@ -1736,7 +1741,7 @@ func TestParseForStmt(t *testing.T) {
 	t.Run("regular @for", func(t *testing.T) {
 		inp := "@for(i = 0; i < 10; i++){{ i }}@end"
 
-		stmts, err := parseStmts(inp, defaultParseOpts)
+		stmts, err := parseChunks(inp, defaultParseOpts)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -1784,7 +1789,7 @@ func TestParseForStmt(t *testing.T) {
 	t.Run("@for with @else block", func(t *testing.T) {
 		inp := `@for(i = 0; i < 0; i++){{ i }}@elseEmpty@end`
 
-		stmts, err := parseStmts(inp, defaultParseOpts)
+		stmts, err := parseChunks(inp, defaultParseOpts)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -1810,7 +1815,7 @@ func TestParseForStmt(t *testing.T) {
 	t.Run("infinite @for", func(t *testing.T) {
 		inp := `@for(;;)1@end`
 
-		stmts, err := parseStmts(inp, defaultParseOpts)
+		stmts, err := parseChunks(inp, defaultParseOpts)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -1846,7 +1851,7 @@ func TestParseEachStmt(t *testing.T) {
 	t.Run("regular @each", func(t *testing.T) {
 		inp := "@each(name in ['anna', 'serhii']){{ name }}@end"
 
-		stmts, err := parseStmts(inp, defaultParseOpts)
+		stmts, err := parseChunks(inp, defaultParseOpts)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -1893,7 +1898,7 @@ func TestParseEachStmt(t *testing.T) {
 	t.Run("@each with @else", func(t *testing.T) {
 		inp := `@each(v in []){{ v }}@elseTest@end`
 
-		stmts, err := parseStmts(inp, defaultParseOpts)
+		stmts, err := parseChunks(inp, defaultParseOpts)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -1962,7 +1967,7 @@ func TestParseEmptyBlock(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		stmts, err := parseStmts(tc.inp, defaultParseOpts)
+		stmts, err := parseChunks(tc.inp, defaultParseOpts)
 		if err != nil {
 			t.Fatalf("Case: %d. %v", tc.id, err)
 		}
@@ -1989,7 +1994,7 @@ func TestParseEmptyBlock(t *testing.T) {
 func TestParseObjStmt(t *testing.T) {
 	inp := `{{ {"father": {name: "John"},} }}`
 
-	stmts, err := parseStmts(inp, defaultParseOpts)
+	stmts, err := parseChunks(inp, defaultParseOpts)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -2037,7 +2042,7 @@ func TestParseObjStmt(t *testing.T) {
 func TestParseObjWithShorthandKeyNotation(t *testing.T) {
 	inp := `{{ { name, age } }}`
 
-	stmts, err := parseStmts(inp, defaultParseOpts)
+	stmts, err := parseChunks(inp, defaultParseOpts)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -2072,7 +2077,7 @@ func TestParseObjWithShorthandKeyNotation(t *testing.T) {
 func TestParseTextStmt(t *testing.T) {
 	inp := "<div><span>Hello</span></div>"
 
-	stmts, err := parseStmts(inp, defaultParseOpts)
+	stmts, err := parseChunks(inp, defaultParseOpts)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -2098,7 +2103,7 @@ func TestParseTextStmt(t *testing.T) {
 func TestParseDotExp(t *testing.T) {
 	inp := "{{ person.father.name }}"
 
-	stmts, err := parseStmts(inp, defaultParseOpts)
+	stmts, err := parseChunks(inp, defaultParseOpts)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -2130,7 +2135,7 @@ func TestParseDotExp(t *testing.T) {
 		t.Fatalf("dotExp.String() is not '((person.father).name)', got %s", exp)
 	}
 
-	if err := testIdent(exp.Key, "name"); err != nil {
+	if err := testIdentExpr(exp.Key, "name"); err != nil {
 		t.Fatal(err)
 	}
 
@@ -2148,11 +2153,11 @@ func TestParseDotExp(t *testing.T) {
 		t.Fatalf("dotExp.Left is not a DotExp, got %T", exp.Left)
 	}
 
-	if err := testIdent(exp.Key, "father"); err != nil {
+	if err := testIdentExpr(exp.Key, "father"); err != nil {
 		t.Fatal(err)
 	}
 
-	if err := testIdent(exp.Left, "person"); err != nil {
+	if err := testIdentExpr(exp.Left, "person"); err != nil {
 		t.Fatal(err)
 	}
 }
@@ -2160,7 +2165,7 @@ func TestParseDotExp(t *testing.T) {
 func TestParseBreakStmt(t *testing.T) {
 	inp := `@break`
 
-	stmts, err := parseStmts(inp, defaultParseOpts)
+	stmts, err := parseChunks(inp, defaultParseOpts)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -2178,7 +2183,7 @@ func TestParseBreakStmt(t *testing.T) {
 func TestParseContinueStmt(t *testing.T) {
 	inp := `@continue`
 
-	stmts, err := parseStmts(inp, defaultParseOpts)
+	stmts, err := parseChunks(inp, defaultParseOpts)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -2196,7 +2201,7 @@ func TestParseContinueStmt(t *testing.T) {
 func TestParseBreakifStmt(t *testing.T) {
 	inp := `@breakif(true)`
 
-	stmts, err := parseStmts(inp, defaultParseOpts)
+	stmts, err := parseChunks(inp, defaultParseOpts)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -2231,7 +2236,7 @@ func TestParseBreakifStmt(t *testing.T) {
 
 func TestParseContinueifStmt(t *testing.T) {
 	inp := "@continueif(false)"
-	stmts, err := parseStmts(inp, defaultParseOpts)
+	stmts, err := parseChunks(inp, defaultParseOpts)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -2267,7 +2272,7 @@ func TestParseContinueifStmt(t *testing.T) {
 func TestParseComponentStmt(t *testing.T) {
 	t.Run("@component without slots", func(t *testing.T) {
 		inp := "<ul>@component('components/book-card', { c: card })</ul>"
-		stmts, err := parseStmts(inp, parseOpts{stmtCount: 3, checkErrors: true})
+		stmts, err := parseChunks(inp, parseOpts{chunksCount: 3, checkErrors: true})
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -2298,7 +2303,7 @@ func TestParseComponentStmt(t *testing.T) {
 			t.Fatalf("len(stmt.Arguments) is not 1, got %d", len(stmt.Argument.Pairs))
 		}
 
-		if err := testIdent(stmt.Argument.Pairs["c"], "card"); err != nil {
+		if err := testIdentExpr(stmt.Argument.Pairs["c"], "card"); err != nil {
 			t.Fatal(err)
 		}
 
@@ -2315,7 +2320,7 @@ func TestParseComponentStmt(t *testing.T) {
 	t.Run("@component with default slot", func(t *testing.T) {
 		inp := `@component("components/book-card")@slot<h1>Header</h1>@end@end`
 
-		stmts, err := parseStmts(inp, parseOpts{stmtCount: 1, checkErrors: true})
+		stmts, err := parseChunks(inp, parseOpts{chunksCount: 1, checkErrors: true})
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -2352,7 +2357,7 @@ func TestParseComponentStmt(t *testing.T) {
 			@end
 		</ul>`
 
-		stmts, err := parseStmts(inp, parseOpts{stmtCount: 3, checkErrors: true})
+		stmts, err := parseChunks(inp, parseOpts{chunksCount: 3, checkErrors: true})
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -2398,7 +2403,7 @@ func TestParseComponentStmt(t *testing.T) {
 
 	t.Run("@component with whitespace at the end", func(t *testing.T) {
 		inp := "@component('some')\n <b>Book</b>"
-		stmts, err := parseStmts(inp, parseOpts{stmtCount: 2, checkErrors: true})
+		stmts, err := parseChunks(inp, parseOpts{chunksCount: 2, checkErrors: true})
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -2435,7 +2440,7 @@ func TestParseComponentStmt(t *testing.T) {
 func TestParseSlotStmt(t *testing.T) {
 	t.Run("named slot", func(t *testing.T) {
 		inp := "<h2>@slot('header')</h2>"
-		stmts, err := parseStmts(inp, parseOpts{stmtCount: 3, checkErrors: true})
+		stmts, err := parseChunks(inp, parseOpts{chunksCount: 3, checkErrors: true})
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -2469,7 +2474,7 @@ func TestParseSlotStmt(t *testing.T) {
 	t.Run("default slot without end", func(t *testing.T) {
 		t.Skip()
 		inp := `<header>@slot</header>`
-		stmts, err := parseStmts(inp, parseOpts{stmtCount: 3, checkErrors: true})
+		stmts, err := parseChunks(inp, parseOpts{chunksCount: 3, checkErrors: true})
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -2502,7 +2507,7 @@ func TestParseSlotStmt(t *testing.T) {
 func TestParseSlotifStmt(t *testing.T) {
 	t.Run("default slotif", func(t *testing.T) {
 		inp := `@component('test')@slotif(true)Test@end@end`
-		stmts, err := parseStmts(inp, parseOpts{stmtCount: 1, checkErrors: true})
+		stmts, err := parseChunks(inp, parseOpts{chunksCount: 1, checkErrors: true})
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -2546,7 +2551,7 @@ func TestParseSlotifStmt(t *testing.T) {
 
 	t.Run("named slotif", func(t *testing.T) {
 		inp := `@component('user')@slotif(false, 'name')Test2@end@end`
-		stmts, err := parseStmts(inp, parseOpts{stmtCount: 1, checkErrors: true})
+		stmts, err := parseChunks(inp, parseOpts{chunksCount: 1, checkErrors: true})
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -2595,7 +2600,7 @@ func TestParseSlotifStmt(t *testing.T) {
 
 func TestParseDumpStmt(t *testing.T) {
 	inp := `@dump("test", 1 + 2, false)`
-	stmts, err := parseStmts(inp, defaultParseOpts)
+	stmts, err := parseChunks(inp, defaultParseOpts)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -2636,7 +2641,7 @@ func TestParseDumpStmt(t *testing.T) {
 func TestParseBlockAsIllegalNode(t *testing.T) {
 	inp := "@if(false)@dump(@end"
 
-	stmts, err := parseStmts(inp, parseOpts{stmtCount: 1, checkErrors: false})
+	stmts, err := parseChunks(inp, parseOpts{chunksCount: 1, checkErrors: false})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -2689,8 +2694,8 @@ func TestParseIllegalNode(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		stmts, err := parseStmts(tc.inp, parseOpts{
-			stmtCount:   tc.stmtCount,
+		stmts, err := parseChunks(tc.inp, parseOpts{
+			chunksCount: tc.stmtCount,
 			checkErrors: false,
 		})
 		if err != nil {

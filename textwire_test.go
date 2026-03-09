@@ -436,11 +436,6 @@ func TestErrorHandling(t *testing.T) {
 		data map[string]any
 	}{
 		{
-			inp:  `<div>@slotif(true)No@end</div>`,
-			err:  fail.New(1, "", "parser", fail.ErrSlotifPosition),
-			data: nil,
-		},
-		{
 			inp: `{{ defined(name.undefinedFunc()) }}`,
 			err: fail.New(
 				1,

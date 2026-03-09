@@ -9,7 +9,7 @@ import (
 
 type IfDir struct {
 	BaseNode
-	Condition  Expression
+	Cond       Expression
 	IfBlock    *Block // @if()<IfBlock>@end
 	ElseBlock  *Block // @else<ElseBlock>@end
 	ElseifDirs []*ElseIfDir
@@ -31,7 +31,7 @@ func (id *IfDir) String() string {
 	var out strings.Builder
 	out.Grow(20 + len(id.ElseifDirs)*2)
 
-	fmt.Fprintf(&out, "@if(%s)\n%s", id.Condition, id.IfBlock)
+	fmt.Fprintf(&out, "@if(%s)\n%s", id.Cond, id.IfBlock)
 
 	for _, e := range id.ElseifDirs {
 		out.WriteString(e.String())

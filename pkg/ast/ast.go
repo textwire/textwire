@@ -43,6 +43,11 @@ type Expression interface {
 	expressionNode()
 }
 
+type EmbeddedElement interface {
+	Statement
+	Expression
+}
+
 type LoopDirective interface {
 	LoopBlock() *Block
 }

@@ -138,7 +138,7 @@ func (e *Evaluator) program(prog *ast.Program, ctx *Context) value.Value {
 }
 
 func (e *Evaluator) _if(ifStmt *ast.IfDir, ctx *Context) value.Value {
-	cond := e.Eval(ifStmt.Condition, ctx)
+	cond := e.Eval(ifStmt.Cond, ctx)
 	if isError(cond) {
 		return cond
 	}
