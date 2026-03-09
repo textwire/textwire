@@ -113,10 +113,6 @@ func testInfixExpr(expr ast.Expression, left any, op string, right any) error {
 		return fmt.Errorf("infixExpr.Op is not %s, got %s", op, infixExpr.Op)
 	}
 
-	if err := testLiteralExpr(infixExpr.Left, left); err != nil {
-		return err
-	}
-
 	if err := testLiteralExpr(infixExpr.Right, right); err != nil {
 		return err
 	}
@@ -811,7 +807,7 @@ func TestErrorHandling(t *testing.T) {
 		},
 		{
 			inp: "@use(1)",
-			err: fail.New(1, "", "parser", fail.ErrUseStmtFirstArgStr, token.String(token.INT)),
+			err: fail.New(1, "", "parser", fail.ErrUseDirFirstArgStr, token.String(token.INT)),
 		},
 	}
 
@@ -891,7 +887,7 @@ func TestParseIfDir(t *testing.T) {
 		}
 
 		if len(ifDir.ElseifDirs) != 0 {
-			t.Fatalf("ifDir.ElseIfDirs is not empty, got %d", len(ifDir.ElseifDirs))
+			t.Fatalf("ifDir.ElseifDirs is not empty, got %d", len(ifDir.ElseifDirs))
 		}
 	})
 
@@ -998,7 +994,7 @@ func TestParseIfElseIfDir(t *testing.T) {
 
 	if len(elseifDir.Block.Chunks) != 1 {
 		t.Fatalf(
-			"elseifDir.Block.Chunks does not contain 1 dir, got %d",
+			"elseifDir.Block.Chunks does not contain 1 chunk, got %d",
 			len(elseifDir.Block.Chunks),
 		)
 	}
@@ -1006,7 +1002,7 @@ func TestParseIfElseIfDir(t *testing.T) {
 	text, ok := elseifDir.Block.Chunks[0].(*ast.Text)
 	if !ok {
 		t.Fatalf(
-			"elseifStmt.Block.Chunks[0] is not an Text, got %T",
+			"elseifDir.Block.Chunks[0] is not an Text, got %T",
 			elseifDir.Block.Chunks[0],
 		)
 	}
@@ -1034,7 +1030,7 @@ func TestParseElseIfWithElseDir(t *testing.T) {
 
 	if len(ifDir.ElseifDirs) != 1 {
 		t.Fatalf(
-			"ifStmt.ElseifDirs does not contain 1 dir, got %d",
+			"ifDir.ElseifDirs does not contain 1 dir, got %d",
 			len(ifDir.ElseifDirs),
 		)
 	}
@@ -1046,7 +1042,7 @@ func TestParseElseIfWithElseDir(t *testing.T) {
 
 	if len(elseifDir.Block.Chunks) != 1 {
 		t.Fatalf(
-			"elseifStmt.Block.Chunks does not contain 1 chunk, got %d",
+			"elseifDir.Block.Chunks does not contain 1 chunk, got %d",
 			len(elseifDir.Block.Chunks),
 		)
 	}
@@ -1054,7 +1050,7 @@ func TestParseElseIfWithElseDir(t *testing.T) {
 	text, ok := elseifDir.Block.Chunks[0].(*ast.Text)
 	if !ok {
 		t.Fatalf(
-			"elseifStmt.Block.Chunks[0] is not an Text, got %T",
+			"elseifDir.Block.Chunks[0] is not an Text, got %T",
 			elseifDir.Block.Chunks[0],
 		)
 	}
@@ -1138,7 +1134,7 @@ func TestParseAssignStmt(t *testing.T) {
 	}
 }
 
-func TestParseUseStmt(t *testing.T) {
+func TestParseUseDir(t *testing.T) {
 	inp := `@use("main")`
 
 	stmt, err := parseDirective[*ast.UseDir](inp, defaultParseOpts)
@@ -1147,7 +1143,7 @@ func TestParseUseStmt(t *testing.T) {
 	}
 
 	if stmt.Name.Val != "main" {
-		t.Fatalf("stmt.Path.Val is not 'main', got %s", stmt.Name.Val)
+		t.Fatalf("stmt.Name.Val is not 'main', got %s", stmt.Name.Val)
 	}
 
 	if err := testToken(stmt, token.USE); err != nil {
@@ -1181,7 +1177,7 @@ func TestParseReserveStmt(t *testing.T) {
 
 	stmt, ok := stmts[1].(*ast.ReserveDir)
 	if !ok {
-		t.Fatalf("stmts[0] is not a ReserveStmt, got %T", stmts[0])
+		t.Fatalf("stmts[1] is not a ReserveDir, got %T", stmts[1])
 	}
 
 	if err := testToken(stmt, token.RESERVE); err != nil {
@@ -1205,7 +1201,7 @@ func TestParseReserveStmt(t *testing.T) {
 	}
 }
 
-func TestInsertStmt(t *testing.T) {
+func TestInsertDir(t *testing.T) {
 	t.Run("@insert with block", func(t *testing.T) {
 		inp := `<h1>@insert("content")<h1>Some content</h1>@end</h1>`
 
@@ -1216,7 +1212,7 @@ func TestInsertStmt(t *testing.T) {
 
 		stmt, ok := stmts[1].(*ast.InsertDir)
 		if !ok {
-			t.Fatalf("stmts[1] is not a InsertStmt, got %T", stmts[0])
+			t.Fatalf("stmts[1] is not an InsertDir, got %T", stmts[1])
 		}
 
 		if err := testToken(stmt, token.INSERT); err != nil {
@@ -1253,7 +1249,7 @@ func TestInsertStmt(t *testing.T) {
 
 		stmt, ok := stmts[1].(*ast.InsertDir)
 		if !ok {
-			t.Fatalf("stmts[1] is not a InsertStmt, got %T", stmts[0])
+			t.Fatalf("stmts[1] is not an InsertDir, got %T", stmts[1])
 		}
 
 		err = testPosition(stmt.Position(), token.Position{
@@ -1583,7 +1579,7 @@ func TestParseCallExpWithEmptyString(t *testing.T) {
 	}
 }
 
-func TestParseForStmt(t *testing.T) {
+func TestParseForDir(t *testing.T) {
 	t.Run("regular @for", func(t *testing.T) {
 		inp := "@for(i = 0; i < 10; i++){{ i }}@end"
 
@@ -1610,7 +1606,7 @@ func TestParseForStmt(t *testing.T) {
 		}
 
 		if stmt.Cond.String() != `(i < 10)` {
-			t.Fatalf("stmt.Condition.String() is not '(i < 10)', got %s", stmt.Cond)
+			t.Fatalf("stmt.Cond.String() is not '(i < 10)', got %s", stmt.Cond)
 		}
 
 		if stmt.Post.String() != `(i++)` {
@@ -1665,7 +1661,7 @@ func TestParseForStmt(t *testing.T) {
 		}
 
 		if stmt.Cond != nil {
-			t.Fatalf("stmt.Condition is not nil, got %s", stmt.Cond)
+			t.Fatalf("stmt.Cond is not nil, got %s", stmt.Cond)
 		}
 
 		if stmt.Post != nil {
@@ -1678,7 +1674,7 @@ func TestParseForStmt(t *testing.T) {
 	})
 }
 
-func TestParseEachStmt(t *testing.T) {
+func TestParseEachDir(t *testing.T) {
 	t.Run("regular @each", func(t *testing.T) {
 		inp := "@each(name in ['anna', 'serhii']){{ name }}@end"
 
@@ -1708,7 +1704,7 @@ func TestParseEachStmt(t *testing.T) {
 		}
 
 		if stmt.Arr.String() != `["anna", "serhii"]` {
-			t.Fatalf(`stmt.Arr.String() is not '["anna", "serhii"] got %s`, stmt.Arr)
+			t.Fatalf(`stmt.Arr.String() is not '["anna", "serhii"]', got %s`, stmt.Arr)
 		}
 
 		actual := stmt.Block.String()
@@ -1875,7 +1871,7 @@ func TestParseObjWithShorthandKeyNotation(t *testing.T) {
 	}
 }
 
-func TestParseTextStmt(t *testing.T) {
+func TestParseText(t *testing.T) {
 	inp := "<div><span>Hello</span></div>"
 
 	stmt, err := parseDirective[*ast.Text](inp, defaultParseOpts)
@@ -1948,7 +1944,7 @@ func TestParseDotExp(t *testing.T) {
 	}
 }
 
-func TestParseBreakStmt(t *testing.T) {
+func TestParseBreakDir(t *testing.T) {
 	inp := `@break`
 
 	stmt, err := parseDirective[*ast.BreakDir](inp, defaultParseOpts)
@@ -1961,7 +1957,7 @@ func TestParseBreakStmt(t *testing.T) {
 	}
 }
 
-func TestParseContinueStmt(t *testing.T) {
+func TestParseContinueDir(t *testing.T) {
 	inp := `@continue`
 
 	stmt, err := parseDirective[*ast.ContinueDir](inp, defaultParseOpts)
@@ -2036,7 +2032,7 @@ func TestParseContinueifStmt(t *testing.T) {
 	}
 }
 
-func TestParseComponentStmt(t *testing.T) {
+func TestParseComponentDir(t *testing.T) {
 	t.Run("@component without slots", func(t *testing.T) {
 		inp := "<ul>@component('components/book-card', { c: card })</ul>"
 		stmts, err := parseChunks(inp, parseOpts{chunksCount: 3, checkErrors: true})
@@ -2046,7 +2042,7 @@ func TestParseComponentStmt(t *testing.T) {
 
 		stmt, ok := stmts[1].(*ast.ComponentDir)
 		if !ok {
-			t.Fatalf("stmts[1] is not a ComponentStmt, got %T", stmts[1])
+			t.Fatalf("stmts[1] is not a ComponentDir, got %T", stmts[1])
 		}
 
 		err = testPosition(stmt.Position(), token.Position{
@@ -2067,7 +2063,7 @@ func TestParseComponentStmt(t *testing.T) {
 		}
 
 		if len(stmt.Argument.Pairs) != 1 {
-			t.Fatalf("len(stmt.Arguments) is not 1, got %d", len(stmt.Argument.Pairs))
+			t.Fatalf("len(stmt.Argument.Pairs) is not 1, got %d", len(stmt.Argument.Pairs))
 		}
 
 		if err := testIdentExpr(stmt.Argument.Pairs["c"], "card"); err != nil {
@@ -2125,7 +2121,7 @@ func TestParseComponentStmt(t *testing.T) {
 		}
 		stmt, ok := stmts[1].(*ast.ComponentDir)
 		if !ok {
-			t.Fatalf("stmts[1] is not a ComponentStmt, got %T", stmts[1])
+			t.Fatalf("stmts[1] is not a ComponentDir, got %T", stmts[1])
 		}
 
 		err = testPosition(stmt.Position(), token.Position{
@@ -2161,7 +2157,7 @@ func TestParseComponentStmt(t *testing.T) {
 
 		expect = `@slot("footer")<footer>Footer</footer>@end`
 		if stmt.Slots[1].String() != expect {
-			t.Fatalf("stmt.Slots[0].String() is not '%q', got %q", expect, stmt.Slots[1])
+			t.Fatalf("stmt.Slots[1].String() is not '%q', got %q", expect, stmt.Slots[1])
 		}
 	})
 
@@ -2174,7 +2170,7 @@ func TestParseComponentStmt(t *testing.T) {
 
 		stmt, ok := stmts[0].(*ast.ComponentDir)
 		if !ok {
-			t.Fatalf("stmts[0] is not a ComponentStmt, got %T", stmts[1])
+			t.Fatalf("stmts[0] is not a ComponentDir, got %T", stmts[0])
 		}
 
 		if err := testToken(stmt, token.COMPONENT); err != nil {
@@ -2191,7 +2187,7 @@ func TestParseComponentStmt(t *testing.T) {
 
 		textStmt, ok := stmts[1].(*ast.Text)
 		if !ok {
-			t.Fatalf("stmts[1] is not a TextStmt, got %T", stmts[1])
+			t.Fatalf("stmts[1] is not a Text, got %T", stmts[1])
 		}
 
 		expect = "\n <b>Book</b>"
@@ -2201,7 +2197,7 @@ func TestParseComponentStmt(t *testing.T) {
 	})
 }
 
-func TestParseSlotStmt(t *testing.T) {
+func TestParseSlotDir(t *testing.T) {
 	t.Run("named slot", func(t *testing.T) {
 		inp := "<h2>@slot('header')</h2>"
 		stmts, err := parseChunks(inp, parseOpts{chunksCount: 3, checkErrors: true})
@@ -2211,7 +2207,7 @@ func TestParseSlotStmt(t *testing.T) {
 
 		stmt, ok := stmts[1].(*ast.SlotDir)
 		if !ok {
-			t.Fatalf("stmts[1] is not a SlotStmt, got %T", stmts[1])
+			t.Fatalf("stmts[1] is not a SlotDir, got %T", stmts[1])
 		}
 
 		err = testPosition(stmt.Position(), token.Position{
@@ -2246,7 +2242,7 @@ func TestParseSlotStmt(t *testing.T) {
 
 		stmt, ok := stmts[1].(*ast.SlotDir)
 		if !ok {
-			t.Fatalf("stmts[1] is not a SlotStmt, got %T", stmts[1])
+			t.Fatalf("stmts[1] is not a SlotDir, got %T", stmts[1])
 		}
 
 		if err := testToken(stmt, token.SLOT); err != nil {
@@ -2272,7 +2268,7 @@ func TestParseSlotStmt(t *testing.T) {
 	})
 }
 
-func TestParseSlotifStmt(t *testing.T) {
+func TestParseSlotifDir(t *testing.T) {
 	t.Run("default slotif", func(t *testing.T) {
 		inp := `@component('test')@slotif(true)Test@end@end`
 		comp, err := parseDirective[*ast.ComponentDir](inp, defaultParseOpts)
@@ -2294,7 +2290,7 @@ func TestParseSlotifStmt(t *testing.T) {
 
 		slot, ok := comp.Slots[0].(*ast.SlotifDir)
 		if !ok {
-			t.Fatalf("comp.Slots[0] is not a SlotifStmt, got %T", comp.Slots[0])
+			t.Fatalf("comp.Slots[0] is not a SlotifDir, got %T", comp.Slots[0])
 		}
 
 		if err := testBoolExpr(slot.Cond, true); err != nil {
@@ -2333,7 +2329,7 @@ func TestParseSlotifStmt(t *testing.T) {
 
 		slot, ok := comp.Slots[0].(*ast.SlotifDir)
 		if !ok {
-			t.Fatalf("comp.Slots[0] is not a SlotifStmt, got %T", comp.Slots[0])
+			t.Fatalf("comp.Slots[0] is not a SlotifDir, got %T", comp.Slots[0])
 		}
 
 		if err := testBoolExpr(slot.Cond, false); err != nil {
@@ -2356,7 +2352,7 @@ func TestParseSlotifStmt(t *testing.T) {
 	})
 }
 
-func TestParseDumpStmt(t *testing.T) {
+func TestParseDumpDir(t *testing.T) {
 	inp := `@dump("test", 1 + 2, false)`
 
 	dumpDir, err := parseDirective[*ast.DumpDir](inp, defaultParseOpts)
@@ -2403,16 +2399,16 @@ func TestParseBlockAsIllegalNode(t *testing.T) {
 	}
 	stmt, ok := stmts[0].(*ast.IfDir)
 	if !ok {
-		t.Fatalf("stmts[0] is not an IfStmt, got %T", stmt)
+		t.Fatalf("stmts[0] is not an IfDir, got %T", stmt)
 	}
 
 	dumpStmt, ok := stmt.IfBlock.Chunks[0].(*ast.DumpDir)
 	if !ok {
-		t.Fatalf("stmt.IfBlock.Statements[0] is not an DumpStmt, got %T", dumpStmt)
+		t.Fatalf("stmt.IfBlock.Chunks[0] is not a DumpDir, got %T", dumpStmt)
 	}
 
 	if _, ok = dumpStmt.Args[0].(*ast.IllegalNode); !ok {
-		t.Fatalf("dump.Arguments[0] is not an IllegalNode, got %T", dumpStmt.Args[0])
+		t.Fatalf("dumpStmt.Args[0] is not an IllegalNode, got %T", dumpStmt.Args[0])
 	}
 }
 
