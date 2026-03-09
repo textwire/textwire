@@ -1124,14 +1124,9 @@ func TestParseAssignStmt(t *testing.T) {
 func TestParseUseStmt(t *testing.T) {
 	inp := `@use("main")`
 
-	stmts, err := parseChunks(inp, defaultParseOpts)
+	stmt, err := parseEmbeddedNode[*ast.UseDir](inp, defaultParseOpts)
 	if err != nil {
 		t.Fatal(err)
-	}
-
-	stmt, ok := stmts[0].(*ast.UseDir)
-	if !ok {
-		t.Fatalf("stmts[0] is not a UseStmt, got %T", stmts[0])
 	}
 
 	if stmt.Name.Val != "main" {
@@ -1969,14 +1964,9 @@ func TestParseDotExp(t *testing.T) {
 func TestParseBreakStmt(t *testing.T) {
 	inp := `@break`
 
-	stmts, err := parseChunks(inp, defaultParseOpts)
+	stmt, err := parseEmbeddedNode[*ast.BreakDir](inp, defaultParseOpts)
 	if err != nil {
 		t.Fatal(err)
-	}
-
-	stmt, ok := stmts[0].(*ast.BreakDir)
-	if !ok {
-		t.Fatalf("stmts[0] is not a BreakStmt, got %T", stmts[0])
 	}
 
 	if err := testToken(stmt, token.BREAK); err != nil {
@@ -1987,14 +1977,9 @@ func TestParseBreakStmt(t *testing.T) {
 func TestParseContinueStmt(t *testing.T) {
 	inp := `@continue`
 
-	stmts, err := parseChunks(inp, defaultParseOpts)
+	stmt, err := parseEmbeddedNode[*ast.ContinueDir](inp, defaultParseOpts)
 	if err != nil {
 		t.Fatal(err)
-	}
-
-	stmt, ok := stmts[0].(*ast.ContinueDir)
-	if !ok {
-		t.Fatalf("stmts[0] is not a ContinueStmt, got %T", stmts[0])
 	}
 
 	if err := testToken(stmt, token.CONTINUE); err != nil {
@@ -2005,14 +1990,9 @@ func TestParseContinueStmt(t *testing.T) {
 func TestParseBreakifStmt(t *testing.T) {
 	inp := `@breakif(true)`
 
-	stmts, err := parseChunks(inp, defaultParseOpts)
+	stmt, err := parseEmbeddedNode[*ast.BreakifDir](inp, defaultParseOpts)
 	if err != nil {
 		t.Fatal(err)
-	}
-
-	stmt, ok := stmts[0].(*ast.BreakifDir)
-	if !ok {
-		t.Fatalf("stmts[0] is not a BreakIfStmt, got %T", stmts[0])
 	}
 
 	err = testPosition(stmt.Position(), token.Position{
@@ -2040,14 +2020,10 @@ func TestParseBreakifStmt(t *testing.T) {
 
 func TestParseContinueifStmt(t *testing.T) {
 	inp := "@continueif(false)"
-	stmts, err := parseChunks(inp, defaultParseOpts)
+
+	stmt, err := parseEmbeddedNode[*ast.ContinueifDir](inp, defaultParseOpts)
 	if err != nil {
 		t.Fatal(err)
-	}
-
-	stmt, ok := stmts[0].(*ast.ContinueifDir)
-	if !ok {
-		t.Fatalf("stmts[0] is not a ContinueIfStmt, got %T", stmts[0])
 	}
 
 	err = testPosition(stmt.Position(), token.Position{
