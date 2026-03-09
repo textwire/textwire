@@ -294,7 +294,7 @@ func (e *Evaluator) assignDotExp(
 func (e *Evaluator) use(useStmt *ast.UseDir, ctx *Context) value.Value {
 	if useStmt.LayoutProg == nil {
 		if e.usingTemplates {
-			return e.newError(useStmt, ctx, fail.ErrUseStmtMissingLayout, useStmt.Name.Val)
+			return e.newError(useStmt, ctx, fail.ErrUseDirMissingLayout, useStmt.Name.Val)
 		}
 		return e.newError(useStmt, ctx, fail.ErrSomeDirsOnlyInTemplates)
 	}
@@ -303,7 +303,7 @@ func (e *Evaluator) use(useStmt *ast.UseDir, ctx *Context) value.Value {
 
 	// Make sure that layout is missing @use
 	if useStmt.LayoutProg.IsLayout && useStmt.LayoutProg.HasUseDir() {
-		return e.newError(useStmt, ctx, fail.ErrUseStmtNotAllowed)
+		return e.newError(useStmt, ctx, fail.ErrDirStmtNotAllowed)
 	}
 
 	// Create new layout context and pass inserts to it

@@ -425,7 +425,7 @@ func (p *Parser) useDir() ast.Chunk {
 	if p.curToken.Type != token.STR {
 		p.newError(
 			p.curToken.ErrorLine(),
-			fail.ErrUseStmtFirstArgStr,
+			fail.ErrUseDirFirstArgStr,
 			token.String(p.curToken.Type),
 		)
 	}

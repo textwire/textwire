@@ -71,7 +71,7 @@ func (nl *NodeLinker) handleLayoutLinking(prog *ast.Program) *fail.Error {
 	layoutName := prog.UseDir.Name.Val
 	layoutProg := ast.FindProg(layoutName, nl.Programs)
 	if layoutProg == nil {
-		return fail.New(prog.Line(), prog.AbsPath, "API", fail.ErrUseStmtMissingLayout, layoutName)
+		return fail.New(prog.Line(), prog.AbsPath, "API", fail.ErrUseDirMissingLayout, layoutName)
 	}
 
 	layoutProg.IsLayout = true

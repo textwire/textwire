@@ -27,7 +27,7 @@ const (
 	ErrExpectedUseName        = "@use('') cannot have empty name"
 	ErrUnusedInsertDetected   = "@insert('%s') needs to have a matching @reserve('%s') in layout file"
 	ErrDuplicateInserts       = "duplicate @insert('%s') found"
-	ErrUseStmtFirstArgStr     = "argument 1 of @use(str) must be a string, got @use('%s')"
+	ErrUseDirFirstArgStr      = "argument 1 of @use(str) must be a string, got @use('%s')"
 	ErrOnlyOneUseDir          = "@use() directive can only be used once per template"
 
 	// Evaluator (interpreter) errors
@@ -48,7 +48,7 @@ const (
 	ErrArrIndexOutOfBound      = "index %d out of bounds for array of length %d"
 	ErrSomeDirsOnlyInTemplates = "@use, @insert, @reserve, @component only allowed in templates"
 	ErrInsertRequiresUse       = "@insert('%s') cannot be used without @use()"
-	ErrUseStmtMissingLayout    = "@use('%s') missing layout file"
+	ErrUseDirMissingLayout     = "@use('%s') missing layout file"
 	ErrGlobalFuncMissing       = "global function %s() not found"
 	ErrKeyOnNonObj             = "'%s' type does not support attribute '%s' access"
 	ErrIllegalTypeForInc       = "cannot increment '%s', only integer and float are allowed"
@@ -65,7 +65,7 @@ const (
 
 	// Template errors
 	ErrUnsupportedType       = "unsupported value type '%T'"
-	ErrUseStmtNotAllowed     = "@use() not allowed in layout files - causes infinite recursion"
+	ErrDirStmtNotAllowed     = "@use() not allowed in layout files - causes infinite recursion"
 	ErrTemplateNotFound      = "template file '%s' not found"
 	ErrDefaultSlotNotDefined = "default @slot not defined in @component('%s')"
 
