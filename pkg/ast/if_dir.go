@@ -21,7 +21,11 @@ func NewIfDir(tok token.Token) *IfDir {
 	}
 }
 
-func (id *IfDir) statementNode() {}
+func (_ *IfDir) chunkNode() {}
+
+func (_ *IfDir) Kind() ChunkKind {
+	return ChunkKindDirective
+}
 
 func (id *IfDir) String() string {
 	var out strings.Builder
