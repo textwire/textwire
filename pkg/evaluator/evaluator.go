@@ -44,8 +44,6 @@ func (e *Evaluator) Eval(node ast.Node, ctx *Context) value.Value {
 		return e.program(node, ctx)
 	case *ast.Text:
 		return &value.Text{Val: node.String()}
-	case *ast.ExpressionStmt:
-		return e.Eval(node.Expression, ctx)
 	case *ast.IfDir:
 		return e._if(node, ctx)
 	case *ast.Block:
@@ -149,12 +147,9 @@ func (e *Evaluator) _if(ifStmt *ast.IfDir, ctx *Context) value.Value {
 	}
 
 	for i := range ifStmt.ElseifDirs {
-		elseifNode, ok := ifStmt.ElseifDirs[i].(*ast.ElseIfDir)
-		if !ok {
-			continue
-		}
+		elseifNode := ifStmt.ElseifDirs[i]
 
-		cond = e.Eval(elseifNode.Condition, ifCtx)
+		cond = e.Eval(elseifNode.Cond, ifCtx)
 		if isError(cond) {
 			return cond
 		}
@@ -420,8 +415,8 @@ func (e *Evaluator) forStmt(forStmt *ast.ForDir, ctx *Context) value.Value {
 	}
 
 	// Evaluate ElseBlock block if user's condition is false
-	if forStmt.Condition != nil {
-		cond := e.Eval(forStmt.Condition, forCtx)
+	if forStmt.Cond != nil {
+		cond := e.Eval(forStmt.Cond, forCtx)
 		if isError(cond) {
 			return cond
 		}
@@ -435,8 +430,8 @@ func (e *Evaluator) forStmt(forStmt *ast.ForDir, ctx *Context) value.Value {
 
 	// Loop through the block until the user's condition is false
 	for {
-		if forStmt.Condition != nil {
-			cond := e.Eval(forStmt.Condition, forCtx)
+		if forStmt.Cond != nil {
+			cond := e.Eval(forStmt.Cond, forCtx)
 			if isError(cond) {
 				return cond
 			}
@@ -527,7 +522,7 @@ func (e *Evaluator) each(eachStmt *ast.EachDir, ctx *Context) value.Value {
 }
 
 func (e *Evaluator) breakif(breakifStmt *ast.BreakifDir, ctx *Context) value.Value {
-	cond := e.Eval(breakifStmt.Condition, ctx)
+	cond := e.Eval(breakifStmt.Cond, ctx)
 	if isError(cond) {
 		return cond
 	}
@@ -540,7 +535,7 @@ func (e *Evaluator) breakif(breakifStmt *ast.BreakifDir, ctx *Context) value.Val
 }
 
 func (e *Evaluator) continueif(contifStmt *ast.ContinueifDir, ctx *Context) value.Value {
-	cond := e.Eval(contifStmt.Condition, ctx)
+	cond := e.Eval(contifStmt.Cond, ctx)
 	if isError(cond) {
 		return cond
 	}
@@ -560,7 +555,7 @@ func (e *Evaluator) slot(slotStmt *ast.SlotDir, ctx *Context) value.Value {
 }
 
 func (e *Evaluator) slotif(slotifStmt *ast.SlotifDir, ctx *Context) value.Value {
-	cond := e.Eval(slotifStmt.Condition, ctx)
+	cond := e.Eval(slotifStmt.Cond, ctx)
 	if isError(cond) {
 		return cond
 	}
@@ -653,10 +648,10 @@ func (e *Evaluator) combineInsertContent(insertStmt *ast.InsertDir, ctx *Context
 }
 
 func (e *Evaluator) dump(dumpStmt *ast.DumpDir, ctx *Context) value.Value {
-	values := make([]string, 0, len(dumpStmt.Arguments))
+	values := make([]string, 0, len(dumpStmt.Args))
 
-	for i := range dumpStmt.Arguments {
-		evaluated := e.Eval(dumpStmt.Arguments[i], ctx)
+	for i := range dumpStmt.Args {
+		evaluated := e.Eval(dumpStmt.Args[i], ctx)
 		values = append(values, evaluated.Dump(0))
 	}
 

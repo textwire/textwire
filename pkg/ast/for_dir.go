@@ -10,7 +10,7 @@ import (
 type ForDir struct {
 	BaseNode
 	Init      Statement  // Initialization statement; or nil
-	Condition Expression // Condition expression; or nil
+	Cond      Expression // Condition expression; or nil
 	Post      Statement  // Post iteration statement; or nil
 	ElseBlock *Block     // @else block
 	Block     *Block
@@ -39,7 +39,7 @@ func (fd *ForDir) String() string {
 	var out strings.Builder
 	out.Grow(20)
 
-	fmt.Fprintf(&out, "@for(%s; %s; %s)\n", fd.Init, fd.Condition, fd.Post)
+	fmt.Fprintf(&out, "@for(%s; %s; %s)\n", fd.Init, fd.Cond, fd.Post)
 
 	out.WriteString(fd.Block.String() + "\n")
 

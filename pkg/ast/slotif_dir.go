@@ -9,7 +9,7 @@ import (
 // SlotifDir cannot be external and live in component file.
 type SlotifDir struct {
 	BaseNode  // @slotif(bool, 'name'?)
-	Condition Expression
+	Cond      Expression
 	CompName  string   // Component name
 	isDefault bool     // Whether the slot is named or default
 	name      *StrExpr // Empty when @slot is default
@@ -56,7 +56,7 @@ func (sd *SlotifDir) String() string {
 
 	out.WriteString(sd.Token.Lit)
 	out.WriteString("(")
-	out.WriteString(sd.Condition.String())
+	out.WriteString(sd.Cond.String())
 
 	if sd.name.Val != "" {
 		out.WriteString(", ")

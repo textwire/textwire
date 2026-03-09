@@ -8,7 +8,7 @@ import (
 
 type ContinueifDir struct {
 	BaseNode
-	Condition Expression
+	Cond Expression
 }
 
 func NewContinueIfDir(tok token.Token) *ContinueifDir {
@@ -24,5 +24,5 @@ func (_ *ContinueifDir) Kind() ChunkKind {
 }
 
 func (cd *ContinueifDir) String() string {
-	return fmt.Sprintf("%s(%s)", cd.Token.Lit, cd.Condition)
+	return fmt.Sprintf("%s(%s)", cd.Token.Lit, cd.Cond)
 }

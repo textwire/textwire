@@ -8,7 +8,7 @@ import (
 
 func TestFindSlotIndex(t *testing.T) {
 	t.Run("found", func(t *testing.T) {
-		slots := []Statement{
+		slots := []Chunk{
 			NewSlotDir(token.Token{}, &StrExpr{Val: "country"}, "", false),
 			NewSlotDir(token.Token{}, &StrExpr{Val: "city"}, "", false),
 			NewSlotDir(token.Token{}, &StrExpr{Val: "street"}, "", false),
@@ -20,7 +20,7 @@ func TestFindSlotIndex(t *testing.T) {
 	})
 
 	t.Run("not found", func(t *testing.T) {
-		slots := []Statement{
+		slots := []Chunk{
 			NewSlotDir(token.Token{}, &StrExpr{Val: "country"}, "", false),
 			NewSlotDir(token.Token{}, &StrExpr{Val: "city"}, "", false),
 			NewSlotDir(token.Token{}, &StrExpr{Val: "street"}, "", false),

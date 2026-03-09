@@ -215,8 +215,13 @@ func (p *Parser) embedded() ast.Chunk {
 	}
 
 	for !p.curTokenIs(token.RBRACES, token.EOF) {
-		if elem := p.statement(); elem != nil {
-			chunk.Statements = append(chunk.Statements, elem)
+		if stmt := p.statement(); stmt != nil {
+			chunk.Nodes = append(chunk.Nodes, stmt)
+			continue
+		}
+
+		if expr := p.expression(LOWEST); expr != nil {
+			chunk.Nodes = append(chunk.Nodes, expr)
 		}
 	}
 
@@ -458,7 +463,7 @@ func (p *Parser) breakifDir() ast.Chunk {
 
 	p.next() // skip "("
 
-	dir.Condition = p.expression(LOWEST)
+	dir.Cond = p.expression(LOWEST)
 
 	if !p.expectPeek(token.RPAREN) { // move to ")"
 		return p.illegalNode(ast.ChunkKindDirective)
@@ -478,7 +483,7 @@ func (p *Parser) continueifDir() ast.Chunk {
 
 	p.next() // skip "("
 
-	dir.Condition = p.expression(LOWEST)
+	dir.Cond = p.expression(LOWEST)
 
 	if !p.expectPeek(token.RPAREN) { // move to ")"
 		return p.illegalNode(ast.ChunkKindDirective)
@@ -699,7 +704,7 @@ func (p *Parser) slotifDirHeader(dir *ast.SlotifDir, name *ast.StrExpr) *ast.Ill
 
 	p.next() // skip "("
 
-	dir.Condition = p.expression(LOWEST)
+	dir.Cond = p.expression(LOWEST)
 
 	// When slot has name
 	if p.peekIs(token.COMMA) {
@@ -1011,7 +1016,7 @@ func (p *Parser) elseifDir() (*ast.ElseIfDir, *ast.IllegalNode) {
 	p.next() // skip "@elseif"
 	p.next() // skip "("
 
-	dir.Condition = p.expression(LOWEST)
+	dir.Cond = p.expression(LOWEST)
 
 	if !p.expectPeek(token.RPAREN) { // move to ")"
 		return nil, p.illegalNode(ast.ChunkKindDirective)
@@ -1088,7 +1093,7 @@ func (p *Parser) forDirHeader(dir *ast.ForDir) *ast.IllegalNode {
 	// Parse Condition
 	if !p.peekIs(token.SEMI) {
 		p.next() // skip ";"
-		dir.Condition = p.expression(LOWEST)
+		dir.Cond = p.expression(LOWEST)
 	}
 
 	if !p.expectPeek(token.SEMI) { // move to ";"
@@ -1188,23 +1193,18 @@ func (p *Parser) block() *ast.Block {
 }
 
 func (p *Parser) statement() ast.Statement {
-	prevTok := p.curToken
-
-	expr := p.expression(LOWEST)
+	leftExpr := p.expression(LOWEST)
 
 	switch p.peekToken.Type {
 	case token.ASSIGN:
-		return p.assignStmt(expr)
+		return p.assignStmt(leftExpr)
 	case token.INC:
-		return p.incStmt(expr)
+		return p.incStmt(leftExpr)
 	case token.DEC:
-		return p.decStmt(expr)
+		return p.decStmt(leftExpr)
 	}
 
-	stmt := ast.NewExpressionStmt(prevTok, expr)
-	stmt.SetEndPosition(p.curToken.Pos)
-
-	return stmt
+	return nil
 }
 
 func (p *Parser) expression(precedence int) ast.Expression {

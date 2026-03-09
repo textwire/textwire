@@ -19,15 +19,15 @@ func IsInLoop(doc, filePath string, line, col uint) (bool, []*fail.Error) {
 		return false, p.Errors()
 	}
 
-	for _, stmt := range program.Stmts() {
-		isEachLoop := stmt.Tok().Type == token.EACH
-		isForLoop := stmt.Tok().Type == token.FOR
+	for _, chunk := range program.AllChunks() {
+		isEachLoop := chunk.Tok().Type == token.EACH
+		isForLoop := chunk.Tok().Type == token.FOR
 
 		if !isEachLoop && !isForLoop {
 			continue
 		}
 
-		loopStmt := stmt.(ast.LoopDirective)
+		loopStmt := chunk.(ast.LoopDirective)
 		pos := loopStmt.LoopBlock().Pos
 
 		if IsCursorInBlock(line, col, pos) {

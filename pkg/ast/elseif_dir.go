@@ -9,8 +9,8 @@ import (
 
 type ElseIfDir struct {
 	BaseNode
-	Condition Expression
-	Block     *Block // @elseif()<Block>@end
+	Cond  Expression
+	Block *Block // @elseif()<Block>@end
 }
 
 func NewElseIfDir(tok token.Token) *ElseIfDir {
@@ -28,7 +28,7 @@ func (_ *ElseIfDir) Kind() ChunkKind {
 func (ed *ElseIfDir) String() string {
 	var out strings.Builder
 
-	fmt.Fprintf(&out, "@elseif(%s)\n", ed.Condition)
+	fmt.Fprintf(&out, "@elseif(%s)\n", ed.Cond)
 	out.WriteString(ed.Block.String())
 
 	return out.String()

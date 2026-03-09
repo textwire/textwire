@@ -1,0 +1,19 @@
+<program> ::= <chunk>*
+<chunk> ::= <text> | <embedded> | <block> | <directive>
+
+// Chunks
+<block> ::= <chunk>*
+<text> ::= ( "a".."z" | "A".."Z" | "0".."9" | " " | "," | "." | ... )
+<embedded> ::= "{{" <node> ( ";" <node> )* "}}"
+<directive> ::= <use_dir> | <insert_dir>
+
+// Literals
+<string_expr> ::= ( '"' char* '"' | "'" char* "'" )
+<int_expr> ::= [0-9]+
+
+// Expressions
+<prefix_expr> ::= ( '!' | '-' )
+
+// Directives
+<use_dir> ::= "@use(" <string_expr> ")"
+<insert_dir> ::= ( "@insert(" <string_expr> "," <string_expr> ")" | "@insert(" <string_expr> ")" <block> "@end" )

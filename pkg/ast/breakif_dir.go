@@ -8,7 +8,7 @@ import (
 
 type BreakifDir struct {
 	BaseNode
-	Condition Expression
+	Cond Expression
 }
 
 func NewBreakIfDir(tok token.Token) *BreakifDir {
@@ -24,5 +24,5 @@ func (_ *BreakifDir) Kind() ChunkKind {
 }
 
 func (bd *BreakifDir) String() string {
-	return fmt.Sprintf("%s(%s)", bd.Token.Lit, bd.Condition)
+	return fmt.Sprintf("%s(%s)", bd.Token.Lit, bd.Cond)
 }

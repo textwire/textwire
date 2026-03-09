@@ -8,13 +8,13 @@ import (
 
 type DumpDir struct {
 	BaseNode
-	Arguments []Expression
+	Args []Expression
 }
 
 func NewDumpDir(tok token.Token, args []Expression) *DumpDir {
 	return &DumpDir{
-		BaseNode:  NewBaseNode(tok),
-		Arguments: args,
+		BaseNode: NewBaseNode(tok),
+		Args:     args,
 	}
 }
 
@@ -26,14 +26,14 @@ func (_ *DumpDir) Kind() ChunkKind {
 
 func (dd *DumpDir) String() string {
 	var out strings.Builder
-	out.Grow(len(dd.Arguments) * 3)
+	out.Grow(len(dd.Args) * 3)
 
 	out.WriteString("@dump(")
 
-	for i := range dd.Arguments {
-		out.WriteString(dd.Arguments[i].String())
+	for i := range dd.Args {
+		out.WriteString(dd.Args[i].String())
 
-		if i < len(dd.Arguments)-1 {
+		if i < len(dd.Args)-1 {
 			out.WriteString(",")
 		}
 	}
