@@ -27,7 +27,7 @@ func IsInLoop(doc, filePath string, line, col uint) (bool, []*fail.Error) {
 			continue
 		}
 
-		loopStmt := stmt.(ast.LoopCommand)
+		loopStmt := stmt.(ast.LoopDirective)
 		pos := loopStmt.LoopBlock().Pos
 
 		if IsCursorInBlock(line, col, pos) {

@@ -12,7 +12,7 @@ func FindProg(name string, programs []*Program) *Program {
 	return nil
 }
 
-func CheckUnusedInserts(prog *Program, inserts map[string]*InsertStmt) *fail.Error {
+func CheckUnusedInserts(prog *Program, inserts map[string]*InsertDir) *fail.Error {
 	for name := range inserts {
 		if _, ok := prog.Reserves[name]; ok {
 			continue
@@ -28,9 +28,9 @@ func CheckUnusedInserts(prog *Program, inserts map[string]*InsertStmt) *fail.Err
 	return nil
 }
 
-func findSlotIndex(stmts []Statement, slotName string) int {
-	for i, stmt := range stmts {
-		slot, ok := stmt.(*SlotStmt)
+func findSlotIndex(chunks []Chunk, slotName string) int {
+	for i := range chunks {
+		slot, ok := chunks[i].(*SlotDir)
 		if !ok {
 			continue
 		}
@@ -39,15 +39,14 @@ func findSlotIndex(stmts []Statement, slotName string) int {
 			return i
 		}
 	}
-
 	return -1
 }
 
-func findDuplicateSlot(slots []SlotCommand) (SlotCommand, int) {
+func findDuplicateSlot(slots []SlotDirective) (SlotDirective, int) {
 	counts := map[string]int{}
-	firstSeen := map[string]SlotCommand{}
+	firstSeen := map[string]SlotDirective{}
 
-	var maxSlot SlotCommand
+	var maxSlot SlotDirective
 	var maxCount int
 
 	for _, slot := range slots {

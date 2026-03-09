@@ -53,22 +53,22 @@ func (nl *NodeLinker) unlinkAll() {
 		}
 
 		// Unlink layouts and inserts
-		if prog.UseStmt != nil {
-			prog.UseStmt.LayoutProg = nil
-			prog.UseStmt.Inserts = nil
+		if prog.UseDir != nil {
+			prog.UseDir.LayoutProg = nil
+			prog.UseDir.Inserts = nil
 		}
 	}
 }
 
 // handleLayoutLinking links layout directives to template directives
 func (nl *NodeLinker) handleLayoutLinking(prog *ast.Program) *fail.Error {
-	if !prog.HasUseStmt() {
+	if !prog.HasUseDir() {
 		return nil
 	}
 
-	prog.UseStmt.Inserts = prog.Inserts
+	prog.UseDir.Inserts = prog.Inserts
 
-	layoutName := prog.UseStmt.Name.Val
+	layoutName := prog.UseDir.Name.Val
 	layoutProg := ast.FindProg(layoutName, nl.Programs)
 	if layoutProg == nil {
 		return fail.New(prog.Line(), prog.AbsPath, "API", fail.ErrUseStmtMissingLayout, layoutName)

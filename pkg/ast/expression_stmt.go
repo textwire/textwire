@@ -14,7 +14,7 @@ func NewExpressionStmt(tok token.Token, exp Expression) *ExpressionStmt {
 	}
 }
 
-func (es *ExpressionStmt) statementNode() {}
+func (_ *ExpressionStmt) statementNode() {}
 
 func (es *ExpressionStmt) String() string {
 	if es.Expression == nil {

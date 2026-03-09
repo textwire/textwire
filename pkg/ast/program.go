@@ -12,11 +12,11 @@ type Program struct {
 	IsLayout   bool
 	Name       string
 	AbsPath    string
-	UseStmt    *UseStmt
-	Statements []Statement
-	Components []*ComponentStmt
-	Reserves   map[string]*ReserveStmt
-	Inserts    map[string]*InsertStmt
+	UseDir     *UseDir
+	Chunks     []Chunk
+	Components []*ComponentDir
+	Reserves   map[string]*ReserveDir
+	Inserts    map[string]*InsertDir
 }
 
 func NewProgram(tok token.Token) *Program {
@@ -25,46 +25,50 @@ func NewProgram(tok token.Token) *Program {
 	}
 }
 
-func (p *Program) statementNode() {}
+func (p *Program) chunkNode() {}
+
+func (_ *Program) Kind() ChunkKind {
+	return ChunkKindBlock
+}
 
 func (p *Program) String() string {
 	var out strings.Builder
-	out.Grow(len(p.Statements))
+	out.Grow(len(p.Chunks))
 
-	for i := range p.Statements {
-		out.WriteString(p.Statements[i].String())
+	for i := range p.Chunks {
+		out.WriteString(p.Chunks[i].String())
 	}
 
 	return out.String()
 }
 
-func (p *Program) Stmts() []Statement {
-	stmts := make([]Statement, 0)
-	if p.Statements == nil {
-		return []Statement{}
+func (p *Program) AllChunks() []Chunk {
+	chunks := make([]Chunk, 0)
+	if p.Chunks == nil {
+		return []Chunk{}
 	}
 
-	for _, stmt := range p.Statements {
-		if stmt == nil {
+	for _, chunk := range p.Chunks {
+		if chunk == nil {
 			continue
 		}
 
-		if s, ok := stmt.(NodeWithStmts); ok {
-			stmts = append(stmts, s.(Statement))
-			stmts = append(stmts, s.Stmts()...)
+		if s, ok := chunk.(NodeWithChunks); ok {
+			chunks = append(chunks, s.(Chunk))
+			chunks = append(chunks, s.AllChunks()...)
 		}
 	}
 
-	return stmts
+	return chunks
 }
 
 // LinkLayoutToUse adds Layout AST program to UseStmt for the current template
-// and resets statements to UseStmt only. Because we don't need anything else
+// and resets chunks to UseDir chunk only. Because we don't need anything else
 // inside a template. Make sure inserts are added before this is called
 // because they will be removed by this function.
 func (p *Program) LinkLayoutToUse(layoutProg *Program) {
-	p.UseStmt.LayoutProg = layoutProg
-	p.Statements = []Statement{p.UseStmt}
+	p.UseDir.LayoutProg = layoutProg
+	p.Chunks = []Chunk{p.UseDir}
 }
 
 func (p *Program) LinkCompProg(compName string, prog *Program, absPath string) *fail.Error {
@@ -99,9 +103,9 @@ func (p *Program) LinkCompProg(compName string, prog *Program, absPath string) *
 
 		for _, slot := range comp.Slots {
 			name := slot.Name().Val
-			idx := findSlotIndex(prog.Statements, name)
+			idx := findSlotIndex(prog.Chunks, name)
 			if idx != -1 {
-				prog.Statements[idx].(SlotCommand).SetBlock(slot.Block())
+				prog.Chunks[idx].(SlotDirective).SetBlock(slot.Block())
 				continue
 			}
 
@@ -124,10 +128,6 @@ func (p *Program) LinkCompProg(compName string, prog *Program, absPath string) *
 	return nil
 }
 
-func (p *Program) HasReserveStmt() bool {
-	return len(p.Reserves) > 0
-}
-
-func (p *Program) HasUseStmt() bool {
-	return p.UseStmt != nil
+func (p *Program) HasUseDir() bool {
+	return p.UseDir != nil
 }

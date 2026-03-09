@@ -1,0 +1,25 @@
+package ast
+
+import (
+	"fmt"
+
+	"github.com/textwire/textwire/v3/pkg/token"
+)
+
+type StrExpr struct {
+	BaseNode
+	Val string
+}
+
+func NewStrExpr(tok token.Token, val string) *StrExpr {
+	return &StrExpr{
+		BaseNode: NewBaseNode(tok),
+		Val:      val,
+	}
+}
+
+func (_ *StrExpr) expressionNode() {}
+
+func (se *StrExpr) String() string {
+	return fmt.Sprintf(`"%s"`, se.Token.Lit)
+}

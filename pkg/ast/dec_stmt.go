@@ -18,8 +18,8 @@ func NewDecStmt(tok token.Token, left Expression) *DecStmt {
 	}
 }
 
-func (pe *DecStmt) statementNode() {}
+func (_ *DecStmt) statementNode() {}
 
-func (pe *DecStmt) String() string {
-	return fmt.Sprintf("(%s--)", pe.Left)
+func (ds *DecStmt) String() string {
+	return fmt.Sprintf("(%s--)", ds.Left)
 }

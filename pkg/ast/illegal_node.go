@@ -6,17 +6,24 @@ import (
 
 type IllegalNode struct {
 	BaseNode
+	chunkKind ChunkKind
 }
 
-func NewIllegalNode(tok token.Token) *IllegalNode {
+func NewIllegalNode(tok token.Token, chunkKind ChunkKind) *IllegalNode {
 	return &IllegalNode{
-		BaseNode: NewBaseNode(tok),
+		BaseNode:  NewBaseNode(tok),
+		chunkKind: chunkKind,
 	}
 }
 
-func (en *IllegalNode) statementNode()  {}
-func (en *IllegalNode) expressionNode() {}
+func (_ *IllegalNode) statementNode()  {}
+func (_ *IllegalNode) expressionNode() {}
+func (_ *IllegalNode) chunkNode()      {}
 
-func (en *IllegalNode) String() string {
+func (in *IllegalNode) Kind() ChunkKind {
+	return in.chunkKind
+}
+
+func (_ *IllegalNode) String() string {
 	return ""
 }

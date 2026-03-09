@@ -42,79 +42,79 @@ func (e *Evaluator) Eval(node ast.Node, ctx *Context) value.Value {
 	// Statements
 	case *ast.Program:
 		return e.program(node, ctx)
-	case *ast.TextStmt:
+	case *ast.Text:
 		return &value.Text{Val: node.String()}
 	case *ast.ExpressionStmt:
 		return e.Eval(node.Expression, ctx)
-	case *ast.IfStmt:
+	case *ast.IfDir:
 		return e._if(node, ctx)
-	case *ast.BlockStmt:
+	case *ast.Block:
 		return e.block(node, ctx)
 	case *ast.AssignStmt:
 		return e.assign(node, ctx)
-	case *ast.UseStmt:
+	case *ast.UseDir:
 		return e.use(node, ctx)
-	case *ast.ReserveStmt:
+	case *ast.ReserveDir:
 		return e.reserve(node, ctx)
-	case *ast.ForStmt:
+	case *ast.ForDir:
 		return e.forStmt(node, ctx)
-	case *ast.EachStmt:
+	case *ast.EachDir:
 		return e.each(node, ctx)
-	case *ast.BreakifStmt:
+	case *ast.BreakifDir:
 		return e.breakif(node, ctx)
-	case *ast.ComponentStmt:
+	case *ast.ComponentDir:
 		return e.component(node, ctx)
-	case *ast.ContinueifStmt:
+	case *ast.ContinueifDir:
 		return e.continueif(node, ctx)
-	case *ast.SlotStmt:
+	case *ast.SlotDir:
 		return e.slot(node, ctx)
-	case *ast.SlotifStmt:
+	case *ast.SlotifDir:
 		return e.slotif(node, ctx)
-	case *ast.DumpStmt:
+	case *ast.DumpDir:
 		return e.dump(node, ctx)
-	case *ast.InsertStmt:
+	case *ast.InsertDir:
 		return e.insert(node, ctx)
-	case *ast.ContinueStmt:
+	case *ast.ContinueDir:
 		return CONTINUE
-	case *ast.BreakStmt:
+	case *ast.BreakDir:
 		return BREAK
 	case *ast.IllegalNode:
 		return NIL
 
 	// Expressions
-	case *ast.Ident:
+	case *ast.IdentExpr:
 		return e.ident(node, ctx)
-	case *ast.IndexExp:
+	case *ast.IndexExpr:
 		return e.indexExp(node, ctx)
-	case *ast.DotExp:
+	case *ast.DotExpr:
 		return e.dotExp(node, ctx)
-	case *ast.IntLit:
+	case *ast.IntExpr:
 		return &value.Int{Val: node.Val}
-	case *ast.FloatLit:
+	case *ast.FloatExpr:
 		return &value.Float{Val: node.Val}
-	case *ast.StrLit:
+	case *ast.StrExpr:
 		return e.strLit(node)
-	case *ast.BoolLit:
+	case *ast.BoolExpr:
 		return nativeBoolToBoolObj(node.Val)
-	case *ast.ObjLit:
+	case *ast.ObjExpr:
 		return e.objLit(node, ctx)
-	case *ast.ArrLit:
+	case *ast.ArrExpr:
 		return e.arrLit(node, ctx)
-	case *ast.PrefixExp:
+	case *ast.PrefixExpr:
 		return e.prefixExp(node, ctx)
-	case *ast.TernaryExp:
+	case *ast.TernaryExpr:
 		return e.ternaryExp(node, ctx)
-	case *ast.InfixExp:
+	case *ast.InfixExpr:
 		return e.infixExp(node.Op, node.Left, node.Right, ctx)
 	case *ast.IncStmt:
 		return e.incStmt(node, ctx)
 	case *ast.DecStmt:
 		return e.decStmt(node, ctx)
-	case *ast.CallExp:
+	case *ast.CallExpr:
 		return e.callExp(node, ctx)
-	case *ast.GlobalCallExp:
+	case *ast.GlobalCallExpr:
 		return e.globalCallExp(node, ctx)
-	case *ast.NilLit:
+	case *ast.NilExpr:
 		return NIL
 	}
 
@@ -123,10 +123,10 @@ func (e *Evaluator) Eval(node ast.Node, ctx *Context) value.Value {
 
 func (e *Evaluator) program(prog *ast.Program, ctx *Context) value.Value {
 	var stmts strings.Builder
-	stmts.Grow(len(prog.Statements))
+	stmts.Grow(len(prog.Chunks))
 
-	for i := range prog.Statements {
-		stmt := e.Eval(prog.Statements[i], ctx)
+	for i := range prog.Chunks {
+		stmt := e.Eval(prog.Chunks[i], ctx)
 		if isError(stmt) {
 			return stmt
 		}
@@ -137,7 +137,7 @@ func (e *Evaluator) program(prog *ast.Program, ctx *Context) value.Value {
 	return &value.Text{Val: stmts.String()}
 }
 
-func (e *Evaluator) _if(ifStmt *ast.IfStmt, ctx *Context) value.Value {
+func (e *Evaluator) _if(ifStmt *ast.IfDir, ctx *Context) value.Value {
 	cond := e.Eval(ifStmt.Condition, ctx)
 	if isError(cond) {
 		return cond
@@ -148,8 +148,8 @@ func (e *Evaluator) _if(ifStmt *ast.IfStmt, ctx *Context) value.Value {
 		return e.Eval(ifStmt.IfBlock, ifCtx)
 	}
 
-	for i := range ifStmt.ElseifStmts {
-		elseifNode, ok := ifStmt.ElseifStmts[i].(*ast.ElseIfStmt)
+	for i := range ifStmt.ElseifDirs {
+		elseifNode, ok := ifStmt.ElseifDirs[i].(*ast.ElseIfDir)
 		if !ok {
 			continue
 		}
@@ -171,15 +171,15 @@ func (e *Evaluator) _if(ifStmt *ast.IfStmt, ctx *Context) value.Value {
 	return NIL
 }
 
-func (e *Evaluator) block(blockStmt *ast.BlockStmt, ctx *Context) value.Value {
+func (e *Evaluator) block(blockStmt *ast.Block, ctx *Context) value.Value {
 	if blockStmt == nil {
 		return NIL
 	}
 
-	stmts := make([]value.Value, 0, len(blockStmt.Statements))
+	stmts := make([]value.Value, 0, len(blockStmt.Chunks))
 
-	for i := range blockStmt.Statements {
-		stmt := e.Eval(blockStmt.Statements[i], ctx)
+	for i := range blockStmt.Chunks {
+		stmt := e.Eval(blockStmt.Chunks[i], ctx)
 		if isError(stmt) {
 			return stmt
 		}
@@ -208,11 +208,11 @@ func (e *Evaluator) assignTo(
 	ctx *Context,
 ) value.Value {
 	switch l := left.(type) {
-	case *ast.Ident:
+	case *ast.IdentExpr:
 		return e.assignIdent(l, right, ctx)
-	case *ast.IndexExp:
+	case *ast.IndexExpr:
 		return e.assignIndexExp(l, right, ctx)
-	case *ast.DotExp:
+	case *ast.DotExpr:
 		return e.assignDotExp(l, right, ctx)
 	}
 
@@ -225,7 +225,7 @@ func (e *Evaluator) assignTo(
 }
 
 func (e *Evaluator) assignIdent(
-	ident *ast.Ident,
+	ident *ast.IdentExpr,
 	val value.Value,
 	ctx *Context,
 ) value.Value {
@@ -236,7 +236,7 @@ func (e *Evaluator) assignIdent(
 }
 
 func (e *Evaluator) assignIndexExp(
-	indexExp *ast.IndexExp,
+	indexExp *ast.IndexExpr,
 	val value.Value,
 	ctx *Context,
 ) value.Value {
@@ -272,7 +272,7 @@ func (e *Evaluator) assignIndexExp(
 }
 
 func (e *Evaluator) assignDotExp(
-	dotExp *ast.DotExp,
+	dotExp *ast.DotExpr,
 	val value.Value,
 	ctx *Context,
 ) value.Value {
@@ -283,7 +283,7 @@ func (e *Evaluator) assignDotExp(
 	}
 
 	// Get the key (property name)
-	key := dotExp.Key.(*ast.Ident).Name
+	key := dotExp.Key.(*ast.IdentExpr).Name
 
 	// Type assert that left is a value
 	obj, ok := left.(*value.Obj)
@@ -296,7 +296,7 @@ func (e *Evaluator) assignDotExp(
 	return NIL
 }
 
-func (e *Evaluator) use(useStmt *ast.UseStmt, ctx *Context) value.Value {
+func (e *Evaluator) use(useStmt *ast.UseDir, ctx *Context) value.Value {
 	if useStmt.LayoutProg == nil {
 		if e.usingTemplates {
 			return e.newError(useStmt, ctx, fail.ErrUseStmtMissingLayout, useStmt.Name.Val)
@@ -307,7 +307,7 @@ func (e *Evaluator) use(useStmt *ast.UseStmt, ctx *Context) value.Value {
 	e.usingUseStmt = true
 
 	// Make sure that layout is missing @use
-	if useStmt.LayoutProg.IsLayout && useStmt.LayoutProg.HasUseStmt() {
+	if useStmt.LayoutProg.IsLayout && useStmt.LayoutProg.HasUseDir() {
 		return e.newError(useStmt, ctx, fail.ErrUseStmtNotAllowed)
 	}
 
@@ -335,7 +335,7 @@ func (e *Evaluator) use(useStmt *ast.UseStmt, ctx *Context) value.Value {
 	}
 }
 
-func (e *Evaluator) reserve(reserveStmt *ast.ReserveStmt, ctx *Context) value.Value {
+func (e *Evaluator) reserve(reserveStmt *ast.ReserveDir, ctx *Context) value.Value {
 	if !e.usingTemplates {
 		return e.newError(reserveStmt, ctx, fail.ErrSomeDirsOnlyInTemplates)
 	}
@@ -359,7 +359,7 @@ func (e *Evaluator) reserve(reserveStmt *ast.ReserveStmt, ctx *Context) value.Va
 	}
 }
 
-func (e *Evaluator) component(compStmt *ast.ComponentStmt, ctx *Context) value.Value {
+func (e *Evaluator) component(compStmt *ast.ComponentDir, ctx *Context) value.Value {
 	if !e.usingTemplates {
 		return e.newError(compStmt, ctx, fail.ErrSomeDirsOnlyInTemplates)
 	}
@@ -409,7 +409,7 @@ func (e *Evaluator) component(compStmt *ast.ComponentStmt, ctx *Context) value.V
 	}
 }
 
-func (e *Evaluator) forStmt(forStmt *ast.ForStmt, ctx *Context) value.Value {
+func (e *Evaluator) forStmt(forStmt *ast.ForDir, ctx *Context) value.Value {
 	forCtx := NewContext(ctx.scope, ctx.absPath)
 
 	var init value.Value
@@ -472,7 +472,7 @@ func (e *Evaluator) forStmt(forStmt *ast.ForStmt, ctx *Context) value.Value {
 	return &value.Text{Val: blocks.String()}
 }
 
-func (e *Evaluator) each(eachStmt *ast.EachStmt, ctx *Context) value.Value {
+func (e *Evaluator) each(eachStmt *ast.EachDir, ctx *Context) value.Value {
 	eachCtx := NewContext(ctx.scope.Child(), ctx.absPath)
 	varName := eachStmt.Var.Name
 
@@ -526,7 +526,7 @@ func (e *Evaluator) each(eachStmt *ast.EachStmt, ctx *Context) value.Value {
 	return &value.Text{Val: blocks.String()}
 }
 
-func (e *Evaluator) breakif(breakifStmt *ast.BreakifStmt, ctx *Context) value.Value {
+func (e *Evaluator) breakif(breakifStmt *ast.BreakifDir, ctx *Context) value.Value {
 	cond := e.Eval(breakifStmt.Condition, ctx)
 	if isError(cond) {
 		return cond
@@ -539,7 +539,7 @@ func (e *Evaluator) breakif(breakifStmt *ast.BreakifStmt, ctx *Context) value.Va
 	return NIL
 }
 
-func (e *Evaluator) continueif(contifStmt *ast.ContinueifStmt, ctx *Context) value.Value {
+func (e *Evaluator) continueif(contifStmt *ast.ContinueifDir, ctx *Context) value.Value {
 	cond := e.Eval(contifStmt.Condition, ctx)
 	if isError(cond) {
 		return cond
@@ -552,14 +552,14 @@ func (e *Evaluator) continueif(contifStmt *ast.ContinueifStmt, ctx *Context) val
 	return NIL
 }
 
-func (e *Evaluator) slot(slotStmt *ast.SlotStmt, ctx *Context) value.Value {
+func (e *Evaluator) slot(slotStmt *ast.SlotDir, ctx *Context) value.Value {
 	if slotStmt.IsLocal {
 		return e.localSlotStmt(slotStmt, ctx)
 	}
 	return e.externalSlotStmt(slotStmt, ctx)
 }
 
-func (e *Evaluator) slotif(slotifStmt *ast.SlotifStmt, ctx *Context) value.Value {
+func (e *Evaluator) slotif(slotifStmt *ast.SlotifDir, ctx *Context) value.Value {
 	cond := e.Eval(slotifStmt.Condition, ctx)
 	if isError(cond) {
 		return cond
@@ -580,7 +580,7 @@ func (e *Evaluator) slotif(slotifStmt *ast.SlotifStmt, ctx *Context) value.Value
 	}
 }
 
-func (e *Evaluator) externalSlotStmt(slotStmt *ast.SlotStmt, ctx *Context) value.Value {
+func (e *Evaluator) externalSlotStmt(slotStmt *ast.SlotDir, ctx *Context) value.Value {
 	name := slotStmt.Name().Val
 	compName := slotStmt.CompName
 
@@ -597,7 +597,7 @@ func (e *Evaluator) externalSlotStmt(slotStmt *ast.SlotStmt, ctx *Context) value
 	return &value.Slot{Name: name, Content: content}
 }
 
-func (e *Evaluator) localSlotStmt(slotStmt *ast.SlotStmt, ctx *Context) value.Value {
+func (e *Evaluator) localSlotStmt(slotStmt *ast.SlotDir, ctx *Context) value.Value {
 	var block value.Value = NIL
 
 	if slotStmt.Block() != nil {
@@ -613,7 +613,7 @@ func (e *Evaluator) localSlotStmt(slotStmt *ast.SlotStmt, ctx *Context) value.Va
 	}
 }
 
-func (e *Evaluator) insert(insertStmt *ast.InsertStmt, ctx *Context) value.Value {
+func (e *Evaluator) insert(insertStmt *ast.InsertDir, ctx *Context) value.Value {
 	if !e.usingTemplates {
 		return e.newError(insertStmt, ctx, fail.ErrSomeDirsOnlyInTemplates)
 	}
@@ -636,7 +636,7 @@ func (e *Evaluator) insert(insertStmt *ast.InsertStmt, ctx *Context) value.Value
 
 // combineInsertContent combines insert Argument and Block (depending what user has)
 // into a single value that we can work with.
-func (e *Evaluator) combineInsertContent(insertStmt *ast.InsertStmt, ctx *Context) value.Value {
+func (e *Evaluator) combineInsertContent(insertStmt *ast.InsertDir, ctx *Context) value.Value {
 	if insertStmt.Argument != nil {
 		arg := e.Eval(insertStmt.Argument, ctx)
 		if isError(arg) {
@@ -652,7 +652,7 @@ func (e *Evaluator) combineInsertContent(insertStmt *ast.InsertStmt, ctx *Contex
 	return e.Eval(insertStmt.Block, ctx)
 }
 
-func (e *Evaluator) dump(dumpStmt *ast.DumpStmt, ctx *Context) value.Value {
+func (e *Evaluator) dump(dumpStmt *ast.DumpDir, ctx *Context) value.Value {
 	values := make([]string, 0, len(dumpStmt.Arguments))
 
 	for i := range dumpStmt.Arguments {
@@ -663,7 +663,7 @@ func (e *Evaluator) dump(dumpStmt *ast.DumpStmt, ctx *Context) value.Value {
 	return &value.Dump{Vals: values}
 }
 
-func (e *Evaluator) ident(ident *ast.Ident, ctx *Context) value.Value {
+func (e *Evaluator) ident(ident *ast.IdentExpr, ctx *Context) value.Value {
 	varName := ident.Name
 	if varName == "global" && e.config != nil && e.config.GlobalData != nil {
 		return value.NativeToValue(e.config.GlobalData)
@@ -676,7 +676,7 @@ func (e *Evaluator) ident(ident *ast.Ident, ctx *Context) value.Value {
 	return e.newError(ident, ctx, fail.ErrVariableIsUndefined, ident.Name)
 }
 
-func (e *Evaluator) indexExp(indexExp *ast.IndexExp, ctx *Context) value.Value {
+func (e *Evaluator) indexExp(indexExp *ast.IndexExpr, ctx *Context) value.Value {
 	left := e.Eval(indexExp.Left, ctx)
 	if isError(left) {
 		return left
@@ -723,13 +723,13 @@ func (e *Evaluator) objKeyExp(obj *value.Obj, key string) value.Value {
 	return NIL
 }
 
-func (e *Evaluator) dotExp(dotExp *ast.DotExp, ctx *Context) value.Value {
+func (e *Evaluator) dotExp(dotExp *ast.DotExpr, ctx *Context) value.Value {
 	left := e.Eval(dotExp.Left, ctx)
 	if isError(left) {
 		return left
 	}
 
-	key := dotExp.Key.(*ast.Ident)
+	key := dotExp.Key.(*ast.IdentExpr)
 	obj, ok := left.(*value.Obj)
 	if !ok {
 		return e.newError(dotExp, ctx, fail.ErrKeyOnNonObj, left.Type(), key)
@@ -738,7 +738,7 @@ func (e *Evaluator) dotExp(dotExp *ast.DotExp, ctx *Context) value.Value {
 	return e.objKeyExp(obj, key.Name)
 }
 
-func (e *Evaluator) strLit(strLit *ast.StrLit) value.Value {
+func (e *Evaluator) strLit(strLit *ast.StrExpr) value.Value {
 	str := html.EscapeString(strLit.Val)
 
 	// unescape single and double quotes
@@ -748,7 +748,7 @@ func (e *Evaluator) strLit(strLit *ast.StrLit) value.Value {
 	return &value.Str{Val: str}
 }
 
-func (e *Evaluator) prefixExp(prefixExp *ast.PrefixExp, ctx *Context) value.Value {
+func (e *Evaluator) prefixExp(prefixExp *ast.PrefixExpr, ctx *Context) value.Value {
 	right := e.Eval(prefixExp.Right, ctx)
 	if isError(right) {
 		return right
@@ -764,20 +764,20 @@ func (e *Evaluator) prefixExp(prefixExp *ast.PrefixExp, ctx *Context) value.Valu
 	return e.newError(prefixExp, ctx, fail.ErrUnknownOp, prefixExp.Op, right.Type())
 }
 
-func (e *Evaluator) ternaryExp(ternExp *ast.TernaryExp, ctx *Context) value.Value {
-	cond := e.Eval(ternExp.Condition, ctx)
+func (e *Evaluator) ternaryExp(ternExp *ast.TernaryExpr, ctx *Context) value.Value {
+	cond := e.Eval(ternExp.Cond, ctx)
 	if isError(cond) {
 		return cond
 	}
 
 	if isTruthy(cond) {
-		return e.Eval(ternExp.IfBlock, ctx)
+		return e.Eval(ternExp.IfExpr, ctx)
 	}
 
-	return e.Eval(ternExp.ElseBlock, ctx)
+	return e.Eval(ternExp.ElseExpr, ctx)
 }
 
-func (e *Evaluator) arrLit(arrLit *ast.ArrLit, ctx *Context) value.Value {
+func (e *Evaluator) arrLit(arrLit *ast.ArrExpr, ctx *Context) value.Value {
 	elems := e.evalExpressions(arrLit.Elements, ctx)
 	if len(elems) == 1 && isError(elems[0]) {
 		return elems[0]
@@ -786,7 +786,7 @@ func (e *Evaluator) arrLit(arrLit *ast.ArrLit, ctx *Context) value.Value {
 	return &value.Arr{Elements: elems}
 }
 
-func (e *Evaluator) objLit(objLit *ast.ObjLit, ctx *Context) value.Value {
+func (e *Evaluator) objLit(objLit *ast.ObjExpr, ctx *Context) value.Value {
 	pairs := make(map[string]value.Value, len(objLit.Pairs))
 
 	for key, val := range objLit.Pairs {
@@ -892,7 +892,7 @@ func (e *Evaluator) decStmt(decInc *ast.DecStmt, ctx *Context) value.Value {
 	return e.newError(decInc, ctx, fail.ErrIllegalTypeForDec, left.Type())
 }
 
-func (e *Evaluator) callExp(callExp *ast.CallExp, ctx *Context) value.Value {
+func (e *Evaluator) callExp(callExp *ast.CallExpr, ctx *Context) value.Value {
 	receiver := e.Eval(callExp.Receiver, ctx)
 	funcName := callExp.Function.Name
 	if isError(receiver) {
@@ -956,7 +956,7 @@ func (e *Evaluator) callExp(callExp *ast.CallExp, ctx *Context) value.Value {
 	return e.newError(callExp, ctx, fail.ErrFuncNotDefined, receiver.Type(), callExp.Function.Name)
 }
 
-func (e *Evaluator) globalCallExp(globalCallExp *ast.GlobalCallExp, ctx *Context) value.Value {
+func (e *Evaluator) globalCallExp(globalCallExp *ast.GlobalCallExpr, ctx *Context) value.Value {
 	switch globalCallExp.Function.Name {
 	case "defined":
 		return e.globalFuncDefined(globalCallExp, ctx)
@@ -973,7 +973,7 @@ func (e *Evaluator) globalCallExp(globalCallExp *ast.GlobalCallExp, ctx *Context
 }
 
 func (e *Evaluator) globalFuncDefined(
-	globalCallExp *ast.GlobalCallExp,
+	globalCallExp *ast.GlobalCallExpr,
 	ctx *Context,
 ) value.Value {
 	for i := range globalCallExp.Arguments {
@@ -991,7 +991,7 @@ func (e *Evaluator) globalFuncDefined(
 }
 
 func (e *Evaluator) globalFuncHasValue(
-	globalCallExp *ast.GlobalCallExp,
+	globalCallExp *ast.GlobalCallExpr,
 	ctx *Context,
 ) value.Value {
 	// Check if all arguments are defined first

@@ -18,8 +18,8 @@ func NewIncStmt(tok token.Token, left Expression) *IncStmt {
 	}
 }
 
-func (pe *IncStmt) statementNode() {}
+func (_ *IncStmt) statementNode() {}
 
-func (pe *IncStmt) String() string {
-	return fmt.Sprintf("(%s++)", pe.Left)
+func (is *IncStmt) String() string {
+	return fmt.Sprintf("(%s++)", is.Left)
 }
