@@ -215,8 +215,8 @@ func (p *Parser) embedded() ast.Chunk {
 	}
 
 	for !p.curTokenIs(token.RBRACES, token.EOF) {
-		if elem := p.embeddedElement(); elem != nil {
-			chunk.Elements = append(chunk.Elements, elem)
+		if elem := p.statement(); elem != nil {
+			chunk.Statements = append(chunk.Statements, elem)
 		}
 	}
 
@@ -1187,7 +1187,7 @@ func (p *Parser) block() *ast.Block {
 	return block
 }
 
-func (p *Parser) embeddedElement() ast.EmbeddedElement {
+func (p *Parser) statement() ast.Statement {
 	prevTok := p.curToken
 
 	expr := p.expression(LOWEST)

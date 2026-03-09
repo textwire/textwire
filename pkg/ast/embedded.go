@@ -8,7 +8,7 @@ import (
 
 type Embedded struct {
 	BaseNode
-	Elements []EmbeddedElement
+	Statements []Statement
 }
 
 func NewEmbedded(tok token.Token) *Embedded {
@@ -29,10 +29,10 @@ func (e *Embedded) String() string {
 
 	out.WriteString("{{ ")
 
-	for i, stmt := range e.Elements {
+	for i, stmt := range e.Statements {
 		out.WriteString(stmt.String())
 
-		if i < len(e.Elements)-1 {
+		if i < len(e.Statements)-1 {
 			out.WriteString("; ")
 		}
 	}
