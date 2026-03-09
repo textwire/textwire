@@ -69,6 +69,20 @@ func parseEmbedded[T ast.Node](inp string, opts parseOpts) (T, error) {
 	return node, nil
 }
 
+func parseEmbeddedNodes(inp string, opts parseOpts) ([]ast.Node, error) {
+	chunks, err := parseChunks(inp, opts)
+	if err != nil {
+		return nil, err
+	}
+
+	chunk, ok := chunks[0].(*ast.Embedded)
+	if !ok {
+		return nil, fmt.Errorf("chunks[0] is not an Embedded, got %T", chunks[0])
+	}
+
+	return chunk.Nodes, nil
+}
+
 func parseDirective[T ast.Chunk](inp string, opts parseOpts) (T, error) {
 	var zero T
 
@@ -884,13 +898,9 @@ func TestParseIfDir(t *testing.T) {
 	t.Run("@if with @else", func(t *testing.T) {
 		inp := `@if(true)1@else2@end`
 
-		stmts, err := parseChunks(inp, defaultParseOpts)
+		stmt, err := parseDirective[*ast.IfDir](inp, defaultParseOpts)
 		if err != nil {
 			t.Fatal(err)
-		}
-		stmt, ok := stmts[0].(*ast.IfDir)
-		if !ok {
-			t.Fatalf("stmts[0] is not an IfStmt, got %T", stmts[0])
 		}
 
 		if err := testToken(stmt, token.IF); err != nil {
@@ -1379,7 +1389,7 @@ func TestParseDecStmt(t *testing.T) {
 func TestParseTwoStatements(t *testing.T) {
 	inp := `{{ name = "Anna"; name }}`
 
-	nodes, err := parseEmbedded(inp, defaultParseOpts)
+	nodes, err := parseEmbeddedNodes(inp, defaultParseOpts)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -1425,7 +1435,7 @@ func TestParseTwoStatements(t *testing.T) {
 
 func TestParseTwoExpression(t *testing.T) {
 	inp := `{{ 1; 2 }}`
-	nodes, err := parseEmbedded(inp, defaultParseOpts)
+	nodes, err := parseEmbeddedNodes(inp, defaultParseOpts)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -1577,14 +1587,9 @@ func TestParseForStmt(t *testing.T) {
 	t.Run("regular @for", func(t *testing.T) {
 		inp := "@for(i = 0; i < 10; i++){{ i }}@end"
 
-		stmts, err := parseChunks(inp, defaultParseOpts)
+		stmt, err := parseDirective[*ast.ForDir](inp, defaultParseOpts)
 		if err != nil {
 			t.Fatal(err)
-		}
-
-		stmt, ok := stmts[0].(*ast.ForDir)
-		if !ok {
-			t.Fatalf("stmts[0] is not a ForStmt, got %T", stmts[0])
 		}
 
 		if err := testToken(stmt, token.FOR); err != nil {
@@ -1625,14 +1630,9 @@ func TestParseForStmt(t *testing.T) {
 	t.Run("@for with @else block", func(t *testing.T) {
 		inp := `@for(i = 0; i < 0; i++){{ i }}@elseEmpty@end`
 
-		stmts, err := parseChunks(inp, defaultParseOpts)
+		stmt, err := parseDirective[*ast.ForDir](inp, defaultParseOpts)
 		if err != nil {
 			t.Fatal(err)
-		}
-
-		stmt, ok := stmts[0].(*ast.ForDir)
-		if !ok {
-			t.Fatalf("stmts[0] is not a ForStmt, got %T", stmts[0])
 		}
 
 		if err := testToken(stmt, token.FOR); err != nil {
@@ -1651,14 +1651,9 @@ func TestParseForStmt(t *testing.T) {
 	t.Run("infinite @for", func(t *testing.T) {
 		inp := `@for(;;)1@end`
 
-		stmts, err := parseChunks(inp, defaultParseOpts)
+		stmt, err := parseDirective[*ast.ForDir](inp, defaultParseOpts)
 		if err != nil {
 			t.Fatal(err)
-		}
-
-		stmt, ok := stmts[0].(*ast.ForDir)
-		if !ok {
-			t.Fatalf("stmts[0] is not a ForStmt, got %T", stmts[0])
 		}
 
 		if err := testToken(stmt, token.FOR); err != nil {
@@ -1687,14 +1682,9 @@ func TestParseEachStmt(t *testing.T) {
 	t.Run("regular @each", func(t *testing.T) {
 		inp := "@each(name in ['anna', 'serhii']){{ name }}@end"
 
-		stmts, err := parseChunks(inp, defaultParseOpts)
+		stmt, err := parseDirective[*ast.EachDir](inp, defaultParseOpts)
 		if err != nil {
 			t.Fatal(err)
-		}
-
-		stmt, ok := stmts[0].(*ast.EachDir)
-		if !ok {
-			t.Fatalf("stmts[0] is not a EachStmt, got %T", stmts[0])
 		}
 
 		err = testPosition(stmt.Pos, token.Position{EndCol: 46})
@@ -1718,7 +1708,7 @@ func TestParseEachStmt(t *testing.T) {
 		}
 
 		if stmt.Arr.String() != `["anna", "serhii"]` {
-			t.Fatalf(`stmt.Arr.String() is not '["anna", "serhii"]', got %s`, stmt.Arr)
+			t.Fatalf(`stmt.Arr.String() is not '["anna", "serhii"] got %s`, stmt.Arr)
 		}
 
 		actual := stmt.Block.String()
@@ -1734,14 +1724,9 @@ func TestParseEachStmt(t *testing.T) {
 	t.Run("@each with @else", func(t *testing.T) {
 		inp := `@each(v in []){{ v }}@elseTest@end`
 
-		stmts, err := parseChunks(inp, defaultParseOpts)
+		stmt, err := parseDirective[*ast.EachDir](inp, defaultParseOpts)
 		if err != nil {
 			t.Fatal(err)
-		}
-
-		stmt, ok := stmts[0].(*ast.EachDir)
-		if !ok {
-			t.Fatalf("stmts[0] is not a EachStmt, got %T", stmts[0])
 		}
 
 		if err := testToken(stmt, token.EACH); err != nil {
@@ -1893,14 +1878,9 @@ func TestParseObjWithShorthandKeyNotation(t *testing.T) {
 func TestParseTextStmt(t *testing.T) {
 	inp := "<div><span>Hello</span></div>"
 
-	stmts, err := parseChunks(inp, defaultParseOpts)
+	stmt, err := parseDirective[*ast.Text](inp, defaultParseOpts)
 	if err != nil {
 		t.Fatal(err)
-	}
-
-	stmt, ok := stmts[0].(*ast.Text)
-	if !ok {
-		t.Fatalf("stmts[0] is not a TextStmt, got %T", stmts[0])
 	}
 
 	if err := testToken(stmt, token.TEXT); err != nil {
