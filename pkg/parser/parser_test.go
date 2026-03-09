@@ -843,41 +843,34 @@ func TestParseTernaryExpr(t *testing.T) {
 	}
 }
 
-func TestParseIfStmt(t *testing.T) {
+func TestParseIfDir(t *testing.T) {
 	t.Run("regular @if", func(t *testing.T) {
 		inp := `@if(true)1@end`
 
-		stmts, err := parseChunks(inp, defaultParseOpts)
-		if err != nil {
-			t.Fatal(err)
-		}
-		stmt, ok := stmts[0].(*ast.IfDir)
-		if !ok {
-			t.Fatalf("stmts[0] is not an IfStmt, got %T", stmts[0])
-		}
-
-		if err := testToken(stmt, token.IF); err != nil {
+		ifDir, err := parseEmbeddedNode[*ast.IfDir](inp, defaultParseOpts)
+		if err := testToken(ifDir, token.IF); err != nil {
 			t.Fatal(err)
 		}
 
-		err = testPosition(stmt.Position(), token.Position{
+		err = testPosition(ifDir.Position(), token.Position{
 			StartCol: 0,
 			EndCol:   13,
 		})
+
 		if err != nil {
 			t.Fatal(err)
 		}
 
-		if err := testIfDir(stmt, true, "1"); err != nil {
+		if err := testIfDir(ifDir, true, "1"); err != nil {
 			t.Fatal(err)
 		}
 
-		if stmt.ElseBlock != nil {
-			t.Fatalf("ifStmt.ElseBlock is not nil, got %T", stmt.ElseBlock)
+		if ifDir.ElseBlock != nil {
+			t.Fatalf("ifDir.ElseBlock is not nil, got %T", ifDir.ElseBlock)
 		}
 
-		if len(stmt.ElseifDirs) != 0 {
-			t.Fatalf("ifStmt.ElseIfStmts is not empty, got %d", len(stmt.ElseifDirs))
+		if len(ifDir.ElseifDirs) != 0 {
+			t.Fatalf("ifDir.ElseIfDirs is not empty, got %d", len(ifDir.ElseifDirs))
 		}
 	})
 
@@ -923,8 +916,7 @@ func TestParseIfStmt(t *testing.T) {
 	})
 
 	t.Run("nested @if with @else", func(t *testing.T) {
-		inp := `
-		@if(true)
+		inp := `@if(true)
 			@if(false)
 				James
 			@elseif(false)
@@ -936,140 +928,122 @@ func TestParseIfStmt(t *testing.T) {
 			@if(true)Anna@end
 		@end`
 
-		stmts, err := parseChunks(inp, parseOpts{chunksCount: 2, checkErrors: true})
+		ifDir, err := parseEmbeddedNode[*ast.IfDir](inp, defaultParseOpts)
 		if err != nil {
 			t.Fatal(err)
 		}
 
-		if _, ok := stmts[0].(*ast.Text); !ok {
-			t.Fatalf("stmts[0] is not an TextStmt, got %T", stmts[0])
-		}
-
-		ifStmt, isNotIfStmt := stmts[1].(*ast.IfDir)
-		if !isNotIfStmt {
-			t.Fatalf("stmts[1] is not an IfStmt, got %T", stmts[1])
-		}
-
-		if len(ifStmt.IfBlock.Chunks) != 3 {
+		if len(ifDir.IfBlock.Chunks) != 3 {
 			t.Fatalf(
-				"ifStmt.IfBlock.Statements does not contain 3 statement, got %d",
-				len(ifStmt.IfBlock.Chunks),
+				"ifDir.IfBlock.Chunks does not contain 3 chunks, got %d",
+				len(ifDir.IfBlock.Chunks),
 			)
 		}
 
-		if err := testToken(ifStmt, token.IF); err != nil {
+		if err := testToken(ifDir, token.IF); err != nil {
 			t.Fatal(err)
 		}
 
-		if err := testToken(ifStmt.IfBlock, token.TEXT); err != nil {
+		if err := testToken(ifDir.IfBlock, token.TEXT); err != nil {
 			t.Fatal(err)
 		}
 
-		if err := testToken(ifStmt.ElseBlock, token.TEXT); err != nil {
+		if err := testToken(ifDir.ElseBlock, token.TEXT); err != nil {
 			t.Fatal(err)
 		}
 	})
 }
 
-func TestParseIfElseIfStmt(t *testing.T) {
+func TestParseIfElseIfDir(t *testing.T) {
 	inp := `@if(true)first@elseif(false)second@end`
 
-	stmts, err := parseChunks(inp, defaultParseOpts)
+	ifDir, err := parseEmbeddedNode[*ast.IfDir](inp, defaultParseOpts)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	stmt, ok := stmts[0].(*ast.IfDir)
-	if !ok {
-		t.Fatalf("stmts[0] is not an IfStmt, got %T", stmts[0])
-	}
-
-	if err := testIfDir(stmt, true, "first"); err != nil {
+	if err := testIfDir(ifDir, true, "first"); err != nil {
 		t.Fatal(err)
 	}
 
-	if stmt.ElseBlock != nil {
-		t.Fatalf("ifStmt.ElseBlock is not nil, got %T", stmt.ElseBlock)
+	if ifDir.ElseBlock != nil {
+		t.Fatalf("ifDir.ElseBlock is not nil, got %T", ifDir.ElseBlock)
 	}
 
-	if len(stmt.ElseifDirs) != 1 {
-		t.Fatalf("ifStmt.ElseifStmts does not contain 1 statement, got %d", len(stmt.ElseifDirs))
+	if len(ifDir.ElseifDirs) != 1 {
+		t.Fatalf("ifDir.ElseifDirs does not contain 1 dir, got %d", len(ifDir.ElseifDirs))
 	}
 
-	elseifStmt := stmt.ElseifDirs[0]
-	if err := testBoolExpr(elseifStmt.Cond, false); err != nil {
+	elseifDir := ifDir.ElseifDirs[0]
+	if err := testBoolExpr(elseifDir.Cond, false); err != nil {
 		t.Fatal(err)
 	}
 
-	if len(elseifStmt.Block.Chunks) != 1 {
+	if len(elseifDir.Block.Chunks) != 1 {
 		t.Fatalf(
-			"elseifStmt.Block.Statements does not contain 1 statement, got %d",
-			len(elseifStmt.Block.Chunks),
+			"elseifDir.Block.Chunks does not contain 1 dir, got %d",
+			len(elseifDir.Block.Chunks),
 		)
 	}
 
-	textStmt, ok := elseifStmt.Block.Chunks[0].(*ast.Text)
+	text, ok := elseifDir.Block.Chunks[0].(*ast.Text)
 	if !ok {
 		t.Fatalf(
-			"elseifStmt.Block.Statements[0] is not an Text, got %T",
-			elseifStmt.Block.Chunks[0],
+			"elseifStmt.Block.Chunks[0] is not an Text, got %T",
+			elseifDir.Block.Chunks[0],
 		)
 	}
 
-	if textStmt.String() != "second" {
-		t.Fatalf("textStmt.String() is not %q, got %q", "second", textStmt)
+	if text.String() != "second" {
+		t.Fatalf("text.String() is not %q, got %q", "second", text)
 	}
 }
 
-func TestParseElseIfWithElseStatement(t *testing.T) {
+func TestParseElseIfWithElseDir(t *testing.T) {
 	inp := `@if(true)1@elseif(false)2@else3@end`
 
-	stmts, err := parseChunks(inp, defaultParseOpts)
+	ifDir, err := parseEmbeddedNode[*ast.IfDir](inp, defaultParseOpts)
 	if err != nil {
 		t.Fatal(err)
 	}
-	stmt, ok := stmts[0].(*ast.IfDir)
-	if !ok {
-		t.Fatalf("stmts[0] is not an IfStmt, got %T", stmts[0])
-	}
 
-	if err := testIfDir(stmt, true, "1"); err != nil {
+	if err := testIfDir(ifDir, true, "1"); err != nil {
 		t.Fatal(err)
 	}
 
-	if err := testBlock(stmt.ElseBlock, "3"); err != nil {
+	if err := testBlock(ifDir.ElseBlock, "3"); err != nil {
 		t.Fatal(err)
 	}
 
-	if len(stmt.ElseifDirs) != 1 {
+	if len(ifDir.ElseifDirs) != 1 {
 		t.Fatalf(
-			"ifStmt.ElseifStmts does not contain 1 statement, got %d",
-			len(stmt.ElseifDirs),
+			"ifStmt.ElseifDirs does not contain 1 dir, got %d",
+			len(ifDir.ElseifDirs),
 		)
 	}
 
-	elseifStmt := stmt.ElseifDirs[0]
-	if err := testBoolExpr(elseifStmt.Cond, false); err != nil {
+	elseifDir := ifDir.ElseifDirs[0]
+	if err := testBoolExpr(elseifDir.Cond, false); err != nil {
 		t.Fatal(err)
 	}
 
-	if len(elseifStmt.Block.Chunks) != 1 {
+	if len(elseifDir.Block.Chunks) != 1 {
 		t.Fatalf(
-			"elseifStmt.Block.Statements does not contain 1 statement, got %d",
-			len(elseifStmt.Block.Chunks),
+			"elseifStmt.Block.Chunks does not contain 1 chunk, got %d",
+			len(elseifDir.Block.Chunks),
 		)
 	}
 
-	textStmt, ok := elseifStmt.Block.Chunks[0].(*ast.Text)
+	text, ok := elseifDir.Block.Chunks[0].(*ast.Text)
 	if !ok {
 		t.Fatalf(
-			"elseifStmt.Block.Statements[0] is not an Text, got %T",
-			elseifStmt.Block.Chunks[0],
+			"elseifStmt.Block.Chunks[0] is not an Text, got %T",
+			elseifDir.Block.Chunks[0],
 		)
 	}
 
-	if textStmt.String() != "2" {
-		t.Fatalf("TextStmt.String() is not %s, got %s", "2", textStmt)
+	if text.String() != "2" {
+		t.Fatalf("text.String() is not %s, got %s", "2", text)
 	}
 }
 
