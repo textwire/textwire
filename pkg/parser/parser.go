@@ -555,9 +555,9 @@ func (p *Parser) componentStmtHeader(stmt *ast.ComponentStmt) *ast.IllegalNode {
 
 func (p *Parser) assignSlotsToComp(stmt *ast.ComponentStmt) ast.Statement {
 	slots := p.slots(stmt.Name.Val)
-	stmt.Slots = make([]ast.SlotStatement, len(slots))
+	stmt.Slots = make([]ast.SlotCommand, len(slots))
 	for i := range slots {
-		slot, ok := slots[i].(ast.SlotStatement)
+		slot, ok := slots[i].(ast.SlotCommand)
 		if !ok {
 			return slots[i]
 		}

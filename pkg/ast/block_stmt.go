@@ -50,7 +50,7 @@ func (bs *BlockStmt) Stmts() []Statement {
 			continue
 		}
 
-		if s, ok := stmt.(NodeWithStatements); ok {
+		if s, ok := stmt.(NodeWithStmts); ok {
 			stmts = append(stmts, s.(Statement))
 			stmts = append(stmts, s.Stmts()...)
 		}

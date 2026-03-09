@@ -36,7 +36,7 @@ func TestFindDuplicateSlot(t *testing.T) {
 	t.Run("returns duplicate slot", func(t *testing.T) {
 		expectTimes := 3
 		expectDupl := "firstName"
-		slots := []SlotStatement{
+		slots := []SlotCommand{
 			NewSlotStmt(token.Token{}, &StrLit{Val: "lastname"}, "", false),
 			NewSlotStmt(token.Token{}, &StrLit{Val: "lastName"}, "", false),
 			NewSlotStmt(token.Token{}, &StrLit{Val: expectDupl}, "", false),
@@ -59,7 +59,7 @@ func TestFindDuplicateSlot(t *testing.T) {
 	})
 
 	t.Run("returns nil and 0 for no duplicates", func(t *testing.T) {
-		slots := []SlotStatement{
+		slots := []SlotCommand{
 			NewSlotStmt(token.Token{}, &StrLit{Val: "lastname"}, "", false),
 			NewSlotStmt(token.Token{}, &StrLit{Val: "lastName"}, "", false),
 			NewSlotStmt(token.Token{}, &StrLit{Val: "last_name"}, "", false),

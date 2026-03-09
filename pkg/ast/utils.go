@@ -43,11 +43,11 @@ func findSlotIndex(stmts []Statement, slotName string) int {
 	return -1
 }
 
-func findDuplicateSlot(slots []SlotStatement) (SlotStatement, int) {
+func findDuplicateSlot(slots []SlotCommand) (SlotCommand, int) {
 	counts := map[string]int{}
-	firstSeen := map[string]SlotStatement{}
+	firstSeen := map[string]SlotCommand{}
 
-	var maxSlot SlotStatement
+	var maxSlot SlotCommand
 	var maxCount int
 
 	for _, slot := range slots {

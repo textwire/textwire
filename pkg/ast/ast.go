@@ -4,6 +4,16 @@ import (
 	"github.com/textwire/textwire/v3/pkg/token"
 )
 
+type Statement interface {
+	Node
+	statementNode()
+}
+
+type Expression interface {
+	Node
+	expressionNode()
+}
+
 type Node interface {
 	Tok() *token.Token
 	String() string
@@ -12,16 +22,16 @@ type Node interface {
 	SetEndPosition(pos token.Position)
 }
 
-type LoopStmt interface {
+type LoopCommand interface {
 	LoopBlock() *BlockStmt
 }
 
-type NodeWithStatements interface {
+type NodeWithStmts interface {
 	Node
 	Stmts() []Statement
 }
 
-type SlotStatement interface {
+type SlotCommand interface {
 	Node
 	Name() *StrLit
 	IsDefault() bool

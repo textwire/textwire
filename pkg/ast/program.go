@@ -49,7 +49,7 @@ func (p *Program) Stmts() []Statement {
 			continue
 		}
 
-		if s, ok := stmt.(NodeWithStatements); ok {
+		if s, ok := stmt.(NodeWithStmts); ok {
 			stmts = append(stmts, s.(Statement))
 			stmts = append(stmts, s.Stmts()...)
 		}
@@ -101,7 +101,7 @@ func (p *Program) LinkCompProg(compName string, prog *Program, absPath string) *
 			name := slot.Name().Val
 			idx := findSlotIndex(prog.Statements, name)
 			if idx != -1 {
-				prog.Statements[idx].(SlotStatement).SetBlock(slot.Block())
+				prog.Statements[idx].(SlotCommand).SetBlock(slot.Block())
 				continue
 			}
 

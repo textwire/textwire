@@ -54,7 +54,7 @@ func (is *IfStmt) Stmts() []Statement {
 	}
 
 	for _, e := range is.ElseifStmts {
-		if withStmts, ok := e.(NodeWithStatements); ok {
+		if withStmts, ok := e.(NodeWithStmts); ok {
 			stmts = append(stmts, withStmts.Stmts()...)
 		}
 	}

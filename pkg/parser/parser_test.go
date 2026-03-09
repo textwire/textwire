@@ -1967,7 +1967,7 @@ func TestParseEmptyBlock(t *testing.T) {
 			t.Fatalf("Case: %d. %v", tc.id, err)
 		}
 
-		stmt, ok := stmts[0].(ast.NodeWithStatements)
+		stmt, ok := stmts[0].(ast.NodeWithStmts)
 		if !ok {
 			t.Fatalf("Case: %d. stmts[0] is not a NodeWithStatements, got %T", tc.id, stmts[0])
 		}
