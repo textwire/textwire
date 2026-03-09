@@ -2087,14 +2087,9 @@ func TestParseComponentStmt(t *testing.T) {
 	t.Run("@component with default slot", func(t *testing.T) {
 		inp := `@component("components/book-card")@slot<h1>Header</h1>@end@end`
 
-		stmts, err := parseChunks(inp, parseOpts{chunksCount: 1, checkErrors: true})
+		stmt, err := parseDirective[*ast.ComponentDir](inp, defaultParseOpts)
 		if err != nil {
 			t.Fatal(err)
-		}
-
-		stmt, ok := stmts[0].(*ast.ComponentDir)
-		if !ok {
-			t.Fatalf("stmts[0] is not a ComponentStmt, got %T", stmts[1])
 		}
 
 		if len(stmt.Slots) != 1 {
@@ -2280,14 +2275,9 @@ func TestParseSlotStmt(t *testing.T) {
 func TestParseSlotifStmt(t *testing.T) {
 	t.Run("default slotif", func(t *testing.T) {
 		inp := `@component('test')@slotif(true)Test@end@end`
-		stmts, err := parseChunks(inp, parseOpts{chunksCount: 1, checkErrors: true})
+		comp, err := parseDirective[*ast.ComponentDir](inp, defaultParseOpts)
 		if err != nil {
 			t.Fatal(err)
-		}
-
-		comp, ok := stmts[0].(*ast.ComponentDir)
-		if !ok {
-			t.Fatalf("stmts[1] is not a ComponentStmt, got %T", stmts[0])
 		}
 
 		if len(comp.Slots) > 1 {
@@ -2304,7 +2294,7 @@ func TestParseSlotifStmt(t *testing.T) {
 
 		slot, ok := comp.Slots[0].(*ast.SlotifDir)
 		if !ok {
-			t.Fatalf("comp.Slots[0] is not a SlotifStmt, got %T", stmts[0])
+			t.Fatalf("comp.Slots[0] is not a SlotifStmt, got %T", comp.Slots[0])
 		}
 
 		if err := testBoolExpr(slot.Cond, true); err != nil {
@@ -2324,14 +2314,9 @@ func TestParseSlotifStmt(t *testing.T) {
 
 	t.Run("named slotif", func(t *testing.T) {
 		inp := `@component('user')@slotif(false, 'name')Test2@end@end`
-		stmts, err := parseChunks(inp, parseOpts{chunksCount: 1, checkErrors: true})
+		comp, err := parseDirective[*ast.ComponentDir](inp, defaultParseOpts)
 		if err != nil {
 			t.Fatal(err)
-		}
-
-		comp, ok := stmts[0].(*ast.ComponentDir)
-		if !ok {
-			t.Fatalf("stmts[1] is not a ComponentStmt, got %T", stmts[0])
 		}
 
 		err = testPosition(comp.Position(), token.Position{EndCol: 52})
@@ -2348,7 +2333,7 @@ func TestParseSlotifStmt(t *testing.T) {
 
 		slot, ok := comp.Slots[0].(*ast.SlotifDir)
 		if !ok {
-			t.Fatalf("comp.Slots[0] is not a SlotifStmt, got %T", stmts[0])
+			t.Fatalf("comp.Slots[0] is not a SlotifStmt, got %T", comp.Slots[0])
 		}
 
 		if err := testBoolExpr(slot.Cond, false); err != nil {
