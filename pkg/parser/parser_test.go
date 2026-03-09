@@ -1466,48 +1466,55 @@ func TestParseIndexExp(t *testing.T) {
 	}
 }
 
-func TestParsePostfixExp(t *testing.T) {
-	cases := []struct {
-		inp    string
-		ident  string
-		op     string
-		str    string
-		expTok token.TokenType
-	}{
-		{`{{ i++ }}`, "i", "++", "(i++)", token.INC},
-		{`{{ num-- }}`, "num", "--", "(num--)", token.DEC},
+func TestParseIncStmt(t *testing.T) {
+	inp := "{{ i++ }}"
+
+	stmts, err := parseStmts(inp, defaultParseOpts)
+	if err != nil {
+		t.Fatal(err)
 	}
 
-	for _, tc := range cases {
-		stmts, err := parseStmts(tc.inp, defaultParseOpts)
-		if err != nil {
-			t.Fatal(err)
-		}
+	stmt, ok := stmts[0].(*ast.IncStmt)
+	if !ok {
+		t.Fatalf("stmts[0] is not a IncStmt, got %T", stmts[0])
+	}
 
-		stmt, ok := stmts[0].(*ast.ExpressionStmt)
-		if !ok {
-			t.Fatalf("stmts[0] is not a ExpressionStmt, got %T", stmts[0])
-		}
+	if err := testToken(stmt, token.INC); err != nil {
+		t.Fatal(err)
+	}
 
-		postfix, ok := stmt.Expression.(*ast.PostfixExp)
-		if !ok {
-			t.Fatalf("stmt.Expression is not a PostfixExp, got %T", stmt.Expression)
-		}
+	if err := testIdent(stmt.Left, "i"); err != nil {
+		t.Fatal(err)
+	}
 
-		if err := testToken(postfix, tc.expTok); err != nil {
-			t.Fatal(err)
-		}
-		if err := testIdent(postfix.Left, tc.ident); err != nil {
-			t.Fatal(err)
-		}
+	if stmt.String() != "(i++)" {
+		t.Fatalf("stmt.String() is not '(i++)', got %s", stmt)
+	}
+}
 
-		if postfix.Op != tc.op {
-			t.Fatalf("postfix.Op is not '%s', got %s", tc.op, postfix.Op)
-		}
+func TestParseDecStmt(t *testing.T) {
+	inp := "{{ i-- }}"
 
-		if postfix.String() != tc.str {
-			t.Fatalf("postfix.String() is not '%s', got %s", tc.str, postfix)
-		}
+	stmts, err := parseStmts(inp, defaultParseOpts)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	stmt, ok := stmts[0].(*ast.DecStmt)
+	if !ok {
+		t.Fatalf("stmts[0] is not a DecStmt, got %T", stmts[0])
+	}
+
+	if err := testToken(stmt, token.DEC); err != nil {
+		t.Fatal(err)
+	}
+
+	if err := testIdent(stmt.Left, "i"); err != nil {
+		t.Fatal(err)
+	}
+
+	if stmt.String() != "(i--)" {
+		t.Fatalf("stmt.String() is not '(i--)', got %s", stmt)
 	}
 }
 

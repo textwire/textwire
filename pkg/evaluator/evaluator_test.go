@@ -93,14 +93,7 @@ func TestEvalNumericExp(t *testing.T) {
 		{120, `{{ 3 * 3 * 3 + 10 }}`, "37"},
 		{130, `{{ (5 + 10 * 2 + 15 / 3) * 2 + -10 }}`, "50"},
 		{140, `{{ ((5 + 10) * ((2 + 15) / 3) + 2) }}`, "77"},
-		{150, `{{ 10++ }}`, "11"},
-		{160, `{{ 10-- }}`, "9"},
-		{170, `{{ 3++ + 2-- }}`, "5"},
-		{180, `{{ 3-- + 2-- * 3++ + (4--) }}`, "9"},
 		// Floats
-		{190, `{{ 4.4++ }}`, "5.4"},
-		{200, `{{ 4.4-- }}`, "3.4"},
-		{210, `{{ 4.0-- }}`, "3.0"},
 		{220, "{{ 5.11 }}", "5.11"},
 		{230, "{{ -12.3 }}", "-12.3"},
 		{240, `{{ 2.123 + 1.111 }}`, "3.234"},
@@ -417,6 +410,7 @@ func TestEvalStringExp(t *testing.T) {
 		inp    string
 		expect string
 	}{
+		{200, `{{ name = "Anna"; "Hello " + name }}`, "Hello Anna"},
 		// Basic string output
 		{10, `{{ "Hello World" }}`, "Hello World"},
 		{20, `{{ 'Hello World 2' }}`, "Hello World 2"},
@@ -804,6 +798,25 @@ func TestEvalAssign(t *testing.T) {
 	}
 }
 
+func TestIncDecStmt(t *testing.T) {
+	cases := []struct {
+		id     uint
+		inp    string
+		expect string
+	}{
+		// Integer
+		{10, `{{ i = 10; i++; i }}`, "11"},
+		{20, `{{ x = 0; x++; x }}`, "1"},
+		// Float
+		{30, `{{ x = 4.4; x--; x }}`, "3.4"},
+		{48, `{{ x = 0.0; x--; x }}`, "-1.0"},
+	}
+
+	for _, tc := range cases {
+		evaluationExpected(t, tc.inp, tc.expect, tc.id)
+	}
+}
+
 func TestEvalForStmt(t *testing.T) {
 	cases := []struct {
 		id     uint
@@ -814,7 +827,6 @@ func TestEvalForStmt(t *testing.T) {
 		{10, `@for(i = 0; i < 2; i++){{ i }}@end`, "01"},
 		{20, `@for(i = 1; i <= 3; i++){{ i }}@end`, "123"},
 		{30, `@for(i = 5; i > 0; i--){{ i }}@end`, "54321"},
-		{40, `@for(i = 0; i < 4; i+2){{ i }}@end`, "02"},
 		// Empty loop header parts
 		{50, `@for(; false;)Here@end`, ""},
 		{60, `@for(; true;)x@break@end`, "x"},
@@ -858,9 +870,6 @@ func TestEvalForStmt(t *testing.T) {
 		// Variable modification in loop
 		{310, `{{ sum = 0 }}@for(i = 1; i <= 5; i++){{ sum = sum + i }}@end{{ sum }}`, "15"},
 		{320, `{{ count = 0 }}@for(i = 0; i < 3; i++){{ count = count + 1 }}@end{{ count }}`, "3"},
-		// Float iteration
-		{330, `@for(f = 0.0; f < 1.0; f + 0.5){{ f }}@end`, "0.00.5"},
-		{340, `@for(f = 0.0; f < 2.0; f + 1.0){{ f }}@end`, "0.01.0"},
 		// Multiple statements in loop body
 		{350, `@for(i = 0; i < 3; i++){{ i }};{{ i * 2 }}@end`, "0;01;22;4"},
 	}

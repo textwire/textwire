@@ -51,8 +51,6 @@ var precedences = map[token.TokenType]int{
 	token.MOD:      PRODUCT,
 	token.MUL:      PRODUCT,
 	token.LBRACKET: INDEX,
-	token.INC:      POSTFIX,
-	token.DEC:      POSTFIX,
 	token.DOT:      MEMBER_ACCESS,
 	token.LPAREN:   CALL,
 }
@@ -131,8 +129,6 @@ func New(lexer *lexer.Lexer, f *file.SourceFile) *Parser {
 
 	p.registerInfix(token.QUESTION, p.ternaryExp)
 	p.registerInfix(token.LBRACKET, p.indexExp)
-	p.registerInfix(token.INC, p.postfixExp)
-	p.registerInfix(token.DEC, p.postfixExp)
 	p.registerInfix(token.DOT, p.dotExp)
 
 	return p
@@ -188,7 +184,7 @@ func (p *Parser) statement() ast.Statement {
 	case token.IF:
 		return p.ifStmt()
 	case token.FOR:
-		return p.forStmt()
+		return p._for()
 	case token.EACH:
 		return p.eachStmt()
 	case token.USE:
@@ -867,8 +863,28 @@ func (p *Parser) indexExp(left ast.Expression) ast.Expression {
 	return exp
 }
 
-func (p *Parser) postfixExp(left ast.Expression) ast.Expression {
-	return ast.NewPostfixExp(p.curToken, left, p.curToken.Lit)
+func (p *Parser) incStmt(left ast.Expression) ast.Statement {
+	p.next() // skip to "++"
+
+	stmt := ast.NewIncStmt(p.curToken, left)
+
+	if p.peekIs(token.RBRACES) {
+		p.next() // skip "}}"
+	}
+
+	return stmt
+}
+
+func (p *Parser) decStmt(left ast.Expression) ast.Statement {
+	p.next() // skip to "++"
+
+	stmt := ast.NewDecStmt(p.curToken, left)
+
+	if p.peekIs(token.RBRACES) {
+		p.next() // skip "}}"
+	}
+
+	return stmt
 }
 
 func (p *Parser) dotExp(left ast.Expression) ast.Expression {
@@ -1045,7 +1061,7 @@ func (p *Parser) elseBlock() *ast.BlockStmt {
 	return stmt
 }
 
-func (p *Parser) forStmt() ast.Statement {
+func (p *Parser) _for() ast.Statement {
 	stmt := ast.NewForStmt(p.curToken)
 
 	if illegal := p.forStmtHeader(stmt); illegal != nil { // skips ")"
@@ -1190,15 +1206,21 @@ func (p *Parser) expressionStmt() ast.Statement {
 	prevTok := p.curToken
 
 	exp := p.expression(LOWEST)
+
+	switch p.peekToken.Type {
+	case token.ASSIGN:
+		return p.assignStmt(exp)
+	case token.INC:
+		return p.incStmt(exp)
+	case token.DEC:
+		return p.decStmt(exp)
+	}
+
 	stmt := ast.NewExpressionStmt(prevTok, exp)
 	stmt.SetEndPosition(p.curToken.Pos)
 
 	if p.peekIs(token.RBRACES) {
 		p.next() // skip "}}"
-	}
-
-	if p.peekIs(token.ASSIGN) {
-		return p.assignStmt(exp)
 	}
 
 	return stmt

@@ -57,7 +57,7 @@ func (e *Evaluator) Eval(node ast.Node, ctx *Context) value.Value {
 	case *ast.ReserveStmt:
 		return e.reserve(node, ctx)
 	case *ast.ForStmt:
-		return e._for(node, ctx)
+		return e.forStmt(node, ctx)
 	case *ast.EachStmt:
 		return e.each(node, ctx)
 	case *ast.BreakifStmt:
@@ -106,8 +106,10 @@ func (e *Evaluator) Eval(node ast.Node, ctx *Context) value.Value {
 		return e.ternaryExp(node, ctx)
 	case *ast.InfixExp:
 		return e.infixExp(node.Op, node.Left, node.Right, ctx)
-	case *ast.PostfixExp:
-		return e.postfixExp(node, ctx)
+	case *ast.IncStmt:
+		return e.incStmt(node, ctx)
+	case *ast.DecStmt:
+		return e.decStmt(node, ctx)
 	case *ast.CallExp:
 		return e.callExp(node, ctx)
 	case *ast.GlobalCallExp:
@@ -197,24 +199,32 @@ func (e *Evaluator) assign(assignStmt *ast.AssignStmt, ctx *Context) value.Value
 		return right
 	}
 
-	switch left := assignStmt.Left.(type) {
-	case *ast.Ident:
-		return e.assignIdentifier(left, right, ctx)
-	case *ast.IndexExp:
-		return e.assignIndexExp(left, right, ctx)
-	case *ast.DotExp:
-		return e.assignDotExp(left, right, ctx)
-	default:
-		return e.newError(
-			assignStmt,
-			ctx,
-			fail.ErrNotSupportedAssign,
-			value.FromTokenToValueType(left.Tok().Type),
-		)
-	}
+	return e.assignTo(assignStmt.Left, right, ctx)
 }
 
-func (e *Evaluator) assignIdentifier(
+func (e *Evaluator) assignTo(
+	left ast.Expression,
+	right value.Value,
+	ctx *Context,
+) value.Value {
+	switch l := left.(type) {
+	case *ast.Ident:
+		return e.assignIdent(l, right, ctx)
+	case *ast.IndexExp:
+		return e.assignIndexExp(l, right, ctx)
+	case *ast.DotExp:
+		return e.assignDotExp(l, right, ctx)
+	}
+
+	return e.newError(
+		left,
+		ctx,
+		fail.ErrNotSupportedAssign,
+		value.FromTokenToValueType(left.Tok().Type),
+	)
+}
+
+func (e *Evaluator) assignIdent(
 	ident *ast.Ident,
 	val value.Value,
 	ctx *Context,
@@ -399,7 +409,7 @@ func (e *Evaluator) component(compStmt *ast.ComponentStmt, ctx *Context) value.V
 	}
 }
 
-func (e *Evaluator) _for(forStmt *ast.ForStmt, ctx *Context) value.Value {
+func (e *Evaluator) forStmt(forStmt *ast.ForStmt, ctx *Context) value.Value {
 	forCtx := NewContext(ctx.scope, ctx.absPath)
 
 	var init value.Value
@@ -443,18 +453,10 @@ func (e *Evaluator) _for(forStmt *ast.ForStmt, ctx *Context) value.Value {
 
 		blocks.WriteString(block.String())
 
-		var post value.Value
 		if forStmt.Post != nil {
-			post = e.Eval(forStmt.Post, forCtx)
+			post := e.Eval(forStmt.Post, forCtx)
 			if isError(post) {
 				return post
-			}
-		}
-
-		if post != nil {
-			varName := forStmt.Init.(*ast.AssignStmt).Left.(*ast.Ident).Name
-			if err := forCtx.scope.Set(varName, post); err != nil {
-				return e.newError(forStmt, forCtx, "%s", err.Error())
 			}
 		}
 
@@ -816,7 +818,8 @@ func (e *Evaluator) evalExpressions(exps []ast.Expression, ctx *Context) []value
 
 func (e *Evaluator) infixExp(
 	op string,
-	leftNode, rightNode ast.Expression,
+	leftNode,
+	rightNode ast.Expression,
 	ctx *Context,
 ) value.Value {
 	left := e.Eval(leftNode, ctx)
@@ -853,13 +856,40 @@ func (e *Evaluator) shortCircuit(left value.Value, op string) (value.Value, bool
 	return nil, false
 }
 
-func (e *Evaluator) postfixExp(postfixExp *ast.PostfixExp, ctx *Context) value.Value {
-	leftObj := e.Eval(postfixExp.Left, ctx)
-	if isError(leftObj) {
-		return leftObj
+func (e *Evaluator) incStmt(incStmt *ast.IncStmt, ctx *Context) value.Value {
+	left := e.Eval(incStmt.Left, ctx)
+	if isError(left) {
+		return left
 	}
 
-	return e.postfixOpExp(leftObj, postfixExp.Op, postfixExp, ctx)
+	switch l := left.(type) {
+	case *value.Int:
+		return e.assignTo(incStmt.Left, &value.Int{Val: l.Val + 1}, ctx)
+	case *value.Float:
+		return e.assignTo(incStmt.Left, &value.Float{Val: l.Val + 1}, ctx)
+	}
+
+	return e.newError(incStmt, ctx, fail.ErrIllegalTypeForInc, left.Type())
+}
+
+func (e *Evaluator) decStmt(decInc *ast.DecStmt, ctx *Context) value.Value {
+	left := e.Eval(decInc.Left, ctx)
+	if isError(left) {
+		return left
+	}
+
+	switch l := left.(type) {
+	case *value.Int:
+		return e.assignTo(decInc.Left, &value.Int{Val: l.Val - 1}, ctx)
+	case *value.Float:
+		err := l.SubtractFromFloat(1)
+		if err != nil {
+			return e.newError(decInc, ctx, fail.ErrCannotDecFromFloat, left, err)
+		}
+		return e.assignTo(decInc.Left, l, ctx)
+	}
+
+	return e.newError(decInc, ctx, fail.ErrIllegalTypeForDec, left.Type())
 }
 
 func (e *Evaluator) callExp(callExp *ast.CallExp, ctx *Context) value.Value {
@@ -997,40 +1027,6 @@ func (e *Evaluator) valuesToNativeType(args []value.Value) []any {
 	}
 
 	return vals
-}
-
-func (e *Evaluator) postfixOpExp(
-	left value.Value,
-	op string,
-	node ast.Node,
-	ctx *Context,
-) value.Value {
-	switch op {
-	case "++":
-		if int, ok := left.(*value.Int); ok {
-			return &value.Int{Val: int.Val + 1}
-		}
-
-		if fl, ok := left.(*value.Float); ok {
-			return &value.Float{Val: fl.Val + 1}
-		}
-	case "--":
-		if int, ok := left.(*value.Int); ok {
-			return &value.Int{Val: int.Val - 1}
-		}
-
-		if fl, ok := left.(*value.Float); ok {
-			float := &value.Float{Val: fl.Val}
-
-			if err := float.SubtractFromFloat(1); err != nil {
-				return e.newError(node, ctx, fail.ErrCannotSubFromFloat, float, err)
-			}
-
-			return float
-		}
-	}
-
-	return e.newError(node, ctx, fail.ErrUnknownOp, left.Type(), op)
 }
 
 func (e *Evaluator) operatorExp(

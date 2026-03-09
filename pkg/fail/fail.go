@@ -36,8 +36,8 @@ const (
 	ErrInsertMustHaveContent   = "@insert() requires either a block (body) or a second argument"
 	ErrIndexNotSupported       = "type '%s' does not support indexing"
 	ErrUnknownOp               = "unknown operator '%s%s'"
-	ErrCannotSubFromFloat      = "cannot decrement from float '%s' due to error: %s"
 	ErrCannotUseOperator       = "operator '%s' is not supported for the combination '%s' %s '%s'"
+	ErrCannotDecFromFloat      = "cannot decrement from float '%s' due to error: %s"
 	ErrPrefixOpIsWrong         = "cannot apply prefix '%s' to type '%s'"
 	ErrVariableIsUndefined     = "variable '%s' is not defined"
 	ErrReservedIdentifiers     = "'loop' and 'global' are reserved variable names"
@@ -52,6 +52,8 @@ const (
 	ErrUseStmtMissingLayout    = "@use('%s') missing layout file"
 	ErrGlobalFuncMissing       = "global function %s() not found"
 	ErrKeyOnNonObj             = "'%s' type does not support attribute '%s' access"
+	ErrIllegalTypeForInc       = "cannot increment '%s', only integer and float are allowed"
+	ErrIllegalTypeForDec       = "cannot decrement '%s', only integer and float are allowed"
 
 	// Functions
 	ErrFuncNotDefined   = "%s.%s() is not defined"
