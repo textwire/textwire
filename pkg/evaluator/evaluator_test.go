@@ -867,11 +867,18 @@ func TestEvalForStmt(t *testing.T) {
 			`<ul>@for(i = 1; i <= 3; i++)<li>{{ i }}</li>@end</ul>`,
 			"<ul><li>1</li><li>2</li><li>3</li></ul>",
 		},
-		// Variable modification in loop
+		// Variable modification from outside scope
 		{310, `{{ sum = 0 }}@for(i = 1; i <= 5; i++){{ sum = sum + i }}@end{{ sum }}`, "15"},
 		{320, `{{ count = 0 }}@for(i = 0; i < 3; i++){{ count = count + 1 }}@end{{ count }}`, "3"},
+		{330, `{{ n = 0 }}@for(; true; n++){{ n }}@breakif(n == 2)@end`, "012"},
+		{340, `{{ i = 0 }}@for(; i < 3; i++){{ i }}@end`, "012"},
 		// Multiple statements in loop body
 		{350, `@for(i = 0; i < 3; i++){{ i }};{{ i * 2 }}@end`, "0;01;22;4"},
+		{
+			id:     360,
+			inp:    `@for(i = 1; i <= 3; i++){{ i }} -> {{ i * i }}|@end`,
+			expect: "1 -> 1|2 -> 4|3 -> 9|",
+		},
 	}
 
 	for _, tc := range cases {
