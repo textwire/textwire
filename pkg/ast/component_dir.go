@@ -20,7 +20,7 @@ func NewComponentDir(tok token.Token) *ComponentDir {
 	}
 }
 
-func (_ *ComponentDir) chunkNode() {}
+func (*ComponentDir) chunkNode() {}
 
 func (cd *ComponentDir) ArgsString() string {
 	var out strings.Builder

@@ -19,7 +19,7 @@ func NewUseDir(tok token.Token) *UseDir {
 	}
 }
 
-func (_ *UseDir) chunkNode() {}
+func (*UseDir) chunkNode() {}
 
 func (ud *UseDir) String() string {
 	return fmt.Sprintf(`@use(%s)`, ud.Name)

@@ -19,7 +19,7 @@ func NewReserveDir(tok token.Token) *ReserveDir {
 	}
 }
 
-func (_ *ReserveDir) chunkNode() {}
+func (*ReserveDir) chunkNode() {}
 
 func (rd *ReserveDir) String() string {
 	if rd.Fallback == nil {

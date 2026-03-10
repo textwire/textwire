@@ -19,7 +19,7 @@ func NewElseIfDir(tok token.Token) *ElseIfDir {
 	}
 }
 
-func (_ *ElseIfDir) chunkNode() {}
+func (*ElseIfDir) chunkNode() {}
 
 func (ed *ElseIfDir) String() string {
 	var out strings.Builder

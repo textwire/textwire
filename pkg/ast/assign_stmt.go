@@ -19,7 +19,7 @@ func NewAssignStmt(tok token.Token, left Expression) *AssignStmt {
 	}
 }
 
-func (_ *AssignStmt) statementNode() {}
+func (*AssignStmt) statementNode() {}
 
 func (as *AssignStmt) String() string {
 	return fmt.Sprintf("(%s = %s)", as.Left, as.Right)

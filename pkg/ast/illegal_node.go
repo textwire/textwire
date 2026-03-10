@@ -14,10 +14,10 @@ func NewIllegalNode(tok token.Token) *IllegalNode {
 	}
 }
 
-func (_ *IllegalNode) statementNode()  {}
-func (_ *IllegalNode) expressionNode() {}
-func (_ *IllegalNode) chunkNode()      {}
+func (*IllegalNode) statementNode()  {}
+func (*IllegalNode) expressionNode() {}
+func (*IllegalNode) chunkNode()      {}
 
-func (_ *IllegalNode) String() string {
+func (*IllegalNode) String() string {
 	return ""
 }

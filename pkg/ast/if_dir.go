@@ -21,7 +21,7 @@ func NewIfDir(tok token.Token) *IfDir {
 	}
 }
 
-func (_ *IfDir) chunkNode() {}
+func (*IfDir) chunkNode() {}
 
 func (id *IfDir) String() string {
 	var out strings.Builder

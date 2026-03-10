@@ -19,7 +19,7 @@ func NewIndexExpr(tok token.Token, left Expression) *IndexExpr {
 	}
 }
 
-func (_ *IndexExpr) expressionNode() {}
+func (*IndexExpr) expressionNode() {}
 
 func (ie *IndexExpr) String() string {
 	return fmt.Sprintf("(%s[%s])", ie.Left, ie.Index)

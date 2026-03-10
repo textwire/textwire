@@ -14,7 +14,7 @@ func NewIntExpr(tok token.Token, val int64) *IntExpr {
 	}
 }
 
-func (_ *IntExpr) expressionNode() {}
+func (*IntExpr) expressionNode() {}
 
 func (ie *IntExpr) String() string {
 	return ie.Token.Lit

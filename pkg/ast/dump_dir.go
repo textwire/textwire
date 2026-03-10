@@ -18,7 +18,7 @@ func NewDumpDir(tok token.Token, args []Expression) *DumpDir {
 	}
 }
 
-func (_ *DumpDir) chunkNode() {}
+func (*DumpDir) chunkNode() {}
 
 func (dd *DumpDir) String() string {
 	var out strings.Builder

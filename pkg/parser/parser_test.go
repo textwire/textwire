@@ -217,6 +217,10 @@ func TestParseGroupedExpression(t *testing.T) {
 		EndCol:   13,
 	})
 
+	if err != nil {
+		t.Fatal(err)
+	}
+
 	if err := testToken(infixExpr, token.LPAREN); err != nil {
 		t.Fatal(err)
 	}
@@ -606,6 +610,10 @@ func TestParseIfDir(t *testing.T) {
 		inp := `@if(true)1@end`
 
 		ifDir, err := parseDirective[*ast.IfDir](inp, defaultParseOpts)
+		if err != nil {
+			t.Fatal(err)
+		}
+
 		if err := testToken(ifDir, token.IF); err != nil {
 			t.Fatal(err)
 		}

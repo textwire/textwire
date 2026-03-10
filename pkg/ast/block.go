@@ -18,7 +18,7 @@ func NewBlock(tok token.Token) *Block {
 	}
 }
 
-func (_ *Block) chunkNode() {}
+func (*Block) chunkNode() {}
 
 func (b *Block) String() string {
 	var out strings.Builder

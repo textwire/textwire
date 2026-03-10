@@ -24,7 +24,7 @@ func NewSlotDir(tok token.Token, name *StrExpr, compName string, isLocal bool) *
 	}
 }
 
-func (_ *SlotDir) chunkNode() {}
+func (*SlotDir) chunkNode() {}
 
 func (sd *SlotDir) Name() *StrExpr {
 	return sd.name

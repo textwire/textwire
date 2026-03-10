@@ -17,7 +17,7 @@ func NewObjExpr(tok token.Token) *ObjExpr {
 	}
 }
 
-func (_ *ObjExpr) expressionNode() {}
+func (*ObjExpr) expressionNode() {}
 
 func (oe *ObjExpr) String() string {
 	var out strings.Builder

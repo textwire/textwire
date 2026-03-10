@@ -12,7 +12,7 @@ func NewContinueDir(tok token.Token) *ContinueDir {
 	}
 }
 
-func (_ *ContinueDir) chunkNode() {}
+func (*ContinueDir) chunkNode() {}
 
 func (cd *ContinueDir) String() string {
 	return cd.Token.Lit

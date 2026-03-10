@@ -13,7 +13,7 @@ func NewText(tok token.Token) *Text {
 	}
 }
 
-func (_ *Text) chunkNode() {}
+func (*Text) chunkNode() {}
 
 func (t *Text) String() string {
 	return t.Token.Lit

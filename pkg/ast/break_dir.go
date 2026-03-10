@@ -14,7 +14,7 @@ func NewBreakDir(tok token.Token) *BreakDir {
 	}
 }
 
-func (_ *BreakDir) chunkNode() {}
+func (*BreakDir) chunkNode() {}
 
 func (bd *BreakDir) String() string {
 	return bd.Token.Lit

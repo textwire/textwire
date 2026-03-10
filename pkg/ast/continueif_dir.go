@@ -17,7 +17,7 @@ func NewContinueIfDir(tok token.Token) *ContinueifDir {
 	}
 }
 
-func (_ *ContinueifDir) chunkNode() {}
+func (*ContinueifDir) chunkNode() {}
 
 func (cd *ContinueifDir) String() string {
 	return fmt.Sprintf("%s(%s)", cd.Token.Lit, cd.Cond)

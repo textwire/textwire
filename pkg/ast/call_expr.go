@@ -22,7 +22,7 @@ func NewCallExpr(tok token.Token, receiver Expression, function *IdentExpr) *Cal
 	}
 }
 
-func (_ *CallExpr) expressionNode() {}
+func (*CallExpr) expressionNode() {}
 
 func (ce *CallExpr) String() string {
 	var args strings.Builder

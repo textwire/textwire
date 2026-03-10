@@ -25,7 +25,7 @@ func NewInsertDir(tok token.Token, absPath string) *InsertDir {
 	}
 }
 
-func (_ *InsertDir) chunkNode() {}
+func (*InsertDir) chunkNode() {}
 
 func (i *InsertDir) String() string {
 	var out strings.Builder

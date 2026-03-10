@@ -14,7 +14,7 @@ func NewIdentExpr(tok token.Token, name string) *IdentExpr {
 	}
 }
 
-func (_ *IdentExpr) expressionNode() {}
+func (*IdentExpr) expressionNode() {}
 
 func (ie *IdentExpr) String() string {
 	return ie.Name

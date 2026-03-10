@@ -21,7 +21,7 @@ func NewInfixExpr(tok token.Token, left Expression, op string) *InfixExpr {
 	}
 }
 
-func (_ *InfixExpr) expressionNode() {}
+func (*InfixExpr) expressionNode() {}
 
 func (ie *InfixExpr) String() string {
 	return fmt.Sprintf("(%s %s %s)", ie.Left, ie.Op, ie.Right)

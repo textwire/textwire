@@ -18,7 +18,7 @@ func NewStrExpr(tok token.Token, val string) *StrExpr {
 	}
 }
 
-func (_ *StrExpr) expressionNode() {}
+func (*StrExpr) expressionNode() {}
 
 func (se *StrExpr) String() string {
 	return fmt.Sprintf(`"%s"`, se.Val)

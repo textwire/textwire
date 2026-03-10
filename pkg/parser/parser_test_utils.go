@@ -31,7 +31,7 @@ func parseChunks(inp string, opts parseOpts) ([]ast.Chunk, error) {
 
 	if len(prog.Chunks) != opts.chunksCount {
 		return nil, fmt.Errorf(
-			"Program must have %d chunks but got %d for input %q",
+			"program must have %d chunks but got %d for input %q",
 			opts.chunksCount,
 			len(prog.Chunks),
 			inp,
@@ -63,7 +63,11 @@ func parseEmbedded[T ast.Node](inp string, opts parseOpts) (T, error) {
 
 	segment, ok := embedded.Segments[0].(T)
 	if !ok {
-		return zero, fmt.Errorf("embedded.Segments[0] is not %T, got %T", zero, embedded.Segments[0])
+		return zero, fmt.Errorf(
+			"embedded.Segments[0] is not %T, got %T",
+			zero,
+			embedded.Segments[0],
+		)
 	}
 
 	return segment, nil
@@ -292,7 +296,7 @@ func testBlock(block *ast.Block, val string) error {
 func testToken(tok ast.Node, expect token.TokenType) error {
 	if tok.Tok().Type != expect {
 		return fmt.Errorf(
-			"Token type is not %q, got %q",
+			"token type is not %q, got %q",
 			token.String(expect),
 			token.String(tok.Tok().Type),
 		)

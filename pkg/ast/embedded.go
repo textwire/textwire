@@ -17,7 +17,7 @@ func NewEmbedded(tok token.Token) *Embedded {
 	}
 }
 
-func (_ *Embedded) chunkNode() {}
+func (*Embedded) chunkNode() {}
 
 func (e *Embedded) String() string {
 	var out strings.Builder

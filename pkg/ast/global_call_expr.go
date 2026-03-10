@@ -20,7 +20,7 @@ func NewGlobalCallExpr(tok token.Token, function *IdentExpr) *GlobalCallExpr {
 	}
 }
 
-func (_ *GlobalCallExpr) expressionNode() {}
+func (*GlobalCallExpr) expressionNode() {}
 
 func (gce *GlobalCallExpr) String() string {
 	var args strings.Builder

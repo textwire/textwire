@@ -22,7 +22,7 @@ func NewForDir(tok token.Token) *ForDir {
 	}
 }
 
-func (_ *ForDir) chunkNode() {}
+func (*ForDir) chunkNode() {}
 
 func (fd *ForDir) LoopBlock() *Block {
 	if fd.Block == nil {

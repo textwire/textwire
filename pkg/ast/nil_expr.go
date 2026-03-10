@@ -15,7 +15,7 @@ func NewNilExpr(tok token.Token) *NilExpr {
 	}
 }
 
-func (_ *NilExpr) expressionNode() {}
+func (*NilExpr) expressionNode() {}
 
 func (ne *NilExpr) String() string {
 	return ne.Token.Lit

@@ -21,7 +21,7 @@ func NewEachDir(tok token.Token) *EachDir {
 	}
 }
 
-func (_ *EachDir) chunkNode() {}
+func (*EachDir) chunkNode() {}
 
 func (ed *EachDir) LoopBlock() *Block {
 	if ed.Block == nil {
