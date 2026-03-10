@@ -234,7 +234,7 @@ func TestParseGroupedExpression(t *testing.T) {
 		t.Fatalf("infixExpr.Left is not an InfixExpr, got %T", infixExpr.Left)
 	}
 
-	if err := testInfixExpr(leftInfixExpr, 5, "*", 3); err != nil {
+	if err := testInfixExpr(leftInfixExpr, 5, "+", 3); err != nil {
 		t.Fatal(err)
 	}
 }

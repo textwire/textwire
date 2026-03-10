@@ -31,3 +31,7 @@ func (bn *BaseNode) SetEndPosition(pos token.Position) {
 	bn.Pos.EndCol = pos.EndCol
 	bn.Pos.EndLine = pos.EndLine
 }
+
+func (bn *BaseNode) SetTok(tok token.Token) {
+	bn.Token = tok
+}

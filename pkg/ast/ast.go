@@ -27,6 +27,7 @@ type Chunk interface {
 
 type Node interface {
 	Tok() *token.Token
+	SetTok(token.Token)
 	String() string
 	Line() uint
 	Position() token.Position
