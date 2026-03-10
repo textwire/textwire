@@ -4,17 +4,6 @@ import (
 	"github.com/textwire/textwire/v3/pkg/token"
 )
 
-// Chunk is a top lever node that your program is composed of.
-// It can be a directive, text, or embedded code.
-// - Embedded `{{ ... }}`.
-// - Directive `@use('base')`.
-// - Text `<h1>Hello</h1>`.
-// - Block is a collection of chunks, 0 or more
-type Chunk interface {
-	Node
-	chunkNode()
-}
-
 type Node interface {
 	Tok() *token.Token
 	SetTok(token.Token)
@@ -22,6 +11,13 @@ type Node interface {
 	Line() uint
 	TokPos() token.Position
 	SetEndPosition(pos token.Position)
+}
+
+// Chunk is a top lever node that your program is composed of.
+// It can be a directive, text, block, or embedded code.
+type Chunk interface {
+	Node
+	chunkNode()
 }
 
 type Statement interface {
@@ -34,8 +30,8 @@ type Expression interface {
 	expressionNode()
 }
 
-// Segment represents a node that can appear inside {{ ... }}
-// This includes all expressions and specific statements (assign, inc, dec)
+// Segment represents a node that can appear inside {{ ... }} separated
+// by a semicolon. This includes all expressions and statements.
 type Segment interface {
 	Node
 	segmentNode()
