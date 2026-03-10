@@ -1137,7 +1137,7 @@ func TestParseTwoStatements(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if assignStmt.String() != `name = "Anna"` {
+	if assignStmt.String() != `(name = "Anna")` {
 		t.Fatalf("assignStmt.String() is not 'name = \"Anna\"', got %s", assignStmt)
 	}
 
@@ -1318,8 +1318,8 @@ func TestParseForDir(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		if stmt.Init.String() != `i = 0` {
-			t.Fatalf("stmt.Init.String() is not 'i = 0', got %s", stmt.Init)
+		if stmt.Init.String() != `(i = 0)` {
+			t.Fatalf("stmt.Init.String() is not '(i = 0)', got %s", stmt.Init)
 		}
 
 		if stmt.Cond.String() != `(i < 10)` {
@@ -1917,17 +1917,17 @@ func TestParseComponentDir(t *testing.T) {
 func TestParseSlotDir(t *testing.T) {
 	t.Run("named slot", func(t *testing.T) {
 		inp := "<h2>@slot('header')</h2>"
-		stmts, err := parseChunks(inp, parseOpts{chunksCount: 3, checkErrors: true})
+		chunks, err := parseChunks(inp, parseOpts{chunksCount: 3, checkErrors: true})
 		if err != nil {
 			t.Fatal(err)
 		}
 
-		stmt, ok := stmts[1].(*ast.SlotDir)
+		slotDir, ok := chunks[1].(*ast.SlotDir)
 		if !ok {
-			t.Fatalf("stmts[1] is not a SlotDir, got %T", stmts[1])
+			t.Fatalf("chunks[1] is not a SlotDir, got %T", chunks[1])
 		}
 
-		err = testPosition(stmt.Position(), token.Position{
+		err = testPosition(slotDir.Position(), token.Position{
 			StartCol: 4,
 			EndCol:   18,
 		})
@@ -1936,41 +1936,41 @@ func TestParseSlotDir(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		if err := testToken(stmt, token.SLOT); err != nil {
+		if err := testToken(slotDir, token.SLOT); err != nil {
 			t.Fatal(err)
 		}
 
-		if err := testStrExpr(stmt.Name(), "header"); err != nil {
+		if err := testStrExpr(slotDir.Name(), "header"); err != nil {
 			t.Fatal(err)
 		}
 
 		expect := `@slot("header")`
-		if stmt.String() != expect {
-			t.Fatalf("stmt.String() is not `%s`, got `%s`", expect, stmt)
+		if slotDir.String() != expect {
+			t.Fatalf("slotDir.String() is not `%s`, got `%s`", expect, slotDir)
 		}
 	})
 
 	t.Run("default slot without end", func(t *testing.T) {
 		inp := `<header>@slot</header>`
-		stmts, err := parseChunks(inp, parseOpts{chunksCount: 3, checkErrors: true})
+		chunks, err := parseChunks(inp, parseOpts{chunksCount: 3, checkErrors: true})
 		if err != nil {
 			t.Fatal(err)
 		}
 
-		stmt, ok := stmts[1].(*ast.SlotDir)
+		slotDir, ok := chunks[1].(*ast.SlotDir)
 		if !ok {
-			t.Fatalf("stmts[1] is not a SlotDir, got %T", stmts[1])
+			t.Fatalf("chunks[1] is not a SlotDir, got %T", chunks[1])
 		}
 
-		if err := testToken(stmt, token.SLOT); err != nil {
+		if err := testToken(slotDir, token.SLOT); err != nil {
 			t.Fatal(err)
 		}
 
-		if err := testNilExpr(stmt.Name()); err != nil {
+		if err := testStrExpr(slotDir.Name(), ""); err != nil {
 			t.Fatal(err)
 		}
 
-		err = testPosition(stmt.Position(), token.Position{
+		err = testPosition(slotDir.Position(), token.Position{
 			StartCol: 8,
 			EndCol:   12,
 		})
@@ -1979,8 +1979,8 @@ func TestParseSlotDir(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		if stmt.String() != "@slot" {
-			t.Fatalf("slot.String() is not @slot, got `%s`", stmt)
+		if slotDir.String() != "@slot" {
+			t.Fatalf("slotDir.String() is not @slot, got `%s`", slotDir)
 		}
 	})
 }
@@ -1988,83 +1988,84 @@ func TestParseSlotDir(t *testing.T) {
 func TestParseSlotifDir(t *testing.T) {
 	t.Run("default slotif", func(t *testing.T) {
 		inp := `@component('test')@slotif(true)Test@end@end`
-		comp, err := parseDirective[*ast.ComponentDir](inp, defaultParseOpts)
+		compDir, err := parseDirective[*ast.ComponentDir](inp, defaultParseOpts)
 		if err != nil {
 			t.Fatal(err)
 		}
 
-		if len(comp.Slots) > 1 {
-			t.Fatalf("len(comp.Slots) must be 1, got %d", len(comp.Slots))
+		if len(compDir.Slots) > 1 {
+			t.Fatalf("len(compDir.Slots) must be 1, got %d", len(compDir.Slots))
 		}
 
-		err = testPosition(comp.Position(), token.Position{EndCol: 42})
+		err = testPosition(compDir.Position(), token.Position{EndCol: 42})
 		if err != nil {
 			t.Fatal(err)
 		}
-		if err := testToken(comp, token.COMPONENT); err != nil {
+		if err := testToken(compDir, token.COMPONENT); err != nil {
 			t.Fatal(err)
 		}
 
-		slot, ok := comp.Slots[0].(*ast.SlotifDir)
+		slotif, ok := compDir.Slots[0].(*ast.SlotifDir)
 		if !ok {
-			t.Fatalf("comp.Slots[0] is not a SlotifDir, got %T", comp.Slots[0])
+			t.Fatalf("compDir.Slots[0] is not a SlotifDir, got %T", compDir.Slots[0])
 		}
 
-		if err := testBoolExpr(slot.Cond, true); err != nil {
+		if err := testBoolExpr(slotif.Cond, true); err != nil {
 			t.Fatal(err)
 		}
 
-		body := slot.Block().String()
+		body := slotif.Block().String()
 		if body != "Test" {
 			t.Fatalf("slotif.Block().String() is not 'Test', got %s", body)
 		}
 
 		expect := "@slotif(true)Test@end"
-		if slot.String() != expect {
-			t.Fatalf("slotif.String() is not '%s', got %s", expect, slot)
+		if slotif.String() != expect {
+			t.Fatalf("slotif.String() is not '%s', got %s", expect, slotif)
 		}
 	})
 
 	t.Run("named slotif", func(t *testing.T) {
 		inp := `@component('user')@slotif(false, 'name')Test2@end@end`
-		comp, err := parseDirective[*ast.ComponentDir](inp, defaultParseOpts)
+		compDir, err := parseDirective[*ast.ComponentDir](inp, defaultParseOpts)
 		if err != nil {
 			t.Fatal(err)
 		}
 
-		err = testPosition(comp.Position(), token.Position{EndCol: 52})
+		err = testPosition(compDir.Position(), token.Position{EndCol: 52})
 		if err != nil {
 			t.Fatal(err)
 		}
-		if err := testToken(comp, token.COMPONENT); err != nil {
+
+		if err := testToken(compDir, token.COMPONENT); err != nil {
 			t.Fatal(err)
 		}
 
-		if len(comp.Slots) > 1 {
-			t.Fatalf("len(comp.Slots) must be 1, got %d", len(comp.Slots))
+		if len(compDir.Slots) > 1 {
+			t.Fatalf("len(compDir.Slots) must be 1, got %d", len(compDir.Slots))
 		}
 
-		slot, ok := comp.Slots[0].(*ast.SlotifDir)
+		slotif, ok := compDir.Slots[0].(*ast.SlotifDir)
 		if !ok {
-			t.Fatalf("comp.Slots[0] is not a SlotifDir, got %T", comp.Slots[0])
+			t.Fatalf("compDir.Slots[0] is not a SlotifDir, got %T", compDir.Slots[0])
 		}
 
-		if err := testBoolExpr(slot.Cond, false); err != nil {
+		if err := testBoolExpr(slotif.Cond, false); err != nil {
 			t.Fatal(err)
 		}
 
-		if slot.Name().Val != "name" {
-			t.Fatalf("slot.Name().Val is not 'name', got %s", slot.Name())
+		if slotif.Name().Val != "name" {
+			t.Fatalf("slotif.Name().Val is not 'name', got %s", slotif.Name())
 		}
 
-		body := slot.Block().String()
+		body := slotif.Block().String()
 		if body != "Test2" {
 			t.Fatalf("slotif.Block().String() is not 'Test2', got %s", body)
 		}
 
 		expect := `@slotif(false, "name")Test2@end`
-		if slot.String() != expect {
-			t.Fatalf("slotif.String() is not '%s', got %s", expect, slot)
+		if slotif.String() != expect {
+			t.Fatalf("slotif.String() is not '%s', got %s", expect, slotif)
 		}
 	})
 }
@@ -2078,7 +2079,7 @@ func TestParseDumpDir(t *testing.T) {
 	}
 
 	if len(dumpDir.Args) != 3 {
-		t.Fatalf("len(stmt.Args) is not 3, got %d", len(dumpDir.Args))
+		t.Fatalf("len(dumpDir.Args) is not 3, got %d", len(dumpDir.Args))
 	}
 
 	err = testPosition(dumpDir.Position(), token.Position{
@@ -2110,22 +2111,23 @@ func TestParseDumpDir(t *testing.T) {
 func TestParseBlockAsIllegalNode(t *testing.T) {
 	inp := "@if(false)@dump(@end"
 
-	stmts, err := parseChunks(inp, parseOpts{chunksCount: 1, checkErrors: false})
+	chunks, err := parseChunks(inp, parseOpts{chunksCount: 1, checkErrors: false})
 	if err != nil {
 		t.Fatal(err)
 	}
-	stmt, ok := stmts[0].(*ast.IfDir)
+
+	ifDir, ok := chunks[0].(*ast.IfDir)
 	if !ok {
-		t.Fatalf("stmts[0] is not an IfDir, got %T", stmt)
+		t.Fatalf("chunks[0] is not an IfDir, got %T", ifDir)
 	}
 
-	dumpStmt, ok := stmt.IfBlock.Chunks[0].(*ast.DumpDir)
+	dumpDir, ok := ifDir.IfBlock.Chunks[0].(*ast.DumpDir)
 	if !ok {
-		t.Fatalf("stmt.IfBlock.Chunks[0] is not a DumpDir, got %T", dumpStmt)
+		t.Fatalf("ifDIr.IfBlock.Chunks[0] is not a DumpDir, got %T", dumpDir)
 	}
 
-	if _, ok = dumpStmt.Args[0].(*ast.IllegalNode); !ok {
-		t.Fatalf("dumpStmt.Args[0] is not an IllegalNode, got %T", dumpStmt.Args[0])
+	if _, ok = dumpDir.Args[0].(*ast.IllegalNode); !ok {
+		t.Fatalf("dumpDir.Args[0] is not an IllegalNode, got %T", dumpDir.Args[0])
 	}
 }
 

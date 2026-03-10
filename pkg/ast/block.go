@@ -28,16 +28,8 @@ func (b *Block) String() string {
 	var out strings.Builder
 	out.Grow(len(b.Chunks))
 
-	for _, s := range b.Chunks {
-		str := s.String()
-
-		if s.Tok().Type == token.TEXT {
-			out.WriteString(str)
-		} else if strings.HasPrefix(str, "@") {
-			out.WriteString(str)
-		} else {
-			out.WriteString("{{ " + str + " }}")
-		}
+	for i := range b.Chunks {
+		out.WriteString(b.Chunks[i].String())
 	}
 
 	return out.String()

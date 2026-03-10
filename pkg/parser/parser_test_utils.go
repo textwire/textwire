@@ -194,11 +194,7 @@ func testStrExpr(expr ast.Expression, val string) error {
 	}
 
 	if str.Val != val {
-		return fmt.Errorf("str.Val is not %s, got %s", val, str.Val)
-	}
-
-	if str.Tok().Lit != val {
-		return fmt.Errorf("str.Tok().Lit is not %s, got %s", val, str.Tok().Lit)
+		return fmt.Errorf("str.Val is not %q, got %q", val, str.Val)
 	}
 
 	return nil

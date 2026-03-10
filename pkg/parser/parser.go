@@ -218,6 +218,9 @@ func (p *Parser) embedded() ast.Chunk {
 	for !p.curTokenIs(token.RBRACES, token.EOF) {
 		if segment := p.parseSegment(); segment != nil {
 			embedded.Segments = append(embedded.Segments, segment)
+			if p.curTokenIs(token.SEMI) {
+				p.nextToken() // skip ";"
+			}
 		}
 	}
 
