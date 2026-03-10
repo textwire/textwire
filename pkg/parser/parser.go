@@ -1121,9 +1121,15 @@ func (p *Parser) forDirHeader(dir *ast.ForDir) *ast.IllegalNode {
 
 	// Parse Post statement
 	if !p.peekTokenIs(token.RPAREN) {
-		p.nextToken() // move to first token of post statement
+		p.nextToken() // skip ";"
 		left := p.expression(LOWEST)
 		p.nextToken() // move to ++/--
+
+		if p.curTokenIs(token.RPAREN) {
+			p.newError(p.curToken.ErrorLine(), fail.ErrForLoopExpectStmt, left.String())
+			return nil
+		}
+
 		dir.Post = p.statement(left)
 	}
 

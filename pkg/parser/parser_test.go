@@ -479,26 +479,32 @@ func TestParseOperatorPrecedence(t *testing.T) {
 
 func TestErrorHandling(t *testing.T) {
 	cases := []struct {
+		id  uint
 		inp string
 		err *fail.Error
 	}{
 		{
+			id:  10,
 			inp: `{{ { "1st": "nice" }.1st }}`,
 			err: fail.New(1, "", "parser", fail.ErrObjKeyUseGet),
 		},
 		{
+			id:  20,
 			inp: "{{ 5 + }}",
 			err: fail.New(1, "", "parser", fail.ErrExpectedExpression),
 		},
 		{
+			id:  30,
 			inp: "{{ }}",
 			err: fail.New(1, "", "parser", fail.ErrEmptyBraces),
 		},
 		{
+			id:  40,
 			inp: `{{ 1 ~ 8 }}`,
 			err: fail.New(1, "", "parser", fail.ErrIllegalToken, "~"),
 		},
 		{
+			id:  50,
 			inp: "{{ true ? 100 }}",
 			err: fail.New(
 				1,
@@ -510,20 +516,39 @@ func TestErrorHandling(t *testing.T) {
 			),
 		},
 		{
+			id:  60,
 			inp: "{{ ) }}",
 			err: fail.New(1, "", "parser", fail.ErrIllegalToken, token.String(token.RPAREN)),
 		},
 		{
+			id:  70,
 			inp: "@use('')",
 			err: fail.New(1, "", "parser", fail.ErrExpectedUseName),
 		},
 		{
+			id:  80,
 			inp: "@component('')",
 			err: fail.New(1, "", "parser", fail.ErrExpectedComponentName),
 		},
 		{
+			id:  90,
 			inp: "@use(1)",
 			err: fail.New(1, "", "parser", fail.ErrUseDirFirstArgStr, token.String(token.INT)),
+		},
+		{
+			id:  100,
+			inp: "@for(i = 0; i < 4; i+2){{ i }}@end",
+			err: fail.New(1, "", "parser", fail.ErrForLoopExpectStmt, "(i + 2)"),
+		},
+		{
+			id:  110,
+			inp: "@for(c = 0.0; c < 4.0; c+2.0){{ c }}@end",
+			err: fail.New(1, "", "parser", fail.ErrForLoopExpectStmt, "(c + 2.0)"),
+		},
+		{
+			id:  120,
+			inp: "@for(;; true){{ c }}@end",
+			err: fail.New(1, "", "parser", fail.ErrForLoopExpectStmt, "true"),
 		},
 	}
 
@@ -533,11 +558,11 @@ func TestErrorHandling(t *testing.T) {
 		p.ParseProgram()
 
 		if !p.HasErrors() {
-			t.Fatalf("no errors found in input %q", tc.inp)
+			t.Fatalf("Case: %d. No errors found in input %q", tc.id, tc.inp)
 		}
 
 		if err := p.Errors()[0]; err.String() != tc.err.String() {
-			t.Fatalf("expect error message %q, got %q", tc.err, err)
+			t.Fatalf("Case: %d. Expect error message:\n%q\ngot:\n%q", tc.id, tc.err, err)
 		}
 	}
 }

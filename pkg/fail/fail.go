@@ -28,6 +28,7 @@ const (
 	ErrDuplicateInserts       = "duplicate @insert('%s') found"
 	ErrUseDirFirstArgStr      = "argument 1 of @use(str) must be a string, got @use('%s')"
 	ErrOnlyOneUseDir          = "@use() directive can only be used once per template"
+	ErrForLoopExpectStmt      = "@for() expects statement as post conditional, got expression '%s', like 'i++', 'i = i + 2', etc"
 
 	// Evaluator (interpreter) errors
 	ErrUnknownNodeType         = "unsupported expression type '%T'"

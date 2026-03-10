@@ -39,81 +39,84 @@ func New(customFunc *config.Func, conf *config.Config) *Evaluator {
 
 func (e *Evaluator) Eval(node ast.Node, ctx *Context) value.Value {
 	switch node := node.(type) {
-	// Statements
 	case *ast.Program:
 		return e.program(node, ctx)
 	case *ast.Embedded:
 		return e.embedded(node, ctx)
 	case *ast.Text:
 		return &value.Text{Val: node.String()}
-	case *ast.IfDir:
-		return e._if(node, ctx)
 	case *ast.Block:
 		return e.block(node, ctx)
-	case *ast.AssignStmt:
-		return e.assign(node, ctx)
+	case *ast.IllegalNode:
+		return NIL
+
+	// Directives
+	case *ast.IfDir:
+		return e.ifDir(node, ctx)
 	case *ast.UseDir:
-		return e.use(node, ctx)
+		return e.useDir(node, ctx)
 	case *ast.ReserveDir:
-		return e.reserve(node, ctx)
+		return e.reserveDir(node, ctx)
 	case *ast.ForDir:
-		return e.forStmt(node, ctx)
+		return e.forDir(node, ctx)
 	case *ast.EachDir:
-		return e.each(node, ctx)
+		return e.eachDir(node, ctx)
 	case *ast.BreakifDir:
-		return e.breakif(node, ctx)
+		return e.breakifDir(node, ctx)
 	case *ast.ComponentDir:
-		return e.component(node, ctx)
+		return e.compDir(node, ctx)
 	case *ast.ContinueifDir:
-		return e.continueif(node, ctx)
+		return e.continueifDir(node, ctx)
 	case *ast.SlotDir:
-		return e.slot(node, ctx)
+		return e.slotDir(node, ctx)
 	case *ast.SlotifDir:
-		return e.slotif(node, ctx)
+		return e.slotifDir(node, ctx)
 	case *ast.DumpDir:
-		return e.dump(node, ctx)
+		return e.dumpDir(node, ctx)
 	case *ast.InsertDir:
-		return e.insert(node, ctx)
+		return e.insertDir(node, ctx)
 	case *ast.ContinueDir:
 		return CONTINUE
 	case *ast.BreakDir:
 		return BREAK
-	case *ast.IllegalNode:
-		return NIL
 
-	// Expressions
-	case *ast.IdentExpr:
-		return e.ident(node, ctx)
-	case *ast.IndexExpr:
-		return e.indexExp(node, ctx)
-	case *ast.DotExpr:
-		return e.dotExp(node, ctx)
-	case *ast.IntExpr:
-		return &value.Int{Val: node.Val}
-	case *ast.FloatExpr:
-		return &value.Float{Val: node.Val}
-	case *ast.StrExpr:
-		return e.strLit(node)
-	case *ast.BoolExpr:
-		return nativeBoolToBoolObj(node.Val)
-	case *ast.ObjExpr:
-		return e.objLit(node, ctx)
-	case *ast.ArrExpr:
-		return e.arrLit(node, ctx)
-	case *ast.PrefixExpr:
-		return e.prefixExp(node, ctx)
-	case *ast.TernaryExpr:
-		return e.ternaryExp(node, ctx)
-	case *ast.InfixExpr:
-		return e.infixExp(node.Op, node.Left, node.Right, ctx)
+	// Statements
+	case *ast.AssignStmt:
+		return e.assignStmt(node, ctx)
 	case *ast.IncStmt:
 		return e.incStmt(node, ctx)
 	case *ast.DecStmt:
 		return e.decStmt(node, ctx)
+
+	// Expressions
+	case *ast.IdentExpr:
+		return e.identExpr(node, ctx)
+	case *ast.IndexExpr:
+		return e.indexExpr(node, ctx)
+	case *ast.DotExpr:
+		return e.dotExpr(node, ctx)
+	case *ast.StrExpr:
+		return e.strExpr(node)
+	case *ast.BoolExpr:
+		return nativeBoolToBoolObj(node.Val)
+	case *ast.ObjExpr:
+		return e.objExpr(node, ctx)
+	case *ast.ArrExpr:
+		return e.arrExpr(node, ctx)
+	case *ast.PrefixExpr:
+		return e.prefixExpr(node, ctx)
+	case *ast.TernaryExpr:
+		return e.ternaryExpr(node, ctx)
+	case *ast.InfixExpr:
+		return e.infixExpr(node.Op, node.Left, node.Right, ctx)
 	case *ast.CallExpr:
-		return e.callExp(node, ctx)
+		return e.callExpr(node, ctx)
 	case *ast.GlobalCallExpr:
-		return e.globalCallExp(node, ctx)
+		return e.globalCallExpr(node, ctx)
+	case *ast.IntExpr:
+		return &value.Int{Val: node.Val}
+	case *ast.FloatExpr:
+		return &value.Float{Val: node.Val}
 	case *ast.NilExpr:
 		return NIL
 	}
@@ -152,7 +155,7 @@ func (e *Evaluator) embedded(embedded *ast.Embedded, ctx *Context) value.Value {
 	return &value.Str{Val: out.String()}
 }
 
-func (e *Evaluator) _if(ifStmt *ast.IfDir, ctx *Context) value.Value {
+func (e *Evaluator) ifDir(ifStmt *ast.IfDir, ctx *Context) value.Value {
 	cond := e.Eval(ifStmt.Cond, ctx)
 	if isError(cond) {
 		return cond
@@ -205,7 +208,7 @@ func (e *Evaluator) block(blockStmt *ast.Block, ctx *Context) value.Value {
 	return &value.Block{Elements: stmts}
 }
 
-func (e *Evaluator) assign(assignStmt *ast.AssignStmt, ctx *Context) value.Value {
+func (e *Evaluator) assignStmt(assignStmt *ast.AssignStmt, ctx *Context) value.Value {
 	right := e.Eval(assignStmt.Right, ctx)
 	if isError(right) {
 		return right
@@ -308,7 +311,7 @@ func (e *Evaluator) assignDotExp(
 	return NIL
 }
 
-func (e *Evaluator) use(useStmt *ast.UseDir, ctx *Context) value.Value {
+func (e *Evaluator) useDir(useStmt *ast.UseDir, ctx *Context) value.Value {
 	if useStmt.LayoutProg == nil {
 		if e.usingTemplates {
 			return e.newError(useStmt, ctx, fail.ErrUseDirMissingLayout, useStmt.Name.Val)
@@ -328,7 +331,7 @@ func (e *Evaluator) use(useStmt *ast.UseDir, ctx *Context) value.Value {
 
 	// Evaluate @inserts and map them into new context for layout
 	for name, insertStmt := range useStmt.Inserts {
-		insert := e.insert(insertStmt, ctx)
+		insert := e.insertDir(insertStmt, ctx)
 		if isError(insert) {
 			return insert
 		}
@@ -347,7 +350,7 @@ func (e *Evaluator) use(useStmt *ast.UseDir, ctx *Context) value.Value {
 	}
 }
 
-func (e *Evaluator) reserve(reserveStmt *ast.ReserveDir, ctx *Context) value.Value {
+func (e *Evaluator) reserveDir(reserveStmt *ast.ReserveDir, ctx *Context) value.Value {
 	if !e.usingTemplates {
 		return e.newError(reserveStmt, ctx, fail.ErrSomeDirsOnlyInTemplates)
 	}
@@ -371,7 +374,7 @@ func (e *Evaluator) reserve(reserveStmt *ast.ReserveDir, ctx *Context) value.Val
 	}
 }
 
-func (e *Evaluator) component(compStmt *ast.ComponentDir, ctx *Context) value.Value {
+func (e *Evaluator) compDir(compStmt *ast.ComponentDir, ctx *Context) value.Value {
 	if !e.usingTemplates {
 		return e.newError(compStmt, ctx, fail.ErrSomeDirsOnlyInTemplates)
 	}
@@ -421,7 +424,7 @@ func (e *Evaluator) component(compStmt *ast.ComponentDir, ctx *Context) value.Va
 	}
 }
 
-func (e *Evaluator) forStmt(forStmt *ast.ForDir, ctx *Context) value.Value {
+func (e *Evaluator) forDir(forStmt *ast.ForDir, ctx *Context) value.Value {
 	forCtx := NewContext(ctx.scope, ctx.absPath)
 
 	var init value.Value
@@ -484,7 +487,7 @@ func (e *Evaluator) forStmt(forStmt *ast.ForDir, ctx *Context) value.Value {
 	return &value.Text{Val: blocks.String()}
 }
 
-func (e *Evaluator) each(eachStmt *ast.EachDir, ctx *Context) value.Value {
+func (e *Evaluator) eachDir(eachStmt *ast.EachDir, ctx *Context) value.Value {
 	eachCtx := NewContext(ctx.scope.Child(), ctx.absPath)
 	varName := eachStmt.Var.Name
 
@@ -538,7 +541,7 @@ func (e *Evaluator) each(eachStmt *ast.EachDir, ctx *Context) value.Value {
 	return &value.Text{Val: blocks.String()}
 }
 
-func (e *Evaluator) breakif(breakifStmt *ast.BreakifDir, ctx *Context) value.Value {
+func (e *Evaluator) breakifDir(breakifStmt *ast.BreakifDir, ctx *Context) value.Value {
 	cond := e.Eval(breakifStmt.Cond, ctx)
 	if isError(cond) {
 		return cond
@@ -551,7 +554,7 @@ func (e *Evaluator) breakif(breakifStmt *ast.BreakifDir, ctx *Context) value.Val
 	return NIL
 }
 
-func (e *Evaluator) continueif(contifStmt *ast.ContinueifDir, ctx *Context) value.Value {
+func (e *Evaluator) continueifDir(contifStmt *ast.ContinueifDir, ctx *Context) value.Value {
 	cond := e.Eval(contifStmt.Cond, ctx)
 	if isError(cond) {
 		return cond
@@ -564,14 +567,14 @@ func (e *Evaluator) continueif(contifStmt *ast.ContinueifDir, ctx *Context) valu
 	return NIL
 }
 
-func (e *Evaluator) slot(slotStmt *ast.SlotDir, ctx *Context) value.Value {
+func (e *Evaluator) slotDir(slotStmt *ast.SlotDir, ctx *Context) value.Value {
 	if slotStmt.IsLocal {
 		return e.localSlotStmt(slotStmt, ctx)
 	}
 	return e.externalSlotStmt(slotStmt, ctx)
 }
 
-func (e *Evaluator) slotif(slotifStmt *ast.SlotifDir, ctx *Context) value.Value {
+func (e *Evaluator) slotifDir(slotifStmt *ast.SlotifDir, ctx *Context) value.Value {
 	cond := e.Eval(slotifStmt.Cond, ctx)
 	if isError(cond) {
 		return cond
@@ -625,7 +628,7 @@ func (e *Evaluator) localSlotStmt(slotStmt *ast.SlotDir, ctx *Context) value.Val
 	}
 }
 
-func (e *Evaluator) insert(insertStmt *ast.InsertDir, ctx *Context) value.Value {
+func (e *Evaluator) insertDir(insertStmt *ast.InsertDir, ctx *Context) value.Value {
 	if !e.usingTemplates {
 		return e.newError(insertStmt, ctx, fail.ErrSomeDirsOnlyInTemplates)
 	}
@@ -664,7 +667,7 @@ func (e *Evaluator) combineInsertContent(insertStmt *ast.InsertDir, ctx *Context
 	return e.Eval(insertStmt.Block, ctx)
 }
 
-func (e *Evaluator) dump(dumpStmt *ast.DumpDir, ctx *Context) value.Value {
+func (e *Evaluator) dumpDir(dumpStmt *ast.DumpDir, ctx *Context) value.Value {
 	values := make([]string, 0, len(dumpStmt.Args))
 
 	for i := range dumpStmt.Args {
@@ -675,7 +678,7 @@ func (e *Evaluator) dump(dumpStmt *ast.DumpDir, ctx *Context) value.Value {
 	return &value.Dump{Vals: values}
 }
 
-func (e *Evaluator) ident(ident *ast.IdentExpr, ctx *Context) value.Value {
+func (e *Evaluator) identExpr(ident *ast.IdentExpr, ctx *Context) value.Value {
 	varName := ident.Name
 	if varName == "global" && e.config != nil && e.config.GlobalData != nil {
 		return value.NativeToValue(e.config.GlobalData)
@@ -688,7 +691,7 @@ func (e *Evaluator) ident(ident *ast.IdentExpr, ctx *Context) value.Value {
 	return e.newError(ident, ctx, fail.ErrVariableIsUndefined, ident.Name)
 }
 
-func (e *Evaluator) indexExp(indexExp *ast.IndexExpr, ctx *Context) value.Value {
+func (e *Evaluator) indexExpr(indexExp *ast.IndexExpr, ctx *Context) value.Value {
 	left := e.Eval(indexExp.Left, ctx)
 	if isError(left) {
 		return left
@@ -735,7 +738,7 @@ func (e *Evaluator) objKeyExp(obj *value.Obj, key string) value.Value {
 	return NIL
 }
 
-func (e *Evaluator) dotExp(dotExp *ast.DotExpr, ctx *Context) value.Value {
+func (e *Evaluator) dotExpr(dotExp *ast.DotExpr, ctx *Context) value.Value {
 	left := e.Eval(dotExp.Left, ctx)
 	if isError(left) {
 		return left
@@ -750,7 +753,7 @@ func (e *Evaluator) dotExp(dotExp *ast.DotExpr, ctx *Context) value.Value {
 	return e.objKeyExp(obj, key.Name)
 }
 
-func (e *Evaluator) strLit(strLit *ast.StrExpr) value.Value {
+func (e *Evaluator) strExpr(strLit *ast.StrExpr) value.Value {
 	str := html.EscapeString(strLit.Val)
 
 	// unescape single and double quotes
@@ -760,7 +763,7 @@ func (e *Evaluator) strLit(strLit *ast.StrExpr) value.Value {
 	return &value.Str{Val: str}
 }
 
-func (e *Evaluator) prefixExp(prefixExp *ast.PrefixExpr, ctx *Context) value.Value {
+func (e *Evaluator) prefixExpr(prefixExp *ast.PrefixExpr, ctx *Context) value.Value {
 	right := e.Eval(prefixExp.Right, ctx)
 	if isError(right) {
 		return right
@@ -776,7 +779,7 @@ func (e *Evaluator) prefixExp(prefixExp *ast.PrefixExpr, ctx *Context) value.Val
 	return e.newError(prefixExp, ctx, fail.ErrUnknownOp, prefixExp.Op, right.Type())
 }
 
-func (e *Evaluator) ternaryExp(ternExp *ast.TernaryExpr, ctx *Context) value.Value {
+func (e *Evaluator) ternaryExpr(ternExp *ast.TernaryExpr, ctx *Context) value.Value {
 	cond := e.Eval(ternExp.Cond, ctx)
 	if isError(cond) {
 		return cond
@@ -789,7 +792,7 @@ func (e *Evaluator) ternaryExp(ternExp *ast.TernaryExpr, ctx *Context) value.Val
 	return e.Eval(ternExp.ElseExpr, ctx)
 }
 
-func (e *Evaluator) arrLit(arrLit *ast.ArrExpr, ctx *Context) value.Value {
+func (e *Evaluator) arrExpr(arrLit *ast.ArrExpr, ctx *Context) value.Value {
 	elems := e.evalExpressions(arrLit.Elements, ctx)
 	if len(elems) == 1 && isError(elems[0]) {
 		return elems[0]
@@ -798,7 +801,7 @@ func (e *Evaluator) arrLit(arrLit *ast.ArrExpr, ctx *Context) value.Value {
 	return &value.Arr{Elements: elems}
 }
 
-func (e *Evaluator) objLit(objLit *ast.ObjExpr, ctx *Context) value.Value {
+func (e *Evaluator) objExpr(objLit *ast.ObjExpr, ctx *Context) value.Value {
 	pairs := make(map[string]value.Value, len(objLit.Pairs))
 
 	for key, val := range objLit.Pairs {
@@ -828,7 +831,7 @@ func (e *Evaluator) evalExpressions(exps []ast.Expression, ctx *Context) []value
 	return evaluatedObjs
 }
 
-func (e *Evaluator) infixExp(
+func (e *Evaluator) infixExpr(
 	op string,
 	leftNode,
 	rightNode ast.Expression,
@@ -904,7 +907,7 @@ func (e *Evaluator) decStmt(decInc *ast.DecStmt, ctx *Context) value.Value {
 	return e.newError(decInc, ctx, fail.ErrIllegalTypeForDec, left.Type())
 }
 
-func (e *Evaluator) callExp(callExp *ast.CallExpr, ctx *Context) value.Value {
+func (e *Evaluator) callExpr(callExp *ast.CallExpr, ctx *Context) value.Value {
 	receiver := e.Eval(callExp.Receiver, ctx)
 	funcName := callExp.Function.Name
 	if isError(receiver) {
@@ -968,7 +971,7 @@ func (e *Evaluator) callExp(callExp *ast.CallExpr, ctx *Context) value.Value {
 	return e.newError(callExp, ctx, fail.ErrFuncNotDefined, receiver.Type(), callExp.Function.Name)
 }
 
-func (e *Evaluator) globalCallExp(globalCallExp *ast.GlobalCallExpr, ctx *Context) value.Value {
+func (e *Evaluator) globalCallExpr(globalCallExp *ast.GlobalCallExpr, ctx *Context) value.Value {
 	switch globalCallExp.Function.Name {
 	case "defined":
 		return e.globalFuncDefined(globalCallExp, ctx)
