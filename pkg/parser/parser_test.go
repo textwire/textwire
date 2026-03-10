@@ -212,6 +212,11 @@ func TestParseGroupedExpression(t *testing.T) {
 		t.Fatal(err)
 	}
 
+	err = testPosition(infixExpr.Position(), token.Position{
+		StartCol: 3,
+		EndCol:   13,
+	})
+
 	if err := testToken(infixExpr, token.LPAREN); err != nil {
 		t.Fatal(err)
 	}
