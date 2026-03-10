@@ -18,6 +18,7 @@ func NewArrExpr(tok token.Token) *ArrExpr {
 }
 
 func (*ArrExpr) expressionNode() {}
+func (*ArrExpr) segmentNode()    {}
 
 func (ae *ArrExpr) String() string {
 	var out bytes.Buffer

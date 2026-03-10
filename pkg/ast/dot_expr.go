@@ -20,6 +20,7 @@ func NewDotExpr(tok token.Token, left Expression) *DotExpr {
 }
 
 func (*DotExpr) expressionNode() {}
+func (*DotExpr) segmentNode()    {}
 
 func (de *DotExpr) String() string {
 	return fmt.Sprintf("(%s.%s)", de.Left, de.Key)

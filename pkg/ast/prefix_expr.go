@@ -20,6 +20,7 @@ func NewPrefixExpr(tok token.Token, op string) *PrefixExpr {
 }
 
 func (*PrefixExpr) expressionNode() {}
+func (*PrefixExpr) segmentNode()    {}
 
 func (pe *PrefixExpr) String() string {
 	return fmt.Sprintf("(%s%s)", pe.Op, pe.Right)

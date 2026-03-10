@@ -19,6 +19,7 @@ func NewStrExpr(tok token.Token, val string) *StrExpr {
 }
 
 func (*StrExpr) expressionNode() {}
+func (*StrExpr) segmentNode()    {}
 
 func (se *StrExpr) String() string {
 	return fmt.Sprintf(`"%s"`, se.Val)

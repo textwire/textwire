@@ -23,6 +23,7 @@ func NewCallExpr(tok token.Token, receiver Expression, function *IdentExpr) *Cal
 }
 
 func (*CallExpr) expressionNode() {}
+func (*CallExpr) segmentNode()    {}
 
 func (ce *CallExpr) String() string {
 	var args strings.Builder

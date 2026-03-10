@@ -17,6 +17,7 @@ func NewBoolExpr(tok token.Token, val bool) *BoolExpr {
 }
 
 func (*BoolExpr) expressionNode() {}
+func (*BoolExpr) segmentNode()    {}
 
 func (be *BoolExpr) String() string {
 	return be.Token.Lit

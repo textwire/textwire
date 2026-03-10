@@ -21,6 +21,7 @@ func NewTernaryExpr(tok token.Token, cond Expression) *TernaryExpr {
 }
 
 func (*TernaryExpr) expressionNode() {}
+func (*TernaryExpr) segmentNode()    {}
 
 func (te *TernaryExpr) String() string {
 	return fmt.Sprintf("(%s ? %s : %s)", te.Cond, te.IfExpr, te.ElseExpr)

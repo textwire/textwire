@@ -21,6 +21,7 @@ func NewGlobalCallExpr(tok token.Token, function *IdentExpr) *GlobalCallExpr {
 }
 
 func (*GlobalCallExpr) expressionNode() {}
+func (*GlobalCallExpr) segmentNode()    {}
 
 func (gce *GlobalCallExpr) String() string {
 	var args strings.Builder

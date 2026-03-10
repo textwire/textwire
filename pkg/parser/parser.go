@@ -236,7 +236,7 @@ func (p *Parser) peekIsStatement() bool {
 }
 
 // parseSegment parses individual segment
-func (p *Parser) parseSegment() ast.Node {
+func (p *Parser) parseSegment() ast.Segment {
 	left := p.expression(LOWEST)
 	if left == nil {
 		p.nextToken()
@@ -245,13 +245,13 @@ func (p *Parser) parseSegment() ast.Node {
 
 	if !p.peekIsStatement() {
 		p.nextToken()
-		return left
+		return left.(ast.Segment)
 	}
 
 	p.nextToken()
 	stmt := p.statement(left)
 	p.nextToken()
-	return stmt
+	return stmt.(ast.Segment)
 }
 
 func (p *Parser) registerPrefix(tokenType token.TokenType, fn prefixParseFn) {

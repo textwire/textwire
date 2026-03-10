@@ -18,6 +18,7 @@ func NewObjExpr(tok token.Token) *ObjExpr {
 }
 
 func (*ObjExpr) expressionNode() {}
+func (*ObjExpr) segmentNode()    {}
 
 func (oe *ObjExpr) String() string {
 	var out strings.Builder

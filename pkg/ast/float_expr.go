@@ -18,6 +18,7 @@ func NewFloatExpr(tok token.Token, val float64) *FloatExpr {
 }
 
 func (*FloatExpr) expressionNode() {}
+func (*FloatExpr) segmentNode()    {}
 
 func (fe *FloatExpr) String() string {
 	return utils.FloatToStr(fe.Val)

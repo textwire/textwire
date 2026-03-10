@@ -34,6 +34,13 @@ type Expression interface {
 	expressionNode()
 }
 
+// Segment represents a node that can appear inside {{ ... }}
+// This includes all expressions and specific statements (assign, inc, dec)
+type Segment interface {
+	Node
+	segmentNode()
+}
+
 type LoopDirective interface {
 	LoopBlock() *Block
 }

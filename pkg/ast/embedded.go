@@ -8,7 +8,7 @@ import (
 
 type Embedded struct {
 	BaseNode
-	Segments []Node
+	Segments []Segment
 }
 
 func NewEmbedded(tok token.Token) *Embedded {

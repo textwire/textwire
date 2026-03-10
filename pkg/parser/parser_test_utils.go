@@ -73,7 +73,7 @@ func parseEmbedded[T ast.Node](inp string, opts parseOpts) (T, error) {
 	return segment, nil
 }
 
-func parseEmbeddedSegments(inp string, opts parseOpts) ([]ast.Node, error) {
+func parseEmbeddedSegments(inp string, opts parseOpts) ([]ast.Segment, error) {
 	chunks, err := parseChunks(inp, opts)
 	if err != nil {
 		return nil, err

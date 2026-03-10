@@ -19,6 +19,7 @@ func NewDecStmt(tok token.Token, left Expression) *DecStmt {
 }
 
 func (*DecStmt) statementNode() {}
+func (*DecStmt) segmentNode()   {}
 
 func (ds *DecStmt) String() string {
 	return fmt.Sprintf("(%s--)", ds.Left)
