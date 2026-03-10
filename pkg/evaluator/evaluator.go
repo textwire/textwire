@@ -42,6 +42,8 @@ func (e *Evaluator) Eval(node ast.Node, ctx *Context) value.Value {
 	// Statements
 	case *ast.Program:
 		return e.program(node, ctx)
+	case *ast.Embedded:
+		return e.embedded(node, ctx)
 	case *ast.Text:
 		return &value.Text{Val: node.String()}
 	case *ast.IfDir:
@@ -133,6 +135,21 @@ func (e *Evaluator) program(prog *ast.Program, ctx *Context) value.Value {
 	}
 
 	return &value.Text{Val: stmts.String()}
+}
+
+func (e *Evaluator) embedded(embedded *ast.Embedded, ctx *Context) value.Value {
+	var out strings.Builder
+	out.Grow(len(embedded.Segments))
+
+	for _, segment := range embedded.Segments {
+		val := e.Eval(segment, ctx)
+		if isError(val) {
+			return val
+		}
+		out.WriteString(val.String())
+	}
+
+	return &value.Str{Val: out.String()}
 }
 
 func (e *Evaluator) _if(ifStmt *ast.IfDir, ctx *Context) value.Value {
