@@ -124,7 +124,7 @@ func testInfixExpr(expr ast.Expression, left any, op string, right any) error {
 	return nil
 }
 
-func testPosition(actual, expect token.Position) error {
+func testTokPosition(actual, expect token.Position) error {
 	if expect.StartLine != actual.StartLine {
 		return fmt.Errorf("expect.StartLine is not %d, got %d", expect.StartLine, actual.StartLine)
 	}

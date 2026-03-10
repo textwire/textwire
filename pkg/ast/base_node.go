@@ -23,7 +23,7 @@ func (bn *BaseNode) Tok() *token.Token {
 	return &bn.Token
 }
 
-func (bn *BaseNode) Position() token.Position {
+func (bn *BaseNode) TokPos() token.Position {
 	return bn.Pos
 }
 

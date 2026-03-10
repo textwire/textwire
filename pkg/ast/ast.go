@@ -20,7 +20,7 @@ type Node interface {
 	SetTok(token.Token)
 	String() string
 	Line() uint
-	Position() token.Position
+	TokPos() token.Position
 	SetEndPosition(pos token.Position)
 }
 
