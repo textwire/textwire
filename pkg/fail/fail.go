@@ -14,7 +14,6 @@ const (
 	ErrWrongNextToken         = "syntax error: expected '%s' but found '%s'"
 	ErrExpectedExpression     = "expected expression before '}}'"
 	ErrCouldNotParseAs        = "cannot parse '%s' as %s"
-	ErrNoPrefixParseFunc      = "unexpected token '%s' at start of expression"
 	ErrIllegalToken           = "illegal token '%s'"
 	ErrElseifCannotFollowElse = "'@elseif' cannot come after '@else'"
 	ErrExpectedObjLit         = "expected object literal, got '%s'"

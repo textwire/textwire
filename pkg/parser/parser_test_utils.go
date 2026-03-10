@@ -55,7 +55,10 @@ func parseEmbedded[T ast.Node](inp string, opts parseOpts) (T, error) {
 	}
 
 	if len(chunk.Nodes) != 1 {
-		return zero, fmt.Errorf("chunk.Statements must contain 1 statement, got %d", len(chunk.Nodes))
+		return zero, fmt.Errorf(
+			"chunk.Statements must contain 1 statement, got %d",
+			len(chunk.Nodes),
+		)
 	}
 
 	node, ok := chunk.Nodes[0].(T)

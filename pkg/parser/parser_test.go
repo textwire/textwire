@@ -381,84 +381,84 @@ func TestParseOperatorPrecedence(t *testing.T) {
 		expect string
 	}{
 		{
-			id:     1,
-			inp:    "{{ 1 * 2 }}",
-			expect: "(1 * 2)",
-		},
-		{
-			id:     2,
-			inp:    "<h2>{{ -2 + 3 }}</h2>",
-			expect: "<h2>((-2) + 3)</h2>",
-		},
-		{
-			id:     3,
-			inp:    "{{ a + b + c }}",
-			expect: "((a + b) + c)",
-		},
-		{
-			id:     4,
-			inp:    "{{ a + b / c }}",
-			expect: "(a + (b / c))",
-		},
-		{
-			id:     5,
-			inp:    "{{ -2.float() }}",
-			expect: "(-(2.float()))",
-		},
-		{
-			id:     6,
-			inp:    "{{ -5.0.int() }}",
-			expect: "(-(5.0.int()))",
-		},
-		{
-			id:     7,
-			inp:    "{{ -obj.test }}",
-			expect: "(-(obj.test))",
-		},
-		{
-			id:     8,
-			inp:    "{{ true && true || false }}",
-			expect: "((true && true) || false)",
-		},
-		{
-			id:     9,
-			inp:    "{{ true ? 1 : 0 }}",
-			expect: "(true ? 1 : 0)",
-		},
-		{
 			id:     10,
+			inp:    "{{ 1 * 2 }}",
+			expect: "{{ (1 * 2) }}",
+		},
+		{
+			id:     20,
+			inp:    "<h2>{{ -2 + 3 }}</h2>",
+			expect: "<h2>{{ ((-2) + 3) }}</h2>",
+		},
+		{
+			id:     30,
+			inp:    "{{ a + b + c }}",
+			expect: "{{ ((a + b) + c) }}",
+		},
+		{
+			id:     40,
+			inp:    "{{ a + b / c }}",
+			expect: "{{ (a + (b / c)) }}",
+		},
+		{
+			id:     50,
+			inp:    "{{ -2.float() }}",
+			expect: "{{ (-(2.float())) }}",
+		},
+		{
+			id:     60,
+			inp:    "{{ -5.0.int() }}",
+			expect: "{{ (-(5.0.int())) }}",
+		},
+		{
+			id:     70,
+			inp:    "{{ -obj.test }}",
+			expect: "{{ (-(obj.test)) }}",
+		},
+		{
+			id:     80,
+			inp:    "{{ true && true || false }}",
+			expect: "{{ ((true && true) || false) }}",
+		},
+		{
+			id:     90,
+			inp:    "{{ true ? 1 : 0 }}",
+			expect: "{{ (true ? 1 : 0) }}",
+		},
+		{
+			id:     100,
 			inp:    "{{ true && false ? 1 : 0 }}",
-			expect: "((true && false) ? 1 : 0)",
+			expect: "{{ ((true && false) ? 1 : 0) }}",
 		},
 		{
-			id:     11,
+			id:     110,
 			inp:    "{{ true && false || 1 ? 1 : 0 }}",
-			expect: "(((true && false) || 1) ? 1 : 0)",
+			expect: "{{ (((true && false) || 1) ? 1 : 0) }}",
 		},
 		{
-			id:     12,
+			id:     120,
 			inp:    "{{ -2.float() && -2.0.int() ? 1 : 0 }}",
-			expect: "(((-(2.float())) && (-(2.0.int()))) ? 1 : 0)",
+			expect: "{{ (((-(2.float())) && (-(2.0.int()))) ? 1 : 0) }}",
 		},
 		{
-			id:     13,
+			id:     130,
 			inp:    "{{ !defined(age) || !defined(name) ? 1 : 0 }}",
-			expect: "(((!(defined(age))) || (!(defined(name)))) ? 1 : 0)",
+			expect: "{{ (((!(defined(age))) || (!(defined(name)))) ? 1 : 0) }}",
 		},
 		{
-			id:     14,
+			id:     140,
 			inp:    "{{ defined(name) }}",
-			expect: "(defined(name))",
+			expect: "{{ (defined(name)) }}",
 		},
 		{
-			id:     15,
+			id:     150,
 			inp:    "{{ long = user.name.len() > 0 }}",
-			expect: "long = (((user.name).len()) > 0)",
+			expect: "{{ (long = (((user.name).len()) > 0)) }}",
 		},
 		{
-			id:     16,
+			id:     160,
 			inp:    "{{ user && user.name == 'serhii' }}",
-			expect: `(user && ((user.name) == "serhii"))`,
+			expect: `{{ (user && ((user.name) == "serhii")) }}`,
 		},
 	}
 
@@ -500,13 +500,18 @@ func TestErrorHandling(t *testing.T) {
 		},
 		{
 			inp: "{{ true ? 100 }}",
-			err: fail.New(1, "", "parser", fail.ErrWrongNextToken,
-				token.String(token.COLON), token.String(token.RBRACES)),
+			err: fail.New(
+				1,
+				"",
+				"parser",
+				fail.ErrWrongNextToken,
+				token.String(token.COLON),
+				token.String(token.RBRACES),
+			),
 		},
 		{
 			inp: "{{ ) }}",
-			err: fail.New(1, "", "parser", fail.ErrNoPrefixParseFunc,
-				token.String(token.RPAREN)),
+			err: fail.New(1, "", "parser", fail.ErrIllegalToken, token.String(token.RPAREN)),
 		},
 		{
 			inp: "@use('')",
@@ -782,59 +787,59 @@ func TestParseAssignStmt(t *testing.T) {
 		{
 			id:       10,
 			inp:      `{{ name = "Anna" }}`,
-			str:      `name = "Anna"`,
+			str:      `(name = "Anna")`,
 			startCol: 3,
 			endCol:   15,
 		},
 		{
 			id:       20,
 			inp:      `{{ myAge = 34 }}`,
-			str:      `myAge = 34`,
+			str:      `(myAge = 34)`,
 			startCol: 3,
 			endCol:   12,
 		},
 		{
 			id:       30,
 			inp:      `{{ me.age = 34 }}`,
-			str:      `(me.age) = 34`,
+			str:      `((me.age) = 34)`,
 			startCol: 3,
 			endCol:   13,
 		},
 		{
 			id:       40,
 			inp:      `{{ arr[0] = 1 }}`,
-			str:      `(arr[0]) = 1`,
+			str:      `((arr[0]) = 1)`,
 			startCol: 3,
 			endCol:   12,
 		},
 		{
 			id:       50,
 			inp:      `{{ arr[234][2][23].name.first = "Anna" }}`,
-			str:      `(((((arr[234])[2])[23]).name).first) = "Anna"`,
+			str:      `((((((arr[234])[2])[23]).name).first) = "Anna")`,
 			startCol: 3,
 			endCol:   37,
 		},
 		{
 			id:       60,
 			inp:      `{{ (obj.one.two) = "test" }}`,
-			str:      `((obj.one).two) = "test"`,
-			startCol: 4,
+			str:      `(((obj.one).two) = "test")`,
+			startCol: 3,
 			endCol:   24,
 		},
 	}
 
 	for _, tc := range cases {
-		stmt, err := parseEmbedded[*ast.AssignStmt](tc.inp, defaultParseOpts)
+		assignStmt, err := parseEmbedded[*ast.AssignStmt](tc.inp, defaultParseOpts)
 		if err != nil {
-			t.Fatal(err)
+			t.Fatalf("Case: %d. %v", tc.id, err)
 		}
 
-		stmtStr := stmt.String()
-		if stmtStr != tc.str {
-			t.Fatalf("Case: %d. stmt.String() is not %s, got %s", tc.id, tc.inp, stmtStr)
+		str := assignStmt.String()
+		if str != tc.str {
+			t.Fatalf("Case: %d. assignStmt.String() is not %s, got %s", tc.id, tc.str, str)
 		}
 
-		err = testPosition(stmt.Position(), token.Position{
+		err = testPosition(assignStmt.Position(), token.Position{
 			StartCol: tc.startCol,
 			EndCol:   tc.endCol,
 		})
@@ -865,6 +870,7 @@ func TestParseUseDir(t *testing.T) {
 		StartCol: 0,
 		EndCol:   11,
 	})
+
 	if err != nil {
 		t.Fatal(err)
 	}

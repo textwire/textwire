@@ -214,16 +214,21 @@ func (p *Parser) embedded() ast.Chunk {
 		return nil
 	}
 
+	// Loop until we find the closing "}}" or reach the end of file
 	for !p.curTokenIs(token.RBRACES, token.EOF) {
-		if p.peekTokenIs(token.ASSIGN, token.INC, token.DEC) {
-			if stmt := p.statement(); stmt != nil {
-				chunk.Nodes = append(chunk.Nodes, stmt)
-			}
+		left := p.expression(LOWEST)
+		if left == nil {
+			p.nextToken()
 			continue
 		}
 
-		if expr := p.expression(LOWEST); expr != nil {
-			chunk.Nodes = append(chunk.Nodes, expr)
+		if p.peekIsStatement() {
+			p.nextToken() // skip the left side of a statement
+			if stmt := p.statement(left); stmt != nil {
+				chunk.Nodes = append(chunk.Nodes, stmt)
+			}
+		} else {
+			chunk.Nodes = append(chunk.Nodes, leftExpr)
 		}
 
 		p.nextToken()
@@ -234,6 +239,10 @@ func (p *Parser) embedded() ast.Chunk {
 	}
 
 	return chunk
+}
+
+func (p *Parser) peekIsStatement() bool {
+	return p.peekTokenIs(token.ASSIGN, token.INC, token.DEC)
 }
 
 func (p *Parser) registerPrefix(tokenType token.TokenType, fn prefixParseFn) {
@@ -399,10 +408,6 @@ func (p *Parser) text() ast.Chunk {
 
 func (p *Parser) assignStmt(left ast.Expression) ast.Statement {
 	stmt := ast.NewAssignStmt(*left.Tok(), left)
-
-	if !p.expectPeek(token.ASSIGN) { // move to "="
-		return p.illegalNode(ast.ChunkKindEmbedded)
-	}
 
 	p.nextToken() // skip "="
 
@@ -869,12 +874,10 @@ func (p *Parser) indexExpr(left ast.Expression) ast.Expression {
 }
 
 func (p *Parser) incStmt(left ast.Expression) ast.Statement {
-	p.nextToken() // skip to "++"
 	return ast.NewIncStmt(p.curToken, left)
 }
 
 func (p *Parser) decStmt(left ast.Expression) ast.Statement {
-	p.nextToken() // skip to "++"
 	return ast.NewDecStmt(p.curToken, left)
 }
 
@@ -1087,7 +1090,10 @@ func (p *Parser) forDirHeader(dir *ast.ForDir) *ast.IllegalNode {
 
 	// Parse Init
 	if !p.peekTokenIs(token.SEMI) {
-		dir.Init = p.statement()
+		p.nextToken() // move to first token of init statement
+		left := p.expression(LOWEST)
+		p.nextToken() // move to =/++/--
+		dir.Init = p.statement(left)
 	}
 
 	if !p.expectPeek(token.SEMI) { // move to ";"
@@ -1106,7 +1112,10 @@ func (p *Parser) forDirHeader(dir *ast.ForDir) *ast.IllegalNode {
 
 	// Parse Post statement
 	if !p.peekTokenIs(token.RPAREN) {
-		dir.Post = p.statement()
+		p.nextToken() // move to first token of post statement
+		left := p.expression(LOWEST)
+		p.nextToken() // move to ++/--
+		dir.Post = p.statement(left)
 	}
 
 	if !p.expectPeek(token.RPAREN) { // move to ")"
@@ -1196,16 +1205,14 @@ func (p *Parser) block() *ast.Block {
 	return block
 }
 
-func (p *Parser) statement() ast.Statement {
-	leftExpr := p.expression(LOWEST)
-
-	switch p.peekToken.Type {
+func (p *Parser) statement(left ast.Expression) ast.Statement {
+	switch p.curToken.Type {
 	case token.ASSIGN:
-		return p.assignStmt(leftExpr)
+		return p.assignStmt(left)
 	case token.INC:
-		return p.incStmt(leftExpr)
+		return p.incStmt(left)
 	case token.DEC:
-		return p.decStmt(leftExpr)
+		return p.decStmt(left)
 	}
 
 	return nil
@@ -1217,8 +1224,8 @@ func (p *Parser) expression(precedence int) ast.Expression {
 	if prefix == nil {
 		p.newError(
 			p.curToken.ErrorLine(),
-			fail.ErrNoPrefixParseFunc,
-			token.String(p.curToken.Type),
+			fail.ErrIllegalToken,
+			p.curToken.Lit,
 		)
 		return nil
 	}
