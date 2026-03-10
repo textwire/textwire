@@ -49,38 +49,38 @@ func parseEmbedded[T ast.Node](inp string, opts parseOpts) (T, error) {
 		return zero, err
 	}
 
-	chunk, ok := chunks[0].(*ast.Embedded)
+	embedded, ok := chunks[0].(*ast.Embedded)
 	if !ok {
 		return zero, fmt.Errorf("chunks[0] is not an Embedded, got %T", chunks[0])
 	}
 
-	if len(chunk.Nodes) != 1 {
+	if len(embedded.Segments) != 1 {
 		return zero, fmt.Errorf(
-			"chunk.Statements must contain 1 statement, got %d",
-			len(chunk.Nodes),
+			"embedded.Segments must contain 1 segment, got %d",
+			len(embedded.Segments),
 		)
 	}
 
-	node, ok := chunk.Nodes[0].(T)
+	segment, ok := embedded.Segments[0].(T)
 	if !ok {
-		return zero, fmt.Errorf("chunk.Nodes[0] is not %T, got %T", zero, chunk.Nodes[0])
+		return zero, fmt.Errorf("embedded.Segments[0] is not %T, got %T", zero, embedded.Segments[0])
 	}
 
-	return node, nil
+	return segment, nil
 }
 
-func parseEmbeddedNodes(inp string, opts parseOpts) ([]ast.Node, error) {
+func parseEmbeddedSegments(inp string, opts parseOpts) ([]ast.Node, error) {
 	chunks, err := parseChunks(inp, opts)
 	if err != nil {
 		return nil, err
 	}
 
-	chunk, ok := chunks[0].(*ast.Embedded)
+	embedded, ok := chunks[0].(*ast.Embedded)
 	if !ok {
-		return nil, fmt.Errorf("chunks[0] is not an Embedded, got %T", chunks[0])
+		return nil, fmt.Errorf("chunks[0] is not Embedded, got %T", chunks[0])
 	}
 
-	return chunk.Nodes, nil
+	return embedded.Segments, nil
 }
 
 func parseDirective[T ast.Chunk](inp string, opts parseOpts) (T, error) {

@@ -1102,18 +1102,18 @@ func TestParseDecStmt(t *testing.T) {
 func TestParseTwoStatements(t *testing.T) {
 	inp := `{{ name = "Anna"; name }}`
 
-	nodes, err := parseEmbeddedNodes(inp, defaultParseOpts)
+	segments, err := parseEmbeddedSegments(inp, defaultParseOpts)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	if len(nodes) != 2 {
-		t.Fatalf("expected 2 nodes, got %d", len(nodes))
+	if len(segments) != 2 {
+		t.Fatalf("expected 2 segments, got %d", len(segments))
 	}
 
-	assignStmt, ok := nodes[0].(*ast.AssignStmt)
+	assignStmt, ok := segments[0].(*ast.AssignStmt)
 	if !ok {
-		t.Fatalf("nodes[0] is not AssignStmt, got %T", nodes[0])
+		t.Fatalf("segments[0] is not AssignStmt, got %T", segments[0])
 	}
 
 	if err := testIdentExpr(assignStmt.Left, "name"); err != nil {
@@ -1124,9 +1124,9 @@ func TestParseTwoStatements(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	nameExpr, ok := nodes[1].(*ast.IdentExpr)
+	nameExpr, ok := segments[1].(*ast.IdentExpr)
 	if !ok {
-		t.Fatalf("nodes[1] is not IdentExpr, got %T", nodes[1])
+		t.Fatalf("segments[1] is not IdentExpr, got %T", segments[1])
 	}
 
 	if err := testIdentExpr(nameExpr, "name"); err != nil {
@@ -1148,27 +1148,27 @@ func TestParseTwoStatements(t *testing.T) {
 
 func TestParseTwoExpression(t *testing.T) {
 	inp := `{{ 1; 2 }}`
-	nodes, err := parseEmbeddedNodes(inp, defaultParseOpts)
+	segments, err := parseEmbeddedSegments(inp, defaultParseOpts)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	if len(nodes) != 2 {
-		t.Fatalf("expected 2 nodes, got %d", len(nodes))
+	if len(segments) != 2 {
+		t.Fatalf("expected 2 segments, got %d", len(segments))
 	}
 
-	exp1, ok := nodes[0].(*ast.IntExpr)
+	exp1, ok := segments[0].(*ast.IntExpr)
 	if !ok {
-		t.Fatalf("nodes[0] is not IntExpr, got %T", nodes[0])
+		t.Fatalf("segments[0] is not IntExpr, got %T", segments[0])
 	}
 
 	if err := testIntExpr(exp1, 1); err != nil {
 		t.Fatal(err)
 	}
 
-	exp2, ok := nodes[1].(*ast.IntExpr)
+	exp2, ok := segments[1].(*ast.IntExpr)
 	if !ok {
-		t.Fatalf("nodes[1] is not IntExpr, got %T", nodes[1])
+		t.Fatalf("segments[1] is not IntExpr, got %T", segments[1])
 	}
 
 	if err := testIntExpr(exp2, 2); err != nil {
@@ -1506,21 +1506,21 @@ func TestParseEmptyBlock(t *testing.T) {
 			t.Fatalf("Case: %d. %v", tc.id, err)
 		}
 
-		stmt, ok := stmts[0].(ast.NodeWithChunks)
+		node, ok := stmts[0].(ast.NodeWithChunks)
 		if !ok {
-			t.Fatalf("Case: %d. stmts[0] is not a NodeWithStatements, got %T", tc.id, stmts[0])
+			t.Fatalf("Case: %d. stmts[0] is not a NodeWithChunks, got %T", tc.id, stmts[0])
 		}
 
-		if err := testToken(stmt, tc.tok); err != nil {
+		if err := testToken(node, tc.tok); err != nil {
 			t.Fatalf("Case: %d. %v", tc.id, err)
 		}
 
-		if err = testPosition(stmt.Position(), token.Position{EndCol: tc.endColPos}); err != nil {
+		if err = testPosition(node.Position(), token.Position{EndCol: tc.endColPos}); err != nil {
 			t.Fatalf("Case: %d. %v", tc.id, err)
 		}
 
-		if len(stmt.AllChunks()) != 0 {
-			t.Fatalf("len(stmt.AllChunks()) has to be empty, got %d", len(stmt.AllChunks()))
+		if len(node.AllChunks()) != 0 {
+			t.Fatalf("len(stmt.AllChunks()) has to be empty, got %d", len(node.AllChunks()))
 		}
 	}
 }

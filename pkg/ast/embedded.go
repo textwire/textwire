@@ -8,7 +8,7 @@ import (
 
 type Embedded struct {
 	BaseNode
-	Nodes []Node
+	Segments []Node
 }
 
 func NewEmbedded(tok token.Token) *Embedded {
@@ -29,10 +29,10 @@ func (e *Embedded) String() string {
 
 	out.WriteString("{{ ")
 
-	for i, stmt := range e.Nodes {
+	for i, stmt := range e.Segments {
 		out.WriteString(stmt.String())
 
-		if i < len(e.Nodes)-1 {
+		if i < len(e.Segments)-1 {
 			out.WriteString("; ")
 		}
 	}

@@ -205,7 +205,7 @@ func (p *Parser) chunk() ast.Chunk {
 }
 
 func (p *Parser) embedded() ast.Chunk {
-	chunk := ast.NewEmbedded(p.curToken)
+	embedded := ast.NewEmbedded(p.curToken)
 
 	p.nextToken() // skip "{{"
 
@@ -216,33 +216,39 @@ func (p *Parser) embedded() ast.Chunk {
 
 	// Loop until we find the closing "}}" or reach the end of file
 	for !p.curTokenIs(token.RBRACES, token.EOF) {
-		left := p.expression(LOWEST)
-		if left == nil {
-			p.nextToken()
-			continue
+		if segment := p.parseSegment(); segment != nil {
+			embedded.Segments = append(embedded.Segments, segment)
 		}
-
-		if p.peekIsStatement() {
-			p.nextToken() // skip the left side of a statement
-			if stmt := p.statement(left); stmt != nil {
-				chunk.Nodes = append(chunk.Nodes, stmt)
-			}
-		} else {
-			chunk.Nodes = append(chunk.Nodes, leftExpr)
-		}
-
-		p.nextToken()
 	}
 
 	if p.peekTokenIs(token.RBRACES) {
 		p.nextToken() // skip "}}"
 	}
 
-	return chunk
+	return embedded
 }
 
 func (p *Parser) peekIsStatement() bool {
 	return p.peekTokenIs(token.ASSIGN, token.INC, token.DEC)
+}
+
+// parseSegment parses individual segment
+func (p *Parser) parseSegment() ast.Node {
+	left := p.expression(LOWEST)
+	if left == nil {
+		p.nextToken()
+		return nil
+	}
+
+	if !p.peekIsStatement() {
+		p.nextToken()
+		return left
+	}
+
+	p.nextToken()
+	stmt := p.statement(left)
+	p.nextToken()
+	return stmt
 }
 
 func (p *Parser) registerPrefix(tokenType token.TokenType, fn prefixParseFn) {
