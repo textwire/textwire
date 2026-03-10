@@ -26,10 +26,6 @@ func NewSlotifDir(tok token.Token, name *StrExpr, compName string) *SlotifDir {
 
 func (_ *SlotifDir) chunkNode() {}
 
-func (_ *SlotifDir) Kind() ChunkKind {
-	return ChunkKindDirective
-}
-
 func (sd *SlotifDir) Name() *StrExpr {
 	return sd.name
 }

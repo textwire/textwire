@@ -19,10 +19,6 @@ func NewEmbedded(tok token.Token) *Embedded {
 
 func (_ *Embedded) chunkNode() {}
 
-func (_ *Embedded) Kind() ChunkKind {
-	return ChunkKindEmbedded
-}
-
 func (e *Embedded) String() string {
 	var out strings.Builder
 	out.Grow(4)

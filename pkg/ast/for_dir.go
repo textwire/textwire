@@ -24,10 +24,6 @@ func NewForDir(tok token.Token) *ForDir {
 
 func (_ *ForDir) chunkNode() {}
 
-func (_ *ForDir) Kind() ChunkKind {
-	return ChunkKindDirective
-}
-
 func (fd *ForDir) LoopBlock() *Block {
 	if fd.Block == nil {
 		panic("Block must not be nil on ForStmt when calling LoopBlock()")

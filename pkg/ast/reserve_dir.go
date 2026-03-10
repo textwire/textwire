@@ -21,10 +21,6 @@ func NewReserveDir(tok token.Token) *ReserveDir {
 
 func (_ *ReserveDir) chunkNode() {}
 
-func (_ *ReserveDir) Kind() ChunkKind {
-	return ChunkKindDirective
-}
-
 func (rd *ReserveDir) String() string {
 	if rd.Fallback == nil {
 		return fmt.Sprintf(`@reserve("%s")`, rd.Name)

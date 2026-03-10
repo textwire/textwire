@@ -23,10 +23,6 @@ func NewEachDir(tok token.Token) *EachDir {
 
 func (_ *EachDir) chunkNode() {}
 
-func (_ *EachDir) Kind() ChunkKind {
-	return ChunkKindDirective
-}
-
 func (ed *EachDir) LoopBlock() *Block {
 	if ed.Block == nil {
 		panic("Block must not be nil on EachStmt when calling LoopBlock()")

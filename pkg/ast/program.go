@@ -27,10 +27,6 @@ func NewProgram(tok token.Token) *Program {
 
 func (p *Program) chunkNode() {}
 
-func (_ *Program) Kind() ChunkKind {
-	return ChunkKindBlock
-}
-
 func (p *Program) String() string {
 	var out strings.Builder
 	out.Grow(len(p.Chunks))

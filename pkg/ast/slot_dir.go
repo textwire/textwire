@@ -26,10 +26,6 @@ func NewSlotDir(tok token.Token, name *StrExpr, compName string, isLocal bool) *
 
 func (_ *SlotDir) chunkNode() {}
 
-func (_ *SlotDir) Kind() ChunkKind {
-	return ChunkKindDirective
-}
-
 func (sd *SlotDir) Name() *StrExpr {
 	return sd.name
 }

@@ -21,10 +21,6 @@ func NewUseDir(tok token.Token) *UseDir {
 
 func (_ *UseDir) chunkNode() {}
 
-func (_ *UseDir) Kind() ChunkKind {
-	return ChunkKindDirective
-}
-
 func (ud *UseDir) String() string {
 	return fmt.Sprintf(`@use(%s)`, ud.Name)
 }

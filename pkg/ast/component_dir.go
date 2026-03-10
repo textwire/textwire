@@ -22,10 +22,6 @@ func NewComponentDir(tok token.Token) *ComponentDir {
 
 func (_ *ComponentDir) chunkNode() {}
 
-func (_ *ComponentDir) Kind() ChunkKind {
-	return ChunkKindDirective
-}
-
 func (cd *ComponentDir) ArgsString() string {
 	var out strings.Builder
 	out.Grow(10)

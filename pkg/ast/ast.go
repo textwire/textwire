@@ -4,15 +4,6 @@ import (
 	"github.com/textwire/textwire/v3/pkg/token"
 )
 
-type ChunkKind string
-
-const (
-	ChunkKindDirective ChunkKind = "directive"
-	ChunkKindText      ChunkKind = "text"
-	ChunkKindEmbedded  ChunkKind = "embedded"
-	ChunkKindBlock     ChunkKind = "block"
-)
-
 // Chunk is a top lever node that your program is composed of.
 // It can be a directive, text, or embedded code.
 // - Embedded `{{ ... }}`.
@@ -22,7 +13,6 @@ const (
 type Chunk interface {
 	Node
 	chunkNode()
-	Kind() ChunkKind
 }
 
 type Node interface {

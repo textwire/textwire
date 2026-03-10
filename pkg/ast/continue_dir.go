@@ -14,10 +14,6 @@ func NewContinueDir(tok token.Token) *ContinueDir {
 
 func (_ *ContinueDir) chunkNode() {}
 
-func (_ *ContinueDir) Kind() ChunkKind {
-	return ChunkKindDirective
-}
-
 func (cd *ContinueDir) String() string {
 	return cd.Token.Lit
 }

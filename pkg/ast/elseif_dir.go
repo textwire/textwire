@@ -21,10 +21,6 @@ func NewElseIfDir(tok token.Token) *ElseIfDir {
 
 func (_ *ElseIfDir) chunkNode() {}
 
-func (_ *ElseIfDir) Kind() ChunkKind {
-	return ChunkKindDirective
-}
-
 func (ed *ElseIfDir) String() string {
 	var out strings.Builder
 

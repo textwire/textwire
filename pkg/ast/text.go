@@ -15,10 +15,6 @@ func NewText(tok token.Token) *Text {
 
 func (_ *Text) chunkNode() {}
 
-func (_ *Text) Kind() ChunkKind {
-	return ChunkKindText
-}
-
 func (t *Text) String() string {
 	return t.Token.Lit
 }

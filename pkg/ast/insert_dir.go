@@ -27,10 +27,6 @@ func NewInsertDir(tok token.Token, absPath string) *InsertDir {
 
 func (_ *InsertDir) chunkNode() {}
 
-func (_ *InsertDir) Kind() ChunkKind {
-	return ChunkKindDirective
-}
-
 func (i *InsertDir) String() string {
 	var out strings.Builder
 	out.Grow(30)

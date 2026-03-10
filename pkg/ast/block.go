@@ -20,10 +20,6 @@ func NewBlock(tok token.Token) *Block {
 
 func (_ *Block) chunkNode() {}
 
-func (_ *Block) Kind() ChunkKind {
-	return ChunkKindBlock
-}
-
 func (b *Block) String() string {
 	var out strings.Builder
 	out.Grow(len(b.Chunks))

@@ -16,10 +16,6 @@ func NewBreakDir(tok token.Token) *BreakDir {
 
 func (_ *BreakDir) chunkNode() {}
 
-func (_ *BreakDir) Kind() ChunkKind {
-	return ChunkKindDirective
-}
-
 func (bd *BreakDir) String() string {
 	return bd.Token.Lit
 }

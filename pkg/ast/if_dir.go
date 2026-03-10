@@ -23,10 +23,6 @@ func NewIfDir(tok token.Token) *IfDir {
 
 func (_ *IfDir) chunkNode() {}
 
-func (_ *IfDir) Kind() ChunkKind {
-	return ChunkKindDirective
-}
-
 func (id *IfDir) String() string {
 	var out strings.Builder
 	out.Grow(20 + len(id.ElseifDirs)*2)

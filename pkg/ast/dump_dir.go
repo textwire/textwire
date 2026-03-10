@@ -20,10 +20,6 @@ func NewDumpDir(tok token.Token, args []Expression) *DumpDir {
 
 func (_ *DumpDir) chunkNode() {}
 
-func (_ *DumpDir) Kind() ChunkKind {
-	return ChunkKindDirective
-}
-
 func (dd *DumpDir) String() string {
 	var out strings.Builder
 	out.Grow(len(dd.Args) * 3)
