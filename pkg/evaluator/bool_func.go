@@ -9,7 +9,7 @@ import (
 )
 
 // boolBinaryFunc returns an integer 1 if the receiver is true, 0 otherwise
-func boolBinaryFunc(receiver value.Value, _ ...value.Value) (value.Value, error) {
+func boolBinaryFunc(receiver value.Literal, _ ...value.Literal) (value.Literal, error) {
 	if isTruthy(receiver) {
 		return &value.Int{Val: 1}, nil
 	}
@@ -18,7 +18,7 @@ func boolBinaryFunc(receiver value.Value, _ ...value.Value) (value.Value, error)
 }
 
 // boolThenFunc returns the first argument if the receiver is true, the second argument or nil otherwise
-func boolThenFunc(receiver value.Value, args ...value.Value) (value.Value, error) {
+func boolThenFunc(receiver value.Literal, args ...value.Literal) (value.Literal, error) {
 	if len(args) == 0 {
 		msg := fmt.Sprintf(fail.ErrFuncMissingArg, value.BOOL_VAL, "then")
 		return nil, errors.New(msg)

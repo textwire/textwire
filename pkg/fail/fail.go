@@ -31,7 +31,7 @@ const (
 	ErrForLoopExpectStmt      = "@for() expects statement as post conditional, got expression '%s', like 'i++', 'i = i + 2', etc"
 
 	// Evaluator (interpreter) errors
-	ErrUnknownNodeType         = "unsupported expression type '%T'"
+	ErrUnknownType             = "unsupported type '%T'"
 	ErrInsertMustHaveContent   = "@insert() requires either a block (body) or a second argument"
 	ErrIndexNotSupported       = "type '%s' does not support indexing"
 	ErrUnknownOp               = "unknown operator '%s%s'"

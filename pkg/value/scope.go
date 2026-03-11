@@ -8,12 +8,12 @@ import (
 )
 
 type Scope struct {
-	vars   map[string]Value
+	vars   map[string]Literal
 	parent *Scope
 }
 
 func NewScope() *Scope {
-	vars := map[string]Value{}
+	vars := map[string]Literal{}
 	vars["global"] = NewObj(nil)
 
 	return &Scope{vars: vars}
@@ -42,7 +42,7 @@ func (s *Scope) Child() *Scope {
 	return child
 }
 
-func (e *Scope) Get(name string) (Value, bool) {
+func (e *Scope) Get(name string) (Literal, bool) {
 	obj, ok := e.vars[name]
 	if !ok && e.parent != nil {
 		obj, ok = e.parent.Get(name)
@@ -50,7 +50,7 @@ func (e *Scope) Get(name string) (Value, bool) {
 	return obj, ok
 }
 
-func (e *Scope) Set(key string, val Value) error {
+func (e *Scope) Set(key string, val Literal) error {
 	if key == "loop" || key == "global" {
 		return errors.New(fail.ErrReservedIdentifiers)
 	}
@@ -64,7 +64,7 @@ func (e *Scope) Set(key string, val Value) error {
 	return nil
 }
 
-func (e *Scope) SetLoopVar(pairs map[string]Value) {
+func (e *Scope) SetLoopVar(pairs map[string]Literal) {
 	e.vars["loop"] = NewObj(pairs)
 }
 
@@ -84,7 +84,7 @@ func (e *Scope) AddGlobal(key string, val any) {
 
 	// Ensure Pairs map is initialized
 	if globalObj.Pairs == nil {
-		globalObj.Pairs = map[string]Value{}
+		globalObj.Pairs = map[string]Literal{}
 	}
 
 	globalObj.Pairs[key] = NativeToValue(val)

@@ -7,10 +7,10 @@ import (
 )
 
 type Arr struct {
-	Elements []Value
+	Elements []Literal
 }
 
-func (a *Arr) Type() ValueType {
+func (*Arr) Type() ValueType {
 	return ARR_VAL
 }
 

@@ -5,7 +5,7 @@ type Reserve struct {
 	Insert Value
 }
 
-func (r *Reserve) Type() ValueType {
+func (*Reserve) Type() ValueType {
 	return RESERVE_VAL
 }
 
@@ -14,21 +14,6 @@ func (r *Reserve) String() string {
 		panic("Insert field on Reseve must not be nil when calling String()")
 	}
 	return r.Insert.String()
-}
-
-func (r *Reserve) Dump(ident int) string {
-	return ""
-}
-
-func (r *Reserve) JSON() (string, error) {
-	return "", nil
-}
-
-func (r *Reserve) Native() any {
-	if r.Insert == nil {
-		panic("Insert field on Reseve must not be nil when calling Native()")
-	}
-	return r.Insert.Native()
 }
 
 func (r *Reserve) Is(t ValueType) bool {

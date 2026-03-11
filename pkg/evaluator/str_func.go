@@ -14,14 +14,14 @@ import (
 const defaultCharTrim = "\t \n\r"
 
 // strLenFunc returns the length of the given string
-func strLenFunc(receiver value.Value, _ ...value.Value) (value.Value, error) {
+func strLenFunc(receiver value.Literal, _ ...value.Literal) (value.Literal, error) {
 	val := receiver.(*value.Str).Val
 	chars := []rune(val)
 	return &value.Int{Val: int64(len(chars))}, nil
 }
 
 // strSplitFunc returns a list of strings split by the given separator
-func strSplitFunc(receiver value.Value, args ...value.Value) (value.Value, error) {
+func strSplitFunc(receiver value.Literal, args ...value.Literal) (value.Literal, error) {
 	separator := " "
 
 	if len(args) > 0 {
@@ -37,7 +37,7 @@ func strSplitFunc(receiver value.Value, args ...value.Value) (value.Value, error
 	val := receiver.(*value.Str).Val
 	stringItems := strings.Split(val, separator)
 
-	var elems []value.Value
+	var elems []value.Literal
 
 	for _, val := range stringItems {
 		elems = append(elems, &value.Str{Val: val})
@@ -47,13 +47,13 @@ func strSplitFunc(receiver value.Value, args ...value.Value) (value.Value, error
 }
 
 // strRawFunc prevents escaping HTML tags in a string
-func strRawFunc(receiver value.Value, _ ...value.Value) (value.Value, error) {
+func strRawFunc(receiver value.Literal, _ ...value.Literal) (value.Literal, error) {
 	val := receiver.(*value.Str).Val
 	return &value.Str{Val: html.UnescapeString(val)}, nil
 }
 
 // strTrimFunc returns a string with leading and trailing whitespace removed
-func strTrimFunc(receiver value.Value, args ...value.Value) (value.Value, error) {
+func strTrimFunc(receiver value.Literal, args ...value.Literal) (value.Literal, error) {
 	chars := defaultCharTrim
 
 	if len(args) > 0 {
@@ -72,19 +72,19 @@ func strTrimFunc(receiver value.Value, args ...value.Value) (value.Value, error)
 }
 
 // strUpperFunc returns a string with all characters in uppercase
-func strUpperFunc(receiver value.Value, _ ...value.Value) (value.Value, error) {
+func strUpperFunc(receiver value.Literal, _ ...value.Literal) (value.Literal, error) {
 	val := receiver.(*value.Str).Val
 	return &value.Str{Val: strings.ToUpper(val)}, nil
 }
 
 // strLowerFunc returns a string with all characters in lowercase
-func strLowerFunc(receiver value.Value, _ ...value.Value) (value.Value, error) {
+func strLowerFunc(receiver value.Literal, _ ...value.Literal) (value.Literal, error) {
 	str := receiver.(*value.Str)
 	return &value.Str{Val: strings.ToLower(str.Val)}, nil
 }
 
 // strCapitalizeFunc returns a string with the first character capitalized
-func strCapitalizeFunc(receiver value.Value, _ ...value.Value) (value.Value, error) {
+func strCapitalizeFunc(receiver value.Literal, _ ...value.Literal) (value.Literal, error) {
 	val := receiver.(*value.Str).Val
 	if len(val) == 0 {
 		return &value.Str{Val: ""}, nil
@@ -96,7 +96,7 @@ func strCapitalizeFunc(receiver value.Value, _ ...value.Value) (value.Value, err
 }
 
 // strReverseFunc returns a string with the characters reversed
-func strReverseFunc(receiver value.Value, _ ...value.Value) (value.Value, error) {
+func strReverseFunc(receiver value.Literal, _ ...value.Literal) (value.Literal, error) {
 	val := receiver.(*value.Str).Val
 
 	runes := []rune(val)
@@ -111,7 +111,7 @@ func strReverseFunc(receiver value.Value, _ ...value.Value) (value.Value, error)
 }
 
 // strContainsFunc returns true if the string contains the given substring, false otherwise
-func strContainsFunc(receiver value.Value, args ...value.Value) (value.Value, error) {
+func strContainsFunc(receiver value.Literal, args ...value.Literal) (value.Literal, error) {
 	if len(args) == 0 {
 		msg := fmt.Sprintf(fail.ErrFuncMissingArg, value.STR_VAL, "contains")
 		return nil, errors.New(msg)
@@ -130,7 +130,7 @@ func strContainsFunc(receiver value.Value, args ...value.Value) (value.Value, er
 }
 
 // strTruncateFunc truncates a string to a specified length and appends an ellipsis.
-func strTruncateFunc(receiver value.Value, args ...value.Value) (value.Value, error) {
+func strTruncateFunc(receiver value.Literal, args ...value.Literal) (value.Literal, error) {
 	// Validate that at least the limit argument is provided
 	if len(args) == 0 {
 		msg := fmt.Sprintf(fail.ErrFuncMissingArg, value.STR_VAL, "truncate")
@@ -177,7 +177,7 @@ func strTruncateFunc(receiver value.Value, args ...value.Value) (value.Value, er
 // For integers: appends decimal places (e.g., "100" → "100.00")
 // For floats: ensures minimum decimal places (e.g., "-0.5" → "-0.50")
 // Non-numeric strings are returned unchanged.
-func strDecimalFunc(receiver value.Value, args ...value.Value) (value.Value, error) {
+func strDecimalFunc(receiver value.Literal, args ...value.Literal) (value.Literal, error) {
 	val := receiver.(*value.Str).Val
 	separator, decimals, err := getDecimalConfig(value.STR_VAL, args...)
 	if err != nil {
@@ -195,7 +195,7 @@ func strDecimalFunc(receiver value.Value, args ...value.Value) (value.Value, err
 }
 
 // strAtFunc returns the character at the given index in the string
-func strAtFunc(receiver value.Value, args ...value.Value) (value.Value, error) {
+func strAtFunc(receiver value.Literal, args ...value.Literal) (value.Literal, error) {
 	index := 0
 
 	if len(args) != 0 {
@@ -227,17 +227,17 @@ func strAtFunc(receiver value.Value, args ...value.Value) (value.Value, error) {
 }
 
 // strFirstFunc returns the first character in the string
-func strFirstFunc(receiver value.Value, _ ...value.Value) (value.Value, error) {
+func strFirstFunc(receiver value.Literal, _ ...value.Literal) (value.Literal, error) {
 	return strAtFunc(receiver, &value.Int{Val: 0})
 }
 
 // strLastFunc returns the last character in the string
-func strLastFunc(receiver value.Value, _ ...value.Value) (value.Value, error) {
+func strLastFunc(receiver value.Literal, _ ...value.Literal) (value.Literal, error) {
 	return strAtFunc(receiver, &value.Int{Val: -1})
 }
 
 // strTrimRightFunc returns a string with trailing whitespace removed from the right
-func strTrimRightFunc(receiver value.Value, args ...value.Value) (value.Value, error) {
+func strTrimRightFunc(receiver value.Literal, args ...value.Literal) (value.Literal, error) {
 	chars := defaultCharTrim
 	if len(args) > 0 {
 		str, ok := args[0].(*value.Str)
@@ -255,7 +255,7 @@ func strTrimRightFunc(receiver value.Value, args ...value.Value) (value.Value, e
 }
 
 // strTrimLeftFunc returns a string with trailing whitespace removed from the left
-func strTrimLeftFunc(receiver value.Value, args ...value.Value) (value.Value, error) {
+func strTrimLeftFunc(receiver value.Literal, args ...value.Literal) (value.Literal, error) {
 	chars := defaultCharTrim
 	if len(args) > 0 {
 		str, ok := args[0].(*value.Str)
@@ -274,7 +274,7 @@ func strTrimLeftFunc(receiver value.Value, args ...value.Value) (value.Value, er
 }
 
 // strRepeatFunc returns a string repeated n times
-func strRepeatFunc(receiver value.Value, args ...value.Value) (value.Value, error) {
+func strRepeatFunc(receiver value.Literal, args ...value.Literal) (value.Literal, error) {
 	if len(args) == 0 {
 		msg := fmt.Sprintf(fail.ErrFuncMissingArg, value.STR_VAL, "repeat")
 		return nil, errors.New(msg)
@@ -299,7 +299,7 @@ func strRepeatFunc(receiver value.Value, args ...value.Value) (value.Value, erro
 }
 
 // strFormatFunc embeds values into a string. Similar to sprintf in C.
-func strFormatFunc(receiver value.Value, args ...value.Value) (value.Value, error) {
+func strFormatFunc(receiver value.Literal, args ...value.Literal) (value.Literal, error) {
 	if len(args) == 0 {
 		msg := fmt.Sprintf(fail.ErrFuncMissingArg, value.STR_VAL, "format")
 		return nil, errors.New(msg)

@@ -5,7 +5,7 @@ type Insert struct {
 	Block Value //@insert(name)<Block>@end or @insert(name, <Block>)
 }
 
-func (i *Insert) Type() ValueType {
+func (*Insert) Type() ValueType {
 	return RESERVE_VAL
 }
 
@@ -15,22 +15,6 @@ func (i *Insert) String() string {
 	}
 
 	return i.Block.String()
-}
-
-func (r *Insert) Dump(ident int) string {
-	return ""
-}
-
-func (i *Insert) JSON() (string, error) {
-	return "", nil
-}
-
-func (r *Insert) Native() any {
-	if r.Block == nil {
-		panic("Block field on Insert must not be nil when calling Native()")
-	}
-
-	return r.Block.Native()
 }
 
 func (i *Insert) Is(t ValueType) bool {

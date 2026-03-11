@@ -58,26 +58,26 @@ func TestNewScopeFromMap(t *testing.T) {
 		"height":   &Float{Val: 5.7},
 		"weight":   &Float{Val: float64(float32val)},
 		"nothing":  new(Nil),
-		"ages":     &Arr{Elements: []Value{&Int{Val: 1}, &Int{Val: 2}, &Int{Val: 3}}},
-		"ages64":   &Arr{Elements: []Value{&Int{Val: 1}, &Int{Val: 2}, &Int{Val: 3}}},
-		"ages32":   &Arr{Elements: []Value{&Int{Val: 1}, &Int{Val: 2}, &Int{Val: 3}}},
-		"ages16":   &Arr{Elements: []Value{&Int{Val: 1}, &Int{Val: 2}, &Int{Val: 3}}},
-		"ages8":    &Arr{Elements: []Value{&Int{Val: 1}, &Int{Val: 2}, &Int{Val: 3}}},
-		"nums":     &Arr{Elements: []Value{&Int{Val: 1}, &Int{Val: 2}, &Int{Val: 3}}},
-		"nums64":   &Arr{Elements: []Value{&Int{Val: 1}, &Int{Val: 2}, &Int{Val: 3}}},
-		"nums32":   &Arr{Elements: []Value{&Int{Val: 1}, &Int{Val: 2}, &Int{Val: 3}}},
-		"nums16":   &Arr{Elements: []Value{&Int{Val: 1}, &Int{Val: 2}, &Int{Val: 3}}},
-		"nums8":    &Arr{Elements: []Value{&Int{Val: 1}, &Int{Val: 2}, &Int{Val: 3}}},
-		"names":    &Arr{Elements: []Value{&Str{Val: "John"}, &Str{Val: "Jane"}}},
-		"statuses": &Arr{Elements: []Value{&Bool{Val: false}, &Bool{Val: true}}},
+		"ages":     &Arr{Elements: []Literal{&Int{Val: 1}, &Int{Val: 2}, &Int{Val: 3}}},
+		"ages64":   &Arr{Elements: []Literal{&Int{Val: 1}, &Int{Val: 2}, &Int{Val: 3}}},
+		"ages32":   &Arr{Elements: []Literal{&Int{Val: 1}, &Int{Val: 2}, &Int{Val: 3}}},
+		"ages16":   &Arr{Elements: []Literal{&Int{Val: 1}, &Int{Val: 2}, &Int{Val: 3}}},
+		"ages8":    &Arr{Elements: []Literal{&Int{Val: 1}, &Int{Val: 2}, &Int{Val: 3}}},
+		"nums":     &Arr{Elements: []Literal{&Int{Val: 1}, &Int{Val: 2}, &Int{Val: 3}}},
+		"nums64":   &Arr{Elements: []Literal{&Int{Val: 1}, &Int{Val: 2}, &Int{Val: 3}}},
+		"nums32":   &Arr{Elements: []Literal{&Int{Val: 1}, &Int{Val: 2}, &Int{Val: 3}}},
+		"nums16":   &Arr{Elements: []Literal{&Int{Val: 1}, &Int{Val: 2}, &Int{Val: 3}}},
+		"nums8":    &Arr{Elements: []Literal{&Int{Val: 1}, &Int{Val: 2}, &Int{Val: 3}}},
+		"names":    &Arr{Elements: []Literal{&Str{Val: "John"}, &Str{Val: "Jane"}}},
+		"statuses": &Arr{Elements: []Literal{&Bool{Val: false}, &Bool{Val: true}}},
 		"rates64": &Arr{
-			Elements: []Value{&Float{Val: 23.4}, &Float{Val: 56.7}, &Float{Val: 89.0}},
+			Elements: []Literal{&Float{Val: 23.4}, &Float{Val: 56.7}, &Float{Val: 89.0}},
 		},
-		"values": &Arr{
-			Elements: []Value{&Float{Val: 23.4}, &Float{Val: 56.7}, &Float{Val: 89.0}},
+		"Literal": &Arr{
+			Elements: []Literal{&Float{Val: 23.4}, &Float{Val: 56.7}, &Float{Val: 89.0}},
 		},
 		"rates32": &Arr{
-			Elements: []Value{
+			Elements: []Literal{
 				&Float{Val: float64(float32val)},
 				&Float{Val: float64(float32val)},
 				&Float{Val: float64(float32val)},
@@ -112,7 +112,7 @@ func TestAddGlobalData(t *testing.T) {
 		key       string
 		val       any
 		expectKey string
-		expectVal Value
+		expectVal Literal
 	}{
 		{
 			name:      "add string global identifier",
@@ -203,7 +203,7 @@ func TestAddGlobalData(t *testing.T) {
 			key:       "numbers",
 			val:       []int{1, 2, 3},
 			expectKey: "numbers",
-			expectVal: &Arr{Elements: []Value{
+			expectVal: &Arr{Elements: []Literal{
 				&Int{Val: 1},
 				&Int{Val: 2},
 				&Int{Val: 3},
@@ -214,7 +214,7 @@ func TestAddGlobalData(t *testing.T) {
 			key:       "names",
 			val:       []string{"Alice", "Bob", "Charlie"},
 			expectKey: "names",
-			expectVal: &Arr{Elements: []Value{
+			expectVal: &Arr{Elements: []Literal{
 				&Str{Val: "Alice"},
 				&Str{Val: "Bob"},
 				&Str{Val: "Charlie"},
@@ -225,7 +225,7 @@ func TestAddGlobalData(t *testing.T) {
 			key:       "mixed",
 			val:       []any{"hello", 42, true},
 			expectKey: "mixed",
-			expectVal: &Arr{Elements: []Value{
+			expectVal: &Arr{Elements: []Literal{
 				&Str{Val: "hello"},
 				&Int{Val: 42},
 				&Bool{Val: true},
@@ -236,14 +236,14 @@ func TestAddGlobalData(t *testing.T) {
 			key:       "emptySlice",
 			val:       []int{},
 			expectKey: "emptySlice",
-			expectVal: &Arr{Elements: []Value{}},
+			expectVal: &Arr{Elements: []Literal{}},
 		},
 		{
 			name:      "add object/map global identifier",
 			key:       "user",
 			val:       map[string]any{"name": "John", "age": 30},
 			expectKey: "user",
-			expectVal: NewObj(map[string]Value{
+			expectVal: NewObj(map[string]Literal{
 				"name": &Str{Val: "John"},
 				"age":  &Int{Val: 30},
 			}),
@@ -258,8 +258,8 @@ func TestAddGlobalData(t *testing.T) {
 				},
 			},
 			expectKey: "config",
-			expectVal: NewObj(map[string]Value{
-				"database": NewObj(map[string]Value{
+			expectVal: NewObj(map[string]Literal{
+				"database": NewObj(map[string]Literal{
 					"host": &Str{Val: "localhost"},
 					"port": &Int{Val: 5432},
 				}),
@@ -270,8 +270,8 @@ func TestAddGlobalData(t *testing.T) {
 			key:       "data",
 			val:       map[string]any{"tags": []string{"go", "test", "unit"}, "count": 3},
 			expectKey: "data",
-			expectVal: NewObj(map[string]Value{
-				"tags": &Arr{Elements: []Value{
+			expectVal: NewObj(map[string]Literal{
+				"tags": &Arr{Elements: []Literal{
 					&Str{Val: "go"},
 					&Str{Val: "test"},
 					&Str{Val: "unit"},
@@ -287,12 +287,12 @@ func TestAddGlobalData(t *testing.T) {
 				{"name": "Bob", "age": 30},
 			},
 			expectKey: "users",
-			expectVal: &Arr{Elements: []Value{
-				NewObj(map[string]Value{
+			expectVal: &Arr{Elements: []Literal{
+				NewObj(map[string]Literal{
 					"name": &Str{Val: "Alice"},
 					"age":  &Int{Val: 25},
 				}),
-				NewObj(map[string]Value{
+				NewObj(map[string]Literal{
 					"name": &Str{Val: "Bob"},
 					"age":  &Int{Val: 30},
 				}),
@@ -303,7 +303,7 @@ func TestAddGlobalData(t *testing.T) {
 			key:       "nilSlice",
 			val:       []any(nil),
 			expectKey: "nilSlice",
-			expectVal: &Arr{Elements: []Value{}},
+			expectVal: &Arr{Elements: []Literal{}},
 		},
 		{
 			name:      "add empty object global identifier",
