@@ -70,7 +70,7 @@ func hasControlStmt(obj value.Value, controlType value.ValueType) bool {
 	}
 
 	// also check recursively for nested blocks
-	for _, elem := range block.Elements {
+	for _, elem := range block.Chunks {
 		if hasControlStmt(elem, controlType) {
 			return true
 		}
