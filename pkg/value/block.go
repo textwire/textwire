@@ -5,7 +5,11 @@ import (
 )
 
 type Block struct {
-	Elements []Value
+	Chunks []Value
+}
+
+func NewBlock(cap int) *Block {
+	return &Block{Chunks: make([]Value, 0, cap)}
 }
 
 func (*Block) Type() ValueType {
@@ -14,9 +18,9 @@ func (*Block) Type() ValueType {
 
 func (b *Block) String() string {
 	var out strings.Builder
-	out.Grow(len(b.Elements))
+	out.Grow(len(b.Chunks))
 
-	for _, e := range b.Elements {
+	for _, e := range b.Chunks {
 		out.WriteString(e.String())
 	}
 
