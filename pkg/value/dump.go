@@ -24,7 +24,11 @@ var outputHTML = `
 </div>`
 
 type Dump struct {
-	Vals []string
+	Vals []Literal
+}
+
+func NewDump(cap int) *Dump {
+	return &Dump{Vals: make([]Literal, 0, cap)}
 }
 
 func (*Dump) Type() ValueType {
@@ -33,8 +37,10 @@ func (*Dump) Type() ValueType {
 
 func (d *Dump) String() string {
 	var out bytes.Buffer
+	out.Grow(len(d.Vals))
+
 	for _, v := range d.Vals {
-		fmt.Fprintf(&out, outputHTML, v)
+		fmt.Fprintf(&out, outputHTML, v.Dump(0))
 	}
 
 	return out.String()

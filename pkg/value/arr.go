@@ -31,9 +31,9 @@ func (a *Arr) String() string {
 	return out.String()
 }
 
-func (a *Arr) Dump(ident int) string {
-	spaces := strings.Repeat("  ", ident)
-	ident += 1
+func (a *Arr) Dump(indent int) string {
+	spaces := strings.Repeat("  ", indent)
+	indent += 1
 
 	var out bytes.Buffer
 
@@ -46,11 +46,11 @@ func (a *Arr) Dump(ident int) string {
 		out.WriteByte('\n')
 	}
 
-	insideSpaces := strings.Repeat("  ", ident)
+	insideSpaces := strings.Repeat("  ", indent)
 
 	for _, elem := range a.Elements {
 		out.WriteString(insideSpaces)
-		out.WriteString(elem.Dump(ident))
+		out.WriteString(elem.Dump(indent))
 		out.WriteString(",\n")
 	}
 
