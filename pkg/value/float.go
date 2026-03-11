@@ -13,7 +13,7 @@ type Float struct {
 	Val float64
 }
 
-func (f *Float) Type() ValueType {
+func (*Float) Type() ValueType {
 	return FLOAT_VAL
 }
 

@@ -2,24 +2,12 @@ package value
 
 type Break struct{}
 
-func (b *Break) Type() ValueType {
+func (*Break) Type() ValueType {
 	return BREAK_VAL
 }
 
-func (b *Break) String() string {
+func (*Break) String() string {
 	return ""
-}
-
-func (b *Break) Dump(ident int) string {
-	return ""
-}
-
-func (b *Break) JSON() (string, error) {
-	return "", nil
-}
-
-func (b *Break) Native() any {
-	return nil
 }
 
 func (b *Break) Is(t ValueType) bool {

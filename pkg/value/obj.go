@@ -9,17 +9,17 @@ import (
 )
 
 type Obj struct {
-	Pairs map[string]Value
+	Pairs map[string]Literal
 }
 
-func NewObj(pairs map[string]Value) *Obj {
+func NewObj(pairs map[string]Literal) *Obj {
 	if pairs == nil {
-		pairs = map[string]Value{}
+		pairs = map[string]Literal{}
 	}
 	return &Obj{Pairs: pairs}
 }
 
-func (o *Obj) Type() ValueType {
+func (*Obj) Type() ValueType {
 	return OBJ_VAL
 }
 
@@ -134,8 +134,8 @@ func (o *Obj) Is(t ValueType) bool {
 
 // ToCamel converts each key in a pair to camel case and returns it
 // without mutating it.
-func (o Obj) ToCamel() map[string]Value {
-	res := make(map[string]Value, len(o.Pairs))
+func (o Obj) ToCamel() map[string]Literal {
+	res := make(map[string]Literal, len(o.Pairs))
 	for k, v := range o.Pairs {
 		key := utils.ToCamel(k)
 		if v.Is(OBJ_VAL) {

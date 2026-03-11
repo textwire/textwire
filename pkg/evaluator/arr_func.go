@@ -14,14 +14,14 @@ import (
 )
 
 // arrLenFunc returns the length of the given arr
-func arrLenFunc(receiver value.Value, _ ...value.Value) (value.Value, error) {
+func arrLenFunc(receiver value.Literal, _ ...value.Literal) (value.Literal, error) {
 	elems := receiver.(*value.Arr).Elements
 	length := len(elems)
 	return &value.Int{Val: int64(length)}, nil
 }
 
 // arrJoinFunc joins the elements of the given arr with the given separator
-func arrJoinFunc(receiver value.Value, args ...value.Value) (value.Value, error) {
+func arrJoinFunc(receiver value.Literal, args ...value.Literal) (value.Literal, error) {
 	var separator string
 
 	if len(args) == 0 {
@@ -53,7 +53,7 @@ func arrJoinFunc(receiver value.Value, args ...value.Value) (value.Value, error)
 }
 
 // arrRandFunc returns a random element from the given arr
-func arrRandFunc(receiver value.Value, _ ...value.Value) (value.Value, error) {
+func arrRandFunc(receiver value.Literal, _ ...value.Literal) (value.Literal, error) {
 	elems := receiver.(*value.Arr).Elements
 	if len(elems) == 0 {
 		return &value.Nil{}, nil
@@ -63,7 +63,7 @@ func arrRandFunc(receiver value.Value, _ ...value.Value) (value.Value, error) {
 }
 
 // arrReverseFunc reverses the elements of the given arr
-func arrReverseFunc(receiver value.Value, _ ...value.Value) (value.Value, error) {
+func arrReverseFunc(receiver value.Literal, _ ...value.Literal) (value.Literal, error) {
 	elems := receiver.(*value.Arr).Elements
 	if len(elems) == 0 {
 		return receiver, nil
@@ -75,7 +75,7 @@ func arrReverseFunc(receiver value.Value, _ ...value.Value) (value.Value, error)
 }
 
 // arrSliceFunc returns a slice of the given arr
-func arrSliceFunc(receiver value.Value, args ...value.Value) (value.Value, error) {
+func arrSliceFunc(receiver value.Literal, args ...value.Literal) (value.Literal, error) {
 	elems := receiver.(*value.Arr).Elements
 
 	if len(args) == 0 {
@@ -111,7 +111,7 @@ func arrSliceFunc(receiver value.Value, args ...value.Value) (value.Value, error
 }
 
 // arrShuffleFunc shuffles the elements of the given arr
-func arrShuffleFunc(receiver value.Value, _ ...value.Value) (value.Value, error) {
+func arrShuffleFunc(receiver value.Literal, _ ...value.Literal) (value.Literal, error) {
 	elems := receiver.(*value.Arr).Elements
 
 	length := len(elems)
@@ -120,7 +120,7 @@ func arrShuffleFunc(receiver value.Value, _ ...value.Value) (value.Value, error)
 	}
 
 	// Create a copy of the elements to shuffle
-	shuffled := make([]value.Value, length)
+	shuffled := make([]value.Literal, length)
 	copy(shuffled, elems)
 
 	// Seed the random number generator to ensure different results
@@ -136,7 +136,7 @@ func arrShuffleFunc(receiver value.Value, _ ...value.Value) (value.Value, error)
 }
 
 // arrContainsFunc checks if the given arr contains the given element
-func arrContainsFunc(receiver value.Value, args ...value.Value) (value.Value, error) {
+func arrContainsFunc(receiver value.Literal, args ...value.Literal) (value.Literal, error) {
 	if len(args) == 0 {
 		msg := fmt.Sprintf(fail.ErrFuncMissingArg, value.ARR_VAL, "contains")
 		return nil, errors.New(msg)
@@ -170,7 +170,7 @@ func arrContainsFunc(receiver value.Value, args ...value.Value) (value.Value, er
 }
 
 // arrAppendFunc appends the given elements to the given arr
-func arrAppendFunc(receiver value.Value, args ...value.Value) (value.Value, error) {
+func arrAppendFunc(receiver value.Literal, args ...value.Literal) (value.Literal, error) {
 	if len(args) == 0 {
 		msg := fmt.Sprintf(fail.ErrFuncMissingArg, value.ARR_VAL, "append")
 		return nil, errors.New(msg)
@@ -178,7 +178,7 @@ func arrAppendFunc(receiver value.Value, args ...value.Value) (value.Value, erro
 
 	arr := receiver.(*value.Arr)
 	newElems := make(
-		[]value.Value,
+		[]value.Literal,
 		len(arr.Elements)+len(args),
 	)
 
@@ -192,14 +192,14 @@ func arrAppendFunc(receiver value.Value, args ...value.Value) (value.Value, erro
 }
 
 // arrPrependFunc prepends the given elements to the given arr
-func arrPrependFunc(receiver value.Value, args ...value.Value) (value.Value, error) {
+func arrPrependFunc(receiver value.Literal, args ...value.Literal) (value.Literal, error) {
 	if len(args) == 0 {
 		msg := fmt.Sprintf(fail.ErrFuncMissingArg, value.ARR_VAL, "prepend")
 		return nil, errors.New(msg)
 	}
 
 	arr := receiver.(*value.Arr)
-	newElems := make([]value.Value, len(arr.Elements)+len(args))
+	newElems := make([]value.Literal, len(arr.Elements)+len(args))
 
 	copy(newElems, args)
 

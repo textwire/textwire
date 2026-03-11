@@ -3,7 +3,6 @@ package value
 import (
 	"bytes"
 	"fmt"
-	"strings"
 )
 
 var outputHTML = `
@@ -28,7 +27,7 @@ type Dump struct {
 	Vals []string
 }
 
-func (d *Dump) Type() ValueType {
+func (*Dump) Type() ValueType {
 	return DUMP_VAL
 }
 
@@ -39,22 +38,6 @@ func (d *Dump) String() string {
 	}
 
 	return out.String()
-}
-
-func (d *Dump) Dump(ident int) string {
-	return fmt.Sprintf("@dump(%s)", strings.Join(d.Vals, ", "))
-}
-
-func (d *Dump) JSON() (string, error) {
-	return "", nil
-}
-
-func (d *Dump) Native() any {
-	var vals []any
-	for i := range d.Vals {
-		vals = append(vals, d.Vals[i])
-	}
-	return vals
 }
 
 func (d *Dump) Is(t ValueType) bool {

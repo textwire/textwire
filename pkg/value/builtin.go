@@ -1,27 +1,15 @@
 package value
 
-type BuiltinFunction func(receiver Value, args ...Value) (Value, error)
+type BuiltinFunc func(receiver Literal, args ...Literal) (Literal, error)
 
 type Builtin struct {
-	Fn BuiltinFunction
+	Fn BuiltinFunc
 }
 
-func (b *Builtin) Type() ValueType {
+func (*Builtin) Type() ValueType {
 	return BUILTIN_VAL
 }
 
-func (b *Builtin) String() string {
-	return "func()"
-}
-
-func (b *Builtin) Dump(ident int) string {
+func (*Builtin) String() string {
 	return ""
-}
-
-func (b *Builtin) JSON() (string, error) {
-	return "", nil
-}
-
-func (b *Builtin) Native() any {
-	return b.Fn
 }

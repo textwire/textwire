@@ -48,7 +48,7 @@ func isUndefinedError(obj value.Value) bool {
 	return isErr && slices.Contains(undefinedErrors, err.ErrorID)
 }
 
-func nativeBoolToBoolObj(input bool) value.Value {
+func nativeBoolToBoolObj(input bool) value.Literal {
 	if input {
 		return TRUE
 	}
@@ -107,7 +107,7 @@ func hasCustomFunc(customFunc *config.Func, t value.ValueType, funcName string) 
 // Returns error if arguments are invalid.
 func getDecimalConfig(
 	objType value.ValueType,
-	args ...value.Value,
+	args ...value.Literal,
 ) (separator string, decimals int, err error) {
 	separator = "."
 	decimals = 2
