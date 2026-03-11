@@ -38,10 +38,38 @@ func New(customFunc *config.Func, conf *config.Config) *Evaluator {
 }
 
 func (e *Evaluator) Eval(node ast.Node, ctx *Context) value.Value {
+	switch node := node.(type) {
+	case *ast.Block:
+		return e.block(node, ctx)
+	case *ast.UseDir:
+		return e.useDir(node, ctx)
+	case *ast.ContinueDir:
+		return CONTINUE
+	case *ast.BreakDir:
+		return BREAK
+	case *ast.ReserveDir:
+		return e.reserveDir(node, ctx)
+	case *ast.BreakifDir:
+		return e.breakifDir(node, ctx)
+	case *ast.ComponentDir:
+		return e.compDir(node, ctx)
+	case *ast.ContinueifDir:
+		return e.continueifDir(node, ctx)
+	case *ast.SlotDir:
+		return e.slotDir(node, ctx)
+	case *ast.SlotifDir:
+		return e.slotifDir(node, ctx)
+	case *ast.DumpDir:
+		return e.dumpDir(node, ctx)
+	case *ast.InsertDir:
+		return e.insertDir(node, ctx)
+	}
+
 	if lit := e.evalIntoLit(node, ctx); lit != nil {
 		return lit
 	}
-	return e.evalIntoValue(node, ctx)
+
+	return e.newError(node, ctx, fail.ErrUnknownType, node)
 }
 
 func (e *Evaluator) evalIntoLit(node ast.Node, ctx *Context) value.Literal {
@@ -100,36 +128,6 @@ func (e *Evaluator) evalIntoLit(node ast.Node, ctx *Context) value.Literal {
 		return NIL
 	}
 	return nil
-}
-
-func (e *Evaluator) evalIntoValue(node ast.Node, ctx *Context) value.Value {
-	switch node := node.(type) {
-	case *ast.Block:
-		return e.block(node, ctx)
-	case *ast.UseDir:
-		return e.useDir(node, ctx)
-	case *ast.ContinueDir:
-		return CONTINUE
-	case *ast.BreakDir:
-		return BREAK
-	case *ast.ReserveDir:
-		return e.reserveDir(node, ctx)
-	case *ast.BreakifDir:
-		return e.breakifDir(node, ctx)
-	case *ast.ComponentDir:
-		return e.compDir(node, ctx)
-	case *ast.ContinueifDir:
-		return e.continueifDir(node, ctx)
-	case *ast.SlotDir:
-		return e.slotDir(node, ctx)
-	case *ast.SlotifDir:
-		return e.slotifDir(node, ctx)
-	case *ast.DumpDir:
-		return e.dumpDir(node, ctx)
-	case *ast.InsertDir:
-		return e.insertDir(node, ctx)
-	}
-	return e.newError(node, ctx, fail.ErrUnknownType, node)
 }
 
 func (e *Evaluator) program(prog *ast.Program, ctx *Context) value.Literal {
