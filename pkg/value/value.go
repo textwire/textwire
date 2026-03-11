@@ -23,6 +23,7 @@ const (
 	RESERVE_VAL   ValueType = "reserve"
 	INSERT_VAL    ValueType = "insert"
 	BLOCK_VAL     ValueType = "block"
+	EMBEDDED_VAL  ValueType = "embedded"
 	BUILTIN_VAL   ValueType = "function"
 	COMPONENT_VAL ValueType = "component"
 	SLOT_VAL      ValueType = "slot"

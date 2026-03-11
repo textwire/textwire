@@ -38,8 +38,8 @@ func New(customFunc *config.Func, conf *config.Config) *Evaluator {
 }
 
 func (e *Evaluator) Eval(node ast.Node, ctx *Context) value.Value {
-	if chunk := e.evalValue(node, ctx); chunk != nil {
-		return chunk
+	if val := e.evalValue(node, ctx); val != nil {
+		return val
 	}
 
 	if lit := e.evalLiteral(node, ctx); lit != nil {
@@ -53,6 +53,8 @@ func (e *Evaluator) evalValue(node ast.Node, ctx *Context) value.Value {
 	switch node := node.(type) {
 	case *ast.Program:
 		return e.program(node, ctx)
+	case *ast.Embedded:
+		return e.embedded(node, ctx)
 	case *ast.Block:
 		return e.block(node, ctx)
 	case *ast.ContinueDir:
@@ -89,8 +91,6 @@ func (e *Evaluator) evalValue(node ast.Node, ctx *Context) value.Value {
 
 func (e *Evaluator) evalLiteral(node ast.Node, ctx *Context) value.Literal {
 	switch node := node.(type) {
-	case *ast.Embedded:
-		return e.embedded(node, ctx)
 	case *ast.Text:
 		return &value.Str{Val: node.String()}
 	case *ast.IllegalNode:
@@ -141,29 +141,28 @@ func (e *Evaluator) program(prog *ast.Program, ctx *Context) value.Value {
 	block := value.NewBlock(len(prog.Chunks))
 
 	for i := range prog.Chunks {
-		chunk := e.Eval(prog.Chunks[i], ctx)
-		if isError(chunk) {
-			return chunk
+		val := e.Eval(prog.Chunks[i], ctx)
+		if isError(val) {
+			return val
 		}
-		block.Chunks = append(block.Chunks, chunk)
+		block.Chunks = append(block.Chunks, val)
 	}
 
 	return block
 }
 
-func (e *Evaluator) embedded(embedded *ast.Embedded, ctx *Context) value.Literal {
-	var out strings.Builder
-	out.Grow(len(embedded.Segments))
+func (e *Evaluator) embedded(embeddedAst *ast.Embedded, ctx *Context) value.Value {
+	embedded := value.NewEmbedded(len(embeddedAst.Segments))
 
-	for _, segment := range embedded.Segments {
-		val := e.evalLiteral(segment, ctx)
-		if isError(val) {
-			return val
+	for _, segment := range embeddedAst.Segments {
+		segment := e.evalLiteral(segment, ctx)
+		if isError(segment) {
+			return segment
 		}
-		out.WriteString(val.String())
+		embedded.Segments = append(embedded.Segments, segment)
 	}
 
-	return &value.Str{Val: out.String()}
+	return embedded
 }
 
 func (e *Evaluator) ifDir(ifDir *ast.IfDir, ctx *Context) value.Value {
