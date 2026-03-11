@@ -55,11 +55,11 @@ func nativeBoolToBoolObj(input bool) value.Literal {
 	return FALSE
 }
 
-func hasBreakStmt(obj value.Value) bool {
+func hasBreak(obj value.Value) bool {
 	return hasControlStmt(obj, value.BREAK_VAL)
 }
 
-func hasContinueStmt(obj value.Value) bool {
+func hasContinue(obj value.Value) bool {
 	return hasControlStmt(obj, value.CONTINUE_VAL)
 }
 

@@ -22,7 +22,7 @@ var (
 type Evaluator struct {
 	customFunc     *config.Func
 	usingTemplates bool
-	usingUseStmt   bool
+	usingUseDir    bool
 
 	// config can be nil when Textwire is used for simple string and
 	// file evaluation. If config is not nil, it means we use templates.
@@ -39,6 +39,8 @@ func New(customFunc *config.Func, conf *config.Config) *Evaluator {
 
 func (e *Evaluator) Eval(node ast.Node, ctx *Context) value.Value {
 	switch node := node.(type) {
+	case *ast.Program:
+		return e.program(node, ctx)
 	case *ast.Block:
 		return e.block(node, ctx)
 	case *ast.UseDir:
@@ -74,8 +76,6 @@ func (e *Evaluator) Eval(node ast.Node, ctx *Context) value.Value {
 
 func (e *Evaluator) evalIntoLit(node ast.Node, ctx *Context) value.Literal {
 	switch node := node.(type) {
-	case *ast.Program:
-		return e.program(node, ctx)
 	case *ast.Embedded:
 		return e.embedded(node, ctx)
 	case *ast.Text:
@@ -130,20 +130,20 @@ func (e *Evaluator) evalIntoLit(node ast.Node, ctx *Context) value.Literal {
 	return nil
 }
 
-func (e *Evaluator) program(prog *ast.Program, ctx *Context) value.Literal {
-	var stmts strings.Builder
-	stmts.Grow(len(prog.Chunks))
+func (e *Evaluator) program(prog *ast.Program, ctx *Context) value.Value {
+	var chunks strings.Builder
+	chunks.Grow(len(prog.Chunks))
 
 	for i := range prog.Chunks {
-		stmt := e.evalIntoLit(prog.Chunks[i], ctx)
-		if isError(stmt) {
-			return stmt
+		chunk := e.Eval(prog.Chunks[i], ctx)
+		if isError(chunk) {
+			return chunk
 		}
 
-		stmts.WriteString(stmt.String())
+		chunks.WriteString(chunk.String())
 	}
 
-	return &value.Str{Val: stmts.String()}
+	return &value.Str{Val: chunks.String()}
 }
 
 func (e *Evaluator) embedded(embedded *ast.Embedded, ctx *Context) value.Literal {
@@ -161,19 +161,19 @@ func (e *Evaluator) embedded(embedded *ast.Embedded, ctx *Context) value.Literal
 	return &value.Str{Val: out.String()}
 }
 
-func (e *Evaluator) ifDir(ifStmt *ast.IfDir, ctx *Context) value.Literal {
-	cond := e.evalIntoLit(ifStmt.Cond, ctx)
+func (e *Evaluator) ifDir(ifDir *ast.IfDir, ctx *Context) value.Literal {
+	cond := e.evalIntoLit(ifDir.Cond, ctx)
 	if isError(cond) {
 		return cond
 	}
 
 	ifCtx := NewContext(ctx.scope.Child(), ctx.absPath)
 	if isTruthy(cond) {
-		return e.evalIntoLit(ifStmt.IfBlock, ifCtx)
+		return e.evalIntoLit(ifDir.IfBlock, ifCtx)
 	}
 
-	for i := range ifStmt.ElseifDirs {
-		elseifNode := ifStmt.ElseifDirs[i]
+	for i := range ifDir.ElseifDirs {
+		elseifNode := ifDir.ElseifDirs[i]
 
 		cond = e.evalIntoLit(elseifNode.Cond, ifCtx)
 		if isError(cond) {
@@ -185,28 +185,28 @@ func (e *Evaluator) ifDir(ifStmt *ast.IfDir, ctx *Context) value.Literal {
 		}
 	}
 
-	if ifStmt.ElseBlock != nil {
-		return e.evalIntoLit(ifStmt.ElseBlock, ifCtx)
+	if ifDir.ElseBlock != nil {
+		return e.evalIntoLit(ifDir.ElseBlock, ifCtx)
 	}
 
 	return NIL
 }
 
-func (e *Evaluator) block(blockStmt *ast.Block, ctx *Context) value.Value {
-	if blockStmt == nil {
+func (e *Evaluator) block(block *ast.Block, ctx *Context) value.Value {
+	if block == nil {
 		return NIL
 	}
 
-	chunks := make([]value.Value, 0, len(blockStmt.Chunks))
+	chunks := make([]value.Value, 0, len(block.Chunks))
 
-	for i := range blockStmt.Chunks {
-		stmt := e.evalIntoLit(blockStmt.Chunks[i], ctx)
-		if isError(stmt) {
-			return stmt
+	for i := range block.Chunks {
+		chunk := e.Eval(block.Chunks[i], ctx)
+		if isError(chunk) {
+			return chunk
 		}
 
-		chunks = append(chunks, stmt)
-		if hasBreakStmt(stmt) || hasContinueStmt(stmt) {
+		chunks = append(chunks, chunk)
+		if hasBreak(chunk) || hasContinue(chunk) {
 			break
 		}
 	}
@@ -317,27 +317,27 @@ func (e *Evaluator) assignDotExp(
 	return NIL
 }
 
-func (e *Evaluator) useDir(useStmt *ast.UseDir, ctx *Context) value.Value {
-	if useStmt.LayoutProg == nil {
+func (e *Evaluator) useDir(useDir *ast.UseDir, ctx *Context) value.Value {
+	if useDir.LayoutProg == nil {
 		if e.usingTemplates {
-			return e.newError(useStmt, ctx, fail.ErrUseDirMissingLayout, useStmt.Name.Val)
+			return e.newError(useDir, ctx, fail.ErrUseDirMissingLayout, useDir.Name.Val)
 		}
-		return e.newError(useStmt, ctx, fail.ErrSomeDirsOnlyInTemplates)
+		return e.newError(useDir, ctx, fail.ErrSomeDirsOnlyInTemplates)
 	}
 
-	e.usingUseStmt = true
+	e.usingUseDir = true
 
 	// Make sure that layout is missing @use
-	if useStmt.LayoutProg.IsLayout && useStmt.LayoutProg.HasUseDir() {
-		return e.newError(useStmt, ctx, fail.ErrDirStmtNotAllowed)
+	if useDir.LayoutProg.IsLayout && useDir.LayoutProg.HasUseDir() {
+		return e.newError(useDir, ctx, fail.ErrDirStmtNotAllowed)
 	}
 
 	// Create new layout context and pass inserts to it
-	layoutCtx := NewContext(value.NewScope(), useStmt.LayoutProg.AbsPath)
+	layoutCtx := NewContext(value.NewScope(), useDir.LayoutProg.AbsPath)
 
 	// Evaluate @inserts and map them into new context for layout
-	for name, insertStmt := range useStmt.Inserts {
-		insert := e.insertDir(insertStmt, ctx)
+	for name, insertDir := range useDir.Inserts {
+		insert := e.insertDir(insertDir, ctx)
 		if isError(insert) {
 			return insert
 		}
@@ -345,30 +345,30 @@ func (e *Evaluator) useDir(useStmt *ast.UseDir, ctx *Context) value.Value {
 	}
 
 	// Evaluate layout program with new context
-	layout := e.evalIntoLit(useStmt.LayoutProg, layoutCtx)
+	layout := e.Eval(useDir.LayoutProg, layoutCtx)
 	if isError(layout) {
 		return layout
 	}
 
 	return &value.Use{
-		Path:   useStmt.Name.Val,
+		Path:   useDir.Name.Val,
 		Layout: layout,
 	}
 }
 
-func (e *Evaluator) reserveDir(reserveStmt *ast.ReserveDir, ctx *Context) value.Value {
+func (e *Evaluator) reserveDir(reserveDir *ast.ReserveDir, ctx *Context) value.Value {
 	if !e.usingTemplates {
-		return e.newError(reserveStmt, ctx, fail.ErrSomeDirsOnlyInTemplates)
+		return e.newError(reserveDir, ctx, fail.ErrSomeDirsOnlyInTemplates)
 	}
 
-	name := reserveStmt.Name.Val
+	name := reserveDir.Name.Val
 	insert, ok := ctx.inserts[name]
 	if !ok {
 		// Inserts are optional, NIL when not provided or fallback argument
-		if reserveStmt.Fallback == nil {
+		if reserveDir.Fallback == nil {
 			return NIL
 		}
-		return e.evalIntoLit(reserveStmt.Fallback, ctx)
+		return e.evalIntoLit(reserveDir.Fallback, ctx)
 	}
 
 	// delete reserve after it's been used by reserve
@@ -380,21 +380,21 @@ func (e *Evaluator) reserveDir(reserveStmt *ast.ReserveDir, ctx *Context) value.
 	}
 }
 
-func (e *Evaluator) compDir(compStmt *ast.ComponentDir, ctx *Context) value.Value {
+func (e *Evaluator) compDir(compDir *ast.ComponentDir, ctx *Context) value.Value {
 	if !e.usingTemplates {
-		return e.newError(compStmt, ctx, fail.ErrSomeDirsOnlyInTemplates)
+		return e.newError(compDir, ctx, fail.ErrSomeDirsOnlyInTemplates)
 	}
 
-	name := compStmt.Name.Val
-	if compStmt.CompProg == nil {
-		return e.newError(compStmt, ctx, fail.ErrUndefinedComponent, name)
+	name := compDir.Name.Val
+	if compDir.CompProg == nil {
+		return e.newError(compDir, ctx, fail.ErrUndefinedComponent, name)
 	}
 
-	compCtx := NewContext(value.NewScope(), compStmt.CompProg.AbsPath)
+	compCtx := NewContext(value.NewScope(), compDir.CompProg.AbsPath)
 
 	// Evaluate local slots and add them to component context
-	for _, slotStmt := range compStmt.Slots {
-		slot := e.evalIntoLit(slotStmt, ctx)
+	for _, slotDir := range compDir.Slots {
+		slot := e.Eval(slotDir, ctx)
 		if isError(slot) {
 			return slot
 		}
@@ -403,23 +403,23 @@ func (e *Evaluator) compDir(compStmt *ast.ComponentDir, ctx *Context) value.Valu
 			compCtx.slots[name] = map[string]value.Value{}
 		}
 
-		compCtx.slots[name][slotStmt.Name().Val] = slot
+		compCtx.slots[name][slotDir.Name().Val] = slot
 	}
 
-	if compStmt.Argument != nil {
-		for key, arg := range compStmt.Argument.Pairs {
+	if compDir.Argument != nil {
+		for key, arg := range compDir.Argument.Pairs {
 			obj := e.evalIntoLit(arg, ctx)
 			if isError(obj) {
 				return obj
 			}
 
 			if err := compCtx.scope.Set(key, obj); err != nil {
-				return e.newError(compStmt, ctx, "%s", err.Error())
+				return e.newError(compDir, ctx, "%s", err.Error())
 			}
 		}
 	}
 
-	content := e.evalIntoLit(compStmt.CompProg, compCtx)
+	content := e.Eval(compDir.CompProg, compCtx)
 	if isError(content) {
 		return content
 	}
@@ -430,25 +430,25 @@ func (e *Evaluator) compDir(compStmt *ast.ComponentDir, ctx *Context) value.Valu
 	}
 }
 
-func (e *Evaluator) forDir(forStmt *ast.ForDir, ctx *Context) value.Literal {
+func (e *Evaluator) forDir(forDir *ast.ForDir, ctx *Context) value.Literal {
 	forCtx := NewContext(ctx.scope, ctx.absPath)
 
 	var init value.Literal
-	if forStmt.Init != nil {
-		if init = e.evalIntoLit(forStmt.Init, forCtx); isError(init) {
+	if forDir.Init != nil {
+		if init = e.evalIntoLit(forDir.Init, forCtx); isError(init) {
 			return init
 		}
 	}
 
 	// Evaluate ElseBlock block if user's condition is false
-	if forStmt.Cond != nil {
-		cond := e.evalIntoLit(forStmt.Cond, forCtx)
+	if forDir.Cond != nil {
+		cond := e.evalIntoLit(forDir.Cond, forCtx)
 		if isError(cond) {
 			return cond
 		}
 
-		if !isTruthy(cond) && forStmt.ElseBlock != nil {
-			return e.evalIntoLit(forStmt.ElseBlock, forCtx)
+		if !isTruthy(cond) && forDir.ElseBlock != nil {
+			return e.evalIntoLit(forDir.ElseBlock, forCtx)
 		}
 	}
 
@@ -456,8 +456,8 @@ func (e *Evaluator) forDir(forStmt *ast.ForDir, ctx *Context) value.Literal {
 
 	// Loop through the block until the user's condition is false
 	for {
-		if forStmt.Cond != nil {
-			cond := e.evalIntoLit(forStmt.Cond, forCtx)
+		if forDir.Cond != nil {
+			cond := e.evalIntoLit(forDir.Cond, forCtx)
 			if isError(cond) {
 				return cond
 			}
@@ -467,25 +467,25 @@ func (e *Evaluator) forDir(forStmt *ast.ForDir, ctx *Context) value.Literal {
 			}
 		}
 
-		block := e.evalIntoLit(forStmt.Block, forCtx)
+		block := e.Eval(forDir.Block, forCtx)
 		if isError(block) {
-			return block
+			return block.(*value.Error)
 		}
 
 		blocks.WriteString(block.String())
 
-		if forStmt.Post != nil {
-			post := e.evalIntoLit(forStmt.Post, forCtx)
+		if forDir.Post != nil {
+			post := e.evalIntoLit(forDir.Post, forCtx)
 			if isError(post) {
 				return post
 			}
 		}
 
-		if hasBreakStmt(block) {
+		if hasBreak(block) {
 			break
 		}
 
-		if hasContinueStmt(block) {
+		if hasContinue(block) {
 			continue
 		}
 	}
@@ -493,25 +493,25 @@ func (e *Evaluator) forDir(forStmt *ast.ForDir, ctx *Context) value.Literal {
 	return &value.Str{Val: blocks.String()}
 }
 
-func (e *Evaluator) eachDir(eachStmt *ast.EachDir, ctx *Context) value.Literal {
+func (e *Evaluator) eachDir(eachDir *ast.EachDir, ctx *Context) value.Literal {
 	eachCtx := NewContext(ctx.scope.Child(), ctx.absPath)
-	varName := eachStmt.Var.Name
+	varName := eachDir.Var.Name
 
-	arrObj := e.evalIntoLit(eachStmt.Arr, eachCtx)
+	arrObj := e.evalIntoLit(eachDir.Arr, eachCtx)
 	if isError(arrObj) {
 		return arrObj
 	}
 
 	arr, ok := arrObj.(*value.Arr)
 	if !ok {
-		return e.newError(eachStmt, eachCtx, fail.ErrEachDirWithNonArrArg, arrObj.Type())
+		return e.newError(eachDir, eachCtx, fail.ErrEachDirWithNonArrArg, arrObj.Type())
 	}
 
 	arrElems := arr.Elements
 
 	// Evaluate ElseBlock when array is empty
-	if len(arrElems) == 0 && eachStmt.ElseBlock != nil {
-		return e.evalIntoLit(eachStmt.ElseBlock, eachCtx)
+	if len(arrElems) == 0 && eachDir.ElseBlock != nil {
+		return e.evalIntoLit(eachDir.ElseBlock, eachCtx)
 	}
 
 	var blocks strings.Builder
@@ -519,7 +519,7 @@ func (e *Evaluator) eachDir(eachStmt *ast.EachDir, ctx *Context) value.Literal {
 
 	for i := range arrElems {
 		if err := eachCtx.scope.Set(varName, arrElems[i]); err != nil {
-			return e.newError(eachStmt, eachCtx, "%s", err.Error())
+			return e.newError(eachDir, eachCtx, "%s", err.Error())
 		}
 
 		eachCtx.scope.SetLoopVar(map[string]value.Literal{
@@ -529,17 +529,17 @@ func (e *Evaluator) eachDir(eachStmt *ast.EachDir, ctx *Context) value.Literal {
 			"iter":  &value.Int{Val: int64(i + 1)},
 		})
 
-		block := e.evalIntoLit(eachStmt.Block, eachCtx)
+		block := e.evalIntoLit(eachDir.Block, eachCtx)
 		if isError(block) {
 			return block
 		}
 
 		blocks.WriteString(block.String())
-		if hasBreakStmt(block) {
+		if hasBreak(block) {
 			break
 		}
 
-		if hasContinueStmt(block) {
+		if hasContinue(block) {
 			continue
 		}
 	}
@@ -547,8 +547,8 @@ func (e *Evaluator) eachDir(eachStmt *ast.EachDir, ctx *Context) value.Literal {
 	return &value.Str{Val: blocks.String()}
 }
 
-func (e *Evaluator) breakifDir(breakifStmt *ast.BreakifDir, ctx *Context) value.Value {
-	cond := e.evalIntoLit(breakifStmt.Cond, ctx)
+func (e *Evaluator) breakifDir(breakifDir *ast.BreakifDir, ctx *Context) value.Value {
+	cond := e.evalIntoLit(breakifDir.Cond, ctx)
 	if isError(cond) {
 		return cond
 	}
@@ -560,8 +560,8 @@ func (e *Evaluator) breakifDir(breakifStmt *ast.BreakifDir, ctx *Context) value.
 	return NIL
 }
 
-func (e *Evaluator) continueifDir(contifStmt *ast.ContinueifDir, ctx *Context) value.Value {
-	cond := e.evalIntoLit(contifStmt.Cond, ctx)
+func (e *Evaluator) continueifDir(contifDir *ast.ContinueifDir, ctx *Context) value.Value {
+	cond := e.evalIntoLit(contifDir.Cond, ctx)
 	if isError(cond) {
 		return cond
 	}
@@ -573,15 +573,15 @@ func (e *Evaluator) continueifDir(contifStmt *ast.ContinueifDir, ctx *Context) v
 	return NIL
 }
 
-func (e *Evaluator) slotDir(slotStmt *ast.SlotDir, ctx *Context) value.Value {
-	if slotStmt.IsLocal {
-		return e.localSlotStmt(slotStmt, ctx)
+func (e *Evaluator) slotDir(slotDir *ast.SlotDir, ctx *Context) value.Value {
+	if slotDir.IsLocal {
+		return e.localSlot(slotDir, ctx)
 	}
-	return e.externalSlotStmt(slotStmt, ctx)
+	return e.externalSlot(slotDir, ctx)
 }
 
-func (e *Evaluator) slotifDir(slotifStmt *ast.SlotifDir, ctx *Context) value.Value {
-	cond := e.evalIntoLit(slotifStmt.Cond, ctx)
+func (e *Evaluator) slotifDir(slotifDir *ast.SlotifDir, ctx *Context) value.Value {
+	cond := e.evalIntoLit(slotifDir.Cond, ctx)
 	if isError(cond) {
 		return cond
 	}
@@ -590,20 +590,20 @@ func (e *Evaluator) slotifDir(slotifStmt *ast.SlotifDir, ctx *Context) value.Val
 		return NIL
 	}
 
-	block := e.evalIntoLit(slotifStmt.Block(), ctx)
+	block := e.Eval(slotifDir.Block(), ctx)
 	if isError(block) {
 		return block
 	}
 
 	return &value.Slot{
-		Name:    slotifStmt.Name().Val,
+		Name:    slotifDir.Name().Val,
 		Content: block,
 	}
 }
 
-func (e *Evaluator) externalSlotStmt(slotStmt *ast.SlotDir, ctx *Context) value.Value {
-	name := slotStmt.Name().Val
-	compName := slotStmt.CompName
+func (e *Evaluator) externalSlot(slotDir *ast.SlotDir, ctx *Context) value.Value {
+	name := slotDir.Name().Val
+	compName := slotDir.CompName
 
 	// Get slot's content from the context
 	content, ok := ctx.slots[compName][name]
@@ -618,33 +618,33 @@ func (e *Evaluator) externalSlotStmt(slotStmt *ast.SlotDir, ctx *Context) value.
 	return &value.Slot{Name: name, Content: content}
 }
 
-func (e *Evaluator) localSlotStmt(slotStmt *ast.SlotDir, ctx *Context) value.Value {
-	var block value.Literal = NIL
+func (e *Evaluator) localSlot(slotDir *ast.SlotDir, ctx *Context) value.Value {
+	var block value.Value = NIL
 
-	if slotStmt.Block() != nil {
-		block = e.evalIntoLit(slotStmt.Block(), ctx)
+	if slotDir.Block() != nil {
+		block = e.Eval(slotDir.Block(), ctx)
 		if isError(block) {
 			return block
 		}
 	}
 
 	return &value.Slot{
-		Name:    slotStmt.Name().Val,
+		Name:    slotDir.Name().Val,
 		Content: block,
 	}
 }
 
-func (e *Evaluator) insertDir(insertStmt *ast.InsertDir, ctx *Context) value.Value {
+func (e *Evaluator) insertDir(insertDir *ast.InsertDir, ctx *Context) value.Value {
 	if !e.usingTemplates {
-		return e.newError(insertStmt, ctx, fail.ErrSomeDirsOnlyInTemplates)
+		return e.newError(insertDir, ctx, fail.ErrSomeDirsOnlyInTemplates)
 	}
 
-	name := insertStmt.Name.Val
-	if !e.usingUseStmt {
-		return e.newError(insertStmt, ctx, fail.ErrInsertRequiresUse, name)
+	name := insertDir.Name.Val
+	if !e.usingUseDir {
+		return e.newError(insertDir, ctx, fail.ErrInsertRequiresUse, name)
 	}
 
-	block := e.combineInsertContent(insertStmt, ctx)
+	block := e.combineInsertContent(insertDir, ctx)
 	if isError(block) {
 		return block
 	}
@@ -657,27 +657,38 @@ func (e *Evaluator) insertDir(insertStmt *ast.InsertDir, ctx *Context) value.Val
 
 // combineInsertContent combines insert Argument and Block (depending what user has)
 // into a single value that we can work with.
-func (e *Evaluator) combineInsertContent(insertStmt *ast.InsertDir, ctx *Context) value.Literal {
-	if insertStmt.Argument != nil {
-		arg := e.evalIntoLit(insertStmt.Argument, ctx)
+func (e *Evaluator) combineInsertContent(insertDir *ast.InsertDir, ctx *Context) value.Literal {
+	if insertDir.Argument != nil {
+		arg := e.evalIntoLit(insertDir.Argument, ctx)
 		if isError(arg) {
 			return arg
 		}
 		return arg
 	}
 
-	if insertStmt.Block == nil {
-		return e.newError(insertStmt, ctx, fail.ErrInsertMustHaveContent)
+	if insertDir.Block == nil {
+		return e.newError(insertDir, ctx, fail.ErrInsertMustHaveContent)
 	}
 
-	return e.evalIntoLit(insertStmt.Block, ctx)
+	var out strings.Builder
+	out.Grow(len(insertDir.Block.Chunks))
+
+	for _, chunk := range insertDir.Block.Chunks {
+		val := e.Eval(chunk, ctx)
+		if isError(val) {
+			return val.(*value.Error)
+		}
+		out.WriteString(val.String())
+	}
+
+	return &value.Str{Val: out.String()}
 }
 
-func (e *Evaluator) dumpDir(dumpStmt *ast.DumpDir, ctx *Context) value.Value {
-	values := make([]string, 0, len(dumpStmt.Args))
+func (e *Evaluator) dumpDir(dumpDir *ast.DumpDir, ctx *Context) value.Value {
+	values := make([]string, 0, len(dumpDir.Args))
 
-	for i := range dumpStmt.Args {
-		evaluated := e.evalIntoLit(dumpStmt.Args[i], ctx)
+	for i := range dumpDir.Args {
+		evaluated := e.evalIntoLit(dumpDir.Args[i], ctx)
 		values = append(values, evaluated.Dump(0))
 	}
 
