@@ -20,8 +20,8 @@ func (b *Block) String() string {
 	var out strings.Builder
 	out.Grow(len(b.Chunks))
 
-	for _, e := range b.Chunks {
-		out.WriteString(e.String())
+	for i := range b.Chunks {
+		out.WriteString(b.Chunks[i].String())
 	}
 
 	return out.String()
