@@ -4,7 +4,7 @@ import (
 	"reflect"
 )
 
-func NativeToValue(val any) Value {
+func NativeToValue(val any) Literal {
 	switch v := val.(type) {
 	case string:
 		return &Str{Val: v}
@@ -60,7 +60,7 @@ func NativeToValue(val any) Value {
 	return nil
 }
 
-func nativeMapToValue(val any) Value {
+func nativeMapToValue(val any) Literal {
 	obj := NewObj(nil)
 
 	valValue := reflect.ValueOf(val)
@@ -86,7 +86,7 @@ func convertToInterfaceSlice(slice any) []any {
 	return vals
 }
 
-func nativeStructToValue(val any) Value {
+func nativeStructToValue(val any) Literal {
 	obj := NewObj(nil)
 
 	valType := reflect.TypeOf(val)
@@ -108,7 +108,7 @@ func nativeStructToValue(val any) Value {
 
 func nativeSliceToArrValue(slice []any) *Arr {
 	arr := new(Arr)
-	arr.Elements = make([]Value, len(slice))
+	arr.Elements = make([]Literal, len(slice))
 	for i := range slice {
 		arr.Elements[i] = NativeToValue(slice[i])
 	}

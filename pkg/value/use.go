@@ -5,7 +5,7 @@ type Use struct {
 	Layout Value
 }
 
-func (u *Use) Type() ValueType {
+func (*Use) Type() ValueType {
 	return USE_VAL
 }
 
@@ -14,21 +14,6 @@ func (u *Use) String() string {
 		panic("Layout field on Use must not be nil when calling String()")
 	}
 	return u.Layout.String()
-}
-
-func (u *Use) Dump(ident int) string {
-	return ""
-}
-
-func (u *Use) JSON() (string, error) {
-	return "", nil
-}
-
-func (u *Use) Native() any {
-	if u.Layout == nil {
-		panic("Layout field on Use must not be nil when calling Native()")
-	}
-	return u.Layout.Native()
 }
 
 func (u *Use) Is(t ValueType) bool {

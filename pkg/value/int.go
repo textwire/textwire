@@ -8,7 +8,7 @@ type Int struct {
 	Val int64
 }
 
-func (i *Int) Type() ValueType {
+func (*Int) Type() ValueType {
 	return INT_VAL
 }
 

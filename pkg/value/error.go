@@ -14,7 +14,7 @@ type Error struct {
 	ErrorID string
 }
 
-func (e *Error) Type() ValueType {
+func (*Error) Type() ValueType {
 	return ERR_VAL
 }
 

@@ -6,7 +6,7 @@ type Str struct {
 	Val string
 }
 
-func (s *Str) Type() ValueType {
+func (*Str) Type() ValueType {
 	return STR_VAL
 }
 
