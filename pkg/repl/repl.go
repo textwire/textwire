@@ -49,9 +49,6 @@ func Start(in io.Reader, out io.Writer) error {
 		e := evaluator.New(nil, nil)
 		ctx := evaluator.NewContext(scope, prog.AbsPath)
 		evaluated := e.Eval(prog, ctx)
-		if evaluated == nil {
-			continue
-		}
 
 		if _, err := io.WriteString(out, evaluated.String()+"\n"); err != nil {
 			return err
