@@ -73,7 +73,7 @@ func TestNewScopeFromMap(t *testing.T) {
 		"rates64": &Arr{
 			Elements: []Literal{&Float{Val: 23.4}, &Float{Val: 56.7}, &Float{Val: 89.0}},
 		},
-		"Literal": &Arr{
+		"values": &Arr{
 			Elements: []Literal{&Float{Val: 23.4}, &Float{Val: 56.7}, &Float{Val: 89.0}},
 		},
 		"rates32": &Arr{
