@@ -6,6 +6,7 @@
 - ⚠️ BREAKING CHANGE! Remove support for `@breakIf` and `@continueIf`, use lovercased versions `@breakif` and `@continueif`.
 - 🧑‍💻 `NewTemplate()` function now returns `*fail.Error` instead of Go's `error` type.
 - 🧑‍💻 Improved internal logic for evaluator. Separated literal values from nonliteral. Closes [#90](https://github.com/textwire/textwire/issues/90).
+- 🧑‍💻 Added proper position to error messages. Closes [#101](https://github.com/textwire/textwire/issues/101).
 
 ## [Release Notes V1](.github/CHANGELOG-V1.md)
 

@@ -551,17 +551,17 @@ func TestErrorHandling(t *testing.T) {
 		{
 			id:  100,
 			inp: "@for(i = 0; i < 4; i+2){{ i }}@end",
-			err: fail.New(nil, "", "parser", fail.ErrForLoopExpectStmt, "(i + 2)"),
+			err: fail.New(&position.Pos{StartCol: 19, EndCol: 21}, "", "parser", fail.ErrForLoopExpectStmt, "(i + 2)"),
 		},
 		{
 			id:  110,
 			inp: "@for(c = 0.0; c < 4.0; c+2.0){{ c }}@end",
-			err: fail.New(nil, "", "parser", fail.ErrForLoopExpectStmt, "(c + 2.0)"),
+			err: fail.New(&position.Pos{StartCol: 23, EndCol: 27}, "", "parser", fail.ErrForLoopExpectStmt, "(c + 2.0)"),
 		},
 		{
 			id:  120,
-			inp: "@for(;; true){{ c }}@end",
-			err: fail.New(nil, "", "parser", fail.ErrForLoopExpectStmt, "true"),
+			inp: "@for(;;    true  ){{ c }}@end",
+			err: fail.New(&position.Pos{StartCol: 11, EndCol: 14}, "", "parser", fail.ErrForLoopExpectStmt, "true"),
 		},
 	}
 
@@ -2197,6 +2197,7 @@ func TestParseIllegalNode(t *testing.T) {
 		inp       string
 		stmtCount int
 	}{
+		{160, "@component   ('", 1},
 		{10, "@if(false", 1},
 		{20, "@if  (loop. {{ 'nice' }}@end", 1},
 		{30, "@if {{ 'nice' }}@end", 1},
