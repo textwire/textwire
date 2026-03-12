@@ -1,5 +1,7 @@
 package token
 
+import "github.com/textwire/textwire/v3/pkg/position"
+
 type TokenType int
 
 const (
@@ -115,7 +117,7 @@ func GetDirectives() map[string]TokenType {
 type Token struct {
 	Type TokenType
 	Lit  string
-	Pos  Position
+	Pos  position.Pos
 }
 
 // ErrorLine returns the start line position of the token.

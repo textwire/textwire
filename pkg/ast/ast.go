@@ -1,6 +1,7 @@
 package ast
 
 import (
+	"github.com/textwire/textwire/v3/pkg/position"
 	"github.com/textwire/textwire/v3/pkg/token"
 )
 
@@ -9,8 +10,8 @@ type Node interface {
 	SetTok(token.Token)
 	String() string
 	Line() uint
-	TokPos() token.Position
-	SetEndPosition(pos token.Position)
+	TokPos() position.Pos
+	SetEndPosition(pos position.Pos)
 }
 
 // Chunk is a top lever node that your program is composed of.

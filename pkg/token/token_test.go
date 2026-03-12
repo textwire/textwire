@@ -1,12 +1,16 @@
 package token
 
-import "testing"
+import (
+	"testing"
 
-func TestContains(t *testing.T) {
+	"github.com/textwire/textwire/v3/pkg/position"
+)
+
+func TestTokenContainsPosition(t *testing.T) {
 	tokenVar := Token{
 		Type: IDENT,
 		Lit:  "foo",
-		Pos: Position{
+		Pos: position.Pos{
 			StartLine: 4,
 			StartCol:  5,
 			EndLine:   4,
@@ -17,7 +21,7 @@ func TestContains(t *testing.T) {
 	tokenText := Token{
 		Type: TEXT,
 		Lit:  "<div>\n    <h1>Hello</h1>\n</div>",
-		Pos: Position{
+		Pos: position.Pos{
 			StartLine: 2,
 			StartCol:  0,
 			EndLine:   4,
@@ -47,7 +51,7 @@ func TestContains(t *testing.T) {
 			token: Token{
 				Type: IDENT,
 				Lit:  "foo",
-				Pos: Position{
+				Pos: position.Pos{
 					StartLine: 0,
 					StartCol:  0,
 					EndLine:   0,

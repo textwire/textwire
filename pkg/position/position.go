@@ -1,13 +1,13 @@
-package token
+package position
 
-type Position struct {
+type Pos struct {
 	StartLine uint
 	StartCol  uint
 	EndLine   uint
 	EndCol    uint
 }
 
-func (p Position) Contains(line uint, col uint) bool {
+func (p Pos) Contains(line uint, col uint) bool {
 	// Line is out of range
 	if line < p.StartLine || line > p.EndLine {
 		return false
