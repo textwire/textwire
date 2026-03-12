@@ -1,5 +1,6 @@
 package position
 
+// Pos lines and colums are 0-based for compatibility with LSP protocol.
 type Pos struct {
 	StartLine uint
 	StartCol  uint
@@ -24,4 +25,14 @@ func (p Pos) Contains(line uint, col uint) bool {
 	}
 
 	return true
+}
+
+// Line returns the end line position display.
+func (p *Pos) Line() uint {
+	return p.EndLine + 1
+}
+
+// Col returns the end column position display.
+func (p *Pos) Col() uint {
+	return p.EndCol + 1
 }

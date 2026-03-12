@@ -19,7 +19,7 @@ func NewBaseNode(tok token.Token) BaseNode {
 }
 
 func (bn *BaseNode) Line() uint {
-	return bn.Token.ErrorLine()
+	return bn.Token.Line()
 }
 
 func (bn *BaseNode) Tok() *token.Token {
