@@ -208,12 +208,14 @@ func (p *Parser) chunk() ast.Chunk {
 func (p *Parser) embedded() ast.Chunk {
 	embedded := ast.NewEmbedded(p.curToken)
 
-	p.nextToken() // skip "{{"
-
-	if p.curTokenIs(token.RBRACES) {
-		p.newError(p.curToken.Pos, fail.ErrEmptyBraces)
+	if p.peekTokenIs(token.RBRACES) {
+		pos := p.curToken.Pos
+		pos.EndCol = p.peekToken.Pos.EndCol
+		p.newError(pos, fail.ErrEmptyBraces)
 		return nil
 	}
+
+	p.nextToken() // skip "{{"
 
 	// Loop until we find the closing "}}" or reach the end of file
 	for !p.curTokenIs(token.RBRACES, token.EOF) {
@@ -261,6 +263,21 @@ func (p *Parser) registerPrefix(tokenType token.TokenType, fn prefixParseFn) {
 
 func (p *Parser) registerInfix(tokenType token.TokenType, fn infixParseFn) {
 	p.infixParseFns[tokenType] = fn
+}
+
+func (p *Parser) expectType(tok token.Token, expectType token.TokenType) bool {
+	if tok.Type == expectType {
+		return true
+	}
+
+	p.newError(
+		tok.Pos,
+		fail.ErrWrongTokenType,
+		token.String(expectType),
+		token.String(tok.Type),
+	)
+
+	return false
 }
 
 func (p *Parser) curTokenIs(tokens ...token.TokenType) bool {
@@ -432,21 +449,6 @@ func (p *Parser) assignStmt(left ast.Expression) ast.Statement {
 	return stmt
 }
 
-func (p *Parser) curTokenTypeIs(tokType token.TokenType) bool {
-	if p.curToken.Type == tokType {
-		return true
-	}
-
-	p.newError(
-		p.curToken.Pos,
-		fail.ErrWrongTokenType,
-		token.String(tokType),
-		token.String(p.curToken.Type),
-	)
-
-	return false
-}
-
 func (p *Parser) useDir() ast.Chunk {
 	dir := ast.NewUseDir(p.curToken)
 
@@ -456,12 +458,13 @@ func (p *Parser) useDir() ast.Chunk {
 
 	p.nextToken() // skip "("
 
-	if !p.curTokenTypeIs(token.STR) {
+	if p.curToken.Lit == "" {
+		p.newError(p.curToken.Pos, fail.ErrStrCannotBeEmpty)
 		return nil
 	}
 
-	if p.curToken.Lit == "" {
-		p.newError(p.curToken.Pos, fail.ErrExpectedUseName)
+	if !p.expectType(p.curToken, token.STR) {
+		return nil
 	}
 
 	dir.Name = ast.NewStrExpr(
@@ -553,7 +556,8 @@ func (p *Parser) compDirHeader(stmt *ast.ComponentDir) *ast.IllegalNode {
 	p.nextToken() // skip "("
 
 	if p.curToken.Lit == "" {
-		p.newError(p.curToken.Pos, fail.ErrExpectedComponentName)
+		p.newError(p.curToken.Pos, fail.ErrStrCannotBeEmpty)
+		return nil
 	}
 
 	stmt.Name = ast.NewStrExpr(
@@ -907,7 +911,9 @@ func (p *Parser) dotExpr(left ast.Expression) ast.Expression {
 	expr := ast.NewDotExpr(*left.Tok(), left)
 
 	if p.peekTokenIs(token.INT) {
-		p.newError(p.curToken.Pos, fail.ErrObjKeyUseGet)
+		pos := p.peekToken.Pos
+		pos.StartCol = p.curToken.Pos.StartCol
+		p.newError(pos, fail.ErrObjKeyUseGet)
 		return nil
 	}
 
@@ -956,12 +962,14 @@ func (p *Parser) infixExpr(left ast.Expression) ast.Expression {
 
 	precedence := precedences[p.curToken.Type]
 
-	p.nextToken() // skip operator
-
-	if p.curTokenIs(token.RBRACES) {
-		p.newError(p.curToken.Pos, fail.ErrExpectedExpression)
+	if p.peekTokenIs(token.RBRACES) {
+		pos := left.Pos()
+		pos.EndCol = p.curToken.Pos.EndCol
+		p.newError(pos, fail.ErrExpectedExpression)
 		return nil
 	}
+
+	p.nextToken() // skip operator
 
 	expr.Right = p.expression(precedence)
 	expr.SetEndPosition(p.curToken.Pos)
@@ -1250,12 +1258,7 @@ func (p *Parser) expression(precedence int) ast.Expression {
 	prefix := p.prefixParseFns[p.curToken.Type]
 
 	if prefix == nil {
-		p.newError(
-			p.curToken.Pos,
-			fail.ErrIllegalToken,
-			p.curToken.Lit,
-		)
-		return nil
+		return p.illegalNode()
 	}
 
 	leftExpr := prefix()

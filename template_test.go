@@ -24,12 +24,12 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 
 	cases := []struct {
 		dir  string
-		fail *fail.Error
+		err  *fail.Error
 		data map[string]any
 	}{
 		{
 			dir: "undefined-default-slotif",
-			fail: fail.New(
+			err: fail.New(
 				&position.Pos{StartCol: 21, EndCol: 41},
 				absPath+"undefined-default-slotif/index.tw",
 				"linker",
@@ -40,7 +40,7 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 		},
 		{
 			dir: "undefined-named-slotif",
-			fail: fail.New(
+			err: fail.New(
 				&position.Pos{StartCol: 21, EndCol: 49},
 				absPath+"undefined-named-slotif/index.tw",
 				"linker",
@@ -52,7 +52,7 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 		},
 		{
 			dir: "duplicate-reserves",
-			fail: fail.New(
+			err: fail.New(
 				&position.Pos{StartLine: 2, EndLine: 2, EndCol: 16},
 				absPath+"duplicate-reserves/base.tw",
 				"parser",
@@ -64,7 +64,7 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 		},
 		{
 			dir: "use-inside-tpl",
-			fail: fail.New(
+			err: fail.New(
 				&position.Pos{EndCol: 13},
 				absPath+"use-inside-tpl/layout.tw",
 				"evaluator",
@@ -74,7 +74,7 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 		},
 		{
 			dir: "unknown-named-slot",
-			fail: fail.New(
+			err: fail.New(
 				&position.Pos{StartLine: 1, StartCol: 4, EndLine: 3, EndCol: 7},
 				absPath+"unknown-named-slot/index.tw",
 				"linker",
@@ -86,7 +86,7 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 		},
 		{
 			dir: "unknown-default-slot",
-			fail: fail.New(
+			err: fail.New(
 				&position.Pos{StartLine: 1, StartCol: 4, EndLine: 3, EndCol: 7},
 				absPath+"unknown-default-slot/index.tw",
 				"linker",
@@ -97,7 +97,7 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 		},
 		{
 			dir: "duplicate-slot",
-			fail: fail.New(
+			err: fail.New(
 				&position.Pos{StartLine: 2, StartCol: 4, EndLine: 2, EndCol: 39},
 				absPath+"duplicate-slot/index.tw",
 				"linker",
@@ -110,7 +110,7 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 		},
 		{
 			dir: "duplicate-default-slot",
-			fail: fail.New(
+			err: fail.New(
 				&position.Pos{StartLine: 2, StartCol: 4, EndLine: 2, EndCol: 28},
 				absPath+"duplicate-default-slot/index.tw",
 				"linker",
@@ -122,7 +122,7 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 		},
 		{
 			dir: "unknown-comp",
-			fail: fail.New(
+			err: fail.New(
 				&position.Pos{StartLine: 8, StartCol: 4, EndLine: 8, EndCol: 29},
 				absPath+"unknown-comp/index.tw",
 				"linker",
@@ -133,7 +133,7 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 		},
 		{
 			dir: "undefined-insert",
-			fail: fail.New(
+			err: fail.New(
 				&position.Pos{StartLine: 4, EndLine: 6, EndCol: 3},
 				absPath+"undefined-insert/index.tw",
 				"linker",
@@ -145,7 +145,7 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 		},
 		{
 			dir: "duplicate-inserts",
-			fail: fail.New(
+			err: fail.New(
 				&position.Pos{StartLine: 3, StartCol: 8, EndLine: 3, EndCol: 14},
 				absPath+"duplicate-inserts/index.tw",
 				"parser",
@@ -156,7 +156,7 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 		},
 		{
 			dir: "undefined-var-in-comp",
-			fail: fail.New(
+			err: fail.New(
 				&position.Pos{StartCol: 3, EndCol: 14},
 				absPath+"undefined-var-in-comp/hero.tw",
 				"evaluator",
@@ -167,7 +167,7 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 		},
 		{
 			dir: "undefined-var-in-use",
-			fail: fail.New(
+			err: fail.New(
 				&position.Pos{StartLine: 7, StartCol: 9, EndLine: 7, EndCol: 20},
 				absPath+"undefined-var-in-use/base.tw",
 				"evaluator",
@@ -178,7 +178,7 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 		},
 		{
 			dir: "undefined-use",
-			fail: fail.New(
+			err: fail.New(
 				&position.Pos{StartCol: 5, EndCol: 22},
 				absPath+"undefined-use/index.tw",
 				"linker",
@@ -189,7 +189,7 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 		},
 		{
 			dir: "undefined-var-in-nested-comp",
-			fail: fail.New(
+			err: fail.New(
 				&position.Pos{StartCol: 9, EndCol: 12},
 				absPath+"undefined-var-in-nested-comp/second.tw",
 				"evaluator",
@@ -200,7 +200,7 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 		},
 		{
 			dir: "var-in-layout",
-			fail: fail.New(
+			err: fail.New(
 				&position.Pos{StartCol: 9, EndCol: 16},
 				absPath+"var-in-layout/layout.tw",
 				"evaluator",
@@ -211,7 +211,7 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 		},
 		{
 			dir: "duplicate-use",
-			fail: fail.New(
+			err: fail.New(
 				&position.Pos{StartLine: 1, StartCol: 5, EndLine: 1, EndCol: 13},
 				absPath+"duplicate-use/index.tw",
 				"parser",
@@ -221,7 +221,7 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 		},
 		{
 			dir: "inserts-without-use",
-			fail: fail.New(
+			err: fail.New(
 				&position.Pos{StartLine: 3, EndLine: 3, EndCol: 31},
 				absPath+"inserts-without-use/index.tw",
 				"evaluator",
@@ -239,18 +239,18 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 			)
 
 			if tplFail != nil {
-				if err := compareFailures(tplFail, tc.fail); err != nil {
+				if err := compareFailures(tplFail, tc.err); err != nil {
 					t.Fatal(err)
 				}
 				return
 			}
 
-			_, failure := tpl.String("index", tc.data)
-			if failure == nil {
+			_, err := tpl.String("index", tc.data)
+			if err == nil {
 				t.Fatalf("Expected error but got none")
 			}
 
-			if err := compareFailures(failure, tc.fail); err != nil {
+			if err := compareFailures(err, tc.err); err != nil {
 				t.Fatal(err)
 			}
 		})
