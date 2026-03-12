@@ -8,7 +8,6 @@ func FindProg(name string, programs []*Program) *Program {
 			return programs[i]
 		}
 	}
-
 	return nil
 }
 
@@ -22,7 +21,7 @@ func CheckUnusedInserts(prog *Program, inserts map[string]*InsertDir) *fail.Erro
 		path := inserts[name].AbsPath
 		name := inserts[name].Name.Val
 
-		return fail.New(pos, path, "parser", fail.ErrUnusedInsertDetected, name, name)
+		return fail.New(pos, path, "linker", fail.ErrUnusedInsertDetected, name, name)
 	}
 
 	return nil

@@ -80,7 +80,7 @@ const (
 // information about the error like the line number, file path, etc.
 type Error struct {
 	pos      *position.Pos
-	origin   string // "parser" | "evaluator" | "template" | "API"
+	origin   string // "parser" | "evaluator" | "template" | "API" | "linker"
 	filepath string
 	message  string
 }
