@@ -59,7 +59,7 @@ func findDuplicateSlot(slots []SlotDirective) (SlotDirective, int) {
 
 		if counts[name] > 1 && counts[name] > maxCount {
 			maxCount = counts[name]
-			maxSlot = firstSeen[name]
+			maxSlot = slot
 		}
 	}
 
