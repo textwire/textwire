@@ -2,6 +2,7 @@ package textwire
 
 import (
 	"net/http/httptest"
+	"reflect"
 	"strings"
 	"testing"
 
@@ -28,7 +29,7 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 		{
 			dir: "undefined-default-slotif",
 			err: fail.New(
-				nil,
+				&position.Pos{StartCol: 21, EndCol: 41},
 				absPath+"undefined-default-slotif/index.tw",
 				"parser",
 				fail.ErrDefaultSlotNotDefined,
@@ -39,7 +40,7 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 		{
 			dir: "undefined-named-slotif",
 			err: fail.New(
-				nil,
+				&position.Pos{StartCol: 21, EndCol: 49},
 				absPath+"undefined-named-slotif/index.tw",
 				"parser",
 				fail.ErrSlotNotDefined,
@@ -51,7 +52,7 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 		{
 			dir: "duplicate-reserves",
 			err: fail.New(
-				&position.Pos{StartLine: 2, EndLine: 2},
+				&position.Pos{StartLine: 2, EndLine: 2, EndCol: 16},
 				absPath+"duplicate-reserves/base.tw",
 				"parser",
 				fail.ErrDuplicateReserves,
@@ -63,8 +64,8 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 		{
 			dir: "use-inside-tpl",
 			err: fail.New(
-				nil,
-				absPath+"use-inside-tpl/index.tw",
+				&position.Pos{EndCol: 13},
+				absPath+"use-inside-tpl/layout.tw",
 				"evaluator",
 				fail.ErrUseDirIsNotAllowed,
 			),
@@ -73,7 +74,7 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 		{
 			dir: "unknown-named-slot",
 			err: fail.New(
-				&position.Pos{StartLine: 1, EndLine: 1},
+				&position.Pos{StartLine: 1, StartCol: 4, EndLine: 3, EndCol: 19},
 				absPath+"unknown-named-slot/index.tw",
 				"parser",
 				fail.ErrSlotNotDefined,
@@ -96,7 +97,7 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 		{
 			dir: "duplicate-slot",
 			err: fail.New(
-				&position.Pos{StartLine: 1, EndLine: 1},
+				&position.Pos{StartLine: 1, StartCol: 4, EndLine: 1, EndCol: 39},
 				absPath+"duplicate-slot/index.tw",
 				"parser",
 				fail.ErrDuplicateSlot,
@@ -155,7 +156,7 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 		{
 			dir: "undefined-var-in-comp",
 			err: fail.New(
-				nil,
+				&position.Pos{StartCol: 3, EndCol: 14},
 				absPath+"undefined-var-in-comp/hero.tw",
 				"evaluator",
 				fail.ErrVariableIsUndefined,
@@ -166,7 +167,7 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 		{
 			dir: "undefined-var-in-use",
 			err: fail.New(
-				&position.Pos{StartLine: 7, EndLine: 7},
+				&position.Pos{StartLine: 7, StartCol: 9, EndLine: 7, EndCol: 20},
 				absPath+"undefined-var-in-use/base.tw",
 				"evaluator",
 				fail.ErrVariableIsUndefined,
@@ -188,7 +189,7 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 		{
 			dir: "undefined-var-in-nested-comp",
 			err: fail.New(
-				nil,
+				&position.Pos{StartCol: 9, EndCol: 12},
 				absPath+"undefined-var-in-nested-comp/second.tw",
 				"evaluator",
 				fail.ErrVariableIsUndefined,
@@ -199,7 +200,7 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 		{
 			dir: "var-in-layout",
 			err: fail.New(
-				nil,
+				&position.Pos{StartCol: 9, EndCol: 16},
 				absPath+"var-in-layout/layout.tw",
 				"evaluator",
 				fail.ErrVariableIsUndefined,
@@ -220,7 +221,7 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 		{
 			dir: "inserts-without-use",
 			err: fail.New(
-				&position.Pos{StartLine: 3, EndLine: 3},
+				&position.Pos{StartLine: 3, EndLine: 3, EndCol: 31},
 				absPath+"inserts-without-use/index.tw",
 				"evaluator",
 				fail.ErrInsertRequiresUse,
@@ -248,7 +249,7 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 			}
 
 			if err.String() != tc.err.String() {
-				t.Fatalf("Wrong error message! Expect:\n%s\ngot:\n%q", tc.err, err)
+				t.Fatalf("Wrong error message! Expect:\n%q\ngot:\n%q", tc.err, err)
 			}
 
 			if err.Origin() != tc.err.Origin() {
@@ -256,6 +257,15 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 					"Wrong origin on error message, expect %s, got: %s in error message:\n%q",
 					tc.err.Origin(),
 					err.Origin(),
+					err,
+				)
+			}
+
+			if !reflect.DeepEqual(err.Pos(), tc.err.Pos()) {
+				t.Fatalf(
+					"Wrong position on error message, expect %v, got: %v in error message:\n%q",
+					tc.err.Pos(),
+					err.Pos(),
 					err,
 				)
 			}
