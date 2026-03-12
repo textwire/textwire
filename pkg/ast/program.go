@@ -79,7 +79,7 @@ func (p *Program) LinkCompProg(compName string, prog *Program, absPath string) *
 				return fail.New(
 					duplicate.Pos(),
 					absPath,
-					"parser",
+					"linker",
 					fail.ErrDuplicateDefaultSlot,
 					times,
 					compName,
@@ -89,7 +89,7 @@ func (p *Program) LinkCompProg(compName string, prog *Program, absPath string) *
 			return fail.New(
 				duplicate.Pos(),
 				absPath,
-				"parser",
+				"linker",
 				fail.ErrDuplicateSlot,
 				duplicate.Name().Val,
 				times,
@@ -109,7 +109,7 @@ func (p *Program) LinkCompProg(compName string, prog *Program, absPath string) *
 				return fail.New(
 					slot.Pos(),
 					absPath,
-					"parser",
+					"linker",
 					fail.ErrDefaultSlotNotDefined,
 					compName,
 				)
@@ -118,7 +118,7 @@ func (p *Program) LinkCompProg(compName string, prog *Program, absPath string) *
 			return fail.New(
 				slot.Pos(),
 				absPath,
-				"parser",
+				"linker",
 				fail.ErrSlotNotDefined,
 				compName,
 				name,

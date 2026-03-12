@@ -458,15 +458,15 @@ func (p *Parser) useDir() ast.Chunk {
 		file.ReplacePathAlias(p.curToken.Lit, file.PathAliasUse),
 	)
 
+	if p._useDir != nil {
+		p.newError(dir.Name.Pos(), fail.ErrOnlyOneUseDir)
+	}
+
 	if !p.expectPeek(token.RPAREN) { // move to ")"
 		return p.illegalNode()
 	}
 
 	dir.SetEndPosition(p.curToken.Pos)
-
-	if p._useDir != nil {
-		p.newError(p.curToken.Pos, fail.ErrOnlyOneUseDir)
-	}
 
 	p._useDir = dir
 
@@ -857,7 +857,7 @@ func (p *Parser) insertDirHeader(dir *ast.InsertDir) (*ast.IllegalNode, bool) {
 func (p *Parser) checkDuplicateInserts(insertDir *ast.InsertDir) bool {
 	if _, hasDuplicate := p.inserts[insertDir.Name.Val]; hasDuplicate {
 		p.newError(
-			insertDir.Pos(),
+			insertDir.Name.Pos(),
 			fail.ErrDuplicateInserts,
 			insertDir.Name.Val,
 		)

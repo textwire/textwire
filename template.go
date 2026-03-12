@@ -22,22 +22,22 @@ type Template struct {
 // NewTemplate returns a new Template instance with parsed Textwire files
 // provided by configuration options. The Template instance should be used
 // for evaluating Textwire in your handlers.
-func NewTemplate(opt *config.Config) (*Template, error) {
+func NewTemplate(opt *config.Config) (*Template, *fail.Error) {
 	Configure(opt)
 
 	files, err := locateFiles()
 	if err != nil {
-		return nil, fail.FromError(err, nil, "", "template").Error()
+		return nil, fail.FromError(err, nil, "", "template")
 	}
 
 	programs, parseErr := parseFiles(files)
 	if parseErr != nil {
-		return nil, parseErr.Error()
+		return nil, parseErr
 	}
 
 	ln := linker.New(programs)
 	if failure := ln.LinkNodes(); failure != nil {
-		return nil, failure.Error()
+		return nil, failure
 	}
 
 	tpl := &Template{linker: ln}
