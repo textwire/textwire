@@ -67,7 +67,7 @@ const (
 
 	// Template errors
 	ErrUnsupportedType       = "unsupported value type '%T'"
-	ErrDirStmtNotAllowed     = "@use() not allowed in layout files - causes infinite recursion"
+	ErrUseDorIsNotAllowed    = "@use() not allowed in layout files - causes infinite recursion"
 	ErrTemplateNotFound      = "template file '%s' not found"
 	ErrDefaultSlotNotDefined = "default @slot not defined in @component('%s')"
 
