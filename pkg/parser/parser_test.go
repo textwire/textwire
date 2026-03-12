@@ -7,6 +7,7 @@ import (
 	"github.com/textwire/textwire/v3/pkg/ast"
 	"github.com/textwire/textwire/v3/pkg/fail"
 	"github.com/textwire/textwire/v3/pkg/lexer"
+	"github.com/textwire/textwire/v3/pkg/position"
 	"github.com/textwire/textwire/v3/pkg/token"
 )
 
@@ -39,7 +40,7 @@ func TestParseExpressionStatement(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	err = testTokPosition(infixExpr.TokPos(), token.Position{
+	err = testTokPosition(infixExpr.TokPos(), position.Pos{
 		StartCol: 3,
 		EndCol:   7,
 	})
@@ -65,7 +66,7 @@ func TestParseIntExpr(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	err = testTokPosition(intExpr.TokPos(), token.Position{
+	err = testTokPosition(intExpr.TokPos(), position.Pos{
 		StartCol: 3,
 		EndCol:   5,
 	})
@@ -91,7 +92,7 @@ func TestParseFloatExpr(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	err = testTokPosition(floatExpr.TokPos(), token.Position{
+	err = testTokPosition(floatExpr.TokPos(), position.Pos{
 		StartCol: 3,
 		EndCol:   9,
 	})
@@ -117,7 +118,7 @@ func TestParseNilExpr(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	err = testTokPosition(nilExpr.TokPos(), token.Position{
+	err = testTokPosition(nilExpr.TokPos(), position.Pos{
 		StartCol: 3,
 		EndCol:   5,
 	})
@@ -150,7 +151,7 @@ func TestParseStrExpr(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		err = testTokPosition(strExpr.TokPos(), token.Position{
+		err = testTokPosition(strExpr.TokPos(), position.Pos{
 			StartCol: tc.startCol,
 			EndCol:   tc.endCol,
 		})
@@ -194,7 +195,7 @@ func TestParseInfixExpression(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	err = testTokPosition(infixExpr.TokPos(), token.Position{
+	err = testTokPosition(infixExpr.TokPos(), position.Pos{
 		StartCol: 3,
 		EndCol:   7,
 	})
@@ -212,7 +213,7 @@ func TestParseGroupedExpression(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	err = testTokPosition(infixExpr.TokPos(), token.Position{
+	err = testTokPosition(infixExpr.TokPos(), position.Pos{
 		StartCol: 3,
 		EndCol:   13,
 	})
@@ -278,7 +279,7 @@ func TestParseInfixExp(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		err = testTokPosition(infixExpr.TokPos(), token.Position{
+		err = testTokPosition(infixExpr.TokPos(), position.Pos{
 			StartCol: 3,
 			EndCol:   tc.endCol,
 		})
@@ -319,7 +320,7 @@ func TestParseBooleanExpression(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		err = testTokPosition(boolExpr.TokPos(), token.Position{
+		err = testTokPosition(boolExpr.TokPos(), position.Pos{
 			StartCol: tc.startCol,
 			EndCol:   tc.endCol,
 		})
@@ -359,7 +360,7 @@ func TestParsePrefixExp(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		err = testTokPosition(prefixExpr.TokPos(), token.Position{
+		err = testTokPosition(prefixExpr.TokPos(), position.Pos{
 			StartCol: 3,
 			EndCol:   tc.endCol,
 		})
@@ -583,7 +584,7 @@ func TestParseTernaryExpr(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	err = testTokPosition(terExpr.TokPos(), token.Position{
+	err = testTokPosition(terExpr.TokPos(), position.Pos{
 		StartCol: 3,
 		EndCol:   28,
 	})
@@ -618,7 +619,7 @@ func TestParseIfDir(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		err = testTokPosition(ifDir.TokPos(), token.Position{
+		err = testTokPosition(ifDir.TokPos(), position.Pos{
 			StartCol: 0,
 			EndCol:   13,
 		})
@@ -668,7 +669,7 @@ func TestParseIfDir(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		err = testTokPosition(stmt.TokPos(), token.Position{
+		err = testTokPosition(stmt.TokPos(), position.Pos{
 			StartCol: 0,
 			EndCol:   19,
 		})
@@ -872,7 +873,7 @@ func TestParseAssignStmt(t *testing.T) {
 			t.Fatalf("Case: %d. assignStmt.String() is not %s, got %s", tc.id, tc.str, str)
 		}
 
-		err = testTokPosition(assignStmt.TokPos(), token.Position{
+		err = testTokPosition(assignStmt.TokPos(), position.Pos{
 			StartCol: tc.startCol,
 			EndCol:   tc.endCol,
 		})
@@ -899,7 +900,7 @@ func TestParseUseDir(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	err = testTokPosition(stmt.TokPos(), token.Position{
+	err = testTokPosition(stmt.TokPos(), position.Pos{
 		StartCol: 0,
 		EndCol:   11,
 	})
@@ -934,7 +935,7 @@ func TestParseReserveStmt(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	err = testTokPosition(stmt.TokPos(), token.Position{
+	err = testTokPosition(stmt.TokPos(), position.Pos{
 		StartCol: 5,
 		EndCol:   23,
 	})
@@ -969,7 +970,7 @@ func TestInsertDir(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		err = testTokPosition(stmt.TokPos(), token.Position{
+		err = testTokPosition(stmt.TokPos(), position.Pos{
 			StartCol: 4,
 			EndCol:   46,
 		})
@@ -1002,7 +1003,7 @@ func TestInsertDir(t *testing.T) {
 			t.Fatalf("stmts[1] is not an InsertDir, got %T", stmts[1])
 		}
 
-		err = testTokPosition(stmt.TokPos(), token.Position{
+		err = testTokPosition(stmt.TokPos(), position.Pos{
 			StartCol: 4,
 			EndCol:   37,
 		})
@@ -1043,7 +1044,7 @@ func TestParseArr(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	err = testTokPosition(arr.TokPos(), token.Position{
+	err = testTokPosition(arr.TokPos(), position.Pos{
 		StartCol: 3,
 		EndCol:   12,
 	})
@@ -1076,7 +1077,7 @@ func TestParseIndexExp(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	err = testTokPosition(exp.TokPos(), token.Position{
+	err = testTokPosition(exp.TokPos(), position.Pos{
 		StartCol: 3,
 		EndCol:   15,
 	})
@@ -1233,7 +1234,7 @@ func TestParseGlobalCallExp(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	err = testTokPosition(globalCallExpr.TokPos(), token.Position{
+	err = testTokPosition(globalCallExpr.TokPos(), position.Pos{
 		StartCol: 3,
 		EndCol:   21,
 	})
@@ -1258,7 +1259,7 @@ func TestParseCallExp(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	err = testTokPosition(callExpr.TokPos(), token.Position{
+	err = testTokPosition(callExpr.TokPos(), position.Pos{
 		StartCol: 16,
 		EndCol:   25,
 	})
@@ -1295,7 +1296,7 @@ func TestParseCallExpWithExpressionList(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	err = testTokPosition(callExpr.TokPos(), token.Position{
+	err = testTokPosition(callExpr.TokPos(), position.Pos{
 		StartCol: 10,
 		EndCol:   25,
 	})
@@ -1342,11 +1343,11 @@ func TestParseForDir(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		if err = testTokPosition(stmt.Pos, token.Position{EndCol: 34}); err != nil {
+		if err = testTokPosition(stmt.Pos, position.Pos{EndCol: 34}); err != nil {
 			t.Fatal(err)
 		}
 
-		err = testTokPosition(stmt.Block.Pos, token.Position{StartCol: 24, EndCol: 30})
+		err = testTokPosition(stmt.Block.Pos, position.Pos{StartCol: 24, EndCol: 30})
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -1433,7 +1434,7 @@ func TestParseEachDir(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		err = testTokPosition(stmt.Pos, token.Position{EndCol: 46})
+		err = testTokPosition(stmt.Pos, position.Pos{EndCol: 46})
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -1441,7 +1442,7 @@ func TestParseEachDir(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		err = testTokPosition(stmt.Block.Pos, token.Position{
+		err = testTokPosition(stmt.Block.Pos, position.Pos{
 			StartCol: 33,
 			EndCol:   42,
 		})
@@ -1548,7 +1549,7 @@ func TestParseEmptyBlock(t *testing.T) {
 			t.Fatalf("Case: %d. %v", tc.id, err)
 		}
 
-		if err = testTokPosition(node.TokPos(), token.Position{EndCol: tc.endColPos}); err != nil {
+		if err = testTokPosition(node.TokPos(), position.Pos{EndCol: tc.endColPos}); err != nil {
 			t.Fatalf("Case: %d. %v", tc.id, err)
 		}
 
@@ -1566,7 +1567,7 @@ func TestParseObjStmt(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	err = testTokPosition(objExpr.TokPos(), token.Position{
+	err = testTokPosition(objExpr.TokPos(), position.Pos{
 		StartCol: 3,
 		EndCol:   29,
 	})
@@ -1608,7 +1609,7 @@ func TestParseObjWithShorthandKeyNotation(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	err = testTokPosition(objExpr.TokPos(), token.Position{
+	err = testTokPosition(objExpr.TokPos(), position.Pos{
 		StartCol: 3,
 		EndCol:   15,
 	})
@@ -1633,7 +1634,7 @@ func TestParseText(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	err = testTokPosition(stmt.TokPos(), token.Position{
+	err = testTokPosition(stmt.TokPos(), position.Pos{
 		StartCol: 0,
 		EndCol:   28,
 	})
@@ -1655,7 +1656,7 @@ func TestParseDotExp(t *testing.T) {
 	}
 
 	// position of the last dot between "father" and "name"
-	err = testTokPosition(dotExpr.TokPos(), token.Position{
+	err = testTokPosition(dotExpr.TokPos(), position.Pos{
 		StartCol: 3,
 		EndCol:   20,
 	})
@@ -1728,7 +1729,7 @@ func TestParseBreakifStmt(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	err = testTokPosition(stmt.TokPos(), token.Position{
+	err = testTokPosition(stmt.TokPos(), position.Pos{
 		StartCol: 0,
 		EndCol:   13,
 	})
@@ -1759,7 +1760,7 @@ func TestParseContinueifStmt(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	err = testTokPosition(stmt.TokPos(), token.Position{
+	err = testTokPosition(stmt.TokPos(), position.Pos{
 		StartCol: 0,
 		EndCol:   17,
 	})
@@ -1795,7 +1796,7 @@ func TestParseComponentDir(t *testing.T) {
 			t.Fatalf("stmts[1] is not a ComponentDir, got %T", stmts[1])
 		}
 
-		err = testTokPosition(stmt.TokPos(), token.Position{
+		err = testTokPosition(stmt.TokPos(), position.Pos{
 			StartCol: 4,
 			EndCol:   50,
 		})
@@ -1874,7 +1875,7 @@ func TestParseComponentDir(t *testing.T) {
 			t.Fatalf("stmts[1] is not a ComponentDir, got %T", stmts[1])
 		}
 
-		err = testTokPosition(stmt.TokPos(), token.Position{
+		err = testTokPosition(stmt.TokPos(), position.Pos{
 			StartLine: 1,
 			EndLine:   4,
 			StartCol:  3, // because tabs before @component
@@ -1960,7 +1961,7 @@ func TestParseSlotDir(t *testing.T) {
 			t.Fatalf("chunks[1] is not a SlotDir, got %T", chunks[1])
 		}
 
-		err = testTokPosition(slotDir.TokPos(), token.Position{
+		err = testTokPosition(slotDir.TokPos(), position.Pos{
 			StartCol: 4,
 			EndCol:   18,
 		})
@@ -2003,7 +2004,7 @@ func TestParseSlotDir(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		err = testTokPosition(slotDir.TokPos(), token.Position{
+		err = testTokPosition(slotDir.TokPos(), position.Pos{
 			StartCol: 8,
 			EndCol:   12,
 		})
@@ -2030,7 +2031,7 @@ func TestParseSlotifDir(t *testing.T) {
 			t.Fatalf("len(compDir.Slots) must be 1, got %d", len(compDir.Slots))
 		}
 
-		err = testTokPosition(compDir.TokPos(), token.Position{EndCol: 42})
+		err = testTokPosition(compDir.TokPos(), position.Pos{EndCol: 42})
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -2065,7 +2066,7 @@ func TestParseSlotifDir(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		err = testTokPosition(compDir.TokPos(), token.Position{EndCol: 52})
+		err = testTokPosition(compDir.TokPos(), position.Pos{EndCol: 52})
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -2115,7 +2116,7 @@ func TestParseDumpDir(t *testing.T) {
 		t.Fatalf("len(dumpDir.Args) is not 3, got %d", len(dumpDir.Args))
 	}
 
-	err = testTokPosition(dumpDir.TokPos(), token.Position{
+	err = testTokPosition(dumpDir.TokPos(), position.Pos{
 		StartCol: 0,
 		EndCol:   26,
 	})

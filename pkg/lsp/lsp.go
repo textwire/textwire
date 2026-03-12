@@ -2,6 +2,7 @@ package lsp
 
 import (
 	"github.com/textwire/textwire/v3/pkg/fail"
+	"github.com/textwire/textwire/v3/pkg/position"
 	"github.com/textwire/textwire/v3/pkg/token"
 
 	"github.com/textwire/textwire/v3/pkg/ast"
@@ -38,7 +39,7 @@ func IsInLoop(doc, filePath string, line, col uint) (bool, []*fail.Error) {
 	return false, p.Errors()
 }
 
-func IsCursorInBlock(line, col uint, pos token.Position) bool {
+func IsCursorInBlock(line, col uint, pos position.Pos) bool {
 	// Line outside range
 	if line < pos.StartLine || line > pos.EndLine {
 		return false

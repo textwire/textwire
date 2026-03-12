@@ -6,6 +6,7 @@ import (
 
 	"github.com/textwire/textwire/v3/pkg/ast"
 	"github.com/textwire/textwire/v3/pkg/lexer"
+	"github.com/textwire/textwire/v3/pkg/position"
 	"github.com/textwire/textwire/v3/pkg/token"
 	"github.com/textwire/textwire/v3/pkg/utils"
 )
@@ -124,7 +125,7 @@ func testInfixExpr(expr ast.Expression, left any, op string, right any) error {
 	return nil
 }
 
-func testTokPosition(actual, expect token.Position) error {
+func testTokPosition(actual, expect position.Pos) error {
 	if expect.StartLine != actual.StartLine {
 		return fmt.Errorf("expect.StartLine is not %d, got %d", expect.StartLine, actual.StartLine)
 	}
