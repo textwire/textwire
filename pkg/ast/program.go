@@ -77,7 +77,7 @@ func (p *Program) LinkCompProg(compName string, prog *Program, absPath string) *
 		if times > 0 && duplicate != nil {
 			if duplicate.IsDefault() {
 				return fail.New(
-					duplicate.TokPos(),
+					duplicate.Pos(),
 					absPath,
 					"parser",
 					fail.ErrDuplicateDefaultSlot,
@@ -87,7 +87,7 @@ func (p *Program) LinkCompProg(compName string, prog *Program, absPath string) *
 			}
 
 			return fail.New(
-				duplicate.TokPos(),
+				duplicate.Pos(),
 				absPath,
 				"parser",
 				fail.ErrDuplicateSlot,
@@ -107,7 +107,7 @@ func (p *Program) LinkCompProg(compName string, prog *Program, absPath string) *
 
 			if slot.IsDefault() {
 				return fail.New(
-					slot.TokPos(),
+					slot.Pos(),
 					absPath,
 					"parser",
 					fail.ErrDefaultSlotNotDefined,
@@ -116,7 +116,7 @@ func (p *Program) LinkCompProg(compName string, prog *Program, absPath string) *
 			}
 
 			return fail.New(
-				slot.TokPos(),
+				slot.Pos(),
 				absPath,
 				"parser",
 				fail.ErrSlotNotDefined,

@@ -854,12 +854,12 @@ func (p *Parser) insertDirHeader(dir *ast.InsertDir) (*ast.IllegalNode, bool) {
 	return nil, done
 }
 
-func (p *Parser) checkDuplicateInserts(dir *ast.InsertDir) bool {
-	if _, hasDuplicate := p.inserts[dir.Name.Val]; hasDuplicate {
+func (p *Parser) checkDuplicateInserts(insertDir *ast.InsertDir) bool {
+	if _, hasDuplicate := p.inserts[insertDir.Name.Val]; hasDuplicate {
 		p.newError(
-			dir.Token.Pos,
+			insertDir.Pos(),
 			fail.ErrDuplicateInserts,
-			dir.Name.Val,
+			insertDir.Name.Val,
 		)
 
 		return true
