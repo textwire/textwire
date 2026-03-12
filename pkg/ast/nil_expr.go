@@ -7,12 +7,7 @@ type NilExpr struct {
 }
 
 func NewNilExpr(tok token.Token) *NilExpr {
-	return &NilExpr{
-		BaseNode{
-			Token: tok,
-			Pos:   tok.Pos,
-		},
-	}
+	return &NilExpr{NewBaseNode(tok)}
 }
 
 func (*NilExpr) expressionNode() {}

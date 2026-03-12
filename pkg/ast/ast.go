@@ -8,7 +8,7 @@ import (
 type Node interface {
 	Tok() *token.Token
 	SetTok(token.Token)
-	TokPos() *position.Pos
+	Pos() *position.Pos
 	SetEndPosition(pos *position.Pos)
 	String() string
 }

@@ -29,7 +29,7 @@ func IsInLoop(doc, filePath string, line, col uint) (bool, []*fail.Error) {
 		}
 
 		loopStmt := chunk.(ast.LoopDirective)
-		pos := loopStmt.LoopBlock().Pos
+		pos := loopStmt.LoopBlock().Pos()
 
 		if IsCursorInBlock(line, col, pos) {
 			return true, p.Errors()
