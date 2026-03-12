@@ -66,7 +66,7 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 				nil,
 				absPath+"use-inside-tpl/index.tw",
 				"evaluator",
-				fail.ErrUseDorIsNotAllowed,
+				fail.ErrUseDirIsNotAllowed,
 			),
 			data: nil,
 		},
