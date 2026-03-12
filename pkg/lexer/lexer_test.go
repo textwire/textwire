@@ -1,6 +1,7 @@
 package lexer
 
 import (
+	"reflect"
 	"testing"
 
 	"github.com/textwire/textwire/v3/pkg/position"
@@ -31,7 +32,7 @@ func TokenizeString(t *testing.T, input string, expectTokens []token.Token) {
 			)
 		}
 
-		if tok.Pos != expectTok.Pos {
+		if !reflect.DeepEqual(tok.Pos, expectTok.Pos) {
 			t.Fatalf(
 				"token %q - position wrong.\nEXPECT: {startCol=%d, endCol=%d, startLine=%d, endLine=%d}\nGOT:    {startCol=%d, endCol=%d, startLine=%d, endLine=%d}",
 				tok.Lit,
@@ -55,12 +56,12 @@ func TestText(t *testing.T) {
 		{
 			Type: token.TEXT,
 			Lit:  `<h2 class="container">The winter is test@mail.com</h2>`,
-			Pos:  position.Pos{EndCol: 53},
+			Pos:  &position.Pos{EndCol: 53},
 		},
 		{
 			Type: token.EOF,
 			Lit:  "",
-			Pos:  position.Pos{StartCol: 54, EndCol: 54},
+			Pos:  &position.Pos{StartCol: 54, EndCol: 54},
 		},
 	})
 }
@@ -69,24 +70,24 @@ func TestIntegers(t *testing.T) {
 	inp := "<div>{{ 0 1 2 3 4 5 6 7 8 9 234 -41 }}</div>"
 
 	TokenizeString(t, inp, []token.Token{
-		{Type: token.TEXT, Lit: "<div>", Pos: position.Pos{EndCol: 4}},
-		{Type: token.LBRACES, Lit: "{{", Pos: position.Pos{StartCol: 5, EndCol: 6}},
-		{Type: token.INT, Lit: "0", Pos: position.Pos{StartCol: 8, EndCol: 8}},
-		{Type: token.INT, Lit: "1", Pos: position.Pos{StartCol: 10, EndCol: 10}},
-		{Type: token.INT, Lit: "2", Pos: position.Pos{StartCol: 12, EndCol: 12}},
-		{Type: token.INT, Lit: "3", Pos: position.Pos{StartCol: 14, EndCol: 14}},
-		{Type: token.INT, Lit: "4", Pos: position.Pos{StartCol: 16, EndCol: 16}},
-		{Type: token.INT, Lit: "5", Pos: position.Pos{StartCol: 18, EndCol: 18}},
-		{Type: token.INT, Lit: "6", Pos: position.Pos{StartCol: 20, EndCol: 20}},
-		{Type: token.INT, Lit: "7", Pos: position.Pos{StartCol: 22, EndCol: 22}},
-		{Type: token.INT, Lit: "8", Pos: position.Pos{StartCol: 24, EndCol: 24}},
-		{Type: token.INT, Lit: "9", Pos: position.Pos{StartCol: 26, EndCol: 26}},
-		{Type: token.INT, Lit: "234", Pos: position.Pos{StartCol: 28, EndCol: 30}},
-		{Type: token.SUB, Lit: "-", Pos: position.Pos{StartCol: 32, EndCol: 32}},
-		{Type: token.INT, Lit: "41", Pos: position.Pos{StartCol: 33, EndCol: 34}},
-		{Type: token.RBRACES, Lit: "}}", Pos: position.Pos{StartCol: 36, EndCol: 37}},
-		{Type: token.TEXT, Lit: "</div>", Pos: position.Pos{StartCol: 38, EndCol: 43}},
-		{Type: token.EOF, Lit: "", Pos: position.Pos{StartCol: 44, EndCol: 44}},
+		{Type: token.TEXT, Lit: "<div>", Pos: &position.Pos{EndCol: 4}},
+		{Type: token.LBRACES, Lit: "{{", Pos: &position.Pos{StartCol: 5, EndCol: 6}},
+		{Type: token.INT, Lit: "0", Pos: &position.Pos{StartCol: 8, EndCol: 8}},
+		{Type: token.INT, Lit: "1", Pos: &position.Pos{StartCol: 10, EndCol: 10}},
+		{Type: token.INT, Lit: "2", Pos: &position.Pos{StartCol: 12, EndCol: 12}},
+		{Type: token.INT, Lit: "3", Pos: &position.Pos{StartCol: 14, EndCol: 14}},
+		{Type: token.INT, Lit: "4", Pos: &position.Pos{StartCol: 16, EndCol: 16}},
+		{Type: token.INT, Lit: "5", Pos: &position.Pos{StartCol: 18, EndCol: 18}},
+		{Type: token.INT, Lit: "6", Pos: &position.Pos{StartCol: 20, EndCol: 20}},
+		{Type: token.INT, Lit: "7", Pos: &position.Pos{StartCol: 22, EndCol: 22}},
+		{Type: token.INT, Lit: "8", Pos: &position.Pos{StartCol: 24, EndCol: 24}},
+		{Type: token.INT, Lit: "9", Pos: &position.Pos{StartCol: 26, EndCol: 26}},
+		{Type: token.INT, Lit: "234", Pos: &position.Pos{StartCol: 28, EndCol: 30}},
+		{Type: token.SUB, Lit: "-", Pos: &position.Pos{StartCol: 32, EndCol: 32}},
+		{Type: token.INT, Lit: "41", Pos: &position.Pos{StartCol: 33, EndCol: 34}},
+		{Type: token.RBRACES, Lit: "}}", Pos: &position.Pos{StartCol: 36, EndCol: 37}},
+		{Type: token.TEXT, Lit: "</div>", Pos: &position.Pos{StartCol: 38, EndCol: 43}},
+		{Type: token.EOF, Lit: "", Pos: &position.Pos{StartCol: 44, EndCol: 44}},
 	})
 }
 
@@ -94,12 +95,12 @@ func TestFloats(t *testing.T) {
 	inp := "{{ 0.12 1.1111 9.1 }}"
 
 	TokenizeString(t, inp, []token.Token{
-		{Type: token.LBRACES, Lit: "{{", Pos: position.Pos{EndCol: 1}},
-		{Type: token.FLOAT, Lit: "0.12", Pos: position.Pos{StartCol: 3, EndCol: 6}},
-		{Type: token.FLOAT, Lit: "1.1111", Pos: position.Pos{StartCol: 8, EndCol: 13}},
-		{Type: token.FLOAT, Lit: "9.1", Pos: position.Pos{StartCol: 15, EndCol: 17}},
-		{Type: token.RBRACES, Lit: "}}", Pos: position.Pos{StartCol: 19, EndCol: 20}},
-		{Type: token.EOF, Lit: "", Pos: position.Pos{StartCol: 21, EndCol: 21}},
+		{Type: token.LBRACES, Lit: "{{", Pos: &position.Pos{EndCol: 1}},
+		{Type: token.FLOAT, Lit: "0.12", Pos: &position.Pos{StartCol: 3, EndCol: 6}},
+		{Type: token.FLOAT, Lit: "1.1111", Pos: &position.Pos{StartCol: 8, EndCol: 13}},
+		{Type: token.FLOAT, Lit: "9.1", Pos: &position.Pos{StartCol: 15, EndCol: 17}},
+		{Type: token.RBRACES, Lit: "}}", Pos: &position.Pos{StartCol: 19, EndCol: 20}},
+		{Type: token.EOF, Lit: "", Pos: &position.Pos{StartCol: 21, EndCol: 21}},
 	})
 }
 
@@ -107,19 +108,19 @@ func TestIdentifiers(t *testing.T) {
 	inp := "{{ testVar another_var12 nil false !true}}"
 
 	TokenizeString(t, inp, []token.Token{
-		{Type: token.LBRACES, Lit: "{{", Pos: position.Pos{EndCol: 1}},
-		{Type: token.IDENT, Lit: "testVar", Pos: position.Pos{StartCol: 3, EndCol: 9}},
+		{Type: token.LBRACES, Lit: "{{", Pos: &position.Pos{EndCol: 1}},
+		{Type: token.IDENT, Lit: "testVar", Pos: &position.Pos{StartCol: 3, EndCol: 9}},
 		{
 			Type: token.IDENT,
 			Lit:  "another_var12",
-			Pos:  position.Pos{StartCol: 11, EndCol: 23},
+			Pos:  &position.Pos{StartCol: 11, EndCol: 23},
 		},
-		{Type: token.NIL, Lit: "nil", Pos: position.Pos{StartCol: 25, EndCol: 27}},
-		{Type: token.FALSE, Lit: "false", Pos: position.Pos{StartCol: 29, EndCol: 33}},
-		{Type: token.NOT, Lit: "!", Pos: position.Pos{StartCol: 35, EndCol: 35}},
-		{Type: token.TRUE, Lit: "true", Pos: position.Pos{StartCol: 36, EndCol: 39}},
-		{Type: token.RBRACES, Lit: "}}", Pos: position.Pos{StartCol: 40, EndCol: 41}},
-		{Type: token.EOF, Lit: "", Pos: position.Pos{StartCol: 42, EndCol: 42}},
+		{Type: token.NIL, Lit: "nil", Pos: &position.Pos{StartCol: 25, EndCol: 27}},
+		{Type: token.FALSE, Lit: "false", Pos: &position.Pos{StartCol: 29, EndCol: 33}},
+		{Type: token.NOT, Lit: "!", Pos: &position.Pos{StartCol: 35, EndCol: 35}},
+		{Type: token.TRUE, Lit: "true", Pos: &position.Pos{StartCol: 36, EndCol: 39}},
+		{Type: token.RBRACES, Lit: "}}", Pos: &position.Pos{StartCol: 40, EndCol: 41}},
+		{Type: token.EOF, Lit: "", Pos: &position.Pos{StartCol: 42, EndCol: 42}},
 	})
 }
 
@@ -127,27 +128,27 @@ func TestIfStmt(t *testing.T) {
 	inp := `@if(true(()))one@elseif(false){{ "nice" }}@elsethree@endfour`
 
 	TokenizeString(t, inp, []token.Token{
-		{Type: token.IF, Lit: "@if", Pos: position.Pos{EndCol: 2}},
-		{Type: token.LPAREN, Lit: "(", Pos: position.Pos{StartCol: 3, EndCol: 3}},
-		{Type: token.TRUE, Lit: "true", Pos: position.Pos{StartCol: 4, EndCol: 7}},
-		{Type: token.LPAREN, Lit: "(", Pos: position.Pos{StartCol: 8, EndCol: 8}},
-		{Type: token.LPAREN, Lit: "(", Pos: position.Pos{StartCol: 9, EndCol: 9}},
-		{Type: token.RPAREN, Lit: ")", Pos: position.Pos{StartCol: 10, EndCol: 10}},
-		{Type: token.RPAREN, Lit: ")", Pos: position.Pos{StartCol: 11, EndCol: 11}},
-		{Type: token.RPAREN, Lit: ")", Pos: position.Pos{StartCol: 12, EndCol: 12}},
-		{Type: token.TEXT, Lit: "one", Pos: position.Pos{StartCol: 13, EndCol: 15}},
-		{Type: token.ELSEIF, Lit: "@elseif", Pos: position.Pos{StartCol: 16, EndCol: 22}},
-		{Type: token.LPAREN, Lit: "(", Pos: position.Pos{StartCol: 23, EndCol: 23}},
-		{Type: token.FALSE, Lit: "false", Pos: position.Pos{StartCol: 24, EndCol: 28}},
-		{Type: token.RPAREN, Lit: ")", Pos: position.Pos{StartCol: 29, EndCol: 29}},
-		{Type: token.LBRACES, Lit: "{{", Pos: position.Pos{StartCol: 30, EndCol: 31}},
-		{Type: token.STR, Lit: "nice", Pos: position.Pos{StartCol: 33, EndCol: 38}},
-		{Type: token.RBRACES, Lit: "}}", Pos: position.Pos{StartCol: 40, EndCol: 41}},
-		{Type: token.ELSE, Lit: "@else", Pos: position.Pos{StartCol: 42, EndCol: 46}},
-		{Type: token.TEXT, Lit: "three", Pos: position.Pos{StartCol: 47, EndCol: 51}},
-		{Type: token.END, Lit: "@end", Pos: position.Pos{StartCol: 52, EndCol: 55}},
-		{Type: token.TEXT, Lit: "four", Pos: position.Pos{StartCol: 56, EndCol: 59}},
-		{Type: token.EOF, Lit: "", Pos: position.Pos{StartCol: 60, EndCol: 60}},
+		{Type: token.IF, Lit: "@if", Pos: &position.Pos{EndCol: 2}},
+		{Type: token.LPAREN, Lit: "(", Pos: &position.Pos{StartCol: 3, EndCol: 3}},
+		{Type: token.TRUE, Lit: "true", Pos: &position.Pos{StartCol: 4, EndCol: 7}},
+		{Type: token.LPAREN, Lit: "(", Pos: &position.Pos{StartCol: 8, EndCol: 8}},
+		{Type: token.LPAREN, Lit: "(", Pos: &position.Pos{StartCol: 9, EndCol: 9}},
+		{Type: token.RPAREN, Lit: ")", Pos: &position.Pos{StartCol: 10, EndCol: 10}},
+		{Type: token.RPAREN, Lit: ")", Pos: &position.Pos{StartCol: 11, EndCol: 11}},
+		{Type: token.RPAREN, Lit: ")", Pos: &position.Pos{StartCol: 12, EndCol: 12}},
+		{Type: token.TEXT, Lit: "one", Pos: &position.Pos{StartCol: 13, EndCol: 15}},
+		{Type: token.ELSEIF, Lit: "@elseif", Pos: &position.Pos{StartCol: 16, EndCol: 22}},
+		{Type: token.LPAREN, Lit: "(", Pos: &position.Pos{StartCol: 23, EndCol: 23}},
+		{Type: token.FALSE, Lit: "false", Pos: &position.Pos{StartCol: 24, EndCol: 28}},
+		{Type: token.RPAREN, Lit: ")", Pos: &position.Pos{StartCol: 29, EndCol: 29}},
+		{Type: token.LBRACES, Lit: "{{", Pos: &position.Pos{StartCol: 30, EndCol: 31}},
+		{Type: token.STR, Lit: "nice", Pos: &position.Pos{StartCol: 33, EndCol: 38}},
+		{Type: token.RBRACES, Lit: "}}", Pos: &position.Pos{StartCol: 40, EndCol: 41}},
+		{Type: token.ELSE, Lit: "@else", Pos: &position.Pos{StartCol: 42, EndCol: 46}},
+		{Type: token.TEXT, Lit: "three", Pos: &position.Pos{StartCol: 47, EndCol: 51}},
+		{Type: token.END, Lit: "@end", Pos: &position.Pos{StartCol: 52, EndCol: 55}},
+		{Type: token.TEXT, Lit: "four", Pos: &position.Pos{StartCol: 56, EndCol: 59}},
+		{Type: token.EOF, Lit: "", Pos: &position.Pos{StartCol: 60, EndCol: 60}},
 	})
 }
 
@@ -155,13 +156,13 @@ func TestUseStmt(t *testing.T) {
 	inp := `<div>@use("layouts/main")</div>`
 
 	TokenizeString(t, inp, []token.Token{
-		{Type: token.TEXT, Lit: "<div>", Pos: position.Pos{EndCol: 4}},
-		{Type: token.USE, Lit: "@use", Pos: position.Pos{StartCol: 5, EndCol: 8}},
-		{Type: token.LPAREN, Lit: "(", Pos: position.Pos{StartCol: 9, EndCol: 9}},
-		{Type: token.STR, Lit: "layouts/main", Pos: position.Pos{StartCol: 10, EndCol: 23}},
-		{Type: token.RPAREN, Lit: ")", Pos: position.Pos{StartCol: 24, EndCol: 24}},
-		{Type: token.TEXT, Lit: "</div>", Pos: position.Pos{StartCol: 25, EndCol: 30}},
-		{Type: token.EOF, Lit: "", Pos: position.Pos{StartCol: 31, EndCol: 31}},
+		{Type: token.TEXT, Lit: "<div>", Pos: &position.Pos{EndCol: 4}},
+		{Type: token.USE, Lit: "@use", Pos: &position.Pos{StartCol: 5, EndCol: 8}},
+		{Type: token.LPAREN, Lit: "(", Pos: &position.Pos{StartCol: 9, EndCol: 9}},
+		{Type: token.STR, Lit: "layouts/main", Pos: &position.Pos{StartCol: 10, EndCol: 23}},
+		{Type: token.RPAREN, Lit: ")", Pos: &position.Pos{StartCol: 24, EndCol: 24}},
+		{Type: token.TEXT, Lit: "</div>", Pos: &position.Pos{StartCol: 25, EndCol: 30}},
+		{Type: token.EOF, Lit: "", Pos: &position.Pos{StartCol: 31, EndCol: 31}},
 	})
 }
 
@@ -169,13 +170,13 @@ func TestReserveStmt(t *testing.T) {
 	inp := `<div>@reserve("title")</div>`
 
 	TokenizeString(t, inp, []token.Token{
-		{Type: token.TEXT, Lit: "<div>", Pos: position.Pos{EndCol: 4}},
-		{Type: token.RESERVE, Lit: "@reserve", Pos: position.Pos{StartCol: 5, EndCol: 12}},
-		{Type: token.LPAREN, Lit: "(", Pos: position.Pos{StartCol: 13, EndCol: 13}},
-		{Type: token.STR, Lit: "title", Pos: position.Pos{StartCol: 14, EndCol: 20}},
-		{Type: token.RPAREN, Lit: ")", Pos: position.Pos{StartCol: 21, EndCol: 21}},
-		{Type: token.TEXT, Lit: "</div>", Pos: position.Pos{StartCol: 22, EndCol: 27}},
-		{Type: token.EOF, Lit: "", Pos: position.Pos{StartCol: 28, EndCol: 28}},
+		{Type: token.TEXT, Lit: "<div>", Pos: &position.Pos{EndCol: 4}},
+		{Type: token.RESERVE, Lit: "@reserve", Pos: &position.Pos{StartCol: 5, EndCol: 12}},
+		{Type: token.LPAREN, Lit: "(", Pos: &position.Pos{StartCol: 13, EndCol: 13}},
+		{Type: token.STR, Lit: "title", Pos: &position.Pos{StartCol: 14, EndCol: 20}},
+		{Type: token.RPAREN, Lit: ")", Pos: &position.Pos{StartCol: 21, EndCol: 21}},
+		{Type: token.TEXT, Lit: "</div>", Pos: &position.Pos{StartCol: 22, EndCol: 27}},
+		{Type: token.EOF, Lit: "", Pos: &position.Pos{StartCol: 28, EndCol: 28}},
 	})
 }
 
@@ -183,17 +184,17 @@ func TestInsertStmt(t *testing.T) {
 	inp := `@insert("title")<div>Nice one</div>@end`
 
 	TokenizeString(t, inp, []token.Token{
-		{Type: token.INSERT, Lit: "@insert", Pos: position.Pos{EndCol: 6}},
-		{Type: token.LPAREN, Lit: "(", Pos: position.Pos{StartCol: 7, EndCol: 7}},
-		{Type: token.STR, Lit: "title", Pos: position.Pos{StartCol: 8, EndCol: 14}},
-		{Type: token.RPAREN, Lit: ")", Pos: position.Pos{StartCol: 15, EndCol: 15}},
+		{Type: token.INSERT, Lit: "@insert", Pos: &position.Pos{EndCol: 6}},
+		{Type: token.LPAREN, Lit: "(", Pos: &position.Pos{StartCol: 7, EndCol: 7}},
+		{Type: token.STR, Lit: "title", Pos: &position.Pos{StartCol: 8, EndCol: 14}},
+		{Type: token.RPAREN, Lit: ")", Pos: &position.Pos{StartCol: 15, EndCol: 15}},
 		{
 			Type: token.TEXT,
 			Lit:  "<div>Nice one</div>",
-			Pos:  position.Pos{StartCol: 16, EndCol: 34},
+			Pos:  &position.Pos{StartCol: 16, EndCol: 34},
 		},
-		{Type: token.END, Lit: "@end", Pos: position.Pos{StartCol: 35, EndCol: 38}},
-		{Type: token.EOF, Lit: "", Pos: position.Pos{StartCol: 39, EndCol: 39}},
+		{Type: token.END, Lit: "@end", Pos: &position.Pos{StartCol: 35, EndCol: 38}},
+		{Type: token.EOF, Lit: "", Pos: &position.Pos{StartCol: 39, EndCol: 39}},
 	})
 }
 
@@ -201,27 +202,27 @@ func TestOperators(t *testing.T) {
 	inp := "{{ 1 + 2 - 3 * 4 / 5 % (6) 3++ + 2-- }}"
 
 	TokenizeString(t, inp, []token.Token{
-		{Type: token.LBRACES, Lit: "{{", Pos: position.Pos{EndCol: 1}},
-		{Type: token.INT, Lit: "1", Pos: position.Pos{StartCol: 3, EndCol: 3}},
-		{Type: token.ADD, Lit: "+", Pos: position.Pos{StartCol: 5, EndCol: 5}},
-		{Type: token.INT, Lit: "2", Pos: position.Pos{StartCol: 7, EndCol: 7}},
-		{Type: token.SUB, Lit: "-", Pos: position.Pos{StartCol: 9, EndCol: 9}},
-		{Type: token.INT, Lit: "3", Pos: position.Pos{StartCol: 11, EndCol: 11}},
-		{Type: token.MUL, Lit: "*", Pos: position.Pos{StartCol: 13, EndCol: 13}},
-		{Type: token.INT, Lit: "4", Pos: position.Pos{StartCol: 15, EndCol: 15}},
-		{Type: token.DIV, Lit: "/", Pos: position.Pos{StartCol: 17, EndCol: 17}},
-		{Type: token.INT, Lit: "5", Pos: position.Pos{StartCol: 19, EndCol: 19}},
-		{Type: token.MOD, Lit: "%", Pos: position.Pos{StartCol: 21, EndCol: 21}},
-		{Type: token.LPAREN, Lit: "(", Pos: position.Pos{StartCol: 23, EndCol: 23}},
-		{Type: token.INT, Lit: "6", Pos: position.Pos{StartCol: 24, EndCol: 24}},
-		{Type: token.RPAREN, Lit: ")", Pos: position.Pos{StartCol: 25, EndCol: 25}},
-		{Type: token.INT, Lit: "3", Pos: position.Pos{StartCol: 27, EndCol: 27}},
-		{Type: token.INC, Lit: "++", Pos: position.Pos{StartCol: 28, EndCol: 29}},
-		{Type: token.ADD, Lit: "+", Pos: position.Pos{StartCol: 31, EndCol: 31}},
-		{Type: token.INT, Lit: "2", Pos: position.Pos{StartCol: 33, EndCol: 33}},
-		{Type: token.DEC, Lit: "--", Pos: position.Pos{StartCol: 34, EndCol: 35}},
-		{Type: token.RBRACES, Lit: "}}", Pos: position.Pos{StartCol: 37, EndCol: 38}},
-		{Type: token.EOF, Lit: "", Pos: position.Pos{StartCol: 39, EndCol: 39}},
+		{Type: token.LBRACES, Lit: "{{", Pos: &position.Pos{EndCol: 1}},
+		{Type: token.INT, Lit: "1", Pos: &position.Pos{StartCol: 3, EndCol: 3}},
+		{Type: token.ADD, Lit: "+", Pos: &position.Pos{StartCol: 5, EndCol: 5}},
+		{Type: token.INT, Lit: "2", Pos: &position.Pos{StartCol: 7, EndCol: 7}},
+		{Type: token.SUB, Lit: "-", Pos: &position.Pos{StartCol: 9, EndCol: 9}},
+		{Type: token.INT, Lit: "3", Pos: &position.Pos{StartCol: 11, EndCol: 11}},
+		{Type: token.MUL, Lit: "*", Pos: &position.Pos{StartCol: 13, EndCol: 13}},
+		{Type: token.INT, Lit: "4", Pos: &position.Pos{StartCol: 15, EndCol: 15}},
+		{Type: token.DIV, Lit: "/", Pos: &position.Pos{StartCol: 17, EndCol: 17}},
+		{Type: token.INT, Lit: "5", Pos: &position.Pos{StartCol: 19, EndCol: 19}},
+		{Type: token.MOD, Lit: "%", Pos: &position.Pos{StartCol: 21, EndCol: 21}},
+		{Type: token.LPAREN, Lit: "(", Pos: &position.Pos{StartCol: 23, EndCol: 23}},
+		{Type: token.INT, Lit: "6", Pos: &position.Pos{StartCol: 24, EndCol: 24}},
+		{Type: token.RPAREN, Lit: ")", Pos: &position.Pos{StartCol: 25, EndCol: 25}},
+		{Type: token.INT, Lit: "3", Pos: &position.Pos{StartCol: 27, EndCol: 27}},
+		{Type: token.INC, Lit: "++", Pos: &position.Pos{StartCol: 28, EndCol: 29}},
+		{Type: token.ADD, Lit: "+", Pos: &position.Pos{StartCol: 31, EndCol: 31}},
+		{Type: token.INT, Lit: "2", Pos: &position.Pos{StartCol: 33, EndCol: 33}},
+		{Type: token.DEC, Lit: "--", Pos: &position.Pos{StartCol: 34, EndCol: 35}},
+		{Type: token.RBRACES, Lit: "}}", Pos: &position.Pos{StartCol: 37, EndCol: 38}},
+		{Type: token.EOF, Lit: "", Pos: &position.Pos{StartCol: 39, EndCol: 39}},
 	})
 }
 
@@ -230,16 +231,16 @@ func TestStrings(test *testing.T) {
 		inp := `{{ "Anna \"and\" Serhii" + '' }}`
 
 		TokenizeString(t, inp, []token.Token{
-			{Type: token.LBRACES, Lit: "{{", Pos: position.Pos{EndCol: 1}},
+			{Type: token.LBRACES, Lit: "{{", Pos: &position.Pos{EndCol: 1}},
 			{
 				Type: token.STR,
 				Lit:  `Anna "and" Serhii`,
-				Pos:  position.Pos{StartCol: 3, EndCol: 23},
+				Pos:  &position.Pos{StartCol: 3, EndCol: 23},
 			},
-			{Type: token.ADD, Lit: "+", Pos: position.Pos{StartCol: 25, EndCol: 25}},
-			{Type: token.STR, Lit: "", Pos: position.Pos{StartCol: 27, EndCol: 28}},
-			{Type: token.RBRACES, Lit: "}}", Pos: position.Pos{StartCol: 30, EndCol: 31}},
-			{Type: token.EOF, Lit: "", Pos: position.Pos{StartCol: 32, EndCol: 32}},
+			{Type: token.ADD, Lit: "+", Pos: &position.Pos{StartCol: 25, EndCol: 25}},
+			{Type: token.STR, Lit: "", Pos: &position.Pos{StartCol: 27, EndCol: 28}},
+			{Type: token.RBRACES, Lit: "}}", Pos: &position.Pos{StartCol: 30, EndCol: 31}},
+			{Type: token.EOF, Lit: "", Pos: &position.Pos{StartCol: 32, EndCol: 32}},
 		})
 	})
 
@@ -247,10 +248,10 @@ func TestStrings(test *testing.T) {
 		inp := `{{ "\{ {" }}`
 
 		TokenizeString(t, inp, []token.Token{
-			{Type: token.LBRACES, Lit: "{{", Pos: position.Pos{EndCol: 1}},
-			{Type: token.STR, Lit: `\{ {`, Pos: position.Pos{StartCol: 3, EndCol: 8}},
-			{Type: token.RBRACES, Lit: "}}", Pos: position.Pos{StartCol: 10, EndCol: 11}},
-			{Type: token.EOF, Lit: "", Pos: position.Pos{StartCol: 12, EndCol: 12}},
+			{Type: token.LBRACES, Lit: "{{", Pos: &position.Pos{EndCol: 1}},
+			{Type: token.STR, Lit: `\{ {`, Pos: &position.Pos{StartCol: 3, EndCol: 8}},
+			{Type: token.RBRACES, Lit: "}}", Pos: &position.Pos{StartCol: 10, EndCol: 11}},
+			{Type: token.EOF, Lit: "", Pos: &position.Pos{StartCol: 12, EndCol: 12}},
 		})
 	})
 
@@ -258,10 +259,10 @@ func TestStrings(test *testing.T) {
 		inp := `{{ "" }}`
 
 		TokenizeString(t, inp, []token.Token{
-			{Type: token.LBRACES, Lit: "{{", Pos: position.Pos{EndCol: 1}},
-			{Type: token.STR, Lit: "", Pos: position.Pos{StartCol: 3, EndCol: 4}},
-			{Type: token.RBRACES, Lit: "}}", Pos: position.Pos{StartCol: 6, EndCol: 7}},
-			{Type: token.EOF, Lit: "", Pos: position.Pos{StartCol: 8, EndCol: 8}},
+			{Type: token.LBRACES, Lit: "{{", Pos: &position.Pos{EndCol: 1}},
+			{Type: token.STR, Lit: "", Pos: &position.Pos{StartCol: 3, EndCol: 4}},
+			{Type: token.RBRACES, Lit: "}}", Pos: &position.Pos{StartCol: 6, EndCol: 7}},
+			{Type: token.EOF, Lit: "", Pos: &position.Pos{StartCol: 8, EndCol: 8}},
 		})
 	})
 }
@@ -270,16 +271,16 @@ func TestTernary(t *testing.T) {
 	inp := `<small>{{ true ? "Yes!" : "No!" }}</small>`
 
 	TokenizeString(t, inp, []token.Token{
-		{Type: token.TEXT, Lit: "<small>", Pos: position.Pos{EndCol: 6}},
-		{Type: token.LBRACES, Lit: "{{", Pos: position.Pos{StartCol: 7, EndCol: 8}},
-		{Type: token.TRUE, Lit: "true", Pos: position.Pos{StartCol: 10, EndCol: 13}},
-		{Type: token.QUESTION, Lit: "?", Pos: position.Pos{StartCol: 15, EndCol: 15}},
-		{Type: token.STR, Lit: "Yes!", Pos: position.Pos{StartCol: 17, EndCol: 22}},
-		{Type: token.COLON, Lit: ":", Pos: position.Pos{StartCol: 24, EndCol: 24}},
-		{Type: token.STR, Lit: "No!", Pos: position.Pos{StartCol: 26, EndCol: 30}},
-		{Type: token.RBRACES, Lit: "}}", Pos: position.Pos{StartCol: 32, EndCol: 33}},
-		{Type: token.TEXT, Lit: "</small>", Pos: position.Pos{StartCol: 34, EndCol: 41}},
-		{Type: token.EOF, Lit: "", Pos: position.Pos{StartCol: 42, EndCol: 42}},
+		{Type: token.TEXT, Lit: "<small>", Pos: &position.Pos{EndCol: 6}},
+		{Type: token.LBRACES, Lit: "{{", Pos: &position.Pos{StartCol: 7, EndCol: 8}},
+		{Type: token.TRUE, Lit: "true", Pos: &position.Pos{StartCol: 10, EndCol: 13}},
+		{Type: token.QUESTION, Lit: "?", Pos: &position.Pos{StartCol: 15, EndCol: 15}},
+		{Type: token.STR, Lit: "Yes!", Pos: &position.Pos{StartCol: 17, EndCol: 22}},
+		{Type: token.COLON, Lit: ":", Pos: &position.Pos{StartCol: 24, EndCol: 24}},
+		{Type: token.STR, Lit: "No!", Pos: &position.Pos{StartCol: 26, EndCol: 30}},
+		{Type: token.RBRACES, Lit: "}}", Pos: &position.Pos{StartCol: 32, EndCol: 33}},
+		{Type: token.TEXT, Lit: "</small>", Pos: &position.Pos{StartCol: 34, EndCol: 41}},
+		{Type: token.EOF, Lit: "", Pos: &position.Pos{StartCol: 42, EndCol: 42}},
 	})
 }
 
@@ -287,12 +288,12 @@ func TestVariableDeclaration(t *testing.T) {
 	inp := `{{ a = 1 }}`
 
 	TokenizeString(t, inp, []token.Token{
-		{Type: token.LBRACES, Lit: "{{", Pos: position.Pos{EndCol: 1}},
-		{Type: token.IDENT, Lit: "a", Pos: position.Pos{StartCol: 3, EndCol: 3}},
-		{Type: token.ASSIGN, Lit: "=", Pos: position.Pos{StartCol: 5, EndCol: 5}},
-		{Type: token.INT, Lit: "1", Pos: position.Pos{StartCol: 7, EndCol: 7}},
-		{Type: token.RBRACES, Lit: "}}", Pos: position.Pos{StartCol: 9, EndCol: 10}},
-		{Type: token.EOF, Lit: "", Pos: position.Pos{StartCol: 11, EndCol: 11}},
+		{Type: token.LBRACES, Lit: "{{", Pos: &position.Pos{EndCol: 1}},
+		{Type: token.IDENT, Lit: "a", Pos: &position.Pos{StartCol: 3, EndCol: 3}},
+		{Type: token.ASSIGN, Lit: "=", Pos: &position.Pos{StartCol: 5, EndCol: 5}},
+		{Type: token.INT, Lit: "1", Pos: &position.Pos{StartCol: 7, EndCol: 7}},
+		{Type: token.RBRACES, Lit: "}}", Pos: &position.Pos{StartCol: 9, EndCol: 10}},
+		{Type: token.EOF, Lit: "", Pos: &position.Pos{StartCol: 11, EndCol: 11}},
 	})
 }
 
@@ -300,12 +301,12 @@ func TestLogicalAndOp(t *testing.T) {
 	inp := `{{ true && false }}`
 
 	TokenizeString(t, inp, []token.Token{
-		{Type: token.LBRACES, Lit: "{{", Pos: position.Pos{EndCol: 1}},
-		{Type: token.TRUE, Lit: "true", Pos: position.Pos{StartCol: 3, EndCol: 6}},
-		{Type: token.AND, Lit: "&&", Pos: position.Pos{StartCol: 8, EndCol: 9}},
-		{Type: token.FALSE, Lit: "false", Pos: position.Pos{StartCol: 11, EndCol: 15}},
-		{Type: token.RBRACES, Lit: "}}", Pos: position.Pos{StartCol: 17, EndCol: 18}},
-		{Type: token.EOF, Lit: "", Pos: position.Pos{StartCol: 19, EndCol: 19}},
+		{Type: token.LBRACES, Lit: "{{", Pos: &position.Pos{EndCol: 1}},
+		{Type: token.TRUE, Lit: "true", Pos: &position.Pos{StartCol: 3, EndCol: 6}},
+		{Type: token.AND, Lit: "&&", Pos: &position.Pos{StartCol: 8, EndCol: 9}},
+		{Type: token.FALSE, Lit: "false", Pos: &position.Pos{StartCol: 11, EndCol: 15}},
+		{Type: token.RBRACES, Lit: "}}", Pos: &position.Pos{StartCol: 17, EndCol: 18}},
+		{Type: token.EOF, Lit: "", Pos: &position.Pos{StartCol: 19, EndCol: 19}},
 	})
 }
 
@@ -313,12 +314,12 @@ func TestLogicalOrOp(t *testing.T) {
 	inp := `{{ true || false }}`
 
 	TokenizeString(t, inp, []token.Token{
-		{Type: token.LBRACES, Lit: "{{", Pos: position.Pos{EndCol: 1}},
-		{Type: token.TRUE, Lit: "true", Pos: position.Pos{StartCol: 3, EndCol: 6}},
-		{Type: token.OR, Lit: "||", Pos: position.Pos{StartCol: 8, EndCol: 9}},
-		{Type: token.FALSE, Lit: "false", Pos: position.Pos{StartCol: 11, EndCol: 15}},
-		{Type: token.RBRACES, Lit: "}}", Pos: position.Pos{StartCol: 17, EndCol: 18}},
-		{Type: token.EOF, Lit: "", Pos: position.Pos{StartCol: 19, EndCol: 19}},
+		{Type: token.LBRACES, Lit: "{{", Pos: &position.Pos{EndCol: 1}},
+		{Type: token.TRUE, Lit: "true", Pos: &position.Pos{StartCol: 3, EndCol: 6}},
+		{Type: token.OR, Lit: "||", Pos: &position.Pos{StartCol: 8, EndCol: 9}},
+		{Type: token.FALSE, Lit: "false", Pos: &position.Pos{StartCol: 11, EndCol: 15}},
+		{Type: token.RBRACES, Lit: "}}", Pos: &position.Pos{StartCol: 17, EndCol: 18}},
+		{Type: token.EOF, Lit: "", Pos: &position.Pos{StartCol: 19, EndCol: 19}},
 	})
 }
 
@@ -326,16 +327,16 @@ func TestOther(t *testing.T) {
 	inp := "{{ , == != <= >= > < }}"
 
 	TokenizeString(t, inp, []token.Token{
-		{Type: token.LBRACES, Lit: "{{", Pos: position.Pos{EndCol: 1}},
-		{Type: token.COMMA, Lit: ",", Pos: position.Pos{StartCol: 3, EndCol: 3}},
-		{Type: token.EQ, Lit: "==", Pos: position.Pos{StartCol: 5, EndCol: 6}},
-		{Type: token.NOT_EQ, Lit: "!=", Pos: position.Pos{StartCol: 8, EndCol: 9}},
-		{Type: token.LTHAN_EQ, Lit: "<=", Pos: position.Pos{StartCol: 11, EndCol: 12}},
-		{Type: token.GTHAN_EQ, Lit: ">=", Pos: position.Pos{StartCol: 14, EndCol: 15}},
-		{Type: token.GTHAN, Lit: ">", Pos: position.Pos{StartCol: 17, EndCol: 17}},
-		{Type: token.LTHAN, Lit: "<", Pos: position.Pos{StartCol: 19, EndCol: 19}},
-		{Type: token.RBRACES, Lit: "}}", Pos: position.Pos{StartCol: 21, EndCol: 22}},
-		{Type: token.EOF, Lit: "", Pos: position.Pos{StartCol: 23, EndCol: 23}},
+		{Type: token.LBRACES, Lit: "{{", Pos: &position.Pos{EndCol: 1}},
+		{Type: token.COMMA, Lit: ",", Pos: &position.Pos{StartCol: 3, EndCol: 3}},
+		{Type: token.EQ, Lit: "==", Pos: &position.Pos{StartCol: 5, EndCol: 6}},
+		{Type: token.NOT_EQ, Lit: "!=", Pos: &position.Pos{StartCol: 8, EndCol: 9}},
+		{Type: token.LTHAN_EQ, Lit: "<=", Pos: &position.Pos{StartCol: 11, EndCol: 12}},
+		{Type: token.GTHAN_EQ, Lit: ">=", Pos: &position.Pos{StartCol: 14, EndCol: 15}},
+		{Type: token.GTHAN, Lit: ">", Pos: &position.Pos{StartCol: 17, EndCol: 17}},
+		{Type: token.LTHAN, Lit: "<", Pos: &position.Pos{StartCol: 19, EndCol: 19}},
+		{Type: token.RBRACES, Lit: "}}", Pos: &position.Pos{StartCol: 21, EndCol: 22}},
+		{Type: token.EOF, Lit: "", Pos: &position.Pos{StartCol: 23, EndCol: 23}},
 	})
 }
 
@@ -343,19 +344,19 @@ func TestArr(t *testing.T) {
 	inp := `{{ ["one", "two", "three"][1] }}`
 
 	TokenizeString(t, inp, []token.Token{
-		{Type: token.LBRACES, Lit: "{{", Pos: position.Pos{EndCol: 1}},
-		{Type: token.LBRACKET, Lit: "[", Pos: position.Pos{StartCol: 3, EndCol: 3}},
-		{Type: token.STR, Lit: "one", Pos: position.Pos{StartCol: 4, EndCol: 8}},
-		{Type: token.COMMA, Lit: ",", Pos: position.Pos{StartCol: 9, EndCol: 9}},
-		{Type: token.STR, Lit: "two", Pos: position.Pos{StartCol: 11, EndCol: 15}},
-		{Type: token.COMMA, Lit: ",", Pos: position.Pos{StartCol: 16, EndCol: 16}},
-		{Type: token.STR, Lit: "three", Pos: position.Pos{StartCol: 18, EndCol: 24}},
-		{Type: token.RBRACKET, Lit: "]", Pos: position.Pos{StartCol: 25, EndCol: 25}},
-		{Type: token.LBRACKET, Lit: "[", Pos: position.Pos{StartCol: 26, EndCol: 26}},
-		{Type: token.INT, Lit: "1", Pos: position.Pos{StartCol: 27, EndCol: 27}},
-		{Type: token.RBRACKET, Lit: "]", Pos: position.Pos{StartCol: 28, EndCol: 28}},
-		{Type: token.RBRACES, Lit: "}}", Pos: position.Pos{StartCol: 30, EndCol: 31}},
-		{Type: token.EOF, Lit: "", Pos: position.Pos{StartCol: 32, EndCol: 32}},
+		{Type: token.LBRACES, Lit: "{{", Pos: &position.Pos{EndCol: 1}},
+		{Type: token.LBRACKET, Lit: "[", Pos: &position.Pos{StartCol: 3, EndCol: 3}},
+		{Type: token.STR, Lit: "one", Pos: &position.Pos{StartCol: 4, EndCol: 8}},
+		{Type: token.COMMA, Lit: ",", Pos: &position.Pos{StartCol: 9, EndCol: 9}},
+		{Type: token.STR, Lit: "two", Pos: &position.Pos{StartCol: 11, EndCol: 15}},
+		{Type: token.COMMA, Lit: ",", Pos: &position.Pos{StartCol: 16, EndCol: 16}},
+		{Type: token.STR, Lit: "three", Pos: &position.Pos{StartCol: 18, EndCol: 24}},
+		{Type: token.RBRACKET, Lit: "]", Pos: &position.Pos{StartCol: 25, EndCol: 25}},
+		{Type: token.LBRACKET, Lit: "[", Pos: &position.Pos{StartCol: 26, EndCol: 26}},
+		{Type: token.INT, Lit: "1", Pos: &position.Pos{StartCol: 27, EndCol: 27}},
+		{Type: token.RBRACKET, Lit: "]", Pos: &position.Pos{StartCol: 28, EndCol: 28}},
+		{Type: token.RBRACES, Lit: "}}", Pos: &position.Pos{StartCol: 30, EndCol: 31}},
+		{Type: token.EOF, Lit: "", Pos: &position.Pos{StartCol: 32, EndCol: 32}},
 	})
 }
 
@@ -364,16 +365,15 @@ func TestLineNumber(t *testing.T) {
 		inp  string
 		line uint
 	}{
+		// single Text token
 		{"", 1},
 		{" ", 1},
 		{"\n", 1},
-		{"1\n2\n3\n4", 4},
+		{"1\n2\n3\n4", 1},
 		{"{{ age := 3 }}", 1},
 		{`{{ age := 3; age }}`, 1},
-		{
-			`<h1>Title</h1>
-			<p>Test</p>`, 2,
-		},
+		{`<h1>Title</h1>\n<p>Test</p>`, 1},
+		// Multiple tokens
 		{
 			`<h1>Title</h1>
 			<p>Test</p>
@@ -390,7 +390,7 @@ func TestLineNumber(t *testing.T) {
 
 	for _, tc := range cases {
 		l := New(tc.inp)
-		var lastTok token.Token
+		lastTok := token.Token{Pos: &position.Pos{}}
 
 		for tok := l.Next(); tok.Type != token.EOF; tok = l.Next() {
 			lastTok = tok
@@ -575,14 +575,14 @@ func TestCallExp(t *testing.T) {
 		inp := `{{ "test".upper() }}`
 
 		TokenizeString(t, inp, []token.Token{
-			{Type: token.LBRACES, Lit: "{{", Pos: position.Pos{EndCol: 1}},
-			{Type: token.STR, Lit: "test", Pos: position.Pos{StartCol: 3, EndCol: 8}},
-			{Type: token.DOT, Lit: ".", Pos: position.Pos{StartCol: 9, EndCol: 9}},
-			{Type: token.IDENT, Lit: "upper", Pos: position.Pos{StartCol: 10, EndCol: 14}},
-			{Type: token.LPAREN, Lit: "(", Pos: position.Pos{StartCol: 15, EndCol: 15}},
-			{Type: token.RPAREN, Lit: ")", Pos: position.Pos{StartCol: 16, EndCol: 16}},
-			{Type: token.RBRACES, Lit: "}}", Pos: position.Pos{StartCol: 18, EndCol: 19}},
-			{Type: token.EOF, Lit: "", Pos: position.Pos{StartCol: 20, EndCol: 20}},
+			{Type: token.LBRACES, Lit: "{{", Pos: &position.Pos{EndCol: 1}},
+			{Type: token.STR, Lit: "test", Pos: &position.Pos{StartCol: 3, EndCol: 8}},
+			{Type: token.DOT, Lit: ".", Pos: &position.Pos{StartCol: 9, EndCol: 9}},
+			{Type: token.IDENT, Lit: "upper", Pos: &position.Pos{StartCol: 10, EndCol: 14}},
+			{Type: token.LPAREN, Lit: "(", Pos: &position.Pos{StartCol: 15, EndCol: 15}},
+			{Type: token.RPAREN, Lit: ")", Pos: &position.Pos{StartCol: 16, EndCol: 16}},
+			{Type: token.RBRACES, Lit: "}}", Pos: &position.Pos{StartCol: 18, EndCol: 19}},
+			{Type: token.EOF, Lit: "", Pos: &position.Pos{StartCol: 20, EndCol: 20}},
 		})
 	})
 
@@ -590,14 +590,14 @@ func TestCallExp(t *testing.T) {
 		inp := `{{ 3.int() }}`
 
 		TokenizeString(t, inp, []token.Token{
-			{Type: token.LBRACES, Lit: "{{", Pos: position.Pos{EndCol: 1}},
-			{Type: token.INT, Lit: "3", Pos: position.Pos{StartCol: 3, EndCol: 3}},
-			{Type: token.DOT, Lit: ".", Pos: position.Pos{StartCol: 4, EndCol: 4}},
-			{Type: token.IDENT, Lit: "int", Pos: position.Pos{StartCol: 5, EndCol: 7}},
-			{Type: token.LPAREN, Lit: "(", Pos: position.Pos{StartCol: 8, EndCol: 8}},
-			{Type: token.RPAREN, Lit: ")", Pos: position.Pos{StartCol: 9, EndCol: 9}},
-			{Type: token.RBRACES, Lit: "}}", Pos: position.Pos{StartCol: 11, EndCol: 12}},
-			{Type: token.EOF, Lit: "", Pos: position.Pos{StartCol: 13, EndCol: 13}},
+			{Type: token.LBRACES, Lit: "{{", Pos: &position.Pos{EndCol: 1}},
+			{Type: token.INT, Lit: "3", Pos: &position.Pos{StartCol: 3, EndCol: 3}},
+			{Type: token.DOT, Lit: ".", Pos: &position.Pos{StartCol: 4, EndCol: 4}},
+			{Type: token.IDENT, Lit: "int", Pos: &position.Pos{StartCol: 5, EndCol: 7}},
+			{Type: token.LPAREN, Lit: "(", Pos: &position.Pos{StartCol: 8, EndCol: 8}},
+			{Type: token.RPAREN, Lit: ")", Pos: &position.Pos{StartCol: 9, EndCol: 9}},
+			{Type: token.RBRACES, Lit: "}}", Pos: &position.Pos{StartCol: 11, EndCol: 12}},
+			{Type: token.EOF, Lit: "", Pos: &position.Pos{StartCol: 13, EndCol: 13}},
 		})
 	})
 }
@@ -606,20 +606,20 @@ func TestForLoopStatement(t *testing.T) {
 	inp := `@for(i = 0; i < 10; i++)`
 
 	TokenizeString(t, inp, []token.Token{
-		{Type: token.FOR, Lit: "@for", Pos: position.Pos{EndCol: 3}},
-		{Type: token.LPAREN, Lit: "(", Pos: position.Pos{StartCol: 4, EndCol: 4}},
-		{Type: token.IDENT, Lit: "i", Pos: position.Pos{StartCol: 5, EndCol: 5}},
-		{Type: token.ASSIGN, Lit: "=", Pos: position.Pos{StartCol: 7, EndCol: 7}},
-		{Type: token.INT, Lit: "0", Pos: position.Pos{StartCol: 9, EndCol: 9}},
-		{Type: token.SEMI, Lit: ";", Pos: position.Pos{StartCol: 10, EndCol: 10}},
-		{Type: token.IDENT, Lit: "i", Pos: position.Pos{StartCol: 12, EndCol: 12}},
-		{Type: token.LTHAN, Lit: "<", Pos: position.Pos{StartCol: 14, EndCol: 14}},
-		{Type: token.INT, Lit: "10", Pos: position.Pos{StartCol: 16, EndCol: 17}},
-		{Type: token.SEMI, Lit: ";", Pos: position.Pos{StartCol: 18, EndCol: 18}},
-		{Type: token.IDENT, Lit: "i", Pos: position.Pos{StartCol: 20, EndCol: 20}},
-		{Type: token.INC, Lit: "++", Pos: position.Pos{StartCol: 21, EndCol: 22}},
-		{Type: token.RPAREN, Lit: ")", Pos: position.Pos{StartCol: 23, EndCol: 23}},
-		{Type: token.EOF, Lit: "", Pos: position.Pos{StartCol: 24, EndCol: 24}},
+		{Type: token.FOR, Lit: "@for", Pos: &position.Pos{EndCol: 3}},
+		{Type: token.LPAREN, Lit: "(", Pos: &position.Pos{StartCol: 4, EndCol: 4}},
+		{Type: token.IDENT, Lit: "i", Pos: &position.Pos{StartCol: 5, EndCol: 5}},
+		{Type: token.ASSIGN, Lit: "=", Pos: &position.Pos{StartCol: 7, EndCol: 7}},
+		{Type: token.INT, Lit: "0", Pos: &position.Pos{StartCol: 9, EndCol: 9}},
+		{Type: token.SEMI, Lit: ";", Pos: &position.Pos{StartCol: 10, EndCol: 10}},
+		{Type: token.IDENT, Lit: "i", Pos: &position.Pos{StartCol: 12, EndCol: 12}},
+		{Type: token.LTHAN, Lit: "<", Pos: &position.Pos{StartCol: 14, EndCol: 14}},
+		{Type: token.INT, Lit: "10", Pos: &position.Pos{StartCol: 16, EndCol: 17}},
+		{Type: token.SEMI, Lit: ";", Pos: &position.Pos{StartCol: 18, EndCol: 18}},
+		{Type: token.IDENT, Lit: "i", Pos: &position.Pos{StartCol: 20, EndCol: 20}},
+		{Type: token.INC, Lit: "++", Pos: &position.Pos{StartCol: 21, EndCol: 22}},
+		{Type: token.RPAREN, Lit: ")", Pos: &position.Pos{StartCol: 23, EndCol: 23}},
+		{Type: token.EOF, Lit: "", Pos: &position.Pos{StartCol: 24, EndCol: 24}},
 	})
 }
 
@@ -627,31 +627,31 @@ func TestEachLoopStatement(t *testing.T) {
 	inp := `@each(n in [1, 2, 3])@if(n == 2)@break@end{{ n }}@end`
 
 	TokenizeString(t, inp, []token.Token{
-		{Type: token.EACH, Lit: "@each", Pos: position.Pos{EndCol: 4}},
-		{Type: token.LPAREN, Lit: "(", Pos: position.Pos{StartCol: 5, EndCol: 5}},
-		{Type: token.IDENT, Lit: "n", Pos: position.Pos{StartCol: 6, EndCol: 6}},
-		{Type: token.IN, Lit: "in", Pos: position.Pos{StartCol: 8, EndCol: 9}},
-		{Type: token.LBRACKET, Lit: "[", Pos: position.Pos{StartCol: 11, EndCol: 11}},
-		{Type: token.INT, Lit: "1", Pos: position.Pos{StartCol: 12, EndCol: 12}},
-		{Type: token.COMMA, Lit: ",", Pos: position.Pos{StartCol: 13, EndCol: 13}},
-		{Type: token.INT, Lit: "2", Pos: position.Pos{StartCol: 15, EndCol: 15}},
-		{Type: token.COMMA, Lit: ",", Pos: position.Pos{StartCol: 16, EndCol: 16}},
-		{Type: token.INT, Lit: "3", Pos: position.Pos{StartCol: 18, EndCol: 18}},
-		{Type: token.RBRACKET, Lit: "]", Pos: position.Pos{StartCol: 19, EndCol: 19}},
-		{Type: token.RPAREN, Lit: ")", Pos: position.Pos{StartCol: 20, EndCol: 20}},
-		{Type: token.IF, Lit: "@if", Pos: position.Pos{StartCol: 21, EndCol: 23}},
-		{Type: token.LPAREN, Lit: "(", Pos: position.Pos{StartCol: 24, EndCol: 24}},
-		{Type: token.IDENT, Lit: "n", Pos: position.Pos{StartCol: 25, EndCol: 25}},
-		{Type: token.EQ, Lit: "==", Pos: position.Pos{StartCol: 27, EndCol: 28}},
-		{Type: token.INT, Lit: "2", Pos: position.Pos{StartCol: 30, EndCol: 30}},
-		{Type: token.RPAREN, Lit: ")", Pos: position.Pos{StartCol: 31, EndCol: 31}},
-		{Type: token.BREAK, Lit: "@break", Pos: position.Pos{StartCol: 32, EndCol: 37}},
-		{Type: token.END, Lit: "@end", Pos: position.Pos{StartCol: 38, EndCol: 41}},
-		{Type: token.LBRACES, Lit: "{{", Pos: position.Pos{StartCol: 42, EndCol: 43}},
-		{Type: token.IDENT, Lit: "n", Pos: position.Pos{StartCol: 45, EndCol: 45}},
-		{Type: token.RBRACES, Lit: "}}", Pos: position.Pos{StartCol: 47, EndCol: 48}},
-		{Type: token.END, Lit: "@end", Pos: position.Pos{StartCol: 49, EndCol: 52}},
-		{Type: token.EOF, Lit: "", Pos: position.Pos{StartCol: 53, EndCol: 53}},
+		{Type: token.EACH, Lit: "@each", Pos: &position.Pos{EndCol: 4}},
+		{Type: token.LPAREN, Lit: "(", Pos: &position.Pos{StartCol: 5, EndCol: 5}},
+		{Type: token.IDENT, Lit: "n", Pos: &position.Pos{StartCol: 6, EndCol: 6}},
+		{Type: token.IN, Lit: "in", Pos: &position.Pos{StartCol: 8, EndCol: 9}},
+		{Type: token.LBRACKET, Lit: "[", Pos: &position.Pos{StartCol: 11, EndCol: 11}},
+		{Type: token.INT, Lit: "1", Pos: &position.Pos{StartCol: 12, EndCol: 12}},
+		{Type: token.COMMA, Lit: ",", Pos: &position.Pos{StartCol: 13, EndCol: 13}},
+		{Type: token.INT, Lit: "2", Pos: &position.Pos{StartCol: 15, EndCol: 15}},
+		{Type: token.COMMA, Lit: ",", Pos: &position.Pos{StartCol: 16, EndCol: 16}},
+		{Type: token.INT, Lit: "3", Pos: &position.Pos{StartCol: 18, EndCol: 18}},
+		{Type: token.RBRACKET, Lit: "]", Pos: &position.Pos{StartCol: 19, EndCol: 19}},
+		{Type: token.RPAREN, Lit: ")", Pos: &position.Pos{StartCol: 20, EndCol: 20}},
+		{Type: token.IF, Lit: "@if", Pos: &position.Pos{StartCol: 21, EndCol: 23}},
+		{Type: token.LPAREN, Lit: "(", Pos: &position.Pos{StartCol: 24, EndCol: 24}},
+		{Type: token.IDENT, Lit: "n", Pos: &position.Pos{StartCol: 25, EndCol: 25}},
+		{Type: token.EQ, Lit: "==", Pos: &position.Pos{StartCol: 27, EndCol: 28}},
+		{Type: token.INT, Lit: "2", Pos: &position.Pos{StartCol: 30, EndCol: 30}},
+		{Type: token.RPAREN, Lit: ")", Pos: &position.Pos{StartCol: 31, EndCol: 31}},
+		{Type: token.BREAK, Lit: "@break", Pos: &position.Pos{StartCol: 32, EndCol: 37}},
+		{Type: token.END, Lit: "@end", Pos: &position.Pos{StartCol: 38, EndCol: 41}},
+		{Type: token.LBRACES, Lit: "{{", Pos: &position.Pos{StartCol: 42, EndCol: 43}},
+		{Type: token.IDENT, Lit: "n", Pos: &position.Pos{StartCol: 45, EndCol: 45}},
+		{Type: token.RBRACES, Lit: "}}", Pos: &position.Pos{StartCol: 47, EndCol: 48}},
+		{Type: token.END, Lit: "@end", Pos: &position.Pos{StartCol: 49, EndCol: 52}},
+		{Type: token.EOF, Lit: "", Pos: &position.Pos{StartCol: 53, EndCol: 53}},
 	})
 }
 
@@ -659,18 +659,18 @@ func TestObjStmt(t *testing.T) {
 	inp := `{{ {"father": {"name": "John"}} }}`
 
 	TokenizeString(t, inp, []token.Token{
-		{Type: token.LBRACES, Lit: "{{", Pos: position.Pos{EndCol: 1}},
-		{Type: token.LBRACE, Lit: "{", Pos: position.Pos{StartCol: 3, EndCol: 3}},
-		{Type: token.STR, Lit: "father", Pos: position.Pos{StartCol: 4, EndCol: 11}},
-		{Type: token.COLON, Lit: ":", Pos: position.Pos{StartCol: 12, EndCol: 12}},
-		{Type: token.LBRACE, Lit: "{", Pos: position.Pos{StartCol: 14, EndCol: 14}},
-		{Type: token.STR, Lit: "name", Pos: position.Pos{StartCol: 15, EndCol: 20}},
-		{Type: token.COLON, Lit: ":", Pos: position.Pos{StartCol: 21, EndCol: 21}},
-		{Type: token.STR, Lit: "John", Pos: position.Pos{StartCol: 23, EndCol: 28}},
-		{Type: token.RBRACE, Lit: "}", Pos: position.Pos{StartCol: 29, EndCol: 29}},
-		{Type: token.RBRACE, Lit: "}", Pos: position.Pos{StartCol: 30, EndCol: 30}},
-		{Type: token.RBRACES, Lit: "}}", Pos: position.Pos{StartCol: 32, EndCol: 33}},
-		{Type: token.EOF, Lit: "", Pos: position.Pos{StartCol: 34, EndCol: 34}},
+		{Type: token.LBRACES, Lit: "{{", Pos: &position.Pos{EndCol: 1}},
+		{Type: token.LBRACE, Lit: "{", Pos: &position.Pos{StartCol: 3, EndCol: 3}},
+		{Type: token.STR, Lit: "father", Pos: &position.Pos{StartCol: 4, EndCol: 11}},
+		{Type: token.COLON, Lit: ":", Pos: &position.Pos{StartCol: 12, EndCol: 12}},
+		{Type: token.LBRACE, Lit: "{", Pos: &position.Pos{StartCol: 14, EndCol: 14}},
+		{Type: token.STR, Lit: "name", Pos: &position.Pos{StartCol: 15, EndCol: 20}},
+		{Type: token.COLON, Lit: ":", Pos: &position.Pos{StartCol: 21, EndCol: 21}},
+		{Type: token.STR, Lit: "John", Pos: &position.Pos{StartCol: 23, EndCol: 28}},
+		{Type: token.RBRACE, Lit: "}", Pos: &position.Pos{StartCol: 29, EndCol: 29}},
+		{Type: token.RBRACE, Lit: "}", Pos: &position.Pos{StartCol: 30, EndCol: 30}},
+		{Type: token.RBRACES, Lit: "}}", Pos: &position.Pos{StartCol: 32, EndCol: 33}},
+		{Type: token.EOF, Lit: "", Pos: &position.Pos{StartCol: 34, EndCol: 34}},
 	})
 }
 
@@ -678,24 +678,24 @@ func TestBreakDirectives(t *testing.T) {
 	inp := `@breakif(true) @break @continue @continueif(false)`
 
 	TokenizeString(t, inp, []token.Token{
-		{Type: token.BREAKIF, Lit: "@breakif", Pos: position.Pos{EndCol: 7}},
-		{Type: token.LPAREN, Lit: "(", Pos: position.Pos{StartCol: 8, EndCol: 8}},
-		{Type: token.TRUE, Lit: "true", Pos: position.Pos{StartCol: 9, EndCol: 12}},
-		{Type: token.RPAREN, Lit: ")", Pos: position.Pos{StartCol: 13, EndCol: 13}},
-		{Type: token.TEXT, Lit: " ", Pos: position.Pos{StartCol: 14, EndCol: 14}},
-		{Type: token.BREAK, Lit: "@break", Pos: position.Pos{StartCol: 15, EndCol: 20}},
-		{Type: token.TEXT, Lit: " ", Pos: position.Pos{StartCol: 21, EndCol: 21}},
-		{Type: token.CONTINUE, Lit: "@continue", Pos: position.Pos{StartCol: 22, EndCol: 30}},
-		{Type: token.TEXT, Lit: " ", Pos: position.Pos{StartCol: 31, EndCol: 31}},
+		{Type: token.BREAKIF, Lit: "@breakif", Pos: &position.Pos{EndCol: 7}},
+		{Type: token.LPAREN, Lit: "(", Pos: &position.Pos{StartCol: 8, EndCol: 8}},
+		{Type: token.TRUE, Lit: "true", Pos: &position.Pos{StartCol: 9, EndCol: 12}},
+		{Type: token.RPAREN, Lit: ")", Pos: &position.Pos{StartCol: 13, EndCol: 13}},
+		{Type: token.TEXT, Lit: " ", Pos: &position.Pos{StartCol: 14, EndCol: 14}},
+		{Type: token.BREAK, Lit: "@break", Pos: &position.Pos{StartCol: 15, EndCol: 20}},
+		{Type: token.TEXT, Lit: " ", Pos: &position.Pos{StartCol: 21, EndCol: 21}},
+		{Type: token.CONTINUE, Lit: "@continue", Pos: &position.Pos{StartCol: 22, EndCol: 30}},
+		{Type: token.TEXT, Lit: " ", Pos: &position.Pos{StartCol: 31, EndCol: 31}},
 		{
 			Type: token.CONTINUEIF,
 			Lit:  "@continueif",
-			Pos:  position.Pos{StartCol: 32, EndCol: 42},
+			Pos:  &position.Pos{StartCol: 32, EndCol: 42},
 		},
-		{Type: token.LPAREN, Lit: "(", Pos: position.Pos{StartCol: 43, EndCol: 43}},
-		{Type: token.FALSE, Lit: "false", Pos: position.Pos{StartCol: 44, EndCol: 48}},
-		{Type: token.RPAREN, Lit: ")", Pos: position.Pos{StartCol: 49, EndCol: 49}},
-		{Type: token.EOF, Lit: "", Pos: position.Pos{StartCol: 50, EndCol: 50}},
+		{Type: token.LPAREN, Lit: "(", Pos: &position.Pos{StartCol: 43, EndCol: 43}},
+		{Type: token.FALSE, Lit: "false", Pos: &position.Pos{StartCol: 44, EndCol: 48}},
+		{Type: token.RPAREN, Lit: ")", Pos: &position.Pos{StartCol: 49, EndCol: 49}},
+		{Type: token.EOF, Lit: "", Pos: &position.Pos{StartCol: 50, EndCol: 50}},
 	})
 }
 
@@ -703,21 +703,21 @@ func TestComponentDirective(t *testing.T) {
 	inp := `@component("components/book-card", { c: card })`
 
 	TokenizeString(t, inp, []token.Token{
-		{Type: token.COMPONENT, Lit: "@component", Pos: position.Pos{EndCol: 9}},
-		{Type: token.LPAREN, Lit: "(", Pos: position.Pos{StartCol: 10, EndCol: 10}},
+		{Type: token.COMPONENT, Lit: "@component", Pos: &position.Pos{EndCol: 9}},
+		{Type: token.LPAREN, Lit: "(", Pos: &position.Pos{StartCol: 10, EndCol: 10}},
 		{
 			Type: token.STR,
 			Lit:  "components/book-card",
-			Pos:  position.Pos{StartCol: 11, EndCol: 32},
+			Pos:  &position.Pos{StartCol: 11, EndCol: 32},
 		},
-		{Type: token.COMMA, Lit: ",", Pos: position.Pos{StartCol: 33, EndCol: 33}},
-		{Type: token.LBRACE, Lit: "{", Pos: position.Pos{StartCol: 35, EndCol: 35}},
-		{Type: token.IDENT, Lit: "c", Pos: position.Pos{StartCol: 37, EndCol: 37}},
-		{Type: token.COLON, Lit: ":", Pos: position.Pos{StartCol: 38, EndCol: 38}},
-		{Type: token.IDENT, Lit: "card", Pos: position.Pos{StartCol: 40, EndCol: 43}},
-		{Type: token.RBRACE, Lit: "}", Pos: position.Pos{StartCol: 45, EndCol: 45}},
-		{Type: token.RPAREN, Lit: ")", Pos: position.Pos{StartCol: 46, EndCol: 46}},
-		{Type: token.EOF, Lit: "", Pos: position.Pos{StartCol: 47, EndCol: 47}},
+		{Type: token.COMMA, Lit: ",", Pos: &position.Pos{StartCol: 33, EndCol: 33}},
+		{Type: token.LBRACE, Lit: "{", Pos: &position.Pos{StartCol: 35, EndCol: 35}},
+		{Type: token.IDENT, Lit: "c", Pos: &position.Pos{StartCol: 37, EndCol: 37}},
+		{Type: token.COLON, Lit: ":", Pos: &position.Pos{StartCol: 38, EndCol: 38}},
+		{Type: token.IDENT, Lit: "card", Pos: &position.Pos{StartCol: 40, EndCol: 43}},
+		{Type: token.RBRACE, Lit: "}", Pos: &position.Pos{StartCol: 45, EndCol: 45}},
+		{Type: token.RPAREN, Lit: ")", Pos: &position.Pos{StartCol: 46, EndCol: 46}},
+		{Type: token.EOF, Lit: "", Pos: &position.Pos{StartCol: 47, EndCol: 47}},
 	})
 }
 
@@ -726,11 +726,11 @@ func TestComponentSlotDirective(t *testing.T) {
 		inp := `@slot ("top")`
 
 		TokenizeString(t, inp, []token.Token{
-			{Type: token.SLOT, Lit: "@slot", Pos: position.Pos{StartCol: 0, EndCol: 4}},
-			{Type: token.LPAREN, Lit: "(", Pos: position.Pos{StartCol: 6, EndCol: 6}},
-			{Type: token.STR, Lit: "top", Pos: position.Pos{StartCol: 7, EndCol: 11}},
-			{Type: token.RPAREN, Lit: ")", Pos: position.Pos{StartCol: 12, EndCol: 12}},
-			{Type: token.EOF, Lit: "", Pos: position.Pos{StartCol: 13, EndCol: 13}},
+			{Type: token.SLOT, Lit: "@slot", Pos: &position.Pos{StartCol: 0, EndCol: 4}},
+			{Type: token.LPAREN, Lit: "(", Pos: &position.Pos{StartCol: 6, EndCol: 6}},
+			{Type: token.STR, Lit: "top", Pos: &position.Pos{StartCol: 7, EndCol: 11}},
+			{Type: token.RPAREN, Lit: ")", Pos: &position.Pos{StartCol: 12, EndCol: 12}},
+			{Type: token.EOF, Lit: "", Pos: &position.Pos{StartCol: 13, EndCol: 13}},
 		})
 	})
 
@@ -738,11 +738,11 @@ func TestComponentSlotDirective(t *testing.T) {
 		inp := `@slot   ("top")`
 
 		TokenizeString(t, inp, []token.Token{
-			{Type: token.SLOT, Lit: "@slot", Pos: position.Pos{StartCol: 0, EndCol: 4}},
-			{Type: token.LPAREN, Lit: "(", Pos: position.Pos{StartCol: 8, EndCol: 8}},
-			{Type: token.STR, Lit: "top", Pos: position.Pos{StartCol: 9, EndCol: 13}},
-			{Type: token.RPAREN, Lit: ")", Pos: position.Pos{StartCol: 14, EndCol: 14}},
-			{Type: token.EOF, Lit: "", Pos: position.Pos{StartCol: 15, EndCol: 15}},
+			{Type: token.SLOT, Lit: "@slot", Pos: &position.Pos{StartCol: 0, EndCol: 4}},
+			{Type: token.LPAREN, Lit: "(", Pos: &position.Pos{StartCol: 8, EndCol: 8}},
+			{Type: token.STR, Lit: "top", Pos: &position.Pos{StartCol: 9, EndCol: 13}},
+			{Type: token.RPAREN, Lit: ")", Pos: &position.Pos{StartCol: 14, EndCol: 14}},
+			{Type: token.EOF, Lit: "", Pos: &position.Pos{StartCol: 15, EndCol: 15}},
 		})
 	})
 
@@ -750,22 +750,22 @@ func TestComponentSlotDirective(t *testing.T) {
 		inp := `@component("card")@slot("top")<h1>Hello</h1>@end@end`
 
 		TokenizeString(t, inp, []token.Token{
-			{Type: token.COMPONENT, Lit: "@component", Pos: position.Pos{EndCol: 9}},
-			{Type: token.LPAREN, Lit: "(", Pos: position.Pos{StartCol: 10, EndCol: 10}},
-			{Type: token.STR, Lit: "card", Pos: position.Pos{StartCol: 11, EndCol: 16}},
-			{Type: token.RPAREN, Lit: ")", Pos: position.Pos{StartCol: 17, EndCol: 17}},
-			{Type: token.SLOT, Lit: "@slot", Pos: position.Pos{StartCol: 18, EndCol: 22}},
-			{Type: token.LPAREN, Lit: "(", Pos: position.Pos{StartCol: 23, EndCol: 23}},
-			{Type: token.STR, Lit: "top", Pos: position.Pos{StartCol: 24, EndCol: 28}},
-			{Type: token.RPAREN, Lit: ")", Pos: position.Pos{StartCol: 29, EndCol: 29}},
+			{Type: token.COMPONENT, Lit: "@component", Pos: &position.Pos{EndCol: 9}},
+			{Type: token.LPAREN, Lit: "(", Pos: &position.Pos{StartCol: 10, EndCol: 10}},
+			{Type: token.STR, Lit: "card", Pos: &position.Pos{StartCol: 11, EndCol: 16}},
+			{Type: token.RPAREN, Lit: ")", Pos: &position.Pos{StartCol: 17, EndCol: 17}},
+			{Type: token.SLOT, Lit: "@slot", Pos: &position.Pos{StartCol: 18, EndCol: 22}},
+			{Type: token.LPAREN, Lit: "(", Pos: &position.Pos{StartCol: 23, EndCol: 23}},
+			{Type: token.STR, Lit: "top", Pos: &position.Pos{StartCol: 24, EndCol: 28}},
+			{Type: token.RPAREN, Lit: ")", Pos: &position.Pos{StartCol: 29, EndCol: 29}},
 			{
 				Type: token.TEXT,
 				Lit:  "<h1>Hello</h1>",
-				Pos:  position.Pos{StartCol: 30, EndCol: 43},
+				Pos:  &position.Pos{StartCol: 30, EndCol: 43},
 			},
-			{Type: token.END, Lit: "@end", Pos: position.Pos{StartCol: 44, EndCol: 47}},
-			{Type: token.END, Lit: "@end", Pos: position.Pos{StartCol: 48, EndCol: 51}},
-			{Type: token.EOF, Lit: "", Pos: position.Pos{StartCol: 52, EndCol: 52}},
+			{Type: token.END, Lit: "@end", Pos: &position.Pos{StartCol: 44, EndCol: 47}},
+			{Type: token.END, Lit: "@end", Pos: &position.Pos{StartCol: 48, EndCol: 51}},
+			{Type: token.EOF, Lit: "", Pos: &position.Pos{StartCol: 52, EndCol: 52}},
 		})
 	})
 
@@ -773,15 +773,15 @@ func TestComponentSlotDirective(t *testing.T) {
 		inp := `@component ("card")@slotNICE@end@end`
 
 		TokenizeString(t, inp, []token.Token{
-			{Type: token.COMPONENT, Lit: "@component", Pos: position.Pos{EndCol: 9}},
-			{Type: token.LPAREN, Lit: "(", Pos: position.Pos{StartCol: 11, EndCol: 11}},
-			{Type: token.STR, Lit: "card", Pos: position.Pos{StartCol: 12, EndCol: 17}},
-			{Type: token.RPAREN, Lit: ")", Pos: position.Pos{StartCol: 18, EndCol: 18}},
-			{Type: token.SLOT, Lit: "@slot", Pos: position.Pos{StartCol: 19, EndCol: 23}},
-			{Type: token.TEXT, Lit: "NICE", Pos: position.Pos{StartCol: 24, EndCol: 27}},
-			{Type: token.END, Lit: "@end", Pos: position.Pos{StartCol: 28, EndCol: 31}},
-			{Type: token.END, Lit: "@end", Pos: position.Pos{StartCol: 32, EndCol: 35}},
-			{Type: token.EOF, Lit: "", Pos: position.Pos{StartCol: 36, EndCol: 36}},
+			{Type: token.COMPONENT, Lit: "@component", Pos: &position.Pos{EndCol: 9}},
+			{Type: token.LPAREN, Lit: "(", Pos: &position.Pos{StartCol: 11, EndCol: 11}},
+			{Type: token.STR, Lit: "card", Pos: &position.Pos{StartCol: 12, EndCol: 17}},
+			{Type: token.RPAREN, Lit: ")", Pos: &position.Pos{StartCol: 18, EndCol: 18}},
+			{Type: token.SLOT, Lit: "@slot", Pos: &position.Pos{StartCol: 19, EndCol: 23}},
+			{Type: token.TEXT, Lit: "NICE", Pos: &position.Pos{StartCol: 24, EndCol: 27}},
+			{Type: token.END, Lit: "@end", Pos: &position.Pos{StartCol: 28, EndCol: 31}},
+			{Type: token.END, Lit: "@end", Pos: &position.Pos{StartCol: 32, EndCol: 35}},
+			{Type: token.EOF, Lit: "", Pos: &position.Pos{StartCol: 36, EndCol: 36}},
 		})
 	})
 }
@@ -792,30 +792,30 @@ func TestComments(t *testing.T) {
 		inp := `<div>{{-- This is a comment --}}</div>`
 
 		TokenizeString(t, inp, []token.Token{
-			{Type: token.TEXT, Lit: "<div>", Pos: position.Pos{EndCol: 4}},
-			{Type: token.TEXT, Lit: "</div>", Pos: position.Pos{StartCol: 32, EndCol: 37}},
-			{Type: token.EOF, Lit: "", Pos: position.Pos{StartCol: 38, EndCol: 38}},
+			{Type: token.TEXT, Lit: "<div>", Pos: &position.Pos{EndCol: 4}},
+			{Type: token.TEXT, Lit: "</div>", Pos: &position.Pos{StartCol: 32, EndCol: 37}},
+			{Type: token.EOF, Lit: "", Pos: &position.Pos{StartCol: 38, EndCol: 38}},
 		})
 	})
 
 	t.Run("Comment with braces inside", func(t *testing.T) {
 		inp := `{{-- {{ --}}`
 		TokenizeString(t, inp, []token.Token{
-			{Type: token.EOF, Lit: "", Pos: position.Pos{StartCol: 12, EndCol: 12}},
+			{Type: token.EOF, Lit: "", Pos: &position.Pos{StartCol: 12, EndCol: 12}},
 		})
 	})
 
 	t.Run("Directive with comment", func(t *testing.T) {
 		inp := `{{-- @each(u in users){{ u }}@end --}}`
 		TokenizeString(t, inp, []token.Token{
-			{Type: token.EOF, Lit: "", Pos: position.Pos{StartCol: 38, EndCol: 38}},
+			{Type: token.EOF, Lit: "", Pos: &position.Pos{StartCol: 38, EndCol: 38}},
 		})
 	})
 
 	t.Run("Nested comment", func(t *testing.T) {
 		inp := `{{-- Contains {{-- and --}} inside --}}`
 		TokenizeString(t, inp, []token.Token{
-			{Type: token.EOF, Lit: "", Pos: position.Pos{StartCol: 39, EndCol: 39}},
+			{Type: token.EOF, Lit: "", Pos: &position.Pos{StartCol: 39, EndCol: 39}},
 		})
 	})
 }
@@ -824,14 +824,14 @@ func TestLexerCanReadIllegalDirectives(t *testing.T) {
 	inp := `@if(false)@dump(@end`
 
 	TokenizeString(t, inp, []token.Token{
-		{Type: token.IF, Lit: "@if", Pos: position.Pos{EndCol: 2}},
-		{Type: token.LPAREN, Lit: "(", Pos: position.Pos{StartCol: 3, EndCol: 3}},
-		{Type: token.FALSE, Lit: "false", Pos: position.Pos{StartCol: 4, EndCol: 8}},
-		{Type: token.RPAREN, Lit: ")", Pos: position.Pos{StartCol: 9, EndCol: 9}},
-		{Type: token.DUMP, Lit: "@dump", Pos: position.Pos{StartCol: 10, EndCol: 14}},
-		{Type: token.LPAREN, Lit: "(", Pos: position.Pos{StartCol: 15, EndCol: 15}},
-		{Type: token.END, Lit: "@end", Pos: position.Pos{StartCol: 16, EndCol: 19}},
-		{Type: token.EOF, Lit: "", Pos: position.Pos{StartCol: 20, EndCol: 20}},
+		{Type: token.IF, Lit: "@if", Pos: &position.Pos{EndCol: 2}},
+		{Type: token.LPAREN, Lit: "(", Pos: &position.Pos{StartCol: 3, EndCol: 3}},
+		{Type: token.FALSE, Lit: "false", Pos: &position.Pos{StartCol: 4, EndCol: 8}},
+		{Type: token.RPAREN, Lit: ")", Pos: &position.Pos{StartCol: 9, EndCol: 9}},
+		{Type: token.DUMP, Lit: "@dump", Pos: &position.Pos{StartCol: 10, EndCol: 14}},
+		{Type: token.LPAREN, Lit: "(", Pos: &position.Pos{StartCol: 15, EndCol: 15}},
+		{Type: token.END, Lit: "@end", Pos: &position.Pos{StartCol: 16, EndCol: 19}},
+		{Type: token.EOF, Lit: "", Pos: &position.Pos{StartCol: 20, EndCol: 20}},
 	})
 }
 
@@ -839,24 +839,24 @@ func TestReserveInsideSlot(t *testing.T) {
 	inp := `<head>@component('comp')@slot@reserve('title')@end@end</head>`
 
 	TokenizeString(t, inp, []token.Token{
-		{Type: token.TEXT, Lit: "<head>", Pos: position.Pos{EndCol: 5}},
+		{Type: token.TEXT, Lit: "<head>", Pos: &position.Pos{EndCol: 5}},
 		{
 			Type: token.COMPONENT,
 			Lit:  "@component",
-			Pos:  position.Pos{StartCol: 6, EndCol: 15},
+			Pos:  &position.Pos{StartCol: 6, EndCol: 15},
 		},
-		{Type: token.LPAREN, Lit: "(", Pos: position.Pos{StartCol: 16, EndCol: 16}},
-		{Type: token.STR, Lit: "comp", Pos: position.Pos{StartCol: 17, EndCol: 22}},
-		{Type: token.RPAREN, Lit: ")", Pos: position.Pos{StartCol: 23, EndCol: 23}},
-		{Type: token.SLOT, Lit: "@slot", Pos: position.Pos{StartCol: 24, EndCol: 28}},
-		{Type: token.RESERVE, Lit: "@reserve", Pos: position.Pos{StartCol: 29, EndCol: 36}},
-		{Type: token.LPAREN, Lit: "(", Pos: position.Pos{StartCol: 37, EndCol: 37}},
-		{Type: token.STR, Lit: "title", Pos: position.Pos{StartCol: 38, EndCol: 44}},
-		{Type: token.RPAREN, Lit: ")", Pos: position.Pos{StartCol: 45, EndCol: 45}},
-		{Type: token.END, Lit: "@end", Pos: position.Pos{StartCol: 46, EndCol: 49}},
-		{Type: token.END, Lit: "@end", Pos: position.Pos{StartCol: 50, EndCol: 53}},
-		{Type: token.TEXT, Lit: "</head>", Pos: position.Pos{StartCol: 54, EndCol: 60}},
-		{Type: token.EOF, Lit: "", Pos: position.Pos{StartCol: 61, EndCol: 61}},
+		{Type: token.LPAREN, Lit: "(", Pos: &position.Pos{StartCol: 16, EndCol: 16}},
+		{Type: token.STR, Lit: "comp", Pos: &position.Pos{StartCol: 17, EndCol: 22}},
+		{Type: token.RPAREN, Lit: ")", Pos: &position.Pos{StartCol: 23, EndCol: 23}},
+		{Type: token.SLOT, Lit: "@slot", Pos: &position.Pos{StartCol: 24, EndCol: 28}},
+		{Type: token.RESERVE, Lit: "@reserve", Pos: &position.Pos{StartCol: 29, EndCol: 36}},
+		{Type: token.LPAREN, Lit: "(", Pos: &position.Pos{StartCol: 37, EndCol: 37}},
+		{Type: token.STR, Lit: "title", Pos: &position.Pos{StartCol: 38, EndCol: 44}},
+		{Type: token.RPAREN, Lit: ")", Pos: &position.Pos{StartCol: 45, EndCol: 45}},
+		{Type: token.END, Lit: "@end", Pos: &position.Pos{StartCol: 46, EndCol: 49}},
+		{Type: token.END, Lit: "@end", Pos: &position.Pos{StartCol: 50, EndCol: 53}},
+		{Type: token.TEXT, Lit: "</head>", Pos: &position.Pos{StartCol: 54, EndCol: 60}},
+		{Type: token.EOF, Lit: "", Pos: &position.Pos{StartCol: 61, EndCol: 61}},
 	})
 }
 
@@ -864,12 +864,12 @@ func TestSlotIfDirective(t *testing.T) {
 	inp := `@slotif(true)HERE@end`
 
 	TokenizeString(t, inp, []token.Token{
-		{Type: token.SLOTIF, Lit: "@slotif", Pos: position.Pos{EndCol: 6}},
-		{Type: token.LPAREN, Lit: "(", Pos: position.Pos{StartCol: 7, EndCol: 7}},
-		{Type: token.TRUE, Lit: "true", Pos: position.Pos{StartCol: 8, EndCol: 11}},
-		{Type: token.RPAREN, Lit: ")", Pos: position.Pos{StartCol: 12, EndCol: 12}},
-		{Type: token.TEXT, Lit: "HERE", Pos: position.Pos{StartCol: 13, EndCol: 16}},
-		{Type: token.END, Lit: "@end", Pos: position.Pos{StartCol: 17, EndCol: 20}},
-		{Type: token.EOF, Lit: "", Pos: position.Pos{StartCol: 21, EndCol: 21}},
+		{Type: token.SLOTIF, Lit: "@slotif", Pos: &position.Pos{EndCol: 6}},
+		{Type: token.LPAREN, Lit: "(", Pos: &position.Pos{StartCol: 7, EndCol: 7}},
+		{Type: token.TRUE, Lit: "true", Pos: &position.Pos{StartCol: 8, EndCol: 11}},
+		{Type: token.RPAREN, Lit: ")", Pos: &position.Pos{StartCol: 12, EndCol: 12}},
+		{Type: token.TEXT, Lit: "HERE", Pos: &position.Pos{StartCol: 13, EndCol: 16}},
+		{Type: token.END, Lit: "@end", Pos: &position.Pos{StartCol: 17, EndCol: 20}},
+		{Type: token.EOF, Lit: "", Pos: &position.Pos{StartCol: 21, EndCol: 21}},
 	})
 }

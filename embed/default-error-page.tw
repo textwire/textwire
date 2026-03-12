@@ -42,7 +42,7 @@
         @if(debugMode)
             <h1 class="title">Error!</h1>
             <p class="subtitle">
-                Error in <a href="vscode://file/{{ path }}:{{ line }}" title="Open in VSCode editor">{{ path }}:{{ line }}</a>
+                Error in <a href="vscode://file/{{ path }}:{{ line }}:{{ col }}" title="Open in VSCode editor">{{ path }}:{{ line }}:{{ col }}</a>
             </p>
             <p class="subtitle">{{ message }}</p>
         @else

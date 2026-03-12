@@ -315,7 +315,7 @@ func (l *Lexer) newToken(tokType token.TokenType, literal string) token.Token {
 		endLine = l.prevLine
 	}
 
-	pos := position.Pos{
+	pos := &position.Pos{
 		StartCol:  l.startCol,
 		EndCol:    endCol,
 		StartLine: l.startLine,

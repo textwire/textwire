@@ -10,7 +10,7 @@ func TestTokenContainsPosition(t *testing.T) {
 	tokenVar := Token{
 		Type: IDENT,
 		Lit:  "foo",
-		Pos: position.Pos{
+		Pos: &position.Pos{
 			StartLine: 4,
 			StartCol:  5,
 			EndLine:   4,
@@ -21,9 +21,8 @@ func TestTokenContainsPosition(t *testing.T) {
 	tokenText := Token{
 		Type: TEXT,
 		Lit:  "<div>\n    <h1>Hello</h1>\n</div>",
-		Pos: position.Pos{
+		Pos: &position.Pos{
 			StartLine: 2,
-			StartCol:  0,
 			EndLine:   4,
 			EndCol:    5,
 		},
@@ -51,11 +50,9 @@ func TestTokenContainsPosition(t *testing.T) {
 			token: Token{
 				Type: IDENT,
 				Lit:  "foo",
-				Pos: position.Pos{
-					StartLine: 0,
-					StartCol:  0,
-					EndLine:   0,
-					EndCol:    2,
+				Pos: &position.Pos{
+					EndLine: 0,
+					EndCol:  2,
 				},
 			},
 			expect: true,

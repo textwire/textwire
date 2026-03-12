@@ -40,7 +40,7 @@ func TestParseExpressionStatement(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	err = testTokPosition(infixExpr.TokPos(), position.Pos{
+	err = testTokPosition(infixExpr.TokPos(), &position.Pos{
 		StartCol: 3,
 		EndCol:   7,
 	})
@@ -66,7 +66,7 @@ func TestParseIntExpr(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	err = testTokPosition(intExpr.TokPos(), position.Pos{
+	err = testTokPosition(intExpr.TokPos(), &position.Pos{
 		StartCol: 3,
 		EndCol:   5,
 	})
@@ -92,7 +92,7 @@ func TestParseFloatExpr(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	err = testTokPosition(floatExpr.TokPos(), position.Pos{
+	err = testTokPosition(floatExpr.TokPos(), &position.Pos{
 		StartCol: 3,
 		EndCol:   9,
 	})
@@ -118,7 +118,7 @@ func TestParseNilExpr(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	err = testTokPosition(nilExpr.TokPos(), position.Pos{
+	err = testTokPosition(nilExpr.TokPos(), &position.Pos{
 		StartCol: 3,
 		EndCol:   5,
 	})
@@ -151,7 +151,7 @@ func TestParseStrExpr(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		err = testTokPosition(strExpr.TokPos(), position.Pos{
+		err = testTokPosition(strExpr.TokPos(), &position.Pos{
 			StartCol: tc.startCol,
 			EndCol:   tc.endCol,
 		})
@@ -195,7 +195,7 @@ func TestParseInfixExpression(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	err = testTokPosition(infixExpr.TokPos(), position.Pos{
+	err = testTokPosition(infixExpr.TokPos(), &position.Pos{
 		StartCol: 3,
 		EndCol:   7,
 	})
@@ -213,7 +213,7 @@ func TestParseGroupedExpression(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	err = testTokPosition(infixExpr.TokPos(), position.Pos{
+	err = testTokPosition(infixExpr.TokPos(), &position.Pos{
 		StartCol: 3,
 		EndCol:   13,
 	})
@@ -279,7 +279,7 @@ func TestParseInfixExp(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		err = testTokPosition(infixExpr.TokPos(), position.Pos{
+		err = testTokPosition(infixExpr.TokPos(), &position.Pos{
 			StartCol: 3,
 			EndCol:   tc.endCol,
 		})
@@ -320,7 +320,7 @@ func TestParseBooleanExpression(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		err = testTokPosition(boolExpr.TokPos(), position.Pos{
+		err = testTokPosition(boolExpr.TokPos(), &position.Pos{
 			StartCol: tc.startCol,
 			EndCol:   tc.endCol,
 		})
@@ -360,7 +360,7 @@ func TestParsePrefixExp(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		err = testTokPosition(prefixExpr.TokPos(), position.Pos{
+		err = testTokPosition(prefixExpr.TokPos(), &position.Pos{
 			StartCol: 3,
 			EndCol:   tc.endCol,
 		})
@@ -491,28 +491,28 @@ func TestErrorHandling(t *testing.T) {
 		{
 			id:  10,
 			inp: `{{ { "1st": "nice" }.1st }}`,
-			err: fail.New(1, "", "parser", fail.ErrObjKeyUseGet),
+			err: fail.New(nil, "", "parser", fail.ErrObjKeyUseGet),
 		},
 		{
 			id:  20,
 			inp: "{{ 5 + }}",
-			err: fail.New(1, "", "parser", fail.ErrExpectedExpression),
+			err: fail.New(nil, "", "parser", fail.ErrExpectedExpression),
 		},
 		{
 			id:  30,
 			inp: "{{ }}",
-			err: fail.New(1, "", "parser", fail.ErrEmptyBraces),
+			err: fail.New(nil, "", "parser", fail.ErrEmptyBraces),
 		},
 		{
 			id:  40,
 			inp: `{{ 1 ~ 8 }}`,
-			err: fail.New(1, "", "parser", fail.ErrIllegalToken, "~"),
+			err: fail.New(nil, "", "parser", fail.ErrIllegalToken, "~"),
 		},
 		{
 			id:  50,
 			inp: "{{ true ? 100 }}",
 			err: fail.New(
-				1,
+				nil,
 				"",
 				"parser",
 				fail.ErrWrongNextToken,
@@ -523,37 +523,37 @@ func TestErrorHandling(t *testing.T) {
 		{
 			id:  60,
 			inp: "{{ ) }}",
-			err: fail.New(1, "", "parser", fail.ErrIllegalToken, token.String(token.RPAREN)),
+			err: fail.New(nil, "", "parser", fail.ErrIllegalToken, token.String(token.RPAREN)),
 		},
 		{
 			id:  70,
 			inp: "@use('')",
-			err: fail.New(1, "", "parser", fail.ErrExpectedUseName),
+			err: fail.New(nil, "", "parser", fail.ErrExpectedUseName),
 		},
 		{
 			id:  80,
 			inp: "@component('')",
-			err: fail.New(1, "", "parser", fail.ErrExpectedComponentName),
+			err: fail.New(nil, "", "parser", fail.ErrExpectedComponentName),
 		},
 		{
 			id:  90,
 			inp: "@use(1)",
-			err: fail.New(1, "", "parser", fail.ErrUseDirFirstArgStr, token.String(token.INT)),
+			err: fail.New(nil, "", "parser", fail.ErrUseDirFirstArgStr, token.String(token.INT)),
 		},
 		{
 			id:  100,
 			inp: "@for(i = 0; i < 4; i+2){{ i }}@end",
-			err: fail.New(1, "", "parser", fail.ErrForLoopExpectStmt, "(i + 2)"),
+			err: fail.New(nil, "", "parser", fail.ErrForLoopExpectStmt, "(i + 2)"),
 		},
 		{
 			id:  110,
 			inp: "@for(c = 0.0; c < 4.0; c+2.0){{ c }}@end",
-			err: fail.New(1, "", "parser", fail.ErrForLoopExpectStmt, "(c + 2.0)"),
+			err: fail.New(nil, "", "parser", fail.ErrForLoopExpectStmt, "(c + 2.0)"),
 		},
 		{
 			id:  120,
 			inp: "@for(;; true){{ c }}@end",
-			err: fail.New(1, "", "parser", fail.ErrForLoopExpectStmt, "true"),
+			err: fail.New(nil, "", "parser", fail.ErrForLoopExpectStmt, "true"),
 		},
 	}
 
@@ -584,7 +584,7 @@ func TestParseTernaryExpr(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	err = testTokPosition(terExpr.TokPos(), position.Pos{
+	err = testTokPosition(terExpr.TokPos(), &position.Pos{
 		StartCol: 3,
 		EndCol:   28,
 	})
@@ -619,7 +619,7 @@ func TestParseIfDir(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		err = testTokPosition(ifDir.TokPos(), position.Pos{
+		err = testTokPosition(ifDir.TokPos(), &position.Pos{
 			StartCol: 0,
 			EndCol:   13,
 		})
@@ -644,35 +644,36 @@ func TestParseIfDir(t *testing.T) {
 	t.Run("@if with @else", func(t *testing.T) {
 		inp := `@if(true)1@else2@end`
 
-		stmt, err := parseDirective[*ast.IfDir](inp, defaultParseOpts)
+		ifDir, err := parseDirective[*ast.IfDir](inp, defaultParseOpts)
 		if err != nil {
 			t.Fatal(err)
 		}
 
-		if err := testToken(stmt, token.IF); err != nil {
+		if err := testToken(ifDir, token.IF); err != nil {
 			t.Fatal(err)
 		}
 
-		if err := testToken(stmt.IfBlock, token.TEXT); err != nil {
+		if err := testToken(ifDir.IfBlock, token.TEXT); err != nil {
 			t.Fatal(err)
 		}
 
-		if err := testToken(stmt.ElseBlock, token.TEXT); err != nil {
+		if err := testToken(ifDir.ElseBlock, token.TEXT); err != nil {
 			t.Fatal(err)
 		}
 
-		if err := testIfDir(stmt, true, "1"); err != nil {
+		if err := testIfDir(ifDir, true, "1"); err != nil {
 			t.Fatal(err)
 		}
 
-		if err := testBlock(stmt.ElseBlock, "2"); err != nil {
+		if err := testBlock(ifDir.ElseBlock, "2"); err != nil {
 			t.Fatal(err)
 		}
 
-		err = testTokPosition(stmt.TokPos(), position.Pos{
+		err = testTokPosition(ifDir.TokPos(), &position.Pos{
 			StartCol: 0,
 			EndCol:   19,
 		})
+
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -873,7 +874,7 @@ func TestParseAssignStmt(t *testing.T) {
 			t.Fatalf("Case: %d. assignStmt.String() is not %s, got %s", tc.id, tc.str, str)
 		}
 
-		err = testTokPosition(assignStmt.TokPos(), position.Pos{
+		err = testTokPosition(assignStmt.TokPos(), &position.Pos{
 			StartCol: tc.startCol,
 			EndCol:   tc.endCol,
 		})
@@ -900,7 +901,7 @@ func TestParseUseDir(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	err = testTokPosition(stmt.TokPos(), position.Pos{
+	err = testTokPosition(stmt.TokPos(), &position.Pos{
 		StartCol: 0,
 		EndCol:   11,
 	})
@@ -935,7 +936,7 @@ func TestParseReserveStmt(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	err = testTokPosition(stmt.TokPos(), position.Pos{
+	err = testTokPosition(stmt.TokPos(), &position.Pos{
 		StartCol: 5,
 		EndCol:   23,
 	})
@@ -970,7 +971,7 @@ func TestInsertDir(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		err = testTokPosition(stmt.TokPos(), position.Pos{
+		err = testTokPosition(stmt.TokPos(), &position.Pos{
 			StartCol: 4,
 			EndCol:   46,
 		})
@@ -1003,7 +1004,7 @@ func TestInsertDir(t *testing.T) {
 			t.Fatalf("stmts[1] is not an InsertDir, got %T", stmts[1])
 		}
 
-		err = testTokPosition(stmt.TokPos(), position.Pos{
+		err = testTokPosition(stmt.TokPos(), &position.Pos{
 			StartCol: 4,
 			EndCol:   37,
 		})
@@ -1044,7 +1045,7 @@ func TestParseArr(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	err = testTokPosition(arr.TokPos(), position.Pos{
+	err = testTokPosition(arr.TokPos(), &position.Pos{
 		StartCol: 3,
 		EndCol:   12,
 	})
@@ -1077,7 +1078,7 @@ func TestParseIndexExp(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	err = testTokPosition(exp.TokPos(), position.Pos{
+	err = testTokPosition(exp.TokPos(), &position.Pos{
 		StartCol: 3,
 		EndCol:   15,
 	})
@@ -1234,7 +1235,7 @@ func TestParseGlobalCallExp(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	err = testTokPosition(globalCallExpr.TokPos(), position.Pos{
+	err = testTokPosition(globalCallExpr.TokPos(), &position.Pos{
 		StartCol: 3,
 		EndCol:   21,
 	})
@@ -1259,7 +1260,7 @@ func TestParseCallExp(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	err = testTokPosition(callExpr.TokPos(), position.Pos{
+	err = testTokPosition(callExpr.TokPos(), &position.Pos{
 		StartCol: 16,
 		EndCol:   25,
 	})
@@ -1296,7 +1297,7 @@ func TestParseCallExpWithExpressionList(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	err = testTokPosition(callExpr.TokPos(), position.Pos{
+	err = testTokPosition(callExpr.TokPos(), &position.Pos{
 		StartCol: 10,
 		EndCol:   25,
 	})
@@ -1334,43 +1335,43 @@ func TestParseForDir(t *testing.T) {
 	t.Run("regular @for", func(t *testing.T) {
 		inp := "@for(i = 0; i < 10; i++){{ i }}@end"
 
-		stmt, err := parseDirective[*ast.ForDir](inp, defaultParseOpts)
+		forDir, err := parseDirective[*ast.ForDir](inp, defaultParseOpts)
 		if err != nil {
 			t.Fatal(err)
 		}
 
-		if err := testToken(stmt, token.FOR); err != nil {
+		if err := testToken(forDir, token.FOR); err != nil {
 			t.Fatal(err)
 		}
 
-		if err = testTokPosition(stmt.Pos, position.Pos{EndCol: 34}); err != nil {
+		if err = testTokPosition(forDir.Pos, &position.Pos{EndCol: 34}); err != nil {
 			t.Fatal(err)
 		}
 
-		err = testTokPosition(stmt.Block.Pos, position.Pos{StartCol: 24, EndCol: 30})
+		err = testTokPosition(forDir.Block.Pos, &position.Pos{StartCol: 24, EndCol: 30})
 		if err != nil {
 			t.Fatal(err)
 		}
 
-		if stmt.Init.String() != `(i = 0)` {
-			t.Fatalf("stmt.Init.String() is not '(i = 0)', got %s", stmt.Init)
+		if forDir.Init.String() != `(i = 0)` {
+			t.Fatalf("forDir.Init.String() is not '(i = 0)', got %s", forDir.Init)
 		}
 
-		if stmt.Cond.String() != `(i < 10)` {
-			t.Fatalf("stmt.Cond.String() is not '(i < 10)', got %s", stmt.Cond)
+		if forDir.Cond.String() != `(i < 10)` {
+			t.Fatalf("forDir.Cond.String() is not '(i < 10)', got %s", forDir.Cond)
 		}
 
-		if stmt.Post.String() != `(i++)` {
-			t.Fatalf("stmt.Post.String() is not '(i++)', got %s", stmt.Post)
+		if forDir.Post.String() != `(i++)` {
+			t.Fatalf("forDir.Post.String() is not '(i++)', got %s", forDir.Post)
 		}
 
-		actual := strings.Trim(stmt.Block.String(), " \n\t")
+		actual := strings.Trim(forDir.Block.String(), " \n\t")
 		if actual != "{{ i }}" {
 			t.Fatalf("actual is not '%q', got %q", "{{ i }}", actual)
 		}
 
-		if stmt.ElseBlock != nil {
-			t.Fatalf("stmt.ElseBlock is not nil, got %T", stmt.ElseBlock)
+		if forDir.ElseBlock != nil {
+			t.Fatalf("forDir.ElseBlock is not nil, got %T", forDir.ElseBlock)
 		}
 	})
 
@@ -1429,20 +1430,20 @@ func TestParseEachDir(t *testing.T) {
 	t.Run("regular @each", func(t *testing.T) {
 		inp := "@each(name in ['anna', 'serhii']){{ name }}@end"
 
-		stmt, err := parseDirective[*ast.EachDir](inp, defaultParseOpts)
+		eachDir, err := parseDirective[*ast.EachDir](inp, defaultParseOpts)
 		if err != nil {
 			t.Fatal(err)
 		}
 
-		err = testTokPosition(stmt.Pos, position.Pos{EndCol: 46})
+		err = testTokPosition(eachDir.Pos, &position.Pos{EndCol: 46})
 		if err != nil {
 			t.Fatal(err)
 		}
-		if err := testToken(stmt, token.EACH); err != nil {
+		if err := testToken(eachDir, token.EACH); err != nil {
 			t.Fatal(err)
 		}
 
-		err = testTokPosition(stmt.Block.Pos, position.Pos{
+		err = testTokPosition(eachDir.Block.Pos, &position.Pos{
 			StartCol: 33,
 			EndCol:   42,
 		})
@@ -1450,38 +1451,38 @@ func TestParseEachDir(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		if stmt.Var.String() != `name` {
-			t.Fatalf("stmt.Var.String() is not 'name', got %s", stmt.Var)
+		if eachDir.Var.String() != `name` {
+			t.Fatalf("eachDir.Var.String() is not 'name', got %s", eachDir.Var)
 		}
 
-		if stmt.Arr.String() != `["anna", "serhii"]` {
-			t.Fatalf(`stmt.Arr.String() is not '["anna", "serhii"]', got %s`, stmt.Arr)
+		if eachDir.Arr.String() != `["anna", "serhii"]` {
+			t.Fatalf(`eachDir.Arr.String() is not '["anna", "serhii"]', got %s`, eachDir.Arr)
 		}
 
-		actual := stmt.Block.String()
+		actual := eachDir.Block.String()
 		if actual != "{{ name }}" {
 			t.Fatalf("actual is not %q, got %q", "{{ name }}", actual)
 		}
 
-		if stmt.ElseBlock != nil {
-			t.Fatalf("stmt.ElseBlock is not nil, got %T", stmt.ElseBlock)
+		if eachDir.ElseBlock != nil {
+			t.Fatalf("eachDir.ElseBlock is not nil, got %T", eachDir.ElseBlock)
 		}
 	})
 
 	t.Run("@each with @else", func(t *testing.T) {
 		inp := `@each(v in []){{ v }}@elseTest@end`
 
-		stmt, err := parseDirective[*ast.EachDir](inp, defaultParseOpts)
+		eachDir, err := parseDirective[*ast.EachDir](inp, defaultParseOpts)
 		if err != nil {
 			t.Fatal(err)
 		}
 
-		if err := testToken(stmt, token.EACH); err != nil {
+		if err := testToken(eachDir, token.EACH); err != nil {
 			t.Fatal(err)
 		}
 
-		if stmt.ElseBlock.String() != "Test" {
-			t.Fatalf("stmt.ElseBlock.String() is not 'Test', got %s", stmt.ElseBlock)
+		if eachDir.ElseBlock.String() != "Test" {
+			t.Fatalf("eachDir.ElseBlock.String() is not 'Test', got %s", eachDir.ElseBlock)
 		}
 	})
 }
@@ -1535,31 +1536,31 @@ func TestParseEmptyBlock(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		stmts, err := parseChunks(tc.inp, defaultParseOpts)
+		chunks, err := parseChunks(tc.inp, defaultParseOpts)
 		if err != nil {
 			t.Fatalf("Case: %d. %v", tc.id, err)
 		}
 
-		node, ok := stmts[0].(ast.NodeWithChunks)
+		node, ok := chunks[0].(ast.NodeWithChunks)
 		if !ok {
-			t.Fatalf("Case: %d. stmts[0] is not a NodeWithChunks, got %T", tc.id, stmts[0])
+			t.Fatalf("Case: %d. chunks[0] is not a NodeWithChunks, got %T", tc.id, chunks[0])
 		}
 
 		if err := testToken(node, tc.tok); err != nil {
 			t.Fatalf("Case: %d. %v", tc.id, err)
 		}
 
-		if err = testTokPosition(node.TokPos(), position.Pos{EndCol: tc.endColPos}); err != nil {
+		if err = testTokPosition(node.TokPos(), &position.Pos{EndCol: tc.endColPos}); err != nil {
 			t.Fatalf("Case: %d. %v", tc.id, err)
 		}
 
 		if len(node.AllChunks()) != 0 {
-			t.Fatalf("len(stmt.AllChunks()) has to be empty, got %d", len(node.AllChunks()))
+			t.Fatalf("len(chunk.AllChunks()) has to be empty, got %d", len(node.AllChunks()))
 		}
 	}
 }
 
-func TestParseObjStmt(t *testing.T) {
+func TestParseObjExpr(t *testing.T) {
 	inp := `{{ {"father": {name: "John"},} }}`
 
 	objExpr, err := parseEmbedded[*ast.ObjExpr](inp, defaultParseOpts)
@@ -1567,10 +1568,11 @@ func TestParseObjStmt(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	err = testTokPosition(objExpr.TokPos(), position.Pos{
+	err = testTokPosition(objExpr.TokPos(), &position.Pos{
 		StartCol: 3,
 		EndCol:   29,
 	})
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -1609,10 +1611,11 @@ func TestParseObjWithShorthandKeyNotation(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	err = testTokPosition(objExpr.TokPos(), position.Pos{
+	err = testTokPosition(objExpr.TokPos(), &position.Pos{
 		StartCol: 3,
 		EndCol:   15,
 	})
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -1625,19 +1628,20 @@ func TestParseObjWithShorthandKeyNotation(t *testing.T) {
 func TestParseText(t *testing.T) {
 	inp := "<div><span>Hello</span></div>"
 
-	stmt, err := parseDirective[*ast.Text](inp, defaultParseOpts)
+	text, err := parseDirective[*ast.Text](inp, defaultParseOpts)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	if err := testToken(stmt, token.TEXT); err != nil {
+	if err := testToken(text, token.TEXT); err != nil {
 		t.Fatal(err)
 	}
 
-	err = testTokPosition(stmt.TokPos(), position.Pos{
+	err = testTokPosition(text.TokPos(), &position.Pos{
 		StartCol: 0,
 		EndCol:   28,
 	})
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -1656,10 +1660,11 @@ func TestParseDotExp(t *testing.T) {
 	}
 
 	// position of the last dot between "father" and "name"
-	err = testTokPosition(dotExpr.TokPos(), position.Pos{
+	err = testTokPosition(dotExpr.TokPos(), &position.Pos{
 		StartCol: 3,
 		EndCol:   20,
 	})
+
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -1724,79 +1729,80 @@ func TestParseContinueDir(t *testing.T) {
 func TestParseBreakifStmt(t *testing.T) {
 	inp := `@breakif(true)`
 
-	stmt, err := parseDirective[*ast.BreakifDir](inp, defaultParseOpts)
+	dir, err := parseDirective[*ast.BreakifDir](inp, defaultParseOpts)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	err = testTokPosition(stmt.TokPos(), position.Pos{
+	err = testTokPosition(dir.TokPos(), &position.Pos{
 		StartCol: 0,
 		EndCol:   13,
 	})
+
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	if err := testToken(stmt, token.BREAKIF); err != nil {
+	if err := testToken(dir, token.BREAKIF); err != nil {
 		t.Fatal(err)
 	}
 
-	if err := testBoolExpr(stmt.Cond, true); err != nil {
+	if err := testBoolExpr(dir.Cond, true); err != nil {
 		t.Fatal(err)
 	}
 
 	expect := "@breakif(true)"
 
-	if stmt.String() != expect {
-		t.Fatalf("breakStmt.String() is not '%s', got %s", expect, stmt)
+	if dir.String() != expect {
+		t.Fatalf("breakDir.String() is not '%s', got %s", expect, dir)
 	}
 }
 
-func TestParseContinueifStmt(t *testing.T) {
+func TestParseContinueifDir(t *testing.T) {
 	inp := "@continueif(false)"
 
-	stmt, err := parseDirective[*ast.ContinueifDir](inp, defaultParseOpts)
+	dir, err := parseDirective[*ast.ContinueifDir](inp, defaultParseOpts)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	err = testTokPosition(stmt.TokPos(), position.Pos{
+	err = testTokPosition(dir.TokPos(), &position.Pos{
 		StartCol: 0,
 		EndCol:   17,
 	})
+
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	if err := testToken(stmt, token.CONTINUEIF); err != nil {
+	if err := testToken(dir, token.CONTINUEIF); err != nil {
 		t.Fatal(err)
 	}
 
-	if err := testBoolExpr(stmt.Cond, false); err != nil {
+	if err := testBoolExpr(dir.Cond, false); err != nil {
 		t.Fatal(err)
 	}
 
 	expect := "@continueif(false)"
-
-	if stmt.String() != expect {
-		t.Fatalf("stmt.String() is not '%s', got %s", expect, stmt)
+	if dir.String() != expect {
+		t.Fatalf("dir.String() is not '%s', got %s", expect, dir)
 	}
 }
 
 func TestParseComponentDir(t *testing.T) {
 	t.Run("@component without slots", func(t *testing.T) {
 		inp := "<ul>@component('components/book-card', { c: card })</ul>"
-		stmts, err := parseChunks(inp, parseOpts{chunksCount: 3, checkErrors: true})
+		chunks, err := parseChunks(inp, parseOpts{chunksCount: 3, checkErrors: true})
 		if err != nil {
 			t.Fatal(err)
 		}
 
-		stmt, ok := stmts[1].(*ast.ComponentDir)
+		chunk, ok := chunks[1].(*ast.ComponentDir)
 		if !ok {
-			t.Fatalf("stmts[1] is not a ComponentDir, got %T", stmts[1])
+			t.Fatalf("chunks[1] is not a ComponentDir, got %T", chunks[1])
 		}
 
-		err = testTokPosition(stmt.TokPos(), position.Pos{
+		err = testTokPosition(chunk.TokPos(), &position.Pos{
 			StartCol: 4,
 			EndCol:   50,
 		})
@@ -1805,29 +1811,29 @@ func TestParseComponentDir(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		if err := testToken(stmt, token.COMPONENT); err != nil {
+		if err := testToken(chunk, token.COMPONENT); err != nil {
 			t.Fatal(err)
 		}
 
-		if err := testStrExpr(stmt.Name, "components/book-card"); err != nil {
+		if err := testStrExpr(chunk.Name, "components/book-card"); err != nil {
 			t.Fatal(err)
 		}
 
-		if len(stmt.Argument.Pairs) != 1 {
-			t.Fatalf("len(stmt.Argument.Pairs) is not 1, got %d", len(stmt.Argument.Pairs))
+		if len(chunk.Argument.Pairs) != 1 {
+			t.Fatalf("len(chunk.Argument.Pairs) is not 1, got %d", len(chunk.Argument.Pairs))
 		}
 
-		if err := testIdentExpr(stmt.Argument.Pairs["c"], "card"); err != nil {
+		if err := testIdentExpr(chunk.Argument.Pairs["c"], "card"); err != nil {
 			t.Fatal(err)
 		}
 
-		if len(stmt.Slots) != 0 {
-			t.Fatalf("len(stmt.Slots) is not empty, got '%d' slots", len(stmt.Slots))
+		if len(chunk.Slots) != 0 {
+			t.Fatalf("len(chunk.Slots) is not empty, got '%d' slots", len(chunk.Slots))
 		}
 
 		expect := `@component("components/book-card", {"c": card})`
-		if stmt.String() != expect {
-			t.Fatalf(`stmt.String() is not '%s', got %s`, expect, stmt)
+		if chunk.String() != expect {
+			t.Fatalf(`chunk.String() is not '%s', got %s`, expect, chunk)
 		}
 	})
 
@@ -1866,84 +1872,85 @@ func TestParseComponentDir(t *testing.T) {
 			@end
 		</ul>`
 
-		stmts, err := parseChunks(inp, parseOpts{chunksCount: 3, checkErrors: true})
+		chunks, err := parseChunks(inp, parseOpts{chunksCount: 3, checkErrors: true})
 		if err != nil {
 			t.Fatal(err)
 		}
-		stmt, ok := stmts[1].(*ast.ComponentDir)
+		chunk, ok := chunks[1].(*ast.ComponentDir)
 		if !ok {
-			t.Fatalf("stmts[1] is not a ComponentDir, got %T", stmts[1])
+			t.Fatalf("chunks[1] is not a ComponentDir, got %T", chunks[1])
 		}
 
-		err = testTokPosition(stmt.TokPos(), position.Pos{
+		err = testTokPosition(chunk.TokPos(), &position.Pos{
 			StartLine: 1,
 			EndLine:   4,
 			StartCol:  3, // because tabs before @component
 			EndCol:    6, // because tabs before @end
 		})
+
 		if err != nil {
 			t.Fatal(err)
 		}
 
-		if len(stmt.Slots) != 2 {
-			t.Fatalf("len(stmt.Slots) is not 2, got %d", len(stmt.Slots))
+		if len(chunk.Slots) != 2 {
+			t.Fatalf("len(chunk.Slots) is not 2, got %d", len(chunk.Slots))
 		}
 
-		if err := testToken(stmt, token.COMPONENT); err != nil {
+		if err := testToken(chunk, token.COMPONENT); err != nil {
 			t.Fatal(err)
 		}
 
-		if err := testStrExpr(stmt.Slots[0].Name(), "header"); err != nil {
+		if err := testStrExpr(chunk.Slots[0].Name(), "header"); err != nil {
 			t.Fatal(err)
 		}
 
-		if err := testStrExpr(stmt.Slots[1].Name(), "footer"); err != nil {
+		if err := testStrExpr(chunk.Slots[1].Name(), "footer"); err != nil {
 			t.Fatal(err)
 		}
 
 		expect := `@slot("header")<h1>Header</h1>@end`
-		if stmt.Slots[0].String() != expect {
-			t.Fatalf("stmt.Slots[0].String() is not '%q', got %q", expect, stmt.Slots[0])
+		if chunk.Slots[0].String() != expect {
+			t.Fatalf("chunk.Slots[0].String() is not '%q', got %q", expect, chunk.Slots[0])
 		}
 
 		expect = `@slot("footer")<footer>Footer</footer>@end`
-		if stmt.Slots[1].String() != expect {
-			t.Fatalf("stmt.Slots[1].String() is not '%q', got %q", expect, stmt.Slots[1])
+		if chunk.Slots[1].String() != expect {
+			t.Fatalf("chunk.Slots[1].String() is not '%q', got %q", expect, chunk.Slots[1])
 		}
 	})
 
 	t.Run("@component with whitespace at the end", func(t *testing.T) {
 		inp := "@component('some')\n <b>Book</b>"
-		stmts, err := parseChunks(inp, parseOpts{chunksCount: 2, checkErrors: true})
+		chunks, err := parseChunks(inp, parseOpts{chunksCount: 2, checkErrors: true})
 		if err != nil {
 			t.Fatal(err)
 		}
 
-		stmt, ok := stmts[0].(*ast.ComponentDir)
+		chunk, ok := chunks[0].(*ast.ComponentDir)
 		if !ok {
-			t.Fatalf("stmts[0] is not a ComponentDir, got %T", stmts[0])
+			t.Fatalf("chunks[0] is not a ComponentDir, got %T", chunks[0])
 		}
 
-		if err := testToken(stmt, token.COMPONENT); err != nil {
+		if err := testToken(chunk, token.COMPONENT); err != nil {
 			t.Fatal(err)
 		}
-		if err := testStrExpr(stmt.Name, "some"); err != nil {
+		if err := testStrExpr(chunk.Name, "some"); err != nil {
 			t.Fatal(err)
 		}
 
 		expect := `@component("some")`
-		if stmt.String() != expect {
-			t.Fatalf("stmt.String() is not `%s`, got `%s`", expect, stmt)
+		if chunk.String() != expect {
+			t.Fatalf("chunk.String() is not `%s`, got `%s`", expect, chunk)
 		}
 
-		textStmt, ok := stmts[1].(*ast.Text)
+		text, ok := chunks[1].(*ast.Text)
 		if !ok {
-			t.Fatalf("stmts[1] is not a Text, got %T", stmts[1])
+			t.Fatalf("chunks[1] is not a Text, got %T", chunks[1])
 		}
 
 		expect = "\n <b>Book</b>"
-		if textStmt.String() != expect {
-			t.Fatalf("textStmt.String() is not `%s`, got `%s`", expect, textStmt)
+		if text.String() != expect {
+			t.Fatalf("text.String() is not `%s`, got `%s`", expect, text)
 		}
 	})
 }
@@ -1961,7 +1968,7 @@ func TestParseSlotDir(t *testing.T) {
 			t.Fatalf("chunks[1] is not a SlotDir, got %T", chunks[1])
 		}
 
-		err = testTokPosition(slotDir.TokPos(), position.Pos{
+		err = testTokPosition(slotDir.TokPos(), &position.Pos{
 			StartCol: 4,
 			EndCol:   18,
 		})
@@ -2004,7 +2011,7 @@ func TestParseSlotDir(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		err = testTokPosition(slotDir.TokPos(), position.Pos{
+		err = testTokPosition(slotDir.TokPos(), &position.Pos{
 			StartCol: 8,
 			EndCol:   12,
 		})
@@ -2031,10 +2038,11 @@ func TestParseSlotifDir(t *testing.T) {
 			t.Fatalf("len(compDir.Slots) must be 1, got %d", len(compDir.Slots))
 		}
 
-		err = testTokPosition(compDir.TokPos(), position.Pos{EndCol: 42})
+		err = testTokPosition(compDir.TokPos(), &position.Pos{EndCol: 42})
 		if err != nil {
 			t.Fatal(err)
 		}
+
 		if err := testToken(compDir, token.COMPONENT); err != nil {
 			t.Fatal(err)
 		}
@@ -2066,7 +2074,7 @@ func TestParseSlotifDir(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		err = testTokPosition(compDir.TokPos(), position.Pos{EndCol: 52})
+		err = testTokPosition(compDir.TokPos(), &position.Pos{EndCol: 52})
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -2116,7 +2124,7 @@ func TestParseDumpDir(t *testing.T) {
 		t.Fatalf("len(dumpDir.Args) is not 3, got %d", len(dumpDir.Args))
 	}
 
-	err = testTokPosition(dumpDir.TokPos(), position.Pos{
+	err = testTokPosition(dumpDir.TokPos(), &position.Pos{
 		StartCol: 0,
 		EndCol:   26,
 	})

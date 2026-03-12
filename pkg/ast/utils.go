@@ -18,11 +18,11 @@ func CheckUnusedInserts(prog *Program, inserts map[string]*InsertDir) *fail.Erro
 			continue
 		}
 
-		line := inserts[name].Line()
+		pos := inserts[name].TokPos()
 		path := inserts[name].AbsPath
 		name := inserts[name].Name.Val
 
-		return fail.New(line, path, "parser", fail.ErrUnusedInsertDetected, name, name)
+		return fail.New(pos, path, "parser", fail.ErrUnusedInsertDetected, name, name)
 	}
 
 	return nil

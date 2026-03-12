@@ -438,7 +438,7 @@ func TestErrorHandling(t *testing.T) {
 		{
 			inp: `{{ defined(name.undefinedFunc()) }}`,
 			err: fail.New(
-				1,
+				nil,
 				"",
 				"evaluator",
 				fail.ErrFuncNotDefined,
@@ -449,28 +449,28 @@ func TestErrorHandling(t *testing.T) {
 		},
 		{
 			inp:  `@use("someTemplate")`,
-			err:  fail.New(1, "", "evaluator", fail.ErrSomeDirsOnlyInTemplates),
+			err:  fail.New(nil, "", "evaluator", fail.ErrSomeDirsOnlyInTemplates),
 			data: nil,
 		},
 		{
 			inp:  `@insert("title", "hi")`,
-			err:  fail.New(1, "", "evaluator", fail.ErrSomeDirsOnlyInTemplates),
+			err:  fail.New(nil, "", "evaluator", fail.ErrSomeDirsOnlyInTemplates),
 			data: nil,
 		},
 		{
 			inp:  `@reserve("content")`,
-			err:  fail.New(1, "", "evaluator", fail.ErrSomeDirsOnlyInTemplates),
+			err:  fail.New(nil, "", "evaluator", fail.ErrSomeDirsOnlyInTemplates),
 			data: nil,
 		},
 		{
 			inp:  `@component("~header")`,
-			err:  fail.New(1, "", "evaluator", fail.ErrSomeDirsOnlyInTemplates),
+			err:  fail.New(nil, "", "evaluator", fail.ErrSomeDirsOnlyInTemplates),
 			data: nil,
 		},
 		{
 			inp: `{{ 1 + "a" }}`,
 			err: fail.New(
-				1,
+				nil,
 				"",
 				"evaluator",
 				fail.ErrCannotUseOperator,
@@ -483,18 +483,18 @@ func TestErrorHandling(t *testing.T) {
 		},
 		{
 			inp:  `{{ loop = "test" }}`,
-			err:  fail.New(1, "", "evaluator", fail.ErrReservedIdentifiers),
+			err:  fail.New(nil, "", "evaluator", fail.ErrReservedIdentifiers),
 			data: nil,
 		},
 		{
 			inp:  `{{ global = "test" }}`,
-			err:  fail.New(1, "", "evaluator", fail.ErrReservedIdentifiers),
+			err:  fail.New(nil, "", "evaluator", fail.ErrReservedIdentifiers),
 			data: nil,
 		},
 		{
 			inp: `{{ loop }}`,
 			err: fail.New(
-				0,
+				nil,
 				"",
 				"evaluator",
 				fail.ErrReservedIdentifiers,
@@ -503,7 +503,7 @@ func TestErrorHandling(t *testing.T) {
 		{
 			inp: `{{ n = 1; n = "test" }}`,
 			err: fail.New(
-				1,
+				nil,
 				"",
 				"evaluator",
 				fail.ErrIdentifierTypeMismatch,
@@ -515,13 +515,13 @@ func TestErrorHandling(t *testing.T) {
 		},
 		{
 			inp:  `{{ user = {}; user.address.zip }}`,
-			err:  fail.New(1, "", "evaluator", fail.ErrKeyOnNonObj, value.NIL_VAL, "zip"),
+			err:  fail.New(nil, "", "evaluator", fail.ErrKeyOnNonObj, value.NIL_VAL, "zip"),
 			data: nil,
 		},
 		{
 			inp: `{{ 5.someFunction() }}`,
 			err: fail.New(
-				1,
+				nil,
 				"",
 				"evaluator",
 				fail.ErrFuncNotDefined,
@@ -532,23 +532,23 @@ func TestErrorHandling(t *testing.T) {
 		},
 		{
 			inp:  `{{ 3 / 0 }}`,
-			err:  fail.New(1, "", "evaluator", fail.ErrDivisionByZero),
+			err:  fail.New(nil, "", "evaluator", fail.ErrDivisionByZero),
 			data: nil,
 		},
 		{
 			inp:  `{{ undefinedVar }}`,
-			err:  fail.New(1, "", "evaluator", fail.ErrVariableIsUndefined, "undefinedVar"),
+			err:  fail.New(nil, "", "evaluator", fail.ErrVariableIsUndefined, "undefinedVar"),
 			data: nil,
 		},
 		{
 			inp:  `{{ obj = {name: "Amy"}; obj.name.id }}`,
-			err:  fail.New(1, "", "evaluator", fail.ErrKeyOnNonObj, value.STR_VAL, "id"),
+			err:  fail.New(nil, "", "evaluator", fail.ErrKeyOnNonObj, value.STR_VAL, "id"),
 			data: nil,
 		},
 		{
 			inp: `{{ obj."str" }}`,
 			err: fail.New(
-				1,
+				nil,
 				"",
 				"evaluator",
 				fail.ErrWrongNextToken,
@@ -559,52 +559,52 @@ func TestErrorHandling(t *testing.T) {
 		},
 		{
 			inp:  `@each(v in {}){{ v }}@end`,
-			err:  fail.New(1, "", "evaluator", fail.ErrEachDirWithNonArrArg, value.OBJ_VAL),
+			err:  fail.New(nil, "", "evaluator", fail.ErrEachDirWithNonArrArg, value.OBJ_VAL),
 			data: nil,
 		},
 		{
 			inp:  `{{ 1 = 10 }}`,
-			err:  fail.New(1, "", "evaluator", fail.ErrNotSupportedAssign, value.INT_VAL),
+			err:  fail.New(nil, "", "evaluator", fail.ErrNotSupportedAssign, value.INT_VAL),
 			data: nil,
 		},
 		{
 			inp:  `{{ {} = 10 }}`,
-			err:  fail.New(1, "", "evaluator", fail.ErrNotSupportedAssign, value.OBJ_VAL),
+			err:  fail.New(nil, "", "evaluator", fail.ErrNotSupportedAssign, value.OBJ_VAL),
 			data: nil,
 		},
 		{
 			inp:  `{{ [] = 10 }}`,
-			err:  fail.New(1, "", "evaluator", fail.ErrNotSupportedAssign, value.ARR_VAL),
+			err:  fail.New(nil, "", "evaluator", fail.ErrNotSupportedAssign, value.ARR_VAL),
 			data: nil,
 		},
 		{
 			inp:  `{{ 1.1 = 10 }}`,
-			err:  fail.New(1, "", "evaluator", fail.ErrNotSupportedAssign, value.FLOAT_VAL),
+			err:  fail.New(nil, "", "evaluator", fail.ErrNotSupportedAssign, value.FLOAT_VAL),
 			data: nil,
 		},
 		{
 			inp:  `{{ true = 10 }}`,
-			err:  fail.New(1, "", "evaluator", fail.ErrNotSupportedAssign, value.BOOL_VAL),
+			err:  fail.New(nil, "", "evaluator", fail.ErrNotSupportedAssign, value.BOOL_VAL),
 			data: nil,
 		},
 		{
 			inp:  `{{ 'anna' = 10 }}`,
-			err:  fail.New(1, "", "evaluator", fail.ErrNotSupportedAssign, value.STR_VAL),
+			err:  fail.New(nil, "", "evaluator", fail.ErrNotSupportedAssign, value.STR_VAL),
 			data: nil,
 		},
 		{
 			inp:  `{{ "serhii" = 10 }}`,
-			err:  fail.New(1, "", "evaluator", fail.ErrNotSupportedAssign, value.STR_VAL),
+			err:  fail.New(nil, "", "evaluator", fail.ErrNotSupportedAssign, value.STR_VAL),
 			data: nil,
 		},
 		{
 			inp:  `{{ false = 10 }}`,
-			err:  fail.New(1, "", "evaluator", fail.ErrNotSupportedAssign, value.BOOL_VAL),
+			err:  fail.New(nil, "", "evaluator", fail.ErrNotSupportedAssign, value.BOOL_VAL),
 			data: nil,
 		},
 		{
 			inp:  `{{ nil = 10 }}`,
-			err:  fail.New(1, "", "evaluator", fail.ErrNotSupportedAssign, value.NIL_VAL),
+			err:  fail.New(nil, "", "evaluator", fail.ErrNotSupportedAssign, value.NIL_VAL),
 			data: nil,
 		},
 	}
@@ -789,7 +789,7 @@ func TestCustomFunctions(t *testing.T) {
 			t.Fatalf("Expect error but got none")
 		}
 
-		expect := fail.New(0, "", "API", fail.ErrFuncAlreadyDefined, "_len", "strings")
+		expect := fail.New(nil, "", "API", fail.ErrFuncAlreadyDefined, "_len", "strings")
 		if err.Error() != expect.Error().Error() {
 			t.Fatalf("Wrong error message. Expect:\n%q\ngot:\n%q", expect, err)
 		}
