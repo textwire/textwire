@@ -432,6 +432,21 @@ func (p *Parser) assignStmt(left ast.Expression) ast.Statement {
 	return stmt
 }
 
+func (p *Parser) curTokenTypeIs(tokType token.TokenType) bool {
+	if p.curToken.Type == tokType {
+		return true
+	}
+
+	p.newError(
+		p.curToken.Pos,
+		fail.ErrWrongTokenType,
+		token.String(tokType),
+		token.String(p.curToken.Type),
+	)
+
+	return false
+}
+
 func (p *Parser) useDir() ast.Chunk {
 	dir := ast.NewUseDir(p.curToken)
 
@@ -441,12 +456,8 @@ func (p *Parser) useDir() ast.Chunk {
 
 	p.nextToken() // skip "("
 
-	if p.curToken.Type != token.STR {
-		p.newError(
-			p.curToken.Pos,
-			fail.ErrUseDirFirstArgStr,
-			token.String(p.curToken.Type),
-		)
+	if !p.curTokenTypeIs(token.STR) {
+		return nil
 	}
 
 	if p.curToken.Lit == "" {
