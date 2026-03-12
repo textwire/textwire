@@ -71,7 +71,7 @@ func (nl *NodeLinker) handleLayoutLinking(prog *ast.Program) *fail.Error {
 	layoutName := prog.UseDir.Name.Val
 	layoutProg := ast.FindProg(layoutName, nl.Programs)
 	if layoutProg == nil {
-		return fail.New(prog.Line(), prog.AbsPath, "API", fail.ErrUseDirMissingLayout, layoutName)
+		return fail.New(prog.TokPos(), prog.AbsPath, "API", fail.ErrUseDirMissingLayout, layoutName)
 	}
 
 	layoutProg.IsLayout = true
@@ -94,7 +94,13 @@ func (nl *NodeLinker) handleCompLinking(prog *ast.Program) *fail.Error {
 		compName := comp.Name.Val
 		compProg := ast.FindProg(compName, nl.Programs)
 		if compProg == nil {
-			return fail.New(prog.Line(), prog.AbsPath, "API", fail.ErrUndefinedComponent, compName)
+			return fail.New(
+				comp.TokPos(),
+				prog.AbsPath,
+				"API",
+				fail.ErrUndefinedComponent,
+				compName,
+			)
 		}
 
 		err := prog.LinkCompProg(compName, compProg, prog.AbsPath)

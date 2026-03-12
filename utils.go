@@ -21,7 +21,8 @@ var defaultErrPage string
 func errorPage(failure *fail.Error) (string, error) {
 	data := map[string]any{
 		"path":      failure.Filepath(),
-		"line":      failure.Line(),
+		"line":      failure.Pos().Line(),
+		"col":       failure.Pos().Col(),
 		"message":   failure.Message(),
 		"debugMode": userConf.DebugMode,
 	}
@@ -52,7 +53,7 @@ func parseFiles(files []*file.SourceFile) ([]*ast.Program, *fail.Error) {
 	for _, f := range files {
 		prog, failure, parseErr := parseFile(f)
 		if parseErr != nil {
-			return programs, fail.FromError(parseErr, 0, f.Abs, "template")
+			return programs, fail.FromError(parseErr, nil, f.Abs, "template")
 		}
 
 		if failure != nil {

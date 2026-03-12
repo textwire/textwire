@@ -8,10 +8,9 @@ import (
 type Node interface {
 	Tok() *token.Token
 	SetTok(token.Token)
+	TokPos() *position.Pos
+	SetEndPosition(pos *position.Pos)
 	String() string
-	Line() uint
-	TokPos() position.Pos
-	SetEndPosition(pos position.Pos)
 }
 
 // Chunk is a top lever node that your program is composed of.

@@ -4,6 +4,8 @@ import (
 	"errors"
 	"fmt"
 	"log"
+
+	"github.com/textwire/textwire/v3/pkg/position"
 )
 
 // Each string constant here is also an ErrorID on Error object.
@@ -77,16 +79,20 @@ const (
 // Error is the main error type for Textwire that contains all the necessary
 // information about the error like the line number, file path, etc.
 type Error struct {
-	message  string
-	line     uint
-	filepath string
+	pos      *position.Pos
 	origin   string // "parser" | "evaluator" | "template" | "API"
+	filepath string
+	message  string
 }
 
 // New creates a new Error instance of Error
-func New(line uint, filepath, origin, msg string, args ...any) *Error {
+func New(pos *position.Pos, filepath, origin, msg string, args ...any) *Error {
+	if pos == nil {
+		pos = &position.Pos{}
+	}
+
 	return &Error{
-		line:     line,
+		pos:      pos,
 		origin:   origin,
 		filepath: filepath,
 		message:  fmt.Sprintf(msg, args...),
@@ -101,8 +107,8 @@ func (e *Error) Origin() string {
 	return e.origin
 }
 
-func (e *Error) Line() uint {
-	return e.line
+func (e *Error) Pos() *position.Pos {
+	return e.pos
 }
 
 func (e *Error) Message() string {
@@ -115,8 +121,7 @@ func (e *Error) Meta() string {
 	if e.filepath != "" {
 		path = fmt.Sprintf(" in %s", e.filepath)
 	}
-
-	return fmt.Sprintf("Textwire ERROR%s:%d", path, e.line)
+	return fmt.Sprintf("Textwire ERROR%s:%d", path, e.pos.Line())
 }
 
 // String returns the full error message with all the details
@@ -156,10 +161,14 @@ func (e *Error) Error() error {
 	return errors.New(e.String())
 }
 
-func FromError(err error, line uint, absPath, origin string, args ...any) *Error {
+func FromError(err error, pos *position.Pos, absPath, origin string, args ...any) *Error {
 	if err == nil {
 		panic("err should never be nil in fail.FromError() function")
 	}
 
-	return New(line, absPath, origin, err.Error(), args...)
+	if pos == nil {
+		pos = &position.Pos{}
+	}
+
+	return New(pos, absPath, origin, err.Error(), args...)
 }

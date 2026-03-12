@@ -4,6 +4,7 @@ import (
 	"strconv"
 
 	"github.com/textwire/textwire/v3/pkg/file"
+	"github.com/textwire/textwire/v3/pkg/position"
 	"github.com/textwire/textwire/v3/pkg/token"
 
 	"slices"
@@ -210,7 +211,7 @@ func (p *Parser) embedded() ast.Chunk {
 	p.nextToken() // skip "{{"
 
 	if p.curTokenIs(token.RBRACES) {
-		p.newError(p.curToken.Line(), fail.ErrEmptyBraces)
+		p.newError(p.curToken.Pos, fail.ErrEmptyBraces)
 		return nil
 	}
 
@@ -293,7 +294,7 @@ func (p *Parser) expectPeek(tok token.TokenType) bool {
 	}
 
 	p.newError(
-		p.peekToken.Line(),
+		p.peekToken.Pos,
 		fail.ErrWrongNextToken,
 		token.String(tok),
 		token.String(p.peekToken.Type),
@@ -302,8 +303,8 @@ func (p *Parser) expectPeek(tok token.TokenType) bool {
 	return false
 }
 
-func (p *Parser) newError(line uint, msg string, args ...any) {
-	newErr := fail.New(line, p.file.Abs, "parser", msg, args...)
+func (p *Parser) newError(pos *position.Pos, msg string, args ...any) {
+	newErr := fail.New(pos, p.file.Abs, "parser", msg, args...)
 	p.errors = append(p.errors, newErr)
 }
 
@@ -325,7 +326,7 @@ func (p *Parser) intExpr() ast.Expression {
 	val, err := strconv.ParseInt(p.curToken.Lit, 10, 64)
 	if err != nil {
 		p.newError(
-			p.curToken.Line(),
+			p.curToken.Pos,
 			fail.ErrCouldNotParseAs,
 			p.curToken.Lit,
 			"INT",
@@ -340,7 +341,7 @@ func (p *Parser) floatExpr() ast.Expression {
 	val, err := strconv.ParseFloat(p.curToken.Lit, 64)
 	if err != nil {
 		p.newError(
-			p.curToken.Line(),
+			p.curToken.Pos,
 			fail.ErrCouldNotParseAs,
 			p.curToken.Lit,
 			"FLOAT",
@@ -421,7 +422,7 @@ func (p *Parser) assignStmt(left ast.Expression) ast.Statement {
 	p.nextToken() // skip "="
 
 	if p.curTokenIs(token.RBRACES) {
-		p.newError(p.curToken.Line(), fail.ErrExpectedExpression)
+		p.newError(p.curToken.Pos, fail.ErrExpectedExpression)
 		return nil
 	}
 
@@ -442,14 +443,14 @@ func (p *Parser) useDir() ast.Chunk {
 
 	if p.curToken.Type != token.STR {
 		p.newError(
-			p.curToken.Line(),
+			p.curToken.Pos,
 			fail.ErrUseDirFirstArgStr,
 			token.String(p.curToken.Type),
 		)
 	}
 
 	if p.curToken.Lit == "" {
-		p.newError(p.curToken.Line(), fail.ErrExpectedUseName)
+		p.newError(p.curToken.Pos, fail.ErrExpectedUseName)
 	}
 
 	dir.Name = ast.NewStrExpr(
@@ -464,7 +465,7 @@ func (p *Parser) useDir() ast.Chunk {
 	dir.SetEndPosition(p.curToken.Pos)
 
 	if p._useDir != nil {
-		p.newError(p.curToken.Line(), fail.ErrOnlyOneUseDir)
+		p.newError(p.curToken.Pos, fail.ErrOnlyOneUseDir)
 	}
 
 	p._useDir = dir
@@ -541,7 +542,7 @@ func (p *Parser) compDirHeader(stmt *ast.ComponentDir) *ast.IllegalNode {
 	p.nextToken() // skip "("
 
 	if p.curToken.Lit == "" {
-		p.newError(p.curToken.Line(), fail.ErrExpectedComponentName)
+		p.newError(p.curToken.Pos, fail.ErrExpectedComponentName)
 	}
 
 	stmt.Name = ast.NewStrExpr(
@@ -555,7 +556,7 @@ func (p *Parser) compDirHeader(stmt *ast.ComponentDir) *ast.IllegalNode {
 
 		obj, ok := p.expression(LOWEST).(*ast.ObjExpr)
 		if !ok {
-			p.newError(p.curToken.Line(), fail.ErrExpectedObjLit, p.curToken.Lit)
+			p.newError(p.curToken.Pos, fail.ErrExpectedObjLit, p.curToken.Lit)
 			return nil
 		}
 
@@ -770,7 +771,7 @@ func (p *Parser) reserveDir() ast.Chunk {
 
 	// Check for duplicate reserve statements
 	if _, ok := p.reserves[dir.Name.Val]; ok {
-		p.newError(dir.Token.Line(), fail.ErrDuplicateReserves, dir.Name.Val, p.file.Abs)
+		p.newError(dir.Token.Pos, fail.ErrDuplicateReserves, dir.Name.Val, p.file.Abs)
 		return nil
 	}
 
@@ -855,7 +856,7 @@ func (p *Parser) insertDirHeader(dir *ast.InsertDir) (*ast.IllegalNode, bool) {
 func (p *Parser) checkDuplicateInserts(dir *ast.InsertDir) bool {
 	if _, hasDuplicate := p.inserts[dir.Name.Val]; hasDuplicate {
 		p.newError(
-			dir.Token.Line(),
+			dir.Token.Pos,
 			fail.ErrDuplicateInserts,
 			dir.Name.Val,
 		)
@@ -894,7 +895,7 @@ func (p *Parser) dotExpr(left ast.Expression) ast.Expression {
 	expr := ast.NewDotExpr(*left.Tok(), left)
 
 	if p.peekTokenIs(token.INT) {
-		p.newError(p.curToken.Line(), fail.ErrObjKeyUseGet)
+		p.newError(p.curToken.Pos, fail.ErrObjKeyUseGet)
 		return nil
 	}
 
@@ -946,7 +947,7 @@ func (p *Parser) infixExpr(left ast.Expression) ast.Expression {
 	p.nextToken() // skip operator
 
 	if p.curTokenIs(token.RBRACES) {
-		p.newError(p.curToken.Line(), fail.ErrExpectedExpression)
+		p.newError(p.curToken.Pos, fail.ErrExpectedExpression)
 		return nil
 	}
 
@@ -1058,7 +1059,7 @@ func (p *Parser) elseBlock() *ast.Block {
 	stmt := p.block()
 
 	if p.peekTokenIs(token.ELSEIF) {
-		p.newError(p.peekToken.Line(), fail.ErrElseifCannotFollowElse)
+		p.newError(p.peekToken.Pos, fail.ErrElseifCannotFollowElse)
 		return nil
 	}
 
@@ -1126,7 +1127,7 @@ func (p *Parser) forDirHeader(dir *ast.ForDir) *ast.IllegalNode {
 		p.nextToken() // move to ++/--
 
 		if p.curTokenIs(token.RPAREN) {
-			p.newError(p.curToken.Line(), fail.ErrForLoopExpectStmt, left.String())
+			p.newError(p.curToken.Pos, fail.ErrForLoopExpectStmt, left.String())
 			return nil
 		}
 
@@ -1238,7 +1239,7 @@ func (p *Parser) expression(precedence int) ast.Expression {
 
 	if prefix == nil {
 		p.newError(
-			p.curToken.Line(),
+			p.curToken.Pos,
 			fail.ErrIllegalToken,
 			p.curToken.Lit,
 		)
@@ -1331,7 +1332,7 @@ func (p *Parser) expressionList(endTok token.TokenType) []ast.Expression {
 
 func (p *Parser) illegalNode() *ast.IllegalNode {
 	p.newError(
-		p.curToken.Line(),
+		p.curToken.Pos,
 		fail.ErrIllegalToken,
 		p.curToken.Lit,
 	)

@@ -509,7 +509,7 @@ func TestEvalTernaryExp(t *testing.T) {
 	}
 }
 
-func TestEvalIfStmt(t *testing.T) {
+func TestEvalIfDir(t *testing.T) {
 	cases := []struct {
 		id     uint
 		inp    string
@@ -798,7 +798,7 @@ func TestEvalAssign(t *testing.T) {
 	}
 }
 
-func TestIncDecStmt(t *testing.T) {
+func TestIncDecDir(t *testing.T) {
 	cases := []struct {
 		id     uint
 		inp    string
@@ -817,7 +817,7 @@ func TestIncDecStmt(t *testing.T) {
 	}
 }
 
-func TestEvalForStmt(t *testing.T) {
+func TestEvalForDir(t *testing.T) {
 	cases := []struct {
 		id     uint
 		inp    string
@@ -886,7 +886,7 @@ func TestEvalForStmt(t *testing.T) {
 	}
 }
 
-func TestEvalEachStmt(t *testing.T) {
+func TestEvalEachDir(t *testing.T) {
 	cases := []struct {
 		id     uint
 		inp    string
@@ -1137,7 +1137,7 @@ func TestCannotUseOperatorError(t *testing.T) {
 		}
 
 		expect := fail.New(
-			1,
+			nil,
 			"/path/to/file",
 			"evaluator",
 			fail.ErrCannotUseOperator,

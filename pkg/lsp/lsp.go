@@ -39,7 +39,7 @@ func IsInLoop(doc, filePath string, line, col uint) (bool, []*fail.Error) {
 	return false, p.Errors()
 }
 
-func IsCursorInBlock(line, col uint, pos position.Pos) bool {
+func IsCursorInBlock(line, col uint, pos *position.Pos) bool {
 	// Line outside range
 	if line < pos.StartLine || line > pos.EndLine {
 		return false

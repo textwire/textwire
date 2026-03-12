@@ -8,7 +8,7 @@ import (
 // BaseNode is the main base for all the AST nodes.
 type BaseNode struct {
 	Token token.Token
-	Pos   position.Pos
+	Pos   *position.Pos
 }
 
 func NewBaseNode(tok token.Token) BaseNode {
@@ -18,19 +18,15 @@ func NewBaseNode(tok token.Token) BaseNode {
 	}
 }
 
-func (bn *BaseNode) Line() uint {
-	return bn.Token.Line()
-}
-
 func (bn *BaseNode) Tok() *token.Token {
 	return &bn.Token
 }
 
-func (bn *BaseNode) TokPos() position.Pos {
+func (bn *BaseNode) TokPos() *position.Pos {
 	return bn.Pos
 }
 
-func (bn *BaseNode) SetEndPosition(pos position.Pos) {
+func (bn *BaseNode) SetEndPosition(pos *position.Pos) {
 	bn.Pos.EndCol = pos.EndCol
 	bn.Pos.EndLine = pos.EndLine
 }
