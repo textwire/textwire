@@ -28,9 +28,9 @@ const (
 	ErrExpectedUseName        = "@use('') cannot have empty name"
 	ErrUnusedInsertDetected   = "@insert('%s') needs to have a matching @reserve('%s') in layout file"
 	ErrDuplicateInserts       = "duplicate @insert('%s') found"
-	ErrUseDirFirstArgStr      = "argument 1 of @use(str) must be a string, got @use('%s')"
 	ErrOnlyOneUseDir          = "@use() directive can only be used once per template"
 	ErrForLoopExpectStmt      = "@for() expects statement as post conditional, got expression '%s', like 'i++', 'i = i + 2', etc"
+	ErrWrongTokenType         = "expected type '%s' but '%s' received"
 
 	// Evaluator (interpreter) errors
 	ErrUnknownType             = "unsupported type '%T'"

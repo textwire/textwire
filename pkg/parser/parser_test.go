@@ -538,7 +538,14 @@ func TestErrorHandling(t *testing.T) {
 		{
 			id:  90,
 			inp: "@use(1)",
-			err: fail.New(nil, "", "parser", fail.ErrUseDirFirstArgStr, token.String(token.INT)),
+			err: fail.New(
+				nil,
+				"",
+				"parser",
+				fail.ErrWrongTokenType,
+				token.String(token.STR),
+				token.String(token.INT),
+			),
 		},
 		{
 			id:  100,
