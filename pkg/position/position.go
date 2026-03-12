@@ -27,12 +27,16 @@ func (p Pos) Contains(line uint, col uint) bool {
 	return true
 }
 
-// Line returns the end line position display.
+// Line returns the end line position display. For multi-line tokens, showing
+// the end line is much more useful then the start line. That's why we are
+// using EndLine.
 func (p *Pos) Line() uint {
 	return p.EndLine + 1
 }
 
-// Col returns the end column position display.
+// Col returns the end column position display. For long tokens, showing
+// the end column is much more useful then the start column. That's why we
+// are using EndCol.
 func (p *Pos) Col() uint {
 	return p.EndCol + 1
 }
