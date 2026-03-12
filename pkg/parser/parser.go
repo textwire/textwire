@@ -557,7 +557,6 @@ func (p *Parser) compDirHeader(stmt *ast.ComponentDir) *ast.IllegalNode {
 
 	if p.curToken.Lit == "" {
 		p.newError(p.curToken.Pos, fail.ErrStrCannotBeEmpty)
-		return nil
 	}
 
 	stmt.Name = ast.NewStrExpr(
@@ -1147,7 +1146,7 @@ func (p *Parser) forDirHeader(dir *ast.ForDir) *ast.IllegalNode {
 		p.nextToken() // move to ++/--
 
 		if p.curTokenIs(token.RPAREN) {
-			p.newError(p.curToken.Pos, fail.ErrForLoopExpectStmt, left.String())
+			p.newError(left.Pos(), fail.ErrForLoopExpectStmt, left.String())
 			return nil
 		}
 
