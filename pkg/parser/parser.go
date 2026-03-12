@@ -683,8 +683,9 @@ func (p *Parser) localSlotDir(name *ast.StrExpr, compName string) ast.Chunk {
 		dir.SetBlock(p.block())
 	}
 
-	p.nextToken() // skip "@end"
 	dir.SetEndPosition(p.curToken.Pos)
+
+	p.nextToken() // skip "@end"
 
 	return dir
 }
