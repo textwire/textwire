@@ -334,7 +334,7 @@ func (e *Evaluator) useDir(useDir *ast.UseDir, ctx *Context) value.Value {
 
 	// Make sure that layout is missing @use
 	if useDir.LayoutProg.IsLayout && useDir.LayoutProg.HasUseDir() {
-		return e.newError(useDir, ctx, fail.ErrDirStmtNotAllowed)
+		return e.newError(useDir, ctx, fail.ErrUseDorIsNotAllowed)
 	}
 
 	// Create new layout context and pass inserts to it
