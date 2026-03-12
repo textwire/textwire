@@ -24,13 +24,12 @@ const (
 	ErrDuplicateReserves      = "found duplicate @reserve('%s') inside of a layout file %s"
 	ErrDuplicateSlot          = "@slot('%s') used %d times in @component('%s')"
 	ErrDuplicateDefaultSlot   = "default @slot used %d times in @component('%s')"
-	ErrExpectedComponentName  = "@component('') cannot have empty name"
-	ErrExpectedUseName        = "@use('') cannot have empty name"
 	ErrUnusedInsertDetected   = "@insert('%s') needs to have a matching @reserve('%s') in layout file"
 	ErrDuplicateInserts       = "duplicate @insert('%s') found"
 	ErrOnlyOneUseDir          = "@use() directive can only be used once per template"
 	ErrForLoopExpectStmt      = "@for() expects statement as post conditional, got expression '%s', like 'i++', 'i = i + 2', etc"
 	ErrWrongTokenType         = "expected type '%s' but '%s' received"
+	ErrStrCannotBeEmpty       = "this string cannot be empty"
 
 	// Evaluator (interpreter) errors
 	ErrUnknownType             = "unsupported type '%T'"

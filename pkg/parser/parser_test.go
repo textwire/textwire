@@ -1,6 +1,7 @@
 package parser
 
 import (
+	"reflect"
 	"strings"
 	"testing"
 
@@ -491,28 +492,28 @@ func TestErrorHandling(t *testing.T) {
 		{
 			id:  10,
 			inp: `{{ { "1st": "nice" }.1st }}`,
-			err: fail.New(nil, "", "parser", fail.ErrObjKeyUseGet),
+			err: fail.New(&position.Pos{StartCol: 20, EndCol: 21}, "", "parser", fail.ErrObjKeyUseGet),
 		},
 		{
 			id:  20,
 			inp: "{{ 5 + }}",
-			err: fail.New(nil, "", "parser", fail.ErrExpectedExpression),
+			err: fail.New(&position.Pos{StartCol: 3, EndCol: 5}, "", "parser", fail.ErrExpectedExpression),
 		},
 		{
 			id:  30,
 			inp: "{{ }}",
-			err: fail.New(nil, "", "parser", fail.ErrEmptyBraces),
+			err: fail.New(&position.Pos{EndCol: 4}, "", "parser", fail.ErrEmptyBraces),
 		},
 		{
 			id:  40,
 			inp: `{{ 1 ~ 8 }}`,
-			err: fail.New(nil, "", "parser", fail.ErrIllegalToken, "~"),
+			err: fail.New(&position.Pos{StartCol: 5, EndCol: 5}, "", "parser", fail.ErrIllegalToken, "~"),
 		},
 		{
 			id:  50,
 			inp: "{{ true ? 100 }}",
 			err: fail.New(
-				nil,
+				&position.Pos{StartCol: 14, EndCol: 15},
 				"",
 				"parser",
 				fail.ErrWrongNextToken,
@@ -523,23 +524,23 @@ func TestErrorHandling(t *testing.T) {
 		{
 			id:  60,
 			inp: "{{ ) }}",
-			err: fail.New(nil, "", "parser", fail.ErrIllegalToken, token.String(token.RPAREN)),
+			err: fail.New(&position.Pos{StartCol: 3, EndCol: 3}, "", "parser", fail.ErrIllegalToken, token.String(token.RPAREN)),
 		},
 		{
 			id:  70,
 			inp: "@use('')",
-			err: fail.New(nil, "", "parser", fail.ErrExpectedUseName),
+			err: fail.New(&position.Pos{StartCol: 5, EndCol: 6}, "", "parser", fail.ErrStrCannotBeEmpty),
 		},
 		{
 			id:  80,
 			inp: "@component('')",
-			err: fail.New(nil, "", "parser", fail.ErrExpectedComponentName),
+			err: fail.New(&position.Pos{StartCol: 11, EndCol: 12}, "", "parser", fail.ErrStrCannotBeEmpty),
 		},
 		{
 			id:  90,
 			inp: "@use(1)",
 			err: fail.New(
-				nil,
+				&position.Pos{StartCol: 5, EndCol: 5},
 				"",
 				"parser",
 				fail.ErrWrongTokenType,
@@ -573,8 +574,18 @@ func TestErrorHandling(t *testing.T) {
 			t.Fatalf("Case: %d. No errors found in input %q", tc.id, tc.inp)
 		}
 
-		if err := p.Errors()[0]; err.String() != tc.err.String() {
+		err := p.Errors()[0]
+		if err.String() != tc.err.String() {
 			t.Fatalf("Case: %d. Expect error message:\n%q\ngot:\n%q", tc.id, tc.err, err)
+		}
+
+		if !reflect.DeepEqual(err.Pos(), tc.err.Pos()) {
+			t.Fatalf(
+				"Case: %d. Wrong position on error message, expect %v, got: %v",
+				tc.id,
+				tc.err.Pos(),
+				err.Pos(),
+			)
 		}
 	}
 }
