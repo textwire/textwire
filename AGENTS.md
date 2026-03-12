@@ -128,7 +128,7 @@ fail.New(line, filepath, component, message, args...)
 fail.FromError(err, line, filepath, component).Error()
 
 // Example in parser
-p.newError(p.curToken.ErrorLine(), fail.ErrWrongNextToken, 
+p.newError(p.curToken.Line(), fail.ErrWrongNextToken, 
     token.String(token.LPAREN), token.String(p.peekToken.Type))
 ```
 

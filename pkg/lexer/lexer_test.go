@@ -359,7 +359,7 @@ func TestArr(t *testing.T) {
 	})
 }
 
-func TestErrorLineNumber(t *testing.T) {
+func TestLineNumber(t *testing.T) {
 	cases := []struct {
 		inp  string
 		line uint
@@ -396,8 +396,8 @@ func TestErrorLineNumber(t *testing.T) {
 			lastTok = tok
 		}
 
-		if lastTok.ErrorLine() != tc.line {
-			t.Errorf("Expected line number %d, got %d", tc.line, lastTok.ErrorLine())
+		if lastTok.Line() != tc.line {
+			t.Errorf("Expected line number %d, got %d", tc.line, lastTok.Line())
 		}
 	}
 }
