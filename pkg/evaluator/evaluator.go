@@ -1251,7 +1251,7 @@ func (e *Evaluator) bangOpExp(right value.Literal, node ast.Node, ctx *Context) 
 
 func (e *Evaluator) newError(node ast.Node, ctx *Context, format string, a ...any) *value.Error {
 	return &value.Error{
-		Err:     fail.New(node.Pos(), ctx.absPath, "evaluator", format, a...),
+		Err:     fail.New(node.Pos(), ctx.absPath, fail.OriginEval, format, a...),
 		ErrorID: format,
 	}
 }

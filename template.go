@@ -27,7 +27,7 @@ func NewTemplate(opt *config.Config) (*Template, *fail.Error) {
 
 	files, err := locateFiles()
 	if err != nil {
-		return nil, fail.FromError(err, nil, "", "template")
+		return nil, fail.FromError(err, nil, "", fail.OriginTpl)
 	}
 
 	programs, parseErr := parseFiles(files)
@@ -68,7 +68,7 @@ func (t *Template) String(name string, data map[string]any) (string, *fail.Error
 	prog := ast.FindProg(name, progs)
 	if prog == nil {
 		relPath := file.NameToRelPath(name, userConf.TemplateDir, userConf.TemplateExt)
-		return "", fail.New(nil, relPath, "template", fail.ErrTemplateNotFound, name)
+		return "", fail.New(nil, relPath, fail.OriginTpl, fail.ErrTemplateNotFound, name)
 	}
 
 	e := evaluator.New(customFunc, userConf)

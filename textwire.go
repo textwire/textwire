@@ -45,7 +45,7 @@ func EvaluateFile(absPath string, data map[string]any) (string, error) {
 	f := file.New("", "", absPath, userConf)
 	content, err := f.Content()
 	if err != nil {
-		return "", fail.FromError(err, nil, absPath, "template").Error()
+		return "", fail.FromError(err, nil, absPath, fail.OriginTpl).Error()
 	}
 
 	res, err := EvaluateString(content, data)
@@ -61,7 +61,8 @@ func EvaluateFile(absPath string, data map[string]any) (string, error) {
 // e.g. `{{ "Sydney".myFunc() }}`
 func RegisterStrFunc(name string, fn config.StrCustomFunc) error {
 	if _, ok := customFunc.Str[name]; ok {
-		return fail.New(nil, "", "API", fail.ErrFuncAlreadyDefined, name, "strings").Error()
+		return fail.New(nil, "", fail.OriginAPI, fail.ErrFuncAlreadyDefined, name, "strings").
+			Error()
 	}
 
 	customFunc.Str[name] = fn
@@ -74,7 +75,7 @@ func RegisterStrFunc(name string, fn config.StrCustomFunc) error {
 // e.g. `{{ [1, 2].myFunc() }}`
 func RegisterArrFunc(name string, fn config.ArrCustomFunc) error {
 	if _, ok := customFunc.Arr[name]; ok {
-		return fail.New(nil, "", "API", fail.ErrFuncAlreadyDefined, name, "arrays").Error()
+		return fail.New(nil, "", fail.OriginAPI, fail.ErrFuncAlreadyDefined, name, "arrays").Error()
 	}
 
 	customFunc.Arr[name] = fn
@@ -87,7 +88,8 @@ func RegisterArrFunc(name string, fn config.ArrCustomFunc) error {
 // e.g. `{{ {name: 'Sydney'}.myFunc() }}`
 func RegisterObjFunc(name string, fn config.ObjCustomFunc) error {
 	if _, ok := customFunc.Obj[name]; ok {
-		return fail.New(nil, "", "API", fail.ErrFuncAlreadyDefined, name, "objects").Error()
+		return fail.New(nil, "", fail.OriginAPI, fail.ErrFuncAlreadyDefined, name, "objects").
+			Error()
 	}
 
 	customFunc.Obj[name] = fn
@@ -100,7 +102,8 @@ func RegisterObjFunc(name string, fn config.ObjCustomFunc) error {
 // e.g. `{{ 1.myFunc() }}`
 func RegisterIntFunc(name string, fn config.IntCustomFunc) error {
 	if _, ok := customFunc.Int[name]; ok {
-		return fail.New(nil, "", "API", fail.ErrFuncAlreadyDefined, name, "integers").Error()
+		return fail.New(nil, "", fail.OriginAPI, fail.ErrFuncAlreadyDefined, name, "integers").
+			Error()
 	}
 
 	customFunc.Int[name] = fn
@@ -113,7 +116,7 @@ func RegisterIntFunc(name string, fn config.IntCustomFunc) error {
 // e.g. `{{ 1.12.myFunc() }}`
 func RegisterFloatFunc(name string, fn config.FloatCustomFunc) error {
 	if _, ok := customFunc.Float[name]; ok {
-		return fail.New(nil, "", "API", fail.ErrFuncAlreadyDefined, name, "floats").Error()
+		return fail.New(nil, "", fail.OriginAPI, fail.ErrFuncAlreadyDefined, name, "floats").Error()
 	}
 
 	customFunc.Float[name] = fn
@@ -126,7 +129,8 @@ func RegisterFloatFunc(name string, fn config.FloatCustomFunc) error {
 // e.g. `{{ true.myFunc() }}`
 func RegisterBoolFunc(name string, fn config.BoolCustomFunc) error {
 	if _, ok := customFunc.Bool[name]; ok {
-		return fail.New(nil, "", "API", fail.ErrFuncAlreadyDefined, name, "booleans").Error()
+		return fail.New(nil, "", fail.OriginAPI, fail.ErrFuncAlreadyDefined, name, "booleans").
+			Error()
 	}
 
 	customFunc.Bool[name] = fn

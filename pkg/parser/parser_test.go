@@ -492,22 +492,38 @@ func TestErrorHandling(t *testing.T) {
 		{
 			id:  10,
 			inp: `{{ { "1st": "nice" }.1st }}`,
-			err: fail.New(&position.Pos{StartCol: 20, EndCol: 21}, "", "parser", fail.ErrObjKeyUseGet),
+			err: fail.New(
+				&position.Pos{StartCol: 20, EndCol: 21},
+				"",
+				fail.OriginPars,
+				fail.ErrObjKeyUseGet,
+			),
 		},
 		{
 			id:  20,
 			inp: "{{ 5 + }}",
-			err: fail.New(&position.Pos{StartCol: 3, EndCol: 5}, "", "parser", fail.ErrExpectedExpression),
+			err: fail.New(
+				&position.Pos{StartCol: 3, EndCol: 5},
+				"",
+				fail.OriginPars,
+				fail.ErrExpectedExpression,
+			),
 		},
 		{
 			id:  30,
 			inp: "{{ }}",
-			err: fail.New(&position.Pos{EndCol: 4}, "", "parser", fail.ErrEmptyBraces),
+			err: fail.New(&position.Pos{EndCol: 4}, "", fail.OriginPars, fail.ErrEmptyBraces),
 		},
 		{
 			id:  40,
 			inp: `{{ 1 ~ 8 }}`,
-			err: fail.New(&position.Pos{StartCol: 5, EndCol: 5}, "", "parser", fail.ErrIllegalToken, "~"),
+			err: fail.New(
+				&position.Pos{StartCol: 5, EndCol: 5},
+				"",
+				fail.OriginPars,
+				fail.ErrIllegalToken,
+				"~",
+			),
 		},
 		{
 			id:  50,
@@ -515,7 +531,7 @@ func TestErrorHandling(t *testing.T) {
 			err: fail.New(
 				&position.Pos{StartCol: 14, EndCol: 15},
 				"",
-				"parser",
+				fail.OriginPars,
 				fail.ErrWrongNextToken,
 				token.String(token.COLON),
 				token.String(token.RBRACES),
@@ -524,17 +540,33 @@ func TestErrorHandling(t *testing.T) {
 		{
 			id:  60,
 			inp: "{{ ) }}",
-			err: fail.New(&position.Pos{StartCol: 3, EndCol: 3}, "", "parser", fail.ErrIllegalToken, token.String(token.RPAREN)),
+			err: fail.New(
+				&position.Pos{StartCol: 3, EndCol: 3},
+				"",
+				fail.OriginPars,
+				fail.ErrIllegalToken,
+				token.String(token.RPAREN),
+			),
 		},
 		{
 			id:  70,
 			inp: "@use('')",
-			err: fail.New(&position.Pos{StartCol: 5, EndCol: 6}, "", "parser", fail.ErrStrCannotBeEmpty),
+			err: fail.New(
+				&position.Pos{StartCol: 5, EndCol: 6},
+				"",
+				fail.OriginPars,
+				fail.ErrStrCannotBeEmpty,
+			),
 		},
 		{
 			id:  80,
 			inp: "@component('')",
-			err: fail.New(&position.Pos{StartCol: 11, EndCol: 12}, "", "parser", fail.ErrStrCannotBeEmpty),
+			err: fail.New(
+				&position.Pos{StartCol: 11, EndCol: 12},
+				"",
+				fail.OriginPars,
+				fail.ErrStrCannotBeEmpty,
+			),
 		},
 		{
 			id:  90,
@@ -542,7 +574,7 @@ func TestErrorHandling(t *testing.T) {
 			err: fail.New(
 				&position.Pos{StartCol: 5, EndCol: 5},
 				"",
-				"parser",
+				fail.OriginPars,
 				fail.ErrWrongTokenType,
 				token.String(token.STR),
 				token.String(token.INT),
@@ -551,17 +583,35 @@ func TestErrorHandling(t *testing.T) {
 		{
 			id:  100,
 			inp: "@for(i = 0; i < 4; i+2){{ i }}@end",
-			err: fail.New(&position.Pos{StartCol: 19, EndCol: 21}, "", "parser", fail.ErrForLoopExpectStmt, "(i + 2)"),
+			err: fail.New(
+				&position.Pos{StartCol: 19, EndCol: 21},
+				"",
+				fail.OriginPars,
+				fail.ErrForLoopExpectStmt,
+				"(i + 2)",
+			),
 		},
 		{
 			id:  110,
 			inp: "@for(c = 0.0; c < 4.0; c+2.0){{ c }}@end",
-			err: fail.New(&position.Pos{StartCol: 23, EndCol: 27}, "", "parser", fail.ErrForLoopExpectStmt, "(c + 2.0)"),
+			err: fail.New(
+				&position.Pos{StartCol: 23, EndCol: 27},
+				"",
+				fail.OriginPars,
+				fail.ErrForLoopExpectStmt,
+				"(c + 2.0)",
+			),
 		},
 		{
 			id:  120,
 			inp: "@for(;;    true  ){{ c }}@end",
-			err: fail.New(&position.Pos{StartCol: 11, EndCol: 14}, "", "parser", fail.ErrForLoopExpectStmt, "true"),
+			err: fail.New(
+				&position.Pos{StartCol: 11, EndCol: 14},
+				"",
+				fail.OriginPars,
+				fail.ErrForLoopExpectStmt,
+				"true",
+			),
 		},
 	}
 

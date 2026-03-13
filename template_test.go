@@ -32,7 +32,7 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 			err: fail.New(
 				&position.Pos{StartCol: 21, EndCol: 41},
 				absPath+"undefined-default-slotif/index.tw",
-				"linker",
+				fail.OriginLink,
 				fail.ErrDefaultSlotNotDefined,
 				"user",
 			),
@@ -43,7 +43,7 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 			err: fail.New(
 				&position.Pos{StartCol: 21, EndCol: 49},
 				absPath+"undefined-named-slotif/index.tw",
-				"linker",
+				fail.OriginLink,
 				fail.ErrSlotNotDefined,
 				"user",
 				"name",
@@ -55,7 +55,7 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 			err: fail.New(
 				&position.Pos{StartLine: 2, EndLine: 2, EndCol: 16},
 				absPath+"duplicate-reserves/base.tw",
-				"parser",
+				fail.OriginPars,
 				fail.ErrDuplicateReserves,
 				"title",
 				absPath+"duplicate-reserves/base.tw",
@@ -67,7 +67,7 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 			err: fail.New(
 				&position.Pos{EndCol: 13},
 				absPath+"use-inside-tpl/layout.tw",
-				"evaluator",
+				fail.OriginEval,
 				fail.ErrUseDirIsNotAllowed,
 			),
 			data: nil,
@@ -77,7 +77,7 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 			err: fail.New(
 				&position.Pos{StartLine: 1, StartCol: 4, EndLine: 3, EndCol: 7},
 				absPath+"unknown-named-slot/index.tw",
-				"linker",
+				fail.OriginLink,
 				fail.ErrSlotNotDefined,
 				"user",
 				"unknown",
@@ -89,7 +89,7 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 			err: fail.New(
 				&position.Pos{StartLine: 1, StartCol: 4, EndLine: 3, EndCol: 7},
 				absPath+"unknown-default-slot/index.tw",
-				"linker",
+				fail.OriginLink,
 				fail.ErrDefaultSlotNotDefined,
 				"book",
 			),
@@ -100,7 +100,7 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 			err: fail.New(
 				&position.Pos{StartLine: 2, StartCol: 4, EndLine: 2, EndCol: 39},
 				absPath+"duplicate-slot/index.tw",
-				"linker",
+				fail.OriginLink,
 				fail.ErrDuplicateSlot,
 				"content",
 				2,
@@ -113,7 +113,7 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 			err: fail.New(
 				&position.Pos{StartLine: 2, StartCol: 4, EndLine: 2, EndCol: 28},
 				absPath+"duplicate-default-slot/index.tw",
-				"linker",
+				fail.OriginLink,
 				fail.ErrDuplicateDefaultSlot,
 				2,
 				"user",
@@ -125,7 +125,7 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 			err: fail.New(
 				&position.Pos{StartLine: 8, StartCol: 4, EndLine: 8, EndCol: 29},
 				absPath+"unknown-comp/index.tw",
-				"linker",
+				fail.OriginLink,
 				fail.ErrUndefinedComponent,
 				"unknown-name",
 			),
@@ -136,7 +136,7 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 			err: fail.New(
 				&position.Pos{StartLine: 4, EndLine: 6, EndCol: 3},
 				absPath+"undefined-insert/index.tw",
-				"linker",
+				fail.OriginLink,
 				fail.ErrUnusedInsertDetected,
 				"some-name",
 				"some-name",
@@ -148,7 +148,7 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 			err: fail.New(
 				&position.Pos{StartLine: 3, StartCol: 8, EndLine: 3, EndCol: 14},
 				absPath+"duplicate-inserts/index.tw",
-				"parser",
+				fail.OriginPars,
 				fail.ErrDuplicateInserts,
 				"title",
 			),
@@ -159,7 +159,7 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 			err: fail.New(
 				&position.Pos{StartCol: 3, EndCol: 14},
 				absPath+"undefined-var-in-comp/hero.tw",
-				"evaluator",
+				fail.OriginEval,
 				fail.ErrVariableIsUndefined,
 				"undefinedVar",
 			),
@@ -170,7 +170,7 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 			err: fail.New(
 				&position.Pos{StartLine: 7, StartCol: 9, EndLine: 7, EndCol: 20},
 				absPath+"undefined-var-in-use/base.tw",
-				"evaluator",
+				fail.OriginEval,
 				fail.ErrVariableIsUndefined,
 				"undefinedVar",
 			),
@@ -181,7 +181,7 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 			err: fail.New(
 				&position.Pos{StartCol: 5, EndCol: 22},
 				absPath+"undefined-use/index.tw",
-				"linker",
+				fail.OriginLink,
 				fail.ErrUseDirMissingLayout,
 				"undefined-layout",
 			),
@@ -192,7 +192,7 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 			err: fail.New(
 				&position.Pos{StartCol: 9, EndCol: 12},
 				absPath+"undefined-var-in-nested-comp/second.tw",
-				"evaluator",
+				fail.OriginEval,
 				fail.ErrVariableIsUndefined,
 				"name",
 			),
@@ -203,7 +203,7 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 			err: fail.New(
 				&position.Pos{StartCol: 9, EndCol: 16},
 				absPath+"var-in-layout/layout.tw",
-				"evaluator",
+				fail.OriginEval,
 				fail.ErrVariableIsUndefined,
 				"fullName",
 			),
@@ -214,7 +214,7 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 			err: fail.New(
 				&position.Pos{StartLine: 1, StartCol: 5, EndLine: 1, EndCol: 13},
 				absPath+"duplicate-use/index.tw",
-				"parser",
+				fail.OriginPars,
 				fail.ErrOnlyOneUseDir,
 			),
 			data: nil,
@@ -224,7 +224,7 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 			err: fail.New(
 				&position.Pos{StartLine: 3, EndLine: 3, EndCol: 31},
 				absPath+"inserts-without-use/index.tw",
-				"evaluator",
+				fail.OriginEval,
 				fail.ErrInsertRequiresUse,
 				"title",
 			),
@@ -396,7 +396,7 @@ func TestTemplateResponse(t *testing.T) {
 			err: fail.New(
 				&position.Pos{StartLine: 1, EndLine: 1},
 				absPath+"prod-error-page/home.tw",
-				"parser",
+				fail.OriginPars,
 				fail.ErrEachDirWithNonArrArg,
 				value.STR_VAL,
 			),

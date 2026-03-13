@@ -440,7 +440,7 @@ func TestErrorHandling(t *testing.T) {
 			err: fail.New(
 				nil,
 				"",
-				"evaluator",
+				fail.OriginEval,
 				fail.ErrFuncNotDefined,
 				value.STR_VAL,
 				"undefinedFunc",
@@ -449,22 +449,22 @@ func TestErrorHandling(t *testing.T) {
 		},
 		{
 			inp:  `@use("someTemplate")`,
-			err:  fail.New(nil, "", "evaluator", fail.ErrSomeDirsOnlyInTemplates),
+			err:  fail.New(nil, "", fail.OriginEval, fail.ErrSomeDirsOnlyInTemplates),
 			data: nil,
 		},
 		{
 			inp:  `@insert("title", "hi")`,
-			err:  fail.New(nil, "", "evaluator", fail.ErrSomeDirsOnlyInTemplates),
+			err:  fail.New(nil, "", fail.OriginEval, fail.ErrSomeDirsOnlyInTemplates),
 			data: nil,
 		},
 		{
 			inp:  `@reserve("content")`,
-			err:  fail.New(nil, "", "evaluator", fail.ErrSomeDirsOnlyInTemplates),
+			err:  fail.New(nil, "", fail.OriginEval, fail.ErrSomeDirsOnlyInTemplates),
 			data: nil,
 		},
 		{
 			inp:  `@component("~header")`,
-			err:  fail.New(nil, "", "evaluator", fail.ErrSomeDirsOnlyInTemplates),
+			err:  fail.New(nil, "", fail.OriginEval, fail.ErrSomeDirsOnlyInTemplates),
 			data: nil,
 		},
 		{
@@ -472,7 +472,7 @@ func TestErrorHandling(t *testing.T) {
 			err: fail.New(
 				nil,
 				"",
-				"evaluator",
+				fail.OriginEval,
 				fail.ErrCannotUseOperator,
 				"+",
 				value.INT_VAL,
@@ -483,12 +483,12 @@ func TestErrorHandling(t *testing.T) {
 		},
 		{
 			inp:  `{{ loop = "test" }}`,
-			err:  fail.New(nil, "", "evaluator", fail.ErrReservedIdentifiers),
+			err:  fail.New(nil, "", fail.OriginEval, fail.ErrReservedIdentifiers),
 			data: nil,
 		},
 		{
 			inp:  `{{ global = "test" }}`,
-			err:  fail.New(nil, "", "evaluator", fail.ErrReservedIdentifiers),
+			err:  fail.New(nil, "", fail.OriginEval, fail.ErrReservedIdentifiers),
 			data: nil,
 		},
 		{
@@ -496,7 +496,7 @@ func TestErrorHandling(t *testing.T) {
 			err: fail.New(
 				nil,
 				"",
-				"evaluator",
+				fail.OriginEval,
 				fail.ErrReservedIdentifiers,
 			), data: map[string]any{"loop": "test"},
 		},
@@ -505,7 +505,7 @@ func TestErrorHandling(t *testing.T) {
 			err: fail.New(
 				nil,
 				"",
-				"evaluator",
+				fail.OriginEval,
 				fail.ErrIdentifierTypeMismatch,
 				"n",
 				value.INT_VAL,
@@ -515,7 +515,7 @@ func TestErrorHandling(t *testing.T) {
 		},
 		{
 			inp:  `{{ user = {}; user.address.zip }}`,
-			err:  fail.New(nil, "", "evaluator", fail.ErrKeyOnNonObj, value.NIL_VAL, "zip"),
+			err:  fail.New(nil, "", fail.OriginEval, fail.ErrKeyOnNonObj, value.NIL_VAL, "zip"),
 			data: nil,
 		},
 		{
@@ -523,7 +523,7 @@ func TestErrorHandling(t *testing.T) {
 			err: fail.New(
 				nil,
 				"",
-				"evaluator",
+				fail.OriginEval,
 				fail.ErrFuncNotDefined,
 				value.INT_VAL,
 				"someFunction",
@@ -532,17 +532,17 @@ func TestErrorHandling(t *testing.T) {
 		},
 		{
 			inp:  `{{ 3 / 0 }}`,
-			err:  fail.New(nil, "", "evaluator", fail.ErrDivisionByZero),
+			err:  fail.New(nil, "", fail.OriginEval, fail.ErrDivisionByZero),
 			data: nil,
 		},
 		{
 			inp:  `{{ undefinedVar }}`,
-			err:  fail.New(nil, "", "evaluator", fail.ErrVariableIsUndefined, "undefinedVar"),
+			err:  fail.New(nil, "", fail.OriginEval, fail.ErrVariableIsUndefined, "undefinedVar"),
 			data: nil,
 		},
 		{
 			inp:  `{{ obj = {name: "Amy"}; obj.name.id }}`,
-			err:  fail.New(nil, "", "evaluator", fail.ErrKeyOnNonObj, value.STR_VAL, "id"),
+			err:  fail.New(nil, "", fail.OriginEval, fail.ErrKeyOnNonObj, value.STR_VAL, "id"),
 			data: nil,
 		},
 		{
@@ -550,7 +550,7 @@ func TestErrorHandling(t *testing.T) {
 			err: fail.New(
 				nil,
 				"",
-				"evaluator",
+				fail.OriginEval,
 				fail.ErrWrongNextToken,
 				token.String(token.IDENT),
 				token.String(token.STR),
@@ -559,52 +559,52 @@ func TestErrorHandling(t *testing.T) {
 		},
 		{
 			inp:  `@each(v in {}){{ v }}@end`,
-			err:  fail.New(nil, "", "evaluator", fail.ErrEachDirWithNonArrArg, value.OBJ_VAL),
+			err:  fail.New(nil, "", fail.OriginEval, fail.ErrEachDirWithNonArrArg, value.OBJ_VAL),
 			data: nil,
 		},
 		{
 			inp:  `{{ 1 = 10 }}`,
-			err:  fail.New(nil, "", "evaluator", fail.ErrNotSupportedAssign, value.INT_VAL),
+			err:  fail.New(nil, "", fail.OriginEval, fail.ErrNotSupportedAssign, value.INT_VAL),
 			data: nil,
 		},
 		{
 			inp:  `{{ {} = 10 }}`,
-			err:  fail.New(nil, "", "evaluator", fail.ErrNotSupportedAssign, value.OBJ_VAL),
+			err:  fail.New(nil, "", fail.OriginEval, fail.ErrNotSupportedAssign, value.OBJ_VAL),
 			data: nil,
 		},
 		{
 			inp:  `{{ [] = 10 }}`,
-			err:  fail.New(nil, "", "evaluator", fail.ErrNotSupportedAssign, value.ARR_VAL),
+			err:  fail.New(nil, "", fail.OriginEval, fail.ErrNotSupportedAssign, value.ARR_VAL),
 			data: nil,
 		},
 		{
 			inp:  `{{ 1.1 = 10 }}`,
-			err:  fail.New(nil, "", "evaluator", fail.ErrNotSupportedAssign, value.FLOAT_VAL),
+			err:  fail.New(nil, "", fail.OriginEval, fail.ErrNotSupportedAssign, value.FLOAT_VAL),
 			data: nil,
 		},
 		{
 			inp:  `{{ true = 10 }}`,
-			err:  fail.New(nil, "", "evaluator", fail.ErrNotSupportedAssign, value.BOOL_VAL),
+			err:  fail.New(nil, "", fail.OriginEval, fail.ErrNotSupportedAssign, value.BOOL_VAL),
 			data: nil,
 		},
 		{
 			inp:  `{{ 'anna' = 10 }}`,
-			err:  fail.New(nil, "", "evaluator", fail.ErrNotSupportedAssign, value.STR_VAL),
+			err:  fail.New(nil, "", fail.OriginEval, fail.ErrNotSupportedAssign, value.STR_VAL),
 			data: nil,
 		},
 		{
 			inp:  `{{ "serhii" = 10 }}`,
-			err:  fail.New(nil, "", "evaluator", fail.ErrNotSupportedAssign, value.STR_VAL),
+			err:  fail.New(nil, "", fail.OriginEval, fail.ErrNotSupportedAssign, value.STR_VAL),
 			data: nil,
 		},
 		{
 			inp:  `{{ false = 10 }}`,
-			err:  fail.New(nil, "", "evaluator", fail.ErrNotSupportedAssign, value.BOOL_VAL),
+			err:  fail.New(nil, "", fail.OriginEval, fail.ErrNotSupportedAssign, value.BOOL_VAL),
 			data: nil,
 		},
 		{
 			inp:  `{{ nil = 10 }}`,
-			err:  fail.New(nil, "", "evaluator", fail.ErrNotSupportedAssign, value.NIL_VAL),
+			err:  fail.New(nil, "", fail.OriginEval, fail.ErrNotSupportedAssign, value.NIL_VAL),
 			data: nil,
 		},
 	}
@@ -789,7 +789,7 @@ func TestCustomFunctions(t *testing.T) {
 			t.Fatalf("Expect error but got none")
 		}
 
-		expect := fail.New(nil, "", "API", fail.ErrFuncAlreadyDefined, "_len", "strings")
+		expect := fail.New(nil, "", fail.OriginAPI, fail.ErrFuncAlreadyDefined, "_len", "strings")
 		if err.Error() != expect.Error().Error() {
 			t.Fatalf("Wrong error message. Expect:\n%q\ngot:\n%q", expect, err)
 		}

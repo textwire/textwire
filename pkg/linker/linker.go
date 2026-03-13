@@ -74,7 +74,7 @@ func (nl *NodeLinker) handleLayoutLinking(prog *ast.Program) *fail.Error {
 		return fail.New(
 			prog.UseDir.Name.Pos(),
 			prog.AbsPath,
-			"linker",
+			fail.OriginLink,
 			fail.ErrUseDirMissingLayout,
 			layoutName,
 		)
@@ -103,7 +103,7 @@ func (nl *NodeLinker) handleCompLinking(prog *ast.Program) *fail.Error {
 			return fail.New(
 				comp.Pos(),
 				prog.AbsPath,
-				"linker",
+				fail.OriginLink,
 				fail.ErrUndefinedComponent,
 				compName,
 			)
