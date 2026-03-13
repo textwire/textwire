@@ -75,17 +75,27 @@ const (
 	ErrUndefinedComponent = "@component('%s') missing required component file"
 )
 
+const (
+	OriginPars ErrOrigin = "parser"
+	OriginEval ErrOrigin = "evaluator"
+	OriginTpl  ErrOrigin = "template"
+	OriginAPI  ErrOrigin = "API"
+	OriginLink ErrOrigin = "linker"
+)
+
+type ErrOrigin string
+
 // Error is the main error type for Textwire that contains all the necessary
 // information about the error like the line number, file path, etc.
 type Error struct {
 	pos      *position.Pos
-	origin   string // "parser" | "evaluator" | "template" | "API" | "linker"
+	origin   ErrOrigin
 	filepath string
 	message  string
 }
 
 // New creates a new Error instance of Error
-func New(pos *position.Pos, filepath, origin, msg string, args ...any) *Error {
+func New(pos *position.Pos, filepath string, origin ErrOrigin, msg string, args ...any) *Error {
 	if pos == nil {
 		pos = &position.Pos{}
 	}
@@ -102,7 +112,7 @@ func (e *Error) Filepath() string {
 	return e.filepath
 }
 
-func (e *Error) Origin() string {
+func (e *Error) Origin() ErrOrigin {
 	return e.origin
 }
 
@@ -160,7 +170,7 @@ func (e *Error) Error() error {
 	return errors.New(e.String())
 }
 
-func FromError(err error, pos *position.Pos, absPath, origin string, args ...any) *Error {
+func FromError(err error, pos *position.Pos, absPath string, origin ErrOrigin, args ...any) *Error {
 	if err == nil {
 		panic("err should never be nil in fail.FromError() function")
 	}

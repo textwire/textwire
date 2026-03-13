@@ -1139,7 +1139,7 @@ func TestCannotUseOperatorError(t *testing.T) {
 		expect := fail.New(
 			nil,
 			"/path/to/file",
-			"evaluator",
+			fail.OriginEval,
 			fail.ErrCannotUseOperator,
 			tc.op,
 			tc.left,

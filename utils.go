@@ -53,7 +53,7 @@ func parseFiles(files []*file.SourceFile) ([]*ast.Program, *fail.Error) {
 	for _, f := range files {
 		prog, failure, parseErr := parseFile(f)
 		if parseErr != nil {
-			return programs, fail.FromError(parseErr, nil, f.Abs, "template")
+			return programs, fail.FromError(parseErr, nil, f.Abs, fail.OriginTpl)
 		}
 
 		if failure != nil {

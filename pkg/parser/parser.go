@@ -321,7 +321,7 @@ func (p *Parser) expectPeek(tok token.TokenType) bool {
 }
 
 func (p *Parser) newError(pos *position.Pos, msg string, args ...any) {
-	newErr := fail.New(pos, p.file.Abs, "parser", msg, args...)
+	newErr := fail.New(pos, p.file.Abs, fail.OriginPars, msg, args...)
 	p.errors = append(p.errors, newErr)
 }
 

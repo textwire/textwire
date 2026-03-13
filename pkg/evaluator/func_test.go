@@ -20,7 +20,7 @@ func TestFunctionGivesError(t *testing.T) {
 			fail.New(
 				nil,
 				"/path/to/file",
-				"evaluator",
+				fail.OriginEval,
 				fail.ErrFuncMissingArg,
 				value.STR_VAL,
 				"format",
@@ -33,7 +33,7 @@ func TestFunctionGivesError(t *testing.T) {
 			fail.New(
 				nil,
 				"/path/to/file",
-				"evaluator",
+				fail.OriginEval,
 				fail.ErrFuncMissingArg,
 				value.ARR_VAL,
 				"slice",
@@ -45,7 +45,7 @@ func TestFunctionGivesError(t *testing.T) {
 			fail.New(
 				nil,
 				"/path/to/file",
-				"evaluator",
+				fail.OriginEval,
 				fail.ErrFuncFirstArgInt,
 				value.ARR_VAL,
 				"slice",
@@ -57,7 +57,7 @@ func TestFunctionGivesError(t *testing.T) {
 			fail.New(
 				nil,
 				"/path/to/file",
-				"evaluator",
+				fail.OriginEval,
 				fail.ErrFuncFirstArgInt,
 				value.ARR_VAL,
 				"slice",
@@ -69,7 +69,7 @@ func TestFunctionGivesError(t *testing.T) {
 			fail.New(
 				nil,
 				"/path/to/file",
-				"evaluator",
+				fail.OriginEval,
 				fail.ErrFuncFirstArgInt,
 				value.ARR_VAL,
 				"slice",
@@ -81,7 +81,7 @@ func TestFunctionGivesError(t *testing.T) {
 			fail.New(
 				nil,
 				"/path/to/file",
-				"evaluator",
+				fail.OriginEval,
 				fail.ErrFuncFirstArgInt,
 				value.ARR_VAL,
 				"slice",
@@ -93,7 +93,7 @@ func TestFunctionGivesError(t *testing.T) {
 			fail.New(
 				nil,
 				"/path/to/file",
-				"evaluator",
+				fail.OriginEval,
 				fail.ErrFuncFirstArgInt,
 				value.ARR_VAL,
 				"slice",
@@ -105,7 +105,7 @@ func TestFunctionGivesError(t *testing.T) {
 			fail.New(
 				nil,
 				"/path/to/file",
-				"evaluator",
+				fail.OriginEval,
 				fail.ErrFuncFirstArgInt,
 				value.ARR_VAL,
 				"slice",
@@ -117,7 +117,7 @@ func TestFunctionGivesError(t *testing.T) {
 			fail.New(
 				nil,
 				"/path/to/file",
-				"evaluator",
+				fail.OriginEval,
 				fail.ErrFuncSecondArgInt,
 				value.ARR_VAL,
 				"slice",
@@ -129,7 +129,7 @@ func TestFunctionGivesError(t *testing.T) {
 			fail.New(
 				nil,
 				"/path/to/file",
-				"evaluator",
+				fail.OriginEval,
 				fail.ErrFuncSecondArgInt,
 				value.ARR_VAL,
 				"slice",
@@ -141,7 +141,7 @@ func TestFunctionGivesError(t *testing.T) {
 			fail.New(
 				nil,
 				"/path/to/file",
-				"evaluator",
+				fail.OriginEval,
 				fail.ErrFuncSecondArgInt,
 				value.ARR_VAL,
 				"slice",
@@ -153,7 +153,7 @@ func TestFunctionGivesError(t *testing.T) {
 			fail.New(
 				nil,
 				"/path/to/file",
-				"evaluator",
+				fail.OriginEval,
 				fail.ErrFuncSecondArgInt,
 				value.ARR_VAL,
 				"slice",
@@ -165,7 +165,7 @@ func TestFunctionGivesError(t *testing.T) {
 			fail.New(
 				nil,
 				"/path/to/file",
-				"evaluator",
+				fail.OriginEval,
 				fail.ErrFuncSecondArgInt,
 				value.ARR_VAL,
 				"slice",
@@ -178,7 +178,7 @@ func TestFunctionGivesError(t *testing.T) {
 			fail.New(
 				nil,
 				"/path/to/file",
-				"evaluator",
+				fail.OriginEval,
 				fail.ErrFuncFirstArgStr,
 				value.ARR_VAL,
 				"join",
@@ -190,7 +190,7 @@ func TestFunctionGivesError(t *testing.T) {
 			fail.New(
 				nil,
 				"/path/to/file",
-				"evaluator",
+				fail.OriginEval,
 				fail.ErrFuncFirstArgStr,
 				value.ARR_VAL,
 				"join",
@@ -202,7 +202,7 @@ func TestFunctionGivesError(t *testing.T) {
 			fail.New(
 				nil,
 				"/path/to/file",
-				"evaluator",
+				fail.OriginEval,
 				fail.ErrFuncFirstArgStr,
 				value.ARR_VAL,
 				"join",
@@ -214,7 +214,7 @@ func TestFunctionGivesError(t *testing.T) {
 			fail.New(
 				nil,
 				"/path/to/file",
-				"evaluator",
+				fail.OriginEval,
 				fail.ErrFuncFirstArgStr,
 				value.ARR_VAL,
 				"join",
@@ -226,7 +226,7 @@ func TestFunctionGivesError(t *testing.T) {
 			fail.New(
 				nil,
 				"/path/to/file",
-				"evaluator",
+				fail.OriginEval,
 				fail.ErrFuncFirstArgStr,
 				value.ARR_VAL,
 				"join",
@@ -239,7 +239,7 @@ func TestFunctionGivesError(t *testing.T) {
 			fail.New(
 				nil,
 				"/path/to/file",
-				"evaluator",
+				fail.OriginEval,
 				fail.ErrFuncFirstArgStr,
 				value.STR_VAL,
 				"split",
@@ -251,7 +251,7 @@ func TestFunctionGivesError(t *testing.T) {
 			fail.New(
 				nil,
 				"/path/to/file",
-				"evaluator",
+				fail.OriginEval,
 				fail.ErrFuncFirstArgStr,
 				value.STR_VAL,
 				"split",
@@ -263,7 +263,7 @@ func TestFunctionGivesError(t *testing.T) {
 			fail.New(
 				nil,
 				"/path/to/file",
-				"evaluator",
+				fail.OriginEval,
 				fail.ErrFuncFirstArgStr,
 				value.STR_VAL,
 				"split",
@@ -275,7 +275,7 @@ func TestFunctionGivesError(t *testing.T) {
 			fail.New(
 				nil,
 				"/path/to/file",
-				"evaluator",
+				fail.OriginEval,
 				fail.ErrFuncFirstArgStr,
 				value.STR_VAL,
 				"split",
@@ -287,7 +287,7 @@ func TestFunctionGivesError(t *testing.T) {
 			fail.New(
 				nil,
 				"/path/to/file",
-				"evaluator",
+				fail.OriginEval,
 				fail.ErrFuncFirstArgStr,
 				value.STR_VAL,
 				"split",
@@ -300,7 +300,7 @@ func TestFunctionGivesError(t *testing.T) {
 			fail.New(
 				nil,
 				"/path/to/file",
-				"evaluator",
+				fail.OriginEval,
 				fail.ErrFuncFirstArgStr,
 				value.STR_VAL,
 				"trim",
@@ -312,7 +312,7 @@ func TestFunctionGivesError(t *testing.T) {
 			fail.New(
 				nil,
 				"/path/to/file",
-				"evaluator",
+				fail.OriginEval,
 				fail.ErrFuncFirstArgStr,
 				value.STR_VAL,
 				"trim",
@@ -324,7 +324,7 @@ func TestFunctionGivesError(t *testing.T) {
 			fail.New(
 				nil,
 				"/path/to/file",
-				"evaluator",
+				fail.OriginEval,
 				fail.ErrFuncFirstArgStr,
 				value.STR_VAL,
 				"trim",
@@ -336,7 +336,7 @@ func TestFunctionGivesError(t *testing.T) {
 			fail.New(
 				nil,
 				"/path/to/file",
-				"evaluator",
+				fail.OriginEval,
 				fail.ErrFuncFirstArgStr,
 				value.STR_VAL,
 				"trim",
@@ -348,7 +348,7 @@ func TestFunctionGivesError(t *testing.T) {
 			fail.New(
 				nil,
 				"/path/to/file",
-				"evaluator",
+				fail.OriginEval,
 				fail.ErrFuncFirstArgStr,
 				value.STR_VAL,
 				"trim",
@@ -361,7 +361,7 @@ func TestFunctionGivesError(t *testing.T) {
 			fail.New(
 				nil,
 				"/path/to/file",
-				"evaluator",
+				fail.OriginEval,
 				fail.ErrFuncFirstArgStr,
 				value.STR_VAL,
 				"trimRight",
@@ -373,7 +373,7 @@ func TestFunctionGivesError(t *testing.T) {
 			fail.New(
 				nil,
 				"/path/to/file",
-				"evaluator",
+				fail.OriginEval,
 				fail.ErrFuncFirstArgStr,
 				value.STR_VAL,
 				"trimRight",
@@ -385,7 +385,7 @@ func TestFunctionGivesError(t *testing.T) {
 			fail.New(
 				nil,
 				"/path/to/file",
-				"evaluator",
+				fail.OriginEval,
 				fail.ErrFuncFirstArgStr,
 				value.STR_VAL,
 				"trimRight",
@@ -397,7 +397,7 @@ func TestFunctionGivesError(t *testing.T) {
 			fail.New(
 				nil,
 				"/path/to/file",
-				"evaluator",
+				fail.OriginEval,
 				fail.ErrFuncFirstArgStr,
 				value.STR_VAL,
 				"trimRight",
@@ -409,7 +409,7 @@ func TestFunctionGivesError(t *testing.T) {
 			fail.New(
 				nil,
 				"/path/to/file",
-				"evaluator",
+				fail.OriginEval,
 				fail.ErrFuncFirstArgStr,
 				value.STR_VAL,
 				"trimRight",
@@ -422,7 +422,7 @@ func TestFunctionGivesError(t *testing.T) {
 			fail.New(
 				nil,
 				"/path/to/file",
-				"evaluator",
+				fail.OriginEval,
 				fail.ErrFuncFirstArgStr,
 				value.STR_VAL,
 				"trimLeft",
@@ -434,7 +434,7 @@ func TestFunctionGivesError(t *testing.T) {
 			fail.New(
 				nil,
 				"/path/to/file",
-				"evaluator",
+				fail.OriginEval,
 				fail.ErrFuncFirstArgStr,
 				value.STR_VAL,
 				"trimLeft",
@@ -446,7 +446,7 @@ func TestFunctionGivesError(t *testing.T) {
 			fail.New(
 				nil,
 				"/path/to/file",
-				"evaluator",
+				fail.OriginEval,
 				fail.ErrFuncFirstArgStr,
 				value.STR_VAL,
 				"trimLeft",
@@ -458,7 +458,7 @@ func TestFunctionGivesError(t *testing.T) {
 			fail.New(
 				nil,
 				"/path/to/file",
-				"evaluator",
+				fail.OriginEval,
 				fail.ErrFuncFirstArgStr,
 				value.STR_VAL,
 				"trimLeft",
@@ -470,7 +470,7 @@ func TestFunctionGivesError(t *testing.T) {
 			fail.New(
 				nil,
 				"/path/to/file",
-				"evaluator",
+				fail.OriginEval,
 				fail.ErrFuncFirstArgStr,
 				value.STR_VAL,
 				"trimLeft",
@@ -483,7 +483,7 @@ func TestFunctionGivesError(t *testing.T) {
 			fail.New(
 				nil,
 				"/path/to/file",
-				"evaluator",
+				fail.OriginEval,
 				fail.ErrFuncFirstArgInt,
 				value.STR_VAL,
 				"repeat",
@@ -495,7 +495,7 @@ func TestFunctionGivesError(t *testing.T) {
 			fail.New(
 				nil,
 				"/path/to/file",
-				"evaluator",
+				fail.OriginEval,
 				fail.ErrFuncFirstArgInt,
 				value.STR_VAL,
 				"repeat",
@@ -507,7 +507,7 @@ func TestFunctionGivesError(t *testing.T) {
 			fail.New(
 				nil,
 				"/path/to/file",
-				"evaluator",
+				fail.OriginEval,
 				fail.ErrFuncFirstArgInt,
 				value.STR_VAL,
 				"repeat",
@@ -519,7 +519,7 @@ func TestFunctionGivesError(t *testing.T) {
 			fail.New(
 				nil,
 				"/path/to/file",
-				"evaluator",
+				fail.OriginEval,
 				fail.ErrFuncFirstArgInt,
 				value.STR_VAL,
 				"repeat",
@@ -531,7 +531,7 @@ func TestFunctionGivesError(t *testing.T) {
 			fail.New(
 				nil,
 				"/path/to/file",
-				"evaluator",
+				fail.OriginEval,
 				fail.ErrFuncMissingArg,
 				value.STR_VAL,
 				"repeat",
@@ -544,7 +544,7 @@ func TestFunctionGivesError(t *testing.T) {
 			fail.New(
 				nil,
 				"/path/to/file",
-				"evaluator",
+				fail.OriginEval,
 				fail.ErrFuncMissingArg,
 				value.STR_VAL,
 				"contains",
@@ -557,7 +557,7 @@ func TestFunctionGivesError(t *testing.T) {
 			fail.New(
 				nil,
 				"/path/to/file",
-				"evaluator",
+				fail.OriginEval,
 				fail.ErrFuncMissingArg,
 				value.STR_VAL,
 				"truncate",
@@ -569,7 +569,7 @@ func TestFunctionGivesError(t *testing.T) {
 			fail.New(
 				nil,
 				"/path/to/file",
-				"evaluator",
+				fail.OriginEval,
 				fail.ErrFuncFirstArgInt,
 				value.STR_VAL,
 				"truncate",
@@ -581,7 +581,7 @@ func TestFunctionGivesError(t *testing.T) {
 			fail.New(
 				nil,
 				"/path/to/file",
-				"evaluator",
+				fail.OriginEval,
 				fail.ErrFuncFirstArgInt,
 				value.STR_VAL,
 				"truncate",
@@ -593,7 +593,7 @@ func TestFunctionGivesError(t *testing.T) {
 			fail.New(
 				nil,
 				"/path/to/file",
-				"evaluator",
+				fail.OriginEval,
 				fail.ErrFuncFirstArgInt,
 				value.STR_VAL,
 				"truncate",
@@ -605,7 +605,7 @@ func TestFunctionGivesError(t *testing.T) {
 			fail.New(
 				nil,
 				"/path/to/file",
-				"evaluator",
+				fail.OriginEval,
 				fail.ErrFuncFirstArgInt,
 				value.STR_VAL,
 				"truncate",
@@ -617,7 +617,7 @@ func TestFunctionGivesError(t *testing.T) {
 			fail.New(
 				nil,
 				"/path/to/file",
-				"evaluator",
+				fail.OriginEval,
 				fail.ErrFuncFirstArgInt,
 				value.STR_VAL,
 				"truncate",
@@ -629,7 +629,7 @@ func TestFunctionGivesError(t *testing.T) {
 			fail.New(
 				nil,
 				"/path/to/file",
-				"evaluator",
+				fail.OriginEval,
 				fail.ErrFuncSecondArgStr,
 				value.STR_VAL,
 				"truncate",
@@ -641,7 +641,7 @@ func TestFunctionGivesError(t *testing.T) {
 			fail.New(
 				nil,
 				"/path/to/file",
-				"evaluator",
+				fail.OriginEval,
 				fail.ErrFuncSecondArgStr,
 				value.STR_VAL,
 				"truncate",
@@ -653,7 +653,7 @@ func TestFunctionGivesError(t *testing.T) {
 			fail.New(
 				nil,
 				"/path/to/file",
-				"evaluator",
+				fail.OriginEval,
 				fail.ErrFuncSecondArgStr,
 				value.STR_VAL,
 				"truncate",
@@ -665,7 +665,7 @@ func TestFunctionGivesError(t *testing.T) {
 			fail.New(
 				nil,
 				"/path/to/file",
-				"evaluator",
+				fail.OriginEval,
 				fail.ErrFuncSecondArgStr,
 				value.STR_VAL,
 				"truncate",
@@ -678,7 +678,7 @@ func TestFunctionGivesError(t *testing.T) {
 			fail.New(
 				nil,
 				"/path/to/file",
-				"evaluator",
+				fail.OriginEval,
 				fail.ErrFuncFirstArgStr,
 				value.STR_VAL,
 				"decimal",
@@ -690,7 +690,7 @@ func TestFunctionGivesError(t *testing.T) {
 			fail.New(
 				nil,
 				"/path/to/file",
-				"evaluator",
+				fail.OriginEval,
 				fail.ErrFuncFirstArgStr,
 				value.STR_VAL,
 				"decimal",
@@ -702,7 +702,7 @@ func TestFunctionGivesError(t *testing.T) {
 			fail.New(
 				nil,
 				"/path/to/file",
-				"evaluator",
+				fail.OriginEval,
 				fail.ErrFuncFirstArgStr,
 				value.STR_VAL,
 				"decimal",
@@ -714,7 +714,7 @@ func TestFunctionGivesError(t *testing.T) {
 			fail.New(
 				nil,
 				"/path/to/file",
-				"evaluator",
+				fail.OriginEval,
 				fail.ErrFuncFirstArgStr,
 				value.STR_VAL,
 				"decimal",
@@ -726,7 +726,7 @@ func TestFunctionGivesError(t *testing.T) {
 			fail.New(
 				nil,
 				"/path/to/file",
-				"evaluator",
+				fail.OriginEval,
 				fail.ErrFuncFirstArgStr,
 				value.STR_VAL,
 				"decimal",
@@ -738,7 +738,7 @@ func TestFunctionGivesError(t *testing.T) {
 			fail.New(
 				nil,
 				"/path/to/file",
-				"evaluator",
+				fail.OriginEval,
 				fail.ErrFuncSecondArgInt,
 				value.STR_VAL,
 				"decimal",
@@ -750,7 +750,7 @@ func TestFunctionGivesError(t *testing.T) {
 			fail.New(
 				nil,
 				"/path/to/file",
-				"evaluator",
+				fail.OriginEval,
 				fail.ErrFuncSecondArgInt,
 				value.STR_VAL,
 				"decimal",
@@ -762,7 +762,7 @@ func TestFunctionGivesError(t *testing.T) {
 			fail.New(
 				nil,
 				"/path/to/file",
-				"evaluator",
+				fail.OriginEval,
 				fail.ErrFuncSecondArgInt,
 				value.STR_VAL,
 				"decimal",
@@ -774,7 +774,7 @@ func TestFunctionGivesError(t *testing.T) {
 			fail.New(
 				nil,
 				"/path/to/file",
-				"evaluator",
+				fail.OriginEval,
 				fail.ErrFuncSecondArgInt,
 				value.STR_VAL,
 				"decimal",
@@ -786,7 +786,7 @@ func TestFunctionGivesError(t *testing.T) {
 			fail.New(
 				nil,
 				"/path/to/file",
-				"evaluator",
+				fail.OriginEval,
 				fail.ErrFuncSecondArgInt,
 				value.STR_VAL,
 				"decimal",
@@ -799,7 +799,7 @@ func TestFunctionGivesError(t *testing.T) {
 			fail.New(
 				nil,
 				"/path/to/file",
-				"evaluator",
+				fail.OriginEval,
 				fail.ErrFuncFirstArgStr,
 				value.INT_VAL,
 				"decimal",
@@ -811,7 +811,7 @@ func TestFunctionGivesError(t *testing.T) {
 			fail.New(
 				nil,
 				"/path/to/file",
-				"evaluator",
+				fail.OriginEval,
 				fail.ErrFuncFirstArgStr,
 				value.INT_VAL,
 				"decimal",
@@ -823,7 +823,7 @@ func TestFunctionGivesError(t *testing.T) {
 			fail.New(
 				nil,
 				"/path/to/file",
-				"evaluator",
+				fail.OriginEval,
 				fail.ErrFuncFirstArgStr,
 				value.INT_VAL,
 				"decimal",
@@ -835,7 +835,7 @@ func TestFunctionGivesError(t *testing.T) {
 			fail.New(
 				nil,
 				"/path/to/file",
-				"evaluator",
+				fail.OriginEval,
 				fail.ErrFuncFirstArgStr,
 				value.INT_VAL,
 				"decimal",
@@ -847,7 +847,7 @@ func TestFunctionGivesError(t *testing.T) {
 			fail.New(
 				nil,
 				"/path/to/file",
-				"evaluator",
+				fail.OriginEval,
 				fail.ErrFuncFirstArgStr,
 				value.INT_VAL,
 				"decimal",
@@ -859,7 +859,7 @@ func TestFunctionGivesError(t *testing.T) {
 			fail.New(
 				nil,
 				"/path/to/file",
-				"evaluator",
+				fail.OriginEval,
 				fail.ErrFuncSecondArgInt,
 				value.INT_VAL,
 				"decimal",
@@ -871,7 +871,7 @@ func TestFunctionGivesError(t *testing.T) {
 			fail.New(
 				nil,
 				"/path/to/file",
-				"evaluator",
+				fail.OriginEval,
 				fail.ErrFuncSecondArgInt,
 				value.INT_VAL,
 				"decimal",
@@ -883,7 +883,7 @@ func TestFunctionGivesError(t *testing.T) {
 			fail.New(
 				nil,
 				"/path/to/file",
-				"evaluator",
+				fail.OriginEval,
 				fail.ErrFuncSecondArgInt,
 				value.INT_VAL,
 				"decimal",
@@ -895,7 +895,7 @@ func TestFunctionGivesError(t *testing.T) {
 			fail.New(
 				nil,
 				"/path/to/file",
-				"evaluator",
+				fail.OriginEval,
 				fail.ErrFuncSecondArgInt,
 				value.INT_VAL,
 				"decimal",
@@ -907,7 +907,7 @@ func TestFunctionGivesError(t *testing.T) {
 			fail.New(
 				nil,
 				"/path/to/file",
-				"evaluator",
+				fail.OriginEval,
 				fail.ErrFuncSecondArgInt,
 				value.INT_VAL,
 				"decimal",
@@ -920,7 +920,7 @@ func TestFunctionGivesError(t *testing.T) {
 			fail.New(
 				nil,
 				"/path/to/file",
-				"evaluator",
+				fail.OriginEval,
 				fail.ErrFuncMissingArg,
 				value.BOOL_VAL,
 				"then",
@@ -932,7 +932,7 @@ func TestFunctionGivesError(t *testing.T) {
 			fail.New(
 				nil,
 				"/path/to/file",
-				"evaluator",
+				fail.OriginEval,
 				fail.ErrFuncMissingArg,
 				value.BOOL_VAL,
 				"then",
@@ -945,7 +945,7 @@ func TestFunctionGivesError(t *testing.T) {
 			fail.New(
 				nil,
 				"/path/to/file",
-				"evaluator",
+				fail.OriginEval,
 				fail.ErrFuncMissingArg,
 				value.ARR_VAL,
 				"contains",
@@ -958,7 +958,7 @@ func TestFunctionGivesError(t *testing.T) {
 			fail.New(
 				nil,
 				"/path/to/file",
-				"evaluator",
+				fail.OriginEval,
 				fail.ErrFuncMissingArg,
 				value.ARR_VAL,
 				"append",
@@ -971,7 +971,7 @@ func TestFunctionGivesError(t *testing.T) {
 			fail.New(
 				nil,
 				"/path/to/file",
-				"evaluator",
+				fail.OriginEval,
 				fail.ErrFuncMissingArg,
 				value.ARR_VAL,
 				"prepend",
@@ -984,7 +984,7 @@ func TestFunctionGivesError(t *testing.T) {
 			fail.New(
 				nil,
 				"/path/to/file",
-				"evaluator",
+				fail.OriginEval,
 				fail.ErrFuncMissingArg,
 				value.OBJ_VAL,
 				"get",
@@ -996,7 +996,7 @@ func TestFunctionGivesError(t *testing.T) {
 			fail.New(
 				nil,
 				"/path/to/file",
-				"evaluator",
+				fail.OriginEval,
 				fail.ErrFuncFirstArgStr,
 				value.OBJ_VAL,
 				"get",
@@ -1008,7 +1008,7 @@ func TestFunctionGivesError(t *testing.T) {
 			fail.New(
 				nil,
 				"/path/to/file",
-				"evaluator",
+				fail.OriginEval,
 				fail.ErrFuncMaxArgs,
 				value.OBJ_VAL,
 				"get",
