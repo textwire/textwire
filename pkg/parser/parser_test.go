@@ -532,7 +532,7 @@ func TestErrorHandling(t *testing.T) {
 				&position.Pos{StartCol: 14, EndCol: 15},
 				"",
 				fail.OriginPars,
-				fail.ErrWrongNextToken,
+				fail.ErrWrongPeekToken,
 				token.String(token.COLON),
 				token.String(token.RBRACES),
 			),
@@ -634,6 +634,57 @@ func TestErrorHandling(t *testing.T) {
 				"Case: %d. Wrong position on error message, expect %v, got: %v",
 				tc.id,
 				tc.err.Pos(),
+				err.Pos(),
+			)
+		}
+	}
+}
+
+func TestWrongPeekTokenError(t *testing.T) {
+	cases := []struct {
+		id     uint
+		inp    string
+		pos    *position.Pos
+		expTok token.TokenType
+		gotTok token.TokenType
+	}{
+		{
+			id:     10,
+			inp:    "@if(false",
+			pos:    &position.Pos{EndCol: 9},
+			expTok: token.RPAREN,
+			gotTok: token.EOF,
+		},
+	}
+
+	for _, tc := range cases {
+		l := lexer.New(tc.inp)
+		p := New(l, nil)
+		p.ParseProgram()
+
+		if !p.HasErrors() {
+			t.Fatalf("Case: %d. No errors found in input %q", tc.id, tc.inp)
+		}
+
+		expectErr := fail.New(
+			tc.pos,
+			"",
+			fail.OriginPars,
+			fail.ErrWrongPeekToken,
+			token.String(tc.expTok),
+			token.String(tc.gotTok),
+		)
+
+		err := p.Errors()[0]
+		if err.String() != expectErr.String() {
+			t.Fatalf("Case: %d. Expect error message:\n%q\ngot:\n%q", tc.id, expectErr, err)
+		}
+
+		if !reflect.DeepEqual(err.Pos(), expectErr.Pos()) {
+			t.Fatalf(
+				"Case: %d. Wrong position on error message, expect %v, got: %v",
+				tc.id,
+				expectErr.Pos(),
 				err.Pos(),
 			)
 		}
