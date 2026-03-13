@@ -219,7 +219,7 @@ func (p *Parser) embedded() ast.Chunk {
 
 	// Loop until we find the closing "}}" or reach the end of file
 	for !p.curTokenIs(token.RBRACES, token.EOF) {
-		if segment := p.parseSegment(); segment != nil {
+		if segment := p.segment(); segment != nil {
 			embedded.Segments = append(embedded.Segments, segment)
 			if p.curTokenIs(token.SEMI) {
 				p.nextToken() // skip ";"
@@ -238,8 +238,8 @@ func (p *Parser) peekIsStatement() bool {
 	return p.peekTokenIs(token.ASSIGN, token.INC, token.DEC)
 }
 
-// parseSegment parses individual segment
-func (p *Parser) parseSegment() ast.Segment {
+// segment parses individual segment
+func (p *Parser) segment() ast.Segment {
 	left := p.expression(LOWEST)
 	if left == nil {
 		p.nextToken()
@@ -254,6 +254,11 @@ func (p *Parser) parseSegment() ast.Segment {
 	p.nextToken()
 	stmt := p.statement(left)
 	p.nextToken()
+
+	if stmt == nil {
+		return nil
+	}
+
 	return stmt.(ast.Segment)
 }
 

@@ -501,6 +501,17 @@ func TestErrorHandling(t *testing.T) {
 			),
 		},
 		{
+			id:  21,
+			inp: "{{ myVar = }}",
+			err: fail.New(
+				&position.Pos{StartCol: 11, EndCol: 12},
+				"",
+				fail.OriginPars,
+				fail.ErrExpectExprAfter,
+				"=",
+			),
+		},
+		{
 			id:  30,
 			inp: "{{ }}",
 			err: fail.New(&position.Pos{EndCol: 4}, "", fail.OriginPars, fail.ErrEmptyBraces),
@@ -694,7 +705,7 @@ func TestWrongPeekTokenError(t *testing.T) {
 			expTok: token.IDENT,
 			gotLit: "1",
 		},
-		// Expressions
+		// Expressions and Statements
 		{
 			id:     200,
 			inp:    "{{ true ? 100 }}",
