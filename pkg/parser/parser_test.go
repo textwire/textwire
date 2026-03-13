@@ -496,7 +496,8 @@ func TestErrorHandling(t *testing.T) {
 				&position.Pos{StartCol: 3, EndCol: 5},
 				"",
 				fail.OriginPars,
-				fail.ErrExpectedExpression,
+				fail.ErrExpectExprAfter,
+				"+",
 			),
 		},
 		{
@@ -591,6 +592,28 @@ func TestErrorHandling(t *testing.T) {
 				"true",
 			),
 		},
+		{
+			id:  130,
+			inp: "@if( {{ 'nice' }}@end",
+			err: fail.New(
+				&position.Pos{StartCol: 5, EndCol: 6},
+				"",
+				fail.OriginPars,
+				fail.ErrIllegalToken,
+				token.String(token.LBRACES),
+			),
+		},
+		{
+			id:  140,
+			inp: "@if(false)@dump(@end",
+			err: fail.New(
+				&position.Pos{StartCol: 16, EndCol: 19},
+				"",
+				fail.OriginPars,
+				fail.ErrExpectExprAfter,
+				token.String(token.LPAREN),
+			),
+		},
 	}
 
 	for _, tc := range cases {
@@ -625,6 +648,7 @@ func TestWrongPeekTokenError(t *testing.T) {
 		pos    *position.Pos
 		expTok token.TokenType
 		gotTok token.TokenType
+		gotLit string
 	}{
 		// If directive
 		{
@@ -632,42 +656,28 @@ func TestWrongPeekTokenError(t *testing.T) {
 			inp:    "@if(false",
 			pos:    &position.Pos{StartCol: 4, EndCol: 9},
 			expTok: token.RPAREN,
-			gotTok: token.EOF,
+			gotLit: "",
 		},
 		{
 			id:     20,
 			inp:    "@if false",
 			pos:    &position.Pos{EndCol: 8},
 			expTok: token.LPAREN,
-			gotTok: token.TEXT,
+			gotLit: " false",
 		},
 		{
 			id:     30,
 			inp:    "@if  (loop. {{ 'nice' }}@end",
 			pos:    &position.Pos{StartCol: 10, EndCol: 13},
 			expTok: token.IDENT,
-			gotTok: token.LBRACES,
+			gotLit: "{{",
 		},
 		{
 			id:     40,
 			inp:    "@if {{ 'nice' }}@end",
-			pos:    &position.Pos{EndCol: 5},
+			pos:    &position.Pos{EndCol: 3},
 			expTok: token.LPAREN,
-			gotTok: token.LBRACES,
-		},
-		{
-			id:     50,
-			inp:    "@if( {{ 'nice' }}@end",
-			pos:    &position.Pos{EndCol: 0},
-			expTok: token.IDENT,
-			gotTok: token.LBRACES,
-		},
-		{
-			id:     60,
-			inp:    "@if(false)@dump(@end",
-			pos:    &position.Pos{EndCol: 0},
-			expTok: token.IDENT,
-			gotTok: token.LBRACES,
+			gotLit: " ",
 		},
 		// Objects
 		{
@@ -675,14 +685,14 @@ func TestWrongPeekTokenError(t *testing.T) {
 			inp:    `{{ obj."str" }}`,
 			pos:    &position.Pos{StartCol: 6, EndCol: 11},
 			expTok: token.IDENT,
-			gotTok: token.STR,
+			gotLit: "str",
 		},
 		{
 			id:     110,
 			inp:    `{{ { "1st": "nice" }.1st }}`,
 			pos:    &position.Pos{StartCol: 20, EndCol: 21},
 			expTok: token.IDENT,
-			gotTok: token.INT,
+			gotLit: "1",
 		},
 		// Expressions
 		{
@@ -690,7 +700,7 @@ func TestWrongPeekTokenError(t *testing.T) {
 			inp:    "{{ true ? 100 }}",
 			pos:    &position.Pos{StartCol: 14, EndCol: 15},
 			expTok: token.COLON,
-			gotTok: token.RBRACES,
+			gotLit: "}}",
 		},
 	}
 
@@ -709,7 +719,7 @@ func TestWrongPeekTokenError(t *testing.T) {
 			fail.OriginPars,
 			fail.ErrWrongPeekToken,
 			token.String(tc.expTok),
-			token.String(tc.gotTok),
+			tc.gotLit,
 		)
 
 		err := p.Errors()[0]

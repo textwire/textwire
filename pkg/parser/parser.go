@@ -317,7 +317,12 @@ func (p *Parser) expectPeek2(tok token.TokenType) bool {
 		EndCol:    p.peekToken.Pos.EndCol,
 	}
 
-	p.newError(pos, fail.ErrWrongPeekToken, token.String(tok), token.String(p.peekToken.Type))
+	got := p.peekToken.Lit
+	if len(got) > 100 {
+		got = got[:100] + "..."
+	}
+
+	p.newError(pos, fail.ErrWrongPeekToken, token.String(tok), got)
 
 	return false
 }
@@ -328,12 +333,12 @@ func (p *Parser) expectPeek(tok token.TokenType) bool {
 		return true
 	}
 
-	p.newError(
-		p.peekToken.Pos,
-		fail.ErrWrongPeekToken,
-		token.String(tok),
-		token.String(p.peekToken.Type),
-	)
+	got := p.peekToken.Lit
+	if len(got) > 100 {
+		got = got[:100] + "..."
+	}
+
+	p.newError(p.peekToken.Pos, fail.ErrWrongPeekToken, token.String(tok), got)
 
 	return false
 }
@@ -457,7 +462,7 @@ func (p *Parser) assignStmt(left ast.Expression) ast.Statement {
 	p.nextToken() // skip "="
 
 	if p.curTokenIs(token.RBRACES) {
-		p.newError(p.curToken.Pos, fail.ErrExpectedExpression)
+		p.newError(p.curToken.Pos, fail.ErrExpectExprAfter, token.String(token.ASSIGN))
 		return nil
 	}
 
@@ -968,14 +973,15 @@ func (p *Parser) callExpr(receiver ast.Expression) ast.Expression {
 }
 
 func (p *Parser) infixExpr(left ast.Expression) ast.Expression {
-	expr := ast.NewInfixExpr(*left.Tok(), left, p.curToken.Lit)
+	opTok := p.curToken
+	expr := ast.NewInfixExpr(*left.Tok(), left, opTok.Lit)
 
-	precedence := precedences[p.curToken.Type]
+	precedence := precedences[opTok.Type]
 
 	if p.peekTokenIs(token.RBRACES) {
 		pos := left.Pos()
-		pos.EndCol = p.curToken.Pos.EndCol
-		p.newError(pos, fail.ErrExpectedExpression)
+		pos.EndCol = opTok.Pos.EndCol
+		p.newError(pos, fail.ErrExpectExprAfter, opTok.Lit)
 		return nil
 	}
 
@@ -1319,6 +1325,7 @@ func (p *Parser) groupedExpr() ast.Expression {
 }
 
 func (p *Parser) expressionList(endTok token.TokenType) []ast.Expression {
+	firstTok := p.curToken
 	var exprs []ast.Expression
 
 	if p.peekTokenIs(endTok) {
@@ -1327,8 +1334,8 @@ func (p *Parser) expressionList(endTok token.TokenType) []ast.Expression {
 	}
 
 	if p.peekTokenIs(token.END) {
-		exprs = append(exprs, p.illegalNode())
-		return exprs
+		p.newError(p.peekToken.Pos, fail.ErrExpectExprAfter, firstTok.Lit)
+		return nil
 	}
 
 	p.nextToken() // move to first expression
