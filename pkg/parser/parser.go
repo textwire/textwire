@@ -548,7 +548,7 @@ func (p *Parser) compDir() ast.Chunk {
 	return dir
 }
 
-func (p *Parser) compDirHeader(stmt *ast.ComponentDir) *ast.IllegalNode {
+func (p *Parser) compDirHeader(compDir *ast.ComponentDir) *ast.IllegalNode {
 	if !p.expectPeek(token.LPAREN) { // move to "("
 		return p.illegalNodeUntil(token.RPAREN)
 	}
@@ -559,7 +559,7 @@ func (p *Parser) compDirHeader(stmt *ast.ComponentDir) *ast.IllegalNode {
 		p.newError(p.curToken.Pos, fail.ErrStrCannotBeEmpty)
 	}
 
-	stmt.Name = ast.NewStrExpr(
+	compDir.Name = ast.NewStrExpr(
 		p.curToken,
 		file.ReplacePathAlias(p.curToken.Lit, file.PathAliasComp),
 	)
@@ -574,7 +574,7 @@ func (p *Parser) compDirHeader(stmt *ast.ComponentDir) *ast.IllegalNode {
 			return nil
 		}
 
-		stmt.Argument = obj
+		compDir.Argument = obj
 	}
 
 	if !p.expectPeek(token.RPAREN) { // move to ")"
@@ -588,16 +588,16 @@ func (p *Parser) compDirHeader(stmt *ast.ComponentDir) *ast.IllegalNode {
 	return nil
 }
 
-func (p *Parser) attachSlotsToComp(stmt *ast.ComponentDir) ast.Chunk {
-	slots := p.slots(stmt.Name.Val)
-	stmt.Slots = make([]ast.SlotDirective, len(slots))
+func (p *Parser) attachSlotsToComp(compDir *ast.ComponentDir) ast.Chunk {
+	slots := p.slots(compDir.Name.Val)
+	compDir.Slots = make([]ast.SlotDirective, len(slots))
 	for i := range slots {
 		slot, ok := slots[i].(ast.SlotDirective)
 		if !ok {
 			return slots[i]
 		}
 
-		stmt.Slots[i] = slot
+		compDir.Slots[i] = slot
 	}
 	return nil
 }
@@ -610,9 +610,9 @@ func (p *Parser) slotDir() ast.Chunk {
 	// Handle default @slot without name
 	if !p.peekTokenIs(token.LPAREN) {
 		name := ast.NewStrExpr(p.curToken, "")
-		stmt := ast.NewSlotDir(tok, name, p.file.Name, false)
-		stmt.SetIsDefault(true)
-		return stmt
+		slotDir := ast.NewSlotDir(tok, name, p.file.Name, false)
+		slotDir.SetIsDefault(true)
+		return slotDir
 	}
 
 	p.nextToken() // skip "@slot"
@@ -998,7 +998,7 @@ func (p *Parser) ternaryExpr(left ast.Expression) ast.Expression {
 func (p *Parser) ifDir() ast.Chunk {
 	dir := ast.NewIfDir(p.curToken)
 
-	if illegal := p.ifStmtHeader(dir); illegal != nil { // skips ")"
+	if illegal := p.ifDirHeader(dir); illegal != nil { // skips ")"
 		return illegal
 	}
 
@@ -1028,14 +1028,14 @@ func (p *Parser) ifDir() ast.Chunk {
 	return dir
 }
 
-func (p *Parser) ifStmtHeader(stmt *ast.IfDir) *ast.IllegalNode {
+func (p *Parser) ifDirHeader(ifDir *ast.IfDir) *ast.IllegalNode {
 	if !p.expectPeek(token.LPAREN) { // move to "("
 		return p.illegalNodeUntil(token.END)
 	}
 
 	p.nextToken() // skip "("
 
-	stmt.Cond = p.expression(LOWEST)
+	ifDir.Cond = p.expression(LOWEST)
 
 	if !p.expectPeek(token.RPAREN) { // move to ")"
 		return p.illegalNodeUntil(token.END)
@@ -1075,16 +1075,16 @@ func (p *Parser) elseBlock() *ast.Block {
 		return nil
 	}
 
-	stmt := p.block()
+	block := p.block()
 
 	if p.peekTokenIs(token.ELSEIF) {
 		p.newError(p.peekToken.Pos, fail.ErrElseifCannotFollowElse)
 		return nil
 	}
 
-	stmt.SetEndPosition(p.curToken.Pos)
+	block.SetEndPosition(p.curToken.Pos)
 
-	return stmt
+	return block
 }
 
 func (p *Parser) forDir() ast.Chunk {
