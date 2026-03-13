@@ -480,8 +480,8 @@ func (p *Parser) assignStmt(left ast.Expression) ast.Statement {
 func (p *Parser) useDir() ast.Chunk {
 	dir := ast.NewUseDir(p.curToken)
 
-	if !p.expectPeek(token.LPAREN) { // move to "("
-		return p.illegalNode()
+	if !p.expectPeek2(token.LPAREN) { // move to "("
+		return nil
 	}
 
 	p.nextToken() // skip "("

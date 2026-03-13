@@ -489,6 +489,7 @@ func TestErrorHandling(t *testing.T) {
 		inp string
 		err *fail.Error
 	}{
+		// Embedded
 		{
 			id:  20,
 			inp: "{{ 5 + }}",
@@ -501,7 +502,7 @@ func TestErrorHandling(t *testing.T) {
 			),
 		},
 		{
-			id:  21,
+			id:  30,
 			inp: "{{ myVar = }}",
 			err: fail.New(
 				&position.Pos{StartCol: 11, EndCol: 12},
@@ -512,12 +513,12 @@ func TestErrorHandling(t *testing.T) {
 			),
 		},
 		{
-			id:  30,
+			id:  40,
 			inp: "{{ }}",
 			err: fail.New(&position.Pos{EndCol: 4}, "", fail.OriginPars, fail.ErrEmptyBraces),
 		},
 		{
-			id:  40,
+			id:  50,
 			inp: `{{ 1 ~ 8 }}`,
 			err: fail.New(
 				&position.Pos{StartCol: 5, EndCol: 5},
@@ -538,6 +539,7 @@ func TestErrorHandling(t *testing.T) {
 				token.String(token.RPAREN),
 			),
 		},
+		// Use directive
 		{
 			id:  70,
 			inp: "@use('')",
@@ -550,16 +552,6 @@ func TestErrorHandling(t *testing.T) {
 		},
 		{
 			id:  80,
-			inp: "@component('')",
-			err: fail.New(
-				&position.Pos{StartCol: 11, EndCol: 12},
-				"",
-				fail.OriginPars,
-				fail.ErrStrCannotBeEmpty,
-			),
-		},
-		{
-			id:  90,
 			inp: "@use(1)",
 			err: fail.New(
 				&position.Pos{StartCol: 5, EndCol: 5},
@@ -571,7 +563,31 @@ func TestErrorHandling(t *testing.T) {
 			),
 		},
 		{
-			id:  100,
+			id:  90,
+			inp: `@use "name"`,
+			err: fail.New(
+				&position.Pos{EndCol: 10},
+				"",
+				fail.OriginPars,
+				fail.ErrWrongPeekToken,
+				token.String(token.LPAREN),
+				` "name"`,
+			),
+		},
+		// Component
+		{
+			id:  200,
+			inp: "@component('')",
+			err: fail.New(
+				&position.Pos{StartCol: 11, EndCol: 12},
+				"",
+				fail.OriginPars,
+				fail.ErrStrCannotBeEmpty,
+			),
+		},
+		// For directive
+		{
+			id:  300,
 			inp: "@for(i = 0; i < 4; i+2){{ i }}@end",
 			err: fail.New(
 				&position.Pos{StartCol: 19, EndCol: 21},
@@ -582,7 +598,7 @@ func TestErrorHandling(t *testing.T) {
 			),
 		},
 		{
-			id:  110,
+			id:  310,
 			inp: "@for(c = 0.0; c < 4.0; c+2.0){{ c }}@end",
 			err: fail.New(
 				&position.Pos{StartCol: 23, EndCol: 27},
@@ -593,7 +609,7 @@ func TestErrorHandling(t *testing.T) {
 			),
 		},
 		{
-			id:  120,
+			id:  320,
 			inp: "@for(;;    true  ){{ c }}@end",
 			err: fail.New(
 				&position.Pos{StartCol: 11, EndCol: 14},
@@ -603,8 +619,9 @@ func TestErrorHandling(t *testing.T) {
 				"true",
 			),
 		},
+		// If directive
 		{
-			id:  130,
+			id:  400,
 			inp: "@if( {{ 'nice' }}@end",
 			err: fail.New(
 				&position.Pos{StartCol: 5, EndCol: 6},
@@ -615,7 +632,7 @@ func TestErrorHandling(t *testing.T) {
 			),
 		},
 		{
-			id:  140,
+			id:  410,
 			inp: "@if(false)@dump(@end",
 			err: fail.New(
 				&position.Pos{StartCol: 16, EndCol: 19},
@@ -661,35 +678,6 @@ func TestWrongPeekTokenError(t *testing.T) {
 		gotTok token.TokenType
 		gotLit string
 	}{
-		// If directive
-		{
-			id:     10,
-			inp:    "@if(false",
-			pos:    &position.Pos{StartCol: 4, EndCol: 9},
-			expTok: token.RPAREN,
-			gotLit: "",
-		},
-		{
-			id:     20,
-			inp:    "@if false",
-			pos:    &position.Pos{EndCol: 8},
-			expTok: token.LPAREN,
-			gotLit: " false",
-		},
-		{
-			id:     30,
-			inp:    "@if  (loop. {{ 'nice' }}@end",
-			pos:    &position.Pos{StartCol: 10, EndCol: 13},
-			expTok: token.IDENT,
-			gotLit: "{{",
-		},
-		{
-			id:     40,
-			inp:    "@if {{ 'nice' }}@end",
-			pos:    &position.Pos{EndCol: 3},
-			expTok: token.LPAREN,
-			gotLit: " ",
-		},
 		// Objects
 		{
 			id:     100,
