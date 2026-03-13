@@ -13,13 +13,12 @@ import (
 const (
 	// Parser errors
 	ErrEmptyBraces            = "empty expression {{}} - must contain valid code like {{ variable }} or {{ 1 + 2 }}"
-	ErrWrongNextToken         = "syntax error: expected '%s' but found '%s'"
+	ErrWrongPeekToken         = "syntax error: expected '%s' but found '%s'"
 	ErrExpectedExpression     = "expected expression before '}}'"
 	ErrCouldNotParseAs        = "cannot parse '%s' as %s"
 	ErrIllegalToken           = "illegal token '%s'"
 	ErrElseifCannotFollowElse = "'@elseif' cannot come after '@else'"
 	ErrExpectedObjLit         = "expected object literal, got '%s'"
-	ErrObjKeyUseGet           = "to access a key that starts with a number, use object.get('key') function"
 	ErrSlotNotDefined         = "@component('%s') references @slot('%s') which doesn't exist in the component file"
 	ErrDuplicateReserves      = "found duplicate @reserve('%s') inside of a layout file %s"
 	ErrDuplicateSlot          = "@slot('%s') used %d times in @component('%s')"

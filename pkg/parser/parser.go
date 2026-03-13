@@ -304,6 +304,25 @@ func (p *Parser) peekPrecedence() int {
 	return result
 }
 
+func (p *Parser) expectPeek2(tok token.TokenType, fromPos *position.Pos) bool {
+	if p.peekTokenIs(tok) {
+		p.nextToken()
+		return true
+	}
+
+	fromPos.EndLine = p.peekToken.Pos.EndLine
+	fromPos.EndCol = p.peekToken.Pos.EndCol
+
+	p.newError(
+		fromPos,
+		fail.ErrWrongPeekToken,
+		token.String(tok),
+		token.String(p.peekToken.Type),
+	)
+
+	return false
+}
+
 func (p *Parser) expectPeek(tok token.TokenType) bool {
 	if p.peekTokenIs(tok) {
 		p.nextToken()
@@ -312,7 +331,7 @@ func (p *Parser) expectPeek(tok token.TokenType) bool {
 
 	p.newError(
 		p.peekToken.Pos,
-		fail.ErrWrongNextToken,
+		fail.ErrWrongPeekToken,
 		token.String(tok),
 		token.String(p.peekToken.Type),
 	)
@@ -909,15 +928,8 @@ func (p *Parser) decStmt(left ast.Expression) ast.Statement {
 func (p *Parser) dotExpr(left ast.Expression) ast.Expression {
 	expr := ast.NewDotExpr(*left.Tok(), left)
 
-	if p.peekTokenIs(token.INT) {
-		pos := p.peekToken.Pos
-		pos.StartCol = p.curToken.Pos.StartCol
-		p.newError(pos, fail.ErrObjKeyUseGet)
+	if !p.expectPeek2(token.IDENT, p.curToken.Pos) { // skip "." and move to identifier
 		return nil
-	}
-
-	if !p.expectPeek(token.IDENT) { // skip "." and move to identifier
-		return p.illegalNode()
 	}
 
 	if p.peekTokenIs(token.LPAREN) {
@@ -998,8 +1010,8 @@ func (p *Parser) ternaryExpr(left ast.Expression) ast.Expression {
 func (p *Parser) ifDir() ast.Chunk {
 	dir := ast.NewIfDir(p.curToken)
 
-	if illegal := p.ifDirHeader(dir); illegal != nil { // skips ")"
-		return illegal
+	if ok := p.ifDirHeader(dir); !ok { // skips ")"
+		return nil
 	}
 
 	dir.IfBlock = p.block()
@@ -1028,22 +1040,22 @@ func (p *Parser) ifDir() ast.Chunk {
 	return dir
 }
 
-func (p *Parser) ifDirHeader(ifDir *ast.IfDir) *ast.IllegalNode {
-	if !p.expectPeek(token.LPAREN) { // move to "("
-		return p.illegalNodeUntil(token.END)
+func (p *Parser) ifDirHeader(ifDir *ast.IfDir) bool {
+	if !p.expectPeek2(token.LPAREN, ifDir.Pos()) { // move to "("
+		return false
 	}
 
 	p.nextToken() // skip "("
 
 	ifDir.Cond = p.expression(LOWEST)
 
-	if !p.expectPeek(token.RPAREN) { // move to ")"
-		return p.illegalNodeUntil(token.END)
+	if !p.expectPeek2(token.RPAREN, ifDir.Pos()) { // move to ")"
+		return false
 	}
 
 	p.nextToken() // skip ")"
 
-	return nil
+	return true
 }
 
 func (p *Parser) elseifDir() (*ast.ElseIfDir, *ast.IllegalNode) {
