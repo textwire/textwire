@@ -8,7 +8,6 @@ import (
 
 	"github.com/textwire/textwire/v3/pkg/fail"
 	"github.com/textwire/textwire/v3/pkg/file"
-	"github.com/textwire/textwire/v3/pkg/token"
 	"github.com/textwire/textwire/v3/pkg/value"
 )
 
@@ -543,18 +542,6 @@ func TestErrorHandling(t *testing.T) {
 		{
 			inp:  `{{ obj = {name: "Amy"}; obj.name.id }}`,
 			err:  fail.New(nil, "", fail.OriginEval, fail.ErrKeyOnNonObj, value.STR_VAL, "id"),
-			data: nil,
-		},
-		{
-			inp: `{{ obj."str" }}`,
-			err: fail.New(
-				nil,
-				"",
-				fail.OriginEval,
-				fail.ErrWrongNextToken,
-				token.String(token.IDENT),
-				token.String(token.STR),
-			),
 			data: nil,
 		},
 		{

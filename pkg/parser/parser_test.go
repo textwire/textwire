@@ -490,16 +490,6 @@ func TestErrorHandling(t *testing.T) {
 		err *fail.Error
 	}{
 		{
-			id:  10,
-			inp: `{{ { "1st": "nice" }.1st }}`,
-			err: fail.New(
-				&position.Pos{StartCol: 20, EndCol: 21},
-				"",
-				fail.OriginPars,
-				fail.ErrObjKeyUseGet,
-			),
-		},
-		{
 			id:  20,
 			inp: "{{ 5 + }}",
 			err: fail.New(
@@ -523,18 +513,6 @@ func TestErrorHandling(t *testing.T) {
 				fail.OriginPars,
 				fail.ErrIllegalToken,
 				"~",
-			),
-		},
-		{
-			id:  50,
-			inp: "{{ true ? 100 }}",
-			err: fail.New(
-				&position.Pos{StartCol: 14, EndCol: 15},
-				"",
-				fail.OriginPars,
-				fail.ErrWrongPeekToken,
-				token.String(token.COLON),
-				token.String(token.RBRACES),
 			),
 		},
 		{
@@ -654,6 +632,41 @@ func TestWrongPeekTokenError(t *testing.T) {
 			pos:    &position.Pos{EndCol: 9},
 			expTok: token.RPAREN,
 			gotTok: token.EOF,
+		},
+		{
+			id:     20,
+			inp:    "@if false",
+			pos:    &position.Pos{EndCol: 8},
+			expTok: token.LPAREN,
+			gotTok: token.TEXT,
+		},
+		{
+			id:     30,
+			inp:    "{{ true ? 100 }}",
+			pos:    &position.Pos{StartCol: 14, EndCol: 15},
+			expTok: token.COLON,
+			gotTok: token.RBRACES,
+		},
+		{
+			id:     40,
+			inp:    `{{ obj."str" }}`,
+			pos:    &position.Pos{StartCol: 6, EndCol: 11},
+			expTok: token.IDENT,
+			gotTok: token.STR,
+		},
+		{
+			id:     50,
+			inp:    "@if  (loop. {{ 'nice' }}@end",
+			pos:    &position.Pos{StartCol: 10, EndCol: 13},
+			expTok: token.IDENT,
+			gotTok: token.LBRACES,
+		},
+		{
+			id:     60,
+			inp:    `{{ { "1st": "nice" }.1st }}`,
+			pos:    &position.Pos{StartCol: 20, EndCol: 21},
+			expTok: token.IDENT,
+			gotTok: token.INT,
 		},
 	}
 
