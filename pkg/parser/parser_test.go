@@ -626,10 +626,11 @@ func TestWrongPeekTokenError(t *testing.T) {
 		expTok token.TokenType
 		gotTok token.TokenType
 	}{
+		// If directive
 		{
 			id:     10,
 			inp:    "@if(false",
-			pos:    &position.Pos{EndCol: 9},
+			pos:    &position.Pos{StartCol: 4, EndCol: 9},
 			expTok: token.RPAREN,
 			gotTok: token.EOF,
 		},
@@ -642,31 +643,54 @@ func TestWrongPeekTokenError(t *testing.T) {
 		},
 		{
 			id:     30,
-			inp:    "{{ true ? 100 }}",
-			pos:    &position.Pos{StartCol: 14, EndCol: 15},
-			expTok: token.COLON,
-			gotTok: token.RBRACES,
-		},
-		{
-			id:     40,
-			inp:    `{{ obj."str" }}`,
-			pos:    &position.Pos{StartCol: 6, EndCol: 11},
-			expTok: token.IDENT,
-			gotTok: token.STR,
-		},
-		{
-			id:     50,
 			inp:    "@if  (loop. {{ 'nice' }}@end",
 			pos:    &position.Pos{StartCol: 10, EndCol: 13},
 			expTok: token.IDENT,
 			gotTok: token.LBRACES,
 		},
 		{
+			id:     40,
+			inp:    "@if {{ 'nice' }}@end",
+			pos:    &position.Pos{EndCol: 5},
+			expTok: token.LPAREN,
+			gotTok: token.LBRACES,
+		},
+		{
+			id:     50,
+			inp:    "@if( {{ 'nice' }}@end",
+			pos:    &position.Pos{EndCol: 0},
+			expTok: token.IDENT,
+			gotTok: token.LBRACES,
+		},
+		{
 			id:     60,
+			inp:    "@if(false)@dump(@end",
+			pos:    &position.Pos{EndCol: 0},
+			expTok: token.IDENT,
+			gotTok: token.LBRACES,
+		},
+		// Objects
+		{
+			id:     100,
+			inp:    `{{ obj."str" }}`,
+			pos:    &position.Pos{StartCol: 6, EndCol: 11},
+			expTok: token.IDENT,
+			gotTok: token.STR,
+		},
+		{
+			id:     110,
 			inp:    `{{ { "1st": "nice" }.1st }}`,
 			pos:    &position.Pos{StartCol: 20, EndCol: 21},
 			expTok: token.IDENT,
 			gotTok: token.INT,
+		},
+		// Expressions
+		{
+			id:     200,
+			inp:    "{{ true ? 100 }}",
+			pos:    &position.Pos{StartCol: 14, EndCol: 15},
+			expTok: token.COLON,
+			gotTok: token.RBRACES,
 		},
 	}
 

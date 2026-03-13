@@ -304,21 +304,20 @@ func (p *Parser) peekPrecedence() int {
 	return result
 }
 
-func (p *Parser) expectPeek2(tok token.TokenType, fromPos *position.Pos) bool {
+func (p *Parser) expectPeek2(tok token.TokenType) bool {
 	if p.peekTokenIs(tok) {
 		p.nextToken()
 		return true
 	}
 
-	fromPos.EndLine = p.peekToken.Pos.EndLine
-	fromPos.EndCol = p.peekToken.Pos.EndCol
+	pos := &position.Pos{
+		StartLine: p.curToken.Pos.StartLine,
+		StartCol:  p.curToken.Pos.StartCol,
+		EndLine:   p.peekToken.Pos.EndLine,
+		EndCol:    p.peekToken.Pos.EndCol,
+	}
 
-	p.newError(
-		fromPos,
-		fail.ErrWrongPeekToken,
-		token.String(tok),
-		token.String(p.peekToken.Type),
-	)
+	p.newError(pos, fail.ErrWrongPeekToken, token.String(tok), token.String(p.peekToken.Type))
 
 	return false
 }
@@ -928,7 +927,7 @@ func (p *Parser) decStmt(left ast.Expression) ast.Statement {
 func (p *Parser) dotExpr(left ast.Expression) ast.Expression {
 	expr := ast.NewDotExpr(*left.Tok(), left)
 
-	if !p.expectPeek2(token.IDENT, p.curToken.Pos) { // skip "." and move to identifier
+	if !p.expectPeek2(token.IDENT) { // skip "." and move to identifier
 		return nil
 	}
 
@@ -1041,7 +1040,7 @@ func (p *Parser) ifDir() ast.Chunk {
 }
 
 func (p *Parser) ifDirHeader(ifDir *ast.IfDir) bool {
-	if !p.expectPeek2(token.LPAREN, ifDir.Pos()) { // move to "("
+	if !p.expectPeek2(token.LPAREN) { // move to "("
 		return false
 	}
 
@@ -1049,7 +1048,7 @@ func (p *Parser) ifDirHeader(ifDir *ast.IfDir) bool {
 
 	ifDir.Cond = p.expression(LOWEST)
 
-	if !p.expectPeek2(token.RPAREN, ifDir.Pos()) { // move to ")"
+	if !p.expectPeek2(token.RPAREN) { // move to ")"
 		return false
 	}
 
