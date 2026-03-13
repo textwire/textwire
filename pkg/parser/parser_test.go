@@ -489,7 +489,43 @@ func TestErrorHandling(t *testing.T) {
 		inp string
 		err *fail.Error
 	}{
-		// Embedded
+		// Embedded chunk
+		{
+			id:  10,
+			inp: `{{ obj."str" }}`,
+			err: fail.New(
+				&position.Pos{StartCol: 6, EndCol: 11},
+				"",
+				fail.OriginPars,
+				fail.ErrWrongPeekToken,
+				token.String(token.IDENT),
+				"str",
+			),
+		},
+		{
+			id:  11,
+			inp: `{{ { "1st": "nice" }.1st }}`,
+			err: fail.New(
+				&position.Pos{StartCol: 20, EndCol: 21},
+				"",
+				fail.OriginPars,
+				fail.ErrWrongPeekToken,
+				token.String(token.IDENT),
+				"1",
+			),
+		},
+		{
+			id:  12,
+			inp: "{{ true ? 100 }}",
+			err: fail.New(
+				&position.Pos{StartCol: 14, EndCol: 15},
+				"",
+				fail.OriginPars,
+				fail.ErrWrongPeekToken,
+				token.String(token.COLON),
+				"}}",
+			),
+		},
 		{
 			id:  20,
 			inp: "{{ 5 + }}",
@@ -551,6 +587,16 @@ func TestErrorHandling(t *testing.T) {
 			),
 		},
 		{
+			id:  71,
+			inp: "@use('base') @use('main')",
+			err: fail.New(
+				&position.Pos{StartCol: 13, EndCol: 24},
+				"",
+				fail.OriginPars,
+				fail.ErrOnlyOneUseDir,
+			),
+		},
+		{
 			id:  80,
 			inp: "@use(1)",
 			err: fail.New(
@@ -583,6 +629,31 @@ func TestErrorHandling(t *testing.T) {
 				"",
 				fail.OriginPars,
 				fail.ErrStrCannotBeEmpty,
+			),
+		},
+		// Reserve
+		{
+			id:  201,
+			inp: "@reserve('title')\n@reserve('title')",
+			err: fail.New(
+				&position.Pos{StartLine: 1, StartCol: 9, EndLine: 1, EndCol: 15},
+				"",
+				fail.OriginPars,
+				fail.ErrDuplicateReserves,
+				"title",
+				"",
+			),
+		},
+		// Insert
+		{
+			id:  202,
+			inp: "@insert('x', 'x')\n@insert('y', 'y')\n@insert('x', 'x')",
+			err: fail.New(
+				&position.Pos{StartLine: 2, StartCol: 8, EndLine: 2, EndCol: 10},
+				"",
+				fail.OriginPars,
+				fail.ErrDuplicateInserts,
+				"x",
 			),
 		},
 		// For directive
@@ -640,42 +711,6 @@ func TestErrorHandling(t *testing.T) {
 				fail.OriginPars,
 				fail.ErrExpectExprAfter,
 				token.String(token.LPAREN),
-			),
-		},
-		{
-			id:  500,
-			inp: `{{ obj."str" }}`,
-			err: fail.New(
-				&position.Pos{StartCol: 6, EndCol: 11},
-				"",
-				fail.OriginPars,
-				fail.ErrWrongPeekToken,
-				token.String(token.IDENT),
-				"str",
-			),
-		},
-		{
-			id:  510,
-			inp: `{{ { "1st": "nice" }.1st }}`,
-			err: fail.New(
-				&position.Pos{StartCol: 20, EndCol: 21},
-				"",
-				fail.OriginPars,
-				fail.ErrWrongPeekToken,
-				token.String(token.IDENT),
-				"1",
-			),
-		},
-		{
-			id:  520,
-			inp: "{{ true ? 100 }}",
-			err: fail.New(
-				&position.Pos{StartCol: 14, EndCol: 15},
-				"",
-				fail.OriginPars,
-				fail.ErrWrongPeekToken,
-				token.String(token.COLON),
-				"}}",
 			),
 		},
 	}
