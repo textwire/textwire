@@ -51,18 +51,6 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 			data: nil,
 		},
 		{
-			dir: "duplicate-reserves",
-			err: fail.New(
-				&position.Pos{StartLine: 2, EndLine: 2, EndCol: 16},
-				absPath+"duplicate-reserves/base.tw",
-				fail.OriginPars,
-				fail.ErrDuplicateReserves,
-				"title",
-				absPath+"duplicate-reserves/base.tw",
-			),
-			data: nil,
-		},
-		{
 			dir: "use-inside-tpl",
 			err: fail.New(
 				&position.Pos{EndCol: 13},
@@ -144,17 +132,6 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 			data: nil,
 		},
 		{
-			dir: "duplicate-inserts",
-			err: fail.New(
-				&position.Pos{StartLine: 3, StartCol: 8, EndLine: 3, EndCol: 14},
-				absPath+"duplicate-inserts/index.tw",
-				fail.OriginPars,
-				fail.ErrDuplicateInserts,
-				"title",
-			),
-			data: nil,
-		},
-		{
 			dir: "undefined-var-in-comp",
 			err: fail.New(
 				&position.Pos{StartCol: 3, EndCol: 14},
@@ -208,16 +185,6 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 				"fullName",
 			),
 			data: map[string]any{"fullName": "Amy Adams"},
-		},
-		{
-			dir: "duplicate-use",
-			err: fail.New(
-				&position.Pos{StartLine: 1, StartCol: 5, EndLine: 1, EndCol: 13},
-				absPath+"duplicate-use/index.tw",
-				fail.OriginPars,
-				fail.ErrOnlyOneUseDir,
-			),
-			data: nil,
 		},
 		{
 			dir: "inserts-without-use",

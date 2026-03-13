@@ -501,7 +501,7 @@ func (p *Parser) useDir() ast.Chunk {
 	)
 
 	if p._useDir != nil {
-		p.newError(dir.Name.Pos(), fail.ErrOnlyOneUseDir)
+		p.newError(dir.Pos(), fail.ErrOnlyOneUseDir)
 	}
 
 	if !p.expectPeek(token.RPAREN) { // move to ")"
@@ -814,7 +814,7 @@ func (p *Parser) reserveDir() ast.Chunk {
 
 	// Check for duplicate reserve statements
 	if _, ok := p.reserves[dir.Name.Val]; ok {
-		p.newError(dir.Token.Pos, fail.ErrDuplicateReserves, dir.Name.Val, p.file.Abs)
+		p.newError(dir.Name.Pos(), fail.ErrDuplicateReserves, dir.Name.Val, p.file.Abs)
 		return nil
 	}
 
