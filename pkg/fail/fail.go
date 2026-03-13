@@ -14,7 +14,7 @@ const (
 	// Parser errors
 	ErrEmptyBraces            = "empty expression {{}} - must contain valid code like {{ variable }} or {{ 1 + 2 }}"
 	ErrWrongPeekToken         = "syntax error: expected '%s' but found '%s'"
-	ErrExpectedExpression     = "expected expression before '}}'"
+	ErrExpectExprAfter        = "expected expression after '%s'"
 	ErrCouldNotParseAs        = "cannot parse '%s' as %s"
 	ErrIllegalToken           = "illegal token '%s'"
 	ErrElseifCannotFollowElse = "'@elseif' cannot come after '@else'"
