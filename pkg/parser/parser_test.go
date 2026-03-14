@@ -715,9 +715,22 @@ func TestErrorHandling(t *testing.T) {
 				"true",
 			),
 		},
-		// If directive
+		// Each directive
 		{
 			id:  400,
+			inp: "@each( {{ 'nice' }}@end",
+			err: fail.New(
+				&position.Pos{StartCol: 7, EndCol: 8},
+				"",
+				fail.OriginPars,
+				fail.ErrWrongTokenType,
+				token.String(token.IDENT),
+				token.String(token.LBRACES),
+			),
+		},
+		// If directive
+		{
+			id:  500,
 			inp: "@if( {{ 'nice' }}@end",
 			err: fail.New(
 				&position.Pos{StartCol: 5, EndCol: 6},
@@ -728,7 +741,7 @@ func TestErrorHandling(t *testing.T) {
 			),
 		},
 		{
-			id:  410,
+			id:  510,
 			inp: "@if(false)@dump(@end",
 			err: fail.New(
 				&position.Pos{StartCol: 16, EndCol: 19},

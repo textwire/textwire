@@ -1208,8 +1208,8 @@ func (p *Parser) forDirHeader(dir *ast.ForDir) *ast.IllegalNode {
 func (p *Parser) eachDir() ast.Chunk {
 	dir := ast.NewEachDir(p.curToken)
 
-	if illegal := p.eachDirHeader(dir); illegal != nil { // skips ")"
-		return illegal
+	if ok := p.eachDirHeader(dir); !ok { // skips ")"
+		return nil
 	}
 
 	dir.Block = p.block()
@@ -1230,30 +1230,34 @@ func (p *Parser) eachDir() ast.Chunk {
 	return dir
 }
 
-func (p *Parser) eachDirHeader(dir *ast.EachDir) *ast.IllegalNode {
-	if !p.expectPeek(token.LPAREN) { // move to "("
-		return p.illegalNodeUntil(token.END)
+func (p *Parser) eachDirHeader(dir *ast.EachDir) bool {
+	if !p.expectPeek2(token.LPAREN) { // move to "("
+		return false
 	}
 
 	p.nextToken() // skip "("
 
+	if !p.expectType(token.IDENT) {
+		return false
+	}
+
 	dir.Var = ast.NewIdentExpr(p.curToken, p.curToken.Lit)
 
-	if !p.expectPeek(token.IN) { // move to "in"
-		return p.illegalNodeUntil(token.END)
+	if !p.expectPeek2(token.IN) { // move to "in"
+		return false
 	}
 
 	p.nextToken() // skip "in"
 
 	dir.Arr = p.expression(LOWEST)
 
-	if !p.expectPeek(token.RPAREN) { // move to ")"
-		return p.illegalNodeUntil(token.END)
+	if !p.expectPeek2(token.RPAREN) { // move to ")"
+		return false
 	}
 
 	p.nextToken() // skip ")"
 
-	return nil
+	return true
 }
 
 func (p *Parser) block() *ast.Block {
