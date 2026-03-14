@@ -270,16 +270,24 @@ func (p *Parser) registerInfix(tokenType token.TokenType, fn infixParseFn) {
 	p.infixParseFns[tokenType] = fn
 }
 
-func (p *Parser) expectType(tok token.Token, expectType token.TokenType) bool {
-	if tok.Type == expectType {
+func (p *Parser) expectNonEmptyNameOn(node ast.Node) bool {
+	if p.curToken.Lit == "" {
+		p.newError(p.curToken.Pos, fail.ErrNameCannotBeEmpty, node.Tok().Lit)
+		return false
+	}
+	return true
+}
+
+func (p *Parser) expectType(expectType token.TokenType) bool {
+	if p.curToken.Type == expectType {
 		return true
 	}
 
 	p.newError(
-		tok.Pos,
+		p.curToken.Pos,
 		fail.ErrWrongTokenType,
 		token.String(expectType),
-		token.String(tok.Type),
+		token.String(p.curToken.Type),
 	)
 
 	return false
@@ -478,7 +486,7 @@ func (p *Parser) assignStmt(left ast.Expression) ast.Statement {
 }
 
 func (p *Parser) useDir() ast.Chunk {
-	dir := ast.NewUseDir(p.curToken)
+	useDir := ast.NewUseDir(p.curToken)
 
 	if !p.expectPeek2(token.LPAREN) { // move to "("
 		return nil
@@ -486,33 +494,32 @@ func (p *Parser) useDir() ast.Chunk {
 
 	p.nextToken() // skip "("
 
-	if p.curToken.Lit == "" {
-		p.newError(p.curToken.Pos, fail.ErrStrCannotBeEmpty)
+	if !p.expectType(token.STR) {
 		return nil
 	}
 
-	if !p.expectType(p.curToken, token.STR) {
+	if !p.expectNonEmptyNameOn(useDir) {
 		return nil
 	}
 
-	dir.Name = ast.NewStrExpr(
+	useDir.Name = ast.NewStrExpr(
 		p.curToken,
 		file.ReplacePathAlias(p.curToken.Lit, file.PathAliasUse),
 	)
 
 	if p._useDir != nil {
-		p.newError(dir.Pos(), fail.ErrOnlyOneUseDir)
+		p.newError(useDir.Pos(), fail.ErrOnlyOneUseDir)
 	}
 
 	if !p.expectPeek(token.RPAREN) { // move to ")"
 		return p.illegalNode()
 	}
 
-	dir.SetEndPosition(p.curToken.Pos)
+	useDir.SetEndPosition(p.curToken.Pos)
 
-	p._useDir = dir
+	p._useDir = useDir
 
-	return dir
+	return useDir
 }
 
 func (p *Parser) breakifDir() ast.Chunk {
@@ -583,8 +590,8 @@ func (p *Parser) compDirHeader(compDir *ast.ComponentDir) *ast.IllegalNode {
 
 	p.nextToken() // skip "("
 
-	if p.curToken.Lit == "" {
-		p.newError(p.curToken.Pos, fail.ErrStrCannotBeEmpty)
+	if !p.expectNonEmptyNameOn(compDir) {
+		return nil
 	}
 
 	compDir.Name = ast.NewStrExpr(
@@ -824,79 +831,93 @@ func (p *Parser) reserveDir() ast.Chunk {
 }
 
 func (p *Parser) insertDir() ast.Chunk {
-	dir := ast.NewInsertDir(p.curToken, p.file.Abs)
+	insertDir := ast.NewInsertDir(p.curToken, p.file.Abs)
 
-	illegal, done := p.insertDirHeader(dir) // moves to ")"
-	if illegal != nil {
-		return illegal
+	hasError, done := p.insertDirHeader(insertDir) // moves to ")"
+	if hasError {
+		return nil
 	}
 
 	if done {
-		return dir
+		return insertDir
 	}
 
 	p.nextToken() // skip ")"
 
 	// Handle empty block
 	if p.curTokenIs(token.END) {
-		dir.SetEndPosition(p.curToken.Pos)
-		return dir
+		insertDir.SetEndPosition(p.curToken.Pos)
+		return insertDir
 	}
 
-	dir.Block = p.block()
+	insertDir.Block = p.block()
 
 	// skip block and move to @end
 	if !p.curTokenIs(token.END) {
 		return p.illegalNodeUntil(token.END)
 	}
 
-	dir.SetEndPosition(p.curToken.Pos)
+	insertDir.SetEndPosition(p.curToken.Pos)
 
-	p.inserts[dir.Name.Val] = dir
+	p.inserts[insertDir.Name.Val] = insertDir
 
-	return dir
+	return insertDir
 }
 
-func (p *Parser) insertDirHeader(dir *ast.InsertDir) (*ast.IllegalNode, bool) {
-	done := false
-	if !p.expectPeek(token.LPAREN) { // move to "("
-		return p.illegalNode(), done
+func (p *Parser) insertDirHeader(insertDir *ast.InsertDir) (hasErr, done bool) {
+	if !p.expectPeek2(token.LPAREN) { // move to "("
+		hasErr, done = true, true
+		return hasErr, done
 	}
 
 	p.nextToken() // skip "("
 
-	dir.Name = ast.NewStrExpr(p.curToken, p.curToken.Lit)
+	if !p.expectType(token.STR) {
+		hasErr, done = true, true
+		return hasErr, done
+	}
 
-	if ok := p.checkDuplicateInserts(dir); ok {
-		return nil, done
+	if !p.expectNonEmptyNameOn(insertDir) {
+		hasErr, done = true, true
+		return hasErr, done
+	}
+
+	insertDir.Name = ast.NewStrExpr(p.curToken, p.curToken.Lit)
+
+	if ok := p.hasDuplicateInserts(insertDir); ok {
+		hasErr, done = true, true
+		return hasErr, done
 	}
 
 	// Handle inline @insert without block
 	if p.peekTokenIs(token.COMMA) {
 		p.nextToken() // skip insert name
 		p.nextToken() // skip ","
-		dir.Argument = p.expression(LOWEST)
+		insertDir.Argument = p.expression(LOWEST)
 
-		if !p.expectPeek(token.RPAREN) { // move to ")"
-			return p.illegalNodeUntil(token.RBRACE), done
+		if !p.expectPeek2(token.RPAREN) { // move to ")"
+			hasErr, done = true, true
+			return hasErr, done
 		}
 
-		dir.SetEndPosition(p.curToken.Pos)
+		insertDir.SetEndPosition(p.curToken.Pos)
 
-		p.inserts[dir.Name.Val] = dir
-		done = true
+		p.inserts[insertDir.Name.Val] = insertDir
 
-		return nil, done
+		hasErr, done = false, true
+		return hasErr, done
 	}
 
 	if !p.expectPeek(token.RPAREN) { // move to ")"
-		return p.illegalNodeUntil(token.END), done
+		hasErr, done = true, true
+		return hasErr, done
 	}
 
-	return nil, done
+	hasErr, done = false, false
+	return hasErr, done
 }
 
-func (p *Parser) checkDuplicateInserts(insertDir *ast.InsertDir) bool {
+func (p *Parser) hasDuplicateInserts(insertDir *ast.InsertDir) bool {
 	if _, hasDuplicate := p.inserts[insertDir.Name.Val]; hasDuplicate {
 		p.newError(
 			insertDir.Name.Pos(),

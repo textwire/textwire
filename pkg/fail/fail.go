@@ -28,7 +28,7 @@ const (
 	ErrOnlyOneUseDir          = "@use() directive can only be used once per template"
 	ErrForLoopExpectStmt      = "@for() expects statement as post conditional, got expression '%s', like 'i++', 'i = i + 2', etc"
 	ErrWrongTokenType         = "expected type '%s' but '%s' received"
-	ErrStrCannotBeEmpty       = "this string cannot be empty"
+	ErrNameCannotBeEmpty      = "'%s' name cannot be empty"
 
 	// Evaluator (interpreter) errors
 	ErrUnknownType             = "unsupported type '%T'"

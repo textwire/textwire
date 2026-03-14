@@ -583,7 +583,8 @@ func TestErrorHandling(t *testing.T) {
 				&position.Pos{StartCol: 5, EndCol: 6},
 				"",
 				fail.OriginPars,
-				fail.ErrStrCannotBeEmpty,
+				fail.ErrNameCannotBeEmpty,
+				"@use",
 			),
 		},
 		{
@@ -628,7 +629,8 @@ func TestErrorHandling(t *testing.T) {
 				&position.Pos{StartCol: 11, EndCol: 12},
 				"",
 				fail.OriginPars,
-				fail.ErrStrCannotBeEmpty,
+				fail.ErrNameCannotBeEmpty,
+				"@component",
 			),
 		},
 		// Reserve
@@ -646,7 +648,7 @@ func TestErrorHandling(t *testing.T) {
 		},
 		// Insert
 		{
-			id:  202,
+			id:  210,
 			inp: "@insert('x', 'x')\n@insert('y', 'y')\n@insert('x', 'x')",
 			err: fail.New(
 				&position.Pos{StartLine: 2, StartCol: 8, EndLine: 2, EndCol: 10},
@@ -654,6 +656,29 @@ func TestErrorHandling(t *testing.T) {
 				fail.OriginPars,
 				fail.ErrDuplicateInserts,
 				"x",
+			),
+		},
+		{
+			id:  220,
+			inp: "@insert('', 'x')",
+			err: fail.New(
+				&position.Pos{StartCol: 8, EndCol: 9},
+				"",
+				fail.OriginPars,
+				fail.ErrNameCannotBeEmpty,
+				"@insert",
+			),
+		},
+		{
+			id:  230,
+			inp: "@insert([1, 2], 'test')",
+			err: fail.New(
+				&position.Pos{StartCol: 8, EndCol: 8},
+				"",
+				fail.OriginPars,
+				fail.ErrWrongTokenType,
+				token.String(token.STR),
+				token.String(token.LBRACKET),
 			),
 		},
 		// For directive
