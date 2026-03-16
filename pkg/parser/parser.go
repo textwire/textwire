@@ -567,6 +567,10 @@ func (p *Parser) compDirHeader(compDir *ast.ComponentDir) *ast.IllegalNode {
 
 	p.nextToken() // skip "("
 
+	if !p.expectType(token.STR) {
+		return p.illegalNode()
+	}
+
 	if !p.expectNonEmptyNameOn(compDir) {
 		return nil
 	}
@@ -780,6 +784,10 @@ func (p *Parser) reserveDir() ast.Chunk {
 	}
 
 	p.nextToken() // skip "("
+
+	if !p.expectType(token.STR) {
+		return p.illegalNode()
+	}
 
 	dir.Name = ast.NewStrExpr(p.curToken, p.curToken.Lit)
 

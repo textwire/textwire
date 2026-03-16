@@ -635,6 +635,18 @@ func TestErrorHandling(t *testing.T) {
 		},
 		{
 			id:  210,
+			inp: "@component(3.3)",
+			err: fail.New(
+				&position.Pos{StartCol: 11, EndCol: 13},
+				"",
+				fail.OriginPars,
+				fail.ErrWrongTokenType,
+				token.String(token.STR),
+				token.String(token.FLOAT),
+			),
+		},
+		{
+			id:  220,
 			inp: "@component('~user'",
 			err: fail.New(
 				&position.Pos{StartCol: 18, EndCol: 18},
@@ -646,7 +658,7 @@ func TestErrorHandling(t *testing.T) {
 			),
 		},
 		{
-			id:  220,
+			id:  230,
 			inp: "@component   ('",
 			err: fail.New(
 				&position.Pos{StartCol: 14, EndCol: 15},
@@ -657,7 +669,7 @@ func TestErrorHandling(t *testing.T) {
 			),
 		},
 		{
-			id:  230,
+			id:  240,
 			inp: "@component",
 			err: fail.New(
 				&position.Pos{StartCol: 10, EndCol: 10},
@@ -679,6 +691,18 @@ func TestErrorHandling(t *testing.T) {
 				fail.ErrDuplicateReserves,
 				"title",
 				"",
+			),
+		},
+		{
+			id:  310,
+			inp: "@reserve(1)",
+			err: fail.New(
+				&position.Pos{StartCol: 9, EndCol: 9},
+				"",
+				fail.OriginPars,
+				fail.ErrWrongTokenType,
+				token.String(token.STR),
+				token.String(token.INT),
 			),
 		},
 		// Insert
