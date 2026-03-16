@@ -716,6 +716,54 @@ func TestErrorHandling(t *testing.T) {
 				token.String(token.LBRACKET),
 			),
 		},
+		{
+			id:  430,
+			inp: "@insert('nice",
+			err: fail.New(
+				&position.Pos{StartCol: 14, EndCol: 14},
+				"",
+				fail.OriginPars,
+				fail.ErrWrongPeekToken,
+				token.String(token.RPAREN),
+				"",
+			),
+		},
+		{
+			id:  440,
+			inp: "@insert ('nice'",
+			err: fail.New(
+				&position.Pos{StartCol: 15, EndCol: 15},
+				"",
+				fail.OriginPars,
+				fail.ErrWrongPeekToken,
+				token.String(token.RPAREN),
+				"",
+			),
+		},
+		{
+			id:  450,
+			inp: "@insert('nice'@end",
+			err: fail.New(
+				&position.Pos{StartCol: 14, EndCol: 17},
+				"",
+				fail.OriginPars,
+				fail.ErrWrongPeekToken,
+				token.String(token.RPAREN),
+				"@end",
+			),
+		},
+		{
+			id:  460,
+			inp: "@insert    ('nice' {{ 'nice' }}@end",
+			err: fail.New(
+				&position.Pos{StartCol: 19, EndCol: 20},
+				"",
+				fail.OriginPars,
+				fail.ErrWrongPeekToken,
+				token.String(token.RPAREN),
+				"{{",
+			),
+		},
 		// For directive
 		{
 			id:  500,
