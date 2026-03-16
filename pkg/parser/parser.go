@@ -317,29 +317,6 @@ func (p *Parser) peekPrecedence() int {
 	return result
 }
 
-func (p *Parser) expectPeek2(tok token.TokenType) bool {
-	if p.peekTokenIs(tok) {
-		p.nextToken()
-		return true
-	}
-
-	pos := &position.Pos{
-		StartLine: p.curToken.Pos.StartLine,
-		StartCol:  p.curToken.Pos.StartCol,
-		EndLine:   p.peekToken.Pos.EndLine,
-		EndCol:    p.peekToken.Pos.EndCol,
-	}
-
-	got := p.peekToken.Lit
-	if len(got) > 100 {
-		got = got[:100] + "..."
-	}
-
-	p.newError(pos, fail.ErrWrongPeekToken, token.String(tok), got)
-
-	return false
-}
-
 func (p *Parser) expectPeek(tok token.TokenType) bool {
 	if p.peekTokenIs(tok) {
 		p.nextToken()
@@ -488,18 +465,18 @@ func (p *Parser) assignStmt(left ast.Expression) ast.Statement {
 func (p *Parser) useDir() ast.Chunk {
 	useDir := ast.NewUseDir(p.curToken)
 
-	if !p.expectPeek2(token.LPAREN) { // move to "("
-		return nil
+	if !p.expectPeek(token.LPAREN) { // move to "("
+		return p.illegalNode()
 	}
 
 	p.nextToken() // skip "("
 
 	if !p.expectType(token.STR) {
-		return nil
+		return p.illegalNode()
 	}
 
 	if !p.expectNonEmptyNameOn(useDir) {
-		return nil
+		return p.illegalNode()
 	}
 
 	useDir.Name = ast.NewStrExpr(
@@ -833,9 +810,9 @@ func (p *Parser) reserveDir() ast.Chunk {
 func (p *Parser) insertDir() ast.Chunk {
 	insertDir := ast.NewInsertDir(p.curToken, p.file.Abs)
 
-	hasError, done := p.insertDirHeader(insertDir) // moves to ")"
-	if hasError {
-		return nil
+	illegal, done := p.insertDirHeader(insertDir) // moves to ")"
+	if illegal != nil {
+		return illegal
 	}
 
 	if done {
@@ -864,29 +841,25 @@ func (p *Parser) insertDir() ast.Chunk {
 	return insertDir
 }
 
-func (p *Parser) insertDirHeader(insertDir *ast.InsertDir) (hasErr, done bool) {
-	if !p.expectPeek2(token.LPAREN) { // move to "("
-		hasErr, done = true, true
-		return hasErr, done
+func (p *Parser) insertDirHeader(insertDir *ast.InsertDir) (*ast.IllegalNode, bool) {
+	if !p.expectPeek(token.LPAREN) { // move to "("
+		return p.illegalNode(), false
 	}
 
 	p.nextToken() // skip "("
 
 	if !p.expectType(token.STR) {
-		hasErr, done = true, true
-		return hasErr, done
+		return p.illegalNode(), false
 	}
 
 	if !p.expectNonEmptyNameOn(insertDir) {
-		hasErr, done = true, true
-		return hasErr, done
+		return p.illegalNode(), false
 	}
 
 	insertDir.Name = ast.NewStrExpr(p.curToken, p.curToken.Lit)
 
 	if ok := p.hasDuplicateInserts(insertDir); ok {
-		hasErr, done = true, true
-		return hasErr, done
+		return p.illegalNode(), false
 	}
 
 	// Handle inline @insert without block
@@ -895,26 +868,22 @@ func (p *Parser) insertDirHeader(insertDir *ast.InsertDir) (hasErr, done bool) {
 		p.nextToken() // skip ","
 		insertDir.Argument = p.expression(LOWEST)
 
-		if !p.expectPeek2(token.RPAREN) { // move to ")"
-			hasErr, done = true, true
-			return hasErr, done
+		if !p.expectPeek(token.RPAREN) { // move to ")"
+			return p.illegalNode(), false
 		}
 
 		insertDir.SetEndPosition(p.curToken.Pos)
 
 		p.inserts[insertDir.Name.Val] = insertDir
 
-		hasErr, done = false, true
-		return hasErr, done
+		return nil, true
 	}
 
 	if !p.expectPeek(token.RPAREN) { // move to ")"
-		hasErr, done = true, true
-		return hasErr, done
+		return p.illegalNode(), false
 	}
 
-	hasErr, done = false, false
-	return hasErr, done
+	return nil, false
 }
 
 func (p *Parser) hasDuplicateInserts(insertDir *ast.InsertDir) bool {
@@ -958,8 +927,8 @@ func (p *Parser) decStmt(left ast.Expression) ast.Statement {
 func (p *Parser) dotExpr(left ast.Expression) ast.Expression {
 	expr := ast.NewDotExpr(*left.Tok(), left)
 
-	if !p.expectPeek2(token.IDENT) { // skip "." and move to identifier
-		return nil
+	if !p.expectPeek(token.IDENT) { // skip "." and move to identifier
+		return p.illegalNode()
 	}
 
 	if p.peekTokenIs(token.LPAREN) {
@@ -1041,8 +1010,8 @@ func (p *Parser) ternaryExpr(left ast.Expression) ast.Expression {
 func (p *Parser) ifDir() ast.Chunk {
 	dir := ast.NewIfDir(p.curToken)
 
-	if ok := p.ifDirHeader(dir); !ok { // skips ")"
-		return nil
+	if illegal := p.ifDirHeader(dir); illegal != nil { // skips ")"
+		return illegal
 	}
 
 	dir.IfBlock = p.block()
@@ -1071,22 +1040,22 @@ func (p *Parser) ifDir() ast.Chunk {
 	return dir
 }
 
-func (p *Parser) ifDirHeader(ifDir *ast.IfDir) bool {
-	if !p.expectPeek2(token.LPAREN) { // move to "("
-		return false
+func (p *Parser) ifDirHeader(ifDir *ast.IfDir) *ast.IllegalNode {
+	if !p.expectPeek(token.LPAREN) { // move to "("
+		return p.illegalNode()
 	}
 
 	p.nextToken() // skip "("
 
 	ifDir.Cond = p.expression(LOWEST)
 
-	if !p.expectPeek2(token.RPAREN) { // move to ")"
-		return false
+	if !p.expectPeek(token.RPAREN) { // move to ")"
+		return p.illegalNode()
 	}
 
 	p.nextToken() // skip ")"
 
-	return true
+	return nil
 }
 
 func (p *Parser) elseifDir() (*ast.ElseIfDir, *ast.IllegalNode) {
@@ -1208,8 +1177,8 @@ func (p *Parser) forDirHeader(dir *ast.ForDir) *ast.IllegalNode {
 func (p *Parser) eachDir() ast.Chunk {
 	dir := ast.NewEachDir(p.curToken)
 
-	if ok := p.eachDirHeader(dir); !ok { // skips ")"
-		return nil
+	if illegal := p.eachDirHeader(dir); illegal != nil { // skips ")"
+		return illegal
 	}
 
 	dir.Block = p.block()
@@ -1230,34 +1199,34 @@ func (p *Parser) eachDir() ast.Chunk {
 	return dir
 }
 
-func (p *Parser) eachDirHeader(dir *ast.EachDir) bool {
-	if !p.expectPeek2(token.LPAREN) { // move to "("
-		return false
+func (p *Parser) eachDirHeader(dir *ast.EachDir) *ast.IllegalNode {
+	if !p.expectPeek(token.LPAREN) { // move to "("
+		return p.illegalNode()
 	}
 
 	p.nextToken() // skip "("
 
 	if !p.expectType(token.IDENT) {
-		return false
+		return p.illegalNode()
 	}
 
 	dir.Var = ast.NewIdentExpr(p.curToken, p.curToken.Lit)
 
-	if !p.expectPeek2(token.IN) { // move to "in"
-		return false
+	if !p.expectPeek(token.IN) { // move to "in"
+		return p.illegalNode()
 	}
 
 	p.nextToken() // skip "in"
 
 	dir.Arr = p.expression(LOWEST)
 
-	if !p.expectPeek2(token.RPAREN) { // move to ")"
-		return false
+	if !p.expectPeek(token.RPAREN) { // move to ")"
+		return p.illegalNode()
 	}
 
 	p.nextToken() // skip ")"
 
-	return true
+	return nil
 }
 
 func (p *Parser) block() *ast.Block {
