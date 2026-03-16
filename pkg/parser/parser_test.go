@@ -494,7 +494,7 @@ func TestErrorHandling(t *testing.T) {
 			id:  10,
 			inp: `{{ obj."str" }}`,
 			err: fail.New(
-				&position.Pos{StartCol: 6, EndCol: 11},
+				&position.Pos{StartCol: 7, EndCol: 11},
 				"",
 				fail.OriginPars,
 				fail.ErrWrongPeekToken,
@@ -506,7 +506,7 @@ func TestErrorHandling(t *testing.T) {
 			id:  11,
 			inp: `{{ { "1st": "nice" }.1st }}`,
 			err: fail.New(
-				&position.Pos{StartCol: 20, EndCol: 21},
+				&position.Pos{StartCol: 21, EndCol: 21},
 				"",
 				fail.OriginPars,
 				fail.ErrWrongPeekToken,
@@ -613,7 +613,7 @@ func TestErrorHandling(t *testing.T) {
 			id:  90,
 			inp: `@use "name"`,
 			err: fail.New(
-				&position.Pos{EndCol: 10},
+				&position.Pos{StartCol: 4, EndCol: 10},
 				"",
 				fail.OriginPars,
 				fail.ErrWrongPeekToken,
