@@ -633,9 +633,44 @@ func TestErrorHandling(t *testing.T) {
 				"@component",
 			),
 		},
+		{
+			id:  210,
+			inp: "@component('~user'",
+			err: fail.New(
+				&position.Pos{StartCol: 18, EndCol: 18},
+				"",
+				fail.OriginPars,
+				fail.ErrWrongPeekToken,
+				token.String(token.RPAREN),
+				"",
+			),
+		},
+		{
+			id:  220,
+			inp: "@component   ('",
+			err: fail.New(
+				&position.Pos{StartCol: 14, EndCol: 15},
+				"",
+				fail.OriginPars,
+				fail.ErrNameCannotBeEmpty,
+				"@component",
+			),
+		},
+		{
+			id:  230,
+			inp: "@component",
+			err: fail.New(
+				&position.Pos{StartCol: 10, EndCol: 10},
+				"",
+				fail.OriginPars,
+				fail.ErrWrongPeekToken,
+				token.String(token.LPAREN),
+				"",
+			),
+		},
 		// Reserve
 		{
-			id:  201,
+			id:  300,
 			inp: "@reserve('title')\n@reserve('title')",
 			err: fail.New(
 				&position.Pos{StartLine: 1, StartCol: 9, EndLine: 1, EndCol: 15},
@@ -648,7 +683,7 @@ func TestErrorHandling(t *testing.T) {
 		},
 		// Insert
 		{
-			id:  210,
+			id:  400,
 			inp: "@insert('x', 'x')\n@insert('y', 'y')\n@insert('x', 'x')",
 			err: fail.New(
 				&position.Pos{StartLine: 2, StartCol: 8, EndLine: 2, EndCol: 10},
@@ -659,7 +694,7 @@ func TestErrorHandling(t *testing.T) {
 			),
 		},
 		{
-			id:  220,
+			id:  410,
 			inp: "@insert('', 'x')",
 			err: fail.New(
 				&position.Pos{StartCol: 8, EndCol: 9},
@@ -670,7 +705,7 @@ func TestErrorHandling(t *testing.T) {
 			),
 		},
 		{
-			id:  230,
+			id:  420,
 			inp: "@insert([1, 2], 'test')",
 			err: fail.New(
 				&position.Pos{StartCol: 8, EndCol: 8},
@@ -683,7 +718,7 @@ func TestErrorHandling(t *testing.T) {
 		},
 		// For directive
 		{
-			id:  300,
+			id:  500,
 			inp: "@for(i = 0; i < 4; i+2){{ i }}@end",
 			err: fail.New(
 				&position.Pos{StartCol: 19, EndCol: 21},
@@ -694,7 +729,7 @@ func TestErrorHandling(t *testing.T) {
 			),
 		},
 		{
-			id:  310,
+			id:  600,
 			inp: "@for(c = 0.0; c < 4.0; c+2.0){{ c }}@end",
 			err: fail.New(
 				&position.Pos{StartCol: 23, EndCol: 27},
@@ -705,7 +740,7 @@ func TestErrorHandling(t *testing.T) {
 			),
 		},
 		{
-			id:  320,
+			id:  610,
 			inp: "@for(;;    true  ){{ c }}@end",
 			err: fail.New(
 				&position.Pos{StartCol: 11, EndCol: 14},
@@ -717,7 +752,7 @@ func TestErrorHandling(t *testing.T) {
 		},
 		// Each directive
 		{
-			id:  400,
+			id:  700,
 			inp: "@each( {{ 'nice' }}@end",
 			err: fail.New(
 				&position.Pos{StartCol: 7, EndCol: 8},
@@ -730,7 +765,7 @@ func TestErrorHandling(t *testing.T) {
 		},
 		// If directive
 		{
-			id:  500,
+			id:  800,
 			inp: "@if( {{ 'nice' }}@end",
 			err: fail.New(
 				&position.Pos{StartCol: 5, EndCol: 6},
@@ -741,7 +776,7 @@ func TestErrorHandling(t *testing.T) {
 			),
 		},
 		{
-			id:  510,
+			id:  810,
 			inp: "@if(false)@dump(@end",
 			err: fail.New(
 				&position.Pos{StartCol: 16, EndCol: 19},
