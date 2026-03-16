@@ -671,7 +671,7 @@ func (e *Evaluator) combineInsertContent(insertDir *ast.InsertDir, ctx *Context)
 	}
 
 	if insertDir.Block == nil {
-		return e.newError(insertDir, ctx, fail.ErrInsertMustHaveContent)
+		return e.newError(insertDir, ctx, fail.ErrInsertMustHaveContent, insertDir.Name.Val)
 	}
 
 	return e.Eval(insertDir.Block, ctx)

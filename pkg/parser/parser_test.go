@@ -764,6 +764,17 @@ func TestErrorHandling(t *testing.T) {
 				"{{",
 			),
 		},
+		{
+			id:  470,
+			inp: "@insert('title')<h3>Hello</h3>",
+			err: fail.New(
+				&position.Pos{EndCol: 6},
+				"",
+				fail.OriginPars,
+				fail.ErrInsertMustHaveContent,
+				"title",
+			),
+		},
 		// For directive
 		{
 			id:  500,

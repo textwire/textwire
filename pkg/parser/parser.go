@@ -831,7 +831,8 @@ func (p *Parser) insertDir() ast.Chunk {
 
 	// skip block and move to @end
 	if !p.curTokenIs(token.END) {
-		return p.illegalNodeUntil(token.END)
+		p.newError(insertDir.Pos(), fail.ErrInsertMustHaveContent, insertDir.Name.Val)
+		return nil
 	}
 
 	insertDir.SetEndPosition(p.curToken.Pos)

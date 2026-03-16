@@ -32,7 +32,7 @@ const (
 
 	// Evaluator (interpreter) errors
 	ErrUnknownType             = "unsupported type '%T'"
-	ErrInsertMustHaveContent   = "@insert() requires either a block (body) or a second argument"
+	ErrInsertMustHaveContent   = "@insert('%s') requires either a block (body) or a second argument"
 	ErrIndexNotSupported       = "type '%s' does not support indexing"
 	ErrUnknownOp               = "unknown operator '%s%s'"
 	ErrCannotUseOperator       = "operator '%s' is not supported for the combination '%s' %s '%s'"
