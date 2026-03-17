@@ -1223,20 +1223,20 @@ func TestParseAssignStmt(t *testing.T) {
 func TestParseUseDir(t *testing.T) {
 	inp := `@use("main")`
 
-	stmt, err := parseDirective[*ast.UseDir](inp, defaultParseOpts)
+	useDir, err := parseDirective[*ast.UseDir](inp, defaultParseOpts)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	if stmt.Name.Val != "main" {
-		t.Fatalf("stmt.Name.Val is not 'main', got %s", stmt.Name.Val)
+	if useDir.Name.Val != "main" {
+		t.Fatalf("useDir.Name.Val is not 'main', got %s", useDir.Name.Val)
 	}
 
-	if err := testToken(stmt, token.USE); err != nil {
+	if err := testToken(useDir, token.USE); err != nil {
 		t.Fatal(err)
 	}
 
-	err = testTokPosition(stmt.Pos(), &position.Pos{
+	err = testTokPosition(useDir.Pos(), &position.Pos{
 		StartCol: 0,
 		EndCol:   11,
 	})
@@ -1245,46 +1245,47 @@ func TestParseUseDir(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if stmt.LayoutProg != nil {
-		t.Fatalf("stmt.LayoutProg is not nil, got %T", stmt.LayoutProg)
+	if useDir.LayoutProg != nil {
+		t.Fatalf("useDir.LayoutProg is not nil, got %T", useDir.LayoutProg)
 	}
 
-	if stmt.String() != inp {
-		t.Fatalf("stmt.String() is not %s, got %s", inp, stmt)
+	if useDir.String() != inp {
+		t.Fatalf("useDir.String() is not %s, got %s", inp, useDir)
 	}
 }
 
-func TestParseReserveStmt(t *testing.T) {
+func TestParseReserveDir(t *testing.T) {
 	inp := `<div>@reserve("content")</div>`
 
-	stmts, err := parseChunks(inp, parseOpts{chunksCount: 3, checkErrors: true})
+	chunks, err := parseChunks(inp, parseOpts{chunksCount: 3, checkErrors: true})
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	stmt, ok := stmts[1].(*ast.ReserveDir)
+	reserveDir, ok := chunks[1].(*ast.ReserveDir)
 	if !ok {
-		t.Fatalf("stmts[1] is not a ReserveDir, got %T", stmts[1])
+		t.Fatalf("chunks[1] is not a ReserveDir, got %T", chunks[1])
 	}
 
-	if err := testToken(stmt, token.RESERVE); err != nil {
+	if err := testToken(reserveDir, token.RESERVE); err != nil {
 		t.Fatal(err)
 	}
 
-	err = testTokPosition(stmt.Pos(), &position.Pos{
+	err = testTokPosition(reserveDir.Pos(), &position.Pos{
 		StartCol: 5,
 		EndCol:   23,
 	})
+
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	if stmt.Name.Val != "content" {
-		t.Fatalf("stmt.Name.Val is not 'content', got %s", stmt.Name.Val)
+	if reserveDir.Name.Val != "content" {
+		t.Fatalf("reserveDir.Name.Val is not 'content', got %s", reserveDir.Name.Val)
 	}
 
-	if stmt.String() == inp {
-		t.Fatalf("stmt.String() is not %s, got %s", inp, stmt)
+	if reserveDir.String() == inp {
+		t.Fatalf("reserveDir.String() is not %s, got %s", inp, reserveDir)
 	}
 }
 
@@ -1292,36 +1293,37 @@ func TestInsertDir(t *testing.T) {
 	t.Run("@insert with block", func(t *testing.T) {
 		inp := `<h1>@insert("content")<h1>Some content</h1>@end</h1>`
 
-		stmts, err := parseChunks(inp, parseOpts{chunksCount: 3, checkErrors: true})
+		chunks, err := parseChunks(inp, parseOpts{chunksCount: 3, checkErrors: true})
 		if err != nil {
 			t.Fatal(err)
 		}
 
-		stmt, ok := stmts[1].(*ast.InsertDir)
+		insertDir, ok := chunks[1].(*ast.InsertDir)
 		if !ok {
-			t.Fatalf("stmts[1] is not an InsertDir, got %T", stmts[1])
+			t.Fatalf("chunks[1] is not an InsertDir, got %T", chunks[1])
 		}
 
-		if err := testToken(stmt, token.INSERT); err != nil {
+		if err := testToken(insertDir, token.INSERT); err != nil {
 			t.Fatal(err)
 		}
 
-		err = testTokPosition(stmt.Pos(), &position.Pos{
+		err = testTokPosition(insertDir.Pos(), &position.Pos{
 			StartCol: 4,
 			EndCol:   46,
 		})
+
 		if err != nil {
 			t.Fatal(err)
 		}
 
-		if stmt.Name.Val != "content" {
-			t.Fatalf("stmt.Name.Val is not 'content', got %s", stmt.Name.Val)
+		if insertDir.Name.Val != "content" {
+			t.Fatalf("insertDir.Name.Val is not 'content', got %s", insertDir.Name.Val)
 		}
 
-		if stmt.Block.String() != "<h1>Some content</h1>" {
+		if insertDir.Block.String() != "<h1>Some content</h1>" {
 			t.Fatalf(
-				"stmt.Block.String() is not '<h1>Some content</h1>', got %s",
-				stmt.Block,
+				"insertDir.Block.String() is not '<h1>Some content</h1>', got %s",
+				insertDir.Block,
 			)
 		}
 	})
@@ -1329,40 +1331,41 @@ func TestInsertDir(t *testing.T) {
 	t.Run("@insert with argument", func(t *testing.T) {
 		inp := "<h1>@insert('content', 'Some content')</h1>"
 
-		stmts, err := parseChunks(inp, parseOpts{chunksCount: 3, checkErrors: true})
+		chunks, err := parseChunks(inp, parseOpts{chunksCount: 3, checkErrors: true})
 		if err != nil {
 			t.Fatal(err)
 		}
 
-		stmt, ok := stmts[1].(*ast.InsertDir)
+		insertDir, ok := chunks[1].(*ast.InsertDir)
 		if !ok {
-			t.Fatalf("stmts[1] is not an InsertDir, got %T", stmts[1])
+			t.Fatalf("chunks[1] is not an InsertDir, got %T", chunks[1])
 		}
 
-		err = testTokPosition(stmt.Pos(), &position.Pos{
+		err = testTokPosition(insertDir.Pos(), &position.Pos{
 			StartCol: 4,
 			EndCol:   37,
 		})
+
 		if err != nil {
 			t.Fatal(err)
 		}
 
-		if err := testToken(stmt, token.INSERT); err != nil {
+		if err := testToken(insertDir, token.INSERT); err != nil {
 			t.Fatal(err)
 		}
 
-		if stmt.Name.Val != "content" {
-			t.Fatalf("stmt.Name.Val is not 'content', got %s", stmt.Name.Val)
+		if insertDir.Name.Val != "content" {
+			t.Fatalf("insertDir.Name.Val is not 'content', got %s", insertDir.Name.Val)
 		}
 
-		if stmt.Block != nil {
-			t.Fatalf("stmt.Block is not nil, got %T", stmt.Block)
+		if insertDir.Block != nil {
+			t.Fatalf("insertDir.Block is not nil, got %T", insertDir.Block)
 		}
 
-		if stmt.Argument.String() != `"Some content"` {
+		if insertDir.Argument.String() != `"Some content"` {
 			t.Fatalf(
-				"stmt.Argument.String() is not 'Some content', got %s",
-				stmt.Argument,
+				"insertDir.Argument.String() is not 'Some content', got %s",
+				insertDir.Argument,
 			)
 		}
 	})
@@ -1713,50 +1716,50 @@ func TestParseForDir(t *testing.T) {
 	t.Run("@for with @else block", func(t *testing.T) {
 		inp := `@for(i = 0; i < 0; i++){{ i }}@elseEmpty@end`
 
-		stmt, err := parseDirective[*ast.ForDir](inp, defaultParseOpts)
+		forDir, err := parseDirective[*ast.ForDir](inp, defaultParseOpts)
 		if err != nil {
 			t.Fatal(err)
 		}
 
-		if err := testToken(stmt, token.FOR); err != nil {
+		if err := testToken(forDir, token.FOR); err != nil {
 			t.Fatal(err)
 		}
 
-		if stmt.ElseBlock == nil {
-			t.Fatalf("stmt.ElseBlock is nil")
+		if forDir.ElseBlock == nil {
+			t.Fatalf("forDir.ElseBlock is nil")
 		}
 
-		if stmt.ElseBlock.String() != "Empty" {
-			t.Fatalf("stmt.ElseBlock.String() is not 'Empty', got %s", stmt.ElseBlock)
+		if forDir.ElseBlock.String() != "Empty" {
+			t.Fatalf("forDir.ElseBlock.String() is not 'Empty', got %s", forDir.ElseBlock)
 		}
 	})
 
 	t.Run("infinite @for", func(t *testing.T) {
 		inp := `@for(;;)1@end`
 
-		stmt, err := parseDirective[*ast.ForDir](inp, defaultParseOpts)
+		forDir, err := parseDirective[*ast.ForDir](inp, defaultParseOpts)
 		if err != nil {
 			t.Fatal(err)
 		}
 
-		if err := testToken(stmt, token.FOR); err != nil {
+		if err := testToken(forDir, token.FOR); err != nil {
 			t.Fatal(err)
 		}
 
-		if _, ok := stmt.Init.(*ast.Empty); !ok {
-			t.Fatalf("stmt.Init is not *ast.Empty, got %T", stmt.Init)
+		if _, ok := forDir.Init.(*ast.Empty); !ok {
+			t.Fatalf("forDir.Init is not *ast.Empty, got %T", forDir.Init)
 		}
 
-		if _, ok := stmt.Cond.(*ast.Empty); !ok {
-			t.Fatalf("stmt.Cond is not *ast.Empty, got %T", stmt.Cond)
+		if _, ok := forDir.Cond.(*ast.Empty); !ok {
+			t.Fatalf("forDir.Cond is not *ast.Empty, got %T", forDir.Cond)
 		}
 
-		if _, ok := stmt.Post.(*ast.Empty); !ok {
-			t.Fatalf("stmt.Post is not *ast.Empty, got %T", stmt.Post)
+		if _, ok := forDir.Post.(*ast.Empty); !ok {
+			t.Fatalf("forDir.Post is not *ast.Empty, got %T", forDir.Post)
 		}
 
-		if stmt.Block.String() != "1" {
-			t.Fatalf("stmt.Block.String() is not '1', got %s", stmt.Block)
+		if forDir.Block.String() != "1" {
+			t.Fatalf("forDir.Block.String() is not '1', got %s", forDir.Block)
 		}
 	})
 }
@@ -2038,12 +2041,12 @@ func TestParseDotExp(t *testing.T) {
 func TestParseBreakDir(t *testing.T) {
 	inp := `@break`
 
-	stmt, err := parseDirective[*ast.BreakDir](inp, defaultParseOpts)
+	breakDir, err := parseDirective[*ast.BreakDir](inp, defaultParseOpts)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	if err := testToken(stmt, token.BREAK); err != nil {
+	if err := testToken(breakDir, token.BREAK); err != nil {
 		t.Fatal(err)
 	}
 }
@@ -2051,25 +2054,25 @@ func TestParseBreakDir(t *testing.T) {
 func TestParseContinueDir(t *testing.T) {
 	inp := `@continue`
 
-	stmt, err := parseDirective[*ast.ContinueDir](inp, defaultParseOpts)
+	continueDir, err := parseDirective[*ast.ContinueDir](inp, defaultParseOpts)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	if err := testToken(stmt, token.CONTINUE); err != nil {
+	if err := testToken(continueDir, token.CONTINUE); err != nil {
 		t.Fatal(err)
 	}
 }
 
-func TestParseBreakifStmt(t *testing.T) {
+func TestParseBreakifDir(t *testing.T) {
 	inp := `@breakif(true)`
 
-	dir, err := parseDirective[*ast.BreakifDir](inp, defaultParseOpts)
+	breakifDir, err := parseDirective[*ast.BreakifDir](inp, defaultParseOpts)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	err = testTokPosition(dir.Pos(), &position.Pos{
+	err = testTokPosition(breakifDir.Pos(), &position.Pos{
 		StartCol: 0,
 		EndCol:   13,
 	})
@@ -2078,30 +2081,29 @@ func TestParseBreakifStmt(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if err := testToken(dir, token.BREAKIF); err != nil {
+	if err := testToken(breakifDir, token.BREAKIF); err != nil {
 		t.Fatal(err)
 	}
 
-	if err := testBoolExpr(dir.Cond, true); err != nil {
+	if err := testBoolExpr(breakifDir.Cond, true); err != nil {
 		t.Fatal(err)
 	}
 
 	expect := "@breakif(true)"
-
-	if dir.String() != expect {
-		t.Fatalf("breakDir.String() is not '%s', got %s", expect, dir)
+	if breakifDir.String() != expect {
+		t.Fatalf("breakifDir.String() is not '%s', got %s", expect, breakifDir)
 	}
 }
 
 func TestParseContinueifDir(t *testing.T) {
 	inp := "@continueif(false)"
 
-	dir, err := parseDirective[*ast.ContinueifDir](inp, defaultParseOpts)
+	continueifDir, err := parseDirective[*ast.ContinueifDir](inp, defaultParseOpts)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	err = testTokPosition(dir.Pos(), &position.Pos{
+	err = testTokPosition(continueifDir.Pos(), &position.Pos{
 		StartCol: 0,
 		EndCol:   17,
 	})
@@ -2110,17 +2112,17 @@ func TestParseContinueifDir(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if err := testToken(dir, token.CONTINUEIF); err != nil {
+	if err := testToken(continueifDir, token.CONTINUEIF); err != nil {
 		t.Fatal(err)
 	}
 
-	if err := testBoolExpr(dir.Cond, false); err != nil {
+	if err := testBoolExpr(continueifDir.Cond, false); err != nil {
 		t.Fatal(err)
 	}
 
 	expect := "@continueif(false)"
-	if dir.String() != expect {
-		t.Fatalf("dir.String() is not '%s', got %s", expect, dir)
+	if continueifDir.String() != expect {
+		t.Fatalf("continueifDir.String() is not '%s', got %s", expect, continueifDir)
 	}
 }
 
@@ -2175,27 +2177,27 @@ func TestParseComponentDir(t *testing.T) {
 	t.Run("@component with default slot", func(t *testing.T) {
 		inp := `@component("components/book-card")@slot<h1>Header</h1>@end@end`
 
-		stmt, err := parseDirective[*ast.ComponentDir](inp, defaultParseOpts)
+		compDir, err := parseDirective[*ast.ComponentDir](inp, defaultParseOpts)
 		if err != nil {
 			t.Fatal(err)
 		}
 
-		if len(stmt.Slots) != 1 {
-			t.Fatalf("len(stmt.Slots) is not 1, got %d", len(stmt.Slots))
+		if len(compDir.Slots) != 1 {
+			t.Fatalf("len(compDir.Slots) is not 1, got %d", len(compDir.Slots))
 		}
 
-		if err := testToken(stmt, token.COMPONENT); err != nil {
+		if err := testToken(compDir, token.COMPONENT); err != nil {
 			t.Fatal(err)
 		}
 
-		name := stmt.Slots[0].Name().Val
+		name := compDir.Slots[0].Name().Val
 		if name != "" {
 			t.Fatalf("name must be empty string, got: %s", name)
 		}
 
 		expect := `@slot<h1>Header</h1>@end`
-		if stmt.Slots[0].String() != expect {
-			t.Fatalf("stmt.Slots[0].String() is not '%q', got %q", expect, stmt.Slots[0])
+		if compDir.Slots[0].String() != expect {
+			t.Fatalf("compDir.Slots[0].String() is not '%q', got %q", expect, compDir.Slots[0])
 		}
 	})
 

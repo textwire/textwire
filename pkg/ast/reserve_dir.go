@@ -8,9 +8,8 @@ import (
 
 type ReserveDir struct {
 	BaseNode
-	Name *StrExpr
-	// Fallback is the second argument; nil if not present
-	Fallback Expression
+	Name     *StrExpr
+	Fallback Expression // the second argument
 }
 
 func NewReserveDir(tok token.Token) *ReserveDir {
@@ -22,7 +21,7 @@ func NewReserveDir(tok token.Token) *ReserveDir {
 func (*ReserveDir) chunkNode() {}
 
 func (rd *ReserveDir) String() string {
-	if rd.Fallback == nil {
+	if _, ok := rd.Fallback.(*Empty); ok {
 		return fmt.Sprintf(`@reserve("%s")`, rd.Name)
 	}
 	return fmt.Sprintf(`@reserve("%s", %s)`, rd.Name, rd.Fallback)

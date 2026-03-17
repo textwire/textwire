@@ -794,13 +794,7 @@ func (p *Parser) reserveDir() ast.Chunk {
 	}
 
 	reserveDir.Name = ast.NewStrExpr(p.curToken, p.curToken.Lit)
-
-	// Handle when has second argument (fallback value) after comma
-	if p.peekTokenIs(token.COMMA) {
-		p.nextToken() // move to "," from string
-		p.nextToken() // move to expression from ","
-		reserveDir.Fallback = p.expression(LOWEST)
-	}
+	reserveDir.Fallback = p.reserveDirFallback()
 
 	if !p.expectPeek(token.RPAREN) { // move to ")"
 		return p.illegalNode()
@@ -810,13 +804,31 @@ func (p *Parser) reserveDir() ast.Chunk {
 
 	// Check for duplicate reserve statements
 	if _, ok := p.reserves[reserveDir.Name.Val]; ok {
-		p.newError(reserveDir.Name.Pos(), fail.ErrDuplicateReserves, reserveDir.Name.Val, p.file.Abs)
+		p.newError(
+			reserveDir.Name.Pos(),
+			fail.ErrDuplicateReserves,
+			reserveDir.Name.Val,
+			p.file.Abs,
+		)
 		return nil
 	}
 
 	p.reserves[reserveDir.Name.Val] = reserveDir
 
 	return reserveDir
+}
+
+// reserveDirFallback parses the second argument (fallback value) after comma
+// for @reserve statement. If there are no expression, set Fallback to Empty.
+func (p *Parser) reserveDirFallback() ast.Expression {
+	if !p.peekTokenIs(token.COMMA) {
+		return ast.NewEmpty(p.curToken.Pos)
+	}
+
+	p.nextToken() // move to "," from string
+	p.nextToken() // move to expression from ","
+
+	return p.expression(LOWEST)
 }
 
 func (p *Parser) insertDir() ast.Chunk {

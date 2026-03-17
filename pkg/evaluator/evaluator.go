@@ -369,9 +369,6 @@ func (e *Evaluator) reserveDir(reserveDir *ast.ReserveDir, ctx *Context) value.V
 	insert, ok := ctx.inserts[name]
 	if !ok {
 		// Inserts are optional, NIL when not provided or fallback argument
-		if reserveDir.Fallback == nil {
-			return NIL
-		}
 		return e.evalLiteral(reserveDir.Fallback, ctx)
 	}
 
