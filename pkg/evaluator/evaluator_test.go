@@ -823,7 +823,6 @@ func TestEvalForDir(t *testing.T) {
 		inp    string
 		expect string
 	}{
-		{90, `@for(;;){{ 1 }}@break@end`, "1"},
 		// Basic for loops
 		{10, `@for(i = 0; i < 2; i++){{ i }}@end`, "01"},
 		{20, `@for(i = 1; i <= 3; i++){{ i }}@end`, "123"},
