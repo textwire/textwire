@@ -83,12 +83,12 @@ func (t *Template) String(name string, data map[string]any) (string, *fail.Error
 
 // Response evaluates template file with String() method and passing that final
 // string to the given http.ResponseWriter.
-func (t *Template) Response(w http.ResponseWriter, name string, data map[string]any) error {
+func (t *Template) Response(w http.ResponseWriter, name string, data map[string]any) *fail.Error {
 	evaluated, failure := t.String(name, data)
 	if failure == nil {
 		_, err := fmt.Fprint(w, evaluated)
 		if err != nil {
-			return err
+			return fail.FromError(err, nil, name, fail.OriginTpl)
 		}
 
 		return nil
@@ -100,7 +100,7 @@ func (t *Template) Response(w http.ResponseWriter, name string, data map[string]
 			return err
 		}
 
-		return failure.Error()
+		return failure
 	}
 
 	errPage, err := errorPage(failure)
@@ -108,23 +108,23 @@ func (t *Template) Response(w http.ResponseWriter, name string, data map[string]
 		return err
 	}
 
-	_, err = fmt.Fprint(w, errPage)
-	if err != nil {
-		return err
+	_, err2 := fmt.Fprint(w, errPage)
+	if err2 != nil {
+		return fail.FromError(err2, nil, name, fail.OriginTpl)
 	}
 
-	return failure.Error()
+	return failure
 }
 
-func (t *Template) responseErrorPage(w http.ResponseWriter) error {
+func (t *Template) responseErrorPage(w http.ResponseWriter) *fail.Error {
 	evaluated, failure := t.String(userConf.ErrorPagePath, nil)
 	if failure != nil {
-		return failure.Error()
+		return failure
 	}
 
 	_, err := fmt.Fprint(w, evaluated)
 	if err != nil {
-		return err
+		return fail.FromError(err, nil, userConf.ErrorPagePath, fail.OriginTpl)
 	}
 
 	return nil

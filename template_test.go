@@ -393,7 +393,7 @@ func TestTemplateResponse(t *testing.T) {
 					t.Fatalf("We expect error from response, got nil")
 				}
 
-				if tc.err.String() != respErr.Error() {
+				if tc.err.String() != respErr.String() {
 					t.Fatalf("Wrong error message! Expect:\n%q\ngot:\n%q", tc.err, respErr)
 				}
 			}
@@ -404,7 +404,7 @@ func TestTemplateResponse(t *testing.T) {
 
 			// Make sure you don't see error in actual response without debug mode
 			if !tc.conf.DebugMode && respErr != nil {
-				if contains := strings.Contains(actual, respErr.Error()); contains {
+				if contains := strings.Contains(actual, respErr.String()); contains {
 					t.Fatalf(
 						"Actual string should not contain error message. Actual:\n'%s'\nError msg:\n'%s'",
 						actual,
@@ -415,7 +415,7 @@ func TestTemplateResponse(t *testing.T) {
 
 			// Make sure you see error in actual response with debug mode enabled
 			if tc.conf.DebugMode && respErr != nil {
-				if contains := strings.Contains(actual, respErr.Error()); !contains {
+				if contains := strings.Contains(actual, respErr.String()); !contains {
 					t.Fatalf(
 						"Actual string should contain error message. Actual:\n'%s'\nError msg:\n'%s'",
 						actual,
@@ -428,12 +428,13 @@ func TestTemplateResponse(t *testing.T) {
 }
 
 func TestRegisteringCustomFunction(t *testing.T) {
-	tpl, fileErr := NewTemplate(&config.Config{
+	tpl, tplErr := NewTemplate(&config.Config{
 		TemplateDir: "testdata/good/before/globals",
 		GlobalData:  map[string]any{"env": "dev", "name": "Serhii", "age": 36},
 	})
-	if fileErr != nil {
-		t.Fatalf("Unexpected template error: %s", fileErr)
+
+	if tplErr != nil {
+		t.Fatalf("Unexpected template error: %s", tplErr)
 	}
 
 	err := RegisterStrFunc("_secondLetterUpper", func(s string, args ...any) any {
@@ -443,12 +444,12 @@ func TestRegisteringCustomFunction(t *testing.T) {
 		return string(s[0]) + string(s[1]-32) + s[2:]
 	})
 	if err != nil {
-		t.Fatalf("Unexpected error registering function: %s", fileErr)
+		t.Fatalf("Unexpected error registering function: %s", tplErr)
 	}
 
-	expect, err := readFile("testdata/good/expected/globals.html")
-	if err != nil {
-		t.Errorf("Error reading file: %s", err)
+	expect, fileErr := readFile("testdata/good/expected/globals.html")
+	if fileErr != nil {
+		t.Errorf("Error reading file: %s", fileErr)
 		return
 	}
 

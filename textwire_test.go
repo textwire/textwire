@@ -602,7 +602,7 @@ func TestErrorHandling(t *testing.T) {
 			t.Fatalf("Expected error but got none")
 		}
 
-		if err.Error() != tc.err.String() {
+		if err.String() != tc.err.String() {
 			t.Errorf("Wrong error message. Expected:\n%q\ngot:\n%q", tc.err, err)
 		}
 	}
@@ -624,9 +624,9 @@ func TestEvaluateFile(t *testing.T) {
 		t.Errorf("Error evaluating file: %q", err)
 	}
 
-	expect, err := readFile("testdata/good/expected/two-vars-no-use.html")
-	if err != nil {
-		t.Errorf("Error reading file: %q", err)
+	expect, err2 := readFile("testdata/good/expected/two-vars-no-use.html")
+	if err2 != nil {
+		t.Errorf("Error reading file: %q", err2)
 		return
 	}
 
@@ -777,8 +777,9 @@ func TestCustomFunctions(t *testing.T) {
 		}
 
 		expect := fail.New(nil, "", fail.OriginAPI, fail.ErrFuncAlreadyDefined, "_len", "strings")
-		if err.Error() != expect.Error().Error() {
-			t.Fatalf("Wrong error message. Expect:\n%q\ngot:\n%q", expect, err)
+
+		if err := compareFailures(err, expect); err != nil {
+			t.Fatal(err)
 		}
 	})
 
