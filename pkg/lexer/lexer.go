@@ -4,8 +4,8 @@ import (
 	"bytes"
 	"strings"
 
-	"github.com/textwire/textwire/v3/pkg/position"
-	"github.com/textwire/textwire/v3/pkg/token"
+	"github.com/textwire/textwire/v4/pkg/position"
+	"github.com/textwire/textwire/v4/pkg/token"
 )
 
 var simpleTokens = map[byte]token.TokenType{

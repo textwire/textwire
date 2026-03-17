@@ -1,6 +1,6 @@
 package token
 
-import "github.com/textwire/textwire/v3/pkg/position"
+import "github.com/textwire/textwire/v4/pkg/position"
 
 type TokenType int
 

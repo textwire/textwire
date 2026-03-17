@@ -3,8 +3,8 @@ package linker
 import (
 	"sync"
 
-	"github.com/textwire/textwire/v3/pkg/ast"
-	"github.com/textwire/textwire/v3/pkg/fail"
+	"github.com/textwire/textwire/v4/pkg/ast"
+	"github.com/textwire/textwire/v4/pkg/fail"
 )
 
 // NodeLinker handles connecting AST nodes between each other to prepare AST

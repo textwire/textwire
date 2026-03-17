@@ -3,8 +3,8 @@ package completions
 import (
 	"fmt"
 
-	"github.com/textwire/textwire/v3/pkg/lsp"
-	"github.com/textwire/textwire/v3/pkg/lsp/utils"
+	"github.com/textwire/textwire/v4/pkg/lsp"
+	"github.com/textwire/textwire/v4/pkg/lsp/utils"
 )
 
 func GetLoopObjFields(locale lsp.Locale) ([]Completion, error) {

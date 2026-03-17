@@ -101,7 +101,7 @@ func NewIdentifier(tok token.Token, val string) *Identifier {
 
 ### Import Organization
 - Group imports: standard library, third-party, local packages
-- Local packages use `github.com/textwire/textwire/v3/` prefix
+- Local packages use `github.com/textwire/textwire/v4/` prefix
 - Keep imports sorted and remove unused imports
 
 ### Formatting Requirements
@@ -112,7 +112,7 @@ func NewIdentifier(tok token.Token, val string) *Identifier {
 ### Fail Package Usage
 Import the fail package for structured error handling:
 ```go
-import "github.com/textwire/textwire/v3/pkg/fail"
+import "github.com/textwire/textwire/v4/pkg/fail"
 ```
 
 ### Error Constants

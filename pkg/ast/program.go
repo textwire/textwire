@@ -3,8 +3,8 @@ package ast
 import (
 	"strings"
 
-	"github.com/textwire/textwire/v3/pkg/fail"
-	"github.com/textwire/textwire/v3/pkg/token"
+	"github.com/textwire/textwire/v4/pkg/fail"
+	"github.com/textwire/textwire/v4/pkg/token"
 )
 
 type Program struct {

@@ -3,7 +3,7 @@ package ast
 import (
 	"testing"
 
-	"github.com/textwire/textwire/v3/pkg/token"
+	"github.com/textwire/textwire/v4/pkg/token"
 )
 
 func TestFindSlotIndex(t *testing.T) {

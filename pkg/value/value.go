@@ -1,7 +1,7 @@
 package value
 
 import (
-	"github.com/textwire/textwire/v3/pkg/token"
+	"github.com/textwire/textwire/v4/pkg/token"
 )
 
 type ValueType string

@@ -3,7 +3,7 @@ package ast
 import (
 	"fmt"
 
-	"github.com/textwire/textwire/v3/pkg/token"
+	"github.com/textwire/textwire/v4/pkg/token"
 )
 
 type AssignStmt struct {

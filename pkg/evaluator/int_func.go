@@ -3,7 +3,7 @@ package evaluator
 import (
 	"strconv"
 
-	"github.com/textwire/textwire/v3/pkg/value"
+	"github.com/textwire/textwire/v4/pkg/value"
 )
 
 // intFloatFunc converts an integer to a float and returns it

@@ -1,8 +1,8 @@
 package ast
 
 import (
-	"github.com/textwire/textwire/v3/pkg/position"
-	"github.com/textwire/textwire/v3/pkg/token"
+	"github.com/textwire/textwire/v4/pkg/position"
+	"github.com/textwire/textwire/v4/pkg/token"
 )
 
 type Node interface {

@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/textwire/textwire/v3/pkg/ast"
-	"github.com/textwire/textwire/v3/pkg/lexer"
-	"github.com/textwire/textwire/v3/pkg/position"
-	"github.com/textwire/textwire/v3/pkg/token"
-	"github.com/textwire/textwire/v3/pkg/utils"
+	"github.com/textwire/textwire/v4/pkg/ast"
+	"github.com/textwire/textwire/v4/pkg/lexer"
+	"github.com/textwire/textwire/v4/pkg/position"
+	"github.com/textwire/textwire/v4/pkg/token"
+	"github.com/textwire/textwire/v4/pkg/utils"
 )
 
 type parseOpts struct {
