@@ -3,7 +3,7 @@
 ## v4.0.0 (2026-03-20)
 
 - ⚠️ BREAKING CHANGE! Changed increment and decrement expressions into statements to match Go's style. `{{ x++ }}` and `{{ x-- }}`  are not returning any value now, they equivalent to `{{ x = x + 1 }}` and `{{ x = x - 1 }}`. Closes [#88](https://github.com/textwire/textwire/issues/88). [Read more about this change](https://textwire.github.io/blog/2026-03-20-textwire-v4).
-- ⚠️ BREAKING CHANGE! Remove support for `@breakIf` and `@continueIf`, use lovercased versions `@breakif` and `@continueif`.
+- ⚠️ BREAKING CHANGE! Remove support for `@breakIf` and `@continueIf`, use lovercased versions `@breakif` and `@continueif`. Closes [#89](https://github.com/textwire/textwire/issues/89).
 - ♻️ Improved internal logic for evaluator. Separated literal values from nonliteral. Closes [#90](https://github.com/textwire/textwire/issues/90).
 - 🧑‍💻 All public API functions like `NewTemplate()`, `EvaluateString`, etc., now return `*fail.Error` instead of Go's `error` type.
 - 🧑‍💻 Added proper position to error messages. Closes [#101](https://github.com/textwire/textwire/issues/101).
