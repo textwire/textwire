@@ -649,11 +649,12 @@ func (e *Evaluator) insertDir(insertDir *ast.InsertDir, ctx *Context) value.Valu
 // combineInsertContent combines insert Argument and Block (depending what user has)
 // into a single value that we can work with.
 func (e *Evaluator) combineInsertContent(insertDir *ast.InsertDir, ctx *Context) value.Value {
-	if insertDir.Argument != nil {
-		arg := e.evalLiteral(insertDir.Argument, ctx)
-		if isError(arg) {
-			return arg
-		}
+	arg := e.evalLiteral(insertDir.Argument, ctx)
+	if isError(arg) {
+		return arg
+	}
+
+	if arg != NIL {
 		return arg
 	}
 

@@ -887,20 +887,13 @@ func (p *Parser) insertDirHeader(insertDir *ast.InsertDir) (*ast.IllegalNode, bo
 		return p.illegalNode(), false
 	}
 
-	// Handle inline @insert without block
-	if p.peekTokenIs(token.COMMA) {
-		p.nextToken() // skip insert name
-		p.nextToken() // skip ","
-		insertDir.Argument = p.expression(LOWEST)
+	illegal, done := p.insertDirArgument(insertDir)
 
-		if !p.expectPeek(token.RPAREN) { // move to ")"
-			return p.illegalNode(), false
-		}
+	if illegal != nil {
+		return illegal, false
+	}
 
-		insertDir.SetEndPosition(p.curToken.Pos)
-
-		p.inserts[insertDir.Name.Val] = insertDir
-
+	if done {
 		return nil, true
 	}
 
@@ -909,6 +902,27 @@ func (p *Parser) insertDirHeader(insertDir *ast.InsertDir) (*ast.IllegalNode, bo
 	}
 
 	return nil, false
+}
+
+func (p *Parser) insertDirArgument(insertDir *ast.InsertDir) (*ast.IllegalNode, bool) {
+	if !p.peekTokenIs(token.COMMA) {
+		insertDir.Argument = ast.NewEmpty(p.curToken.Pos)
+		return nil, false
+	}
+
+	p.nextToken() // skip insert name
+	p.nextToken() // skip ","
+	insertDir.Argument = p.expression(LOWEST)
+
+	if !p.expectPeek(token.RPAREN) { // move to ")"
+		return p.illegalNode(), false
+	}
+
+	insertDir.SetEndPosition(p.curToken.Pos)
+
+	p.inserts[insertDir.Name.Val] = insertDir
+
+	return nil, true
 }
 
 func (p *Parser) hasDuplicateInserts(insertDir *ast.InsertDir) bool {
