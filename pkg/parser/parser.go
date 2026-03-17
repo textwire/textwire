@@ -1137,7 +1137,7 @@ func (p *Parser) forDir() ast.Chunk {
 	return dir
 }
 
-func (p *Parser) forDirHeader(dir *ast.ForDir) *ast.IllegalNode {
+func (p *Parser) forDirHeader(forDir *ast.ForDir) *ast.IllegalNode {
 	if !p.expectPeek(token.LPAREN) { // move to "("
 		return p.illegalNodeUntil(token.END)
 	}
@@ -1147,7 +1147,7 @@ func (p *Parser) forDirHeader(dir *ast.ForDir) *ast.IllegalNode {
 		p.nextToken() // move to first token of init statement
 		left := p.expression(LOWEST)
 		p.nextToken() // move to =/++/--
-		dir.Init = p.statement(left)
+		forDir.Init = p.statement(left)
 	}
 
 	if !p.expectPeek(token.SEMI) { // move to ";"
@@ -1157,7 +1157,7 @@ func (p *Parser) forDirHeader(dir *ast.ForDir) *ast.IllegalNode {
 	// Parse Condition
 	if !p.peekTokenIs(token.SEMI) {
 		p.nextToken() // skip ";"
-		dir.Cond = p.expression(LOWEST)
+		forDir.Cond = p.expression(LOWEST)
 	}
 
 	if !p.expectPeek(token.SEMI) { // move to ";"
@@ -1175,7 +1175,7 @@ func (p *Parser) forDirHeader(dir *ast.ForDir) *ast.IllegalNode {
 			return nil
 		}
 
-		dir.Post = p.statement(left)
+		forDir.Post = p.statement(left)
 	}
 
 	if !p.expectPeek(token.RPAREN) { // move to ")"
