@@ -9,9 +9,9 @@ import (
 
 type ForDir struct {
 	BaseNode
-	Init      Statement  // Initialization statement; or nil
-	Cond      Expression // Condition expression; or nil
-	Post      Statement  // Post iteration statement; or nil
+	Init      Statement  // Initialization statement
+	Cond      Expression // Condition expression
+	Post      Statement  // Post iteration statement
 	ElseBlock *Block     // @else block
 	Block     *Block
 }

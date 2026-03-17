@@ -9,6 +9,7 @@
 - 🧑‍💻 Added proper position to error messages. Closes [#101](https://github.com/textwire/textwire/issues/101).
 - 🧑‍💻 Added type check to `@component`, `@insert` and `@reserve`. If the first argument you provide is not a string literal, you'll get a clear error. Before, the error wasn't clear. Closes [#106](https://github.com/textwire/textwire/issues/106).
 - 🧑‍💻 Added error check if you are passing empty string as a `@component` name, `@insert` name or `@reserve` name.
+- 🧑‍💻 Added `Empty` AST node for simplifying evaluator's logic. Closes [#104](https://github.com/textwire/textwire/issues/104).
 
 ## [Release Notes V1](.github/CHANGELOG-V1.md)
 

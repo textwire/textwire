@@ -8,6 +8,7 @@ const (
 	// Special types
 	ILLEGAL TokenType = iota // An illegal token
 	EOF                      // The end of the file
+	EMPTY                    // The absense of a token, used for empty statements/expressions
 	IDENT                    // foo, bar
 
 	// Literals

@@ -93,8 +93,6 @@ func (e *Evaluator) evalLiteral(node ast.Node, ctx *Context) value.Literal {
 	switch node := node.(type) {
 	case *ast.Text:
 		return &value.Str{Val: node.String()}
-	case *ast.IllegalNode:
-		return NIL
 	case *ast.AssignStmt:
 		return e.assignStmt(node, ctx)
 	case *ast.IncStmt:
@@ -131,7 +129,8 @@ func (e *Evaluator) evalLiteral(node ast.Node, ctx *Context) value.Literal {
 		return &value.Int{Val: node.Val}
 	case *ast.FloatExpr:
 		return &value.Float{Val: node.Val}
-	case *ast.NilExpr:
+
+	case *ast.NilExpr, *ast.Empty, *ast.IllegalNode:
 		return NIL
 	}
 	return nil
@@ -438,38 +437,32 @@ func (e *Evaluator) compDir(compDir *ast.ComponentDir, ctx *Context) value.Value
 func (e *Evaluator) forDir(forDir *ast.ForDir, ctx *Context) value.Value {
 	forCtx := NewContext(ctx.scope, ctx.absPath)
 
-	var init value.Literal
-	if forDir.Init != nil {
-		if init = e.evalLiteral(forDir.Init, forCtx); isError(init) {
-			return init
-		}
+	init := e.evalLiteral(forDir.Init, forCtx)
+	if isError(init) {
+		return init
 	}
 
 	// Evaluate ElseBlock block if user's condition is false
-	if forDir.Cond != nil {
-		cond := e.evalLiteral(forDir.Cond, forCtx)
-		if isError(cond) {
-			return cond
-		}
+	cond := e.evalLiteral(forDir.Cond, forCtx)
+	if isError(cond) {
+		return cond
+	}
 
-		if !isTruthy(cond) && forDir.ElseBlock != nil {
-			return e.Eval(forDir.ElseBlock, forCtx)
-		}
+	if !isTruthy(cond) && forDir.ElseBlock != nil {
+		return e.Eval(forDir.ElseBlock, forCtx)
 	}
 
 	block := value.NewBlock(len(forDir.Block.Chunks))
 
 	// Loop through the block until the user's condition is false
 	for {
-		if forDir.Cond != nil {
-			cond := e.evalLiteral(forDir.Cond, forCtx)
-			if isError(cond) {
-				return cond
-			}
+		cond = e.evalLiteral(forDir.Cond, forCtx)
+		if isError(cond) {
+			return cond
+		}
 
-			if !isTruthy(cond) {
-				break
-			}
+		if cond != NIL && !isTruthy(cond) {
+			break
 		}
 
 		val := e.Eval(forDir.Block, forCtx)
@@ -478,12 +471,9 @@ func (e *Evaluator) forDir(forDir *ast.ForDir, ctx *Context) value.Value {
 		}
 
 		block.Chunks = append(block.Chunks, val)
-
-		if forDir.Post != nil {
-			post := e.evalLiteral(forDir.Post, forCtx)
-			if isError(post) {
-				return post
-			}
+		post := e.evalLiteral(forDir.Post, forCtx)
+		if isError(post) {
+			return post
 		}
 
 		if hasBreak(block) {

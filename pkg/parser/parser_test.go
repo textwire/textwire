@@ -1743,16 +1743,16 @@ func TestParseForDir(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		if stmt.Init != nil {
-			t.Fatalf("stmt.Init is not nil, got %s", stmt.Init)
+		if _, ok := stmt.Init.(*ast.Empty); !ok {
+			t.Fatalf("stmt.Init is not *ast.Empty, got %T", stmt.Init)
 		}
 
-		if stmt.Cond != nil {
-			t.Fatalf("stmt.Cond is not nil, got %s", stmt.Cond)
+		if _, ok := stmt.Cond.(*ast.Empty); !ok {
+			t.Fatalf("stmt.Cond is not *ast.Empty, got %T", stmt.Cond)
 		}
 
-		if stmt.Post != nil {
-			t.Fatalf("stmt.Post is not nil, got %s", stmt.Post)
+		if _, ok := stmt.Post.(*ast.Empty); !ok {
+			t.Fatalf("stmt.Post is not *ast.Empty, got %T", stmt.Post)
 		}
 
 		if stmt.Block.String() != "1" {

@@ -1142,41 +1142,24 @@ func (p *Parser) forDirHeader(forDir *ast.ForDir) *ast.IllegalNode {
 		return p.illegalNodeUntil(token.END)
 	}
 
-	// Parse Init
-	if !p.peekTokenIs(token.SEMI) {
-		p.nextToken() // move to first token of init statement
-		left := p.expression(LOWEST)
-		p.nextToken() // move to =/++/--
-		forDir.Init = p.statement(left)
-	}
+	forDir.Init = p.parserForDirInit()
 
 	if !p.expectPeek(token.SEMI) { // move to ";"
 		return p.illegalNodeUntil(token.END)
 	}
 
-	// Parse Condition
-	if !p.peekTokenIs(token.SEMI) {
-		p.nextToken() // skip ";"
-		forDir.Cond = p.expression(LOWEST)
-	}
+	forDir.Cond = p.parserForDirCond()
 
 	if !p.expectPeek(token.SEMI) { // move to ";"
 		return p.illegalNodeUntil(token.END)
 	}
 
-	// Parse Post statement
-	if !p.peekTokenIs(token.RPAREN) {
-		p.nextToken() // skip ";"
-		left := p.expression(LOWEST)
-		p.nextToken() // move to ++/--
-
-		if p.curTokenIs(token.RPAREN) {
-			p.newError(left.Pos(), fail.ErrForLoopExpectStmt, left.String())
-			return nil
-		}
-
-		forDir.Post = p.statement(left)
+	post := p.parseForDirPost()
+	if post == nil {
+		return nil
 	}
+
+	forDir.Post = post
 
 	if !p.expectPeek(token.RPAREN) { // move to ")"
 		return p.illegalNodeUntil(token.END)
@@ -1185,6 +1168,45 @@ func (p *Parser) forDirHeader(forDir *ast.ForDir) *ast.IllegalNode {
 	p.nextToken() // skip ")"
 
 	return nil
+}
+
+func (p *Parser) parserForDirInit() ast.Statement {
+	if p.peekTokenIs(token.SEMI) {
+		return ast.NewEmpty(p.curToken.Pos)
+	}
+
+	p.nextToken() // move to first token of init statement
+	left := p.expression(LOWEST)
+	p.nextToken() // move to =/++/--
+
+	return p.statement(left)
+}
+
+func (p *Parser) parserForDirCond() ast.Expression {
+	if p.peekTokenIs(token.SEMI) {
+		return ast.NewEmpty(p.curToken.Pos)
+	}
+
+	p.nextToken() // skip ";"
+
+	return p.expression(LOWEST)
+}
+
+func (p *Parser) parseForDirPost() ast.Statement {
+	if p.peekTokenIs(token.RPAREN) {
+		return ast.NewEmpty(p.curToken.Pos)
+	}
+
+	p.nextToken() // skip ";"
+	left := p.expression(LOWEST)
+	p.nextToken() // move to ++/--
+
+	if p.curTokenIs(token.RPAREN) {
+		p.newError(left.Pos(), fail.ErrForLoopExpectStmt, left.String())
+		return nil
+	}
+
+	return p.statement(left)
 }
 
 func (p *Parser) eachDir() ast.Chunk {
