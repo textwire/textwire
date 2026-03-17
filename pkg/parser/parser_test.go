@@ -705,6 +705,17 @@ func TestErrorHandling(t *testing.T) {
 				token.String(token.INT),
 			),
 		},
+		{
+			id:  320,
+			inp: "@reserve('')",
+			err: fail.New(
+				&position.Pos{StartCol: 9, EndCol: 10},
+				"",
+				fail.OriginPars,
+				fail.ErrNameCannotBeEmpty,
+				"@reserve",
+			),
+		},
 		// Insert
 		{
 			id:  400,

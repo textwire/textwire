@@ -777,7 +777,7 @@ func (p *Parser) slotifDirHeader(dir *ast.SlotifDir, name *ast.StrExpr) *ast.Ill
 }
 
 func (p *Parser) reserveDir() ast.Chunk {
-	dir := ast.NewReserveDir(p.curToken)
+	reserveDir := ast.NewReserveDir(p.curToken)
 
 	if !p.expectPeek(token.LPAREN) { // move to "("
 		return p.illegalNode()
@@ -789,30 +789,34 @@ func (p *Parser) reserveDir() ast.Chunk {
 		return p.illegalNode()
 	}
 
-	dir.Name = ast.NewStrExpr(p.curToken, p.curToken.Lit)
+	if !p.expectNonEmptyNameOn(reserveDir) {
+		return p.illegalNode()
+	}
+
+	reserveDir.Name = ast.NewStrExpr(p.curToken, p.curToken.Lit)
 
 	// Handle when has second argument (fallback value) after comma
 	if p.peekTokenIs(token.COMMA) {
 		p.nextToken() // move to "," from string
 		p.nextToken() // move to expression from ","
-		dir.Fallback = p.expression(LOWEST)
+		reserveDir.Fallback = p.expression(LOWEST)
 	}
 
 	if !p.expectPeek(token.RPAREN) { // move to ")"
 		return p.illegalNode()
 	}
 
-	dir.SetEndPosition(p.curToken.Pos)
+	reserveDir.SetEndPosition(p.curToken.Pos)
 
 	// Check for duplicate reserve statements
-	if _, ok := p.reserves[dir.Name.Val]; ok {
-		p.newError(dir.Name.Pos(), fail.ErrDuplicateReserves, dir.Name.Val, p.file.Abs)
+	if _, ok := p.reserves[reserveDir.Name.Val]; ok {
+		p.newError(reserveDir.Name.Pos(), fail.ErrDuplicateReserves, reserveDir.Name.Val, p.file.Abs)
 		return nil
 	}
 
-	p.reserves[dir.Name.Val] = dir
+	p.reserves[reserveDir.Name.Val] = reserveDir
 
-	return dir
+	return reserveDir
 }
 
 func (p *Parser) insertDir() ast.Chunk {

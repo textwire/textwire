@@ -8,6 +8,7 @@
 - 🧑‍💻 `NewTemplate()` function now returns `*fail.Error` instead of Go's `error` type.
 - 🧑‍💻 Added proper position to error messages. Closes [#101](https://github.com/textwire/textwire/issues/101).
 - 🧑‍💻 Added type check to `@component`, `@insert` and `@reserve`. If the first argument you provide is not a string literal, you'll get a clear error. Before, the error wasn't clear. Closes [#106](https://github.com/textwire/textwire/issues/106).
+- 🧑‍💻 Added error check if you are passing empty string as a `@component` name, `@insert` name or `@reserve` name.
 
 ## [Release Notes V1](.github/CHANGELOG-V1.md)
 
