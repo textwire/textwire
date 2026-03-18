@@ -869,6 +869,7 @@ func TestEvalForDir(t *testing.T) {
 		},
 		// Variable modification from outside scope
 		{310, `{{ sum = 0 }}@for(i = 1; i <= 5; i++){{ sum = sum + i }}@end{{ sum }}`, "15"},
+		{311, `{{ x = 0 }}@for(; x < 2; x++){{ x }}@end`, "01"},
 		{320, `{{ count = 0 }}@for(i = 0; i < 3; i++){{ count = count + 1 }}@end{{ count }}`, "3"},
 		{330, `{{ n = 0 }}@for(; true; n++){{ n }}@breakif(n == 2)@end`, "012"},
 		{340, `{{ i = 0 }}@for(; i < 3; i++){{ i }}@end`, "012"},
