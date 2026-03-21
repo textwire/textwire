@@ -1,9 +1,7 @@
 package evaluator
 
 import (
-	"html"
 	"reflect"
-	"strings"
 
 	"github.com/textwire/textwire/v4/config"
 	"github.com/textwire/textwire/v4/pkg/ast"
@@ -85,14 +83,14 @@ func (e *Evaluator) evalValue(node ast.Node, ctx *Context) value.Value {
 		return e.forDir(node, ctx)
 	case *ast.EachDir:
 		return e.eachDir(node, ctx)
+	case *ast.Text:
+		return &value.Text{Val: node.String()}
 	}
 	return nil
 }
 
 func (e *Evaluator) evalLiteral(node ast.Node, ctx *Context) value.Literal {
 	switch node := node.(type) {
-	case *ast.Text:
-		return &value.Str{Val: node.String()}
 	case *ast.AssignStmt:
 		return e.assignStmt(node, ctx)
 	case *ast.IncStmt:
@@ -752,13 +750,7 @@ func (e *Evaluator) dotExpr(dotExp *ast.DotExpr, ctx *Context) value.Literal {
 }
 
 func (e *Evaluator) strExpr(strLit *ast.StrExpr) value.Literal {
-	str := html.EscapeString(strLit.Val)
-
-	// unescape single and double quotes
-	str = strings.ReplaceAll(str, "&#34;", `"`)
-	str = strings.ReplaceAll(str, "&#39;", `'`)
-
-	return &value.Str{Val: str}
+	return &value.Str{Val: strLit.Val}
 }
 
 func (e *Evaluator) prefixExpr(prefixExp *ast.PrefixExpr, ctx *Context) value.Literal {

@@ -410,15 +410,14 @@ func TestEvalStringExp(t *testing.T) {
 		inp    string
 		expect string
 	}{
-		{200, `{{ name = "Anna"; "Hello " + name }}`, "Hello Anna"},
 		// Basic string output
 		{10, `{{ "Hello World" }}`, "Hello World"},
 		{20, `{{ 'Hello World 2' }}`, "Hello World 2"},
 		// String in HTML attributes
-		{30, `<div {{ 'data-attr="Test"' }}></div>`, `<div data-attr="Test"></div>`},
-		{40, `<div {{ "data-attr='Test'" }}></div>`, `<div data-attr='Test'></div>`},
+		{30, `<div {{ 'data-attr="Test"' }}></div>`, "<div data-attr=&#34;Test&#34;></div>"},
+		{40, `<div {{ "data-attr='Test'" }}></div>`, "<div data-attr=&#39;Test&#39;></div>"},
 		// String with escaped characters
-		{50, `{{ "She \"is\" pretty" }}`, `She "is" pretty`},
+		{50, `{{ "She \"is\" pretty" }}`, "She &#34;is&#34; pretty"},
 		// String concatenation
 		{60, `{{ "Korotchaeva" + " " + "Anna" }}`, "Korotchaeva Anna"},
 		{70, `{{ "She" + " " + "is" + " " + "nice" }}`, "She is nice"},
@@ -428,14 +427,26 @@ func TestEvalStringExp(t *testing.T) {
 		// String with HTML escaping
 		{100, `{{ "<h1>Test</h1>" }}`, "&lt;h1&gt;Test&lt;/h1&gt;"},
 		{110, `{{ "<div>Hello</div>" }}`, "&lt;div&gt;Hello&lt;/div&gt;"},
-		{120, `{{ "<script>alert('xss')</script>" }}`, "&lt;script&gt;alert('xss')&lt;/script&gt;"},
-		{130, `{{ "<img src='test.jpg'>" }}`, "&lt;img src='test.jpg'&gt;"},
+		{
+			120,
+			`{{ "<script>alert('xss')</script>" }}`,
+			"&lt;script&gt;alert(&#39;xss&#39;)&lt;/script&gt;",
+		},
+		{130, `{{ "<img src='test.jpg'>" }}`, "&lt;img src=&#39;test.jpg&#39;&gt;"},
 		{140, `{{ "&amp;" }}`, "&amp;amp;"},
 		{150, `{{ "<br/>" }}`, "&lt;br/&gt;"},
-		{160, `{{ "<a href='#'>Link</a>" }}`, "&lt;a href='#'&gt;Link&lt;/a&gt;"},
-		{170, `{{ "<p class='text'>Content</p>" }}`, "&lt;p class='text'&gt;Content&lt;/p&gt;"},
+		{160, `{{ "<a href='#'>Link</a>" }}`, "&lt;a href=&#39;#&#39;&gt;Link&lt;/a&gt;"},
+		{
+			170,
+			`{{ "<p class='text'>Content</p>" }}`,
+			"&lt;p class=&#39;text&#39;&gt;Content&lt;/p&gt;",
+		},
 		{180, `{{ "<ul><li>Item</li></ul>" }}`, "&lt;ul&gt;&lt;li&gt;Item&lt;/li&gt;&lt;/ul&gt;"},
-		{190, `{{ "<input type='text' value='test'>" }}`, "&lt;input type='text' value='test'&gt;"},
+		{
+			190,
+			`{{ "<input type='text' value='test'>" }}`,
+			"&lt;input type=&#39;text&#39; value=&#39;test&#39;&gt;",
+		},
 		// String concatenation with variables
 		{200, `{{ name = "Anna"; "Hello " + name }}`, "Hello Anna"},
 		{210, `{{ a = "Hello"; b = "World"; a + " " + b }}`, "Hello World"},
@@ -715,7 +726,7 @@ func TestEvalAssign(t *testing.T) {
 		// String assignment
 		{90, `{{ name = "Anna"; name }}`, "Anna"},
 		{100, `{{ empty = ""; empty }}`, ""},
-		{110, `{{ quote = "He said \"Hello\""; quote }}`, `He said "Hello"`},
+		{110, `{{ quote = "He said \"Hello\""; quote }}`, "He said &#34;Hello&#34;"},
 		// Boolean assignment
 		{120, `{{ flag = true; flag }}`, "1"},
 		{130, `{{ flag = false; flag }}`, "0"},

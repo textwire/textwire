@@ -3,7 +3,6 @@ package evaluator
 import (
 	"errors"
 	"fmt"
-	"html"
 	"strings"
 	"unicode/utf8"
 
@@ -49,7 +48,7 @@ func strSplitFunc(receiver value.Literal, args ...value.Literal) (value.Literal,
 // strRawFunc prevents escaping HTML tags in a string
 func strRawFunc(receiver value.Literal, _ ...value.Literal) (value.Literal, error) {
 	val := receiver.(*value.Str).Val
-	return &value.Str{Val: html.UnescapeString(val)}, nil
+	return &value.Str{Val: val, IsRaw: true}, nil
 }
 
 // strTrimFunc returns a string with leading and trailing whitespace removed

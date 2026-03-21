@@ -10,6 +10,7 @@
 - 🧑‍💻 Added type check to `@component`, `@insert` and `@reserve`. If the first argument you provide is not a string literal, you'll get a clear error. Before, the error wasn't clear. Closes [#106](https://github.com/textwire/textwire/issues/106).
 - 🧑‍💻 Added error check if you are passing empty string as a `@component` name, `@insert` name or `@reserve` name.
 - 🧑‍💻 Added `Empty` AST node for simplifying evaluator's logic. Closes [#104](https://github.com/textwire/textwire/issues/104).
+- 🚀 Printing a string with `{{ }}` braces are not change `"` to `&#34;` and `'` to `&#39;` to correctly escape the string. Like before, you can use `str.raw()` function to get the raw output. If you call `{{ myStr.raw() }}` the string will not be mangled. Before, we would unescape string when you call `raw()` function but now there is not need to unescape them at all.
 
 ## [Release Notes V1](.github/CHANGELOG-V1.md)
 

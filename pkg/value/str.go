@@ -1,9 +1,13 @@
 package value
 
-import "fmt"
+import (
+	"fmt"
+	"html"
+)
 
 type Str struct {
-	Val string
+	Val   string
+	IsRaw bool
 }
 
 func (*Str) Type() ValueType {
@@ -11,7 +15,10 @@ func (*Str) Type() ValueType {
 }
 
 func (s *Str) String() string {
-	return s.Val
+	if s.IsRaw {
+		return s.Val
+	}
+	return html.EscapeString(s.Val)
 }
 
 func (s *Str) Dump(ident int) string {

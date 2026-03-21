@@ -11,43 +11,43 @@ func TestObjJSON(t *testing.T) {
 		expect string
 	}{
 		{10, `{{ {}.json() }}`, "{}"},
-		{20, `{{ {one: {two: {}}}.json() }}`, `{"one":{"two":{}}}`},
+		{20, `{{ {one: {two: {}}}.json() }}`, "{&#34;one&#34;:{&#34;two&#34;:{}}}"},
 		{
 			30,
-			`{{ {name: "Chiori", game: "Genshin Impact"}.json() }}`,
+			`{{ {name: "Chiori", game: "Genshin Impact"}.json().raw() }}`,
 			`{"game":"Genshin Impact","name":"Chiori"}`,
 		},
 		{
 			40,
-			`{{ user = {address: {street: "Via Emilio Morosini", city: "Rome"}}; user.json() }}`,
+			`{{ user = {address: {street: "Via Emilio Morosini", city: "Rome"}}; user.json().raw() }}`,
 			`{"address":{"city":"Rome","street":"Via Emilio Morosini"}}`,
 		},
-		{50, `{{ {a: {b: {c: {d: 1}}}}.json() }}`, `{"a":{"b":{"c":{"d":1}}}}`},
+		{50, `{{ {a: {b: {c: {d: 1}}}}.json().raw() }}`, `{"a":{"b":{"c":{"d":1}}}}`},
 		{
 			60,
-			`{{ {nums: [1, 2, 3], strs: ['a', 'b']}.json() }}`,
+			`{{ {nums: [1, 2, 3], strs: ['a', 'b']}.json().raw() }}`,
 			`{"nums":[1,2,3],"strs":["a","b"]}`,
 		},
 		{
 			70,
-			`{{ {quote: 'He said Hello', newline: 'A B'}.json() }}`,
+			`{{ {quote: 'He said Hello', newline: 'A B'}.json().raw() }}`,
 			`{"newline":"A B","quote":"He said Hello"}`,
 		},
 		{
 			80,
-			`{{ {active: true, count: nil, rate: 3.14}.json() }}`,
+			`{{ {active: true, count: nil, rate: 3.14}.json().raw() }}`,
 			`{"active":true,"count":null,"rate":3.14}`,
 		},
-		{90, `{{ {z: 1, a: 2, m: 3}.json() }}`, `{"a":2,"m":3,"z":1}`},
+		{90, `{{ {z: 1, a: 2, m: 3}.json().raw() }}`, `{"a":2,"m":3,"z":1}`},
 		{
 			100,
-			`{{ {user: {name: 'John', age: 30, hobbies: ['coding', 'gaming']}, active: true}.json() }}`,
+			`{{ {user: {name: 'John', age: 30, hobbies: ['coding', 'gaming']}, active: true}.json().raw() }}`,
 			`{"active":true,"user":{"age":30,"hobbies":["coding","gaming"],"name":"John"}}`,
 		},
-		{618, `{{ {value: (1.0/0.0)}.json() }}`, `{"value":null}`},
+		{618, `{{ {value: (1.0/0.0)}.json().raw() }}`, `{"value":null}`},
 		{
 			619,
-			`{{ {nan: (0.0/0.0), inf: (1.0/0.0), ninf: (-1.0/0.0)}.json() }}`,
+			`{{ {nan: (0.0/0.0), inf: (1.0/0.0), ninf: (-1.0/0.0)}.json().raw() }}`,
 			`{"inf":null,"nan":null,"ninf":null}`,
 		},
 	}
@@ -116,7 +116,7 @@ func TestObjCamel(t *testing.T) {
 		},
 		{
 			750,
-			`{{ {name_: 1, value_: 2}.camel().json() }}`,
+			`{{ {name_: 1, value_: 2}.camel().json().raw() }}`,
 			`{"name":1,"value":2}`,
 		},
 		{
