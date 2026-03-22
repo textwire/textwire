@@ -27,6 +27,8 @@ func TestEvalStringFunctions(t *testing.T) {
 		{1420, `{{ "line1\nline2".split("\n") }}`, "line1, line2"},
 		{1430, `{{ "col1\tcol2".split("\t") }}`, "col1, col2"},
 		// raw
+		{81, `{{ "<h1>nice</h1>" }}`, "&lt;h1&gt;nice&lt;/h1&gt;"},
+		{82, `{{ "\"\"" }}`, "&#34;&#34;"},
 		{90, `{{ "<h1>nice</h1>".raw() }}`, "<h1>nice</h1>"},
 		{100, `{{ "cool".raw() }}`, "cool"},
 		{110, `{{ "<b>中国很大</b>".raw() }}`, "<b>中国很大</b>"},
