@@ -1028,45 +1028,19 @@ func (e *Evaluator) globalFuncHasValue(
 }
 
 func (e *Evaluator) globalFuncFormatDate(
-	globalCallExp *ast.GlobalCallExpr,
+	globalCallExpr *ast.GlobalCallExpr,
 	ctx *Context,
 ) value.Literal {
 	// Note: We already know that we have 2 arguments since parser ensures that
 
-	dateVal := e.evalLiteral(globalCallExp.Arguments[0], ctx)
-	if isError(dateVal) {
-		return dateVal
+	date, err := e.globalCallExpectStrArg(globalCallExpr, ctx, 0)
+	if err != nil {
+		return err
 	}
 
-	date, ok := dateVal.(*value.Str)
-	if !ok {
-		return e.newError(
-			globalCallExp,
-			ctx,
-			fail.ErrGlobalFuncWrongType,
-			globalCallExp.Name,
-			value.STR_VAL,
-			1,
-			dateVal.Type(),
-		)
-	}
-
-	layoutVal := e.evalLiteral(globalCallExp.Arguments[1], ctx)
-	if isError(layoutVal) {
-		return layoutVal
-	}
-
-	layout, ok := layoutVal.(*value.Str)
-	if !ok {
-		return e.newError(
-			globalCallExp,
-			ctx,
-			fail.ErrGlobalFuncWrongType,
-			globalCallExp.Name,
-			value.STR_VAL,
-			2,
-			layoutVal.Type(),
-		)
+	layout, err := e.globalCallExpectStrArg(globalCallExpr, ctx, 1)
+	if err != nil {
+		return err
 	}
 
 	if date.Val == "" {
@@ -1075,12 +1049,12 @@ func (e *Evaluator) globalFuncFormatDate(
 
 	parseLayout := getDateTimeLayout(date.Val)
 	if parseLayout == "" {
-		return e.newError(globalCallExp, ctx, fail.ErrFormatDateWrongDate, date.Val)
+		return e.newError(globalCallExpr, ctx, fail.ErrFormatDateWrongDate, date.Val)
 	}
 
-	newFormat, err := time.Parse(parseLayout, date.Val)
-	if err != nil {
-		return e.newError(globalCallExp, ctx, fail.ErrFormatDateParseErr, date.Val, layout.Val)
+	newFormat, parseErr := time.Parse(parseLayout, date.Val)
+	if parseErr != nil {
+		return e.newError(globalCallExpr, ctx, fail.ErrFormatDateParseErr, date.Val, layout.Val)
 	}
 
 	return &value.Str{Val: newFormat.Format(layout.Val)}
@@ -1289,6 +1263,32 @@ func (e *Evaluator) bangOpExp(right value.Literal, node ast.Node, ctx *Context) 
 	}
 
 	return e.newError(node, ctx, fail.ErrPrefixOpIsWrong, "!", right.Type())
+}
+
+func (e *Evaluator) globalCallExpectStrArg(
+	call *ast.GlobalCallExpr,
+	ctx *Context,
+	argIdx int,
+) (*value.Str, *value.Error) {
+	val := e.evalLiteral(call.Arguments[argIdx], ctx)
+	if isError(val) {
+		return nil, val.(*value.Error)
+	}
+
+	str, ok := val.(*value.Str)
+	if !ok {
+		return nil, e.newError(
+			call,
+			ctx,
+			fail.ErrGlobalFuncWrongType,
+			call.Name,
+			value.STR_VAL,
+			argIdx+1,
+			val.Type(),
+		)
+	}
+
+	return str, nil
 }
 
 func (e *Evaluator) newError(node ast.Node, ctx *Context, format string, a ...any) *value.Error {
