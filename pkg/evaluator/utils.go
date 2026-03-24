@@ -189,7 +189,7 @@ func capitalizeFirst(s string) string {
 }
 
 // getDateTimeLayout takes string date and returns Go's layout format.
-// Go's time.Time layouts: https://pkg.go.dev/time#Layout
+// Go's time.Time layouts: https://pkg.go.dev/time#pkg-constants
 func getDateTimeLayout(date string) string {
 	switch {
 	case len(date) == 8 && date[2] == ':' && date[5] == ':':
