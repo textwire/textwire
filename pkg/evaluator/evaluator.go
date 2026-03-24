@@ -2,6 +2,7 @@ package evaluator
 
 import (
 	"reflect"
+	"time"
 
 	"github.com/textwire/textwire/v4/config"
 	"github.com/textwire/textwire/v4/pkg/ast"
@@ -966,6 +967,8 @@ func (e *Evaluator) globalCallExpr(globalCallExp *ast.GlobalCallExpr, ctx *Conte
 		return e.globalFuncDefined(globalCallExp, ctx)
 	case "hasValue":
 		return e.globalFuncHasValue(globalCallExp, ctx)
+	case "formatDate":
+		return e.globalFuncFormatDate(globalCallExp, ctx)
 	default:
 		return e.newError(
 			globalCallExp,
@@ -1022,6 +1025,76 @@ func (e *Evaluator) globalFuncHasValue(
 	}
 
 	return TRUE
+}
+
+func (e *Evaluator) globalFuncFormatDate(
+	globalCallExp *ast.GlobalCallExpr,
+	ctx *Context,
+) value.Literal {
+	if len(globalCallExp.Arguments) != 2 {
+		return e.newError(
+			globalCallExp,
+			ctx,
+			fail.ErrGlobalFuncWrongArgs,
+			globalCallExp.Function.Name,
+			2,
+			len(globalCallExp.Arguments),
+		)
+	}
+
+	dateVal := e.evalLiteral(globalCallExp.Arguments[0], ctx)
+	if isError(dateVal) {
+		return dateVal
+	}
+
+	date, ok := dateVal.(*value.Str)
+	if !ok {
+		return e.newError(
+			globalCallExp,
+			ctx,
+			fail.ErrGlobalFuncWrongType,
+			globalCallExp.Function.Name,
+			value.STR_VAL,
+			1,
+			dateVal.Type(),
+		)
+	}
+
+	layoutVal := e.evalLiteral(globalCallExp.Arguments[1], ctx)
+	if isError(layoutVal) {
+		return layoutVal
+	}
+
+	layout, ok := layoutVal.(*value.Str)
+	if !ok {
+		return e.newError(
+			globalCallExp,
+			ctx,
+			fail.ErrGlobalFuncWrongType,
+			globalCallExp.Function.Name,
+			value.STR_VAL,
+			2,
+			layoutVal.Type(),
+		)
+	}
+
+	if date.Val == "" {
+		return &value.Str{Val: ""}
+	}
+
+	parseLayout := getDateTimeLayout(date.Val)
+	if parseLayout == "" {
+		// TODO: error not supported date string
+		return NIL
+	}
+
+	newFormat, err := time.Parse(parseLayout, date.Val)
+	if err != nil {
+		// TODO: return error
+		return NIL
+	}
+
+	return &value.Str{Val: newFormat.Format(layout.Val)}
 }
 
 func (e *Evaluator) valuesToNativeType(args []value.Literal) []any {

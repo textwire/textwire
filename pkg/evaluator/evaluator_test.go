@@ -1163,3 +1163,34 @@ func TestCannotUseOperatorError(t *testing.T) {
 		}
 	}
 }
+
+func TestEvalFormatDateGlobalFunc(t *testing.T) {
+	cases := []struct {
+		id     uint
+		inp    string
+		expect string
+	}{
+		// Test date time
+		{10, "{{ d = '2026-03-24 13:03:25'; formatDate(d, '15:04:05') }}", "13:03:25"},
+		{
+			20,
+			"{{ d = '2027-12-13 10:00:09'; formatDate(d, '2006-01-02 15:04:05') }}",
+			"2027-12-13 10:00:09",
+		},
+		{30, "{{ d = '2023-10-12 01:10:25'; formatDate(d, '2006-01-02') }}", "2023-10-12"},
+		// Test date
+		{40, "{{ d = '2026-03-24'; formatDate(d, '2006-01-02') }}", "2026-03-24"},
+		{50, "{{ d = '2026-03-24'; formatDate(d, '15:04:05') }}", "00:00:00"},
+		{60, "{{ d = '2026-03-24'; formatDate(d, '2006-01-02 15:04:05') }}", "2026-03-24 00:00:00"},
+		// Test time
+		{70, "{{ t = '10:00:09'; formatDate(t, '2006-01-02') }}", "0000-01-01"},
+		{80, "{{ t = '10:00:09'; formatDate(t, '15:04:05') }}", "10:00:09"},
+		{90, "{{ t = '10:00:09'; formatDate(t, '2006-01-02 15:04:05') }}", "0000-01-01 10:00:09"},
+		// Other tests
+		{100, "{{ t = ''; formatDate(t, '2006-01-02 15:04:05') }}", ""},
+	}
+
+	for _, tc := range cases {
+		evaluationExpected(t, tc.inp, tc.expect, tc.id)
+	}
+}

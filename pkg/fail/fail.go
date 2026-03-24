@@ -50,6 +50,8 @@ const (
 	ErrInsertRequiresUse       = "@insert('%s') cannot be used without @use()"
 	ErrUseDirMissingLayout     = "@use('%s') missing layout file"
 	ErrGlobalFuncMissing       = "global function %s() not found"
+	ErrGlobalFuncWrongArgs     = "global function %s() must have '%d' arguments, got '%d'"
+	ErrGlobalFuncWrongType     = "global function %s() must have type '%s' as argument '%d', got '%s'"
 	ErrKeyOnNonObj             = "'%s' type does not support attribute '%s' access"
 	ErrIllegalTypeForInc       = "cannot increment '%s', only integer and float are allowed"
 	ErrIllegalTypeForDec       = "cannot decrement '%s', only integer and float are allowed"
