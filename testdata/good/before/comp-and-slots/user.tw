@@ -1,5 +1,6 @@
 <section>
     <p>@slot</p>
+    <div>@component('small')</div>
     <main>@slot("name")</main>
     <strong>@slot("age")</strong>
     <span>@slot("empty")</span>
