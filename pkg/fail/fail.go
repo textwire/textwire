@@ -29,6 +29,8 @@ const (
 	ErrForLoopExpectStmt      = "@for() expects statement as post conditional, got expression '%s', like 'i++', 'i = i + 2', etc"
 	ErrWrongTokenType         = "expected type '%s' but '%s' received"
 	ErrNameCannotBeEmpty      = "'%s' name cannot be empty"
+	ErrGlobalFuncFewArgs      = "global function %s() must have at least '%d' arguments, got '%d'"
+	ErrGlobalFuncLotsOfArgs   = "global function %s() can have maximum '%d' arguments, got '%d'"
 
 	// Evaluator (interpreter) errors
 	ErrUnknownType             = "unsupported type '%T'"
@@ -50,7 +52,6 @@ const (
 	ErrInsertRequiresUse       = "@insert('%s') cannot be used without @use()"
 	ErrUseDirMissingLayout     = "@use('%s') missing layout file"
 	ErrGlobalFuncMissing       = "global function %s() not found"
-	ErrGlobalFuncWrongArgs     = "global function %s() must have '%d' arguments, got '%d'"
 	ErrGlobalFuncWrongType     = "global function %s() must have type '%s' as argument '%d', got '%s'"
 	ErrKeyOnNonObj             = "'%s' type does not support attribute '%s' access"
 	ErrIllegalTypeForInc       = "cannot increment '%s', only integer and float are allowed"

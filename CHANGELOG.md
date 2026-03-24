@@ -8,6 +8,7 @@
     - Printing a string with `{{ }}` braces are not change `"` to `&#34;` and `'` to `&#39;` to correctly escape the string. Like before, you can use `str.raw()` function to get the raw output. If you call `{{ myStr.raw() }}` the string will not be mangled. Before, we would unescape string when you call `raw()` function but now there is not need to unescape them at all.
     - Printing a string with `{{ }}` braces are not change `"` to `&#34;` and `'` to `&#39;` to correctly escape the string. Like before, you can use `str.raw()` function to get the raw output. If you call `{{ myStr.raw() }}` the string will not be mangled. Before, we would unescape string when you call `raw()` function but now there is not need to unescape them at all.
     - Fixed issue with Go's `time.Time` type being converted to Textwire's empty object. Now, it's converted to a string format like `2006-01-02 15:04:05`. Closes [#110](https://github.com/textwire/textwire/issues/110).
+    - Global functions `hasValue` and `defined` are now require at least one argument. You'll get parse error if you don't provide any arguments.
 - 🧑‍💻 Improvements:
     - All public API functions like `NewTemplate()`, `EvaluateString`, etc., now return `*fail.Error` instead of Go's `error` type.
     - Added proper position to error messages. Closes [#101](https://github.com/textwire/textwire/issues/101).

@@ -7,16 +7,35 @@ import (
 	"github.com/textwire/textwire/v4/pkg/token"
 )
 
+type GlobalFuncName string
+
+type argRules struct {
+	Min int
+	Max int
+}
+
+const (
+	defined    GlobalFuncName = "defined"
+	hasValue   GlobalFuncName = "hasValue"
+	formatDate GlobalFuncName = "formatDate"
+)
+
+var GlobalFunctions = map[GlobalFuncName]argRules{
+	defined:    {Min: 1, Max: 999},
+	hasValue:   {Min: 1, Max: 999},
+	formatDate: {Min: 2, Max: 2},
+}
+
 type GlobalCallExpr struct {
 	BaseNode
-	Function  *IdentExpr // Function being called
+	Name      GlobalFuncName
 	Arguments []Expression
 }
 
-func NewGlobalCallExpr(tok token.Token, function *IdentExpr) *GlobalCallExpr {
+func NewGlobalCallExpr(tok token.Token, name GlobalFuncName) *GlobalCallExpr {
 	return &GlobalCallExpr{
 		BaseNode: NewBaseNode(tok),
-		Function: function,
+		Name:     name,
 	}
 }
 
@@ -35,5 +54,5 @@ func (gce *GlobalCallExpr) String() string {
 		}
 	}
 
-	return fmt.Sprintf("(%s(%s))", gce.Function, args.String())
+	return fmt.Sprintf("(%s(%s))", gce.Name, args.String())
 }

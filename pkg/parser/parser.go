@@ -980,7 +980,15 @@ func (p *Parser) dotExpr(left ast.Expression) ast.Expression {
 }
 
 func (p *Parser) globalCallExpr(ident *ast.IdentExpr) ast.Expression {
-	expr := ast.NewGlobalCallExpr(p.curToken, ident)
+	name := ast.GlobalFuncName(ident.Name)
+
+	rules, exists := ast.GlobalFunctions[name]
+	if !exists {
+		p.newError(p.peekToken.Pos, fail.ErrGlobalFuncMissing, ident.Name)
+		return nil
+	}
+
+	expr := ast.NewGlobalCallExpr(p.curToken, name)
 
 	if !p.expectPeek(token.LPAREN) { // move to "("
 		return p.illegalNode()
@@ -988,6 +996,17 @@ func (p *Parser) globalCallExpr(ident *ast.IdentExpr) ast.Expression {
 
 	expr.Arguments = p.expressionList(token.RPAREN)
 	expr.SetEndPosition(p.curToken.Pos)
+	argsLen := len(expr.Arguments)
+
+	if argsLen < rules.Min {
+		p.newError(expr.Pos(), fail.ErrGlobalFuncFewArgs, name, rules.Min, argsLen)
+		return nil
+	}
+
+	if argsLen > rules.Max {
+		p.newError(expr.Pos(), fail.ErrGlobalFuncLotsOfArgs, name, rules.Max, argsLen)
+		return nil
+	}
 
 	return expr
 }

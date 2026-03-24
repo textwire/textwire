@@ -962,7 +962,7 @@ func (e *Evaluator) callExpr(callExp *ast.CallExpr, ctx *Context) value.Literal 
 }
 
 func (e *Evaluator) globalCallExpr(globalCallExp *ast.GlobalCallExpr, ctx *Context) value.Literal {
-	switch globalCallExp.Function.Name {
+	switch globalCallExp.Name {
 	case "defined":
 		return e.globalFuncDefined(globalCallExp, ctx)
 	case "hasValue":
@@ -974,7 +974,7 @@ func (e *Evaluator) globalCallExpr(globalCallExp *ast.GlobalCallExpr, ctx *Conte
 			globalCallExp,
 			ctx,
 			fail.ErrGlobalFuncMissing,
-			globalCallExp.Function.Name,
+			globalCallExp.Name,
 		)
 	}
 }
@@ -1031,16 +1031,7 @@ func (e *Evaluator) globalFuncFormatDate(
 	globalCallExp *ast.GlobalCallExpr,
 	ctx *Context,
 ) value.Literal {
-	if len(globalCallExp.Arguments) != 2 {
-		return e.newError(
-			globalCallExp,
-			ctx,
-			fail.ErrGlobalFuncWrongArgs,
-			globalCallExp.Function.Name,
-			2,
-			len(globalCallExp.Arguments),
-		)
-	}
+	// Note: We already know that we have 2 arguments since parser ensures that
 
 	dateVal := e.evalLiteral(globalCallExp.Arguments[0], ctx)
 	if isError(dateVal) {
@@ -1053,7 +1044,7 @@ func (e *Evaluator) globalFuncFormatDate(
 			globalCallExp,
 			ctx,
 			fail.ErrGlobalFuncWrongType,
-			globalCallExp.Function.Name,
+			globalCallExp.Name,
 			value.STR_VAL,
 			1,
 			dateVal.Type(),
@@ -1071,7 +1062,7 @@ func (e *Evaluator) globalFuncFormatDate(
 			globalCallExp,
 			ctx,
 			fail.ErrGlobalFuncWrongType,
-			globalCallExp.Function.Name,
+			globalCallExp.Name,
 			value.STR_VAL,
 			2,
 			layoutVal.Type(),

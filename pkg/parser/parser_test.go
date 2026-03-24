@@ -880,6 +880,72 @@ func TestErrorHandling(t *testing.T) {
 				token.String(token.LPAREN),
 			),
 		},
+		// Global functions
+		{
+			id:  900,
+			inp: "{{ defined() }}",
+			err: fail.New(
+				&position.Pos{StartCol: 3, EndCol: 11},
+				"",
+				fail.OriginPars,
+				fail.ErrGlobalFuncFewArgs,
+				"defined",
+				1,
+				0,
+			),
+		},
+		{
+			id:  910,
+			inp: "{{ hasValue() }}",
+			err: fail.New(
+				&position.Pos{StartCol: 3, EndCol: 12},
+				"",
+				fail.OriginPars,
+				fail.ErrGlobalFuncFewArgs,
+				"hasValue",
+				1,
+				0,
+			),
+		},
+		{
+			id:  920,
+			inp: "{{ formatDate() }}",
+			err: fail.New(
+				&position.Pos{StartCol: 3, EndCol: 14},
+				"",
+				fail.OriginPars,
+				fail.ErrGlobalFuncFewArgs,
+				"formatDate",
+				2,
+				0,
+			),
+		},
+		{
+			id:  930,
+			inp: "{{ formatDate(str) }}",
+			err: fail.New(
+				&position.Pos{StartCol: 3, EndCol: 17},
+				"",
+				fail.OriginPars,
+				fail.ErrGlobalFuncFewArgs,
+				"formatDate",
+				2,
+				1,
+			),
+		},
+		{
+			id:  940,
+			inp: "{{ formatDate(str, str2, str3) }}",
+			err: fail.New(
+				&position.Pos{StartCol: 3, EndCol: 29},
+				"",
+				fail.OriginPars,
+				fail.ErrGlobalFuncLotsOfArgs,
+				"formatDate",
+				2,
+				3,
+			),
+		},
 	}
 
 	for _, tc := range cases {
@@ -1561,8 +1627,8 @@ func TestParseGlobalCallExp(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if err := testIdentExpr(globalCallExpr.Function, "defined"); err != nil {
-		t.Fatal(err)
+	if globalCallExpr.Name != ast.GlobalFuncName("defined") {
+		t.Fatalf("Global function name must be 'defined', bot '%s'", globalCallExpr.Name)
 	}
 
 	if err := testIdentExpr(globalCallExpr.Arguments[0], "var1"); err != nil {
