@@ -11,7 +11,7 @@ import (
 	"github.com/textwire/textwire/v4/pkg/value"
 )
 
-func isTruthy(obj value.Value) bool {
+func isTruthy(obj value.Literal) bool {
 	switch obj := obj.(type) {
 	case *value.Bool:
 		return obj.Val
@@ -30,7 +30,6 @@ func isTruthy(obj value.Value) bool {
 	case nil:
 		return false
 	}
-
 	return true
 }
 

@@ -8,7 +8,7 @@ import (
 
 func TestIsTruthy(t *testing.T) {
 	cases := []struct {
-		inp    value.Value
+		inp    value.Literal
 		expect bool
 	}{
 		{nil, false},
