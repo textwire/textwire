@@ -2,6 +2,7 @@ package value
 
 import (
 	"reflect"
+	"time"
 )
 
 func NativeToValue(val any) Literal {
@@ -34,6 +35,8 @@ func NativeToValue(val any) Literal {
 		return &Int{Val: int64(v)}
 	case uint64:
 		return &Int{Val: int64(v)}
+	case time.Time:
+		return &Str{Val: v.Format("2006-01-02 15:04:05")}
 	case nil:
 		return new(Nil)
 	}

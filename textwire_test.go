@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"testing"
+	"time"
 
 	"github.com/textwire/textwire/v4/pkg/fail"
 	"github.com/textwire/textwire/v4/pkg/file"
@@ -32,6 +33,8 @@ func readFile(fileName string) (string, error) {
 }
 
 func TestEvalStr(t *testing.T) {
+	datetime, _ := time.Parse("2006-01-02 15:04:05", "1990-12-23 11:22:33")
+	date, _ := time.Parse("2006-01-02", "1990-12-23")
 	var age *int
 
 	cases := []struct {
@@ -122,6 +125,18 @@ func TestEvalStr(t *testing.T) {
 			inp:    "<span>{{ global }}</span>",
 			expect: "<span>{}</span>",
 			data:   nil,
+		},
+		{
+			name:   "Properly parses date time with time.Time struct",
+			inp:    "{{ date1 }} and {{ date2 }}",
+			expect: "1990-12-23 11:22:33 and 1990-12-23 11:22:33",
+			data:   map[string]any{"date1": datetime, "date2": &datetime},
+		},
+		{
+			name:   "Properly parses date with time.Time struct",
+			inp:    "{{ date1 }} and {{ date2 }}",
+			expect: "1990-12-23 00:00:00 and 1990-12-23 00:00:00",
+			data:   map[string]any{"date1": date, "date2": &date},
 		},
 	}
 
