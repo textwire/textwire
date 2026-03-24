@@ -96,6 +96,6 @@ func (e *Scope) isTypeMismatch(key string, val Value) (Value, bool) {
 }
 
 func (e *Scope) identifierMismatchError(key string, oldVar, val Value) error {
-	msg := fmt.Sprintf(fail.ErrIdentifierTypeMismatch, key, oldVar.Type(), val.Type())
+	msg := fmt.Sprintf(fail.ErrIdentTypeMismatch, key, oldVar.Type(), val.Type())
 	return errors.New(msg)
 }

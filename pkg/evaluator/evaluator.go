@@ -325,7 +325,7 @@ func (e *Evaluator) useDir(useDir *ast.UseDir, ctx *Context) value.Value {
 		if e.usingTemplates {
 			return e.newError(useDir, ctx, fail.ErrUseDirMissingLayout, useDir.Name.Val)
 		}
-		return e.newError(useDir, ctx, fail.ErrSomeDirsOnlyInTemplates)
+		return e.newError(useDir, ctx, fail.ErrTemplateDirectives)
 	}
 
 	e.usingUseDir = true
@@ -361,7 +361,7 @@ func (e *Evaluator) useDir(useDir *ast.UseDir, ctx *Context) value.Value {
 
 func (e *Evaluator) reserveDir(reserveDir *ast.ReserveDir, ctx *Context) value.Value {
 	if !e.usingTemplates {
-		return e.newError(reserveDir, ctx, fail.ErrSomeDirsOnlyInTemplates)
+		return e.newError(reserveDir, ctx, fail.ErrTemplateDirectives)
 	}
 
 	name := reserveDir.Name.Val
@@ -382,7 +382,7 @@ func (e *Evaluator) reserveDir(reserveDir *ast.ReserveDir, ctx *Context) value.V
 
 func (e *Evaluator) compDir(compDir *ast.ComponentDir, ctx *Context) value.Value {
 	if !e.usingTemplates {
-		return e.newError(compDir, ctx, fail.ErrSomeDirsOnlyInTemplates)
+		return e.newError(compDir, ctx, fail.ErrTemplateDirectives)
 	}
 
 	name := compDir.Name.Val
@@ -626,7 +626,7 @@ func (e *Evaluator) localSlot(slotDir *ast.SlotDir, ctx *Context) value.Value {
 
 func (e *Evaluator) insertDir(insertDir *ast.InsertDir, ctx *Context) value.Value {
 	if !e.usingTemplates {
-		return e.newError(insertDir, ctx, fail.ErrSomeDirsOnlyInTemplates)
+		return e.newError(insertDir, ctx, fail.ErrTemplateDirectives)
 	}
 
 	name := insertDir.Name.Val
@@ -1075,14 +1075,12 @@ func (e *Evaluator) globalFuncFormatDate(
 
 	parseLayout := getDateTimeLayout(date.Val)
 	if parseLayout == "" {
-		// TODO: error not supported date string
-		return NIL
+		return e.newError(globalCallExp, ctx, fail.ErrFormatDateWrongDate, date.Val)
 	}
 
 	newFormat, err := time.Parse(parseLayout, date.Val)
 	if err != nil {
-		// TODO: return error
-		return NIL
+		return e.newError(globalCallExp, ctx, fail.ErrFormatDateParseErr, date.Val, layout.Val)
 	}
 
 	return &value.Str{Val: newFormat.Format(layout.Val)}

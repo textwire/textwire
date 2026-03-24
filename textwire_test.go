@@ -463,22 +463,22 @@ func TestErrorHandling(t *testing.T) {
 		},
 		{
 			inp:  `@use("someTemplate")`,
-			err:  fail.New(nil, "", fail.OriginEval, fail.ErrSomeDirsOnlyInTemplates),
+			err:  fail.New(nil, "", fail.OriginEval, fail.ErrTemplateDirectives),
 			data: nil,
 		},
 		{
 			inp:  `@insert("title", "hi")`,
-			err:  fail.New(nil, "", fail.OriginEval, fail.ErrSomeDirsOnlyInTemplates),
+			err:  fail.New(nil, "", fail.OriginEval, fail.ErrTemplateDirectives),
 			data: nil,
 		},
 		{
 			inp:  `@reserve("content")`,
-			err:  fail.New(nil, "", fail.OriginEval, fail.ErrSomeDirsOnlyInTemplates),
+			err:  fail.New(nil, "", fail.OriginEval, fail.ErrTemplateDirectives),
 			data: nil,
 		},
 		{
 			inp:  `@component("~header")`,
-			err:  fail.New(nil, "", fail.OriginEval, fail.ErrSomeDirsOnlyInTemplates),
+			err:  fail.New(nil, "", fail.OriginEval, fail.ErrTemplateDirectives),
 			data: nil,
 		},
 		{
@@ -520,7 +520,7 @@ func TestErrorHandling(t *testing.T) {
 				nil,
 				"",
 				fail.OriginEval,
-				fail.ErrIdentifierTypeMismatch,
+				fail.ErrIdentTypeMismatch,
 				"n",
 				value.INT_VAL,
 				value.STR_VAL,
@@ -608,6 +608,40 @@ func TestErrorHandling(t *testing.T) {
 			inp:  `{{ nil = 10 }}`,
 			err:  fail.New(nil, "", fail.OriginEval, fail.ErrNotSupportedAssign, value.NIL_VAL),
 			data: nil,
+		},
+		// Global functions
+		{
+			inp: `{{ formatDate(date, '2006-01-02') }}`,
+			err: fail.New(
+				nil,
+				"",
+				fail.OriginEval,
+				fail.ErrFormatDateWrongDate,
+				"2026-03-24 13:03",
+			),
+			data: map[string]any{"date": "2026-03-24 13:03"},
+		},
+		{
+			inp: `{{ formatDate(date, '2006-01-02') }}`,
+			err: fail.New(
+				nil,
+				"",
+				fail.OriginEval,
+				fail.ErrFormatDateWrongDate,
+				"2026-03-4 13:03:00",
+			),
+			data: map[string]any{"date": "2026-03-4 13:03:00"},
+		},
+		{
+			inp: `{{ formatDate(date, '2006-01-02') }}`,
+			err: fail.New(
+				nil,
+				"",
+				fail.OriginEval,
+				fail.ErrFormatDateWrongDate,
+				" 2026-03-34 13:03:00",
+			),
+			data: map[string]any{"date": " 2026-03-34 13:03:00"},
 		},
 	}
 
