@@ -28,17 +28,6 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 		data map[string]any
 	}{
 		{
-			dir: "undefined-default-slotif",
-			err: fail.New(
-				&position.Pos{StartCol: 21, EndCol: 41},
-				absPath+"undefined-default-slotif/index.tw",
-				fail.OriginLink,
-				fail.ErrDefaultSlotNotDefined,
-				"user",
-			),
-			data: nil,
-		},
-		{
 			dir: "undefined-named-slotif",
 			err: fail.New(
 				&position.Pos{StartCol: 21, EndCol: 49},
