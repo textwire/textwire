@@ -27,87 +27,87 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 		err  *fail.Error
 		data map[string]any
 	}{
-		// {
-		// 	dir: "undefined-named-provideif",
-		// 	err: fail.New(
-		// 		&position.Pos{StartCol: 21, EndCol: 52},
-		// 		absPath+"undefined-named-provideif/index.tw",
-		// 		fail.OriginLink,
-		// 		fail.ErrSlotNotDefined,
-		// 		"user",
-		// 		"name",
-		// 	),
-		// 	data: nil,
-		// },
-		// {
-		// 	dir: "use-inside-tpl",
-		// 	err: fail.New(
-		// 		&position.Pos{EndCol: 13},
-		// 		absPath+"use-inside-tpl/layout.tw",
-		// 		fail.OriginEval,
-		// 		fail.ErrUseDirIsNotAllowed,
-		// 	),
-		// 	data: nil,
-		// },
-		// {
-		// 	dir: "unknown-named-provide",
-		// 	err: fail.New(
-		// 		&position.Pos{StartLine: 1, StartCol: 4, EndLine: 3, EndCol: 7},
-		// 		absPath+"unknown-named-provide/index.tw",
-		// 		fail.OriginLink,
-		// 		fail.ErrSlotNotDefined,
-		// 		"user",
-		// 		"unknown",
-		// 	),
-		// 	data: nil,
-		// },
-		// {
-		// 	dir: "unknown-default-provide",
-		// 	err: fail.New(
-		// 		&position.Pos{StartLine: 1, StartCol: 4, EndLine: 3, EndCol: 7},
-		// 		absPath+"unknown-default-provide/index.tw",
-		// 		fail.OriginLink,
-		// 		fail.ErrDefaultSlotNotDefined,
-		// 		"book",
-		// 	),
-		// 	data: nil,
-		// },
-		// {
-		// 	dir: "duplicate-provide",
-		// 	err: fail.New(
-		// 		&position.Pos{StartLine: 2, StartCol: 4, EndLine: 2, EndCol: 42},
-		// 		absPath+"duplicate-provide/index.tw",
-		// 		fail.OriginLink,
-		// 		fail.ErrDuplicateProvide,
-		// 		"content",
-		// 		2,
-		// 		"user",
-		// 	),
-		// 	data: nil,
-		// },
-		// {
-		// 	dir: "unknown-comp",
-		// 	err: fail.New(
-		// 		&position.Pos{StartLine: 8, StartCol: 4, EndLine: 8, EndCol: 29},
-		// 		absPath+"unknown-comp/index.tw",
-		// 		fail.OriginLink,
-		// 		fail.ErrUndefinedComponent,
-		// 		"unknown-name",
-		// 	),
-		// 	data: nil,
-		// },
-		// {
-		// 	dir: "undefined-insert",
-		// 	err: fail.New(
-		// 		&position.Pos{StartLine: 4, EndLine: 6, EndCol: 3},
-		// 		absPath+"undefined-insert/index.tw",
-		// 		fail.OriginLink,
-		// 		fail.ErrUnusedInsertDetected,
-		// 		"some-name",
-		// 		"some-name",
-		// 	),
-		// 	data: nil,
-		// },
+		{
+			dir: "undefined-named-provideif",
+			err: fail.New(
+				&position.Pos{StartCol: 21, EndCol: 52},
+				absPath+"undefined-named-provideif/index.tw",
+				fail.OriginLink,
+				fail.ErrSlotNotDefined,
+				"user",
+				"name",
+			),
+			data: nil,
+		},
+		{
+			dir: "use-inside-tpl",
+			err: fail.New(
+				&position.Pos{EndCol: 13},
+				absPath+"use-inside-tpl/layout.tw",
+				fail.OriginEval,
+				fail.ErrUseDirIsNotAllowed,
+			),
+			data: nil,
+		},
+		{
+			dir: "unknown-named-provide",
+			err: fail.New(
+				&position.Pos{StartLine: 1, StartCol: 4, EndLine: 3, EndCol: 7},
+				absPath+"unknown-named-provide/index.tw",
+				fail.OriginLink,
+				fail.ErrSlotNotDefined,
+				"user",
+				"unknown",
+			),
+			data: nil,
+		},
+		{
+			dir: "unknown-default-provide",
+			err: fail.New(
+				&position.Pos{StartLine: 1, StartCol: 4, EndLine: 3, EndCol: 7},
+				absPath+"unknown-default-provide/index.tw",
+				fail.OriginLink,
+				fail.ErrDefaultSlotNotDefined,
+				"book",
+			),
+			data: nil,
+		},
+		{
+			dir: "duplicate-provide",
+			err: fail.New(
+				&position.Pos{StartLine: 2, StartCol: 4, EndLine: 2, EndCol: 42},
+				absPath+"duplicate-provide/index.tw",
+				fail.OriginLink,
+				fail.ErrDuplicateProvide,
+				"content",
+				2,
+				"user",
+			),
+			data: nil,
+		},
+		{
+			dir: "unknown-comp",
+			err: fail.New(
+				&position.Pos{StartLine: 8, StartCol: 4, EndLine: 8, EndCol: 29},
+				absPath+"unknown-comp/index.tw",
+				fail.OriginLink,
+				fail.ErrUndefinedComponent,
+				"unknown-name",
+			),
+			data: nil,
+		},
+		{
+			dir: "undefined-insert",
+			err: fail.New(
+				&position.Pos{StartLine: 4, EndLine: 6, EndCol: 3},
+				absPath+"undefined-insert/index.tw",
+				fail.OriginLink,
+				fail.ErrUnusedInsertDetected,
+				"some-name",
+				"some-name",
+			),
+			data: nil,
+		},
 		{
 			dir: "undefined-var-in-comp",
 			err: fail.New(
