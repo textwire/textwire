@@ -9,22 +9,19 @@ import (
 type SlotDir struct {
 	BaseNode
 	CompName string   // Component name
-	name     *StrExpr // Empty when @slot is default
+	Name     *StrExpr // Empty when @slot is default
+	Block    *Block   // Optional block coming from @provide's block, can be nil
 }
 
 func NewSlotDir(tok token.Token, name *StrExpr, compName string) *SlotDir {
 	return &SlotDir{
 		BaseNode: NewBaseNode(tok),
-		name:     name,
+		Name:     name,
 		CompName: compName,
 	}
 }
 
 func (*SlotDir) chunkNode() {}
-
-func (sd *SlotDir) Name() *StrExpr {
-	return sd.name
-}
 
 func (sd *SlotDir) String() string {
 	var out strings.Builder
@@ -32,9 +29,9 @@ func (sd *SlotDir) String() string {
 
 	out.WriteString(sd.Token.Lit)
 
-	if sd.name.Val != "" {
+	if sd.Name.Val != "" {
 		out.WriteString("(")
-		out.WriteString(sd.name.String())
+		out.WriteString(sd.Name.String())
 		out.WriteString(")")
 	}
 

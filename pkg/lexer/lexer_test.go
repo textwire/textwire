@@ -721,7 +721,48 @@ func TestComponentDirective(t *testing.T) {
 	})
 }
 
-func TestComponentSlotDirective(t *testing.T) {
+func TestProvideDirective(t *testing.T) {
+	t.Run("provides with parentheses", func(t *testing.T) {
+		inp := `@component("card")@provide("top")<h1>Hello</h1>@end@end`
+
+		TokenizeString(t, inp, []token.Token{
+			{Type: token.COMPONENT, Lit: "@component", Pos: &position.Pos{EndCol: 9}},
+			{Type: token.LPAREN, Lit: "(", Pos: &position.Pos{StartCol: 10, EndCol: 10}},
+			{Type: token.STR, Lit: "card", Pos: &position.Pos{StartCol: 11, EndCol: 16}},
+			{Type: token.RPAREN, Lit: ")", Pos: &position.Pos{StartCol: 17, EndCol: 17}},
+			{Type: token.PROVIDE, Lit: "@provide", Pos: &position.Pos{StartCol: 18, EndCol: 25}},
+			{Type: token.LPAREN, Lit: "(", Pos: &position.Pos{StartCol: 26, EndCol: 26}},
+			{Type: token.STR, Lit: "top", Pos: &position.Pos{StartCol: 27, EndCol: 31}},
+			{Type: token.RPAREN, Lit: ")", Pos: &position.Pos{StartCol: 32, EndCol: 32}},
+			{
+				Type: token.TEXT,
+				Lit:  "<h1>Hello</h1>",
+				Pos:  &position.Pos{StartCol: 33, EndCol: 46},
+			},
+			{Type: token.END, Lit: "@end", Pos: &position.Pos{StartCol: 47, EndCol: 50}},
+			{Type: token.END, Lit: "@end", Pos: &position.Pos{StartCol: 51, EndCol: 54}},
+			{Type: token.EOF, Lit: "", Pos: &position.Pos{StartCol: 55, EndCol: 55}},
+		})
+	})
+
+	t.Run("provides without parentheses", func(t *testing.T) {
+		inp := `@component ("card")@provideNICE@end@end`
+
+		TokenizeString(t, inp, []token.Token{
+			{Type: token.COMPONENT, Lit: "@component", Pos: &position.Pos{EndCol: 9}},
+			{Type: token.LPAREN, Lit: "(", Pos: &position.Pos{StartCol: 11, EndCol: 11}},
+			{Type: token.STR, Lit: "card", Pos: &position.Pos{StartCol: 12, EndCol: 17}},
+			{Type: token.RPAREN, Lit: ")", Pos: &position.Pos{StartCol: 18, EndCol: 18}},
+			{Type: token.PROVIDE, Lit: "@provide", Pos: &position.Pos{StartCol: 19, EndCol: 26}},
+			{Type: token.TEXT, Lit: "NICE", Pos: &position.Pos{StartCol: 27, EndCol: 30}},
+			{Type: token.END, Lit: "@end", Pos: &position.Pos{StartCol: 31, EndCol: 34}},
+			{Type: token.END, Lit: "@end", Pos: &position.Pos{StartCol: 35, EndCol: 38}},
+			{Type: token.EOF, Lit: "", Pos: &position.Pos{StartCol: 39, EndCol: 39}},
+		})
+	})
+}
+
+func TestSlotDirective(t *testing.T) {
 	t.Run("slot with space", func(t *testing.T) {
 		inp := `@slot ("top")`
 
@@ -743,45 +784,6 @@ func TestComponentSlotDirective(t *testing.T) {
 			{Type: token.STR, Lit: "top", Pos: &position.Pos{StartCol: 9, EndCol: 13}},
 			{Type: token.RPAREN, Lit: ")", Pos: &position.Pos{StartCol: 14, EndCol: 14}},
 			{Type: token.EOF, Lit: "", Pos: &position.Pos{StartCol: 15, EndCol: 15}},
-		})
-	})
-
-	t.Run("slots with parentheses", func(t *testing.T) {
-		inp := `@component("card")@slot("top")<h1>Hello</h1>@end@end`
-
-		TokenizeString(t, inp, []token.Token{
-			{Type: token.COMPONENT, Lit: "@component", Pos: &position.Pos{EndCol: 9}},
-			{Type: token.LPAREN, Lit: "(", Pos: &position.Pos{StartCol: 10, EndCol: 10}},
-			{Type: token.STR, Lit: "card", Pos: &position.Pos{StartCol: 11, EndCol: 16}},
-			{Type: token.RPAREN, Lit: ")", Pos: &position.Pos{StartCol: 17, EndCol: 17}},
-			{Type: token.SLOT, Lit: "@slot", Pos: &position.Pos{StartCol: 18, EndCol: 22}},
-			{Type: token.LPAREN, Lit: "(", Pos: &position.Pos{StartCol: 23, EndCol: 23}},
-			{Type: token.STR, Lit: "top", Pos: &position.Pos{StartCol: 24, EndCol: 28}},
-			{Type: token.RPAREN, Lit: ")", Pos: &position.Pos{StartCol: 29, EndCol: 29}},
-			{
-				Type: token.TEXT,
-				Lit:  "<h1>Hello</h1>",
-				Pos:  &position.Pos{StartCol: 30, EndCol: 43},
-			},
-			{Type: token.END, Lit: "@end", Pos: &position.Pos{StartCol: 44, EndCol: 47}},
-			{Type: token.END, Lit: "@end", Pos: &position.Pos{StartCol: 48, EndCol: 51}},
-			{Type: token.EOF, Lit: "", Pos: &position.Pos{StartCol: 52, EndCol: 52}},
-		})
-	})
-
-	t.Run("slots without parentheses", func(t *testing.T) {
-		inp := `@component ("card")@slotNICE@end@end`
-
-		TokenizeString(t, inp, []token.Token{
-			{Type: token.COMPONENT, Lit: "@component", Pos: &position.Pos{EndCol: 9}},
-			{Type: token.LPAREN, Lit: "(", Pos: &position.Pos{StartCol: 11, EndCol: 11}},
-			{Type: token.STR, Lit: "card", Pos: &position.Pos{StartCol: 12, EndCol: 17}},
-			{Type: token.RPAREN, Lit: ")", Pos: &position.Pos{StartCol: 18, EndCol: 18}},
-			{Type: token.SLOT, Lit: "@slot", Pos: &position.Pos{StartCol: 19, EndCol: 23}},
-			{Type: token.TEXT, Lit: "NICE", Pos: &position.Pos{StartCol: 24, EndCol: 27}},
-			{Type: token.END, Lit: "@end", Pos: &position.Pos{StartCol: 28, EndCol: 31}},
-			{Type: token.END, Lit: "@end", Pos: &position.Pos{StartCol: 32, EndCol: 35}},
-			{Type: token.EOF, Lit: "", Pos: &position.Pos{StartCol: 36, EndCol: 36}},
 		})
 	})
 }
@@ -860,16 +862,16 @@ func TestReserveInsideSlot(t *testing.T) {
 	})
 }
 
-func TestSlotIfDirective(t *testing.T) {
-	inp := `@slotif(true)HERE@end`
+func TestProvideifDirective(t *testing.T) {
+	inp := `@provideif(true)HERE@end`
 
 	TokenizeString(t, inp, []token.Token{
-		{Type: token.PROVIDEIF, Lit: "@slotif", Pos: &position.Pos{EndCol: 6}},
-		{Type: token.LPAREN, Lit: "(", Pos: &position.Pos{StartCol: 7, EndCol: 7}},
-		{Type: token.TRUE, Lit: "true", Pos: &position.Pos{StartCol: 8, EndCol: 11}},
-		{Type: token.RPAREN, Lit: ")", Pos: &position.Pos{StartCol: 12, EndCol: 12}},
-		{Type: token.TEXT, Lit: "HERE", Pos: &position.Pos{StartCol: 13, EndCol: 16}},
-		{Type: token.END, Lit: "@end", Pos: &position.Pos{StartCol: 17, EndCol: 20}},
-		{Type: token.EOF, Lit: "", Pos: &position.Pos{StartCol: 21, EndCol: 21}},
+		{Type: token.PROVIDEIF, Lit: "@provideif", Pos: &position.Pos{EndCol: 9}},
+		{Type: token.LPAREN, Lit: "(", Pos: &position.Pos{StartCol: 10, EndCol: 10}},
+		{Type: token.TRUE, Lit: "true", Pos: &position.Pos{StartCol: 11, EndCol: 14}},
+		{Type: token.RPAREN, Lit: ")", Pos: &position.Pos{StartCol: 15, EndCol: 15}},
+		{Type: token.TEXT, Lit: "HERE", Pos: &position.Pos{StartCol: 16, EndCol: 19}},
+		{Type: token.END, Lit: "@end", Pos: &position.Pos{StartCol: 20, EndCol: 23}},
+		{Type: token.EOF, Lit: "", Pos: &position.Pos{StartCol: 24, EndCol: 24}},
 	})
 }

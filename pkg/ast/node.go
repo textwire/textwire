@@ -45,12 +45,3 @@ type NodeWithChunks interface {
 	Node
 	AllChunks() []Chunk
 }
-
-type SlotDirective interface {
-	Node
-	Name() *StrExpr
-	IsDefault() bool
-	SetIsDefault(bool)
-	Block() *Block
-	SetBlock(*Block)
-}

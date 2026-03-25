@@ -80,23 +80,23 @@ func (p *Program) LinkCompProg(compName string, prog *Program, absPath string) *
 				absPath,
 				fail.OriginLink,
 				fail.ErrDuplicateProvide,
-				duplicate.Name().Val,
+				duplicate.Name.Val,
 				times,
 				compName,
 			)
 		}
 
-		for _, slot := range comp.Provides {
-			name := slot.Name().Val
+		for _, provideDir := range comp.Provides {
+			name := provideDir.Name.Val
 			idx := findSlotIndex(prog.Chunks, name)
 			if idx != -1 {
-				prog.Chunks[idx].(SlotDirective).SetBlock(slot.Block())
+				prog.Chunks[idx].(*SlotDir).Block = provideDir.Block
 				continue
 			}
 
-			if slot.IsDefault() {
+			if provideDir.Name.Val == "" {
 				return fail.New(
-					slot.Pos(),
+					provideDir.Pos(),
 					absPath,
 					fail.OriginLink,
 					fail.ErrDefaultSlotNotDefined,
@@ -105,7 +105,7 @@ func (p *Program) LinkCompProg(compName string, prog *Program, absPath string) *
 			}
 
 			return fail.New(
-				slot.Pos(),
+				provideDir.Pos(),
 				absPath,
 				fail.OriginLink,
 				fail.ErrSlotNotDefined,

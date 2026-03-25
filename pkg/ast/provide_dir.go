@@ -8,41 +8,21 @@ import (
 
 type ProvideDir struct {
 	BaseNode
-	CompName  string   // Component name
-	isDefault bool     // Whether the slot is named or default
-	name      *StrExpr // Empty when @slot is default
-	block     *Block   // Optional block statement, can be nil
+	CompName string     // Component name
+	Name     *StrExpr   // Empty when @slot is default
+	Block    *Block     // Optional block statement, can be nil
+	Cond     Expression // When you have @provideif, this field will be boolean expression
 }
 
 func NewProvideDir(tok token.Token, name *StrExpr, compName string) *ProvideDir {
 	return &ProvideDir{
 		BaseNode: NewBaseNode(tok),
-		name:     name,
+		Name:     name,
 		CompName: compName,
 	}
 }
 
 func (*ProvideDir) chunkNode() {}
-
-func (pd *ProvideDir) Name() *StrExpr {
-	return pd.name
-}
-
-func (pd *ProvideDir) IsDefault() bool {
-	return pd.isDefault
-}
-
-func (pd *ProvideDir) SetIsDefault(val bool) {
-	pd.isDefault = val
-}
-
-func (pd *ProvideDir) SetBlock(b *Block) {
-	pd.block = b
-}
-
-func (pd *ProvideDir) Block() *Block {
-	return pd.block
-}
 
 func (pd *ProvideDir) String() string {
 	var out strings.Builder
@@ -50,14 +30,30 @@ func (pd *ProvideDir) String() string {
 
 	out.WriteString(pd.Token.Lit)
 
-	if pd.name.Val != "" {
+	hasParens := pd.Cond != nil || pd.Name.Val != ""
+
+	if hasParens {
 		out.WriteString("(")
-		out.WriteString(pd.name.String())
+	}
+
+	if pd.Cond != nil {
+		out.WriteString(pd.Cond.String())
+
+		if pd.Name.Val != "" {
+			out.WriteString(", ")
+		}
+	}
+
+	if pd.Name.Val != "" {
+		out.WriteString(pd.Name.String())
+	}
+
+	if hasParens {
 		out.WriteString(")")
 	}
 
-	if pd.block != nil {
-		out.WriteString(pd.block.String())
+	if pd.Block != nil {
+		out.WriteString(pd.Block.String())
 		out.WriteString("@end")
 	}
 
@@ -65,8 +61,8 @@ func (pd *ProvideDir) String() string {
 }
 
 func (pd *ProvideDir) AllChunks() []Chunk {
-	if pd.block == nil {
+	if pd.Block == nil {
 		return []Chunk{}
 	}
-	return pd.block.AllChunks()
+	return pd.Block.AllChunks()
 }

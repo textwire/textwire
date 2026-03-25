@@ -10,8 +10,8 @@ type ComponentDir struct {
 	BaseNode
 	Name     *StrExpr // Relative path to the component 'components/book'
 	Argument *ObjExpr
-	CompProg *Program        // AST node of the component file Name
-	Provides []SlotDirective // Each slot of the component's block
+	CompProg *Program      // AST node of the component file Name
+	Provides []*ProvideDir // Each slot of the component's block
 }
 
 func NewComponentDir(tok token.Token) *ComponentDir {

@@ -1916,19 +1916,24 @@ func TestParseEmptyBlock(t *testing.T) {
 		{120, "@for(i = 0; i < x; i++)@else1@end", 32, token.FOR},
 		{121, "@for(i = 0; i < x; i++) @else @end", 33, token.FOR},
 		{130, "@insert('x')@end", 15, token.INSERT},
-		{141, "@component('x')@slot@end@end", 27, token.COMPONENT},
-		{142, "@component('x') @slot@end @end", 29, token.COMPONENT},
-		{143, "@component('x') @slot  @end @end", 31, token.COMPONENT},
-		{150, "@component('x')@slot('x')@end@end", 32, token.COMPONENT},
-		{160, "@component('x')@slotif(x, 'x')@end@end", 37, token.COMPONENT},
-		{170, "@component('x')@slotif(x)@end@end", 32, token.COMPONENT},
-		{180, "@component('x')@slotif(x)@end@slotif(x, 'x')@end@end", 51, token.COMPONENT},
-		{190, "@component('x')@slot@end@slot('x')@end@end", 41, token.COMPONENT},
-		{200, "@component('x')@slot@end@slot('x')@end@slotif(x)@end@end", 55, token.COMPONENT},
+		{141, "@component('x')@provide@end@end", 30, token.COMPONENT},
+		{142, "@component('x') @provide@end @end", 32, token.COMPONENT},
+		{143, "@component('x') @provide  @end @end", 34, token.COMPONENT},
+		{150, "@component('x')@provide('x')@end@end", 35, token.COMPONENT},
+		{160, "@component('x')@provideif(x, 'x')@end@end", 40, token.COMPONENT},
+		{170, "@component('x')@provideif(x)@end@end", 35, token.COMPONENT},
+		{180, "@component('x')@provideif(x)@end@provideif(x, 'x')@end@end", 57, token.COMPONENT},
+		{190, "@component('x')@provide@end@provide('x')@end@end", 47, token.COMPONENT},
+		{
+			200,
+			"@component('x')@provide@end@provide('x')@end@provideif(x)@end@end",
+			64,
+			token.COMPONENT,
+		},
 		{
 			201,
-			"@component('x') @slot @end @slot('x') @end @slotif(x) @end @end",
-			62,
+			"@component('x') @provide @end @provide('x') @end @provideif(x) @end @end",
+			71,
 			token.COMPONENT,
 		},
 		{210, "@if(x)1@elseif(y)@end", 20, token.IF},
@@ -2194,7 +2199,7 @@ func TestParseContinueifDir(t *testing.T) {
 
 func TestParseComponentDir(t *testing.T) {
 	t.Run("@component without provides", func(t *testing.T) {
-		inp := "<ul>@component('components/book-card', { c: card })@end</ul>"
+		inp := "<ul>@component('components/book-card', { c: card })/ul>"
 		chunks, err := parseChunks(inp, parseOpts{chunksCount: 3, checkErrors: true})
 		if err != nil {
 			t.Fatal(err)
@@ -2207,7 +2212,7 @@ func TestParseComponentDir(t *testing.T) {
 
 		err = testTokPosition(chunk.Pos(), &position.Pos{
 			StartCol: 4,
-			EndCol:   54,
+			EndCol:   50,
 		})
 
 		if err != nil {
@@ -2231,10 +2236,10 @@ func TestParseComponentDir(t *testing.T) {
 		}
 
 		if len(chunk.Provides) != 0 {
-			t.Fatalf("len(chunk.Provides) is not empty, got '%d' slots", len(chunk.Provides))
+			t.Fatalf("len(chunk.Provides) is not empty, got '%d' provides", len(chunk.Provides))
 		}
 
-		expect := `@component("components/book-card", {"c": card})@end`
+		expect := `@component("components/book-card", {"c": card})`
 		if chunk.String() != expect {
 			t.Fatalf(`chunk.String() is not '%s', got %s`, expect, chunk)
 		}
@@ -2256,14 +2261,18 @@ func TestParseComponentDir(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		name := compDir.Provides[0].Name().Val
+		name := compDir.Provides[0].Name.Val
 		if name != "" {
 			t.Fatalf("name must be empty string, got: %s", name)
 		}
 
 		expect := `@provide<h1>Header</h1>@end`
 		if compDir.Provides[0].String() != expect {
-			t.Fatalf("compDir.Provides[0].String() is not '%q', got %q", expect, compDir.Provides[0])
+			t.Fatalf(
+				"compDir.Provides[0].String() is not '%q', got %q",
+				expect,
+				compDir.Provides[0],
+			)
 		}
 	})
 
@@ -2303,11 +2312,11 @@ func TestParseComponentDir(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		if err := testStrExpr(chunk.Provides[0].Name(), "header"); err != nil {
+		if err := testStrExpr(chunk.Provides[0].Name, "header"); err != nil {
 			t.Fatal(err)
 		}
 
-		if err := testStrExpr(chunk.Provides[1].Name(), "footer"); err != nil {
+		if err := testStrExpr(chunk.Provides[1].Name, "footer"); err != nil {
 			t.Fatal(err)
 		}
 
@@ -2384,7 +2393,7 @@ func TestParseSlotDir(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		if err := testStrExpr(slotDir.Name(), "header"); err != nil {
+		if err := testStrExpr(slotDir.Name, "header"); err != nil {
 			t.Fatal(err)
 		}
 
@@ -2410,7 +2419,7 @@ func TestParseSlotDir(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		if err := testStrExpr(slotDir.Name(), ""); err != nil {
+		if err := testStrExpr(slotDir.Name, ""); err != nil {
 			t.Fatal(err)
 		}
 
@@ -2429,19 +2438,19 @@ func TestParseSlotDir(t *testing.T) {
 	})
 }
 
-func TestParseSlotifDir(t *testing.T) {
-	t.Run("default slotif", func(t *testing.T) {
-		inp := `@component('test')@slotif(true)Test@end@end`
+func TestParseProvideifDir(t *testing.T) {
+	t.Run("default provideif", func(t *testing.T) {
+		inp := `@component('test')@provideif(true)Test@end@end`
 		compDir, err := parseDirective[*ast.ComponentDir](inp, defaultParseOpts)
 		if err != nil {
 			t.Fatal(err)
 		}
 
 		if len(compDir.Provides) > 1 {
-			t.Fatalf("len(compDir.Slots) must be 1, got %d", len(compDir.Provides))
+			t.Fatalf("len(compDir.Provides) must be 1, got %d", len(compDir.Provides))
 		}
 
-		err = testTokPosition(compDir.Pos(), &position.Pos{EndCol: 42})
+		err = testTokPosition(compDir.Pos(), &position.Pos{EndCol: 45})
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -2450,34 +2459,30 @@ func TestParseSlotifDir(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		slotif, ok := compDir.Provides[0].(*ast.ProvideifDir)
-		if !ok {
-			t.Fatalf("compDir.Slots[0] is not a SlotifDir, got %T", compDir.Provides[0])
-		}
-
-		if err := testBoolExpr(slotif.Cond, true); err != nil {
+		provideDir := compDir.Provides[0]
+		if err := testBoolExpr(provideDir.Cond, true); err != nil {
 			t.Fatal(err)
 		}
 
-		body := slotif.Block().String()
+		body := provideDir.Block.String()
 		if body != "Test" {
-			t.Fatalf("slotif.Block().String() is not 'Test', got %s", body)
+			t.Fatalf("provideDir.Block.String() is not 'Test', got %s", body)
 		}
 
-		expect := "@slotif(true)Test@end"
-		if slotif.String() != expect {
-			t.Fatalf("slotif.String() is not '%s', got %s", expect, slotif)
+		expect := "@provideif(true)Test@end"
+		if provideDir.String() != expect {
+			t.Fatalf("provideDir.String() is not '%s', got %s", expect, provideDir)
 		}
 	})
 
-	t.Run("named slotif", func(t *testing.T) {
-		inp := `@component('user')@slotif(false, 'name')Test2@end@end`
+	t.Run("named provideif", func(t *testing.T) {
+		inp := `@component('user')@provideif(false, 'name')Test2@end@end`
 		compDir, err := parseDirective[*ast.ComponentDir](inp, defaultParseOpts)
 		if err != nil {
 			t.Fatal(err)
 		}
 
-		err = testTokPosition(compDir.Pos(), &position.Pos{EndCol: 52})
+		err = testTokPosition(compDir.Pos(), &position.Pos{EndCol: 55})
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -2487,30 +2492,26 @@ func TestParseSlotifDir(t *testing.T) {
 		}
 
 		if len(compDir.Provides) > 1 {
-			t.Fatalf("len(compDir.Slots) must be 1, got %d", len(compDir.Provides))
+			t.Fatalf("len(compDir.Provides) must be 1, got %d", len(compDir.Provides))
 		}
 
-		slotif, ok := compDir.Provides[0].(*ast.ProvideifDir)
-		if !ok {
-			t.Fatalf("compDir.Slots[0] is not a SlotifDir, got %T", compDir.Provides[0])
-		}
-
-		if err := testBoolExpr(slotif.Cond, false); err != nil {
+		provideDir := compDir.Provides[0]
+		if err := testBoolExpr(provideDir.Cond, false); err != nil {
 			t.Fatal(err)
 		}
 
-		if slotif.Name().Val != "name" {
-			t.Fatalf("slotif.Name().Val is not 'name', got %s", slotif.Name())
+		if provideDir.Name.Val != "name" {
+			t.Fatalf("provideDir.Name.Val is not 'name', got %s", provideDir.Name)
 		}
 
-		body := slotif.Block().String()
-		if body != "Test2" {
-			t.Fatalf("slotif.Block().String() is not 'Test2', got %s", body)
+		block := provideDir.Block.String()
+		if block != "Test2" {
+			t.Fatalf("provideDir.Block.String() is not 'Test2', got %s", block)
 		}
 
-		expect := `@slotif(false, "name")Test2@end`
-		if slotif.String() != expect {
-			t.Fatalf("slotif.String() is not '%s', got %s", expect, slotif)
+		expect := `@provideif(false, "name")Test2@end`
+		if provideDir.String() != expect {
+			t.Fatalf("provideDir.String() is not '%s', got %s", expect, provideDir)
 		}
 	})
 }

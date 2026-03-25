@@ -604,17 +604,14 @@ func (p *Parser) compDirHeader(compDir *ast.ComponentDir) *ast.IllegalNode {
 	return nil
 }
 
-func (p *Parser) attachProvidesToComp(compDir *ast.ComponentDir) ast.Chunk {
-	slots := p.provides(compDir.Name.Val)
-	compDir.Provides = make([]ast.SlotDirective, len(slots))
-	for i := range slots {
-		slot, ok := slots[i].(ast.SlotDirective)
-		if !ok {
-			return slots[i]
-		}
-
-		compDir.Provides[i] = slot
+func (p *Parser) attachProvidesToComp(compDir *ast.ComponentDir) *ast.IllegalNode {
+	provides, illegal := p.provides(compDir.Name.Val)
+	if illegal != nil {
+		return illegal
 	}
+
+	compDir.Provides = provides
+
 	return nil
 }
 
@@ -664,115 +661,74 @@ func (p *Parser) dumpDir() ast.Chunk {
 }
 
 // provides parses local slots inside of @component directive's body
-func (p *Parser) provides(compName string) []ast.Chunk {
-	var provides []ast.Chunk
+func (p *Parser) provides(compName string) ([]*ast.ProvideDir, *ast.IllegalNode) {
+	var provides []*ast.ProvideDir
 
 	for p.curTokenIs(token.PROVIDE, token.PROVIDEIF) {
 		slotName := ast.NewStrExpr(p.curToken, "")
 
-		switch p.curToken.Type {
-		case token.PROVIDE:
-			provides = append(provides, p.provideDir(slotName, compName))
-		case token.PROVIDEIF:
-			provides = append(provides, p.provideifDir(slotName, compName))
-		default:
-			panic("Unknown provide token when parsing provides")
+		provide, illegal := p.provideDir(slotName, compName)
+		if illegal != nil {
+			return nil, illegal
 		}
+
+		provides = append(provides, provide)
 
 		for p.curTokenIs(token.TEXT) {
 			p.nextToken() // skip whitespace
 		}
 	}
 
-	return provides
+	return provides, nil
 }
 
-func (p *Parser) provideDir(name *ast.StrExpr, compName string) ast.Chunk {
+func (p *Parser) provideDir(
+	name *ast.StrExpr,
+	compName string,
+) (*ast.ProvideDir, *ast.IllegalNode) {
 	provideDir := ast.NewProvideDir(p.curToken, name, compName)
-	provideDir.SetIsDefault(!p.peekTokenIs(token.LPAREN))
+	hasCondition := p.curToken.Type == token.PROVIDEIF
 
-	// When provide has a name @provide('name')
+	// When provide has a name
 	if p.peekTokenIs(token.LPAREN) {
-		p.nextToken() // move to "(" from '@provide'
+		p.nextToken() // move to "("
 		p.nextToken() // skip "("
 
-		name.Token = p.curToken
-		name.Val = p.curToken.Lit
+		if hasCondition {
+			provideDir.Cond = p.expression(LOWEST)
+		}
+
+		if p.peekTokenIs(token.COMMA) {
+			p.nextToken() // move to ","
+		}
+
+		if p.peekTokenIs(token.STR) {
+			p.nextToken() // move to string
+		}
+
+		if p.curTokenIs(token.STR) {
+			name.Token = p.curToken
+			name.Val = p.curToken.Lit
+		}
 
 		if !p.expectPeek(token.RPAREN) { // move to ")"
-			return p.illegalNode() // create an error
+			return nil, p.illegalNode() // create an error
 		}
 
 		p.nextToken() // skip ")"
 	} else {
-		p.nextToken() // skip "@provide"
+		p.nextToken() // skip "@provide" or "@provideif"
 	}
 
 	if !p.curTokenIs(token.END) {
-		provideDir.SetBlock(p.block())
+		provideDir.Block = p.block()
 	}
 
 	provideDir.SetEndPosition(p.curToken.Pos)
 
 	p.nextToken() // skip "@end"
 
-	return provideDir
-}
-
-func (p *Parser) provideifDir(name *ast.StrExpr, compName string) ast.Chunk {
-	provideifDir := ast.NewProvideifDir(p.curToken, name, compName)
-
-	if illegal := p.provideifDirHeader(provideifDir, name); illegal != nil { // skips ")"
-		return illegal
-	}
-
-	// Handle empty provideif body
-	if p.curTokenIs(token.END) {
-		provideifDir.SetEndPosition(p.curToken.Pos)
-		p.nextToken() // skip "@end"
-		return provideifDir
-	}
-
-	provideifDir.SetBlock(p.block())
-
-	if !p.curTokenIs(token.END) {
-		return p.illegalNodeUntil(token.END)
-	}
-
-	provideifDir.SetEndPosition(p.curToken.Pos)
-
-	p.nextToken() // skip "@end"
-
-	return provideifDir
-}
-
-func (p *Parser) provideifDirHeader(dir *ast.ProvideifDir, name *ast.StrExpr) *ast.IllegalNode {
-	if !p.expectPeek(token.LPAREN) { // move from "@provideif" to "("
-		p.illegalNodeUntil(token.END)
-	}
-
-	p.nextToken() // skip "("
-
-	dir.Cond = p.expression(LOWEST)
-
-	// When provide has name
-	if p.peekTokenIs(token.COMMA) {
-		p.nextToken() // move to ","
-		p.nextToken() // skip ","
-
-		name.Token = p.curToken
-		name.Val = p.curToken.Lit
-	} else {
-		dir.SetIsDefault(true)
-	}
-
-	if !p.expectPeek(token.RPAREN) { // move to ")"
-		return p.illegalNodeUntil(token.END)
-	}
-
-	p.nextToken() // skip ")"
-
-	return nil
+	return provideDir, nil
 }
 
 func (p *Parser) reserveDir() ast.Chunk {

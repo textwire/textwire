@@ -309,7 +309,7 @@ func (l *Lexer) newToken(tokType token.TokenType, literal string) token.Token {
 	// We need to set the end column and line to the values of the previous
 	// character because we already read the last character and incremented
 	// the column index.
-	// For EOF and ILELGAL we don't need to decrement the column index.
+	// For EOF and ILLEGAL we don't need to decrement the column index.
 	if tokType != token.EOF && tokType != token.ILLEGAL {
 		endCol = l.prevCol
 		endLine = l.prevLine
@@ -391,7 +391,6 @@ func (l *Lexer) hasIfVariant(tok token.TokenType) bool {
 		token.ELSE:     {},
 		token.BREAK:    {},
 		token.CONTINUE: {},
-		token.SLOT:     {},
 		token.PROVIDE:  {},
 	}
 

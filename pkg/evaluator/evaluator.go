@@ -74,8 +74,6 @@ func (e *Evaluator) evalValue(node ast.Node, ctx *Context) value.Value {
 		return e.slotDir(node, ctx)
 	case *ast.ProvideDir:
 		return e.provideDir(node, ctx)
-	case *ast.ProvideifDir:
-		return e.slotifDir(node, ctx)
 	case *ast.DumpDir:
 		return e.dumpDir(node, ctx)
 	case *ast.InsertDir:
@@ -394,18 +392,18 @@ func (e *Evaluator) compDir(compDir *ast.ComponentDir, ctx *Context) value.Value
 
 	compCtx := NewContext(value.NewScope(), compDir.CompProg.AbsPath)
 
-	// Evaluate local slots and add them to component context
-	for _, slotDir := range compDir.Provides {
-		slot := e.Eval(slotDir, ctx)
-		if isError(slot) {
-			return slot
+	// Evaluate provides and add them to component context
+	for _, provideDir := range compDir.Provides {
+		provide := e.Eval(provideDir, ctx)
+		if isError(provide) {
+			return provide
 		}
 
 		if compCtx.slots[name] == nil {
 			compCtx.slots[name] = map[string]value.Value{}
 		}
 
-		compCtx.slots[name][slotDir.Name().Val] = slot
+		compCtx.slots[name][provideDir.Name.Val] = provide
 	}
 
 	if compDir.Argument != nil {
@@ -565,24 +563,32 @@ func (e *Evaluator) continueifDir(contifDir *ast.ContinueifDir, ctx *Context) va
 	return NIL
 }
 
-func (e *Evaluator) provideDir(slotDir *ast.ProvideDir, ctx *Context) value.Value {
+func (e *Evaluator) provideDir(provideDir *ast.ProvideDir, ctx *Context) value.Value {
+	if provideDir.Cond != nil {
+		cond := e.evalLiteral(provideDir.Cond, ctx)
+		if isError(cond) {
+			return cond
+		}
+
+		if !isTruthy(cond) {
+			return NIL
+		}
+	}
+
 	var block value.Value = NIL
 
-	if slotDir.Block() != nil {
-		block = e.Eval(slotDir.Block(), ctx)
+	if provideDir.Block != nil {
+		block = e.Eval(provideDir.Block, ctx)
 		if isError(block) {
 			return block
 		}
 	}
 
-	return &value.Slot{
-		Name:    slotDir.Name().Val,
-		Content: block,
-	}
+	return block
 }
 
 func (e *Evaluator) slotDir(slotDir *ast.SlotDir, ctx *Context) value.Value {
-	name := slotDir.Name().Val
+	name := slotDir.Name.Val
 	compName := slotDir.CompName
 
 	// Get slot's content from the context
@@ -596,27 +602,6 @@ func (e *Evaluator) slotDir(slotDir *ast.SlotDir, ctx *Context) value.Value {
 	defer delete(ctx.slots[compName], name)
 
 	return &value.Slot{Name: name, Content: content}
-}
-
-func (e *Evaluator) slotifDir(slotifDir *ast.ProvideifDir, ctx *Context) value.Value {
-	cond := e.evalLiteral(slotifDir.Cond, ctx)
-	if isError(cond) {
-		return cond
-	}
-
-	if !isTruthy(cond) {
-		return NIL
-	}
-
-	block := e.Eval(slotifDir.Block(), ctx)
-	if isError(block) {
-		return block
-	}
-
-	return &value.Slot{
-		Name:    slotifDir.Name().Val,
-		Content: block,
-	}
 }
 
 func (e *Evaluator) insertDir(insertDir *ast.InsertDir, ctx *Context) value.Value {
