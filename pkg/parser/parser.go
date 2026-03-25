@@ -546,6 +546,13 @@ func (p *Parser) compDir() ast.Chunk {
 		return illegal
 	}
 
+	if p.peekTokenIs(token.END) {
+		p.nextToken() // move to "@end"
+		p.components = append(p.components, dir)
+		dir.SetEndPosition(p.curToken.Pos)
+		return dir
+	}
+
 	if p.peekTokenIs(token.PROVIDE, token.PROVIDEIF) {
 		p.nextToken() // skip whitespace
 		if illegal := p.attachProvidesToComp(dir); illegal != nil {

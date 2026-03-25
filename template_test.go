@@ -88,7 +88,7 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 		{
 			dir: "unknown-comp",
 			err: fail.New(
-				&position.Pos{StartLine: 8, StartCol: 4, EndLine: 8, EndCol: 29},
+				&position.Pos{StartLine: 8, StartCol: 4, EndLine: 8, EndCol: 33},
 				absPath+"unknown-comp/index.tw",
 				fail.OriginLink,
 				fail.ErrUndefinedComponent,

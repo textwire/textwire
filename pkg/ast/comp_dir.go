@@ -48,9 +48,7 @@ func (cd *CompDir) String() string {
 		out.WriteString(slot.String())
 	}
 
-	if len(cd.Provides) > 0 {
-		out.WriteString("@end")
-	}
+	out.WriteString("@end")
 
 	return out.String()
 }
