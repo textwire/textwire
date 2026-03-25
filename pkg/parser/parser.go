@@ -73,7 +73,7 @@ type Parser struct {
 	// After parsing a program we link this pointer to program.UseDir.
 	_useDir *ast.UseDir
 
-	components []*ast.ComponentDir
+	components []*ast.CompDir
 	inserts    map[string]*ast.InsertDir
 	reserves   map[string]*ast.ReserveDir
 }
@@ -87,7 +87,7 @@ func New(lexer *lexer.Lexer, f *file.SourceFile) *Parser {
 		l:          lexer,
 		file:       f,
 		errors:     []*fail.Error{},
-		components: []*ast.ComponentDir{},
+		components: []*ast.CompDir{},
 		inserts:    map[string]*ast.InsertDir{},
 		reserves:   map[string]*ast.ReserveDir{},
 	}
@@ -540,7 +540,7 @@ func (p *Parser) continueifDir() ast.Chunk {
 }
 
 func (p *Parser) compDir() ast.Chunk {
-	dir := ast.NewComponentDir(p.curToken)
+	dir := ast.NewCompDir(p.curToken)
 
 	if illegal := p.compDirHeader(dir); illegal != nil {
 		return illegal
@@ -560,7 +560,7 @@ func (p *Parser) compDir() ast.Chunk {
 	return dir
 }
 
-func (p *Parser) compDirHeader(compDir *ast.ComponentDir) *ast.IllegalNode {
+func (p *Parser) compDirHeader(compDir *ast.CompDir) *ast.IllegalNode {
 	if !p.expectPeek(token.LPAREN) { // move to "("
 		return p.illegalNodeUntil(token.RPAREN)
 	}
@@ -604,7 +604,7 @@ func (p *Parser) compDirHeader(compDir *ast.ComponentDir) *ast.IllegalNode {
 	return nil
 }
 
-func (p *Parser) attachProvidesToComp(compDir *ast.ComponentDir) *ast.IllegalNode {
+func (p *Parser) attachProvidesToComp(compDir *ast.CompDir) *ast.IllegalNode {
 	provides, illegal := p.provides(compDir.Name.Val)
 	if illegal != nil {
 		return illegal

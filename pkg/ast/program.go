@@ -14,7 +14,7 @@ type Program struct {
 	AbsPath    string
 	UseDir     *UseDir
 	Chunks     []Chunk
-	Components []*ComponentDir
+	Components []*CompDir
 	Reserves   map[string]*ReserveDir
 	Inserts    map[string]*InsertDir
 }

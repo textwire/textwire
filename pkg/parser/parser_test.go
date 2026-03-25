@@ -2206,7 +2206,7 @@ func TestParseComponentDir(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		chunk, ok := chunks[1].(*ast.ComponentDir)
+		chunk, ok := chunks[1].(*ast.CompDir)
 		if !ok {
 			t.Fatalf("chunks[1] is not a ComponentDir, got %T", chunks[1])
 		}
@@ -2249,7 +2249,7 @@ func TestParseComponentDir(t *testing.T) {
 	t.Run("@component with default provide", func(t *testing.T) {
 		inp := `@component("components/book-card")@provide<h1>Header</h1>@end@end`
 
-		compDir, err := parseDirective[*ast.ComponentDir](inp, defaultParseOpts)
+		compDir, err := parseDirective[*ast.CompDir](inp, defaultParseOpts)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -2290,7 +2290,7 @@ func TestParseComponentDir(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		compDir, ok := chunks[1].(*ast.ComponentDir)
+		compDir, ok := chunks[1].(*ast.CompDir)
 		if !ok {
 			t.Fatalf("chunks[1] is not a ComponentDir, got %T", chunks[1])
 		}
@@ -2340,7 +2340,7 @@ func TestParseComponentDir(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		chunk, ok := chunks[0].(*ast.ComponentDir)
+		chunk, ok := chunks[0].(*ast.CompDir)
 		if !ok {
 			t.Fatalf("chunks[0] is not a ComponentDir, got %T", chunks[0])
 		}
@@ -2443,7 +2443,7 @@ func TestParseSlotDir(t *testing.T) {
 func TestParseProvideifDir(t *testing.T) {
 	t.Run("default provideif", func(t *testing.T) {
 		inp := `@component('test')@provideif(true)Test@end@end`
-		compDir, err := parseDirective[*ast.ComponentDir](inp, defaultParseOpts)
+		compDir, err := parseDirective[*ast.CompDir](inp, defaultParseOpts)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -2479,7 +2479,7 @@ func TestParseProvideifDir(t *testing.T) {
 
 	t.Run("named provideif", func(t *testing.T) {
 		inp := `@component('user')@provideif(false, 'name')Test2@end@end`
-		compDir, err := parseDirective[*ast.ComponentDir](inp, defaultParseOpts)
+		compDir, err := parseDirective[*ast.CompDir](inp, defaultParseOpts)
 		if err != nil {
 			t.Fatal(err)
 		}

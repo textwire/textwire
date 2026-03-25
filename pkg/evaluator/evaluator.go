@@ -66,7 +66,7 @@ func (e *Evaluator) evalValue(node ast.Node, ctx *Context) value.Value {
 		return e.reserveDir(node, ctx)
 	case *ast.BreakifDir:
 		return e.breakifDir(node, ctx)
-	case *ast.ComponentDir:
+	case *ast.CompDir:
 		return e.compDir(node, ctx)
 	case *ast.ContinueifDir:
 		return e.continueifDir(node, ctx)
@@ -380,7 +380,7 @@ func (e *Evaluator) reserveDir(reserveDir *ast.ReserveDir, ctx *Context) value.V
 	}
 }
 
-func (e *Evaluator) compDir(compDir *ast.ComponentDir, ctx *Context) value.Value {
+func (e *Evaluator) compDir(compDir *ast.CompDir, ctx *Context) value.Value {
 	if !e.usingTemplates {
 		return e.newError(compDir, ctx, fail.ErrTemplateDirectives)
 	}

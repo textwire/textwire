@@ -6,7 +6,7 @@ import (
 	"github.com/textwire/textwire/v4/pkg/token"
 )
 
-type ComponentDir struct {
+type CompDir struct {
 	BaseNode
 	Name     *StrExpr // Relative path to the component 'components/book'
 	Argument *ObjExpr
@@ -14,15 +14,15 @@ type ComponentDir struct {
 	Provides []*ProvideDir // Each slot of the component's block
 }
 
-func NewComponentDir(tok token.Token) *ComponentDir {
-	return &ComponentDir{
+func NewCompDir(tok token.Token) *CompDir {
+	return &CompDir{
 		BaseNode: NewBaseNode(tok),
 	}
 }
 
-func (*ComponentDir) chunkNode() {}
+func (*CompDir) chunkNode() {}
 
-func (cd *ComponentDir) ArgsString() string {
+func (cd *CompDir) ArgsString() string {
 	var out strings.Builder
 	out.Grow(10)
 
@@ -36,7 +36,7 @@ func (cd *ComponentDir) ArgsString() string {
 	return out.String()
 }
 
-func (cd *ComponentDir) String() string {
+func (cd *CompDir) String() string {
 	var out strings.Builder
 	out.Grow(len(cd.Provides) + 20)
 
@@ -55,7 +55,7 @@ func (cd *ComponentDir) String() string {
 	return out.String()
 }
 
-func (cd *ComponentDir) AllChunks() []Chunk {
+func (cd *CompDir) AllChunks() []Chunk {
 	if cd.CompProg == nil {
 		return []Chunk{}
 	}
