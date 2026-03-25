@@ -615,8 +615,7 @@ func (p *Parser) attachProvidesToComp(compDir *ast.ComponentDir) *ast.IllegalNod
 	return nil
 }
 
-// slotDir parses an external slot statement inside a component file.
-// Slots inside a @component are parsed by other function.
+// slotDir parses an @slot inside a component file.
 func (p *Parser) slotDir() ast.Chunk {
 	tok := p.curToken // "@slot"
 
@@ -660,14 +659,14 @@ func (p *Parser) dumpDir() ast.Chunk {
 	return dir
 }
 
-// provides parses local slots inside of @component directive's body
+// provides parses @provide inside of @component directive's body
 func (p *Parser) provides(compName string) ([]*ast.ProvideDir, *ast.IllegalNode) {
 	var provides []*ast.ProvideDir
 
 	for p.curTokenIs(token.PROVIDE, token.PROVIDEIF) {
-		slotName := ast.NewStrExpr(p.curToken, "")
+		name := ast.NewStrExpr(p.curToken, "")
 
-		provide, illegal := p.provideDir(slotName, compName)
+		provide, illegal := p.provideDir(name, compName)
 		if illegal != nil {
 			return nil, illegal
 		}
