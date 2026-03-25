@@ -1916,6 +1916,7 @@ func TestParseEmptyBlock(t *testing.T) {
 		{120, "@for(i = 0; i < x; i++)@else1@end", 32, token.FOR},
 		{121, "@for(i = 0; i < x; i++) @else @end", 33, token.FOR},
 		{130, "@insert('x')@end", 15, token.INSERT},
+		{131, "@component('x')@end", 18, token.COMPONENT},
 		{141, "@component('x')@provide@end@end", 30, token.COMPONENT},
 		{142, "@component('x') @provide@end @end", 32, token.COMPONENT},
 		{143, "@component('x') @provide  @end @end", 34, token.COMPONENT},
@@ -2199,7 +2200,7 @@ func TestParseContinueifDir(t *testing.T) {
 
 func TestParseComponentDir(t *testing.T) {
 	t.Run("@component without provides", func(t *testing.T) {
-		inp := "<ul>@component('components/book-card', { c: card })/ul>"
+		inp := "<ul>@component('components/book-card', { c: card })@end</ul>"
 		chunks, err := parseChunks(inp, parseOpts{chunksCount: 3, checkErrors: true})
 		if err != nil {
 			t.Fatal(err)
@@ -2212,7 +2213,7 @@ func TestParseComponentDir(t *testing.T) {
 
 		err = testTokPosition(chunk.Pos(), &position.Pos{
 			StartCol: 4,
-			EndCol:   50,
+			EndCol:   54,
 		})
 
 		if err != nil {
@@ -2239,7 +2240,7 @@ func TestParseComponentDir(t *testing.T) {
 			t.Fatalf("len(chunk.Provides) is not empty, got '%d' provides", len(chunk.Provides))
 		}
 
-		expect := `@component("components/book-card", {"c": card})`
+		expect := `@component("components/book-card", {"c": card})@end`
 		if chunk.String() != expect {
 			t.Fatalf(`chunk.String() is not '%s', got %s`, expect, chunk)
 		}
@@ -2288,12 +2289,13 @@ func TestParseComponentDir(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		chunk, ok := chunks[1].(*ast.ComponentDir)
+
+		compDir, ok := chunks[1].(*ast.ComponentDir)
 		if !ok {
 			t.Fatalf("chunks[1] is not a ComponentDir, got %T", chunks[1])
 		}
 
-		err = testTokPosition(chunk.Pos(), &position.Pos{
+		err = testTokPosition(compDir.Pos(), &position.Pos{
 			StartLine: 1,
 			EndLine:   4,
 			StartCol:  3, // because tabs before @component
@@ -2304,35 +2306,35 @@ func TestParseComponentDir(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		if len(chunk.Provides) != 2 {
-			t.Fatalf("len(chunk.Provides) is not 2, got %d", len(chunk.Provides))
+		if len(compDir.Provides) != 2 {
+			t.Fatalf("len(chunk.Provides) is not 2, got %d", len(compDir.Provides))
 		}
 
-		if err := testToken(chunk, token.COMPONENT); err != nil {
+		if err := testToken(compDir, token.COMPONENT); err != nil {
 			t.Fatal(err)
 		}
 
-		if err := testStrExpr(chunk.Provides[0].Name, "header"); err != nil {
+		if err := testStrExpr(compDir.Provides[0].Name, "header"); err != nil {
 			t.Fatal(err)
 		}
 
-		if err := testStrExpr(chunk.Provides[1].Name, "footer"); err != nil {
+		if err := testStrExpr(compDir.Provides[1].Name, "footer"); err != nil {
 			t.Fatal(err)
 		}
 
 		expect := `@provide("header")<h1>Header</h1>@end`
-		if chunk.Provides[0].String() != expect {
-			t.Fatalf("chunk.Provides[0].String() is not '%q', got %q", expect, chunk.Provides[0])
+		if compDir.Provides[0].String() != expect {
+			t.Fatalf("chunk.Provides[0].String() is not '%q', got %q", expect, compDir.Provides[0])
 		}
 
 		expect = `@provide("footer")<footer>Footer</footer>@end`
-		if chunk.Provides[1].String() != expect {
-			t.Fatalf("chunk.Provides[1].String() is not '%q', got %q", expect, chunk.Provides[1])
+		if compDir.Provides[1].String() != expect {
+			t.Fatalf("chunk.Provides[1].String() is not '%q', got %q", expect, compDir.Provides[1])
 		}
 	})
 
 	t.Run("@component with whitespace at the end", func(t *testing.T) {
-		inp := "@component('some')\n <b>Book</b>"
+		inp := "@component('some')@end\n <b>Book</b>"
 		chunks, err := parseChunks(inp, parseOpts{chunksCount: 2, checkErrors: true})
 		if err != nil {
 			t.Fatal(err)
@@ -2350,7 +2352,7 @@ func TestParseComponentDir(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		expect := `@component("some")`
+		expect := `@component("some")@end`
 		if chunk.String() != expect {
 			t.Fatalf("chunk.String() is not `%s`, got `%s`", expect, chunk)
 		}

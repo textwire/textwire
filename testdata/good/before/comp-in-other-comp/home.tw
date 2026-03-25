@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-@component('~header', { color: 'white', bg: 'black' })
+@component('~header', { color: 'white', bg: 'black' })@end
 <body>
 <main class="content">
    <h1>This is a Heading</h1>
