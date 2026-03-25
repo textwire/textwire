@@ -11,7 +11,7 @@ type ComponentDir struct {
 	Name     *StrExpr // Relative path to the component 'components/book'
 	Argument *ObjExpr
 	CompProg *Program        // AST node of the component file Name
-	Slots    []SlotDirective // Each slot of the component's block
+	Provides []SlotDirective // Each slot of the component's block
 }
 
 func NewComponentDir(tok token.Token) *ComponentDir {
@@ -38,19 +38,18 @@ func (cd *ComponentDir) ArgsString() string {
 
 func (cd *ComponentDir) String() string {
 	var out strings.Builder
-	out.Grow(len(cd.Slots) + 20)
+	out.Grow(len(cd.Provides) + 20)
 
 	out.WriteString("@component(")
 	out.WriteString(cd.ArgsString())
 	out.WriteString(")")
 
-	for _, slot := range cd.Slots {
-		out.WriteString("\n")
+	for _, slot := range cd.Provides {
 		out.WriteString(slot.String())
 	}
 
-	if len(cd.Slots) > 0 {
-		out.WriteString("\n@end\n")
+	if len(cd.Provides) > 0 {
+		out.WriteString("@end")
 	}
 
 	return out.String()

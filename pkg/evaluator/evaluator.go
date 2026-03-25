@@ -72,7 +72,9 @@ func (e *Evaluator) evalValue(node ast.Node, ctx *Context) value.Value {
 		return e.continueifDir(node, ctx)
 	case *ast.SlotDir:
 		return e.slotDir(node, ctx)
-	case *ast.SlotifDir:
+	case *ast.ProvideDir:
+		return e.provideDir(node, ctx)
+	case *ast.ProvideifDir:
 		return e.slotifDir(node, ctx)
 	case *ast.DumpDir:
 		return e.dumpDir(node, ctx)
@@ -393,7 +395,7 @@ func (e *Evaluator) compDir(compDir *ast.ComponentDir, ctx *Context) value.Value
 	compCtx := NewContext(value.NewScope(), compDir.CompProg.AbsPath)
 
 	// Evaluate local slots and add them to component context
-	for _, slotDir := range compDir.Slots {
+	for _, slotDir := range compDir.Provides {
 		slot := e.Eval(slotDir, ctx)
 		if isError(slot) {
 			return slot
@@ -563,35 +565,23 @@ func (e *Evaluator) continueifDir(contifDir *ast.ContinueifDir, ctx *Context) va
 	return NIL
 }
 
-func (e *Evaluator) slotDir(slotDir *ast.SlotDir, ctx *Context) value.Value {
-	if slotDir.IsLocal {
-		return e.localSlot(slotDir, ctx)
-	}
-	return e.externalSlot(slotDir, ctx)
-}
+func (e *Evaluator) provideDir(slotDir *ast.ProvideDir, ctx *Context) value.Value {
+	var block value.Value = NIL
 
-func (e *Evaluator) slotifDir(slotifDir *ast.SlotifDir, ctx *Context) value.Value {
-	cond := e.evalLiteral(slotifDir.Cond, ctx)
-	if isError(cond) {
-		return cond
-	}
-
-	if !isTruthy(cond) {
-		return NIL
-	}
-
-	block := e.Eval(slotifDir.Block(), ctx)
-	if isError(block) {
-		return block
+	if slotDir.Block() != nil {
+		block = e.Eval(slotDir.Block(), ctx)
+		if isError(block) {
+			return block
+		}
 	}
 
 	return &value.Slot{
-		Name:    slotifDir.Name().Val,
+		Name:    slotDir.Name().Val,
 		Content: block,
 	}
 }
 
-func (e *Evaluator) externalSlot(slotDir *ast.SlotDir, ctx *Context) value.Value {
+func (e *Evaluator) slotDir(slotDir *ast.SlotDir, ctx *Context) value.Value {
 	name := slotDir.Name().Val
 	compName := slotDir.CompName
 
@@ -608,18 +598,23 @@ func (e *Evaluator) externalSlot(slotDir *ast.SlotDir, ctx *Context) value.Value
 	return &value.Slot{Name: name, Content: content}
 }
 
-func (e *Evaluator) localSlot(slotDir *ast.SlotDir, ctx *Context) value.Value {
-	var block value.Value = NIL
+func (e *Evaluator) slotifDir(slotifDir *ast.ProvideifDir, ctx *Context) value.Value {
+	cond := e.evalLiteral(slotifDir.Cond, ctx)
+	if isError(cond) {
+		return cond
+	}
 
-	if slotDir.Block() != nil {
-		block = e.Eval(slotDir.Block(), ctx)
-		if isError(block) {
-			return block
-		}
+	if !isTruthy(cond) {
+		return NIL
+	}
+
+	block := e.Eval(slotifDir.Block(), ctx)
+	if isError(block) {
+		return block
 	}
 
 	return &value.Slot{
-		Name:    slotDir.Name().Val,
+		Name:    slotifDir.Name().Val,
 		Content: block,
 	}
 }

@@ -41,7 +41,7 @@ func findSlotIndex(chunks []Chunk, slotName string) int {
 	return -1
 }
 
-func findDuplicateSlot(slots []SlotDirective) (SlotDirective, int) {
+func findDuplicateProvide(slots []SlotDirective) (SlotDirective, int) {
 	counts := map[string]int{}
 	firstSeen := map[string]SlotDirective{}
 

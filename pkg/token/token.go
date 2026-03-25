@@ -79,7 +79,8 @@ const (
 	CONTINUE
 	COMPONENT
 	SLOT
-	SLOTIF
+	PROVIDEIF
+	PROVIDE
 	DUMP
 )
 
@@ -104,7 +105,8 @@ var directives = map[string]TokenType{
 	"@continue":   CONTINUE,
 	"@break":      BREAK,
 	"@component":  COMPONENT,
-	"@slotif":     SLOTIF,
+	"@provide":    PROVIDE,
+	"@provideif":  PROVIDEIF,
 	"@slot":       SLOT,
 	"@dump":       DUMP,
 	"@continueif": CONTINUEIF,

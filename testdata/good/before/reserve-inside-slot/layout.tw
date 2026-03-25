@@ -1,1 +1,1 @@
-<head>@component('comp')@slot@reserve('title')@end@end</head>
+<head>@component('comp')@provide@reserve('title')@end@end</head>

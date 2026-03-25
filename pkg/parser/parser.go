@@ -546,9 +546,9 @@ func (p *Parser) compDir() ast.Chunk {
 		return illegal
 	}
 
-	if p.peekTokenIs(token.SLOT, token.SLOTIF) {
+	if p.peekTokenIs(token.PROVIDE, token.PROVIDEIF) {
 		p.nextToken() // skip whitespace
-		if illegal := p.attachSlotsToComp(dir); illegal != nil {
+		if illegal := p.attachProvidesToComp(dir); illegal != nil {
 			return illegal
 		}
 	}
@@ -604,16 +604,16 @@ func (p *Parser) compDirHeader(compDir *ast.ComponentDir) *ast.IllegalNode {
 	return nil
 }
 
-func (p *Parser) attachSlotsToComp(compDir *ast.ComponentDir) ast.Chunk {
-	slots := p.slots(compDir.Name.Val)
-	compDir.Slots = make([]ast.SlotDirective, len(slots))
+func (p *Parser) attachProvidesToComp(compDir *ast.ComponentDir) ast.Chunk {
+	slots := p.provides(compDir.Name.Val)
+	compDir.Provides = make([]ast.SlotDirective, len(slots))
 	for i := range slots {
 		slot, ok := slots[i].(ast.SlotDirective)
 		if !ok {
 			return slots[i]
 		}
 
-		compDir.Slots[i] = slot
+		compDir.Provides[i] = slot
 	}
 	return nil
 }
@@ -626,8 +626,7 @@ func (p *Parser) slotDir() ast.Chunk {
 	// Handle default @slot without name
 	if !p.peekTokenIs(token.LPAREN) {
 		name := ast.NewStrExpr(p.curToken, "")
-		slotDir := ast.NewSlotDir(tok, name, p.file.Name, false)
-		slotDir.SetIsDefault(true)
+		slotDir := ast.NewSlotDir(tok, name, p.file.Name)
 		return slotDir
 	}
 
@@ -641,7 +640,7 @@ func (p *Parser) slotDir() ast.Chunk {
 		return p.illegalNodeUntil(token.END)
 	}
 
-	dir := ast.NewSlotDir(tok, name, p.file.Name, false)
+	dir := ast.NewSlotDir(tok, name, p.file.Name)
 	dir.SetEndPosition(p.curToken.Pos)
 
 	return dir
@@ -664,20 +663,20 @@ func (p *Parser) dumpDir() ast.Chunk {
 	return dir
 }
 
-// slots parses local slots inside of @component directive's body
-func (p *Parser) slots(compName string) []ast.Chunk {
-	var slots []ast.Chunk
+// provides parses local slots inside of @component directive's body
+func (p *Parser) provides(compName string) []ast.Chunk {
+	var provides []ast.Chunk
 
-	for p.curTokenIs(token.SLOT, token.SLOTIF) {
+	for p.curTokenIs(token.PROVIDE, token.PROVIDEIF) {
 		slotName := ast.NewStrExpr(p.curToken, "")
 
 		switch p.curToken.Type {
-		case token.SLOT:
-			slots = append(slots, p.localSlotDir(slotName, compName))
-		case token.SLOTIF:
-			slots = append(slots, p.slotifDir(slotName, compName))
+		case token.PROVIDE:
+			provides = append(provides, p.provideDir(slotName, compName))
+		case token.PROVIDEIF:
+			provides = append(provides, p.provideifDir(slotName, compName))
 		default:
-			panic("Unknown slot token when parsing component slots")
+			panic("Unknown provide token when parsing provides")
 		}
 
 		for p.curTokenIs(token.TEXT) {
@@ -685,16 +684,16 @@ func (p *Parser) slots(compName string) []ast.Chunk {
 		}
 	}
 
-	return slots
+	return provides
 }
 
-func (p *Parser) localSlotDir(name *ast.StrExpr, compName string) ast.Chunk {
-	dir := ast.NewSlotDir(p.curToken, name, compName, true)
-	dir.SetIsDefault(!p.peekTokenIs(token.LPAREN))
+func (p *Parser) provideDir(name *ast.StrExpr, compName string) ast.Chunk {
+	provideDir := ast.NewProvideDir(p.curToken, name, compName)
+	provideDir.SetIsDefault(!p.peekTokenIs(token.LPAREN))
 
-	// When slot has a name @slot('name')
+	// When provide has a name @provide('name')
 	if p.peekTokenIs(token.LPAREN) {
-		p.nextToken() // move to "(" from '@slot'
+		p.nextToken() // move to "(" from '@provide'
 		p.nextToken() // skip "("
 
 		name.Token = p.curToken
@@ -706,49 +705,49 @@ func (p *Parser) localSlotDir(name *ast.StrExpr, compName string) ast.Chunk {
 
 		p.nextToken() // skip ")"
 	} else {
-		p.nextToken() // skip "@slot"
+		p.nextToken() // skip "@provide"
 	}
 
 	if !p.curTokenIs(token.END) {
-		dir.SetBlock(p.block())
+		provideDir.SetBlock(p.block())
 	}
 
-	dir.SetEndPosition(p.curToken.Pos)
+	provideDir.SetEndPosition(p.curToken.Pos)
 
 	p.nextToken() // skip "@end"
 
-	return dir
+	return provideDir
 }
 
-func (p *Parser) slotifDir(name *ast.StrExpr, compName string) ast.Chunk {
-	dir := ast.NewSlotifDir(p.curToken, name, compName)
+func (p *Parser) provideifDir(name *ast.StrExpr, compName string) ast.Chunk {
+	provideifDir := ast.NewProvideifDir(p.curToken, name, compName)
 
-	if illegal := p.slotifDirHeader(dir, name); illegal != nil { // skips ")"
+	if illegal := p.provideifDirHeader(provideifDir, name); illegal != nil { // skips ")"
 		return illegal
 	}
 
-	// Handle empty slotif body
+	// Handle empty provideif body
 	if p.curTokenIs(token.END) {
-		dir.SetEndPosition(p.curToken.Pos)
+		provideifDir.SetEndPosition(p.curToken.Pos)
 		p.nextToken() // skip "@end"
-		return dir
+		return provideifDir
 	}
 
-	dir.SetBlock(p.block())
+	provideifDir.SetBlock(p.block())
 
 	if !p.curTokenIs(token.END) {
 		return p.illegalNodeUntil(token.END)
 	}
 
-	dir.SetEndPosition(p.curToken.Pos)
+	provideifDir.SetEndPosition(p.curToken.Pos)
 
 	p.nextToken() // skip "@end"
 
-	return dir
+	return provideifDir
 }
 
-func (p *Parser) slotifDirHeader(dir *ast.SlotifDir, name *ast.StrExpr) *ast.IllegalNode {
-	if !p.expectPeek(token.LPAREN) { // move from "@slotif" to "("
+func (p *Parser) provideifDirHeader(dir *ast.ProvideifDir, name *ast.StrExpr) *ast.IllegalNode {
+	if !p.expectPeek(token.LPAREN) { // move from "@provideif" to "("
 		p.illegalNodeUntil(token.END)
 	}
 
@@ -756,7 +755,7 @@ func (p *Parser) slotifDirHeader(dir *ast.SlotifDir, name *ast.StrExpr) *ast.Ill
 
 	dir.Cond = p.expression(LOWEST)
 
-	// When slot has name
+	// When provide has name
 	if p.peekTokenIs(token.COMMA) {
 		p.nextToken() // move to ","
 		p.nextToken() // skip ","

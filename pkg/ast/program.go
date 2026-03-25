@@ -73,20 +73,20 @@ func (p *Program) LinkCompProg(compName string, prog *Program, absPath string) *
 			continue
 		}
 
-		duplicate, times := findDuplicateSlot(comp.Slots)
+		duplicate, times := findDuplicateProvide(comp.Provides)
 		if times > 0 && duplicate != nil {
 			return fail.New(
 				duplicate.Pos(),
 				absPath,
 				fail.OriginLink,
-				fail.ErrDuplicateSlot,
+				fail.ErrDuplicateProvide,
 				duplicate.Name().Val,
 				times,
 				compName,
 			)
 		}
 
-		for _, slot := range comp.Slots {
+		for _, slot := range comp.Provides {
 			name := slot.Name().Val
 			idx := findSlotIndex(prog.Chunks, name)
 			if idx != -1 {

@@ -28,10 +28,10 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 		data map[string]any
 	}{
 		{
-			dir: "undefined-named-slotif",
+			dir: "undefined-named-provideif",
 			err: fail.New(
-				&position.Pos{StartCol: 21, EndCol: 49},
-				absPath+"undefined-named-slotif/index.tw",
+				&position.Pos{StartCol: 21, EndCol: 52},
+				absPath+"undefined-named-provideif/index.tw",
 				fail.OriginLink,
 				fail.ErrSlotNotDefined,
 				"user",
@@ -50,10 +50,10 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 			data: nil,
 		},
 		{
-			dir: "unknown-named-slot",
+			dir: "unknown-named-provide",
 			err: fail.New(
 				&position.Pos{StartLine: 1, StartCol: 4, EndLine: 3, EndCol: 7},
-				absPath+"unknown-named-slot/index.tw",
+				absPath+"unknown-named-provide/index.tw",
 				fail.OriginLink,
 				fail.ErrSlotNotDefined,
 				"user",
@@ -62,10 +62,10 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 			data: nil,
 		},
 		{
-			dir: "unknown-default-slot",
+			dir: "unknown-default-provide",
 			err: fail.New(
 				&position.Pos{StartLine: 1, StartCol: 4, EndLine: 3, EndCol: 7},
-				absPath+"unknown-default-slot/index.tw",
+				absPath+"unknown-default-provide/index.tw",
 				fail.OriginLink,
 				fail.ErrDefaultSlotNotDefined,
 				"book",
@@ -73,12 +73,12 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 			data: nil,
 		},
 		{
-			dir: "duplicate-slot",
+			dir: "duplicate-provide",
 			err: fail.New(
-				&position.Pos{StartLine: 2, StartCol: 4, EndLine: 2, EndCol: 39},
-				absPath+"duplicate-slot/index.tw",
+				&position.Pos{StartLine: 2, StartCol: 4, EndLine: 2, EndCol: 42},
+				absPath+"duplicate-provide/index.tw",
 				fail.OriginLink,
-				fail.ErrDuplicateSlot,
+				fail.ErrDuplicateProvide,
 				"content",
 				2,
 				"user",

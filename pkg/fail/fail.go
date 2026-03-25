@@ -21,7 +21,7 @@ const (
 	ErrExpectedObjLit         = "expected object literal, got '%s'"
 	ErrSlotNotDefined         = "@component('%s') references @slot('%s') which doesn't exist in the component file"
 	ErrDuplicateReserves      = "found duplicate @reserve('%s') inside of a layout file %s"
-	ErrDuplicateSlot          = "@slot('%s') used %d times in @component('%s')"
+	ErrDuplicateProvide       = "@provide('%s') used '%d' times in @component('%s')"
 	ErrUnusedInsertDetected   = "@insert('%s') needs to have a matching @reserve('%s') in layout file"
 	ErrDuplicateInserts       = "duplicate @insert('%s') found"
 	ErrOnlyOneUseDir          = "@use() directive can only be used once per template"
@@ -71,7 +71,7 @@ const (
 	ErrUnsupportedType       = "unsupported value type '%T'"
 	ErrUseDirIsNotAllowed    = "@use() not allowed in layout files - causes infinite recursion"
 	ErrTemplateNotFound      = "template file '%s' not found"
-	ErrDefaultSlotNotDefined = "default @slot not defined in @component('%s')"
+	ErrDefaultSlotNotDefined = "default @slot not defined in component file '%s'"
 
 	// API errors
 	ErrFuncAlreadyDefined = "custom function '%s' already defined for type '%s'"

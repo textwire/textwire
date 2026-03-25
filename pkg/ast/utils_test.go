@@ -9,9 +9,9 @@ import (
 func TestFindSlotIndex(t *testing.T) {
 	t.Run("found", func(t *testing.T) {
 		slots := []Chunk{
-			NewSlotDir(token.Token{}, &StrExpr{Val: "country"}, "", false),
-			NewSlotDir(token.Token{}, &StrExpr{Val: "city"}, "", false),
-			NewSlotDir(token.Token{}, &StrExpr{Val: "street"}, "", false),
+			NewProvideDir(token.Token{}, &StrExpr{Val: "country"}, ""),
+			NewProvideDir(token.Token{}, &StrExpr{Val: "city"}, ""),
+			NewProvideDir(token.Token{}, &StrExpr{Val: "street"}, ""),
 		}
 
 		if idx := findSlotIndex(slots, "city"); idx != 1 {
@@ -21,9 +21,9 @@ func TestFindSlotIndex(t *testing.T) {
 
 	t.Run("not found", func(t *testing.T) {
 		slots := []Chunk{
-			NewSlotDir(token.Token{}, &StrExpr{Val: "country"}, "", false),
-			NewSlotDir(token.Token{}, &StrExpr{Val: "city"}, "", false),
-			NewSlotDir(token.Token{}, &StrExpr{Val: "street"}, "", false),
+			NewProvideDir(token.Token{}, &StrExpr{Val: "country"}, ""),
+			NewProvideDir(token.Token{}, &StrExpr{Val: "city"}, ""),
+			NewProvideDir(token.Token{}, &StrExpr{Val: "street"}, ""),
 		}
 
 		if idx := findSlotIndex(slots, "name"); idx != -1 {
@@ -32,19 +32,19 @@ func TestFindSlotIndex(t *testing.T) {
 	})
 }
 
-func TestFindDuplicateSlot(t *testing.T) {
-	t.Run("returns duplicate slot", func(t *testing.T) {
+func TestFindDuplicateProvide(t *testing.T) {
+	t.Run("returns duplicate provide", func(t *testing.T) {
 		expectTimes := 3
-		expectDupl := "firstName"
+		expectDuplicate := "firstName"
 		slots := []SlotDirective{
-			NewSlotDir(token.Token{}, &StrExpr{Val: "lastname"}, "", false),
-			NewSlotDir(token.Token{}, &StrExpr{Val: "lastName"}, "", false),
-			NewSlotDir(token.Token{}, &StrExpr{Val: expectDupl}, "", false),
-			NewSlotDir(token.Token{}, &StrExpr{Val: expectDupl}, "", false),
-			NewSlotDir(token.Token{}, &StrExpr{Val: expectDupl}, "", false),
+			NewProvideDir(token.Token{}, &StrExpr{Val: "lastname"}, ""),
+			NewProvideDir(token.Token{}, &StrExpr{Val: "lastName"}, ""),
+			NewProvideDir(token.Token{}, &StrExpr{Val: expectDuplicate}, ""),
+			NewProvideDir(token.Token{}, &StrExpr{Val: expectDuplicate}, ""),
+			NewProvideDir(token.Token{}, &StrExpr{Val: expectDuplicate}, ""),
 		}
 
-		slot, times := findDuplicateSlot(slots)
+		slot, times := findDuplicateProvide(slots)
 		if times != expectTimes {
 			t.Fatalf("Should find %d duplicate slots, found %d", expectTimes, times)
 		}
@@ -53,21 +53,21 @@ func TestFindDuplicateSlot(t *testing.T) {
 			t.Fatalf("Function returned nil instead of slot")
 		}
 
-		if slot.Name().Val != expectDupl {
-			t.Fatalf("The duplicate slot name must be %s, got %s", expectDupl, slot.Name().Val)
+		if slot.Name().Val != expectDuplicate {
+			t.Fatalf("The duplicate slot name must be %s, got %s", expectDuplicate, slot.Name().Val)
 		}
 	})
 
 	t.Run("returns nil and 0 for no duplicates", func(t *testing.T) {
 		slots := []SlotDirective{
-			NewSlotDir(token.Token{}, &StrExpr{Val: "lastname"}, "", false),
-			NewSlotDir(token.Token{}, &StrExpr{Val: "lastName"}, "", false),
-			NewSlotDir(token.Token{}, &StrExpr{Val: "last_name"}, "", false),
-			NewSlotDir(token.Token{}, &StrExpr{Val: "last-name"}, "", false),
-			NewSlotDir(token.Token{}, &StrExpr{Val: "LastName"}, "", false),
+			NewProvideDir(token.Token{}, &StrExpr{Val: "lastname"}, ""),
+			NewProvideDir(token.Token{}, &StrExpr{Val: "lastName"}, ""),
+			NewProvideDir(token.Token{}, &StrExpr{Val: "last_name"}, ""),
+			NewProvideDir(token.Token{}, &StrExpr{Val: "last-name"}, ""),
+			NewProvideDir(token.Token{}, &StrExpr{Val: "LastName"}, ""),
 		}
 
-		slot, times := findDuplicateSlot(slots)
+		slot, times := findDuplicateProvide(slots)
 		if times != 0 {
 			t.Fatalf("Should find 0 duplicate slots, found %d", times)
 		}

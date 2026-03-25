@@ -1,8 +1,8 @@
 <section>
 @component('comp')
-@slotif(true)Textwire@end
-@slotif(true, 'span')Go@end
-@slotif(false, 'h2')React@end
-@slotif("str", 'h3')Vue@end
+@provideif(true)Textwire@end
+@provideif(true, 'span')Go@end
+@provideif(false, 'h2')React@end
+@provideif("str", 'h3')Vue@end
 @end
 </section>

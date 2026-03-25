@@ -864,7 +864,7 @@ func TestSlotIfDirective(t *testing.T) {
 	inp := `@slotif(true)HERE@end`
 
 	TokenizeString(t, inp, []token.Token{
-		{Type: token.SLOTIF, Lit: "@slotif", Pos: &position.Pos{EndCol: 6}},
+		{Type: token.PROVIDEIF, Lit: "@slotif", Pos: &position.Pos{EndCol: 6}},
 		{Type: token.LPAREN, Lit: "(", Pos: &position.Pos{StartCol: 7, EndCol: 7}},
 		{Type: token.TRUE, Lit: "true", Pos: &position.Pos{StartCol: 8, EndCol: 11}},
 		{Type: token.RPAREN, Lit: ")", Pos: &position.Pos{StartCol: 12, EndCol: 12}},

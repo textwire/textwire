@@ -6,6 +6,7 @@
         "GTHAN",
         "LBRACES",
         "LTHAN",
+        "provideif",
         "RBRACES",
         "stmts",
         "templating",

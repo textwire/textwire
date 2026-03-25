@@ -1,5 +1,5 @@
 @component("book", { title: "Harry Potter" })
-    @slot
+    @provide
         <p>Some content is here</p>
     @end
 @end

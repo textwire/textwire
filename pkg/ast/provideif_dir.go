@@ -6,9 +6,9 @@ import (
 	"github.com/textwire/textwire/v4/pkg/token"
 )
 
-// SlotifDir cannot be external and live in component file.
-type SlotifDir struct {
-	BaseNode  // @slotif(bool, 'name'?)
+// ProvideifDir cannot be external and live in component file.
+type ProvideifDir struct {
+	BaseNode  // @provideif(bool, 'name'?)
 	Cond      Expression
 	CompName  string   // Component name
 	isDefault bool     // Whether the slot is named or default
@@ -16,37 +16,37 @@ type SlotifDir struct {
 	block     *Block   // Required, cannot be nil
 }
 
-func NewSlotifDir(tok token.Token, name *StrExpr, compName string) *SlotifDir {
-	return &SlotifDir{
+func NewProvideifDir(tok token.Token, name *StrExpr, compName string) *ProvideifDir {
+	return &ProvideifDir{
 		BaseNode: NewBaseNode(tok),
 		CompName: compName,
 		name:     name,
 	}
 }
 
-func (*SlotifDir) chunkNode() {}
+func (*ProvideifDir) chunkNode() {}
 
-func (sd *SlotifDir) Name() *StrExpr {
+func (sd *ProvideifDir) Name() *StrExpr {
 	return sd.name
 }
 
-func (sd *SlotifDir) IsDefault() bool {
+func (sd *ProvideifDir) IsDefault() bool {
 	return sd.isDefault
 }
 
-func (sd *SlotifDir) SetIsDefault(val bool) {
+func (sd *ProvideifDir) SetIsDefault(val bool) {
 	sd.isDefault = val
 }
 
-func (sd *SlotifDir) SetBlock(b *Block) {
+func (sd *ProvideifDir) SetBlock(b *Block) {
 	sd.block = b
 }
 
-func (sd *SlotifDir) Block() *Block {
+func (sd *ProvideifDir) Block() *Block {
 	return sd.block
 }
 
-func (sd *SlotifDir) String() string {
+func (sd *ProvideifDir) String() string {
 	var out strings.Builder
 	out.Grow(6)
 
@@ -66,7 +66,7 @@ func (sd *SlotifDir) String() string {
 	return out.String()
 }
 
-func (sd *SlotifDir) AllChunks() []Chunk {
+func (sd *ProvideifDir) AllChunks() []Chunk {
 	if sd.block == nil {
 		return []Chunk{}
 	}
