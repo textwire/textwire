@@ -75,17 +75,6 @@ func (p *Program) LinkCompProg(compName string, prog *Program, absPath string) *
 
 		duplicate, times := findDuplicateSlot(comp.Slots)
 		if times > 0 && duplicate != nil {
-			if duplicate.IsDefault() {
-				return fail.New(
-					duplicate.Pos(),
-					absPath,
-					fail.OriginLink,
-					fail.ErrDuplicateDefaultSlot,
-					times,
-					compName,
-				)
-			}
-
 			return fail.New(
 				duplicate.Pos(),
 				absPath,

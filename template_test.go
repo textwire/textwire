@@ -97,18 +97,6 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 			data: nil,
 		},
 		{
-			dir: "duplicate-default-slot",
-			err: fail.New(
-				&position.Pos{StartLine: 2, StartCol: 4, EndLine: 2, EndCol: 28},
-				absPath+"duplicate-default-slot/index.tw",
-				fail.OriginLink,
-				fail.ErrDuplicateDefaultSlot,
-				2,
-				"user",
-			),
-			data: nil,
-		},
-		{
 			dir: "unknown-comp",
 			err: fail.New(
 				&position.Pos{StartLine: 8, StartCol: 4, EndLine: 8, EndCol: 29},
