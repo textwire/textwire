@@ -400,10 +400,21 @@ func (e *Evaluator) compDir(compDir *ast.CompDir, ctx *Context) value.Value {
 	}
 
 	if compDir.Block != nil {
+		// Redirect provides to save into component's slots
+		ctx.compSlots = compCtx.slots
 		block := e.block(compDir.Block, ctx)
+		ctx.compSlots = nil // Clear the redirect
+
 		if isError(block) {
 			return block
 		}
+
+		// The block becomes the default slot (empty string name) under the component name
+		compName := compDir.Name.Val
+		if compCtx.slots[compName] == nil {
+			compCtx.slots[compName] = map[string]value.Value{}
+		}
+		compCtx.slots[compName][""] = block
 	}
 
 	content := e.Eval(compDir.CompProg, compCtx)
@@ -588,11 +599,18 @@ func (e *Evaluator) provideDir(provideDir *ast.ProvideDir, ctx *Context) value.V
 		return block
 	}
 
-	if ctx.slots[name] == nil {
-		ctx.slots[name] = map[string]value.Value{}
+	// Determine where to save: use compSlots if set (during component block evaluation)
+	targetSlots := ctx.slots
+	if ctx.compSlots != nil {
+		targetSlots = ctx.compSlots
 	}
 
-	ctx.slots[name][provideDir.Name.Val] = block
+	compName := provideDir.CompName
+	if targetSlots[compName] == nil {
+		targetSlots[compName] = map[string]value.Value{}
+	}
+
+	targetSlots[compName][name] = block
 
 	return NIL
 }

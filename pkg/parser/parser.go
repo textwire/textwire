@@ -549,13 +549,14 @@ func (p *Parser) compDir() ast.Chunk {
 		return illegal
 	}
 
-	p.currParseCompNames = append(p.currParseCompNames, compDir.Name.Val)
-
-	if !p.peekTokenIs(token.END) {
-		p.nextToken() // skip ")"
-		compDir.Block = p.block()
+	if p.peekTokenIs(token.END) {
 		p.nextToken() // move to "@end"
 	}
+
+	p.currParseCompNames = append(p.currParseCompNames, compDir.Name.Val)
+
+	p.nextToken() // skip ")"
+	compDir.Block = p.block()
 
 	// remove component name from p.currParseCompNames slice
 	p.currParseCompNames = p.currParseCompNames[:len(p.currParseCompNames)-1]
@@ -694,8 +695,6 @@ func (p *Parser) provideDir() ast.Chunk {
 	}
 
 	provideDir.SetEndPosition(p.curToken.Pos)
-
-	p.nextToken() // skip "@end"
 
 	return provideDir
 }
