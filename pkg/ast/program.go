@@ -69,54 +69,10 @@ func (p *Program) LinkLayoutToUse(layoutProg *Program) {
 
 func (p *Program) LinkCompProg(compName string, prog *Program, absPath string) *fail.Error {
 	for _, comp := range p.Components {
-		if comp.Name.Val != compName {
-			continue
+		if comp.Name.Val == compName {
+			comp.CompProg = prog
 		}
-
-		duplicate, times := findDuplicateProvide(comp.Provides)
-		if times > 0 && duplicate != nil {
-			return fail.New(
-				duplicate.Pos(),
-				absPath,
-				fail.OriginLink,
-				fail.ErrDuplicateProvide,
-				duplicate.Name.Val,
-				times,
-				compName,
-			)
-		}
-
-		for _, provideDir := range comp.Provides {
-			name := provideDir.Name.Val
-			idx := findSlotIndex(prog.Chunks, name)
-			if idx != -1 {
-				prog.Chunks[idx].(*SlotDir).Block = provideDir.Block
-				continue
-			}
-
-			if provideDir.Name.Val == "" {
-				return fail.New(
-					provideDir.Pos(),
-					absPath,
-					fail.OriginLink,
-					fail.ErrDefaultSlotNotDefined,
-					compName,
-				)
-			}
-
-			return fail.New(
-				provideDir.Pos(),
-				absPath,
-				fail.OriginLink,
-				fail.ErrSlotNotDefined,
-				compName,
-				name,
-			)
-		}
-
-		comp.CompProg = prog
 	}
-
 	return nil
 }
 

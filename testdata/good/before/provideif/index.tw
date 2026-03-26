@@ -1,6 +1,6 @@
 <section>
 @component('comp')
-@provideif(true)Textwire@end
+@if(true)Textwire@end
 @provideif(true, 'span')Go@end
 @provideif(false, 'h2')React@end
 @provideif("str", 'h3')Vue@end

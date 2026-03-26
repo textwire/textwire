@@ -1,13 +1,13 @@
 ⚠️😎♥️<body>
 @component('user')
-    @provide<b>User's information</b>@end
+    <b>User's information</b>
     @provide('name')<b>Её имя {{ name }}</b>@end
     @provide('age')<b>我的名字是 {{ age }}</b>@end
     @provide('empty')@end
 @end
 
 @component('书', { age })
-    @provide('')Empty name@end{{-- Acts as default slot --}}
+    Empty name
     @provide('1')1 inside@end
 @end
 </body>

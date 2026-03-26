@@ -9,15 +9,14 @@ import (
 type ProvideDir struct {
 	BaseNode
 	CompName string     // Component name
-	Name     *StrExpr   // Empty when @slot is default
+	Name     *StrExpr   // Cannot be empty
 	Block    *Block     // Optional block statement, can be nil
 	Cond     Expression // When you have @provideif, this field will be boolean expression
 }
 
-func NewProvideDir(tok token.Token, name *StrExpr, compName string) *ProvideDir {
+func NewProvideDir(tok token.Token, compName string) *ProvideDir {
 	return &ProvideDir{
 		BaseNode: NewBaseNode(tok),
-		Name:     name,
 		CompName: compName,
 	}
 }
@@ -44,9 +43,7 @@ func (pd *ProvideDir) String() string {
 		}
 	}
 
-	if pd.Name.Val != "" {
-		out.WriteString(pd.Name.String())
-	}
+	out.WriteString(pd.Name.String())
 
 	if hasParens {
 		out.WriteString(")")

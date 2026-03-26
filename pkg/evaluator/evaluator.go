@@ -129,7 +129,7 @@ func (e *Evaluator) evalLiteral(node ast.Node, ctx *Context) value.Literal {
 	case *ast.FloatExpr:
 		return &value.Float{Val: node.Val}
 
-	case *ast.NilExpr, *ast.Empty, *ast.IllegalNode:
+	case *ast.NilExpr, *ast.Empty, *ast.Illegal:
 		return NIL
 	}
 	return nil
@@ -392,30 +392,17 @@ func (e *Evaluator) compDir(compDir *ast.CompDir, ctx *Context) value.Value {
 
 	compCtx := NewContext(value.NewScope(), compDir.CompProg.AbsPath)
 
-	// Evaluate provides and add them to component context
-	for _, provideDir := range compDir.Provides {
-		provide := e.Eval(provideDir, ctx)
-		if isError(provide) {
-			return provide
+	if compDir.Argument != nil {
+		err := e.passCompArgsToCtx(compDir, ctx, compCtx)
+		if err != nil {
+			return err
 		}
-
-		if compCtx.slots[name] == nil {
-			compCtx.slots[name] = map[string]value.Value{}
-		}
-
-		compCtx.slots[name][provideDir.Name.Val] = provide
 	}
 
-	if compDir.Argument != nil {
-		for key, arg := range compDir.Argument.Pairs {
-			obj := e.evalLiteral(arg, ctx)
-			if isError(obj) {
-				return obj
-			}
-
-			if err := compCtx.scope.Set(key, obj); err != nil {
-				return e.newError(compDir, ctx, "%s", err.Error())
-			}
+	if compDir.Block != nil {
+		block := e.block(compDir.Block, ctx)
+		if isError(block) {
+			return block
 		}
 	}
 
@@ -428,6 +415,20 @@ func (e *Evaluator) compDir(compDir *ast.CompDir, ctx *Context) value.Value {
 		Name:    name,
 		Content: content,
 	}
+}
+
+func (e *Evaluator) passCompArgsToCtx(compDir *ast.CompDir, ctx, compCtx *Context) value.Value {
+	for key, arg := range compDir.Argument.Pairs {
+		obj := e.evalLiteral(arg, ctx)
+		if isError(obj) {
+			return obj
+		}
+
+		if err := compCtx.scope.Set(key, obj); err != nil {
+			return e.newError(compDir, ctx, "%s", err.Error())
+		}
+	}
+	return nil
 }
 
 func (e *Evaluator) forDir(forDir *ast.ForDir, ctx *Context) value.Value {
@@ -575,16 +576,25 @@ func (e *Evaluator) provideDir(provideDir *ast.ProvideDir, ctx *Context) value.V
 		}
 	}
 
+	name := provideDir.Name.Val
 	var block value.Value = NIL
 
-	if provideDir.Block != nil {
-		block = e.Eval(provideDir.Block, ctx)
-		if isError(block) {
-			return block
-		}
+	if provideDir.Block == nil {
+		return NIL
 	}
 
-	return block
+	block = e.Eval(provideDir.Block, ctx)
+	if isError(block) {
+		return block
+	}
+
+	if ctx.slots[name] == nil {
+		ctx.slots[name] = map[string]value.Value{}
+	}
+
+	ctx.slots[name][provideDir.Name.Val] = block
+
+	return NIL
 }
 
 func (e *Evaluator) slotDir(slotDir *ast.SlotDir, ctx *Context) value.Value {

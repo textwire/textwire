@@ -10,8 +10,8 @@ type CompDir struct {
 	BaseNode
 	Name     *StrExpr // Relative path to the component 'components/book'
 	Argument *ObjExpr
-	CompProg *Program      // AST node of the component file Name
-	Provides []*ProvideDir // Each slot of the component's block
+	CompProg *Program // AST node of the component file Name
+	Block    *Block
 }
 
 func NewCompDir(tok token.Token) *CompDir {
@@ -22,32 +22,22 @@ func NewCompDir(tok token.Token) *CompDir {
 
 func (*CompDir) chunkNode() {}
 
-func (cd *CompDir) ArgsString() string {
+func (cd *CompDir) String() string {
 	var out strings.Builder
-	out.Grow(10)
+	out.Grow(6)
 
-	out.WriteString(cd.Name.String())
+	out.WriteString(cd.Block.Token.Lit)
+	out.WriteByte('(')
+
+	out.WriteString(cd.Name.Val)
 
 	if cd.Argument != nil {
 		out.WriteString(", ")
 		out.WriteString(cd.Argument.String())
 	}
 
-	return out.String()
-}
-
-func (cd *CompDir) String() string {
-	var out strings.Builder
-	out.Grow(len(cd.Provides) + 20)
-
-	out.WriteString("@component(")
-	out.WriteString(cd.ArgsString())
-	out.WriteString(")")
-
-	for _, slot := range cd.Provides {
-		out.WriteString(slot.String())
-	}
-
+	out.WriteByte(')')
+	out.WriteString(cd.Block.String())
 	out.WriteString("@end")
 
 	return out.String()
