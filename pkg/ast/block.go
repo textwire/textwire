@@ -15,6 +15,7 @@ type Block struct {
 func NewBlock(tok token.Token) *Block {
 	return &Block{
 		BaseNode: NewBaseNode(tok),
+		Chunks:   make([]Chunk, 0),
 	}
 }
 

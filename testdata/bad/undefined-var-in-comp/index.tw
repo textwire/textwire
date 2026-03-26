@@ -1,5 +1,3 @@
 @component("hero")
-    @provide
-        <h1>Title</h1>
-    @end
+    <h1>Title</h1>
 @end

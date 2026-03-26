@@ -1,5 +1,3 @@
 @component("book", { title: "Harry Potter" })
-    @provide
-        <p>Some content is here</p>
-    @end
+    <p>Some content is here</p>
 @end

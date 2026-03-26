@@ -11,12 +11,13 @@ type CompDir struct {
 	Name     *StrExpr // Relative path to the component 'components/book'
 	Argument *ObjExpr
 	CompProg *Program // AST node of the component file Name
-	Block    *Block
+	Provides []*ProvideDir
 }
 
 func NewCompDir(tok token.Token) *CompDir {
 	return &CompDir{
 		BaseNode: NewBaseNode(tok),
+		Provides: make([]*ProvideDir, 0),
 	}
 }
 
@@ -26,10 +27,10 @@ func (cd *CompDir) String() string {
 	var out strings.Builder
 	out.Grow(6)
 
-	out.WriteString(cd.Block.Token.Lit)
+	out.WriteString(cd.Token.Lit)
 	out.WriteByte('(')
 
-	out.WriteString(cd.Name.Val)
+	out.WriteString(cd.Name.String())
 
 	if cd.Argument != nil {
 		out.WriteString(", ")
@@ -37,7 +38,11 @@ func (cd *CompDir) String() string {
 	}
 
 	out.WriteByte(')')
-	out.WriteString(cd.Block.String())
+
+	for i := range cd.Provides {
+		out.WriteString(cd.Provides[i].String())
+	}
+
 	out.WriteString("@end")
 
 	return out.String()

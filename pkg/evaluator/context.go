@@ -25,12 +25,6 @@ type Context struct {
 
 	// slots should be used inside component files.
 	slots SlotsStore
-
-	// compSlots is used during component block evaluation to redirect
-	// @provide and @provideif output to the component's context instead
-	// of the current context. This allows nested provides within component
-	// blocks to populate the component's slots.
-	compSlots SlotsStore
 }
 
 func NewContext(scope *value.Scope, absPath string) *Context {

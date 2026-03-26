@@ -2,6 +2,7 @@ package evaluator
 
 import (
 	"reflect"
+	"strings"
 	"time"
 
 	"github.com/textwire/textwire/v4/config"
@@ -73,7 +74,7 @@ func (e *Evaluator) evalValue(node ast.Node, ctx *Context) value.Value {
 	case *ast.SlotDir:
 		return e.slotDir(node, ctx)
 	case *ast.ProvideDir:
-		return e.provideDir(node, ctx)
+		return NIL
 	case *ast.DumpDir:
 		return e.dumpDir(node, ctx)
 	case *ast.InsertDir:
@@ -392,29 +393,36 @@ func (e *Evaluator) compDir(compDir *ast.CompDir, ctx *Context) value.Value {
 
 	compCtx := NewContext(value.NewScope(), compDir.CompProg.AbsPath)
 
+	if compCtx.slots[name] == nil {
+		compCtx.slots[name] = map[string]value.Value{}
+	}
+
+	// Evaluate provides and add them to component context
+	for _, provideDir := range compDir.Provides {
+		if provideDir.Cond != nil {
+			cond := e.evalLiteral(provideDir.Cond, ctx)
+			if isError(cond) {
+				return cond
+			}
+
+			if !isTruthy(cond) {
+				continue
+			}
+		}
+
+		provideBlock := e.block(provideDir.Block, ctx)
+		if isError(provideBlock) {
+			return provideBlock
+		}
+
+		compCtx.slots[name][provideDir.Name.Val] = provideBlock
+	}
+
 	if compDir.Argument != nil {
 		err := e.passCompArgsToCtx(compDir, ctx, compCtx)
 		if err != nil {
 			return err
 		}
-	}
-
-	if compDir.Block != nil {
-		// Redirect provides to save into component's slots
-		ctx.compSlots = compCtx.slots
-		block := e.block(compDir.Block, ctx)
-		ctx.compSlots = nil // Clear the redirect
-
-		if isError(block) {
-			return block
-		}
-
-		// The block becomes the default slot (empty string name) under the component name
-		compName := compDir.Name.Val
-		if compCtx.slots[compName] == nil {
-			compCtx.slots[compName] = map[string]value.Value{}
-		}
-		compCtx.slots[compName][""] = block
 	}
 
 	content := e.Eval(compDir.CompProg, compCtx)
@@ -575,46 +583,6 @@ func (e *Evaluator) continueifDir(contifDir *ast.ContinueifDir, ctx *Context) va
 	return NIL
 }
 
-func (e *Evaluator) provideDir(provideDir *ast.ProvideDir, ctx *Context) value.Value {
-	if provideDir.Cond != nil {
-		cond := e.evalLiteral(provideDir.Cond, ctx)
-		if isError(cond) {
-			return cond
-		}
-
-		if !isTruthy(cond) {
-			return NIL
-		}
-	}
-
-	name := provideDir.Name.Val
-	var block value.Value = NIL
-
-	if provideDir.Block == nil {
-		return NIL
-	}
-
-	block = e.Eval(provideDir.Block, ctx)
-	if isError(block) {
-		return block
-	}
-
-	// Determine where to save: use compSlots if set (during component block evaluation)
-	targetSlots := ctx.slots
-	if ctx.compSlots != nil {
-		targetSlots = ctx.compSlots
-	}
-
-	compName := provideDir.CompName
-	if targetSlots[compName] == nil {
-		targetSlots[compName] = map[string]value.Value{}
-	}
-
-	targetSlots[compName][name] = block
-
-	return NIL
-}
-
 func (e *Evaluator) slotDir(slotDir *ast.SlotDir, ctx *Context) value.Value {
 	name := slotDir.Name.Val
 	compName := slotDir.CompName
@@ -624,6 +592,14 @@ func (e *Evaluator) slotDir(slotDir *ast.SlotDir, ctx *Context) value.Value {
 	if !ok {
 		// Slots are optional in component files since v3.1.0
 		return NIL
+	}
+
+	// TODO: refactor
+	// Handle default slot
+	if name == "" {
+		defaultSlot := &value.Text{}
+		defaultSlot.Val = strings.Trim(content.String(), " \n\t\r")
+		content = defaultSlot
 	}
 
 	// delete slot after it's been used by external component

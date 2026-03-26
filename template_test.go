@@ -15,8 +15,6 @@ import (
 )
 
 func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
-	// TODO: remove
-	t.Skip()
 	absPath, err := file.ToFullPath("")
 	absPath += "/testdata/bad/"
 	if err != nil {
@@ -66,7 +64,7 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 		{
 			dir: "unknown-default-provide",
 			err: fail.New(
-				&position.Pos{StartLine: 1, StartCol: 4, EndLine: 3, EndCol: 7},
+				&position.Pos{StartLine: 0, StartCol: 45, EndLine: 1, EndCol: 31},
 				absPath+"unknown-default-provide/index.tw",
 				fail.OriginLink,
 				fail.ErrDefaultSlotNotDefined,

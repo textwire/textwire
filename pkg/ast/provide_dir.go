@@ -14,10 +14,10 @@ type ProvideDir struct {
 	Cond     Expression // When you have @provideif, this field will be boolean expression
 }
 
-func NewProvideDir(tok token.Token, compName string) *ProvideDir {
+func NewProvideDir(tok token.Token, name *StrExpr) *ProvideDir {
 	return &ProvideDir{
 		BaseNode: NewBaseNode(tok),
-		CompName: compName,
+		Name:     name,
 	}
 }
 

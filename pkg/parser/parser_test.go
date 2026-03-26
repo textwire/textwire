@@ -1919,18 +1919,17 @@ func TestParseEmptyBlock(t *testing.T) {
 		{150, "@component('x')@end", 18, token.COMPONENT},
 		{160, "@component('x')@provide('x')@end@end", 35, token.COMPONENT},
 		{170, "@component('x')@provideif(x, 'x')@end@end", 40, token.COMPONENT},
-		{180, "@component('x')@provideif(x, 'x')@end@provideif(y, 'y')@end@end", 62, token.COMPONENT},
+		{
+			180,
+			"@component('x')@provideif(x, 'x')@end@provideif(y, 'y')@end@end",
+			62,
+			token.COMPONENT,
+		},
 		{190, "@component('x')@provide('x')@end@provide('y')@end@end", 52, token.COMPONENT},
 		{
 			200,
 			"@component('x')@provide('x')@end@provide('y')@end@provideif(x, 'name')@end@end",
 			77,
-			token.COMPONENT,
-		},
-		{
-			201,
-			"@component('x') @provide @end @provide('x') @end @provideif(x, 'x') @end @end",
-			76,
 			token.COMPONENT,
 		},
 		{210, "@if(x)1@elseif(y)@end", 20, token.IF},
@@ -2195,19 +2194,19 @@ func TestParseContinueifDir(t *testing.T) {
 }
 
 func TestParseComponentDir(t *testing.T) {
-	t.Run("@component without provides", func(t *testing.T) {
+	t.Run("@component without provide", func(t *testing.T) {
 		inp := "<ul>@component('components/book-card', { c: card })@end</ul>"
 		chunks, err := parseChunks(inp, parseOpts{chunksCount: 3, checkErrors: true})
 		if err != nil {
 			t.Fatal(err)
 		}
 
-		chunk, ok := chunks[1].(*ast.CompDir)
+		compDir, ok := chunks[1].(*ast.CompDir)
 		if !ok {
 			t.Fatalf("chunks[1] is not a ComponentDir, got %T", chunks[1])
 		}
 
-		err = testTokPosition(chunk.Pos(), &position.Pos{
+		err = testTokPosition(compDir.Pos(), &position.Pos{
 			StartCol: 4,
 			EndCol:   54,
 		})
@@ -2216,34 +2215,34 @@ func TestParseComponentDir(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		if err := testToken(chunk, token.COMPONENT); err != nil {
+		if err := testToken(compDir, token.COMPONENT); err != nil {
 			t.Fatal(err)
 		}
 
-		if err := testStrExpr(chunk.Name, "components/book-card"); err != nil {
+		if err := testStrExpr(compDir.Name, "components/book-card"); err != nil {
 			t.Fatal(err)
 		}
 
-		if len(chunk.Argument.Pairs) != 1 {
-			t.Fatalf("len(chunk.Argument.Pairs) is not 1, got %d", len(chunk.Argument.Pairs))
+		if len(compDir.Argument.Pairs) != 1 {
+			t.Fatalf("len(chunk.Argument.Pairs) is not 1, got %d", len(compDir.Argument.Pairs))
 		}
 
-		if err := testIdentExpr(chunk.Argument.Pairs["c"], "card"); err != nil {
+		if err := testIdentExpr(compDir.Argument.Pairs["c"], "card"); err != nil {
 			t.Fatal(err)
 		}
 
-		if len(chunk.Block.Chunks) != 0 {
-			t.Fatalf("len(chunk.Block.Chunks) is not empty, got '%d' chunks", len(chunk.Block.Chunks))
+		if len(compDir.Provides) != 0 {
+			t.Fatalf("len(chunk.Provides) is not 0, got %d", len(compDir.Provides))
 		}
 
 		expect := `@component("components/book-card", {"c": card})@end`
-		if chunk.String() != expect {
-			t.Fatalf(`chunk.String() is not '%s', got %s`, expect, chunk)
+		if compDir.String() != expect {
+			t.Fatalf(`chunk.String() is not '%s', got %s`, expect, compDir)
 		}
 	})
 
 	t.Run("@component with default provide", func(t *testing.T) {
-		inp := `@component("components/book-card")<h1>Header@end@end`
+		inp := `@component("components/book-card")<h1>Header</h1>@end`
 
 		compDir, err := parseDirective[*ast.CompDir](inp, defaultParseOpts)
 		if err != nil {
@@ -2254,22 +2253,22 @@ func TestParseComponentDir(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		provideDir, ok := compDir.Block.Chunks[0].(*ast.ProvideDir)
-		if !ok {
-			t.Fatalf("compDir.Provides[0] is not a ProvideDir, got %T", compDir.Block.Chunks[0])
+		if len(compDir.Provides) != 1 {
+			t.Fatalf("len(chunk.Provides) is not 1, got %d", len(compDir.Provides))
 		}
 
+		provideDir := compDir.Provides[0]
 		name := provideDir.Name.Val
 		if name != "" {
 			t.Fatalf("provideDir.Name.Val must be empty string, got: %s", name)
 		}
 
 		expect := `<h1>Header</h1>`
-		if provideDir.String() != expect {
+		if provideDir.Block.String() != expect {
 			t.Fatalf(
-				"compDir.Provides[0].String() is not '%q', got %q",
+				"provideDir.Block.String() is not '%q', got '%q'",
 				expect,
-				provideDir,
+				provideDir.Block,
 			)
 		}
 	})
@@ -2307,23 +2306,20 @@ func TestParseComponentDir(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		provideHeader, ok := compDir.Block.Chunks[1].(*ast.ProvideDir)
-		if !ok {
-			t.Fatalf("compDir.Block.Chunks[1] is not a ProvideDir, got %T", compDir.Block.Chunks[1])
-		}
+		provideHeader := compDir.Provides[0]
+		provideFooter := compDir.Provides[1]
 
 		if err := testStrExpr(provideHeader.Name, "header"); err != nil {
 			t.Fatal(err)
 		}
 
 		expect := `<h1>Header</h1>`
-		if provideHeader.String() != expect {
-			t.Fatalf("chunk.Provides[0].String() is not '%q', got %q", expect, provideHeader)
-		}
-
-		provideFooter, ok := compDir.Block.Chunks[3].(*ast.ProvideDir)
-		if !ok {
-			t.Fatalf("compDir.Block.Chunks[3] is not a ProvideDir, got %T", compDir.Block.Chunks[3])
+		if provideHeader.Block.String() != expect {
+			t.Fatalf(
+				"provideHeader.Block.String() is not '%q', got %q",
+				expect,
+				provideHeader.Block,
+			)
 		}
 
 		if err := testStrExpr(provideFooter.Name, "footer"); err != nil {
@@ -2331,8 +2327,12 @@ func TestParseComponentDir(t *testing.T) {
 		}
 
 		expect = `<footer>Footer</footer>`
-		if provideFooter.String() != expect {
-			t.Fatalf("chunk.Provides[1].String() is not '%q', got %q", expect, provideFooter)
+		if provideFooter.Block.String() != expect {
+			t.Fatalf(
+				"provideFooter.Block.String() is not '%q', got %q",
+				expect,
+				provideFooter.Block,
+			)
 		}
 	})
 
@@ -2459,10 +2459,7 @@ func TestParseProvideifDir(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	provideDir, ok := compDir.Block.Chunks[0].(*ast.ProvideDir)
-	if !ok {
-		t.Fatalf("compDir.Block.Chunks[0] is not a ProvideDir, got %T", compDir.Block.Chunks[0])
-	}
+	provideDir := compDir.Provides[0]
 
 	if err := testBoolExpr(provideDir.Cond, false); err != nil {
 		t.Fatal(err)
