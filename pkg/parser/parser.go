@@ -577,10 +577,6 @@ func (p *Parser) compDir() ast.Chunk {
 		defaultPass.Block.Chunks = append(defaultPass.Block.Chunks, text)
 	}
 
-	if compDir.Name.Val == "书" {
-		println("todo: here")
-	}
-
 	// Extract @pass from block and map them to a component
 	for _, chunk := range defaultPass.Block.AllChunks() {
 		passDir, ok := chunk.(*ast.PassDir)
