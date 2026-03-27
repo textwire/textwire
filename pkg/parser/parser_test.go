@@ -2193,7 +2193,7 @@ func TestParseContinueifDir(t *testing.T) {
 	}
 }
 
-func TestParseComponentDir(t *testing.T) {
+func TestParseCompDir(t *testing.T) {
 	t.Run("@component without @pass", func(t *testing.T) {
 		inp := "<ul>@component('components/book-card', { c: card })@end</ul>"
 		chunks, err := parseChunks(inp, parseOpts{chunksCount: 3, checkErrors: true})
@@ -2224,7 +2224,7 @@ func TestParseComponentDir(t *testing.T) {
 		}
 
 		if len(compDir.Argument.Pairs) != 1 {
-			t.Fatalf("len(chunk.Argument.Pairs) is not 1, got %d", len(compDir.Argument.Pairs))
+			t.Fatalf("len(compDir.Argument.Pairs) is not 1, got %d", len(compDir.Argument.Pairs))
 		}
 
 		if err := testIdentExpr(compDir.Argument.Pairs["c"], "card"); err != nil {
@@ -2232,12 +2232,16 @@ func TestParseComponentDir(t *testing.T) {
 		}
 
 		if len(compDir.Passes) != 0 {
-			t.Fatalf("len(chunk.Passes) is not 0, got %d", len(compDir.Passes))
+			t.Fatalf("len(compDir.Passes) is not 0, got %d", len(compDir.Passes))
+		}
+
+		if compDir.DefaultPass != nil {
+			t.Fatalf("compDir.DefaultPass is not nil, got %v", compDir.DefaultPass)
 		}
 
 		expect := `@component("components/book-card", {"c": card})@end`
 		if compDir.String() != expect {
-			t.Fatalf(`chunk.String() is not '%s', got %s`, expect, compDir)
+			t.Fatalf(`compDir.String() is not '%s', got %s`, expect, compDir)
 		}
 	})
 
@@ -2253,11 +2257,11 @@ func TestParseComponentDir(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		if len(compDir.Passes) != 1 {
-			t.Fatalf("len(chunk.Passes) is not 1, got %d", len(compDir.Passes))
+		if len(compDir.Passes) != 0 {
+			t.Fatalf("len(compDir.Passes) is not 0, got %d", len(compDir.Passes))
 		}
 
-		passDir := compDir.Passes[0]
+		passDir := compDir.DefaultPass
 		name := passDir.Name.Val
 		if name != "" {
 			t.Fatalf("passDir.Name.Val must be empty string, got: %s", name)
@@ -2306,6 +2310,14 @@ func TestParseComponentDir(t *testing.T) {
 			t.Fatal(err)
 		}
 
+		if len(compDir.Passes) != 2 {
+			t.Fatalf("len(compDir.Passes) is not 2, got %d", len(compDir.Passes))
+		}
+
+		if compDir.DefaultPass != nil {
+			t.Fatalf("compDir.DefaultPass is not nil, got %s", compDir.DefaultPass)
+		}
+
 		passHeader := compDir.Passes[0]
 		passFooter := compDir.Passes[1]
 
@@ -2336,38 +2348,40 @@ func TestParseComponentDir(t *testing.T) {
 		}
 	})
 
-	t.Run("@component with whitespace at the end", func(t *testing.T) {
-		inp := "@component('some')@end\n <b>Book</b>"
-		chunks, err := parseChunks(inp, parseOpts{chunksCount: 2, checkErrors: true})
+	t.Run("@component with 1 @passif", func(t *testing.T) {
+		inp := `@component('user')@passif(false, 'name')Test2@end@end`
+		compDir, err := parseDirective[*ast.CompDir](inp, defaultParseOpts)
 		if err != nil {
 			t.Fatal(err)
 		}
 
-		chunk, ok := chunks[0].(*ast.CompDir)
-		if !ok {
-			t.Fatalf("chunks[0] is not a ComponentDir, got %T", chunks[0])
-		}
-
-		if err := testToken(chunk, token.COMPONENT); err != nil {
-			t.Fatal(err)
-		}
-		if err := testStrExpr(chunk.Name, "some"); err != nil {
+		err = testTokPosition(compDir.Pos(), &position.Pos{EndCol: 52})
+		if err != nil {
 			t.Fatal(err)
 		}
 
-		expect := `@component("some")@end`
-		if chunk.String() != expect {
-			t.Fatalf("chunk.String() is not `%s`, got `%s`", expect, chunk)
+		if err := testToken(compDir, token.COMPONENT); err != nil {
+			t.Fatal(err)
 		}
 
-		text, ok := chunks[1].(*ast.Text)
-		if !ok {
-			t.Fatalf("chunks[1] is not a Text, got %T", chunks[1])
+		passDir := compDir.Passes[0]
+
+		if err := testBoolExpr(passDir.Cond, false); err != nil {
+			t.Fatal(err)
 		}
 
-		expect = "\n <b>Book</b>"
-		if text.String() != expect {
-			t.Fatalf("text.String() is not `%s`, got `%s`", expect, text)
+		if passDir.Name.Val != "name" {
+			t.Fatalf("passDir.Name.Val is not 'name', got %s", passDir.Name)
+		}
+
+		block := passDir.Block.String()
+		if block != "Test2" {
+			t.Fatalf("passDir.Block.String() is not 'Test2', got %s", block)
+		}
+
+		expect := `@passif(false, "name")Test2@end`
+		if passDir.String() != expect {
+			t.Fatalf("passDir.String() is not '%s', got %s", expect, passDir)
 		}
 	})
 }
@@ -2441,43 +2455,6 @@ func TestParseSlotDir(t *testing.T) {
 			t.Fatalf("slotDir.String() is not @slot, got `%s`", slotDir)
 		}
 	})
-}
-
-func TestParsePassifDir(t *testing.T) {
-	inp := `@component('user')@passif(false, 'name')Test2@end@end`
-	compDir, err := parseDirective[*ast.CompDir](inp, defaultParseOpts)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	err = testTokPosition(compDir.Pos(), &position.Pos{EndCol: 52})
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	if err := testToken(compDir, token.COMPONENT); err != nil {
-		t.Fatal(err)
-	}
-
-	passDir := compDir.Passes[0]
-
-	if err := testBoolExpr(passDir.Cond, false); err != nil {
-		t.Fatal(err)
-	}
-
-	if passDir.Name.Val != "name" {
-		t.Fatalf("passDir.Name.Val is not 'name', got %s", passDir.Name)
-	}
-
-	block := passDir.Block.String()
-	if block != "Test2" {
-		t.Fatalf("passDir.Block.String() is not 'Test2', got %s", block)
-	}
-
-	expect := `@passif(false, "name")Test2@end`
-	if passDir.String() != expect {
-		t.Fatalf("passDir.String() is not '%s', got %s", expect, passDir)
-	}
 }
 
 func TestParseDumpDir(t *testing.T) {

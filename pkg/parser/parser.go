@@ -561,27 +561,25 @@ func (p *Parser) compDir() ast.Chunk {
 
 func (p *Parser) compDirPassDirs(compDir *ast.CompDir) {
 	block := p.block()
-
-	defaultPass := ast.NewPassDir(*block.Tok(), ast.NewStrExpr(*block.Tok(), ""))
-	defaultPass.CompName = compDir.Name.Val
-	defaultPass.Block = trimTextChunks(block)
-
-	// Extract @pass from block and map them to a component
-	for _, chunk := range defaultPass.AllChunks() {
-		passDir, ok := chunk.(*ast.PassDir)
-		if !ok {
-			continue
-		}
-
-		if passDir.IsDefault() {
-			defaultPass.Block.Chunks = append(defaultPass.Block.Chunks, passDir.Block)
-			continue
-		}
-
-		compDir.Passes = append(compDir.Passes, passDir)
+	if block == nil {
+		return
 	}
 
-	compDir.Passes = append(compDir.Passes, defaultPass)
+	// Extract @pass from block and map them to a component
+	for _, chunk := range block.AllChunks() {
+		if passDir, ok := chunk.(*ast.PassDir); ok {
+			compDir.Passes = append(compDir.Passes, passDir)
+		}
+	}
+
+	trimmedBlock := ast.TrimTextChunks(block)
+	if trimmedBlock == nil {
+		return
+	}
+
+	compDir.DefaultPass = ast.NewPassDir(*block.Tok(), ast.NewStrExpr(*block.Tok(), ""))
+	compDir.DefaultPass.CompName = compDir.Name.Val
+	compDir.DefaultPass.Block = trimmedBlock
 }
 
 func (p *Parser) endCompDir(compDir *ast.CompDir) *ast.CompDir {
@@ -602,7 +600,7 @@ func (p *Parser) compDirHeader(compDir *ast.CompDir) *ast.Illegal {
 	}
 
 	if !p.expectNonEmptyNameOn(compDir) {
-		return p.illegal()
+		return ast.NewIllegalNode(p.curToken)
 	}
 
 	compDir.Name = ast.NewStrExpr(
@@ -691,6 +689,10 @@ func (p *Parser) passDir() ast.Chunk {
 
 	if p.peekTokenIs(token.STR) {
 		p.nextToken() // move to string
+	}
+
+	if !p.expectNonEmptyNameOn(passDir) {
+		return ast.NewIllegalNode(p.curToken)
 	}
 
 	passDir.Name = ast.NewStrExpr(p.curToken, p.curToken.Lit)

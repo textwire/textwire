@@ -7,8 +7,7 @@
 @end
 
 @component('书', { age })
-    You are
+    You are beautiful
     @pass('1')1 inside@end
-    @pass('') beautiful@end{{-- Behaves like default --}}
 @end
 </body>

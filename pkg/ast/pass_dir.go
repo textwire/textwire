@@ -27,7 +27,9 @@ func (pd *PassDir) String() string {
 	var out strings.Builder
 	out.Grow(6)
 
-	out.WriteString(pd.Token.Lit)
+	if pd.Name.Val != "" {
+		out.WriteString(pd.Token.Lit)
+	}
 
 	hasParens := pd.Cond != nil || pd.Name.Val != ""
 
@@ -51,7 +53,10 @@ func (pd *PassDir) String() string {
 
 	if pd.Block != nil {
 		out.WriteString(pd.Block.String())
-		out.WriteString("@end")
+
+		if pd.Name.Val != "" {
+			out.WriteString("@end")
+		}
 	}
 
 	return out.String()
@@ -62,8 +67,4 @@ func (pd *PassDir) AllChunks() []Chunk {
 		return []Chunk{}
 	}
 	return pd.Block.AllChunks()
-}
-
-func (pd *PassDir) IsDefault() bool {
-	return pd.Name.Val == ""
 }

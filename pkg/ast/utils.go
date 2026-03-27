@@ -1,6 +1,11 @@
 package ast
 
-import "github.com/textwire/textwire/v4/pkg/fail"
+import (
+	"strings"
+
+	"github.com/textwire/textwire/v4/pkg/fail"
+	"github.com/textwire/textwire/v4/pkg/token"
+)
 
 func FindProg(name string, programs []*Program) *Program {
 	for i := range programs {
@@ -67,4 +72,35 @@ func findDuplicatePasses(passDirs []*PassDir) (*PassDir, int) {
 	}
 
 	return maxSlot, maxCount
+}
+
+func TrimTextChunks(block *Block) *Block {
+	newChunks := []Chunk{}
+
+	for _, chunk := range block.Chunks {
+		text, ok := chunk.(*Text)
+		if !ok {
+			t := chunk.Tok().Type
+			if t != token.PASS && t != token.PASSIF {
+				newChunks = append(newChunks, chunk)
+			}
+			continue
+		}
+
+		content := strings.Trim(text.Token.Lit, " \n\t\r")
+		if content == "" {
+			continue
+		}
+
+		text.Token.Lit = content
+		newChunks = append(newChunks, text)
+	}
+
+	if len(newChunks) == 0 {
+		return nil
+	}
+
+	newBlock := NewBlock(*block.Tok())
+	newBlock.Chunks = newChunks
+	return newBlock
 }

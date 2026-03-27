@@ -8,10 +8,11 @@ import (
 
 type CompDir struct {
 	BaseNode
-	Name     *StrExpr // Relative path to the component 'components/book'
-	Argument *ObjExpr
-	CompProg *Program // AST node of the component file Name
-	Passes   []*PassDir
+	Name        *StrExpr // Relative path to the component 'components/book'
+	Argument    *ObjExpr
+	CompProg    *Program // AST node of the component file Name
+	DefaultPass *PassDir // Default pass with no name, can be nil
+	Passes      []*PassDir
 }
 
 func NewCompDir(tok token.Token) *CompDir {
@@ -38,6 +39,10 @@ func (cd *CompDir) String() string {
 	}
 
 	out.WriteByte(')')
+
+	if cd.DefaultPass != nil {
+		out.WriteString(cd.DefaultPass.String())
+	}
 
 	for i := range cd.Passes {
 		out.WriteString(cd.Passes[i].String())

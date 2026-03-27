@@ -396,25 +396,8 @@ func (e *Evaluator) compDir(compDir *ast.CompDir, ctx *Context) value.Value {
 		compCtx.slots[name] = map[string]value.Value{}
 	}
 
-	// Evaluate passes and add them to component context
-	for _, passDir := range compDir.Passes {
-		if passDir.Cond != nil {
-			cond := e.evalLiteral(passDir.Cond, ctx)
-			if isError(cond) {
-				return cond
-			}
-
-			if !isTruthy(cond) {
-				continue
-			}
-		}
-
-		passBlock := e.block(passDir.Block, ctx)
-		if isError(passBlock) {
-			return passBlock
-		}
-
-		compCtx.slots[name][passDir.Name.Val] = passBlock
+	if err := e.evalCompDirPasses(compDir, ctx, compCtx); err != nil {
+		return err
 	}
 
 	if compDir.Argument != nil {
@@ -433,6 +416,39 @@ func (e *Evaluator) compDir(compDir *ast.CompDir, ctx *Context) value.Value {
 		Name:    name,
 		Content: content,
 	}
+}
+
+func (e *Evaluator) evalCompDirPasses(compDir *ast.CompDir, ctx, compCtx *Context) value.Value {
+	for _, passDir := range compDir.Passes {
+		if passDir.Cond != nil {
+			cond := e.evalLiteral(passDir.Cond, ctx)
+			if isError(cond) {
+				return cond
+			}
+
+			if !isTruthy(cond) {
+				continue
+			}
+		}
+
+		passBlock := e.block(passDir.Block, ctx)
+		if isError(passBlock) {
+			return passBlock
+		}
+
+		compCtx.slots[compDir.Name.Val][passDir.Name.Val] = passBlock
+	}
+
+	// Save content from default @pass
+	if compDir.DefaultPass != nil {
+		passBlock := e.block(compDir.DefaultPass.Block, ctx)
+		if isError(passBlock) {
+			return passBlock
+		}
+		compCtx.slots[compDir.Name.Val][""] = passBlock
+	}
+
+	return nil
 }
 
 func (e *Evaluator) passCompArgsToCtx(compDir *ast.CompDir, ctx, compCtx *Context) value.Value {
