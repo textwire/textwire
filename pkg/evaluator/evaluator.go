@@ -594,7 +594,6 @@ func (e *Evaluator) slotDir(slotDir *ast.SlotDir, ctx *Context) value.Value {
 		return NIL
 	}
 
-	// TODO: refactor
 	// Handle default slot
 	if name == "" {
 		defaultSlot := &value.Text{}
