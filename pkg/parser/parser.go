@@ -554,6 +554,12 @@ func (p *Parser) compDir() ast.Chunk {
 		return p.endCompDir(compDir)
 	}
 
+	p.compDirPasses(compDir)
+
+	return p.endCompDir(compDir)
+}
+
+func (p *Parser) compDirPasses(compDir *ast.CompDir) {
 	block := p.block()
 
 	defaultPass := ast.NewPassDir(*block.Tok(), ast.NewStrExpr(*block.Tok(), ""))
@@ -577,8 +583,6 @@ func (p *Parser) compDir() ast.Chunk {
 	}
 
 	compDir.Passes = append(compDir.Passes, defaultPass)
-
-	return p.endCompDir(compDir)
 }
 
 func (p *Parser) endCompDir(compDir *ast.CompDir) *ast.CompDir {
