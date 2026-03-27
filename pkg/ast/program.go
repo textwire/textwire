@@ -101,6 +101,7 @@ func (p *Program) LinkCompProg(compName string, prog *Program, absPath string) *
 					fail.OriginLink,
 					fail.ErrDefaultSlotNotDefined,
 					compName,
+					compName,
 				)
 			}
 

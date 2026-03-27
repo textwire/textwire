@@ -71,7 +71,7 @@ const (
 	ErrUnsupportedType       = "unsupported value type '%T'"
 	ErrUseDirIsNotAllowed    = "@use() not allowed in layout files - causes infinite recursion"
 	ErrTemplateNotFound      = "template file '%s' not found"
-	ErrDefaultSlotNotDefined = "default @slot not defined in component file '%s'"
+	ErrDefaultSlotNotDefined = "you are passing default content in your @component('%s'), but default @slot is not defined in component file '%s'"
 
 	// API errors
 	ErrFuncAlreadyDefined = "custom function '%s' already defined for type '%s'"

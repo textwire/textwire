@@ -69,6 +69,7 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 				fail.OriginLink,
 				fail.ErrDefaultSlotNotDefined,
 				"book",
+				"book",
 			),
 			data: nil,
 		},
