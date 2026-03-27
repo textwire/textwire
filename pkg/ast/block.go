@@ -63,6 +63,8 @@ func (b *Block) ExtractPassDirs() []*PassDir {
 	return passDirs
 }
 
+// ToDefaultPassDir removes all *PassDir chunks and empty *Text nodes with
+// whitespace from the block and returns a *PassDir with this block.
 func (b *Block) ToDefaultPassDir(compName string) *PassDir {
 	passDir := NewPassDir(*b.Tok(), NewStrExpr(*b.Tok(), ""))
 	passDir.Block = NewBlock(*b.Tok())
