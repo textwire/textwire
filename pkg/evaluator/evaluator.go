@@ -2,7 +2,6 @@ package evaluator
 
 import (
 	"reflect"
-	"strings"
 	"time"
 
 	"github.com/textwire/textwire/v4/config"
@@ -592,13 +591,6 @@ func (e *Evaluator) slotDir(slotDir *ast.SlotDir, ctx *Context) value.Value {
 	if !ok {
 		// Slots are optional in component files since v3.1.0
 		return NIL
-	}
-
-	// Handle default slot
-	if name == "" {
-		defaultSlot := &value.Text{}
-		defaultSlot.Val = strings.Trim(content.String(), " \n\t\r")
-		content = defaultSlot
 	}
 
 	// delete slot after it's been used by external component

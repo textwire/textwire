@@ -2,6 +2,7 @@ package parser
 
 import (
 	"strconv"
+	"strings"
 
 	"github.com/textwire/textwire/v4/pkg/file"
 	"github.com/textwire/textwire/v4/pkg/position"
@@ -555,19 +556,47 @@ func (p *Parser) compDir() ast.Chunk {
 	}
 
 	block := p.block()
+	defaultPass := ast.NewPassDir(*block.Tok(), ast.NewStrExpr(*block.Tok(), ""))
+	defaultPass.CompName = compDir.Name.Val
+	defaultPass.Block = ast.NewBlock(*block.Tok())
+
+	// Remove
+	for i := range block.Chunks {
+		text, ok := block.Chunks[i].(*ast.Text)
+		if !ok {
+			defaultPass.Block.Chunks = append(defaultPass.Block.Chunks, block.Chunks[i])
+			continue
+		}
+
+		content := strings.Trim(text.Token.Lit, " \n\t\r")
+		if content == "" {
+			continue
+		}
+
+		text.Token.Lit = content
+		defaultPass.Block.Chunks = append(defaultPass.Block.Chunks, text)
+	}
+
+	if compDir.Name.Val == "书" {
+		println("todo: here")
+	}
 
 	// Extract @pass from block and map them to a component
-	for _, chunk := range block.AllChunks() {
+	for _, chunk := range defaultPass.Block.AllChunks() {
 		passDir, ok := chunk.(*ast.PassDir)
 		if !ok {
 			continue
 		}
+
+		// Handle default pass like @pass('')<content>@end
+		if passDir.Name.Val == "" {
+			defaultPass.Block.Chunks = append(defaultPass.Block.Chunks, passDir.Block)
+			continue
+		}
+
 		compDir.Passes = append(compDir.Passes, passDir)
 	}
 
-	defaultPass := ast.NewPassDir(*block.Tok(), ast.NewStrExpr(*block.Tok(), ""))
-	defaultPass.CompName = compDir.Name.Val
-	defaultPass.Block = block
 	compDir.Passes = append(compDir.Passes, defaultPass)
 
 	return p.endCompDir(compDir)
