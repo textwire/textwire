@@ -2,7 +2,6 @@ package parser
 
 import (
 	"strconv"
-	"strings"
 
 	"github.com/textwire/textwire/v4/pkg/file"
 	"github.com/textwire/textwire/v4/pkg/position"
@@ -556,26 +555,10 @@ func (p *Parser) compDir() ast.Chunk {
 	}
 
 	block := p.block()
+
 	defaultPass := ast.NewPassDir(*block.Tok(), ast.NewStrExpr(*block.Tok(), ""))
 	defaultPass.CompName = compDir.Name.Val
-	defaultPass.Block = ast.NewBlock(*block.Tok())
-
-	// Remove
-	for i := range block.Chunks {
-		text, ok := block.Chunks[i].(*ast.Text)
-		if !ok {
-			defaultPass.Block.Chunks = append(defaultPass.Block.Chunks, block.Chunks[i])
-			continue
-		}
-
-		content := strings.Trim(text.Token.Lit, " \n\t\r")
-		if content == "" {
-			continue
-		}
-
-		text.Token.Lit = content
-		defaultPass.Block.Chunks = append(defaultPass.Block.Chunks, text)
-	}
+	defaultPass.Block = trimTextChunks(block)
 
 	// Extract @pass from block and map them to a component
 	for _, chunk := range defaultPass.Block.AllChunks() {
