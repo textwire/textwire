@@ -946,6 +946,17 @@ func TestErrorHandling(t *testing.T) {
 				3,
 			),
 		},
+		{
+			id:  1000,
+			inp: "@component('name')@pass('')<content>@end@end",
+			err: fail.New(
+				&position.Pos{StartCol: 24, EndCol: 25},
+				"",
+				fail.OriginPars,
+				fail.ErrNameCannotBeEmpty,
+				"@pass",
+			),
+		},
 	}
 
 	for _, tc := range cases {
