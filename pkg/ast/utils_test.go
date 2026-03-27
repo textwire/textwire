@@ -36,7 +36,9 @@ func TestFindDuplicatePasses(t *testing.T) {
 	t.Run("returns duplicate pass", func(t *testing.T) {
 		expectTimes := 3
 		expectDuplicate := "firstName"
-		slots := []*PassDir{
+
+		compDir := NewCompDir(token.Token{})
+		compDir.Passes = []*PassDir{
 			NewPassDir(token.Token{}, &StrExpr{Val: "lastname"}),
 			NewPassDir(token.Token{}, &StrExpr{Val: "lastName"}),
 			NewPassDir(token.Token{}, &StrExpr{Val: expectDuplicate}),
@@ -44,7 +46,7 @@ func TestFindDuplicatePasses(t *testing.T) {
 			NewPassDir(token.Token{}, &StrExpr{Val: expectDuplicate}),
 		}
 
-		duplicate, times := findDuplicatePasses(slots)
+		duplicate, times := findDuplicatePasses(compDir)
 		if times != expectTimes {
 			t.Fatalf("should find %d duplicate passes, found %d", expectTimes, times)
 		}
@@ -59,7 +61,8 @@ func TestFindDuplicatePasses(t *testing.T) {
 	})
 
 	t.Run("returns nil and 0 for no duplicates", func(t *testing.T) {
-		slots := []*PassDir{
+		compDir := NewCompDir(token.Token{})
+		compDir.Passes = []*PassDir{
 			NewPassDir(token.Token{}, &StrExpr{Val: "lastname"}),
 			NewPassDir(token.Token{}, &StrExpr{Val: "lastName"}),
 			NewPassDir(token.Token{}, &StrExpr{Val: "last_name"}),
@@ -67,7 +70,7 @@ func TestFindDuplicatePasses(t *testing.T) {
 			NewPassDir(token.Token{}, &StrExpr{Val: "LastName"}),
 		}
 
-		duplicate, times := findDuplicatePasses(slots)
+		duplicate, times := findDuplicatePasses(compDir)
 		if times != 0 {
 			t.Fatalf("should find 0 duplicate passes, found %d", times)
 		}

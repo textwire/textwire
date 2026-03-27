@@ -68,12 +68,12 @@ func (p *Program) LinkLayoutToUse(layoutProg *Program) {
 }
 
 func (p *Program) LinkCompProg(compName string, prog *Program, absPath string) *fail.Error {
-	for _, comp := range p.Components {
-		if comp.Name.Val != compName {
+	for _, compDir := range p.Components {
+		if compDir.Name.Val != compName {
 			continue
 		}
 
-		duplicate, times := findDuplicatePasses(comp.Passes)
+		duplicate, times := findDuplicatePasses(compDir)
 		if times > 0 && duplicate != nil {
 			return fail.New(
 				duplicate.Pos(),
@@ -86,23 +86,29 @@ func (p *Program) LinkCompProg(compName string, prog *Program, absPath string) *
 			)
 		}
 
-		for _, passDir := range comp.Passes {
-			name := passDir.Name.Val
-			idx := findSlotIndex(prog.Chunks, name)
-			if idx != -1 {
-				prog.Chunks[idx].(*SlotDir).Block = passDir.Block
-				continue
-			}
+		if compDir.DefaultPass != nil {
+			idx := findSlotIndex(prog.Chunks, "")
 
-			if passDir.Name.Val == "" {
+			if idx == -1 {
 				return fail.New(
-					passDir.Pos(),
+					compDir.DefaultPass.Pos(),
 					absPath,
 					fail.OriginLink,
 					fail.ErrDefaultSlotNotDefined,
 					compName,
 					compName,
 				)
+			}
+
+			prog.Chunks[idx].(*SlotDir).Block = compDir.DefaultPass.Block
+		}
+
+		for _, passDir := range compDir.Passes {
+			name := passDir.Name.Val
+			idx := findSlotIndex(prog.Chunks, name)
+			if idx != -1 {
+				prog.Chunks[idx].(*SlotDir).Block = passDir.Block
+				continue
 			}
 
 			return fail.New(
@@ -115,7 +121,7 @@ func (p *Program) LinkCompProg(compName string, prog *Program, absPath string) *
 			)
 		}
 
-		comp.CompProg = prog
+		compDir.CompProg = prog
 	}
 
 	return nil
