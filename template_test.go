@@ -27,40 +27,40 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 		err  *fail.Error
 		data map[string]any
 	}{
-		// {
-		// 	dir: "undefined-named-passif",
-		// 	err: fail.New(
-		// 		&position.Pos{StartCol: 21, EndCol: 49},
-		// 		absPath+"undefined-named-passif/index.tw",
-		// 		fail.OriginLink,
-		// 		fail.ErrSlotNotDefined,
-		// 		"user",
-		// 		"name",
-		// 	),
-		// 	data: nil,
-		// },
-		// {
-		// 	dir: "use-inside-tpl",
-		// 	err: fail.New(
-		// 		&position.Pos{EndCol: 13},
-		// 		absPath+"use-inside-tpl/layout.tw",
-		// 		fail.OriginEval,
-		// 		fail.ErrUseDirIsNotAllowed,
-		// 	),
-		// 	data: nil,
-		// },
-		// {
-		// 	dir: "unknown-named-pass",
-		// 	err: fail.New(
-		// 		&position.Pos{StartLine: 1, StartCol: 4, EndLine: 3, EndCol: 7},
-		// 		absPath+"unknown-named-pass/index.tw",
-		// 		fail.OriginLink,
-		// 		fail.ErrSlotNotDefined,
-		// 		"user",
-		// 		"unknown",
-		// 	),
-		// 	data: nil,
-		// },
+		{
+			dir: "undefined-named-passif",
+			err: fail.New(
+				&position.Pos{StartCol: 21, EndCol: 49},
+				absPath+"undefined-named-passif/index.tw",
+				fail.OriginLink,
+				fail.ErrSlotNotDefined,
+				"user",
+				"name",
+			),
+			data: nil,
+		},
+		{
+			dir: "use-inside-tpl",
+			err: fail.New(
+				&position.Pos{EndCol: 13},
+				absPath+"use-inside-tpl/layout.tw",
+				fail.OriginEval,
+				fail.ErrUseDirIsNotAllowed,
+			),
+			data: nil,
+		},
+		{
+			dir: "unknown-named-pass",
+			err: fail.New(
+				&position.Pos{StartLine: 1, StartCol: 4, EndLine: 3, EndCol: 7},
+				absPath+"unknown-named-pass/index.tw",
+				fail.OriginLink,
+				fail.ErrSlotNotDefined,
+				"user",
+				"unknown",
+			),
+			data: nil,
+		},
 		{
 			dir: "unknown-default-pass",
 			err: fail.New(
