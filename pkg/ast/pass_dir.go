@@ -63,3 +63,7 @@ func (pd *PassDir) AllChunks() []Chunk {
 	}
 	return pd.Block.AllChunks()
 }
+
+func (pd *PassDir) IsDefault() bool {
+	return pd.Name.Val == ""
+}
