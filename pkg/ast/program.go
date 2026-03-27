@@ -73,17 +73,8 @@ func (p *Program) LinkCompProg(compName string, prog *Program, absPath string) *
 			continue
 		}
 
-		duplicate, times := findDuplicatePasses(compDir)
-		if times > 0 && duplicate != nil {
-			return fail.New(
-				duplicate.Pos(),
-				absPath,
-				fail.OriginLink,
-				fail.ErrDuplicatePass,
-				duplicate.Name.Val,
-				times,
-				compName,
-			)
+		if err := duplicatePassesErr(compDir, compName, absPath); err != nil {
+			return err
 		}
 
 		if compDir.DefaultPass != nil {

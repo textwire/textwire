@@ -70,3 +70,19 @@ func findDuplicatePasses(compDir *CompDir) (*PassDir, int) {
 
 	return maxSlot, maxCount
 }
+
+func duplicatePassesErr(compDir *CompDir, compName, absPath string) *fail.Error {
+	duplicate, times := findDuplicatePasses(compDir)
+	if times > 0 && duplicate != nil {
+		return fail.New(
+			duplicate.Pos(),
+			absPath,
+			fail.OriginLink,
+			fail.ErrDuplicatePass,
+			duplicate.Name.Val,
+			times,
+			compName,
+		)
+	}
+	return nil
+}
