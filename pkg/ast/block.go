@@ -52,3 +52,46 @@ func (b *Block) AllChunks() []Chunk {
 
 	return chunks
 }
+
+func (b *Block) ExtractPassDirs() []*PassDir {
+	passDirs := []*PassDir{}
+	for _, chunk := range b.AllChunks() {
+		if passDir, ok := chunk.(*PassDir); ok {
+			passDirs = append(passDirs, passDir)
+		}
+	}
+	return passDirs
+}
+
+func (b *Block) ToDefaultPassDir(compName string) *PassDir {
+	passDir := NewPassDir(*b.Tok(), NewStrExpr(*b.Tok(), ""))
+	passDir.Block = NewBlock(*b.Tok())
+	passDir.CompName = compName
+
+	newChunks := []Chunk{}
+
+	for _, chunk := range b.Chunks {
+		switch t := chunk.(type) {
+		case *PassDir:
+			continue
+		case *Text:
+			content := strings.Trim(t.Token.Lit, " \n\t\r")
+			if content == "" {
+				continue
+			}
+
+			t.Token.Lit = content
+			newChunks = append(newChunks, t)
+		default:
+			newChunks = append(newChunks, t)
+		}
+	}
+
+	if len(newChunks) == 0 {
+		return nil
+	}
+
+	passDir.Block.Chunks = newChunks
+
+	return passDir
+}

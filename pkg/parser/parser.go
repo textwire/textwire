@@ -554,32 +554,12 @@ func (p *Parser) compDir() ast.Chunk {
 		return p.endCompDir(compDir)
 	}
 
-	p.compDirPassDirs(compDir)
+	if block := p.block(); block != nil {
+		compDir.Passes = block.ExtractPassDirs()
+		compDir.DefaultPass = block.ToDefaultPassDir(compDir.Name.Val)
+	}
 
 	return p.endCompDir(compDir)
-}
-
-func (p *Parser) compDirPassDirs(compDir *ast.CompDir) {
-	block := p.block()
-	if block == nil {
-		return
-	}
-
-	// Extract @pass from block and map them to a component
-	for _, chunk := range block.AllChunks() {
-		if passDir, ok := chunk.(*ast.PassDir); ok {
-			compDir.Passes = append(compDir.Passes, passDir)
-		}
-	}
-
-	trimmedBlock := ast.TrimTextChunks(block)
-	if trimmedBlock == nil {
-		return
-	}
-
-	compDir.DefaultPass = ast.NewPassDir(*block.Tok(), ast.NewStrExpr(*block.Tok(), ""))
-	compDir.DefaultPass.CompName = compDir.Name.Val
-	compDir.DefaultPass.Block = trimmedBlock
 }
 
 func (p *Parser) endCompDir(compDir *ast.CompDir) *ast.CompDir {
