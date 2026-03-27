@@ -32,48 +32,48 @@ func TestFindSlotIndex(t *testing.T) {
 	})
 }
 
-func TestFindDuplicateProvide(t *testing.T) {
-	t.Run("returns duplicate provide", func(t *testing.T) {
+func TestFindDuplicatePasses(t *testing.T) {
+	t.Run("returns duplicate pass", func(t *testing.T) {
 		expectTimes := 3
 		expectDuplicate := "firstName"
-		slots := []*ProvideDir{
-			NewProvideDir(token.Token{}, &StrExpr{Val: "lastname"}),
-			NewProvideDir(token.Token{}, &StrExpr{Val: "lastName"}),
-			NewProvideDir(token.Token{}, &StrExpr{Val: expectDuplicate}),
-			NewProvideDir(token.Token{}, &StrExpr{Val: expectDuplicate}),
-			NewProvideDir(token.Token{}, &StrExpr{Val: expectDuplicate}),
+		slots := []*PassDir{
+			NewPassDir(token.Token{}, &StrExpr{Val: "lastname"}),
+			NewPassDir(token.Token{}, &StrExpr{Val: "lastName"}),
+			NewPassDir(token.Token{}, &StrExpr{Val: expectDuplicate}),
+			NewPassDir(token.Token{}, &StrExpr{Val: expectDuplicate}),
+			NewPassDir(token.Token{}, &StrExpr{Val: expectDuplicate}),
 		}
 
-		slot, times := findDuplicateProvide(slots)
+		duplicate, times := findDuplicatePasses(slots)
 		if times != expectTimes {
-			t.Fatalf("Should find %d duplicate slots, found %d", expectTimes, times)
+			t.Fatalf("should find %d duplicate passes, found %d", expectTimes, times)
 		}
 
-		if slot == nil {
-			t.Fatalf("Function returned nil instead of slot")
+		if duplicate == nil {
+			t.Fatalf("function returned nil instead of slot")
 		}
 
-		if slot.Name.Val != expectDuplicate {
-			t.Fatalf("The duplicate slot name must be %s, got %s", expectDuplicate, slot.Name.Val)
+		if duplicate.Name.Val != expectDuplicate {
+			t.Fatalf("duplicate pass name must be %s, got %s", expectDuplicate, duplicate.Name.Val)
 		}
 	})
 
 	t.Run("returns nil and 0 for no duplicates", func(t *testing.T) {
-		slots := []*ProvideDir{
-			NewProvideDir(token.Token{}, &StrExpr{Val: "lastname"}),
-			NewProvideDir(token.Token{}, &StrExpr{Val: "lastName"}),
-			NewProvideDir(token.Token{}, &StrExpr{Val: "last_name"}),
-			NewProvideDir(token.Token{}, &StrExpr{Val: "last-name"}),
-			NewProvideDir(token.Token{}, &StrExpr{Val: "LastName"}),
+		slots := []*PassDir{
+			NewPassDir(token.Token{}, &StrExpr{Val: "lastname"}),
+			NewPassDir(token.Token{}, &StrExpr{Val: "lastName"}),
+			NewPassDir(token.Token{}, &StrExpr{Val: "last_name"}),
+			NewPassDir(token.Token{}, &StrExpr{Val: "last-name"}),
+			NewPassDir(token.Token{}, &StrExpr{Val: "LastName"}),
 		}
 
-		slot, times := findDuplicateProvide(slots)
+		duplicate, times := findDuplicatePasses(slots)
 		if times != 0 {
-			t.Fatalf("Should find 0 duplicate slots, found %d", times)
+			t.Fatalf("should find 0 duplicate passes, found %d", times)
 		}
 
-		if slot != nil {
-			t.Fatalf("Function should return nil, got %v", slot)
+		if duplicate != nil {
+			t.Fatalf("function should return nil, got %v", duplicate)
 		}
 	})
 }

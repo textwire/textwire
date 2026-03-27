@@ -1,0 +1,13 @@
+⚠️😎♥️<body>
+@component('user')
+    <b>User's information</b>
+    @pass('name')<b>Её имя {{ name }}</b>@end
+    @pass('age')<b>我的名字是 {{ age }}</b>@end
+    @pass('empty')@end
+@end
+
+@component('书', { age })
+    Empty name
+    @pass('1')1 inside@end
+@end
+</body>

@@ -6,24 +6,24 @@ import (
 	"github.com/textwire/textwire/v4/pkg/token"
 )
 
-type ProvideDir struct {
+type PassDir struct {
 	BaseNode
 	CompName string     // Component name
 	Name     *StrExpr   // Cannot be empty
 	Block    *Block     // Optional block statement, can be nil
-	Cond     Expression // When you have @provideif, this field will be boolean expression
+	Cond     Expression // When you have @passif, this field will be boolean expression
 }
 
-func NewProvideDir(tok token.Token, name *StrExpr) *ProvideDir {
-	return &ProvideDir{
+func NewPassDir(tok token.Token, name *StrExpr) *PassDir {
+	return &PassDir{
 		BaseNode: NewBaseNode(tok),
 		Name:     name,
 	}
 }
 
-func (*ProvideDir) chunkNode() {}
+func (*PassDir) chunkNode() {}
 
-func (pd *ProvideDir) String() string {
+func (pd *PassDir) String() string {
 	var out strings.Builder
 	out.Grow(6)
 
@@ -57,7 +57,7 @@ func (pd *ProvideDir) String() string {
 	return out.String()
 }
 
-func (pd *ProvideDir) AllChunks() []Chunk {
+func (pd *PassDir) AllChunks() []Chunk {
 	if pd.Block == nil {
 		return []Chunk{}
 	}

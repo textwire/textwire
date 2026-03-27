@@ -1,0 +1,4 @@
+@component("user", { name: "Anna" })
+    @pass("content")<p>Content 1</p>@end
+    @pass("content")<p>Content 2</p>@end
+@end

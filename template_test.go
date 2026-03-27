@@ -28,10 +28,10 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 		data map[string]any
 	}{
 		{
-			dir: "undefined-named-provideif",
+			dir: "undefined-named-passif",
 			err: fail.New(
-				&position.Pos{StartCol: 21, EndCol: 52},
-				absPath+"undefined-named-provideif/index.tw",
+				&position.Pos{StartCol: 21, EndCol: 49},
+				absPath+"undefined-named-passif/index.tw",
 				fail.OriginLink,
 				fail.ErrSlotNotDefined,
 				"user",
@@ -50,10 +50,10 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 			data: nil,
 		},
 		{
-			dir: "unknown-named-provide",
+			dir: "unknown-named-pass",
 			err: fail.New(
 				&position.Pos{StartLine: 1, StartCol: 4, EndLine: 3, EndCol: 7},
-				absPath+"unknown-named-provide/index.tw",
+				absPath+"unknown-named-pass/index.tw",
 				fail.OriginLink,
 				fail.ErrSlotNotDefined,
 				"user",
@@ -62,10 +62,10 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 			data: nil,
 		},
 		{
-			dir: "unknown-default-provide",
+			dir: "unknown-default-pass",
 			err: fail.New(
 				&position.Pos{StartLine: 0, StartCol: 45, EndLine: 1, EndCol: 31},
-				absPath+"unknown-default-provide/index.tw",
+				absPath+"unknown-default-pass/index.tw",
 				fail.OriginLink,
 				fail.ErrDefaultSlotNotDefined,
 				"book",
@@ -73,12 +73,12 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 			data: nil,
 		},
 		{
-			dir: "duplicate-provide",
+			dir: "duplicate-pass",
 			err: fail.New(
-				&position.Pos{StartLine: 2, StartCol: 4, EndLine: 2, EndCol: 42},
-				absPath+"duplicate-provide/index.tw",
+				&position.Pos{StartLine: 2, StartCol: 4, EndLine: 2, EndCol: 39},
+				absPath+"duplicate-pass/index.tw",
 				fail.OriginLink,
-				fail.ErrDuplicateProvide,
+				fail.ErrDuplicatePass,
 				"content",
 				2,
 				"user",
@@ -234,7 +234,7 @@ func TestNewTemplate(t *testing.T) {
 		data map[string]any
 		dir  string
 	}{
-		{conf: &config.Config{}, view: "index", data: nil, dir: "provideif"},
+		{conf: &config.Config{}, view: "index", data: nil, dir: "passif"},
 		{conf: &config.Config{}, view: "index", data: nil, dir: "slots-optional"},
 		{conf: &config.Config{}, view: "index", data: nil, dir: "reserve-inside-slot"},
 		{conf: &config.Config{}, view: "~index", data: nil, dir: "no-stmts"},
@@ -272,7 +272,7 @@ func TestNewTemplate(t *testing.T) {
 			conf: &config.Config{},
 			view: "index",
 			data: map[string]any{"name": "Анна ♥️", "age": 20},
-			dir:  "comp-and-provides",
+			dir:  "comp-and-passes",
 		},
 		{
 			conf: &config.Config{},

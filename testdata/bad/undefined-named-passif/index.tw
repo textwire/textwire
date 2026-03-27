@@ -1,0 +1,1 @@
+<p>@component('user')@passif(true, 'name')TEST@end@end</p>

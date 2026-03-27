@@ -41,24 +41,24 @@ func findSlotIndex(chunks []Chunk, slotName string) int {
 	return -1
 }
 
-func findDuplicateProvide(slots []*ProvideDir) (*ProvideDir, int) {
+func findDuplicatePasses(passDirs []*PassDir) (*PassDir, int) {
 	counts := map[string]int{}
-	firstSeen := map[string]*ProvideDir{}
+	firstSeen := map[string]*PassDir{}
 
-	var maxSlot *ProvideDir
+	var maxSlot *PassDir
 	var maxCount int
 
-	for _, slot := range slots {
-		name := slot.Name.Val
+	for _, passDir := range passDirs {
+		name := passDir.Name.Val
 		counts[name]++
 
 		if firstSeen[name] == nil {
-			firstSeen[name] = slot
+			firstSeen[name] = passDir
 		}
 
 		if counts[name] > 1 && counts[name] > maxCount {
 			maxCount = counts[name]
-			maxSlot = slot
+			maxSlot = passDir
 		}
 	}
 

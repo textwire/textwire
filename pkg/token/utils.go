@@ -63,8 +63,8 @@ var tokens = [...]string{
 	END:        "@end",
 	COMPONENT:  "@component",
 	SLOT:       "@slot",
-	PROVIDE:    "@provide",
-	PROVIDEIF:  "@provideif",
+	PASS:       "@pass",
+	PASSIF:     "@passif",
 }
 
 func String(t TokenType) string {

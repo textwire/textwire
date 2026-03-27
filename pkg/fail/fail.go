@@ -21,7 +21,7 @@ const (
 	ErrExpectedObjLit         = "expected object literal, got '%s'"
 	ErrSlotNotDefined         = "@component('%s') references @slot('%s') which doesn't exist in the component file"
 	ErrDuplicateReserves      = "found duplicate @reserve('%s') inside of a layout file %s"
-	ErrDuplicateProvide       = "@provide('%s') used '%d' times in @component('%s')"
+	ErrDuplicatePass          = "@pass('%s') used '%d' times in @component('%s')"
 	ErrUnusedInsertDetected   = "@insert('%s') needs to have a matching @reserve('%s') in layout file"
 	ErrDuplicateInserts       = "duplicate @insert('%s') found"
 	ErrOnlyOneUseDir          = "@use() directive can only be used once per template"

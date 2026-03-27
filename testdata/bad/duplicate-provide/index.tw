@@ -1,4 +1,0 @@
-@component("user", { name: "Anna" })
-    @provide("content")<p>Content 1</p>@end
-    @provide("content")<p>Content 2</p>@end
-@end

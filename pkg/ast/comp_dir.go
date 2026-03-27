@@ -11,13 +11,13 @@ type CompDir struct {
 	Name     *StrExpr // Relative path to the component 'components/book'
 	Argument *ObjExpr
 	CompProg *Program // AST node of the component file Name
-	Provides []*ProvideDir
+	Passes   []*PassDir
 }
 
 func NewCompDir(tok token.Token) *CompDir {
 	return &CompDir{
 		BaseNode: NewBaseNode(tok),
-		Provides: make([]*ProvideDir, 0),
+		Passes:   make([]*PassDir, 0),
 	}
 }
 
@@ -39,8 +39,8 @@ func (cd *CompDir) String() string {
 
 	out.WriteByte(')')
 
-	for i := range cd.Provides {
-		out.WriteString(cd.Provides[i].String())
+	for i := range cd.Passes {
+		out.WriteString(cd.Passes[i].String())
 	}
 
 	out.WriteString("@end")

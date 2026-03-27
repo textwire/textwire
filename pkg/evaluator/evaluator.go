@@ -73,7 +73,7 @@ func (e *Evaluator) evalValue(node ast.Node, ctx *Context) value.Value {
 		return e.continueifDir(node, ctx)
 	case *ast.SlotDir:
 		return e.slotDir(node, ctx)
-	case *ast.ProvideDir:
+	case *ast.PassDir:
 		return NIL
 	case *ast.DumpDir:
 		return e.dumpDir(node, ctx)
@@ -397,10 +397,10 @@ func (e *Evaluator) compDir(compDir *ast.CompDir, ctx *Context) value.Value {
 		compCtx.slots[name] = map[string]value.Value{}
 	}
 
-	// Evaluate provides and add them to component context
-	for _, provideDir := range compDir.Provides {
-		if provideDir.Cond != nil {
-			cond := e.evalLiteral(provideDir.Cond, ctx)
+	// Evaluate passes and add them to component context
+	for _, passDir := range compDir.Passes {
+		if passDir.Cond != nil {
+			cond := e.evalLiteral(passDir.Cond, ctx)
 			if isError(cond) {
 				return cond
 			}
@@ -410,12 +410,12 @@ func (e *Evaluator) compDir(compDir *ast.CompDir, ctx *Context) value.Value {
 			}
 		}
 
-		provideBlock := e.block(provideDir.Block, ctx)
-		if isError(provideBlock) {
-			return provideBlock
+		passBlock := e.block(passDir.Block, ctx)
+		if isError(passBlock) {
+			return passBlock
 		}
 
-		compCtx.slots[name][provideDir.Name.Val] = provideBlock
+		compCtx.slots[name][passDir.Name.Val] = passBlock
 	}
 
 	if compDir.Argument != nil {

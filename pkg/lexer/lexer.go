@@ -391,7 +391,7 @@ func (l *Lexer) hasIfVariant(tok token.TokenType) bool {
 		token.ELSE:     {},
 		token.BREAK:    {},
 		token.CONTINUE: {},
-		token.PROVIDE:  {},
+		token.PASS:     {},
 	}
 
 	if _, ok := longTokens[tok]; !ok {

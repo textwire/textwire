@@ -1,0 +1,8 @@
+<section>
+@component('comp')
+@if(true)Textwire@end
+@passif(true, 'span')Go@end
+@passif(false, 'h2')React@end
+@passif("str", 'h3')Vue@end
+@end
+</section>

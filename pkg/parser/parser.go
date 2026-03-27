@@ -194,8 +194,8 @@ func (p *Parser) chunk() ast.Chunk {
 		return p.compDir()
 	case token.SLOT:
 		return p.slotDir()
-	case token.PROVIDE, token.PROVIDEIF:
-		return p.provideDir()
+	case token.PASS, token.PASSIF:
+		return p.passDir()
 	case token.DUMP:
 		return p.dumpDir()
 	case token.BREAK:
@@ -556,19 +556,19 @@ func (p *Parser) compDir() ast.Chunk {
 
 	block := p.block()
 
-	// Extract provides from block and map them to a component
+	// Extract @pass from block and map them to a component
 	for _, chunk := range block.AllChunks() {
-		provide, ok := chunk.(*ast.ProvideDir)
+		passDir, ok := chunk.(*ast.PassDir)
 		if !ok {
 			continue
 		}
-		compDir.Provides = append(compDir.Provides, provide)
+		compDir.Passes = append(compDir.Passes, passDir)
 	}
 
-	defaultProvide := ast.NewProvideDir(*block.Tok(), ast.NewStrExpr(*block.Tok(), ""))
-	defaultProvide.CompName = compDir.Name.Val
-	defaultProvide.Block = block
-	compDir.Provides = append(compDir.Provides, defaultProvide)
+	defaultPass := ast.NewPassDir(*block.Tok(), ast.NewStrExpr(*block.Tok(), ""))
+	defaultPass.CompName = compDir.Name.Val
+	defaultPass.Block = block
+	compDir.Passes = append(compDir.Passes, defaultPass)
 
 	return p.endCompDir(compDir)
 }
@@ -663,15 +663,15 @@ func (p *Parser) dumpDir() ast.Chunk {
 	return dir
 }
 
-func (p *Parser) provideDir() ast.Chunk {
-	provideDir := ast.NewProvideDir(p.curToken, nil)
-	hasCondition := p.curToken.Type == token.PROVIDEIF
+func (p *Parser) passDir() ast.Chunk {
+	passDir := ast.NewPassDir(p.curToken, nil)
+	hasCondition := p.curToken.Type == token.PASSIF
 
 	p.nextToken() // move to "("
 	p.nextToken() // skip "("
 
 	if hasCondition {
-		provideDir.Cond = p.expression(LOWEST)
+		passDir.Cond = p.expression(LOWEST)
 	}
 
 	if p.peekTokenIs(token.COMMA) {
@@ -682,7 +682,7 @@ func (p *Parser) provideDir() ast.Chunk {
 		p.nextToken() // move to string
 	}
 
-	provideDir.Name = ast.NewStrExpr(p.curToken, p.curToken.Lit)
+	passDir.Name = ast.NewStrExpr(p.curToken, p.curToken.Lit)
 
 	if !p.expectPeek(token.RPAREN) { // move to ")"
 		return p.illegal()
@@ -691,12 +691,12 @@ func (p *Parser) provideDir() ast.Chunk {
 	p.nextToken() // skip ")"
 
 	if !p.curTokenIs(token.END) {
-		provideDir.Block = p.block()
+		passDir.Block = p.block()
 	}
 
-	provideDir.SetEndPosition(p.curToken.Pos)
+	passDir.SetEndPosition(p.curToken.Pos)
 
-	return provideDir
+	return passDir
 }
 
 func (p *Parser) reserveDir() ast.Chunk {

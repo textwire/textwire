@@ -10,7 +10,7 @@ type SlotDir struct {
 	BaseNode
 	CompName string   // Component name
 	Name     *StrExpr // Empty when @slot is default
-	Block    *Block   // Optional block coming from @provide's block, can be nil
+	Block    *Block   // Optional block coming from @pass block, can be nil
 }
 
 func NewSlotDir(tok token.Token, name *StrExpr, compName string) *SlotDir {

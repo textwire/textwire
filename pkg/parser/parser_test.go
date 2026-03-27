@@ -1917,19 +1917,19 @@ func TestParseEmptyBlock(t *testing.T) {
 		{130, "@for(i = 0; i < x; i++) @else @end", 33, token.FOR},
 		{140, "@insert('x')@end", 15, token.INSERT},
 		{150, "@component('x')@end", 18, token.COMPONENT},
-		{160, "@component('x')@provide('x')@end@end", 35, token.COMPONENT},
-		{170, "@component('x')@provideif(x, 'x')@end@end", 40, token.COMPONENT},
+		{160, "@component('x')@pass('x')@end@end", 32, token.COMPONENT},
+		{170, "@component('x')@passif(x, 'x')@end@end", 37, token.COMPONENT},
 		{
 			180,
-			"@component('x')@provideif(x, 'x')@end@provideif(y, 'y')@end@end",
-			62,
+			"@component('x')@passif(x, 'x')@end@passif(y, 'y')@end@end",
+			56,
 			token.COMPONENT,
 		},
-		{190, "@component('x')@provide('x')@end@provide('y')@end@end", 52, token.COMPONENT},
+		{190, "@component('x')@pass('x')@end@pass('y')@end@end", 46, token.COMPONENT},
 		{
 			200,
-			"@component('x')@provide('x')@end@provide('y')@end@provideif(x, 'name')@end@end",
-			77,
+			"@component('x')@pass('x')@end@pass('y')@end@passif(x, 'name')@end@end",
+			68,
 			token.COMPONENT,
 		},
 		{210, "@if(x)1@elseif(y)@end", 20, token.IF},
@@ -2194,7 +2194,7 @@ func TestParseContinueifDir(t *testing.T) {
 }
 
 func TestParseComponentDir(t *testing.T) {
-	t.Run("@component without provide", func(t *testing.T) {
+	t.Run("@component without @pass", func(t *testing.T) {
 		inp := "<ul>@component('components/book-card', { c: card })@end</ul>"
 		chunks, err := parseChunks(inp, parseOpts{chunksCount: 3, checkErrors: true})
 		if err != nil {
@@ -2231,8 +2231,8 @@ func TestParseComponentDir(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		if len(compDir.Provides) != 0 {
-			t.Fatalf("len(chunk.Provides) is not 0, got %d", len(compDir.Provides))
+		if len(compDir.Passes) != 0 {
+			t.Fatalf("len(chunk.Passes) is not 0, got %d", len(compDir.Passes))
 		}
 
 		expect := `@component("components/book-card", {"c": card})@end`
@@ -2241,7 +2241,7 @@ func TestParseComponentDir(t *testing.T) {
 		}
 	})
 
-	t.Run("@component with default provide", func(t *testing.T) {
+	t.Run("@component with default @pass", func(t *testing.T) {
 		inp := `@component("components/book-card")<h1>Header</h1>@end`
 
 		compDir, err := parseDirective[*ast.CompDir](inp, defaultParseOpts)
@@ -2253,31 +2253,31 @@ func TestParseComponentDir(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		if len(compDir.Provides) != 1 {
-			t.Fatalf("len(chunk.Provides) is not 1, got %d", len(compDir.Provides))
+		if len(compDir.Passes) != 1 {
+			t.Fatalf("len(chunk.Passes) is not 1, got %d", len(compDir.Passes))
 		}
 
-		provideDir := compDir.Provides[0]
-		name := provideDir.Name.Val
+		passDir := compDir.Passes[0]
+		name := passDir.Name.Val
 		if name != "" {
-			t.Fatalf("provideDir.Name.Val must be empty string, got: %s", name)
+			t.Fatalf("passDir.Name.Val must be empty string, got: %s", name)
 		}
 
 		expect := `<h1>Header</h1>`
-		if provideDir.Block.String() != expect {
+		if passDir.Block.String() != expect {
 			t.Fatalf(
-				"provideDir.Block.String() is not '%q', got '%q'",
+				"passDir.Block.String() is not '%q', got '%q'",
 				expect,
-				provideDir.Block,
+				passDir.Block,
 			)
 		}
 	})
 
-	t.Run("@component with 2 provides", func(t *testing.T) {
+	t.Run("@component with 2 @pass directives", func(t *testing.T) {
 		inp := `<ul>
 			@component("components/book-card", { c: card })
-				@provide("header")<h1>Header</h1>@end
-				@provide("footer")<footer>Footer</footer>@end
+				@pass("header")<h1>Header</h1>@end
+				@pass("footer")<footer>Footer</footer>@end
 			@end
 		</ul>`
 
@@ -2306,32 +2306,32 @@ func TestParseComponentDir(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		provideHeader := compDir.Provides[0]
-		provideFooter := compDir.Provides[1]
+		passHeader := compDir.Passes[0]
+		passFooter := compDir.Passes[1]
 
-		if err := testStrExpr(provideHeader.Name, "header"); err != nil {
+		if err := testStrExpr(passHeader.Name, "header"); err != nil {
 			t.Fatal(err)
 		}
 
 		expect := `<h1>Header</h1>`
-		if provideHeader.Block.String() != expect {
+		if passHeader.Block.String() != expect {
 			t.Fatalf(
-				"provideHeader.Block.String() is not '%q', got %q",
+				"passHeader.Block.String() is not '%q', got %q",
 				expect,
-				provideHeader.Block,
+				passHeader.Block,
 			)
 		}
 
-		if err := testStrExpr(provideFooter.Name, "footer"); err != nil {
+		if err := testStrExpr(passFooter.Name, "footer"); err != nil {
 			t.Fatal(err)
 		}
 
 		expect = `<footer>Footer</footer>`
-		if provideFooter.Block.String() != expect {
+		if passFooter.Block.String() != expect {
 			t.Fatalf(
-				"provideFooter.Block.String() is not '%q', got %q",
+				"passFooter.Block.String() is not '%q', got %q",
 				expect,
-				provideFooter.Block,
+				passFooter.Block,
 			)
 		}
 	})
@@ -2443,14 +2443,14 @@ func TestParseSlotDir(t *testing.T) {
 	})
 }
 
-func TestParseProvideifDir(t *testing.T) {
-	inp := `@component('user')@provideif(false, 'name')Test2@end@end`
+func TestParsePassifDir(t *testing.T) {
+	inp := `@component('user')@passif(false, 'name')Test2@end@end`
 	compDir, err := parseDirective[*ast.CompDir](inp, defaultParseOpts)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	err = testTokPosition(compDir.Pos(), &position.Pos{EndCol: 55})
+	err = testTokPosition(compDir.Pos(), &position.Pos{EndCol: 52})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -2459,24 +2459,24 @@ func TestParseProvideifDir(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	provideDir := compDir.Provides[0]
+	passDir := compDir.Passes[0]
 
-	if err := testBoolExpr(provideDir.Cond, false); err != nil {
+	if err := testBoolExpr(passDir.Cond, false); err != nil {
 		t.Fatal(err)
 	}
 
-	if provideDir.Name.Val != "name" {
-		t.Fatalf("provideDir.Name.Val is not 'name', got %s", provideDir.Name)
+	if passDir.Name.Val != "name" {
+		t.Fatalf("passDir.Name.Val is not 'name', got %s", passDir.Name)
 	}
 
-	block := provideDir.Block.String()
+	block := passDir.Block.String()
 	if block != "Test2" {
-		t.Fatalf("provideDir.Block.String() is not 'Test2', got %s", block)
+		t.Fatalf("passDir.Block.String() is not 'Test2', got %s", block)
 	}
 
-	expect := `@provideif(false, "name")Test2@end`
-	if provideDir.String() != expect {
-		t.Fatalf("provideDir.String() is not '%s', got %s", expect, provideDir)
+	expect := `@passif(false, "name")Test2@end`
+	if passDir.String() != expect {
+		t.Fatalf("passDir.String() is not '%s', got %s", expect, passDir)
 	}
 }
 
