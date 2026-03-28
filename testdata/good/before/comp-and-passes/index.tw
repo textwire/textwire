@@ -1,8 +1,12 @@
 ⚠️😎♥️<body>
 @component('user')
     <b>Life is not easy</b>
-    @pass('name')<b>Её имя {{ name }}</b>@end
-    @pass('age')<b>我的名字是 {{ age }}</b>@end
+    @pass('name')
+        <b>Её имя {{ name }}</b>
+    @end
+    @pass('age')
+        <b>我的名字是 {{ age }}</b>
+    @end
     @pass('empty')@end
 @end
 
