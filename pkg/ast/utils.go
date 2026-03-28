@@ -29,21 +29,7 @@ func CheckUnusedInserts(prog *Program, inserts map[string]*InsertDir) *fail.Erro
 	return nil
 }
 
-func findSlotIndex(chunks []Chunk, slotName string) int {
-	for i := range chunks {
-		slot, ok := chunks[i].(*SlotDir)
-		if !ok {
-			continue
-		}
-
-		if slot.Name.Val == slotName {
-			return i
-		}
-	}
-	return -1
-}
-
-func findDuplicatePasses(compDir *CompDir) (*PassDir, int) {
+func FindDuplicatePasses(compDir *CompDir) (*PassDir, int) {
 	counts := map[string]int{}
 	firstSeen := map[string]*PassDir{}
 
@@ -69,20 +55,4 @@ func findDuplicatePasses(compDir *CompDir) (*PassDir, int) {
 	}
 
 	return maxSlot, maxCount
-}
-
-func duplicatePassesErr(compDir *CompDir, compName, absPath string) *fail.Error {
-	duplicate, times := findDuplicatePasses(compDir)
-	if times > 0 && duplicate != nil {
-		return fail.New(
-			duplicate.Pos(),
-			absPath,
-			fail.OriginLink,
-			fail.ErrDuplicatePass,
-			duplicate.Name.Val,
-			times,
-			compName,
-		)
-	}
-	return nil
 }

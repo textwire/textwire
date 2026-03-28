@@ -76,56 +76,70 @@ func (p *Program) LinkLayoutToUse(layoutProg *Program) {
 	p.Chunks = []Chunk{p.UseDir}
 }
 
-func (p *Program) LinkCompProg(compName string, prog *Program, absPath string) *fail.Error {
-	for _, compDir := range p.Components {
-		if compDir.Name.Val != compName {
-			continue
-		}
+func (p *Program) HasUseDir() bool {
+	return p.UseDir != nil
+}
 
-		if err := duplicatePassesErr(compDir, compName, absPath); err != nil {
+func (p *Program) LinkPassBlocksToSlots(compDir *CompDir, compFileProg *Program) *fail.Error {
+	if err := compFileProg.linkPassBlocksToSlots(compDir, p.AbsPath); err != nil {
+		return err
+	}
+
+	compDir.CompProg = compFileProg
+	return nil
+}
+
+func (p *Program) linkPassBlocksToSlots(compDir *CompDir, compFileAbsPath string) *fail.Error {
+	if compDir.DefaultPass != nil {
+		if err := p.linkBlockToDefaultSlot(compDir, compFileAbsPath); err != nil {
 			return err
 		}
+	}
 
-		if compDir.DefaultPass != nil {
-			idx := findSlotIndex(prog.Chunks, "")
-			if idx == -1 {
-				return fail.New(
-					compDir.DefaultPass.Pos(),
-					absPath,
-					fail.OriginLink,
-					fail.ErrDefaultSlotNotDefined,
-					compName,
-					compName,
-				)
-			}
-
-			prog.Chunks[idx].(*SlotDir).Block = compDir.DefaultPass.Block
+	for _, passDir := range compDir.Passes {
+		if err := p.linkBlockToSlot(passDir, compDir.Name.Val, compFileAbsPath); err != nil {
+			return err
 		}
-
-		for _, passDir := range compDir.Passes {
-			name := passDir.Name.Val
-			idx := findSlotIndex(prog.Chunks, name)
-			if idx != -1 {
-				prog.Chunks[idx].(*SlotDir).Block = passDir.Block
-				continue
-			}
-
-			return fail.New(
-				passDir.Pos(),
-				absPath,
-				fail.OriginLink,
-				fail.ErrSlotNotDefined,
-				compName,
-				name,
-			)
-		}
-
-		compDir.CompProg = prog
 	}
 
 	return nil
 }
 
-func (p *Program) HasUseDir() bool {
-	return p.UseDir != nil
+func (p *Program) linkBlockToDefaultSlot(compDir *CompDir, compFileAbsPath string) *fail.Error {
+	slotDir, ok := p.Slots[""]
+	if ok {
+		slotDir.Block = compDir.DefaultPass.Block
+		return nil
+	}
+
+	return fail.New(
+		compDir.DefaultPass.Pos(),
+		compFileAbsPath,
+		fail.OriginLink,
+		fail.ErrDefaultSlotNotDefined,
+		compDir.Name.Val,
+		compDir.Name.Val,
+	)
+}
+
+func (p *Program) linkBlockToSlot(
+	passDir *PassDir,
+	compName string,
+	compFileAbsPath string,
+) *fail.Error {
+	name := passDir.Name.Val
+	slotDir, ok := p.Slots[name]
+	if ok {
+		slotDir.Block = passDir.Block
+		return nil
+	}
+
+	return fail.New(
+		passDir.Pos(),
+		compFileAbsPath,
+		fail.OriginLink,
+		fail.ErrSlotNotDefined,
+		compName,
+		name,
+	)
 }

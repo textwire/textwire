@@ -6,32 +6,6 @@ import (
 	"github.com/textwire/textwire/v4/pkg/token"
 )
 
-func TestFindSlotIndex(t *testing.T) {
-	t.Run("found", func(t *testing.T) {
-		slots := []Chunk{
-			NewSlotDir(token.Token{}, &StrExpr{Val: "country"}, ""),
-			NewSlotDir(token.Token{}, &StrExpr{Val: "city"}, ""),
-			NewSlotDir(token.Token{}, &StrExpr{Val: "street"}, ""),
-		}
-
-		if idx := findSlotIndex(slots, "city"); idx != 1 {
-			t.Errorf("Function should return indaex 1 but got %d", idx)
-		}
-	})
-
-	t.Run("not found", func(t *testing.T) {
-		slots := []Chunk{
-			NewSlotDir(token.Token{}, &StrExpr{Val: "country"}, ""),
-			NewSlotDir(token.Token{}, &StrExpr{Val: "city"}, ""),
-			NewSlotDir(token.Token{}, &StrExpr{Val: "street"}, ""),
-		}
-
-		if idx := findSlotIndex(slots, "name"); idx != -1 {
-			t.Errorf("Function should return index -1 but got %d", idx)
-		}
-	})
-}
-
 func TestFindDuplicatePasses(t *testing.T) {
 	t.Run("returns duplicate pass", func(t *testing.T) {
 		expectTimes := 3
@@ -46,7 +20,7 @@ func TestFindDuplicatePasses(t *testing.T) {
 			NewPassDir(token.Token{}, &StrExpr{Val: expectDuplicate}),
 		}
 
-		duplicate, times := findDuplicatePasses(compDir)
+		duplicate, times := FindDuplicatePasses(compDir)
 		if times != expectTimes {
 			t.Fatalf("should find %d duplicate passes, found %d", expectTimes, times)
 		}
@@ -70,7 +44,7 @@ func TestFindDuplicatePasses(t *testing.T) {
 			NewPassDir(token.Token{}, &StrExpr{Val: "LastName"}),
 		}
 
-		duplicate, times := findDuplicatePasses(compDir)
+		duplicate, times := FindDuplicatePasses(compDir)
 		if times != 0 {
 			t.Fatalf("should find 0 duplicate passes, found %d", times)
 		}

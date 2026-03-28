@@ -15,15 +15,16 @@ const (
 	ErrEmptyBraces            = "empty expression {{}} - must contain valid code like {{ variable }} or {{ 1 + 2 }}"
 	ErrWrongPeekToken         = "syntax error: expected '%s' but found '%s'"
 	ErrExpectExprAfter        = "expected expression after '%s'"
-	ErrCouldNotParseAs        = "cannot parse '%s' as %s"
+	ErrCouldNotParseAs        = "cannot parse '%s' as '%s'"
 	ErrIllegalToken           = "illegal token '%s'"
 	ErrElseifCannotFollowElse = "'@elseif' cannot come after '@else'"
 	ErrExpectedObjLit         = "expected object literal, got '%s'"
 	ErrSlotNotDefined         = "@component('%s') references @slot('%s') which doesn't exist in the component file"
-	ErrDuplicateReserves      = "found duplicate @reserve('%s') inside of a layout file %s"
+	ErrDuplicateReserves      = "found duplicate @reserve('%s') inside of a layout file '%s'"
+	ErrDuplicateSlots         = "found duplicate @slot('%s') inside of a component file '%s'"
 	ErrDuplicatePass          = "@pass('%s') used '%d' times in @component('%s')"
-	ErrUnusedInsertDetected   = "@insert('%s') needs to have a matching @reserve('%s') in layout file"
 	ErrDuplicateInserts       = "duplicate @insert('%s') found"
+	ErrUnusedInsertDetected   = "@insert('%s') needs to have a matching @reserve('%s') in layout file"
 	ErrOnlyOneUseDir          = "@use() directive can only be used once per template"
 	ErrForLoopExpectStmt      = "@for() expects statement as post conditional, got expression '%s', like 'i++', 'i = i + 2', etc"
 	ErrWrongTokenType         = "expected type '%s' but '%s' received"
@@ -37,7 +38,7 @@ const (
 	ErrIndexNotSupported     = "type '%s' does not support indexing"
 	ErrUnknownOp             = "unknown operator '%s%s'"
 	ErrCannotUseOperator     = "operator '%s' is not supported for the combination '%s' %s '%s'"
-	ErrCannotDecFromFloat    = "cannot decrement from float '%s' due to error: %s"
+	ErrCannotDecFromFloat    = "cannot decrement from float '%s' due to error: '%s'"
 	ErrPrefixOpIsWrong       = "cannot apply prefix '%s' to type '%s'"
 	ErrVariableIsUndefined   = "variable '%s' is not defined"
 	ErrReservedIdentifiers   = "'loop' and 'global' are reserved variable names"
@@ -57,6 +58,7 @@ const (
 	ErrKeyOnNonObj           = "'%s' type does not support attribute '%s' access"
 	ErrIllegalTypeForInc     = "cannot increment '%s', only integer and float are allowed"
 	ErrIllegalTypeForDec     = "cannot decrement '%s', only integer and float are allowed"
+	ErrUseDirIsNotAllowed    = "@use() not allowed in layout files - causes infinite recursion"
 
 	// Functions
 	ErrFuncNotDefined   = "%s.%s() is not defined"
@@ -68,21 +70,19 @@ const (
 	ErrFuncMaxArgs      = "%s.%s() takes at most %d arguments"
 
 	// Template errors
-	ErrUnsupportedType       = "unsupported value type '%T'"
-	ErrUseDirIsNotAllowed    = "@use() not allowed in layout files - causes infinite recursion"
-	ErrTemplateNotFound      = "template file '%s' not found"
-	ErrDefaultSlotNotDefined = "you are passing default content in your @component('%s'), but default @slot is not defined in component file '%s'"
-
-	// API errors
+	ErrUnsupportedType    = "unsupported value type '%T'"
+	ErrTemplateNotFound   = "template file '%s' not found"
 	ErrFuncAlreadyDefined = "custom function '%s' already defined for type '%s'"
-	ErrUndefinedComponent = "@component('%s') missing required component file"
+
+	// Linker errors
+	ErrDefaultSlotNotDefined = "you are passing default content in your @component('%s'), but default @slot is not defined in component file '%s'"
+	ErrUndefinedComponent    = "@component('%s') missing required component file"
 )
 
 const (
 	OriginPars ErrOrigin = "parser"
 	OriginEval ErrOrigin = "evaluator"
 	OriginTpl  ErrOrigin = "template"
-	OriginAPI  ErrOrigin = "API"
 	OriginLink ErrOrigin = "linker"
 )
 

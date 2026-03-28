@@ -947,7 +947,7 @@ func TestErrorHandling(t *testing.T) {
 			),
 		},
 		{
-			id:  1000,
+			id:  950,
 			inp: "@component('name')@pass('')<content>@end@end",
 			err: fail.New(
 				&position.Pos{StartCol: 24, EndCol: 25},
@@ -955,6 +955,18 @@ func TestErrorHandling(t *testing.T) {
 				fail.OriginPars,
 				fail.ErrNameCannotBeEmpty,
 				"@pass",
+			),
+		},
+		{
+			id:  960,
+			inp: "<div>@slot('name')Nice@slot('name')</div>",
+			err: fail.New(
+				&position.Pos{StartCol: 28, EndCol: 33},
+				"",
+				fail.OriginPars,
+				fail.ErrDuplicateSlots,
+				"name",
+				"",
 			),
 		},
 	}

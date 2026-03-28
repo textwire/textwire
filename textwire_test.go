@@ -825,7 +825,7 @@ func TestCustomFunctions(t *testing.T) {
 			t.Fatalf("Expect error but got none")
 		}
 
-		expect := fail.New(nil, "", fail.OriginAPI, fail.ErrFuncAlreadyDefined, "_len", "strings")
+		expect := fail.New(nil, "", fail.OriginTpl, fail.ErrFuncAlreadyDefined, "_len", "strings")
 
 		if err := compareFailures(err, expect); err != nil {
 			t.Fatal(err)

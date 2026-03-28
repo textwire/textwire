@@ -78,7 +78,7 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 			err: fail.New(
 				&position.Pos{StartLine: 2, StartCol: 4, EndLine: 2, EndCol: 39},
 				absPath+"duplicate-pass/index.tw",
-				fail.OriginLink,
+				fail.OriginPars,
 				fail.ErrDuplicatePass,
 				"content",
 				2,

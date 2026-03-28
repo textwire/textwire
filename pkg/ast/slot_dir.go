@@ -13,10 +13,9 @@ type SlotDir struct {
 	Block    *Block   // Optional block coming from @pass block, can be nil
 }
 
-func NewSlotDir(tok token.Token, name *StrExpr, compName string) *SlotDir {
+func NewSlotDir(tok token.Token, compName string) *SlotDir {
 	return &SlotDir{
 		BaseNode: NewBaseNode(tok),
-		Name:     name,
 		CompName: compName,
 	}
 }

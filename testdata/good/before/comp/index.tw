@@ -1,3 +1,4 @@
 <ul>
     @component("user", { name: "Anna", age: 27 })@end
+    @component("section")Box content@end
 </ul>

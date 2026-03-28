@@ -371,7 +371,7 @@ func (e *Evaluator) reserveDir(reserveDir *ast.ReserveDir, ctx *Context) value.V
 		return e.evalLiteral(reserveDir.Fallback, ctx)
 	}
 
-	// delete reserve after it's been used by reserve
+	// Delete reserve after it's been used by reserve
 	defer delete(ctx.inserts, name)
 
 	return &value.Reserve{

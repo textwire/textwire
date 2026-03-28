@@ -92,25 +92,19 @@ func (nl *NodeLinker) handleLayoutLinking(prog *ast.Program) *fail.Error {
 
 // handleCompLinking links component directives with component files
 func (nl *NodeLinker) handleCompLinking(prog *ast.Program) *fail.Error {
-	if len(prog.Components) == 0 {
-		return nil
-	}
-
-	for _, comp := range prog.Components {
-		compName := comp.Name.Val
-		compProg := ast.FindProg(compName, nl.Programs)
-		if compProg == nil {
+	for _, compDir := range prog.Components {
+		compFileProg := ast.FindProg(compDir.Name.Val, nl.Programs)
+		if compFileProg == nil {
 			return fail.New(
-				comp.Pos(),
+				compDir.Pos(),
 				prog.AbsPath,
 				fail.OriginLink,
 				fail.ErrUndefinedComponent,
-				compName,
+				compDir.Name.Val,
 			)
 		}
 
-		err := prog.LinkCompProg(compName, compProg, prog.AbsPath)
-		if err != nil {
+		if err := prog.LinkPassBlocksToSlots(compDir, compFileProg); err != nil {
 			return err
 		}
 	}

@@ -132,14 +132,10 @@ func (p *Parser) ParseProgram() *ast.Program {
 
 	for !p.curTokenIs(token.EOF) {
 		chunk := p.chunk()
-		if chunk == nil {
-			p.nextToken() // skip to next token
-			continue
+		if chunk != nil {
+			p.prog.Chunks = append(p.prog.Chunks, chunk)
 		}
-
-		p.prog.Chunks = append(p.prog.Chunks, chunk)
-
-		p.nextToken() // skip to next token
+		p.nextToken()
 	}
 
 	return p.prog
@@ -548,7 +544,13 @@ func (p *Parser) compDir() ast.Chunk {
 }
 
 func (p *Parser) endCompDir(compDir *ast.CompDir) *ast.CompDir {
-	p.components = append(p.components, compDir)
+	dup, times := ast.FindDuplicatePasses(compDir)
+	if dup != nil && times > 0 {
+		p.newError(dup.Pos(), fail.ErrDuplicatePass, dup.Name.Val, times, compDir.Name.Val)
+		return nil
+	}
+
+	p.prog.Components = append(p.prog.Components, compDir)
 	compDir.SetEndPosition(p.curToken.Pos)
 	return compDir
 }
@@ -595,29 +597,38 @@ func (p *Parser) compDirHeader(compDir *ast.CompDir) *ast.Illegal {
 
 // slotDir parses an @slot inside a component file.
 func (p *Parser) slotDir() ast.Chunk {
-	tok := p.curToken // "@slot"
+	slotDir := ast.NewSlotDir(p.curToken, p.file.Name)
 
 	// Handle default @slot without name
 	if !p.peekTokenIs(token.LPAREN) {
-		name := ast.NewStrExpr(p.curToken, "")
-		slotDir := ast.NewSlotDir(tok, name, p.file.Name)
-		return slotDir
+		slotDir.Name = ast.NewStrExpr(p.curToken, "")
+		return p.endSlotDir(slotDir)
 	}
 
 	p.nextToken() // skip "@slot"
 	p.nextToken() // skip "("
 
 	// Handle named @slot with name
-	name := ast.NewStrExpr(p.curToken, p.curToken.Lit)
+	slotDir.Name = ast.NewStrExpr(p.curToken, p.curToken.Lit)
 
 	if !p.expectPeek(token.RPAREN) { // move to ")"
 		return p.illegalUntil(token.END)
 	}
 
-	dir := ast.NewSlotDir(tok, name, p.file.Name)
-	dir.SetEndPosition(p.curToken.Pos)
+	return p.endSlotDir(slotDir)
+}
 
-	return dir
+func (p *Parser) endSlotDir(slotDir *ast.SlotDir) ast.Chunk {
+	name := slotDir.Name.Val
+	if _, ok := p.prog.Slots[name]; ok {
+		p.newError(slotDir.Name.Pos(), fail.ErrDuplicateSlots, name, p.file.Abs)
+		return nil
+	}
+
+	slotDir.SetEndPosition(p.curToken.Pos)
+	p.prog.Slots[name] = slotDir
+
+	return slotDir
 }
 
 func (p *Parser) dumpDir() ast.Chunk {
