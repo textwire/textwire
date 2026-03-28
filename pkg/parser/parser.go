@@ -827,17 +827,11 @@ func (p *Parser) insertDirArgument(insertDir *ast.InsertDir) (*ast.Illegal, bool
 }
 
 func (p *Parser) hasDuplicateInserts(insertDir *ast.InsertDir) bool {
-	if _, hasDuplicate := p.prog.Inserts[insertDir.Name.Val]; hasDuplicate {
-		p.newError(
-			insertDir.Name.Pos(),
-			fail.ErrDuplicateInserts,
-			insertDir.Name.Val,
-		)
-
-		return true
+	if _, ok := p.prog.Inserts[insertDir.Name.Val]; !ok {
+		return false
 	}
-
-	return false
+	p.newError(insertDir.Name.Pos(), fail.ErrDuplicateInserts, insertDir.Name.Val)
+	return true
 }
 
 func (p *Parser) indexExpr(left ast.Expression) ast.Expression {
