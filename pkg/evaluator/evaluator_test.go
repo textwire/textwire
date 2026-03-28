@@ -904,7 +904,7 @@ func TestEvalEachDir(t *testing.T) {
 		inp    string
 		expect string
 	}{
-		{10, `@each(name in ["anna", "serhii"]){{ name }} @end`, "anna serhii "},
+		{10, `@each(name in ["anna", "serhii"]) {{ name }} @end`, "annaserhii"},
 		{20, `@each(num in [1, 2, 3]){{ num }}@end`, "123"},
 		{30, `@each(num in []){{ num }}@end`, ""},
 		// test loop variable
@@ -931,14 +931,14 @@ func TestEvalEachDir(t *testing.T) {
 		{200, `@each(n in [1, 2, 3, 4, 5])@breakif(n == 3){{ n }}@end`, "12"},
 		{
 			210,
-			`@each(n in ["ann", "serhii", "sam"])@breakif(n == 'sam'){{ n }} @end`,
+			`@each(n in ["ann", "serhii", "sam"])@breakif(n == 'sam'){{ n }}{{ ' ' }}@end`,
 			"ann serhii ",
 		},
 		// test @continueif directive
 		{210, `@each(n in [1, 2, 3, 4, 5])@continueif(n == 3){{ n }}@end`, "1245"},
 		{
 			230,
-			`@each(n in ["ann", "serhii", "sam"])@continueif(n == 'sam'){{ n }} @end`,
+			`@each(n in ["ann", "serhii", "sam"])@continueif(n == 'sam'){{ n }}{{' '}}@end`,
 			"ann serhii ",
 		},
 	}

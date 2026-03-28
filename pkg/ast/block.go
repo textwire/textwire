@@ -63,6 +63,43 @@ func (b *Block) ExtractPassDirs() []*PassDir {
 	return passDirs
 }
 
+func (b *Block) Trim() {
+	b.trimFirst()
+	b.trimLast()
+}
+
+func (b *Block) trimChunk(idx int, trim func(string) string) {
+	if len(b.Chunks) == 0 {
+		return
+	}
+
+	chunk, ok := b.Chunks[idx].(*Text)
+	if !ok {
+		return
+	}
+
+	chunk.Token.Lit = trim(chunk.Token.Lit)
+	if chunk.Token.Lit == "" {
+		if idx == 0 {
+			b.Chunks = b.Chunks[1:]
+		} else {
+			b.Chunks = b.Chunks[:idx]
+		}
+	}
+}
+
+func (b *Block) trimFirst() {
+	b.trimChunk(0, func(s string) string {
+		return strings.TrimLeft(s, " \n\t\r")
+	})
+}
+
+func (b *Block) trimLast() {
+	b.trimChunk(len(b.Chunks)-1, func(s string) string {
+		return strings.TrimRight(s, " \n\t\r")
+	})
+}
+
 // ToDefaultPassDir removes all *PassDir chunks and empty *Text nodes with
 // whitespace from the block and returns a *PassDir with this block.
 func (b *Block) ToDefaultPassDir(compName string) *PassDir {
@@ -77,7 +114,7 @@ func (b *Block) ToDefaultPassDir(compName string) *PassDir {
 		case *PassDir:
 			continue
 		case *Text:
-			content := strings.Trim(t.Token.Lit, " \n\t\r")
+			content := strings.TrimSpace(t.Token.Lit)
 			if content == "" {
 				continue
 			}

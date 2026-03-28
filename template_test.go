@@ -421,6 +421,7 @@ func TestRegisteringCustomFunction(t *testing.T) {
 		}
 		return string(s[0]) + string(s[1]-32) + s[2:]
 	})
+
 	if err != nil {
 		t.Fatalf("Unexpected error registering function: %s", tplErr)
 	}

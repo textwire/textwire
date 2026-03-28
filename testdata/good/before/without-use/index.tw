@@ -6,7 +6,7 @@
     <title>{{ true ? pageTitle : "" }}</title>
 </head>
 <body>
-    <h2>This@if(true) is @endnice</h2>
+    <h2>This @if(true) is @end nice</h2>
     <h2>This\@if(true) is \@endnice</h2>
     <ul>
         <li>{{ true ? NAME_1 : "" }}</li>

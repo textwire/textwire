@@ -1,3 +1,7 @@
 <section>
-@component('comp')@pass('h4')Textwire@end@end
+@component('comp')
+    @pass('h4')
+        Textwire
+    @end
+@end
 </section>

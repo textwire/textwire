@@ -1239,6 +1239,8 @@ func (p *Parser) block() *ast.Block {
 		p.nextToken() // skip chunk
 	}
 
+	block.Trim()
+
 	return block
 }
 

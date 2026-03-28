@@ -21,6 +21,7 @@
         @end
         ```
       - Now, components always require the ending directive even if they are empty. Example: `@component('name')@end`.
+    - Blocks are not trimmed from both, left and the right side. Example: `@if(true) content @end` will produce `content` instead of ` content ` like before.
 - 🧑‍💻 Improvements:
     - All public API functions like `NewTemplate()`, `EvaluateString`, etc., now return `*fail.Error` instead of Go's `error` type.
     - Added proper position to error messages. Closes [#101](https://github.com/textwire/textwire/issues/101).

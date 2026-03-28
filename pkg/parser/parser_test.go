@@ -1121,9 +1121,9 @@ func TestParseIfDir(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		if len(ifDir.IfBlock.Chunks) != 3 {
+		if len(ifDir.IfBlock.Chunks) != 1 {
 			t.Fatalf(
-				"ifDir.IfBlock.Chunks does not contain 3 chunks, got %d",
+				"ifDir.IfBlock.Chunks does not contain 1 chunk1, got %d",
 				len(ifDir.IfBlock.Chunks),
 			)
 		}
@@ -1792,7 +1792,7 @@ func TestParseForDir(t *testing.T) {
 			t.Fatalf("forDir.Post.String() is not '(i++)', got %s", forDir.Post)
 		}
 
-		actual := strings.Trim(forDir.Block.String(), " \n\t")
+		actual := strings.TrimSpace(forDir.Block.String())
 		if actual != "{{ i }}" {
 			t.Fatalf("actual is not '%q', got %q", "{{ i }}", actual)
 		}

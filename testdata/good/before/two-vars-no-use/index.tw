@@ -6,7 +6,7 @@
     <title>{{ title }}</title>
 </head>
 <body>
-    <h2>This @if(visible)is@end nice</h2>
-    <p>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Nesciunt, vero</p>
+    <h2>Marcus Aurelius @if(visible) Quotes @end</h2>
+    <p>You have power over your mind - not outside events. Realize this, and you will find strength.</p>
 </body>
 </html>

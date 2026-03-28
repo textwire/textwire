@@ -1,1 +1,5 @@
-<head>@component('comp')@reserve('title')@end</head>
+<head>
+    @component('comp')
+        @reserve('title')
+    @end
+</head>

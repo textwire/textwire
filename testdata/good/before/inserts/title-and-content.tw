@@ -4,6 +4,6 @@
 <title>@reserve("title")</title>
 </head>
 <body>
-@reserve("content", "Not needed fallback")
+    @reserve("content", "Not needed fallback")
 </body>
 </html>
