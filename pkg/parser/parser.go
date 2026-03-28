@@ -68,14 +68,7 @@ type Parser struct {
 	prefixParseFns map[token.TokenType]prefixParseFn
 	infixParseFns  map[token.TokenType]infixParseFn
 
-	// _useDir is used to reference the use directive in the program.
-	// We need it because the final program object must have a field UseDir.
-	// After parsing a program we link this pointer to program.UseDir.
-	_useDir *ast.UseDir
-
-	components []*ast.CompDir
-	inserts    map[string]*ast.InsertDir
-	reserves   map[string]*ast.ReserveDir
+	prog *ast.Program
 }
 
 func New(lexer *lexer.Lexer, f *file.SourceFile) *Parser {
@@ -84,12 +77,9 @@ func New(lexer *lexer.Lexer, f *file.SourceFile) *Parser {
 	}
 
 	p := &Parser{
-		l:          lexer,
-		file:       f,
-		errors:     []*fail.Error{},
-		components: []*ast.CompDir{},
-		inserts:    map[string]*ast.InsertDir{},
-		reserves:   map[string]*ast.ReserveDir{},
+		l:      lexer,
+		file:   f,
+		errors: []*fail.Error{},
 	}
 
 	p.nextToken() // fill curToken
@@ -136,8 +126,9 @@ func New(lexer *lexer.Lexer, f *file.SourceFile) *Parser {
 }
 
 func (p *Parser) ParseProgram() *ast.Program {
-	prog := ast.NewProgram(p.curToken)
-	prog.Chunks = []ast.Chunk{}
+	p.prog = ast.NewProgram(p.curToken)
+	p.prog.AbsPath = p.file.Abs
+	p.prog.Chunks = []ast.Chunk{}
 
 	for !p.curTokenIs(token.EOF) {
 		chunk := p.chunk()
@@ -146,18 +137,12 @@ func (p *Parser) ParseProgram() *ast.Program {
 			continue
 		}
 
-		prog.Chunks = append(prog.Chunks, chunk)
+		p.prog.Chunks = append(p.prog.Chunks, chunk)
 
 		p.nextToken() // skip to next token
 	}
 
-	prog.Components = p.components
-	prog.Inserts = p.inserts
-	prog.UseDir = p._useDir
-	prog.Reserves = p.reserves
-	prog.AbsPath = p.file.Abs
-
-	return prog
+	return p.prog
 }
 
 func (p *Parser) Errors() []*fail.Error {
@@ -486,7 +471,7 @@ func (p *Parser) useDir() ast.Chunk {
 		file.ReplacePathAlias(p.curToken.Lit, file.PathAliasUse),
 	)
 
-	if p._useDir != nil {
+	if p.prog.UseDir != nil {
 		p.newError(useDir.Pos(), fail.ErrOnlyOneUseDir)
 	}
 
@@ -496,7 +481,7 @@ func (p *Parser) useDir() ast.Chunk {
 
 	useDir.SetEndPosition(p.curToken.Pos)
 
-	p._useDir = useDir
+	p.prog.UseDir = useDir
 
 	return useDir
 }
@@ -719,7 +704,7 @@ func (p *Parser) reserveDir() ast.Chunk {
 	reserveDir.SetEndPosition(p.curToken.Pos)
 
 	// Check for duplicate reserve statements
-	if _, ok := p.reserves[reserveDir.Name.Val]; ok {
+	if _, ok := p.prog.Reserves[reserveDir.Name.Val]; ok {
 		p.newError(
 			reserveDir.Name.Pos(),
 			fail.ErrDuplicateReserves,
@@ -729,7 +714,7 @@ func (p *Parser) reserveDir() ast.Chunk {
 		return nil
 	}
 
-	p.reserves[reserveDir.Name.Val] = reserveDir
+	p.prog.Reserves[reserveDir.Name.Val] = reserveDir
 
 	return reserveDir
 }
@@ -777,7 +762,7 @@ func (p *Parser) insertDir() ast.Chunk {
 
 	insertDir.SetEndPosition(p.curToken.Pos)
 
-	p.inserts[insertDir.Name.Val] = insertDir
+	p.prog.Inserts[insertDir.Name.Val] = insertDir
 
 	return insertDir
 }
@@ -836,13 +821,13 @@ func (p *Parser) insertDirArgument(insertDir *ast.InsertDir) (*ast.Illegal, bool
 
 	insertDir.SetEndPosition(p.curToken.Pos)
 
-	p.inserts[insertDir.Name.Val] = insertDir
+	p.prog.Inserts[insertDir.Name.Val] = insertDir
 
 	return nil, true
 }
 
 func (p *Parser) hasDuplicateInserts(insertDir *ast.InsertDir) bool {
-	if _, hasDuplicate := p.inserts[insertDir.Name.Val]; hasDuplicate {
+	if _, hasDuplicate := p.prog.Inserts[insertDir.Name.Val]; hasDuplicate {
 		p.newError(
 			insertDir.Name.Pos(),
 			fail.ErrDuplicateInserts,

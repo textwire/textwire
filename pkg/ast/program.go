@@ -12,16 +12,25 @@ type Program struct {
 	IsLayout   bool
 	Name       string
 	AbsPath    string
-	UseDir     *UseDir
 	Chunks     []Chunk
 	Components []*CompDir
 	Reserves   map[string]*ReserveDir
 	Inserts    map[string]*InsertDir
+	Slots      map[string]*SlotDir
+
+	// UseDir is used to reference the use directive in the program.
+	// We need it because the final program object must have a field UseDir.
+	// After parsing a program we link this pointer to program.UseDir.
+	UseDir *UseDir
 }
 
 func NewProgram(tok token.Token) *Program {
 	return &Program{
-		BaseNode: NewBaseNode(tok),
+		BaseNode:   NewBaseNode(tok),
+		Components: []*CompDir{},
+		Inserts:    map[string]*InsertDir{},
+		Reserves:   map[string]*ReserveDir{},
+		Slots:      map[string]*SlotDir{},
 	}
 }
 
@@ -79,7 +88,6 @@ func (p *Program) LinkCompProg(compName string, prog *Program, absPath string) *
 
 		if compDir.DefaultPass != nil {
 			idx := findSlotIndex(prog.Chunks, "")
-
 			if idx == -1 {
 				return fail.New(
 					compDir.DefaultPass.Pos(),
