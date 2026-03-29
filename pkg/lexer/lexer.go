@@ -479,7 +479,6 @@ func (l *Lexer) tokenBegins() {
 
 func (l *Lexer) readText() string {
 	var out bytes.Buffer
-	out.Grow(32) // 32 is approximate capacity
 	l.tokenBegins()
 
 	for l.isText && l.char != 0 {

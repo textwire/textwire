@@ -680,7 +680,7 @@ func TestEvaluateFile(t *testing.T) {
 	}
 
 	if actual != expect {
-		t.Errorf("Wrong output. Expect:\n%q\ngot:\n%q", expect, actual)
+		t.Errorf("Wrong output. Expect:\n%s\ngot:\n%s", expect, actual)
 	}
 }
 
