@@ -9,7 +9,7 @@ import (
 )
 
 var (
-	userConf   = config.New("templates", ".tw", "", false)
+	userConf   = config.New()
 	customFunc = config.NewFunc()
 )
 

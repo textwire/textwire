@@ -66,12 +66,12 @@ type Config struct {
 	usesFS bool
 }
 
-func New(dir, ext, errPagePath string, debug bool) *Config {
+func New() *Config {
 	return &Config{
-		TemplateDir:     dir,
-		TemplateExt:     ext,
-		ErrorPagePath:   errPagePath,
-		DebugMode:       debug,
+		TemplateDir:     "templates",
+		TemplateExt:     ".tw",
+		ErrorPagePath:   "",
+		DebugMode:       false,
 		GlobalData:      map[string]any{},
 		WatcherInterval: time.Second,
 	}
