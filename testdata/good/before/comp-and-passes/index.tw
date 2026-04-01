@@ -1,6 +1,6 @@
 ⚠️😎♥️<body>
 @component('user')
-    <b>Life is not easy</b>
+    <b>Skirk is good</b>
     @pass('name')
         <b>Её имя {{ name }}</b>
     @end
@@ -8,6 +8,7 @@
         <b>我的名字是 {{ age }}</b>
     @end
     @pass('empty')@end
+    <b>She needs Escoffier tho</b>
 @end
 
 @component('书', { age })
