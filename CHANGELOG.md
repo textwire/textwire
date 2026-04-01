@@ -1,5 +1,9 @@
 # Release notes
 
+## v4.0.1 (2026-04-01)
+
+- 🐛 Fix `IsInLoop` function for the LSP server.
+
 ## v4.0.0 (2026-04-01)
 
 - ⚠️ Breaking changes:

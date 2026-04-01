@@ -145,8 +145,14 @@ func TestIsInLoop(t *testing.T) {
 		}
 
 		if actual != tc.expect {
-			t.Errorf("Expect IsInLoop to return %v, but got %v in %q, line %d, col %d",
-				tc.expect, actual, tc.doc, tc.linePos, tc.colPos)
+			t.Errorf(
+				"Expect IsInLoop to return %v, but got %v in %q, line %d, col %d",
+				tc.expect,
+				actual,
+				tc.doc,
+				tc.linePos,
+				tc.colPos,
+			)
 		}
 	}
 }

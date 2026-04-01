@@ -543,11 +543,11 @@ func (p *Parser) compDir() ast.Chunk {
 	return p.endCompDir(compDir)
 }
 
-func (p *Parser) endCompDir(compDir *ast.CompDir) *ast.CompDir {
+func (p *Parser) endCompDir(compDir *ast.CompDir) ast.Chunk {
 	dup, times := ast.FindDuplicatePasses(compDir)
 	if dup != nil && times > 0 {
 		p.newError(dup.Pos(), fail.ErrDuplicatePass, dup.Name.Val, times, compDir.Name.Val)
-		return nil
+		return p.illegal()
 	}
 
 	p.prog.Components = append(p.prog.Components, compDir)
