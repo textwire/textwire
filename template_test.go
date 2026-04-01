@@ -1,14 +1,17 @@
 package textwire
 
 import (
+	"fmt"
 	"net/http/httptest"
+	"reflect"
 	"strings"
 	"testing"
 
-	"github.com/textwire/textwire/v3/config"
-	"github.com/textwire/textwire/v3/pkg/fail"
-	"github.com/textwire/textwire/v3/pkg/file"
-	"github.com/textwire/textwire/v3/pkg/value"
+	"github.com/textwire/textwire/v4/config"
+	"github.com/textwire/textwire/v4/pkg/fail"
+	"github.com/textwire/textwire/v4/pkg/file"
+	"github.com/textwire/textwire/v4/pkg/position"
+	"github.com/textwire/textwire/v4/pkg/value"
 )
 
 func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
@@ -25,22 +28,11 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 		data map[string]any
 	}{
 		{
-			dir: "undefined-default-slotif",
+			dir: "undefined-named-passif",
 			err: fail.New(
-				1,
-				absPath+"undefined-default-slotif/index.tw",
-				"parser",
-				fail.ErrDefaultSlotNotDefined,
-				"user",
-			),
-			data: nil,
-		},
-		{
-			dir: "undefined-named-slotif",
-			err: fail.New(
-				1,
-				absPath+"undefined-named-slotif/index.tw",
-				"parser",
+				&position.Pos{StartCol: 21, EndCol: 49},
+				absPath+"undefined-named-passif/index.tw",
+				fail.OriginLink,
 				fail.ErrSlotNotDefined,
 				"user",
 				"name",
@@ -48,33 +40,21 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 			data: nil,
 		},
 		{
-			dir: "duplicate-reserves",
-			err: fail.New(
-				3,
-				absPath+"duplicate-reserves/base.tw",
-				"parser",
-				fail.ErrDuplicateReserves,
-				"title",
-				absPath+"duplicate-reserves/base.tw",
-			),
-			data: nil,
-		},
-		{
 			dir: "use-inside-tpl",
 			err: fail.New(
-				1,
-				absPath+"use-inside-tpl/index.tw",
-				"evaluator",
-				fail.ErrUseStmtNotAllowed,
+				&position.Pos{EndCol: 13},
+				absPath+"use-inside-tpl/layout.tw",
+				fail.OriginEval,
+				fail.ErrUseDirIsNotAllowed,
 			),
 			data: nil,
 		},
 		{
-			dir: "unknown-named-slot",
+			dir: "unknown-named-pass",
 			err: fail.New(
-				2,
-				absPath+"unknown-named-slot/index.tw",
-				"parser",
+				&position.Pos{StartLine: 1, StartCol: 4, EndLine: 3, EndCol: 7},
+				absPath+"unknown-named-pass/index.tw",
+				fail.OriginLink,
 				fail.ErrSlotNotDefined,
 				"user",
 				"unknown",
@@ -82,36 +62,25 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 			data: nil,
 		},
 		{
-			dir: "unknown-default-slot",
+			dir: "unknown-default-pass",
 			err: fail.New(
-				2,
-				absPath+"unknown-default-slot/index.tw",
-				"parser",
+				&position.Pos{StartLine: 0, StartCol: 45, EndLine: 1, EndCol: 31},
+				absPath+"unknown-default-pass/index.tw",
+				fail.OriginLink,
 				fail.ErrDefaultSlotNotDefined,
+				"book",
 				"book",
 			),
 			data: nil,
 		},
 		{
-			dir: "duplicate-slot",
+			dir: "duplicate-pass",
 			err: fail.New(
-				2,
-				absPath+"duplicate-slot/index.tw",
-				"parser",
-				fail.ErrDuplicateSlot,
+				&position.Pos{StartLine: 2, StartCol: 4, EndLine: 2, EndCol: 39},
+				absPath+"duplicate-pass/index.tw",
+				fail.OriginPars,
+				fail.ErrDuplicatePass,
 				"content",
-				2,
-				"user",
-			),
-			data: nil,
-		},
-		{
-			dir: "duplicate-default-slot",
-			err: fail.New(
-				2,
-				absPath+"duplicate-default-slot/index.tw",
-				"parser",
-				fail.ErrDuplicateDefaultSlot,
 				2,
 				"user",
 			),
@@ -120,9 +89,9 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 		{
 			dir: "unknown-comp",
 			err: fail.New(
-				9,
+				&position.Pos{StartLine: 8, StartCol: 4, EndLine: 8, EndCol: 33},
 				absPath+"unknown-comp/index.tw",
-				"template",
+				fail.OriginLink,
 				fail.ErrUndefinedComponent,
 				"unknown-name",
 			),
@@ -131,9 +100,9 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 		{
 			dir: "undefined-insert",
 			err: fail.New(
-				5,
+				&position.Pos{StartLine: 4, EndLine: 6, EndCol: 3},
 				absPath+"undefined-insert/index.tw",
-				"parser",
+				fail.OriginLink,
 				fail.ErrUnusedInsertDetected,
 				"some-name",
 				"some-name",
@@ -141,22 +110,11 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 			data: nil,
 		},
 		{
-			dir: "duplicate-inserts",
-			err: fail.New(
-				4,
-				absPath+"duplicate-inserts/index.tw",
-				"parser",
-				fail.ErrDuplicateInserts,
-				"title",
-			),
-			data: nil,
-		},
-		{
 			dir: "undefined-var-in-comp",
 			err: fail.New(
-				1,
+				&position.Pos{StartCol: 3, EndCol: 14},
 				absPath+"undefined-var-in-comp/hero.tw",
-				"evaluator",
+				fail.OriginEval,
 				fail.ErrVariableIsUndefined,
 				"undefinedVar",
 			),
@@ -165,9 +123,9 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 		{
 			dir: "undefined-var-in-use",
 			err: fail.New(
-				8,
+				&position.Pos{StartLine: 7, StartCol: 9, EndLine: 7, EndCol: 20},
 				absPath+"undefined-var-in-use/base.tw",
-				"evaluator",
+				fail.OriginEval,
 				fail.ErrVariableIsUndefined,
 				"undefinedVar",
 			),
@@ -176,10 +134,10 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 		{
 			dir: "undefined-use",
 			err: fail.New(
-				1,
+				&position.Pos{StartCol: 5, EndCol: 22},
 				absPath+"undefined-use/index.tw",
-				"parser",
-				fail.ErrUseStmtMissingLayout,
+				fail.OriginLink,
+				fail.ErrUseDirMissingLayout,
 				"undefined-layout",
 			),
 			data: nil,
@@ -187,9 +145,9 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 		{
 			dir: "undefined-var-in-nested-comp",
 			err: fail.New(
-				1,
+				&position.Pos{StartCol: 9, EndCol: 12},
 				absPath+"undefined-var-in-nested-comp/second.tw",
-				"evaluator",
+				fail.OriginEval,
 				fail.ErrVariableIsUndefined,
 				"name",
 			),
@@ -198,25 +156,20 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 		{
 			dir: "var-in-layout",
 			err: fail.New(
-				1,
+				&position.Pos{StartCol: 9, EndCol: 16},
 				absPath+"var-in-layout/layout.tw",
-				"evaluator",
+				fail.OriginEval,
 				fail.ErrVariableIsUndefined,
 				"fullName",
 			),
 			data: map[string]any{"fullName": "Amy Adams"},
 		},
 		{
-			dir:  "duplicate-use",
-			err:  fail.New(2, absPath+"duplicate-use/index.tw", "parser", fail.ErrOnlyOneUseDir),
-			data: nil,
-		},
-		{
 			dir: "inserts-without-use",
 			err: fail.New(
-				4,
+				&position.Pos{StartLine: 3, EndLine: 3, EndCol: 31},
 				absPath+"inserts-without-use/index.tw",
-				"evaluator",
+				fail.OriginEval,
 				fail.ErrInsertRequiresUse,
 				"title",
 			),
@@ -226,12 +179,13 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 
 	for _, tc := range cases {
 		t.Run(tc.dir, func(t *testing.T) {
-			tpl, tplErr := NewTemplate(
+			tpl, tplFail := NewTemplate(
 				&config.Config{TemplateDir: "testdata/bad/" + tc.dir},
 			)
-			if tplErr != nil {
-				if tplErr.Error() != tc.err.String() {
-					t.Fatalf("Wrong error message! Expect:\n%q\ngot:\n%q", tc.err, tplErr)
+
+			if tplFail != nil {
+				if err := compareFailures(tplFail, tc.err); err != nil {
+					t.Fatal(err)
 				}
 				return
 			}
@@ -241,20 +195,37 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 				t.Fatalf("Expected error but got none")
 			}
 
-			if err.String() != tc.err.String() {
-				t.Fatalf("Wrong error message! Expect:\n%s\ngot:\n%q", tc.err, err)
-			}
-
-			if err.Origin() != tc.err.Origin() {
-				t.Fatalf(
-					"Wrong origin on error message, expect %s, got: %s in error message:\n%q",
-					tc.err.Origin(),
-					err.Origin(),
-					err,
-				)
+			if err := compareFailures(err, tc.err); err != nil {
+				t.Fatal(err)
 			}
 		})
 	}
+}
+
+func compareFailures(got, expect *fail.Error) error {
+	if got.String() != expect.String() {
+		return fmt.Errorf("wrong error message! Expect:\n%q\ngot:\n%q", expect, got)
+	}
+
+	if got.Origin() != expect.Origin() {
+		return fmt.Errorf(
+			"wrong origin on error message, expect %s, got: %s in error message:\n%q",
+			expect.Origin(),
+			got.Origin(),
+			got,
+		)
+	}
+
+	if !reflect.DeepEqual(got.Pos(), expect.Pos()) {
+		return fmt.Errorf(
+			"wrong position on error message, expect %v, got: %v in error message:\n%q",
+			expect.Pos(),
+			got.Pos(),
+			got,
+		)
+	}
+
+	return nil
 }
 
 func TestNewTemplate(t *testing.T) {
@@ -264,7 +235,7 @@ func TestNewTemplate(t *testing.T) {
 		data map[string]any
 		dir  string
 	}{
-		{conf: &config.Config{}, view: "index", data: nil, dir: "slotif"},
+		{conf: &config.Config{}, view: "index", data: nil, dir: "passif"},
 		{conf: &config.Config{}, view: "index", data: nil, dir: "slots-optional"},
 		{conf: &config.Config{}, view: "index", data: nil, dir: "reserve-inside-slot"},
 		{conf: &config.Config{}, view: "~index", data: nil, dir: "no-stmts"},
@@ -302,7 +273,7 @@ func TestNewTemplate(t *testing.T) {
 			conf: &config.Config{},
 			view: "index",
 			data: map[string]any{"name": "Анна ♥️", "age": 20},
-			dir:  "comp-and-slots",
+			dir:  "comp-and-passes",
 		},
 		{
 			conf: &config.Config{},
@@ -320,9 +291,9 @@ func TestNewTemplate(t *testing.T) {
 	for _, tc := range cases {
 		t.Run(tc.dir, func(t *testing.T) {
 			tc.conf.TemplateDir = "testdata/good/before/" + tc.dir
-			tpl, err := NewTemplate(tc.conf)
-			if err != nil {
-				t.Fatalf("Error creating template: %q", err)
+			tpl, tplFail := NewTemplate(tc.conf)
+			if tplFail != nil {
+				t.Fatalf("Error creating template: %q", tplFail)
 			}
 
 			actual, failure := tpl.String(tc.view, tc.data)
@@ -368,9 +339,9 @@ func TestTemplateResponse(t *testing.T) {
 			dir:  "prod-error-page",
 			data: map[string]any{"arr": "some string"},
 			err: fail.New(
-				2,
+				&position.Pos{StartLine: 1, EndLine: 1},
 				absPath+"prod-error-page/home.tw",
-				"parser",
+				fail.OriginPars,
 				fail.ErrEachDirWithNonArrArg,
 				value.STR_VAL,
 			),
@@ -380,9 +351,9 @@ func TestTemplateResponse(t *testing.T) {
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
 			tc.conf.TemplateDir += "testdata/good/before/" + tc.dir
-			tpl, err := NewTemplate(tc.conf)
-			if err != nil {
-				t.Errorf("Error creating template: %q", err)
+			tpl, failure := NewTemplate(tc.conf)
+			if failure != nil {
+				t.Errorf("Error creating template: %q", failure)
 				return
 			}
 
@@ -400,7 +371,7 @@ func TestTemplateResponse(t *testing.T) {
 					t.Fatalf("We expect error from response, got nil")
 				}
 
-				if tc.err.String() != respErr.Error() {
+				if tc.err.String() != respErr.String() {
 					t.Fatalf("Wrong error message! Expect:\n%q\ngot:\n%q", tc.err, respErr)
 				}
 			}
@@ -411,7 +382,7 @@ func TestTemplateResponse(t *testing.T) {
 
 			// Make sure you don't see error in actual response without debug mode
 			if !tc.conf.DebugMode && respErr != nil {
-				if contains := strings.Contains(actual, respErr.Error()); contains {
+				if contains := strings.Contains(actual, respErr.String()); contains {
 					t.Fatalf(
 						"Actual string should not contain error message. Actual:\n'%s'\nError msg:\n'%s'",
 						actual,
@@ -422,7 +393,7 @@ func TestTemplateResponse(t *testing.T) {
 
 			// Make sure you see error in actual response with debug mode enabled
 			if tc.conf.DebugMode && respErr != nil {
-				if contains := strings.Contains(actual, respErr.Error()); !contains {
+				if contains := strings.Contains(actual, respErr.String()); !contains {
 					t.Fatalf(
 						"Actual string should contain error message. Actual:\n'%s'\nError msg:\n'%s'",
 						actual,
@@ -435,12 +406,13 @@ func TestTemplateResponse(t *testing.T) {
 }
 
 func TestRegisteringCustomFunction(t *testing.T) {
-	tpl, fileErr := NewTemplate(&config.Config{
+	tpl, tplErr := NewTemplate(&config.Config{
 		TemplateDir: "testdata/good/before/globals",
 		GlobalData:  map[string]any{"env": "dev", "name": "Serhii", "age": 36},
 	})
-	if fileErr != nil {
-		t.Fatalf("Unexpected template error: %s", fileErr)
+
+	if tplErr != nil {
+		t.Fatalf("Unexpected template error: %s", tplErr)
 	}
 
 	err := RegisterStrFunc("_secondLetterUpper", func(s string, args ...any) any {
@@ -449,8 +421,9 @@ func TestRegisteringCustomFunction(t *testing.T) {
 		}
 		return string(s[0]) + string(s[1]-32) + s[2:]
 	})
+
 	if err != nil {
-		t.Fatalf("Unexpected error registering function: %s", fileErr)
+		t.Fatalf("Unexpected error registering function: %s", tplErr)
 	}
 
 	expect, fileErr := readFile("testdata/good/expected/globals.html")

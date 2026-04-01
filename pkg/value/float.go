@@ -6,14 +6,14 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/textwire/textwire/v3/pkg/utils"
+	"github.com/textwire/textwire/v4/pkg/utils"
 )
 
 type Float struct {
 	Val float64
 }
 
-func (f *Float) Type() ValueType {
+func (*Float) Type() ValueType {
 	return FLOAT_VAL
 }
 

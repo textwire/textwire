@@ -1,1 +1,1 @@
-@component($1, { $2 })
+@component($1, { $2 })$3@end

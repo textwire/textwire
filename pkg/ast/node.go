@@ -1,31 +1,47 @@
 package ast
 
 import (
-	"github.com/textwire/textwire/v3/pkg/token"
+	"github.com/textwire/textwire/v4/pkg/position"
+	"github.com/textwire/textwire/v4/pkg/token"
 )
 
 type Node interface {
 	Tok() *token.Token
+	SetTok(token.Token)
+	Pos() *position.Pos
+	SetEndPosition(pos *position.Pos)
 	String() string
-	Line() uint
-	Position() token.Position
-	SetEndPosition(pos token.Position)
 }
 
-type LoopStmt interface {
-	LoopBlock() *BlockStmt
-}
-
-type NodeWithStatements interface {
+// Chunk is a top lever node that your program is composed of.
+// It can be a directive, text, block, or embedded code.
+type Chunk interface {
 	Node
-	Stmts() []Statement
+	chunkNode()
 }
 
-type SlotStatement interface {
+type Statement interface {
 	Node
-	Name() *StrLit
-	IsDefault() bool
-	SetIsDefault(bool)
-	Block() *BlockStmt
-	SetBlock(*BlockStmt)
+	statementNode()
+}
+
+type Expression interface {
+	Node
+	expressionNode()
+}
+
+// Segment represents a node that can appear inside {{ ... }} separated
+// by a semicolon. This includes all expressions and statements.
+type Segment interface {
+	Node
+	segmentNode()
+}
+
+type LoopDirective interface {
+	LoopBlock() *Block
+}
+
+type NodeWithChunks interface {
+	Node
+	AllChunks() []Chunk
 }

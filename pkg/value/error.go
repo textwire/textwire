@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"fmt"
 
-	"github.com/textwire/textwire/v3/pkg/fail"
+	"github.com/textwire/textwire/v4/pkg/fail"
 )
 
 type Error struct {
@@ -14,7 +14,7 @@ type Error struct {
 	ErrorID string
 }
 
-func (e *Error) Type() ValueType {
+func (*Error) Type() ValueType {
 	return ERR_VAL
 }
 

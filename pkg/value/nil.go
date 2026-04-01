@@ -4,7 +4,7 @@ import "fmt"
 
 type Nil struct{}
 
-func (n *Nil) Type() ValueType {
+func (*Nil) Type() ValueType {
 	return NIL_VAL
 }
 

@@ -1,7 +1,7 @@
 package value
 
 import (
-	"github.com/textwire/textwire/v3/pkg/token"
+	"github.com/textwire/textwire/v4/pkg/token"
 )
 
 type ValueType string
@@ -23,6 +23,7 @@ const (
 	RESERVE_VAL   ValueType = "reserve"
 	INSERT_VAL    ValueType = "insert"
 	BLOCK_VAL     ValueType = "block"
+	EMBEDDED_VAL  ValueType = "embedded"
 	BUILTIN_VAL   ValueType = "function"
 	COMPONENT_VAL ValueType = "component"
 	SLOT_VAL      ValueType = "slot"
@@ -46,10 +47,13 @@ type Value interface {
 	Type() ValueType
 	String() string
 	Is(ValueType) bool
-	Native() any
-	// move Dump and JSON to LiteralValue in v4.0.0
+}
+
+type Literal interface {
+	Value
 	Dump(ident int) string
 	JSON() (string, error)
+	Native() any
 }
 
 func FromTokenToValueType(astType token.TokenType) ValueType {

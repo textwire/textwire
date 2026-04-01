@@ -1,1 +1,1 @@
-@component('first', { name })
+@component('first', { name })@end

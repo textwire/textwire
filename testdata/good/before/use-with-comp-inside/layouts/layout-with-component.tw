@@ -7,7 +7,7 @@
     <meta name="description" content="@reserve('description')">
 </head>
 <body>
-@component('~navbar')
+@component('~navbar')@end
 <main class="container mx-auto max-w-200">
 @reserve('content')
 </main>

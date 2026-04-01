@@ -1,37 +1,37 @@
 package textwire
 
 import (
-	"github.com/textwire/textwire/v3/config"
-	"github.com/textwire/textwire/v3/pkg/evaluator"
-	"github.com/textwire/textwire/v3/pkg/fail"
-	"github.com/textwire/textwire/v3/pkg/file"
-	"github.com/textwire/textwire/v3/pkg/value"
+	"github.com/textwire/textwire/v4/config"
+	"github.com/textwire/textwire/v4/pkg/evaluator"
+	"github.com/textwire/textwire/v4/pkg/fail"
+	"github.com/textwire/textwire/v4/pkg/file"
+	"github.com/textwire/textwire/v4/pkg/value"
 )
 
 var (
-	userConf   = config.New("templates", ".tw", "", false)
+	userConf   = config.New()
 	customFunc = config.NewFunc()
 )
 
 // EvaluateString evaluates a given inp string containing Textwire code.
 // The function accepts a string template and data to inject into Textwire.
 // After evaluation, it returns the processed string and any error encountered.
-func EvaluateString(inp string, data map[string]any) (string, error) {
+func EvaluateString(inp string, data map[string]any) (string, *fail.Error) {
 	prog, errs := parseStr(inp)
 	if len(errs) != 0 {
-		return "", errs[0].Error()
+		return "", errs[0]
 	}
 
 	scope, err := value.NewScopeFromMap(data)
 	if err != nil {
-		return "", err.Error()
+		return "", err
 	}
 
 	e := evaluator.New(customFunc, nil)
 	ctx := evaluator.NewContext(scope, prog.AbsPath)
 	evaluated := e.Eval(prog, ctx)
 	if evaluated.Is(value.ERR_VAL) {
-		return "", evaluated.(*value.Error).Err.Error()
+		return "", evaluated.(*value.Error).Err
 	}
 
 	return evaluated.String(), nil
@@ -41,16 +41,16 @@ func EvaluateString(inp string, data map[string]any) (string, error) {
 //
 // The absPath an absolute path to the Textwire file.
 // The data is a map of variables you want to inject into the Textwire.
-func EvaluateFile(absPath string, data map[string]any) (string, error) {
+func EvaluateFile(absPath string, data map[string]any) (string, *fail.Error) {
 	f := file.New("", "", absPath, userConf)
 	content, err := f.Content()
 	if err != nil {
-		return "", fail.FromError(err, 0, absPath, "template").Error()
+		return "", fail.FromError(err, nil, absPath, fail.OriginTpl)
 	}
 
-	res, err := EvaluateString(content, data)
-	if err != nil {
-		return "", err
+	res, failure := EvaluateString(content, data)
+	if failure != nil {
+		return "", failure
 	}
 
 	return res, nil
@@ -59,9 +59,9 @@ func EvaluateFile(absPath string, data map[string]any) (string, error) {
 // RegisterStrFunc registers a custom function with the given name for the
 // string type. You'll be able to use it in your Textwire files.
 // e.g. `{{ "Sydney".myFunc() }}`
-func RegisterStrFunc(name string, fn config.StrCustomFunc) error {
+func RegisterStrFunc(name string, fn config.StrCustomFunc) *fail.Error {
 	if _, ok := customFunc.Str[name]; ok {
-		return fail.New(0, "", "API", fail.ErrFuncAlreadyDefined, name, "strings").Error()
+		return fail.New(nil, "", fail.OriginTpl, fail.ErrFuncAlreadyDefined, name, "strings")
 	}
 
 	customFunc.Str[name] = fn
@@ -72,9 +72,9 @@ func RegisterStrFunc(name string, fn config.StrCustomFunc) error {
 // RegisterArrFunc registers a custom function with the given name for the
 // array type. You'll be able to use it in your Textwire files.
 // e.g. `{{ [1, 2].myFunc() }}`
-func RegisterArrFunc(name string, fn config.ArrCustomFunc) error {
+func RegisterArrFunc(name string, fn config.ArrCustomFunc) *fail.Error {
 	if _, ok := customFunc.Arr[name]; ok {
-		return fail.New(0, "", "API", fail.ErrFuncAlreadyDefined, name, "arrays").Error()
+		return fail.New(nil, "", fail.OriginTpl, fail.ErrFuncAlreadyDefined, name, "arrays")
 	}
 
 	customFunc.Arr[name] = fn
@@ -85,9 +85,9 @@ func RegisterArrFunc(name string, fn config.ArrCustomFunc) error {
 // RegisterObjFunc registers a custom function with the given name for the
 // object type. You'll be able to use it in your Textwire files.
 // e.g. `{{ {name: 'Sydney'}.myFunc() }}`
-func RegisterObjFunc(name string, fn config.ObjCustomFunc) error {
+func RegisterObjFunc(name string, fn config.ObjCustomFunc) *fail.Error {
 	if _, ok := customFunc.Obj[name]; ok {
-		return fail.New(0, "", "API", fail.ErrFuncAlreadyDefined, name, "objects").Error()
+		return fail.New(nil, "", fail.OriginTpl, fail.ErrFuncAlreadyDefined, name, "objects")
 	}
 
 	customFunc.Obj[name] = fn
@@ -98,9 +98,9 @@ func RegisterObjFunc(name string, fn config.ObjCustomFunc) error {
 // RegisterIntFunc registers a custom function with the given name for the
 // integer type. You'll be able to use it in your Textwire files.
 // e.g. `{{ 1.myFunc() }}`
-func RegisterIntFunc(name string, fn config.IntCustomFunc) error {
+func RegisterIntFunc(name string, fn config.IntCustomFunc) *fail.Error {
 	if _, ok := customFunc.Int[name]; ok {
-		return fail.New(0, "", "API", fail.ErrFuncAlreadyDefined, name, "integers").Error()
+		return fail.New(nil, "", fail.OriginTpl, fail.ErrFuncAlreadyDefined, name, "integers")
 	}
 
 	customFunc.Int[name] = fn
@@ -111,9 +111,9 @@ func RegisterIntFunc(name string, fn config.IntCustomFunc) error {
 // RegisterFloatFunc registers a custom function with the given name for the
 // float type. You'll be able to use it in your Textwire files.
 // e.g. `{{ 1.12.myFunc() }}`
-func RegisterFloatFunc(name string, fn config.FloatCustomFunc) error {
+func RegisterFloatFunc(name string, fn config.FloatCustomFunc) *fail.Error {
 	if _, ok := customFunc.Float[name]; ok {
-		return fail.New(0, "", "API", fail.ErrFuncAlreadyDefined, name, "floats").Error()
+		return fail.New(nil, "", fail.OriginTpl, fail.ErrFuncAlreadyDefined, name, "floats")
 	}
 
 	customFunc.Float[name] = fn
@@ -124,9 +124,9 @@ func RegisterFloatFunc(name string, fn config.FloatCustomFunc) error {
 // RegisterBoolFunc registers a custom function with the given name for the
 // boolean type. You'll be able to use it in your Textwire files.
 // e.g. `{{ true.myFunc() }}`
-func RegisterBoolFunc(name string, fn config.BoolCustomFunc) error {
+func RegisterBoolFunc(name string, fn config.BoolCustomFunc) *fail.Error {
 	if _, ok := customFunc.Bool[name]; ok {
-		return fail.New(0, "", "API", fail.ErrFuncAlreadyDefined, name, "booleans").Error()
+		return fail.New(nil, "", fail.OriginTpl, fail.ErrFuncAlreadyDefined, name, "booleans")
 	}
 
 	customFunc.Bool[name] = fn

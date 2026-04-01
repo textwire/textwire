@@ -6,12 +6,12 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/textwire/textwire/v3/config"
-	"github.com/textwire/textwire/v3/pkg/fail"
-	"github.com/textwire/textwire/v3/pkg/value"
+	"github.com/textwire/textwire/v4/config"
+	"github.com/textwire/textwire/v4/pkg/fail"
+	"github.com/textwire/textwire/v4/pkg/value"
 )
 
-func isTruthy(obj value.Value) bool {
+func isTruthy(obj value.Literal) bool {
 	switch obj := obj.(type) {
 	case *value.Bool:
 		return obj.Val
@@ -30,7 +30,6 @@ func isTruthy(obj value.Value) bool {
 	case nil:
 		return false
 	}
-
 	return true
 }
 
@@ -48,18 +47,18 @@ func isUndefinedError(obj value.Value) bool {
 	return isErr && slices.Contains(undefinedErrors, err.ErrorID)
 }
 
-func nativeBoolToBoolObj(input bool) value.Value {
+func nativeBoolToBoolObj(input bool) value.Literal {
 	if input {
 		return TRUE
 	}
 	return FALSE
 }
 
-func hasBreakStmt(obj value.Value) bool {
+func hasBreak(obj value.Value) bool {
 	return hasControlStmt(obj, value.BREAK_VAL)
 }
 
-func hasContinueStmt(obj value.Value) bool {
+func hasContinue(obj value.Value) bool {
 	return hasControlStmt(obj, value.CONTINUE_VAL)
 }
 
@@ -70,7 +69,7 @@ func hasControlStmt(obj value.Value, controlType value.ValueType) bool {
 	}
 
 	// also check recursively for nested blocks
-	for _, elem := range block.Elements {
+	for _, elem := range block.Chunks {
 		if hasControlStmt(elem, controlType) {
 			return true
 		}
@@ -107,7 +106,7 @@ func hasCustomFunc(customFunc *config.Func, t value.ValueType, funcName string) 
 // Returns error if arguments are invalid.
 func getDecimalConfig(
 	objType value.ValueType,
-	args ...value.Value,
+	args ...value.Literal,
 ) (separator string, decimals int, err error) {
 	separator = "."
 	decimals = 2
@@ -187,4 +186,18 @@ func capitalizeFirst(s string) string {
 	copy(buf[1:], s[1:])
 
 	return string(buf[:len(s)])
+}
+
+// getDateTimeLayout takes string date and returns Go's layout format.
+// Go's time.Time layouts: https://pkg.go.dev/time#pkg-constants
+func getDateTimeLayout(date string) string {
+	switch {
+	case len(date) == 8 && date[2] == ':' && date[5] == ':':
+		return "15:04:05"
+	case len(date) == 19 && date[4] == '-' && date[7] == '-' && date[10] == ' ' && date[13] == ':' && date[16] == ':':
+		return "2006-01-02 15:04:05"
+	case len(date) == 10 && date[4] == '-' && date[7] == '-':
+		return "2006-01-02"
+	}
+	return ""
 }

@@ -5,17 +5,17 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/textwire/textwire/v3/pkg/fail"
-	"github.com/textwire/textwire/v3/pkg/value"
+	"github.com/textwire/textwire/v4/pkg/fail"
+	"github.com/textwire/textwire/v4/pkg/value"
 )
 
 // objCamelFunc converts object keys to camel case recursively
-func objCamelFunc(receiver value.Value, _ ...value.Value) (value.Value, error) {
+func objCamelFunc(receiver value.Literal, _ ...value.Literal) (value.Literal, error) {
 	obj := receiver.(*value.Obj)
 	return &value.Obj{Pairs: obj.ToCamel()}, nil
 }
 
-func objGetFunc(receiver value.Value, args ...value.Value) (value.Value, error) {
+func objGetFunc(receiver value.Literal, args ...value.Literal) (value.Literal, error) {
 	obj := receiver.(*value.Obj)
 
 	if len(args) == 0 {
@@ -44,7 +44,7 @@ func objGetFunc(receiver value.Value, args ...value.Value) (value.Value, error) 
 	return findObjKey(props, obj.Pairs), nil
 }
 
-func findObjKey(props []string, pairs map[string]value.Value) value.Value {
+func findObjKey(props []string, pairs map[string]value.Literal) value.Literal {
 	current := pairs
 
 	for i := range props {

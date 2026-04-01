@@ -4,7 +4,8 @@ import (
 	"bytes"
 	"strings"
 
-	"github.com/textwire/textwire/v3/pkg/token"
+	"github.com/textwire/textwire/v4/pkg/position"
+	"github.com/textwire/textwire/v4/pkg/token"
 )
 
 var simpleTokens = map[byte]token.TokenType{
@@ -18,18 +19,6 @@ var simpleTokens = map[byte]token.TokenType{
 	'.': token.DOT,
 	';': token.SEMI,
 	':': token.COLON,
-}
-
-var tokensWithoutParens = map[token.TokenType]bool{
-	token.ELSE:     true,
-	token.END:      true,
-	token.BREAK:    true,
-	token.CONTINUE: true,
-	token.SLOT:     true,
-}
-
-var tokensWithOptionalParens = map[token.TokenType]bool{
-	token.SLOT: true,
 }
 
 type Lexer struct {
@@ -106,22 +95,20 @@ func (l *Lexer) Next() token.Token {
 		return l.newToken(token.EOF, "")
 	}
 
-	if l.char == '{' && l.peek() == '{' {
-		tok := l.bracesToken(token.LBRACES, "{{")
-
-		if l.char == '-' && l.peek() == '-' {
-			l.skipComment()
-			return l.Next()
-		}
-
-		return tok
+	if l.startsWith('{', '{', '-', '-') {
+		l.skipComment()
+		return l.Next()
 	}
 
-	if l.char == '}' && l.peek() == '}' && l.countCurlyBraces == 0 {
+	if l.startsWith('{', '{') {
+		return l.bracesToken(token.LBRACES, "{{")
+	}
+
+	if l.startsWith('}', '}') && l.countCurlyBraces == 0 {
 		return l.bracesToken(token.RBRACES, "}}")
 	}
 
-	if isDirective, _ := l.isDirectiveToken(); isDirective {
+	if l.isDirectiveToken() {
 		return l.directiveToken()
 	}
 
@@ -132,12 +119,29 @@ func (l *Lexer) Next() token.Token {
 	return l.newToken(token.TEXT, l.readText())
 }
 
+func (l *Lexer) startsWith(chars ...byte) bool {
+	if len(chars) == 0 {
+		return false
+	}
+
+	if chars[0] != l.char {
+		return false
+	}
+
+	for i := 1; i < len(chars); i++ {
+		if l.peek(i-1) != chars[i] {
+			return false
+		}
+	}
+
+	return true
+}
+
 func (l *Lexer) bracesToken(tok token.TokenType, literal string) token.Token {
 	l.isText = tok != token.LBRACES
 
 	l.tokenBegins()
-	l.readChar() // skip first brace
-	l.readChar() // skip second brace
+	l.readChars(2) // skip braces
 
 	return l.newToken(tok, literal)
 }
@@ -160,10 +164,7 @@ func (l *Lexer) directiveToken() token.Token {
 		return l.illegalToken()
 	}
 
-	hasOptionalParens := tokensWithOptionalParens[tok] && (l.char == '(' || l.peekCharIs('('))
-	hasNoParens := tokensWithoutParens[tok]
-
-	l.isDirective = hasOptionalParens || !hasNoParens
+	l.isDirective = l.char == '(' || l.nextNonSpaceIs('(')
 	l.isText = !l.isDirective
 
 	return l.newToken(tok, keyword)
@@ -190,57 +191,27 @@ func (l *Lexer) embeddedCodeToken() token.Token {
 	case '"', '\'':
 		return l.newToken(token.STR, l.readString())
 	case '<':
-		if l.peek() == '=' {
-			return l.twoCharToken(token.LTHAN_EQ, "<=")
-		}
-
-		l.tokenBegins()
-		l.readChar() // skip "<"
-		return l.newToken(token.LTHAN, "<")
+		return l.operatorToken('=', token.LTHAN_EQ, token.LTHAN, "<=", "<")
 	case '>':
-		if l.peek() == '=' {
-			return l.twoCharToken(token.GTHAN_EQ, ">=")
-		}
-
-		l.tokenBegins()
-		l.readChar() // skip ">"
-		return l.newToken(token.GTHAN, ">")
+		return l.operatorToken('=', token.GTHAN_EQ, token.GTHAN, ">=", ">")
 	case '!':
-		if l.peek() == '=' {
-			return l.twoCharToken(token.NOT_EQ, "!=")
-		}
-
-		l.tokenBegins()
-		l.readChar() // skip "!"
-		return l.newToken(token.NOT, "!")
+		return l.operatorToken('=', token.NOT_EQ, token.NOT, "!=", "!")
 	case '-':
-		if l.peek() == '-' {
-			return l.twoCharToken(token.DEC, "--")
-		}
-
-		l.tokenBegins()
-		l.readChar() // skip "-"
-		return l.newToken(token.SUB, "-")
+		return l.operatorToken('-', token.DEC, token.SUB, "--", "-")
 	case '&':
-		if l.peek() == '&' {
+		if l.peek(0) == '&' {
 			return l.twoCharToken(token.AND, "&&")
 		}
 		fallthrough
 	case '|':
-		if l.peek() == '|' {
+		if l.peek(0) == '|' {
 			return l.twoCharToken(token.OR, "||")
 		}
 		fallthrough
 	case '+':
-		if l.peek() == '+' {
-			return l.twoCharToken(token.INC, "++")
-		}
-		return l.addToken()
+		return l.operatorToken('+', token.INC, token.ADD, "++", "+")
 	case '=':
-		if l.peek() == '=' {
-			return l.twoCharToken(token.EQ, "==")
-		}
-		return l.assignToken()
+		return l.operatorToken('=', token.EQ, token.ASSIGN, "==", "=")
 	}
 
 	if isIdent(l.char) {
@@ -253,18 +224,6 @@ func (l *Lexer) embeddedCodeToken() token.Token {
 	}
 
 	return l.illegalToken()
-}
-
-func (l *Lexer) addToken() token.Token {
-	l.tokenBegins()
-	l.readChar() // skip "+"
-	return l.newToken(token.ADD, "+")
-}
-
-func (l *Lexer) assignToken() token.Token {
-	l.tokenBegins()
-	l.readChar() // skip "="
-	return l.newToken(token.ASSIGN, "=")
 }
 
 func (l *Lexer) numberToken() token.Token {
@@ -322,9 +281,25 @@ func (l *Lexer) rightParenthesesToken() token.Token {
 
 func (l *Lexer) twoCharToken(tokType token.TokenType, literal string) token.Token {
 	l.tokenBegins()
-	l.readChar() // skip first char
-	l.readChar() // skip second car
+	l.readChars(2)
 	return l.newToken(tokType, literal)
+}
+
+// operatorToken handles the common pattern of checking for a two-char operator
+// or falling back to single-char.
+func (l *Lexer) operatorToken(
+	second byte,
+	twoCharTok, singleTok token.TokenType,
+	twoCharLit, singleLit string,
+) token.Token {
+	if l.peek(0) == second {
+		return l.twoCharToken(twoCharTok, twoCharLit)
+	}
+
+	l.tokenBegins()
+	l.readChar()
+
+	return l.newToken(singleTok, singleLit)
 }
 
 func (l *Lexer) newToken(tokType token.TokenType, literal string) token.Token {
@@ -334,13 +309,13 @@ func (l *Lexer) newToken(tokType token.TokenType, literal string) token.Token {
 	// We need to set the end column and line to the values of the previous
 	// character because we already read the last character and incremented
 	// the column index.
-	// For EOF we don't need to decrement the column index.
-	if tokType != token.EOF {
+	// For EOF and ILLEGAL we don't need to decrement the column index.
+	if tokType != token.EOF && tokType != token.ILLEGAL {
 		endCol = l.prevCol
 		endLine = l.prevLine
 	}
 
-	pos := token.Position{
+	pos := &position.Pos{
 		StartCol:  l.startCol,
 		EndCol:    endCol,
 		StartLine: l.startLine,
@@ -368,71 +343,62 @@ func (l *Lexer) readIdentifier() string {
 
 func (l *Lexer) readDirective() (token.TokenType, string) {
 	var keyword strings.Builder
-	var tok token.TokenType
+	tok := token.ILLEGAL
 
 	l.tokenBegins()
 
-	for isLetterWord(l.char) {
+	for isLetterWord(l.char) && (l.hasIfVariant(tok) || tok == token.ILLEGAL) {
 		keyword.WriteByte(l.char)
-
 		tok = token.LookupDirective(keyword.String())
-
 		l.readChar()
-
-		if !l.isPotentiallyLong(tok) && tok != token.ILLEGAL {
-			break
-		}
 	}
 
 	return tok, keyword.String()
 }
 
-func (l *Lexer) isDirectiveToken() (isDirectory bool, escapedDirectory bool) {
+func (l *Lexer) hasDirectivePrefix() bool {
 	if l.char != '@' {
-		return false, false
+		return false
 	}
 
 	pos := l.pos
-
 	longestDir := token.LongestDirective()
 
 	for i := 1; i <= longestDir; i++ {
 		if pos+i > len(l.input) {
-			return false, false
+			return false
 		}
 
-		keyword := l.input[pos : pos+i]
-
-		tok := token.LookupDirective(keyword)
-
-		if tok == token.ILLEGAL {
-			continue
+		if token.LookupDirective(l.input[pos:pos+i]) != token.ILLEGAL {
+			return true
 		}
-
-		if l.prevChar() == '\\' {
-			return false, true
-		}
-
-		return true, false
 	}
 
-	return false, false
+	return false
 }
 
-func (l *Lexer) isPotentiallyLong(tok token.TokenType) bool {
-	// Tokens that can be extended with "If" variants
+func (l *Lexer) isDirectiveToken() bool {
+	return l.prevChar() != '\\' && l.hasDirectivePrefix()
+}
+
+func (l *Lexer) isEscapedDirective() bool {
+	return l.prevChar() == '\\' && l.hasDirectivePrefix()
+}
+
+func (l *Lexer) hasIfVariant(tok token.TokenType) bool {
+	// Tokens that can be extended with "if" variants, like @breakif
 	longTokens := map[token.TokenType]struct{}{
 		token.ELSE:     {},
 		token.BREAK:    {},
 		token.CONTINUE: {},
-		token.SLOT:     {},
+		token.PASS:     {},
 	}
 
 	if _, ok := longTokens[tok]; !ok {
 		return false
 	}
 
-	return (l.char == 'I' || l.char == 'i') && l.peek() == 'f'
+	return l.startsWith('i', 'f')
 }
 
 func (l *Lexer) readString() string {
@@ -483,23 +449,24 @@ func (l *Lexer) readNumber() (string, bool) {
 	isInt := true
 	l.tokenBegins()
 
-	for isNumber(l.char) || l.char == '.' {
-		if l.char == '.' {
-			if !isNumber(l.peek()) {
-				break
-			}
-
-			isInt = false
-		}
-
+	for isNumber(l.char) {
 		l.readChar()
+	}
+
+	if l.char == '.' && isNumber(l.peek(0)) {
+		isInt = false
+		l.readChar()
+
+		for isNumber(l.char) {
+			l.readChar()
+		}
 	}
 
 	return l.input[pos:l.pos], isInt
 }
 
 func (l *Lexer) areBracesToken() (areBraces bool, escapedBraces bool) {
-	braces := l.char == '{' && l.peek() == '{'
+	braces := l.startsWith('{', '{')
 	escapedBraces = l.prevChar() == '\\' && braces
 
 	return braces && l.prevChar() != '\\', escapedBraces
@@ -512,18 +479,16 @@ func (l *Lexer) tokenBegins() {
 
 func (l *Lexer) readText() string {
 	var out bytes.Buffer
-	out.Grow(32) // 32 is approximate capacity
 	l.tokenBegins()
 
 	for l.isText && l.char != 0 {
-		isDirective, escapedDir := l.isDirectiveToken()
 		areBraces, escapedBraces := l.areBracesToken()
 
-		if areBraces || isDirective {
+		if areBraces || l.isDirectiveToken() {
 			break
 		}
 
-		if escapedDir || escapedBraces {
+		if escapedBraces || l.isEscapedDirective() {
 			out.Truncate(out.Len() - 1)
 		}
 
@@ -538,7 +503,6 @@ func (l *Lexer) prevChar() byte {
 	if l.pos > 0 {
 		return l.input[l.pos-1]
 	}
-
 	return 0
 }
 
@@ -570,27 +534,36 @@ func (l *Lexer) readChar() {
 	l.shouldResetCol = l.char == '\n'
 }
 
-func (l *Lexer) peek() byte {
+func (l *Lexer) readChars(chars int) {
+	for range chars {
+		l.readChar()
+	}
+}
+
+func (l *Lexer) peek(ahead int) byte {
 	if l.readPos >= len(l.input) {
 		return 0
 	}
 
-	return l.input[l.readPos]
-}
-
-// peekCharIs returns true if the next non-whitespace character matches
-// the given character. Advances past any whitespace (spaces, tabs, newlines)
-// without consuming characters.
-func (l *Lexer) peekCharIs(char byte) bool {
-	pos := l.readPos
-	for pos < len(l.input) && l.isWhitespace(l.input[pos]) {
-		pos++
-	}
-	return pos < len(l.input) && l.input[pos] == char
+	return l.input[l.readPos+ahead]
 }
 
 func (l *Lexer) isWhitespace(char byte) bool {
 	return char == ' ' || char == '\t' || char == '\n' || char == '\r'
+}
+
+// nextNonSpaceIs checks if the next non-space/tab character matches
+// the given character without consuming any input.
+func (l *Lexer) nextNonSpaceIs(char byte) bool {
+	pos := l.readPos
+	for pos < len(l.input) {
+		c := l.input[pos]
+		if c != ' ' && c != '\t' {
+			return c == char
+		}
+		pos++
+	}
+	return false
 }
 
 func (l *Lexer) skipWhitespace() {
@@ -602,22 +575,18 @@ func (l *Lexer) skipWhitespace() {
 func (l *Lexer) skipComment() {
 	depth := 1
 
+	l.readChars(4) // skip "{{--"
+
 	for l.char != 0 && depth > 0 {
-		if l.char == '{' && l.peek() == '{' {
-			l.readChar()
-			l.readChar()
+		if l.startsWith('{', '{', '-', '-') {
+			l.readChars(4) // skip "{{--"
 			depth++
 			continue
 		}
 
-		if l.char == '-' && l.peek() == '-' {
-			l.readChar()
-			l.readChar()
-			if l.char == '}' && l.peek() == '}' {
-				l.readChar()
-				l.readChar()
-				depth--
-			}
+		if l.startsWith('-', '-', '}', '}') {
+			l.readChars(4) // skip "--}}"
+			depth--
 			continue
 		}
 

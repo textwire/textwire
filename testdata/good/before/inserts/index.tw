@@ -3,6 +3,6 @@
 @insert("title", "with inserts")
 
 @insert("content")
-<h1>With Inserts</h1>
-<p>Some content</p>
+    <h1>With Inserts</h1>
+    <p>Some content</p>
 @end

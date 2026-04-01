@@ -6,11 +6,11 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/textwire/textwire/v3/pkg/ast"
-	"github.com/textwire/textwire/v3/pkg/fail"
-	"github.com/textwire/textwire/v3/pkg/file"
-	"github.com/textwire/textwire/v3/pkg/lexer"
-	"github.com/textwire/textwire/v3/pkg/parser"
+	"github.com/textwire/textwire/v4/pkg/ast"
+	"github.com/textwire/textwire/v4/pkg/fail"
+	"github.com/textwire/textwire/v4/pkg/file"
+	"github.com/textwire/textwire/v4/pkg/lexer"
+	"github.com/textwire/textwire/v4/pkg/parser"
 )
 
 //go:embed embed/default-error-page.tw
@@ -18,10 +18,11 @@ var defaultErrPage string
 
 // errorPage returns HTML that's displayed when an error occurs while
 // rendering template.
-func errorPage(failure *fail.Error) (string, error) {
+func errorPage(failure *fail.Error) (string, *fail.Error) {
 	data := map[string]any{
 		"path":      failure.Filepath(),
-		"line":      failure.Line(),
+		"line":      failure.Pos().Line(),
+		"col":       failure.Pos().Col(),
 		"message":   failure.Message(),
 		"debugMode": userConf.DebugMode,
 	}
@@ -52,7 +53,7 @@ func parseFiles(files []*file.SourceFile) ([]*ast.Program, *fail.Error) {
 	for _, f := range files {
 		prog, failure, parseErr := parseFile(f)
 		if parseErr != nil {
-			return programs, fail.FromError(parseErr, 0, f.Abs, "template")
+			return programs, fail.FromError(parseErr, nil, f.Abs, fail.OriginTpl)
 		}
 
 		if failure != nil {

@@ -4,12 +4,12 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/textwire/textwire/v3/config"
-	"github.com/textwire/textwire/v3/pkg/fail"
-	"github.com/textwire/textwire/v3/pkg/file"
-	"github.com/textwire/textwire/v3/pkg/lexer"
-	"github.com/textwire/textwire/v3/pkg/parser"
-	"github.com/textwire/textwire/v3/pkg/value"
+	"github.com/textwire/textwire/v4/config"
+	"github.com/textwire/textwire/v4/pkg/fail"
+	"github.com/textwire/textwire/v4/pkg/file"
+	"github.com/textwire/textwire/v4/pkg/lexer"
+	"github.com/textwire/textwire/v4/pkg/parser"
+	"github.com/textwire/textwire/v4/pkg/value"
 )
 
 func testEval(inp string) (value.Value, *fail.Error) {
@@ -93,14 +93,7 @@ func TestEvalNumericExp(t *testing.T) {
 		{120, `{{ 3 * 3 * 3 + 10 }}`, "37"},
 		{130, `{{ (5 + 10 * 2 + 15 / 3) * 2 + -10 }}`, "50"},
 		{140, `{{ ((5 + 10) * ((2 + 15) / 3) + 2) }}`, "77"},
-		{150, `{{ 10++ }}`, "11"},
-		{160, `{{ 10-- }}`, "9"},
-		{170, `{{ 3++ + 2-- }}`, "5"},
-		{180, `{{ 3-- + 2-- * 3++ + (4--) }}`, "9"},
 		// Floats
-		{190, `{{ 4.4++ }}`, "5.4"},
-		{200, `{{ 4.4-- }}`, "3.4"},
-		{210, `{{ 4.0-- }}`, "3.0"},
 		{220, "{{ 5.11 }}", "5.11"},
 		{230, "{{ -12.3 }}", "-12.3"},
 		{240, `{{ 2.123 + 1.111 }}`, "3.234"},
@@ -421,10 +414,10 @@ func TestEvalStringExp(t *testing.T) {
 		{10, `{{ "Hello World" }}`, "Hello World"},
 		{20, `{{ 'Hello World 2' }}`, "Hello World 2"},
 		// String in HTML attributes
-		{30, `<div {{ 'data-attr="Test"' }}></div>`, `<div data-attr="Test"></div>`},
-		{40, `<div {{ "data-attr='Test'" }}></div>`, `<div data-attr='Test'></div>`},
+		{30, `<div {{ 'data-attr="Test"' }}></div>`, "<div data-attr=&#34;Test&#34;></div>"},
+		{40, `<div {{ "data-attr='Test'" }}></div>`, "<div data-attr=&#39;Test&#39;></div>"},
 		// String with escaped characters
-		{50, `{{ "She \"is\" pretty" }}`, `She "is" pretty`},
+		{50, `{{ "She \"is\" pretty" }}`, "She &#34;is&#34; pretty"},
 		// String concatenation
 		{60, `{{ "Korotchaeva" + " " + "Anna" }}`, "Korotchaeva Anna"},
 		{70, `{{ "She" + " " + "is" + " " + "nice" }}`, "She is nice"},
@@ -434,14 +427,26 @@ func TestEvalStringExp(t *testing.T) {
 		// String with HTML escaping
 		{100, `{{ "<h1>Test</h1>" }}`, "&lt;h1&gt;Test&lt;/h1&gt;"},
 		{110, `{{ "<div>Hello</div>" }}`, "&lt;div&gt;Hello&lt;/div&gt;"},
-		{120, `{{ "<script>alert('xss')</script>" }}`, "&lt;script&gt;alert('xss')&lt;/script&gt;"},
-		{130, `{{ "<img src='test.jpg'>" }}`, "&lt;img src='test.jpg'&gt;"},
+		{
+			120,
+			`{{ "<script>alert('xss')</script>" }}`,
+			"&lt;script&gt;alert(&#39;xss&#39;)&lt;/script&gt;",
+		},
+		{130, `{{ "<img src='test.jpg'>" }}`, "&lt;img src=&#39;test.jpg&#39;&gt;"},
 		{140, `{{ "&amp;" }}`, "&amp;amp;"},
 		{150, `{{ "<br/>" }}`, "&lt;br/&gt;"},
-		{160, `{{ "<a href='#'>Link</a>" }}`, "&lt;a href='#'&gt;Link&lt;/a&gt;"},
-		{170, `{{ "<p class='text'>Content</p>" }}`, "&lt;p class='text'&gt;Content&lt;/p&gt;"},
+		{160, `{{ "<a href='#'>Link</a>" }}`, "&lt;a href=&#39;#&#39;&gt;Link&lt;/a&gt;"},
+		{
+			170,
+			`{{ "<p class='text'>Content</p>" }}`,
+			"&lt;p class=&#39;text&#39;&gt;Content&lt;/p&gt;",
+		},
 		{180, `{{ "<ul><li>Item</li></ul>" }}`, "&lt;ul&gt;&lt;li&gt;Item&lt;/li&gt;&lt;/ul&gt;"},
-		{190, `{{ "<input type='text' value='test'>" }}`, "&lt;input type='text' value='test'&gt;"},
+		{
+			190,
+			`{{ "<input type='text' value='test'>" }}`,
+			"&lt;input type=&#39;text&#39; value=&#39;test&#39;&gt;",
+		},
 		// String concatenation with variables
 		{200, `{{ name = "Anna"; "Hello " + name }}`, "Hello Anna"},
 		{210, `{{ a = "Hello"; b = "World"; a + " " + b }}`, "Hello World"},
@@ -515,7 +520,7 @@ func TestEvalTernaryExp(t *testing.T) {
 	}
 }
 
-func TestEvalIfStmt(t *testing.T) {
+func TestEvalIfDir(t *testing.T) {
 	cases := []struct {
 		id     uint
 		inp    string
@@ -721,7 +726,7 @@ func TestEvalAssign(t *testing.T) {
 		// String assignment
 		{90, `{{ name = "Anna"; name }}`, "Anna"},
 		{100, `{{ empty = ""; empty }}`, ""},
-		{110, `{{ quote = "He said \"Hello\""; quote }}`, `He said "Hello"`},
+		{110, `{{ quote = "He said \"Hello\""; quote }}`, "He said &#34;Hello&#34;"},
 		// Boolean assignment
 		{120, `{{ flag = true; flag }}`, "1"},
 		{130, `{{ flag = false; flag }}`, "0"},
@@ -804,7 +809,26 @@ func TestEvalAssign(t *testing.T) {
 	}
 }
 
-func TestEvalForStmt(t *testing.T) {
+func TestIncDecDir(t *testing.T) {
+	cases := []struct {
+		id     uint
+		inp    string
+		expect string
+	}{
+		// Integer
+		{10, `{{ i = 10; i++; i }}`, "11"},
+		{20, `{{ x = 0; x++; x }}`, "1"},
+		// Float
+		{30, `{{ x = 4.4; x--; x }}`, "3.4"},
+		{48, `{{ x = 0.0; x--; x }}`, "-1.0"},
+	}
+
+	for _, tc := range cases {
+		evaluationExpected(t, tc.inp, tc.expect, tc.id)
+	}
+}
+
+func TestEvalForDir(t *testing.T) {
 	cases := []struct {
 		id     uint
 		inp    string
@@ -814,7 +838,6 @@ func TestEvalForStmt(t *testing.T) {
 		{10, `@for(i = 0; i < 2; i++){{ i }}@end`, "01"},
 		{20, `@for(i = 1; i <= 3; i++){{ i }}@end`, "123"},
 		{30, `@for(i = 5; i > 0; i--){{ i }}@end`, "54321"},
-		{40, `@for(i = 0; i < 4; i+2){{ i }}@end`, "02"},
 		// Empty loop header parts
 		{50, `@for(; false;)Here@end`, ""},
 		{60, `@for(; true;)x@break@end`, "x"},
@@ -855,14 +878,19 @@ func TestEvalForStmt(t *testing.T) {
 			`<ul>@for(i = 1; i <= 3; i++)<li>{{ i }}</li>@end</ul>`,
 			"<ul><li>1</li><li>2</li><li>3</li></ul>",
 		},
-		// Variable modification in loop
+		// Variable modification from outside scope
 		{310, `{{ sum = 0 }}@for(i = 1; i <= 5; i++){{ sum = sum + i }}@end{{ sum }}`, "15"},
+		{311, `{{ x = 0 }}@for(; x < 2; x++){{ x }}@end`, "01"},
 		{320, `{{ count = 0 }}@for(i = 0; i < 3; i++){{ count = count + 1 }}@end{{ count }}`, "3"},
-		// Float iteration
-		{330, `@for(f = 0.0; f < 1.0; f + 0.5){{ f }}@end`, "0.00.5"},
-		{340, `@for(f = 0.0; f < 2.0; f + 1.0){{ f }}@end`, "0.01.0"},
+		{330, `{{ n = 0 }}@for(; true; n++){{ n }}@breakif(n == 2)@end`, "012"},
+		{340, `{{ i = 0 }}@for(; i < 3; i++){{ i }}@end`, "012"},
 		// Multiple statements in loop body
 		{350, `@for(i = 0; i < 3; i++){{ i }};{{ i * 2 }}@end`, "0;01;22;4"},
+		{
+			id:     360,
+			inp:    `@for(i = 1; i <= 3; i++){{ i }} -> {{ i * i }}|@end`,
+			expect: "1 -> 1|2 -> 4|3 -> 9|",
+		},
 	}
 
 	for _, tc := range cases {
@@ -870,13 +898,13 @@ func TestEvalForStmt(t *testing.T) {
 	}
 }
 
-func TestEvalEachStmt(t *testing.T) {
+func TestEvalEachDir(t *testing.T) {
 	cases := []struct {
 		id     uint
 		inp    string
 		expect string
 	}{
-		{10, `@each(name in ["anna", "serhii"]){{ name }} @end`, "anna serhii "},
+		{10, `@each(name in ["anna", "serhii"]) {{ name }} @end`, "annaserhii"},
 		{20, `@each(num in [1, 2, 3]){{ num }}@end`, "123"},
 		{30, `@each(num in []){{ num }}@end`, ""},
 		// test loop variable
@@ -903,19 +931,16 @@ func TestEvalEachStmt(t *testing.T) {
 		{200, `@each(n in [1, 2, 3, 4, 5])@breakif(n == 3){{ n }}@end`, "12"},
 		{
 			210,
-			`@each(n in ["ann", "serhii", "sam"])@breakif(n == 'sam'){{ n }} @end`,
+			`@each(n in ["ann", "serhii", "sam"])@breakif(n == 'sam'){{ n }}{{ ' ' }}@end`,
 			"ann serhii ",
 		},
 		// test @continueif directive
 		{210, `@each(n in [1, 2, 3, 4, 5])@continueif(n == 3){{ n }}@end`, "1245"},
 		{
 			230,
-			`@each(n in ["ann", "serhii", "sam"])@continueif(n == 'sam'){{ n }} @end`,
+			`@each(n in ["ann", "serhii", "sam"])@continueif(n == 'sam'){{ n }}{{' '}}@end`,
 			"ann serhii ",
 		},
-		// support continueIf and breakIf
-		{220, `@each(n in [1, 2])@continueIf(n == 2){{ n }}@end`, "1"},
-		{230, `@each(n in [1, 2, 3])@breakIf(n == 2){{ n }}@end`, "1"},
 	}
 
 	for _, tc := range cases {
@@ -1124,9 +1149,9 @@ func TestCannotUseOperatorError(t *testing.T) {
 		}
 
 		expect := fail.New(
-			1,
+			nil,
 			"/path/to/file",
-			"evaluator",
+			fail.OriginEval,
 			fail.ErrCannotUseOperator,
 			tc.op,
 			tc.left,
@@ -1136,5 +1161,90 @@ func TestCannotUseOperatorError(t *testing.T) {
 		if err.String() != expect.String() {
 			t.Fatalf("Case: %d. Error message must be:\n%q\ngot:\n%q", tc.id, expect, err)
 		}
+	}
+}
+
+func TestEvalFormatDateGlobalFunc(t *testing.T) {
+	cases := []struct {
+		id     uint
+		inp    string
+		expect string
+	}{
+		// Test date time
+		{10, "{{ formatDate('2026-03-24 13:03:25', '15:04:05') }}", "13:03:25"},
+		{
+			20,
+			"{{ formatDate('2027-12-13 10:00:09', '2006-01-02 15:04:05') }}",
+			"2027-12-13 10:00:09",
+		},
+		{30, "{{ formatDate('2023-10-12 01:10:25', '2006-01-02') }}", "2023-10-12"},
+		// Test date
+		{40, "{{ formatDate('2026-03-24', '2006-01-02') }}", "2026-03-24"},
+		{50, "{{ formatDate('2026-03-24', '15:04:05') }}", "00:00:00"},
+		{60, "{{ formatDate('2026-03-24', '2006-01-02 15:04:05') }}", "2026-03-24 00:00:00"},
+		// Test time
+		{70, "{{ formatDate('10:00:09', '2006-01-02') }}", "0000-01-01"},
+		{80, "{{ formatDate('10:00:09', '15:04:05') }}", "10:00:09"},
+		{90, "{{ formatDate('10:00:09', '2006-01-02 15:04:05') }}", "0000-01-01 10:00:09"},
+		// Edge cases empty string
+		{100, "{{ formatDate('', '2006-01-02 15:04:05') }}", ""},
+		// Edge cases midnight
+		{110, "{{ formatDate('2026-01-01 00:00:00', '15:04:05') }}", "00:00:00"},
+		{
+			120,
+			"{{ formatDate('2026-01-01 00:00:00', '2006-01-02 15:04:05') }}",
+			"2026-01-01 00:00:00",
+		},
+		{130, "{{ formatDate('2026-01-01 00:00:00', '2006-01-02') }}", "2026-01-01"},
+		// Edge cases end of day
+		{140, "{{ formatDate('2026-12-31 23:59:59', '15:04:05') }}", "23:59:59"},
+		{
+			150,
+			"{{ formatDate('2026-12-31 23:59:59', '2006-01-02 15:04:05') }}",
+			"2026-12-31 23:59:59",
+		},
+		{160, "{{ formatDate('2026-12-31 23:59:59', '2006-01-02') }}", "2026-12-31"},
+		// Leap year date
+		{170, "{{ formatDate('2024-02-29 12:30:45', '2006-01-02') }}", "2024-02-29"},
+		{180, "{{ formatDate('2024-02-29 12:30:45', '15:04:05') }}", "12:30:45"},
+		{
+			190,
+			"{{ formatDate('2024-02-29 12:30:45', '2006-01-02 15:04:05') }}",
+			"2024-02-29 12:30:45",
+		},
+		// Single-digit month/day padding
+		{200, "{{ formatDate('2026-03-05 01:02:03', '2006-01-02') }}", "2026-03-05"},
+		{210, "{{ formatDate('2026-03-05 01:02:03', '15:04:05') }}", "01:02:03"},
+		{
+			220,
+			"{{ formatDate('2026-03-05 01:02:03', '2006-01-02 15:04:05') }}",
+			"2026-03-05 01:02:03",
+		},
+		// Early morning times
+		{230, "{{ formatDate('2026-06-15 01:23:45', '15:04:05') }}", "01:23:45"},
+		{
+			240,
+			"{{ formatDate('2026-06-15 02:00:00', '2006-01-02 15:04:05') }}",
+			"2026-06-15 02:00:00",
+		},
+		// Afternoon/PM times
+		{250, "{{ formatDate('2026-08-20 13:45:30', '15:04:05') }}", "13:45:30"},
+		{
+			260,
+			"{{ formatDate('2026-08-20 15:30:00', '2006-01-02 15:04:05') }}",
+			"2026-08-20 15:30:00",
+		},
+		{270, "{{ formatDate('2026-08-20 23:00:00', '15:04:05') }}", "23:00:00"},
+		// Date-only inputs with various formats
+		{280, "{{ formatDate('2000-01-01', '2006-01-02') }}", "2000-01-01"},
+		{290, "{{ formatDate('1999-12-31', '2006-01-02 15:04:05') }}", "1999-12-31 00:00:00"},
+		// Time-only inputs with various formats
+		{300, "{{ formatDate('00:00:00', '15:04:05') }}", "00:00:00"},
+		{310, "{{ formatDate('12:34:56', '2006-01-02 15:04:05') }}", "0000-01-01 12:34:56"},
+		{320, "{{ formatDate('23:59:59', '15:04:05') }}", "23:59:59"},
+	}
+
+	for _, tc := range cases {
+		evaluationExpected(t, tc.inp, tc.expect, tc.id)
 	}
 }

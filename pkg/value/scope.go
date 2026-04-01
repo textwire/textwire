@@ -4,16 +4,16 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/textwire/textwire/v3/pkg/fail"
+	"github.com/textwire/textwire/v4/pkg/fail"
 )
 
 type Scope struct {
-	vars   map[string]Value
+	vars   map[string]Literal
 	parent *Scope
 }
 
 func NewScope() *Scope {
-	vars := map[string]Value{}
+	vars := map[string]Literal{}
 	vars["global"] = NewObj(nil)
 
 	return &Scope{vars: vars}
@@ -25,11 +25,11 @@ func NewScopeFromMap(data map[string]any) (*Scope, *fail.Error) {
 	for key, val := range data {
 		obj := NativeToValue(val)
 		if obj == nil {
-			return nil, fail.New(0, "", "template", fail.ErrUnsupportedType, val)
+			return nil, fail.New(nil, "", fail.OriginTpl, fail.ErrUnsupportedType, val)
 		}
 
 		if err := scope.Set(key, obj); err != nil {
-			return nil, fail.New(0, "", "evaluator", "%s", err.Error())
+			return nil, fail.New(nil, "", fail.OriginEval, "%s", err.Error())
 		}
 	}
 
@@ -42,7 +42,7 @@ func (s *Scope) Child() *Scope {
 	return child
 }
 
-func (e *Scope) Get(name string) (Value, bool) {
+func (e *Scope) Get(name string) (Literal, bool) {
 	obj, ok := e.vars[name]
 	if !ok && e.parent != nil {
 		obj, ok = e.parent.Get(name)
@@ -50,7 +50,7 @@ func (e *Scope) Get(name string) (Value, bool) {
 	return obj, ok
 }
 
-func (e *Scope) Set(key string, val Value) error {
+func (e *Scope) Set(key string, val Literal) error {
 	if key == "loop" || key == "global" {
 		return errors.New(fail.ErrReservedIdentifiers)
 	}
@@ -64,7 +64,7 @@ func (e *Scope) Set(key string, val Value) error {
 	return nil
 }
 
-func (e *Scope) SetLoopVar(pairs map[string]Value) {
+func (e *Scope) SetLoopVar(pairs map[string]Literal) {
 	e.vars["loop"] = NewObj(pairs)
 }
 
@@ -84,7 +84,7 @@ func (e *Scope) AddGlobal(key string, val any) {
 
 	// Ensure Pairs map is initialized
 	if globalObj.Pairs == nil {
-		globalObj.Pairs = map[string]Value{}
+		globalObj.Pairs = map[string]Literal{}
 	}
 
 	globalObj.Pairs[key] = NativeToValue(val)
@@ -96,6 +96,6 @@ func (e *Scope) isTypeMismatch(key string, val Value) (Value, bool) {
 }
 
 func (e *Scope) identifierMismatchError(key string, oldVar, val Value) error {
-	msg := fmt.Sprintf(fail.ErrIdentifierTypeMismatch, key, oldVar.Type(), val.Type())
+	msg := fmt.Sprintf(fail.ErrIdentTypeMismatch, key, oldVar.Type(), val.Type())
 	return errors.New(msg)
 }

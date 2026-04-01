@@ -1,14 +1,13 @@
 package evaluator
 
 import (
-	"html"
 	"reflect"
-	"strings"
+	"time"
 
-	"github.com/textwire/textwire/v3/config"
-	"github.com/textwire/textwire/v3/pkg/ast"
-	"github.com/textwire/textwire/v3/pkg/fail"
-	"github.com/textwire/textwire/v3/pkg/value"
+	"github.com/textwire/textwire/v4/config"
+	"github.com/textwire/textwire/v4/pkg/ast"
+	"github.com/textwire/textwire/v4/pkg/fail"
+	"github.com/textwire/textwire/v4/pkg/value"
 )
 
 var (
@@ -22,7 +21,7 @@ var (
 type Evaluator struct {
 	customFunc     *config.Func
 	usingTemplates bool
-	usingUseStmt   bool
+	usingUseDir    bool
 
 	// config can be nil when Textwire is used for simple string and
 	// file evaluation. If config is not nil, it means we use templates.
@@ -38,121 +37,147 @@ func New(customFunc *config.Func, conf *config.Config) *Evaluator {
 }
 
 func (e *Evaluator) Eval(node ast.Node, ctx *Context) value.Value {
-	switch node := node.(type) {
-	// Statements
-	case *ast.Program:
-		return e.program(node, ctx)
-	case *ast.TextStmt:
-		return &value.Text{Val: node.String()}
-	case *ast.ExpressionStmt:
-		return e.Eval(node.Expression, ctx)
-	case *ast.IfStmt:
-		return e._if(node, ctx)
-	case *ast.BlockStmt:
-		return e.block(node, ctx)
-	case *ast.AssignStmt:
-		return e.assign(node, ctx)
-	case *ast.UseStmt:
-		return e.use(node, ctx)
-	case *ast.ReserveStmt:
-		return e.reserve(node, ctx)
-	case *ast.ForStmt:
-		return e._for(node, ctx)
-	case *ast.EachStmt:
-		return e.each(node, ctx)
-	case *ast.BreakifStmt:
-		return e.breakif(node, ctx)
-	case *ast.ComponentStmt:
-		return e.component(node, ctx)
-	case *ast.ContinueifStmt:
-		return e.continueif(node, ctx)
-	case *ast.SlotStmt:
-		return e.slot(node, ctx)
-	case *ast.SlotifStmt:
-		return e.slotif(node, ctx)
-	case *ast.DumpStmt:
-		return e.dump(node, ctx)
-	case *ast.InsertStmt:
-		return e.insert(node, ctx)
-	case *ast.ContinueStmt:
-		return CONTINUE
-	case *ast.BreakStmt:
-		return BREAK
-	case *ast.IllegalNode:
-		return NIL
-
-	// Expressions
-	case *ast.Ident:
-		return e.ident(node, ctx)
-	case *ast.IndexExp:
-		return e.indexExp(node, ctx)
-	case *ast.DotExp:
-		return e.dotExp(node, ctx)
-	case *ast.IntLit:
-		return &value.Int{Val: node.Val}
-	case *ast.FloatLit:
-		return &value.Float{Val: node.Val}
-	case *ast.StrLit:
-		return e.strLit(node)
-	case *ast.BoolLit:
-		return nativeBoolToBoolObj(node.Val)
-	case *ast.ObjLit:
-		return e.objLit(node, ctx)
-	case *ast.ArrLit:
-		return e.arrLit(node, ctx)
-	case *ast.PrefixExp:
-		return e.prefixExp(node, ctx)
-	case *ast.TernaryExp:
-		return e.ternaryExp(node, ctx)
-	case *ast.InfixExp:
-		return e.infixExp(node.Op, node.Left, node.Right, ctx)
-	case *ast.PostfixExp:
-		return e.postfixExp(node, ctx)
-	case *ast.CallExp:
-		return e.callExp(node, ctx)
-	case *ast.GlobalCallExp:
-		return e.globalCallExp(node, ctx)
-	case *ast.NilLit:
-		return NIL
+	if val := e.evalValue(node, ctx); val != nil {
+		return val
 	}
 
-	return e.newError(node, ctx, fail.ErrUnknownNodeType, node)
+	if lit := e.evalLiteral(node, ctx); lit != nil {
+		return lit
+	}
+
+	return e.newError(node, ctx, fail.ErrUnknownType, node)
+}
+
+func (e *Evaluator) evalValue(node ast.Node, ctx *Context) value.Value {
+	switch node := node.(type) {
+	case *ast.Program:
+		return e.program(node, ctx)
+	case *ast.Embedded:
+		return e.embedded(node, ctx)
+	case *ast.Block:
+		return e.block(node, ctx)
+	case *ast.ContinueDir:
+		return CONTINUE
+	case *ast.BreakDir:
+		return BREAK
+	case *ast.UseDir:
+		return e.useDir(node, ctx)
+	case *ast.ReserveDir:
+		return e.reserveDir(node, ctx)
+	case *ast.BreakifDir:
+		return e.breakifDir(node, ctx)
+	case *ast.CompDir:
+		return e.compDir(node, ctx)
+	case *ast.ContinueifDir:
+		return e.continueifDir(node, ctx)
+	case *ast.SlotDir:
+		return e.slotDir(node, ctx)
+	case *ast.PassDir:
+		return NIL
+	case *ast.DumpDir:
+		return e.dumpDir(node, ctx)
+	case *ast.InsertDir:
+		return e.insertDir(node, ctx)
+	case *ast.IfDir:
+		return e.ifDir(node, ctx)
+	case *ast.ForDir:
+		return e.forDir(node, ctx)
+	case *ast.EachDir:
+		return e.eachDir(node, ctx)
+	case *ast.Text:
+		return &value.Text{Val: node.String()}
+	}
+	return nil
+}
+
+func (e *Evaluator) evalLiteral(node ast.Node, ctx *Context) value.Literal {
+	switch node := node.(type) {
+	case *ast.AssignStmt:
+		return e.assignStmt(node, ctx)
+	case *ast.IncStmt:
+		return e.incStmt(node, ctx)
+	case *ast.DecStmt:
+		return e.decStmt(node, ctx)
+
+	// Expressions
+	case *ast.IdentExpr:
+		return e.identExpr(node, ctx)
+	case *ast.IndexExpr:
+		return e.indexExpr(node, ctx)
+	case *ast.DotExpr:
+		return e.dotExpr(node, ctx)
+	case *ast.StrExpr:
+		return e.strExpr(node)
+	case *ast.BoolExpr:
+		return nativeBoolToBoolObj(node.Val)
+	case *ast.ObjExpr:
+		return e.objExpr(node, ctx)
+	case *ast.ArrExpr:
+		return e.arrExpr(node, ctx)
+	case *ast.PrefixExpr:
+		return e.prefixExpr(node, ctx)
+	case *ast.TernaryExpr:
+		return e.ternaryExpr(node, ctx)
+	case *ast.InfixExpr:
+		return e.infixExpr(node.Op, node.Left, node.Right, ctx)
+	case *ast.CallExpr:
+		return e.callExpr(node, ctx)
+	case *ast.GlobalCallExpr:
+		return e.globalCallExpr(node, ctx)
+	case *ast.IntExpr:
+		return &value.Int{Val: node.Val}
+	case *ast.FloatExpr:
+		return &value.Float{Val: node.Val}
+
+	case *ast.NilExpr, *ast.Empty, *ast.Illegal:
+		return NIL
+	}
+	return nil
 }
 
 func (e *Evaluator) program(prog *ast.Program, ctx *Context) value.Value {
-	var stmts strings.Builder
-	stmts.Grow(len(prog.Statements))
+	block := value.NewBlock(len(prog.Chunks))
 
-	for i := range prog.Statements {
-		stmt := e.Eval(prog.Statements[i], ctx)
-		if isError(stmt) {
-			return stmt
+	for i := range prog.Chunks {
+		val := e.Eval(prog.Chunks[i], ctx)
+		if isError(val) {
+			return val
 		}
-
-		stmts.WriteString(stmt.String())
+		block.Chunks = append(block.Chunks, val)
 	}
 
-	return &value.Text{Val: stmts.String()}
+	return block
 }
 
-func (e *Evaluator) _if(ifStmt *ast.IfStmt, ctx *Context) value.Value {
-	cond := e.Eval(ifStmt.Condition, ctx)
+func (e *Evaluator) embedded(embeddedAst *ast.Embedded, ctx *Context) value.Value {
+	embedded := value.NewEmbedded(len(embeddedAst.Segments))
+
+	for _, segment := range embeddedAst.Segments {
+		segment := e.evalLiteral(segment, ctx)
+		if isError(segment) {
+			return segment
+		}
+		embedded.Segments = append(embedded.Segments, segment)
+	}
+
+	return embedded
+}
+
+func (e *Evaluator) ifDir(ifDir *ast.IfDir, ctx *Context) value.Value {
+	cond := e.evalLiteral(ifDir.Cond, ctx)
 	if isError(cond) {
 		return cond
 	}
 
 	ifCtx := NewContext(ctx.scope.Child(), ctx.absPath)
 	if isTruthy(cond) {
-		return e.Eval(ifStmt.IfBlock, ifCtx)
+		return e.Eval(ifDir.IfBlock, ifCtx)
 	}
 
-	for i := range ifStmt.ElseifStmts {
-		elseifNode, ok := ifStmt.ElseifStmts[i].(*ast.ElseIfStmt)
-		if !ok {
-			continue
-		}
+	for i := range ifDir.ElseifDirs {
+		elseifNode := ifDir.ElseifDirs[i]
 
-		cond = e.Eval(elseifNode.Condition, ifCtx)
+		cond = e.evalLiteral(elseifNode.Cond, ifCtx)
 		if isError(cond) {
 			return cond
 		}
@@ -162,63 +187,72 @@ func (e *Evaluator) _if(ifStmt *ast.IfStmt, ctx *Context) value.Value {
 		}
 	}
 
-	if ifStmt.ElseBlock != nil {
-		return e.Eval(ifStmt.ElseBlock, ifCtx)
+	if ifDir.ElseBlock != nil {
+		return e.Eval(ifDir.ElseBlock, ifCtx)
 	}
 
 	return NIL
 }
 
-func (e *Evaluator) block(blockStmt *ast.BlockStmt, ctx *Context) value.Value {
-	if blockStmt == nil {
+func (e *Evaluator) block(astBlock *ast.Block, ctx *Context) value.Value {
+	if astBlock == nil {
 		return NIL
 	}
 
-	stmts := make([]value.Value, 0, len(blockStmt.Statements))
+	block := value.NewBlock(len(astBlock.Chunks))
 
-	for i := range blockStmt.Statements {
-		stmt := e.Eval(blockStmt.Statements[i], ctx)
-		if isError(stmt) {
-			return stmt
+	for i := range astBlock.Chunks {
+		chunk := e.Eval(astBlock.Chunks[i], ctx)
+		if isError(chunk) {
+			return chunk
 		}
 
-		stmts = append(stmts, stmt)
-		if hasBreakStmt(stmt) || hasContinueStmt(stmt) {
+		block.Chunks = append(block.Chunks, chunk)
+
+		if hasBreak(chunk) || hasContinue(chunk) {
 			break
 		}
 	}
 
-	return &value.Block{Elements: stmts}
+	return block
 }
 
-func (e *Evaluator) assign(assignStmt *ast.AssignStmt, ctx *Context) value.Value {
-	right := e.Eval(assignStmt.Right, ctx)
+func (e *Evaluator) assignStmt(assignStmt *ast.AssignStmt, ctx *Context) value.Literal {
+	right := e.evalLiteral(assignStmt.Right, ctx)
 	if isError(right) {
 		return right
 	}
 
-	switch left := assignStmt.Left.(type) {
-	case *ast.Ident:
-		return e.assignIdentifier(left, right, ctx)
-	case *ast.IndexExp:
-		return e.assignIndexExp(left, right, ctx)
-	case *ast.DotExp:
-		return e.assignDotExp(left, right, ctx)
-	default:
-		return e.newError(
-			assignStmt,
-			ctx,
-			fail.ErrNotSupportedAssign,
-			value.FromTokenToValueType(left.Tok().Type),
-		)
-	}
+	return e.assignTo(assignStmt.Left, right, ctx)
 }
 
-func (e *Evaluator) assignIdentifier(
-	ident *ast.Ident,
-	val value.Value,
+func (e *Evaluator) assignTo(
+	left ast.Expression,
+	right value.Literal,
 	ctx *Context,
-) value.Value {
+) value.Literal {
+	switch l := left.(type) {
+	case *ast.IdentExpr:
+		return e.assignIdent(l, right, ctx)
+	case *ast.IndexExpr:
+		return e.assignIndexExp(l, right, ctx)
+	case *ast.DotExpr:
+		return e.assignDotExp(l, right, ctx)
+	}
+
+	return e.newError(
+		left,
+		ctx,
+		fail.ErrNotSupportedAssign,
+		value.FromTokenToValueType(left.Tok().Type),
+	)
+}
+
+func (e *Evaluator) assignIdent(
+	ident *ast.IdentExpr,
+	val value.Literal,
+	ctx *Context,
+) value.Literal {
 	if err := ctx.scope.Set(ident.Name, val); err != nil {
 		return e.newError(ident, ctx, "%s", err.Error())
 	}
@@ -226,16 +260,16 @@ func (e *Evaluator) assignIdentifier(
 }
 
 func (e *Evaluator) assignIndexExp(
-	indexExp *ast.IndexExp,
-	val value.Value,
+	indexExp *ast.IndexExpr,
+	val value.Literal,
 	ctx *Context,
-) value.Value {
-	left := e.Eval(indexExp.Left, ctx)
+) value.Literal {
+	left := e.evalLiteral(indexExp.Left, ctx)
 	if isError(left) {
 		return left
 	}
 
-	idx := e.Eval(indexExp.Index, ctx)
+	idx := e.evalLiteral(indexExp.Index, ctx)
 	if isError(idx) {
 		return idx
 	}
@@ -262,18 +296,18 @@ func (e *Evaluator) assignIndexExp(
 }
 
 func (e *Evaluator) assignDotExp(
-	dotExp *ast.DotExp,
-	val value.Value,
+	dotExp *ast.DotExpr,
+	val value.Literal,
 	ctx *Context,
-) value.Value {
+) value.Literal {
 	// Evaluate the left side to get the value
-	left := e.Eval(dotExp.Left, ctx)
+	left := e.evalLiteral(dotExp.Left, ctx)
 	if isError(left) {
 		return left
 	}
 
 	// Get the key (property name)
-	key := dotExp.Key.(*ast.Ident).Name
+	key := dotExp.Key.(*ast.IdentExpr).Name
 
 	// Type assert that left is a value
 	obj, ok := left.(*value.Obj)
@@ -286,27 +320,27 @@ func (e *Evaluator) assignDotExp(
 	return NIL
 }
 
-func (e *Evaluator) use(useStmt *ast.UseStmt, ctx *Context) value.Value {
-	if useStmt.LayoutProg == nil {
+func (e *Evaluator) useDir(useDir *ast.UseDir, ctx *Context) value.Value {
+	if useDir.LayoutProg == nil {
 		if e.usingTemplates {
-			return e.newError(useStmt, ctx, fail.ErrUseStmtMissingLayout, useStmt.Name.Val)
+			return e.newError(useDir, ctx, fail.ErrUseDirMissingLayout, useDir.Name.Val)
 		}
-		return e.newError(useStmt, ctx, fail.ErrSomeDirsOnlyInTemplates)
+		return e.newError(useDir, ctx, fail.ErrTemplateDirectives)
 	}
 
-	e.usingUseStmt = true
-
-	// Make sure that layout is missing @use
-	if useStmt.LayoutProg.IsLayout && useStmt.LayoutProg.HasUseStmt() {
-		return e.newError(useStmt, ctx, fail.ErrUseStmtNotAllowed)
-	}
+	e.usingUseDir = true
 
 	// Create new layout context and pass inserts to it
-	layoutCtx := NewContext(value.NewScope(), useStmt.LayoutProg.AbsPath)
+	layoutCtx := NewContext(value.NewScope(), useDir.LayoutProg.AbsPath)
+
+	// Make sure that layout is missing @use
+	if useDir.LayoutProg.IsLayout && useDir.LayoutProg.HasUseDir() {
+		return e.newError(useDir.LayoutProg.UseDir, layoutCtx, fail.ErrUseDirIsNotAllowed)
+	}
 
 	// Evaluate @inserts and map them into new context for layout
-	for name, insertStmt := range useStmt.Inserts {
-		insert := e.insert(insertStmt, ctx)
+	for name, insertDir := range useDir.Inserts {
+		insert := e.insertDir(insertDir, ctx)
 		if isError(insert) {
 			return insert
 		}
@@ -314,33 +348,30 @@ func (e *Evaluator) use(useStmt *ast.UseStmt, ctx *Context) value.Value {
 	}
 
 	// Evaluate layout program with new context
-	layout := e.Eval(useStmt.LayoutProg, layoutCtx)
+	layout := e.Eval(useDir.LayoutProg, layoutCtx)
 	if isError(layout) {
 		return layout
 	}
 
 	return &value.Use{
-		Path:   useStmt.Name.Val,
+		Path:   useDir.Name.Val,
 		Layout: layout,
 	}
 }
 
-func (e *Evaluator) reserve(reserveStmt *ast.ReserveStmt, ctx *Context) value.Value {
+func (e *Evaluator) reserveDir(reserveDir *ast.ReserveDir, ctx *Context) value.Value {
 	if !e.usingTemplates {
-		return e.newError(reserveStmt, ctx, fail.ErrSomeDirsOnlyInTemplates)
+		return e.newError(reserveDir, ctx, fail.ErrTemplateDirectives)
 	}
 
-	name := reserveStmt.Name.Val
+	name := reserveDir.Name.Val
 	insert, ok := ctx.inserts[name]
 	if !ok {
 		// Inserts are optional, NIL when not provided or fallback argument
-		if reserveStmt.Fallback == nil {
-			return NIL
-		}
-		return e.Eval(reserveStmt.Fallback, ctx)
+		return e.evalLiteral(reserveDir.Fallback, ctx)
 	}
 
-	// delete reserve after it's been used by reserve
+	// Delete reserve after it's been used by reserve
 	defer delete(ctx.inserts, name)
 
 	return &value.Reserve{
@@ -349,46 +380,34 @@ func (e *Evaluator) reserve(reserveStmt *ast.ReserveStmt, ctx *Context) value.Va
 	}
 }
 
-func (e *Evaluator) component(compStmt *ast.ComponentStmt, ctx *Context) value.Value {
+func (e *Evaluator) compDir(compDir *ast.CompDir, ctx *Context) value.Value {
 	if !e.usingTemplates {
-		return e.newError(compStmt, ctx, fail.ErrSomeDirsOnlyInTemplates)
+		return e.newError(compDir, ctx, fail.ErrTemplateDirectives)
 	}
 
-	name := compStmt.Name.Val
-	if compStmt.CompProg == nil {
-		return e.newError(compStmt, ctx, fail.ErrUndefinedComponent, name)
+	name := compDir.Name.Val
+	if compDir.CompProg == nil {
+		return e.newError(compDir, ctx, fail.ErrUndefinedComponent, name)
 	}
 
-	compCtx := NewContext(value.NewScope(), compStmt.CompProg.AbsPath)
+	compCtx := NewContext(value.NewScope(), compDir.CompProg.AbsPath)
 
-	// Evaluate local slots and add them to component context
-	for _, slotStmt := range compStmt.Slots {
-		slot := e.Eval(slotStmt, ctx)
-		if isError(slot) {
-			return slot
-		}
-
-		if compCtx.slots[name] == nil {
-			compCtx.slots[name] = map[string]value.Value{}
-		}
-
-		compCtx.slots[name][slotStmt.Name().Val] = slot
+	if compCtx.slots[name] == nil {
+		compCtx.slots[name] = map[string]value.Value{}
 	}
 
-	if compStmt.Argument != nil {
-		for key, arg := range compStmt.Argument.Pairs {
-			obj := e.Eval(arg, ctx)
-			if isError(obj) {
-				return obj
-			}
+	if err := e.evalCompDirPasses(compDir, ctx, compCtx); err != nil {
+		return err
+	}
 
-			if err := compCtx.scope.Set(key, obj); err != nil {
-				return e.newError(compStmt, ctx, "%s", err.Error())
-			}
+	if compDir.Argument != nil {
+		err := e.passCompArgsToCtx(compDir, ctx, compCtx)
+		if err != nil {
+			return err
 		}
 	}
 
-	content := e.Eval(compStmt.CompProg, compCtx)
+	content := e.Eval(compDir.CompProg, compCtx)
 	if isError(content) {
 		return content
 	}
@@ -399,133 +418,162 @@ func (e *Evaluator) component(compStmt *ast.ComponentStmt, ctx *Context) value.V
 	}
 }
 
-func (e *Evaluator) _for(forStmt *ast.ForStmt, ctx *Context) value.Value {
-	forCtx := NewContext(ctx.scope, ctx.absPath)
-
-	var init value.Value
-	if forStmt.Init != nil {
-		if init = e.Eval(forStmt.Init, forCtx); isError(init) {
-			return init
-		}
-	}
-
-	// Evaluate ElseBlock block if user's condition is false
-	if forStmt.Condition != nil {
-		cond := e.Eval(forStmt.Condition, forCtx)
-		if isError(cond) {
-			return cond
-		}
-
-		if !isTruthy(cond) && forStmt.ElseBlock != nil {
-			return e.Eval(forStmt.ElseBlock, forCtx)
-		}
-	}
-
-	var blocks strings.Builder
-
-	// Loop through the block until the user's condition is false
-	for {
-		if forStmt.Condition != nil {
-			cond := e.Eval(forStmt.Condition, forCtx)
+func (e *Evaluator) evalCompDirPasses(compDir *ast.CompDir, ctx, compCtx *Context) value.Value {
+	for _, passDir := range compDir.Passes {
+		if passDir.Cond != nil {
+			cond := e.evalLiteral(passDir.Cond, ctx)
 			if isError(cond) {
 				return cond
 			}
 
 			if !isTruthy(cond) {
-				break
+				continue
 			}
 		}
 
-		block := e.Eval(forStmt.Block, forCtx)
-		if isError(block) {
-			return block
+		passBlock := e.block(passDir.Block, ctx)
+		if isError(passBlock) {
+			return passBlock
 		}
 
-		blocks.WriteString(block.String())
+		compCtx.slots[compDir.Name.Val][passDir.Name.Val] = passBlock
+	}
 
-		var post value.Value
-		if forStmt.Post != nil {
-			post = e.Eval(forStmt.Post, forCtx)
-			if isError(post) {
-				return post
-			}
+	// Save content from default @pass
+	if compDir.DefaultPass != nil {
+		passBlock := e.block(compDir.DefaultPass.Block, ctx)
+		if isError(passBlock) {
+			return passBlock
+		}
+		compCtx.slots[compDir.Name.Val][""] = passBlock
+	}
+
+	return nil
+}
+
+func (e *Evaluator) passCompArgsToCtx(compDir *ast.CompDir, ctx, compCtx *Context) value.Value {
+	for key, arg := range compDir.Argument.Pairs {
+		obj := e.evalLiteral(arg, ctx)
+		if isError(obj) {
+			return obj
 		}
 
-		if post != nil {
-			varName := forStmt.Init.(*ast.AssignStmt).Left.(*ast.Ident).Name
-			if err := forCtx.scope.Set(varName, post); err != nil {
-				return e.newError(forStmt, forCtx, "%s", err.Error())
-			}
+		if err := compCtx.scope.Set(key, obj); err != nil {
+			return e.newError(compDir, ctx, "%s", err.Error())
+		}
+	}
+	return nil
+}
+
+func (e *Evaluator) forDir(forDir *ast.ForDir, ctx *Context) value.Value {
+	forCtx := NewContext(ctx.scope, ctx.absPath)
+
+	init := e.evalLiteral(forDir.Init, forCtx)
+	if isError(init) {
+		return init
+	}
+
+	// Evaluate ElseBlock block if user's condition is false
+	cond := e.evalLiteral(forDir.Cond, forCtx)
+	if isError(cond) {
+		return cond
+	}
+
+	if !isTruthy(cond) && forDir.ElseBlock != nil {
+		return e.Eval(forDir.ElseBlock, forCtx)
+	}
+
+	block := value.NewBlock(len(forDir.Block.Chunks))
+
+	// Loop through the block until the user's condition is false
+	for {
+		cond = e.evalLiteral(forDir.Cond, forCtx)
+		if isError(cond) {
+			return cond
 		}
 
-		if hasBreakStmt(block) {
+		if cond != NIL && !isTruthy(cond) {
 			break
 		}
 
-		if hasContinueStmt(block) {
+		val := e.Eval(forDir.Block, forCtx)
+		if isError(val) {
+			return val
+		}
+
+		block.Chunks = append(block.Chunks, val)
+		post := e.evalLiteral(forDir.Post, forCtx)
+		if isError(post) {
+			return post
+		}
+
+		if hasBreak(block) {
+			break
+		}
+
+		if hasContinue(block) {
 			continue
 		}
 	}
 
-	return &value.Text{Val: blocks.String()}
+	return block
 }
 
-func (e *Evaluator) each(eachStmt *ast.EachStmt, ctx *Context) value.Value {
+func (e *Evaluator) eachDir(eachDir *ast.EachDir, ctx *Context) value.Value {
 	eachCtx := NewContext(ctx.scope.Child(), ctx.absPath)
-	varName := eachStmt.Var.Name
+	varName := eachDir.Var.Name
 
-	arrObj := e.Eval(eachStmt.Arr, eachCtx)
+	arrObj := e.evalLiteral(eachDir.Arr, eachCtx)
 	if isError(arrObj) {
 		return arrObj
 	}
 
 	arr, ok := arrObj.(*value.Arr)
 	if !ok {
-		return e.newError(eachStmt, eachCtx, fail.ErrEachDirWithNonArrArg, arrObj.Type())
+		return e.newError(eachDir, eachCtx, fail.ErrEachDirWithNonArrArg, arrObj.Type())
 	}
 
 	arrElems := arr.Elements
 
 	// Evaluate ElseBlock when array is empty
-	if len(arrElems) == 0 && eachStmt.ElseBlock != nil {
-		return e.Eval(eachStmt.ElseBlock, eachCtx)
+	if len(arrElems) == 0 && eachDir.ElseBlock != nil {
+		return e.Eval(eachDir.ElseBlock, eachCtx)
 	}
 
-	var blocks strings.Builder
-	blocks.Grow(len(arrElems))
+	block := value.NewBlock(len(arrElems))
 
 	for i := range arrElems {
 		if err := eachCtx.scope.Set(varName, arrElems[i]); err != nil {
-			return e.newError(eachStmt, eachCtx, "%s", err.Error())
+			return e.newError(eachDir, eachCtx, "%s", err.Error())
 		}
 
-		eachCtx.scope.SetLoopVar(map[string]value.Value{
+		eachCtx.scope.SetLoopVar(map[string]value.Literal{
 			"index": &value.Int{Val: int64(i)},
 			"first": nativeBoolToBoolObj(i == 0),
 			"last":  nativeBoolToBoolObj(i == len(arrElems)-1),
 			"iter":  &value.Int{Val: int64(i + 1)},
 		})
 
-		block := e.Eval(eachStmt.Block, eachCtx)
-		if isError(block) {
-			return block
+		val := e.Eval(eachDir.Block, eachCtx)
+		if isError(val) {
+			return val
 		}
 
-		blocks.WriteString(block.String())
-		if hasBreakStmt(block) {
+		block.Chunks = append(block.Chunks, val)
+		if hasBreak(block) {
 			break
 		}
 
-		if hasContinueStmt(block) {
+		if hasContinue(block) {
 			continue
 		}
 	}
 
-	return &value.Text{Val: blocks.String()}
+	return block
 }
 
-func (e *Evaluator) breakif(breakifStmt *ast.BreakifStmt, ctx *Context) value.Value {
-	cond := e.Eval(breakifStmt.Condition, ctx)
+func (e *Evaluator) breakifDir(breakifDir *ast.BreakifDir, ctx *Context) value.Value {
+	cond := e.evalLiteral(breakifDir.Cond, ctx)
 	if isError(cond) {
 		return cond
 	}
@@ -537,8 +585,8 @@ func (e *Evaluator) breakif(breakifStmt *ast.BreakifStmt, ctx *Context) value.Va
 	return NIL
 }
 
-func (e *Evaluator) continueif(contifStmt *ast.ContinueifStmt, ctx *Context) value.Value {
-	cond := e.Eval(contifStmt.Condition, ctx)
+func (e *Evaluator) continueifDir(contifDir *ast.ContinueifDir, ctx *Context) value.Value {
+	cond := e.evalLiteral(contifDir.Cond, ctx)
 	if isError(cond) {
 		return cond
 	}
@@ -550,37 +598,9 @@ func (e *Evaluator) continueif(contifStmt *ast.ContinueifStmt, ctx *Context) val
 	return NIL
 }
 
-func (e *Evaluator) slot(slotStmt *ast.SlotStmt, ctx *Context) value.Value {
-	if slotStmt.IsLocal {
-		return e.localSlotStmt(slotStmt, ctx)
-	}
-	return e.externalSlotStmt(slotStmt, ctx)
-}
-
-func (e *Evaluator) slotif(slotifStmt *ast.SlotifStmt, ctx *Context) value.Value {
-	cond := e.Eval(slotifStmt.Condition, ctx)
-	if isError(cond) {
-		return cond
-	}
-
-	if !isTruthy(cond) {
-		return NIL
-	}
-
-	block := e.Eval(slotifStmt.Block(), ctx)
-	if isError(block) {
-		return block
-	}
-
-	return &value.Slot{
-		Name:    slotifStmt.Name().Val,
-		Content: block,
-	}
-}
-
-func (e *Evaluator) externalSlotStmt(slotStmt *ast.SlotStmt, ctx *Context) value.Value {
-	name := slotStmt.Name().Val
-	compName := slotStmt.CompName
+func (e *Evaluator) slotDir(slotDir *ast.SlotDir, ctx *Context) value.Value {
+	name := slotDir.Name.Val
+	compName := slotDir.CompName
 
 	// Get slot's content from the context
 	content, ok := ctx.slots[compName][name]
@@ -595,33 +615,17 @@ func (e *Evaluator) externalSlotStmt(slotStmt *ast.SlotStmt, ctx *Context) value
 	return &value.Slot{Name: name, Content: content}
 }
 
-func (e *Evaluator) localSlotStmt(slotStmt *ast.SlotStmt, ctx *Context) value.Value {
-	var block value.Value = NIL
-
-	if slotStmt.Block() != nil {
-		block = e.Eval(slotStmt.Block(), ctx)
-		if isError(block) {
-			return block
-		}
-	}
-
-	return &value.Slot{
-		Name:    slotStmt.Name().Val,
-		Content: block,
-	}
-}
-
-func (e *Evaluator) insert(insertStmt *ast.InsertStmt, ctx *Context) value.Value {
+func (e *Evaluator) insertDir(insertDir *ast.InsertDir, ctx *Context) value.Value {
 	if !e.usingTemplates {
-		return e.newError(insertStmt, ctx, fail.ErrSomeDirsOnlyInTemplates)
+		return e.newError(insertDir, ctx, fail.ErrTemplateDirectives)
 	}
 
-	name := insertStmt.Name.Val
-	if !e.usingUseStmt {
-		return e.newError(insertStmt, ctx, fail.ErrInsertRequiresUse, name)
+	name := insertDir.Name.Val
+	if !e.usingUseDir {
+		return e.newError(insertDir, ctx, fail.ErrInsertRequiresUse, name)
 	}
 
-	block := e.combineInsertContent(insertStmt, ctx)
+	block := e.combineInsertContent(insertDir, ctx)
 	if isError(block) {
 		return block
 	}
@@ -634,34 +638,35 @@ func (e *Evaluator) insert(insertStmt *ast.InsertStmt, ctx *Context) value.Value
 
 // combineInsertContent combines insert Argument and Block (depending what user has)
 // into a single value that we can work with.
-func (e *Evaluator) combineInsertContent(insertStmt *ast.InsertStmt, ctx *Context) value.Value {
-	if insertStmt.Argument != nil {
-		arg := e.Eval(insertStmt.Argument, ctx)
-		if isError(arg) {
-			return arg
-		}
+func (e *Evaluator) combineInsertContent(insertDir *ast.InsertDir, ctx *Context) value.Value {
+	arg := e.evalLiteral(insertDir.Argument, ctx)
+	if isError(arg) {
 		return arg
 	}
 
-	if insertStmt.Block == nil {
-		return e.newError(insertStmt, ctx, fail.ErrInsertMustHaveContent)
+	if arg != NIL {
+		return arg
 	}
 
-	return e.Eval(insertStmt.Block, ctx)
-}
-
-func (e *Evaluator) dump(dumpStmt *ast.DumpStmt, ctx *Context) value.Value {
-	values := make([]string, 0, len(dumpStmt.Arguments))
-
-	for i := range dumpStmt.Arguments {
-		evaluated := e.Eval(dumpStmt.Arguments[i], ctx)
-		values = append(values, evaluated.Dump(0))
+	if insertDir.Block == nil {
+		return e.newError(insertDir, ctx, fail.ErrInsertMustHaveContent, insertDir.Name.Val)
 	}
 
-	return &value.Dump{Vals: values}
+	return e.Eval(insertDir.Block, ctx)
 }
 
-func (e *Evaluator) ident(ident *ast.Ident, ctx *Context) value.Value {
+func (e *Evaluator) dumpDir(dumpDir *ast.DumpDir, ctx *Context) value.Value {
+	dump := value.NewDump(len(dumpDir.Args))
+
+	for i := range dumpDir.Args {
+		evaluated := e.evalLiteral(dumpDir.Args[i], ctx)
+		dump.Vals = append(dump.Vals, evaluated)
+	}
+
+	return dump
+}
+
+func (e *Evaluator) identExpr(ident *ast.IdentExpr, ctx *Context) value.Literal {
 	varName := ident.Name
 	if varName == "global" && e.config != nil && e.config.GlobalData != nil {
 		return value.NativeToValue(e.config.GlobalData)
@@ -674,13 +679,13 @@ func (e *Evaluator) ident(ident *ast.Ident, ctx *Context) value.Value {
 	return e.newError(ident, ctx, fail.ErrVariableIsUndefined, ident.Name)
 }
 
-func (e *Evaluator) indexExp(indexExp *ast.IndexExp, ctx *Context) value.Value {
-	left := e.Eval(indexExp.Left, ctx)
+func (e *Evaluator) indexExpr(indexExp *ast.IndexExpr, ctx *Context) value.Literal {
+	left := e.evalLiteral(indexExp.Left, ctx)
 	if isError(left) {
 		return left
 	}
 
-	idx := e.Eval(indexExp.Index, ctx)
+	idx := e.evalLiteral(indexExp.Index, ctx)
 	if isError(idx) {
 		return idx
 	}
@@ -695,7 +700,7 @@ func (e *Evaluator) indexExp(indexExp *ast.IndexExp, ctx *Context) value.Value {
 	return e.newError(indexExp, ctx, fail.ErrIndexNotSupported, left.Type())
 }
 
-func (e *Evaluator) arrIndexExp(arrObj, idx value.Value) value.Value {
+func (e *Evaluator) arrIndexExp(arrObj, idx value.Literal) value.Literal {
 	arr := arrObj.(*value.Arr)
 	index := idx.(*value.Int).Val
 	max := int64(len(arr.Elements) - 1)
@@ -707,7 +712,7 @@ func (e *Evaluator) arrIndexExp(arrObj, idx value.Value) value.Value {
 	return arr.Elements[index]
 }
 
-func (e *Evaluator) objKeyExp(obj *value.Obj, key string) value.Value {
+func (e *Evaluator) objKeyExp(obj *value.Obj, key string) value.Literal {
 	if pair, ok := obj.Pairs[key]; ok {
 		return pair
 	}
@@ -721,13 +726,13 @@ func (e *Evaluator) objKeyExp(obj *value.Obj, key string) value.Value {
 	return NIL
 }
 
-func (e *Evaluator) dotExp(dotExp *ast.DotExp, ctx *Context) value.Value {
-	left := e.Eval(dotExp.Left, ctx)
+func (e *Evaluator) dotExpr(dotExp *ast.DotExpr, ctx *Context) value.Literal {
+	left := e.evalLiteral(dotExp.Left, ctx)
 	if isError(left) {
 		return left
 	}
 
-	key := dotExp.Key.(*ast.Ident)
+	key := dotExp.Key.(*ast.IdentExpr)
 	obj, ok := left.(*value.Obj)
 	if !ok {
 		return e.newError(dotExp, ctx, fail.ErrKeyOnNonObj, left.Type(), key)
@@ -736,18 +741,12 @@ func (e *Evaluator) dotExp(dotExp *ast.DotExp, ctx *Context) value.Value {
 	return e.objKeyExp(obj, key.Name)
 }
 
-func (e *Evaluator) strLit(strLit *ast.StrLit) value.Value {
-	str := html.EscapeString(strLit.Val)
-
-	// unescape single and double quotes
-	str = strings.ReplaceAll(str, "&#34;", `"`)
-	str = strings.ReplaceAll(str, "&#39;", `'`)
-
-	return &value.Str{Val: str}
+func (e *Evaluator) strExpr(strLit *ast.StrExpr) value.Literal {
+	return &value.Str{Val: strLit.Val}
 }
 
-func (e *Evaluator) prefixExp(prefixExp *ast.PrefixExp, ctx *Context) value.Value {
-	right := e.Eval(prefixExp.Right, ctx)
+func (e *Evaluator) prefixExpr(prefixExp *ast.PrefixExpr, ctx *Context) value.Literal {
+	right := e.evalLiteral(prefixExp.Right, ctx)
 	if isError(right) {
 		return right
 	}
@@ -762,20 +761,20 @@ func (e *Evaluator) prefixExp(prefixExp *ast.PrefixExp, ctx *Context) value.Valu
 	return e.newError(prefixExp, ctx, fail.ErrUnknownOp, prefixExp.Op, right.Type())
 }
 
-func (e *Evaluator) ternaryExp(ternExp *ast.TernaryExp, ctx *Context) value.Value {
-	cond := e.Eval(ternExp.Condition, ctx)
+func (e *Evaluator) ternaryExpr(ternExp *ast.TernaryExpr, ctx *Context) value.Literal {
+	cond := e.evalLiteral(ternExp.Cond, ctx)
 	if isError(cond) {
 		return cond
 	}
 
 	if isTruthy(cond) {
-		return e.Eval(ternExp.IfBlock, ctx)
+		return e.evalLiteral(ternExp.IfExpr, ctx)
 	}
 
-	return e.Eval(ternExp.ElseBlock, ctx)
+	return e.evalLiteral(ternExp.ElseExpr, ctx)
 }
 
-func (e *Evaluator) arrLit(arrLit *ast.ArrLit, ctx *Context) value.Value {
+func (e *Evaluator) arrExpr(arrLit *ast.ArrExpr, ctx *Context) value.Literal {
 	elems := e.evalExpressions(arrLit.Elements, ctx)
 	if len(elems) == 1 && isError(elems[0]) {
 		return elems[0]
@@ -784,11 +783,11 @@ func (e *Evaluator) arrLit(arrLit *ast.ArrLit, ctx *Context) value.Value {
 	return &value.Arr{Elements: elems}
 }
 
-func (e *Evaluator) objLit(objLit *ast.ObjLit, ctx *Context) value.Value {
-	pairs := make(map[string]value.Value, len(objLit.Pairs))
+func (e *Evaluator) objExpr(objLit *ast.ObjExpr, ctx *Context) value.Literal {
+	pairs := make(map[string]value.Literal, len(objLit.Pairs))
 
 	for key, val := range objLit.Pairs {
-		valObj := e.Eval(val, ctx)
+		valObj := e.evalLiteral(val, ctx)
 		if isError(valObj) {
 			return valObj
 		}
@@ -799,13 +798,13 @@ func (e *Evaluator) objLit(objLit *ast.ObjLit, ctx *Context) value.Value {
 	return value.NewObj(pairs)
 }
 
-func (e *Evaluator) evalExpressions(exps []ast.Expression, ctx *Context) []value.Value {
-	evaluatedObjs := make([]value.Value, 0, len(exps))
+func (e *Evaluator) evalExpressions(exps []ast.Expression, ctx *Context) []value.Literal {
+	evaluatedObjs := make([]value.Literal, 0, len(exps))
 
 	for i := range exps {
-		evaluated := e.Eval(exps[i], ctx)
+		evaluated := e.evalLiteral(exps[i], ctx)
 		if isError(evaluated) {
-			return []value.Value{evaluated}
+			return []value.Literal{evaluated}
 		}
 
 		evaluatedObjs = append(evaluatedObjs, evaluated)
@@ -814,12 +813,13 @@ func (e *Evaluator) evalExpressions(exps []ast.Expression, ctx *Context) []value
 	return evaluatedObjs
 }
 
-func (e *Evaluator) infixExp(
+func (e *Evaluator) infixExpr(
 	op string,
-	leftNode, rightNode ast.Expression,
+	leftNode,
+	rightNode ast.Expression,
 	ctx *Context,
-) value.Value {
-	left := e.Eval(leftNode, ctx)
+) value.Literal {
+	left := e.evalLiteral(leftNode, ctx)
 	if isError(left) {
 		return left
 	}
@@ -828,7 +828,7 @@ func (e *Evaluator) infixExp(
 		return obj
 	}
 
-	right := e.Eval(rightNode, ctx)
+	right := e.evalLiteral(rightNode, ctx)
 	if isError(right) {
 		return right
 	}
@@ -842,7 +842,7 @@ func (e *Evaluator) infixExp(
 
 // Short-circuit evaluation for logical operators to prevent
 // checking conditions if the left side is false.
-func (e *Evaluator) shortCircuit(left value.Value, op string) (value.Value, bool) {
+func (e *Evaluator) shortCircuit(left value.Literal, op string) (value.Literal, bool) {
 	if op == "&&" && !isTruthy(left) {
 		return FALSE, true
 	}
@@ -853,17 +853,44 @@ func (e *Evaluator) shortCircuit(left value.Value, op string) (value.Value, bool
 	return nil, false
 }
 
-func (e *Evaluator) postfixExp(postfixExp *ast.PostfixExp, ctx *Context) value.Value {
-	leftObj := e.Eval(postfixExp.Left, ctx)
-	if isError(leftObj) {
-		return leftObj
+func (e *Evaluator) incStmt(incStmt *ast.IncStmt, ctx *Context) value.Literal {
+	left := e.evalLiteral(incStmt.Left, ctx)
+	if isError(left) {
+		return left
 	}
 
-	return e.postfixOpExp(leftObj, postfixExp.Op, postfixExp, ctx)
+	switch l := left.(type) {
+	case *value.Int:
+		return e.assignTo(incStmt.Left, &value.Int{Val: l.Val + 1}, ctx)
+	case *value.Float:
+		return e.assignTo(incStmt.Left, &value.Float{Val: l.Val + 1}, ctx)
+	}
+
+	return e.newError(incStmt, ctx, fail.ErrIllegalTypeForInc, left.Type())
 }
 
-func (e *Evaluator) callExp(callExp *ast.CallExp, ctx *Context) value.Value {
-	receiver := e.Eval(callExp.Receiver, ctx)
+func (e *Evaluator) decStmt(decInc *ast.DecStmt, ctx *Context) value.Literal {
+	left := e.evalLiteral(decInc.Left, ctx)
+	if isError(left) {
+		return left
+	}
+
+	switch l := left.(type) {
+	case *value.Int:
+		return e.assignTo(decInc.Left, &value.Int{Val: l.Val - 1}, ctx)
+	case *value.Float:
+		err := l.SubtractFromFloat(1)
+		if err != nil {
+			return e.newError(decInc, ctx, fail.ErrCannotDecFromFloat, left, err)
+		}
+		return e.assignTo(decInc.Left, l, ctx)
+	}
+
+	return e.newError(decInc, ctx, fail.ErrIllegalTypeForDec, left.Type())
+}
+
+func (e *Evaluator) callExpr(callExp *ast.CallExpr, ctx *Context) value.Literal {
+	receiver := e.evalLiteral(callExp.Receiver, ctx)
 	funcName := callExp.Function.Name
 	if isError(receiver) {
 		return receiver
@@ -882,12 +909,11 @@ func (e *Evaluator) callExp(callExp *ast.CallExp, ctx *Context) value.Value {
 
 	buitin, ok := typeFuncs[callExp.Function.Name]
 	if ok {
-		res, err := buitin.Fn(receiver, args...)
+		result, err := buitin.Fn(receiver, args...)
 		if err != nil {
 			return e.newError(callExp, ctx, "%s", err.Error())
 		}
-
-		return res
+		return result
 	}
 
 	if hasCustomFunc(e.customFunc, receiverType, funcName) {
@@ -926,28 +952,30 @@ func (e *Evaluator) callExp(callExp *ast.CallExp, ctx *Context) value.Value {
 	return e.newError(callExp, ctx, fail.ErrFuncNotDefined, receiver.Type(), callExp.Function.Name)
 }
 
-func (e *Evaluator) globalCallExp(globalCallExp *ast.GlobalCallExp, ctx *Context) value.Value {
-	switch globalCallExp.Function.Name {
+func (e *Evaluator) globalCallExpr(globalCallExp *ast.GlobalCallExpr, ctx *Context) value.Literal {
+	switch globalCallExp.Name {
 	case "defined":
 		return e.globalFuncDefined(globalCallExp, ctx)
 	case "hasValue":
 		return e.globalFuncHasValue(globalCallExp, ctx)
+	case "formatDate":
+		return e.globalFuncFormatDate(globalCallExp, ctx)
 	default:
 		return e.newError(
 			globalCallExp,
 			ctx,
 			fail.ErrGlobalFuncMissing,
-			globalCallExp.Function.Name,
+			globalCallExp.Name,
 		)
 	}
 }
 
 func (e *Evaluator) globalFuncDefined(
-	globalCallExp *ast.GlobalCallExp,
+	globalCallExp *ast.GlobalCallExpr,
 	ctx *Context,
-) value.Value {
+) value.Literal {
 	for i := range globalCallExp.Arguments {
-		evaluated := e.Eval(globalCallExp.Arguments[i], ctx)
+		evaluated := e.evalLiteral(globalCallExp.Arguments[i], ctx)
 		if isUndefinedError(evaluated) {
 			return FALSE
 		}
@@ -961,9 +989,9 @@ func (e *Evaluator) globalFuncDefined(
 }
 
 func (e *Evaluator) globalFuncHasValue(
-	globalCallExp *ast.GlobalCallExp,
+	globalCallExp *ast.GlobalCallExpr,
 	ctx *Context,
-) value.Value {
+) value.Literal {
 	// Check if all arguments are defined first
 	areDefined := e.globalFuncDefined(globalCallExp, ctx)
 	if isError(areDefined) {
@@ -977,7 +1005,7 @@ func (e *Evaluator) globalFuncHasValue(
 	// At this point, all variables are defined.
 	// Checking if they have nullable values.
 	for _, exp := range globalCallExp.Arguments {
-		arg := e.Eval(exp, ctx)
+		arg := e.evalLiteral(exp, ctx)
 		if isError(arg) {
 			return arg
 		}
@@ -990,7 +1018,40 @@ func (e *Evaluator) globalFuncHasValue(
 	return TRUE
 }
 
-func (e *Evaluator) valuesToNativeType(args []value.Value) []any {
+func (e *Evaluator) globalFuncFormatDate(
+	globalCallExpr *ast.GlobalCallExpr,
+	ctx *Context,
+) value.Literal {
+	// Note: We already know that we have 2 arguments since parser ensures that
+
+	date, err := e.globalCallExpectStrArg(globalCallExpr, ctx, 0)
+	if err != nil {
+		return err
+	}
+
+	layout, err := e.globalCallExpectStrArg(globalCallExpr, ctx, 1)
+	if err != nil {
+		return err
+	}
+
+	if date.Val == "" {
+		return &value.Str{Val: ""}
+	}
+
+	parseLayout := getDateTimeLayout(date.Val)
+	if parseLayout == "" {
+		return e.newError(globalCallExpr, ctx, fail.ErrFormatDateWrongDate, date.Val)
+	}
+
+	newFormat, parseErr := time.Parse(parseLayout, date.Val)
+	if parseErr != nil {
+		return e.newError(globalCallExpr, ctx, fail.ErrFormatDateParseErr, date.Val, layout.Val)
+	}
+
+	return &value.Str{Val: newFormat.Format(layout.Val)}
+}
+
+func (e *Evaluator) valuesToNativeType(args []value.Literal) []any {
 	vals := make([]any, len(args))
 	for i := range args {
 		vals[i] = args[i].Native()
@@ -999,47 +1060,13 @@ func (e *Evaluator) valuesToNativeType(args []value.Value) []any {
 	return vals
 }
 
-func (e *Evaluator) postfixOpExp(
-	left value.Value,
-	op string,
-	node ast.Node,
-	ctx *Context,
-) value.Value {
-	switch op {
-	case "++":
-		if int, ok := left.(*value.Int); ok {
-			return &value.Int{Val: int.Val + 1}
-		}
-
-		if fl, ok := left.(*value.Float); ok {
-			return &value.Float{Val: fl.Val + 1}
-		}
-	case "--":
-		if int, ok := left.(*value.Int); ok {
-			return &value.Int{Val: int.Val - 1}
-		}
-
-		if fl, ok := left.(*value.Float); ok {
-			float := &value.Float{Val: fl.Val}
-
-			if err := float.SubtractFromFloat(1); err != nil {
-				return e.newError(node, ctx, fail.ErrCannotSubFromFloat, float, err)
-			}
-
-			return float
-		}
-	}
-
-	return e.newError(node, ctx, fail.ErrUnknownOp, left.Type(), op)
-}
-
 func (e *Evaluator) operatorExp(
 	op string,
 	left,
-	right value.Value,
+	right value.Literal,
 	leftNode ast.Node,
 	ctx *Context,
-) value.Value {
+) value.Literal {
 	if op == "==" || op == "!=" {
 		return e.comparrisonInfixExp(op, right, left, leftNode, ctx)
 	}
@@ -1059,10 +1086,10 @@ func (e *Evaluator) operatorExp(
 func (e *Evaluator) logicalExp(
 	op string,
 	right,
-	left value.Value,
+	left value.Literal,
 	leftNode ast.Node,
 	ctx *Context,
-) value.Value {
+) value.Literal {
 	switch op {
 	case "&&":
 		return &value.Bool{Val: isTruthy(left) && isTruthy(right)}
@@ -1075,11 +1102,11 @@ func (e *Evaluator) logicalExp(
 
 func (e *Evaluator) intInfixExp(
 	op string,
-	right value.Value,
+	right value.Literal,
 	l *value.Int,
 	leftNode ast.Node,
 	ctx *Context,
-) value.Value {
+) value.Literal {
 	r, ok := right.(*value.Int)
 	if !ok {
 		return e.newError(leftNode, ctx, fail.ErrCannotUseOperator, op, l.Type(), op, right.Type())
@@ -1115,10 +1142,10 @@ func (e *Evaluator) intInfixExp(
 func (e *Evaluator) comparrisonInfixExp(
 	op string, // == or !=
 	right,
-	left value.Value,
+	left value.Literal,
 	leftNode ast.Node,
 	ctx *Context,
-) value.Value {
+) value.Literal {
 	if left.Type() != right.Type() {
 		return nativeBoolToBoolObj(op == "!=")
 	}
@@ -1150,11 +1177,11 @@ func (e *Evaluator) comparrisonInfixExp(
 
 func (e *Evaluator) stringInfixExp(
 	op string,
-	right value.Value,
+	right value.Literal,
 	l *value.Str,
 	leftNode ast.Node,
 	ctx *Context,
-) value.Value {
+) value.Literal {
 	r, ok := right.(*value.Str)
 	if !ok {
 		return e.newError(leftNode, ctx, fail.ErrCannotUseOperator, op, l.Type(), op, right.Type())
@@ -1169,11 +1196,11 @@ func (e *Evaluator) stringInfixExp(
 
 func (e *Evaluator) floatInfixExp(
 	op string,
-	right value.Value,
+	right value.Literal,
 	l *value.Float,
 	leftNode ast.Node,
 	ctx *Context,
-) value.Value {
+) value.Literal {
 	r, ok := right.(*value.Float)
 	if !ok {
 		return e.newError(leftNode, ctx, fail.ErrCannotUseOperator, op, l.Type(), op, right.Type())
@@ -1202,10 +1229,10 @@ func (e *Evaluator) floatInfixExp(
 }
 
 func (e *Evaluator) minusPrefixOpExp(
-	right value.Value,
+	right value.Literal,
 	node ast.Node,
 	ctx *Context,
-) value.Value {
+) value.Literal {
 	switch r := right.(type) {
 	case *value.Int:
 		return &value.Int{Val: -r.Val}
@@ -1216,7 +1243,7 @@ func (e *Evaluator) minusPrefixOpExp(
 	return e.newError(node, ctx, fail.ErrPrefixOpIsWrong, "-", right.Type())
 }
 
-func (e *Evaluator) bangOpExp(right value.Value, node ast.Node, ctx *Context) value.Value {
+func (e *Evaluator) bangOpExp(right value.Literal, node ast.Node, ctx *Context) value.Literal {
 	switch right {
 	case FALSE:
 		return TRUE
@@ -1229,9 +1256,35 @@ func (e *Evaluator) bangOpExp(right value.Value, node ast.Node, ctx *Context) va
 	return e.newError(node, ctx, fail.ErrPrefixOpIsWrong, "!", right.Type())
 }
 
+func (e *Evaluator) globalCallExpectStrArg(
+	call *ast.GlobalCallExpr,
+	ctx *Context,
+	argIdx int,
+) (*value.Str, *value.Error) {
+	val := e.evalLiteral(call.Arguments[argIdx], ctx)
+	if isError(val) {
+		return nil, val.(*value.Error)
+	}
+
+	str, ok := val.(*value.Str)
+	if !ok {
+		return nil, e.newError(
+			call,
+			ctx,
+			fail.ErrGlobalFuncWrongType,
+			call.Name,
+			value.STR_VAL,
+			argIdx+1,
+			val.Type(),
+		)
+	}
+
+	return str, nil
+}
+
 func (e *Evaluator) newError(node ast.Node, ctx *Context, format string, a ...any) *value.Error {
 	return &value.Error{
-		Err:     fail.New(node.Line(), ctx.absPath, "evaluator", format, a...),
+		Err:     fail.New(node.Pos(), ctx.absPath, fail.OriginEval, format, a...),
 		ErrorID: format,
 	}
 }

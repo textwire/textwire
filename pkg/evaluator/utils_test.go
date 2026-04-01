@@ -3,12 +3,12 @@ package evaluator
 import (
 	"testing"
 
-	"github.com/textwire/textwire/v3/pkg/value"
+	"github.com/textwire/textwire/v4/pkg/value"
 )
 
 func TestIsTruthy(t *testing.T) {
 	cases := []struct {
-		inp    value.Value
+		inp    value.Literal
 		expect bool
 	}{
 		{nil, false},

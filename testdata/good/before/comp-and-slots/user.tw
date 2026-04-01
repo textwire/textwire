@@ -1,6 +1,0 @@
-<section>
-    <p>@slot</p>
-    <main>@slot("name")</main>
-    <strong>@slot("age")</strong>
-    <span>@slot("empty")</span>
-</section>

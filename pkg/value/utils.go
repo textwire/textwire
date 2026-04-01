@@ -2,9 +2,10 @@ package value
 
 import (
 	"reflect"
+	"time"
 )
 
-func NativeToValue(val any) Value {
+func NativeToValue(val any) Literal {
 	switch v := val.(type) {
 	case string:
 		return &Str{Val: v}
@@ -34,6 +35,8 @@ func NativeToValue(val any) Value {
 		return &Int{Val: int64(v)}
 	case uint64:
 		return &Int{Val: int64(v)}
+	case time.Time:
+		return &Str{Val: v.Format("2006-01-02 15:04:05")}
 	case nil:
 		return new(Nil)
 	}
@@ -60,7 +63,7 @@ func NativeToValue(val any) Value {
 	return nil
 }
 
-func nativeMapToValue(val any) Value {
+func nativeMapToValue(val any) Literal {
 	obj := NewObj(nil)
 
 	valValue := reflect.ValueOf(val)
@@ -86,7 +89,7 @@ func convertToInterfaceSlice(slice any) []any {
 	return vals
 }
 
-func nativeStructToValue(val any) Value {
+func nativeStructToValue(val any) Literal {
 	obj := NewObj(nil)
 
 	valType := reflect.TypeOf(val)
@@ -108,7 +111,7 @@ func nativeStructToValue(val any) Value {
 
 func nativeSliceToArrValue(slice []any) *Arr {
 	arr := new(Arr)
-	arr.Elements = make([]Value, len(slice))
+	arr.Elements = make([]Literal, len(slice))
 	for i := range slice {
 		arr.Elements[i] = NativeToValue(slice[i])
 	}

@@ -8,8 +8,8 @@ import (
 
 	"slices"
 
-	"github.com/textwire/textwire/v3/pkg/lsp/utils"
-	"github.com/textwire/textwire/v3/pkg/token"
+	"github.com/textwire/textwire/v4/pkg/lsp/utils"
+	"github.com/textwire/textwire/v4/pkg/token"
 )
 
 // Locale represents a language locale for metadata.

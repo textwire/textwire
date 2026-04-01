@@ -1,33 +1,36 @@
 package ast
 
-import "github.com/textwire/textwire/v3/pkg/token"
+import (
+	"github.com/textwire/textwire/v4/pkg/position"
+	"github.com/textwire/textwire/v4/pkg/token"
+)
 
 // BaseNode is the main base for all the AST nodes.
 type BaseNode struct {
 	Token token.Token
-	Pos   token.Position
+	pos   *position.Pos
 }
 
 func NewBaseNode(tok token.Token) BaseNode {
 	return BaseNode{
 		Token: tok,
-		Pos:   tok.Pos,
+		pos:   tok.Pos,
 	}
-}
-
-func (bn *BaseNode) Line() uint {
-	return bn.Token.ErrorLine()
 }
 
 func (bn *BaseNode) Tok() *token.Token {
 	return &bn.Token
 }
 
-func (bn *BaseNode) Position() token.Position {
-	return bn.Pos
+func (bn *BaseNode) Pos() *position.Pos {
+	return bn.pos
 }
 
-func (bn *BaseNode) SetEndPosition(pos token.Position) {
-	bn.Pos.EndCol = pos.EndCol
-	bn.Pos.EndLine = pos.EndLine
+func (bn *BaseNode) SetEndPosition(pos *position.Pos) {
+	bn.pos.EndCol = pos.EndCol
+	bn.pos.EndLine = pos.EndLine
+}
+
+func (bn *BaseNode) SetTok(tok token.Token) {
+	bn.Token = tok
 }

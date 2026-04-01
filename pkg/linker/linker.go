@@ -3,8 +3,8 @@ package linker
 import (
 	"sync"
 
-	"github.com/textwire/textwire/v3/pkg/ast"
-	"github.com/textwire/textwire/v3/pkg/fail"
+	"github.com/textwire/textwire/v4/pkg/ast"
+	"github.com/textwire/textwire/v4/pkg/fail"
 )
 
 // NodeLinker handles connecting AST nodes between each other to prepare AST
@@ -53,25 +53,31 @@ func (nl *NodeLinker) unlinkAll() {
 		}
 
 		// Unlink layouts and inserts
-		if prog.UseStmt != nil {
-			prog.UseStmt.LayoutProg = nil
-			prog.UseStmt.Inserts = nil
+		if prog.UseDir != nil {
+			prog.UseDir.LayoutProg = nil
+			prog.UseDir.Inserts = nil
 		}
 	}
 }
 
 // handleLayoutLinking links layout directives to template directives
 func (nl *NodeLinker) handleLayoutLinking(prog *ast.Program) *fail.Error {
-	if !prog.HasUseStmt() {
+	if !prog.HasUseDir() {
 		return nil
 	}
 
-	prog.UseStmt.Inserts = prog.Inserts
+	prog.UseDir.Inserts = prog.Inserts
 
-	layoutName := prog.UseStmt.Name.Val
+	layoutName := prog.UseDir.Name.Val
 	layoutProg := ast.FindProg(layoutName, nl.Programs)
 	if layoutProg == nil {
-		return fail.New(prog.Line(), prog.AbsPath, "API", fail.ErrUseStmtMissingLayout, layoutName)
+		return fail.New(
+			prog.UseDir.Name.Pos(),
+			prog.AbsPath,
+			fail.OriginLink,
+			fail.ErrUseDirMissingLayout,
+			layoutName,
+		)
 	}
 
 	layoutProg.IsLayout = true
@@ -86,19 +92,19 @@ func (nl *NodeLinker) handleLayoutLinking(prog *ast.Program) *fail.Error {
 
 // handleCompLinking links component directives with component files
 func (nl *NodeLinker) handleCompLinking(prog *ast.Program) *fail.Error {
-	if len(prog.Components) == 0 {
-		return nil
-	}
-
-	for _, comp := range prog.Components {
-		compName := comp.Name.Val
-		compProg := ast.FindProg(compName, nl.Programs)
-		if compProg == nil {
-			return fail.New(prog.Line(), prog.AbsPath, "API", fail.ErrUndefinedComponent, compName)
+	for _, compDir := range prog.Components {
+		compFileProg := ast.FindProg(compDir.Name.Val, nl.Programs)
+		if compFileProg == nil {
+			return fail.New(
+				compDir.Pos(),
+				prog.AbsPath,
+				fail.OriginLink,
+				fail.ErrUndefinedComponent,
+				compDir.Name.Val,
+			)
 		}
 
-		err := prog.LinkCompProg(compName, compProg, prog.AbsPath)
-		if err != nil {
+		if err := prog.LinkPassBlocksToSlots(compDir, compFileProg); err != nil {
 			return err
 		}
 	}

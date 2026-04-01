@@ -3,14 +3,15 @@ package parser
 import (
 	"strconv"
 
-	"github.com/textwire/textwire/v3/pkg/file"
-	"github.com/textwire/textwire/v3/pkg/token"
+	"github.com/textwire/textwire/v4/pkg/file"
+	"github.com/textwire/textwire/v4/pkg/position"
+	"github.com/textwire/textwire/v4/pkg/token"
 
 	"slices"
 
-	"github.com/textwire/textwire/v3/pkg/ast"
-	"github.com/textwire/textwire/v3/pkg/fail"
-	"github.com/textwire/textwire/v3/pkg/lexer"
+	"github.com/textwire/textwire/v4/pkg/ast"
+	"github.com/textwire/textwire/v4/pkg/fail"
+	"github.com/textwire/textwire/v4/pkg/lexer"
 )
 
 type (
@@ -51,8 +52,6 @@ var precedences = map[token.TokenType]int{
 	token.MOD:      PRODUCT,
 	token.MUL:      PRODUCT,
 	token.LBRACKET: INDEX,
-	token.INC:      POSTFIX,
-	token.DEC:      POSTFIX,
 	token.DOT:      MEMBER_ACCESS,
 	token.LPAREN:   CALL,
 }
@@ -69,14 +68,7 @@ type Parser struct {
 	prefixParseFns map[token.TokenType]prefixParseFn
 	infixParseFns  map[token.TokenType]infixParseFn
 
-	// _useStmt is used to reference the use statement in program.
-	// We need it because the final program object must have a field UseStmt.
-	// After parsing a program we link this pointer to program.UseStmt.
-	_useStmt *ast.UseStmt
-
-	components []*ast.ComponentStmt
-	inserts    map[string]*ast.InsertStmt
-	reserves   map[string]*ast.ReserveStmt
+	prog *ast.Program
 }
 
 func New(lexer *lexer.Lexer, f *file.SourceFile) *Parser {
@@ -85,90 +77,68 @@ func New(lexer *lexer.Lexer, f *file.SourceFile) *Parser {
 	}
 
 	p := &Parser{
-		l:          lexer,
-		file:       f,
-		errors:     []*fail.Error{},
-		components: []*ast.ComponentStmt{},
-		inserts:    map[string]*ast.InsertStmt{},
-		reserves:   map[string]*ast.ReserveStmt{},
+		l:      lexer,
+		file:   f,
+		errors: []*fail.Error{},
 	}
 
-	p.next() // fill curToken
-	p.next() // fill peekToken
+	p.nextToken() // fill curToken
+	p.nextToken() // fill peekToken
 
 	// Prefix operators
 	p.prefixParseFns = map[token.TokenType]prefixParseFn{}
 
 	p.registerPrefix(token.IDENT, p.ident)
-	p.registerPrefix(token.INT, p.intLit)
-	p.registerPrefix(token.FLOAT, p.floatLit)
-	p.registerPrefix(token.STR, p.strLit)
-	p.registerPrefix(token.NIL, p.nilLit)
-	p.registerPrefix(token.TRUE, p.boolLit)
-	p.registerPrefix(token.FALSE, p.boolLit)
-	p.registerPrefix(token.SUB, p.prefixExp)
-	p.registerPrefix(token.NOT, p.prefixExp)
-	p.registerPrefix(token.LPAREN, p.groupedExp)
-	p.registerPrefix(token.LBRACKET, p.arrLit)
-	p.registerPrefix(token.LBRACE, p.objLit)
+	p.registerPrefix(token.INT, p.intExpr)
+	p.registerPrefix(token.FLOAT, p.floatExpr)
+	p.registerPrefix(token.STR, p.strExpr)
+	p.registerPrefix(token.NIL, p.nilExpr)
+	p.registerPrefix(token.TRUE, p.boolExpr)
+	p.registerPrefix(token.FALSE, p.boolExpr)
+	p.registerPrefix(token.SUB, p.prefixExpr)
+	p.registerPrefix(token.NOT, p.prefixExpr)
+	p.registerPrefix(token.LPAREN, p.groupedExpr)
+	p.registerPrefix(token.LBRACKET, p.arrExpr)
+	p.registerPrefix(token.LBRACE, p.objExpr)
 
 	// Infix operators
 	p.infixParseFns = map[token.TokenType]infixParseFn{}
-	p.registerInfix(token.ADD, p.infixExp)
-	p.registerInfix(token.SUB, p.infixExp)
-	p.registerInfix(token.MUL, p.infixExp)
-	p.registerInfix(token.DIV, p.infixExp)
-	p.registerInfix(token.MOD, p.infixExp)
+	p.registerInfix(token.ADD, p.infixExpr)
+	p.registerInfix(token.SUB, p.infixExpr)
+	p.registerInfix(token.MUL, p.infixExpr)
+	p.registerInfix(token.DIV, p.infixExpr)
+	p.registerInfix(token.MOD, p.infixExpr)
 
-	p.registerInfix(token.EQ, p.infixExp)
-	p.registerInfix(token.NOT_EQ, p.infixExp)
-	p.registerInfix(token.LTHAN, p.infixExp)
-	p.registerInfix(token.GTHAN, p.infixExp)
-	p.registerInfix(token.LTHAN_EQ, p.infixExp)
-	p.registerInfix(token.GTHAN_EQ, p.infixExp)
-	p.registerInfix(token.AND, p.infixExp)
-	p.registerInfix(token.OR, p.infixExp)
+	p.registerInfix(token.EQ, p.infixExpr)
+	p.registerInfix(token.NOT_EQ, p.infixExpr)
+	p.registerInfix(token.LTHAN, p.infixExpr)
+	p.registerInfix(token.GTHAN, p.infixExpr)
+	p.registerInfix(token.LTHAN_EQ, p.infixExpr)
+	p.registerInfix(token.GTHAN_EQ, p.infixExpr)
+	p.registerInfix(token.AND, p.infixExpr)
+	p.registerInfix(token.OR, p.infixExpr)
 
-	p.registerInfix(token.QUESTION, p.ternaryExp)
-	p.registerInfix(token.LBRACKET, p.indexExp)
-	p.registerInfix(token.INC, p.postfixExp)
-	p.registerInfix(token.DEC, p.postfixExp)
-	p.registerInfix(token.DOT, p.dotExp)
+	p.registerInfix(token.QUESTION, p.ternaryExpr)
+	p.registerInfix(token.LBRACKET, p.indexExpr)
+	p.registerInfix(token.DOT, p.dotExpr)
 
 	return p
 }
 
 func (p *Parser) ParseProgram() *ast.Program {
-	prog := ast.NewProgram(p.curToken)
-	prog.Statements = []ast.Statement{}
+	p.prog = ast.NewProgram(p.curToken)
+	p.prog.AbsPath = p.file.Abs
+	p.prog.Chunks = []ast.Chunk{}
 
 	for !p.curTokenIs(token.EOF) {
-		stmt := p.statement()
-
-		// if the end of the {{ expression }}
-		if p.curTokenIs(token.RBRACES) {
-			prog.Statements = append(prog.Statements, stmt)
-			p.next()
-			continue
+		chunk := p.chunk()
+		if chunk != nil {
+			p.prog.Chunks = append(p.prog.Chunks, chunk)
 		}
-
-		if stmt == nil {
-			p.next() // skip to next token
-			continue
-		}
-
-		prog.Statements = append(prog.Statements, stmt)
-
-		p.next() // skip to next token
+		p.nextToken()
 	}
 
-	prog.Components = p.components
-	prog.Inserts = p.inserts
-	prog.UseStmt = p._useStmt
-	prog.Reserves = p.reserves
-	prog.AbsPath = p.file.Abs
-
-	return prog
+	return p.prog
 }
 
 func (p *Parser) Errors() []*fail.Error {
@@ -179,55 +149,100 @@ func (p *Parser) HasErrors() bool {
 	return len(p.errors) > 0
 }
 
-func (p *Parser) statement() ast.Statement {
+func (p *Parser) chunk() ast.Chunk {
 	switch p.curToken.Type {
 	case token.TEXT:
-		return p.textStmt()
-	case token.LBRACES, token.SEMI:
-		return p.embeddedCode()
+		return p.text()
+	case token.LBRACES:
+		return p.embedded()
 	case token.IF:
-		return p.ifStmt()
+		return p.ifDir()
 	case token.FOR:
-		return p.forStmt()
+		return p.forDir()
 	case token.EACH:
-		return p.eachStmt()
+		return p.eachDir()
 	case token.USE:
-		return p.useStmt()
+		return p.useDir()
 	case token.RESERVE:
-		return p.reserveStmt()
+		return p.reserveDir()
 	case token.INSERT:
-		return p.insertStmt()
+		return p.insertDir()
 	case token.BREAKIF:
-		return p.breakifStmt()
+		return p.breakifDir()
 	case token.CONTINUEIF:
-		return p.continueifStmt()
+		return p.continueifDir()
 	case token.COMPONENT:
-		return p.componentStmt()
+		return p.compDir()
 	case token.SLOT:
-		return p.slotStmt()
+		return p.slotDir()
+	case token.PASS, token.PASSIF:
+		return p.passDir()
 	case token.DUMP:
-		return p.dumpStmt()
+		return p.dumpDir()
 	case token.BREAK:
-		return ast.NewBreakStmt(p.curToken)
+		return ast.NewBreakDir(p.curToken)
 	case token.CONTINUE:
-		return ast.NewContinueStmt(p.curToken)
-	case token.SLOTIF:
-		p.newError(p.curToken.ErrorLine(), fail.ErrSlotifPosition)
-		return nil
-	default:
-		return p.illegalNode()
+		return ast.NewContinueDir(p.curToken)
 	}
+
+	return p.illegal()
 }
 
-func (p *Parser) embeddedCode() ast.Statement {
-	p.next() // skip "{{" or ";" or "("
+func (p *Parser) embedded() ast.Chunk {
+	embedded := ast.NewEmbedded(p.curToken)
 
-	if p.curTokenIs(token.RBRACES) {
-		p.newError(p.curToken.ErrorLine(), fail.ErrEmptyBraces)
+	if p.peekTokenIs(token.RBRACES) {
+		pos := p.curToken.Pos
+		pos.EndCol = p.peekToken.Pos.EndCol
+		p.newError(pos, fail.ErrEmptyBraces)
 		return nil
 	}
 
-	return p.expressionStmt()
+	p.nextToken() // skip "{{"
+
+	// Loop until we find the closing "}}" or reach the end of file
+	for !p.curTokenIs(token.RBRACES, token.EOF) {
+		if segment := p.segment(); segment != nil {
+			embedded.Segments = append(embedded.Segments, segment)
+			if p.curTokenIs(token.SEMI) {
+				p.nextToken() // skip ";"
+			}
+		}
+	}
+
+	if p.peekTokenIs(token.RBRACES) {
+		p.nextToken() // skip "}}"
+	}
+
+	return embedded
+}
+
+func (p *Parser) peekIsStatement() bool {
+	return p.peekTokenIs(token.ASSIGN, token.INC, token.DEC)
+}
+
+// segment parses individual segment
+func (p *Parser) segment() ast.Segment {
+	left := p.expression(LOWEST)
+	if left == nil {
+		p.nextToken()
+		return nil
+	}
+
+	if !p.peekIsStatement() {
+		p.nextToken()
+		return left.(ast.Segment)
+	}
+
+	p.nextToken()
+	stmt := p.statement(left)
+	p.nextToken()
+
+	if stmt == nil {
+		return nil
+	}
+
+	return stmt.(ast.Segment)
 }
 
 func (p *Parser) registerPrefix(tokenType token.TokenType, fn prefixParseFn) {
@@ -238,6 +253,29 @@ func (p *Parser) registerInfix(tokenType token.TokenType, fn infixParseFn) {
 	p.infixParseFns[tokenType] = fn
 }
 
+func (p *Parser) expectNonEmptyNameOn(node ast.Node) bool {
+	if p.curToken.Lit == "" {
+		p.newError(p.curToken.Pos, fail.ErrNameCannotBeEmpty, node.Tok().Lit)
+		return false
+	}
+	return true
+}
+
+func (p *Parser) expectType(expectType token.TokenType) bool {
+	if p.curToken.Type == expectType {
+		return true
+	}
+
+	p.newError(
+		p.curToken.Pos,
+		fail.ErrWrongTokenType,
+		token.String(expectType),
+		token.String(p.curToken.Type),
+	)
+
+	return false
+}
+
 func (p *Parser) curTokenIs(tokens ...token.TokenType) bool {
 	if len(tokens) == 1 {
 		return tokens[0] == p.curToken.Type
@@ -245,7 +283,7 @@ func (p *Parser) curTokenIs(tokens ...token.TokenType) bool {
 	return slices.Contains(tokens, p.curToken.Type)
 }
 
-func (p *Parser) peekIs(tokens ...token.TokenType) bool {
+func (p *Parser) peekTokenIs(tokens ...token.TokenType) bool {
 	if len(tokens) == 1 {
 		return tokens[0] == p.peekToken.Type
 	}
@@ -263,45 +301,45 @@ func (p *Parser) peekPrecedence() int {
 }
 
 func (p *Parser) expectPeek(tok token.TokenType) bool {
-	if p.peekIs(tok) {
-		p.next()
+	if p.peekTokenIs(tok) {
+		p.nextToken()
 		return true
 	}
 
-	p.newError(
-		p.peekToken.ErrorLine(),
-		fail.ErrWrongNextToken,
-		token.String(tok),
-		token.String(p.peekToken.Type),
-	)
+	got := p.peekToken.Lit
+	if len(got) > 100 {
+		got = got[:100] + "..."
+	}
+
+	p.newError(p.peekToken.Pos, fail.ErrWrongPeekToken, token.String(tok), got)
 
 	return false
 }
 
-func (p *Parser) newError(line uint, msg string, args ...any) {
-	newErr := fail.New(line, p.file.Abs, "parser", msg, args...)
+func (p *Parser) newError(pos *position.Pos, msg string, args ...any) {
+	newErr := fail.New(pos, p.file.Abs, fail.OriginPars, msg, args...)
 	p.errors = append(p.errors, newErr)
 }
 
-func (p *Parser) next() {
+func (p *Parser) nextToken() {
 	p.curToken = p.peekToken
 	p.peekToken = p.l.Next()
 }
 
 func (p *Parser) ident() ast.Expression {
-	ident := ast.NewIdent(p.curToken, p.curToken.Lit)
-	if p.peekIs(token.LPAREN) {
-		return p.globalCallExp(ident)
+	ident := ast.NewIdentExpr(p.curToken, p.curToken.Lit)
+	if p.peekTokenIs(token.LPAREN) {
+		return p.globalCallExpr(ident)
 	}
 
 	return ident
 }
 
-func (p *Parser) intLit() ast.Expression {
+func (p *Parser) intExpr() ast.Expression {
 	val, err := strconv.ParseInt(p.curToken.Lit, 10, 64)
 	if err != nil {
 		p.newError(
-			p.curToken.ErrorLine(),
+			p.curToken.Pos,
 			fail.ErrCouldNotParseAs,
 			p.curToken.Lit,
 			"INT",
@@ -309,14 +347,14 @@ func (p *Parser) intLit() ast.Expression {
 		return nil
 	}
 
-	return ast.NewIntLit(p.curToken, val)
+	return ast.NewIntExpr(p.curToken, val)
 }
 
-func (p *Parser) floatLit() ast.Expression {
+func (p *Parser) floatExpr() ast.Expression {
 	val, err := strconv.ParseFloat(p.curToken.Lit, 64)
 	if err != nil {
 		p.newError(
-			p.curToken.ErrorLine(),
+			p.curToken.Pos,
 			fail.ErrCouldNotParseAs,
 			p.curToken.Lit,
 			"FLOAT",
@@ -324,35 +362,35 @@ func (p *Parser) floatLit() ast.Expression {
 		return nil
 	}
 
-	return ast.NewFloatLit(p.curToken, val)
+	return ast.NewFloatExpr(p.curToken, val)
 }
 
-func (p *Parser) nilLit() ast.Expression {
-	return ast.NewNilLit(p.curToken)
+func (p *Parser) nilExpr() ast.Expression {
+	return ast.NewNilExpr(p.curToken)
 }
 
-func (p *Parser) strLit() ast.Expression {
-	return ast.NewStrLit(p.curToken, p.curToken.Lit)
+func (p *Parser) strExpr() ast.Expression {
+	return ast.NewStrExpr(p.curToken, p.curToken.Lit)
 }
 
-func (p *Parser) boolLit() ast.Expression {
-	return ast.NewBoolLit(p.curToken, p.curTokenIs(token.TRUE))
+func (p *Parser) boolExpr() ast.Expression {
+	return ast.NewBoolExpr(p.curToken, p.curTokenIs(token.TRUE))
 }
 
-func (p *Parser) arrLit() ast.Expression {
-	arr := ast.NewArrLit(p.curToken)
+func (p *Parser) arrExpr() ast.Expression {
+	arr := ast.NewArrExpr(p.curToken)
 	arr.Elements = p.expressionList(token.RBRACKET)
 	arr.SetEndPosition(p.curToken.Pos)
 
 	return arr
 }
 
-func (p *Parser) objLit() ast.Expression {
-	obj := ast.NewObjLit(p.curToken)
+func (p *Parser) objExpr() ast.Expression {
+	obj := ast.NewObjExpr(p.curToken)
 
 	obj.Pairs = map[string]ast.Expression{}
 
-	p.next() // skip "{"
+	p.nextToken() // skip "{"
 
 	if p.curTokenIs(token.RBRACE) {
 		obj.SetEndPosition(p.curToken.Pos)
@@ -362,23 +400,23 @@ func (p *Parser) objLit() ast.Expression {
 	for !p.curTokenIs(token.RBRACE) {
 		key := p.curToken.Lit
 
-		if p.peekIs(token.COLON) {
-			p.next() // move to ":"
-			p.next() // skip to ":"
+		if p.peekTokenIs(token.COLON) {
+			p.nextToken() // move to ":"
+			p.nextToken() // skip to ":"
 
 			obj.Pairs[key] = p.expression(LOWEST)
 		} else {
 			obj.Pairs[key] = p.expression(LOWEST)
 		}
 
-		if p.peekIs(token.RBRACE) {
-			p.next() // skip "}"
+		if p.peekTokenIs(token.RBRACE) {
+			p.nextToken() // skip "}"
 			break
 		}
 
-		if p.peekIs(token.COMMA) {
-			p.next() // move to ","
-			p.next() // skip ","
+		if p.peekTokenIs(token.COMMA) {
+			p.nextToken() // move to ","
+			p.nextToken() // skip ","
 		}
 	}
 
@@ -387,221 +425,213 @@ func (p *Parser) objLit() ast.Expression {
 	return obj
 }
 
-func (p *Parser) textStmt() ast.Statement {
-	return ast.NewTextStmt(p.curToken)
+func (p *Parser) text() ast.Chunk {
+	return ast.NewText(p.curToken)
 }
 
 func (p *Parser) assignStmt(left ast.Expression) ast.Statement {
 	stmt := ast.NewAssignStmt(*left.Tok(), left)
 
-	if !p.expectPeek(token.ASSIGN) { // move to "="
-		return p.illegalNode()
-	}
-
-	p.next() // skip "="
+	p.nextToken() // skip "="
 
 	if p.curTokenIs(token.RBRACES) {
-		p.newError(p.curToken.ErrorLine(), fail.ErrExpectedExpression)
+		p.newError(p.curToken.Pos, fail.ErrExpectExprAfter, token.String(token.ASSIGN))
 		return nil
 	}
 
 	stmt.Right = p.expression(LOWEST)
 	stmt.SetEndPosition(p.curToken.Pos)
 
-	if p.peekIs(token.RBRACES) {
-		p.next() // move to '}}'
-	}
-
 	return stmt
 }
 
-func (p *Parser) useStmt() ast.Statement {
-	stmt := ast.NewUseStmt(p.curToken)
+func (p *Parser) useDir() ast.Chunk {
+	useDir := ast.NewUseDir(p.curToken)
 
 	if !p.expectPeek(token.LPAREN) { // move to "("
-		return p.illegalNode()
+		return p.illegal()
 	}
 
-	p.next() // skip "("
+	p.nextToken() // skip "("
 
-	if p.curToken.Type != token.STR {
-		p.newError(
-			p.curToken.ErrorLine(),
-			fail.ErrUseStmtFirstArgStr,
-			token.String(p.curToken.Type),
-		)
+	if !p.expectType(token.STR) {
+		return p.illegal()
 	}
 
-	if p.curToken.Lit == "" {
-		p.newError(p.curToken.ErrorLine(), fail.ErrExpectedUseName)
+	if !p.expectNonEmptyNameOn(useDir) {
+		return p.illegal()
 	}
 
-	stmt.Name = ast.NewStrLit(
+	useDir.Name = ast.NewStrExpr(
 		p.curToken,
 		file.ReplacePathAlias(p.curToken.Lit, file.PathAliasUse),
 	)
 
+	if p.prog.UseDir != nil {
+		p.newError(useDir.Pos(), fail.ErrOnlyOneUseDir)
+	}
+
 	if !p.expectPeek(token.RPAREN) { // move to ")"
-		return p.illegalNode()
+		return p.illegal()
 	}
 
-	stmt.SetEndPosition(p.curToken.Pos)
+	useDir.SetEndPosition(p.curToken.Pos)
 
-	if p._useStmt != nil {
-		p.newError(p.curToken.ErrorLine(), fail.ErrOnlyOneUseDir)
-	}
+	p.prog.UseDir = useDir
 
-	p._useStmt = stmt
-
-	return stmt
+	return useDir
 }
 
-func (p *Parser) breakifStmt() ast.Statement {
-	stmt := ast.NewBreakIfStmt(p.curToken)
+func (p *Parser) breakifDir() ast.Chunk {
+	dir := ast.NewBreakIfDir(p.curToken)
 
 	if !p.expectPeek(token.LPAREN) { // move to "("
-		return p.illegalNode()
+		return p.illegal()
 	}
 
-	p.next() // skip "("
+	p.nextToken() // skip "("
 
-	stmt.Condition = p.expression(LOWEST)
+	dir.Cond = p.expression(LOWEST)
 
 	if !p.expectPeek(token.RPAREN) { // move to ")"
-		return p.illegalNode()
+		return p.illegal()
 	}
 
-	stmt.SetEndPosition(p.curToken.Pos)
+	dir.SetEndPosition(p.curToken.Pos)
 
-	return stmt
+	return dir
 }
 
-func (p *Parser) continueifStmt() ast.Statement {
-	stmt := ast.NewContinueIfStmt(p.curToken)
+func (p *Parser) continueifDir() ast.Chunk {
+	dir := ast.NewContinueIfDir(p.curToken)
 
 	if !p.expectPeek(token.LPAREN) { // move to "("
-		return p.illegalNode()
+		return p.illegal()
 	}
 
-	p.next() // skip "("
+	p.nextToken() // skip "("
 
-	stmt.Condition = p.expression(LOWEST)
+	dir.Cond = p.expression(LOWEST)
 
 	if !p.expectPeek(token.RPAREN) { // move to ")"
-		return p.illegalNode()
+		return p.illegal()
 	}
 
-	stmt.SetEndPosition(p.curToken.Pos)
+	dir.SetEndPosition(p.curToken.Pos)
 
-	return stmt
+	return dir
 }
 
-func (p *Parser) componentStmt() ast.Statement {
-	stmt := ast.NewComponentStmt(p.curToken)
+func (p *Parser) compDir() ast.Chunk {
+	compDir := ast.NewCompDir(p.curToken)
 
-	if illegal := p.componentStmtHeader(stmt); illegal != nil {
+	if illegal := p.compDirHeader(compDir); illegal != nil { // moves to ")"
 		return illegal
 	}
 
-	if p.peekIs(token.SLOT, token.SLOTIF) {
-		p.next() // skip whitespace
-		if illegal := p.assignSlotsToComp(stmt); illegal != nil {
-			return illegal
-		}
+	p.nextToken() // skip ")"
+
+	if p.curTokenIs(token.END) {
+		return p.endCompDir(compDir)
 	}
 
-	p.components = append(p.components, stmt)
+	if block := p.block(); block != nil {
+		compDir.Passes = block.ExtractPassDirs()
+		compDir.DefaultPass = block.ToDefaultPassDir(compDir.Name.Val)
+	}
 
-	stmt.SetEndPosition(p.curToken.Pos)
-
-	return stmt
+	return p.endCompDir(compDir)
 }
 
-func (p *Parser) componentStmtHeader(stmt *ast.ComponentStmt) *ast.IllegalNode {
+func (p *Parser) endCompDir(compDir *ast.CompDir) *ast.CompDir {
+	dup, times := ast.FindDuplicatePasses(compDir)
+	if dup != nil && times > 0 {
+		p.newError(dup.Pos(), fail.ErrDuplicatePass, dup.Name.Val, times, compDir.Name.Val)
+		return nil
+	}
+
+	p.prog.Components = append(p.prog.Components, compDir)
+	compDir.SetEndPosition(p.curToken.Pos)
+	return compDir
+}
+
+func (p *Parser) compDirHeader(compDir *ast.CompDir) *ast.Illegal {
 	if !p.expectPeek(token.LPAREN) { // move to "("
-		return p.illegalNodeUntil(token.RPAREN)
+		return p.illegalUntil(token.RPAREN)
 	}
 
-	p.next() // skip "("
+	p.nextToken() // skip "("
 
-	if p.curToken.Lit == "" {
-		p.newError(p.curToken.ErrorLine(), fail.ErrExpectedComponentName)
+	if !p.expectType(token.STR) {
+		return p.illegal()
 	}
 
-	stmt.Name = ast.NewStrLit(
+	if !p.expectNonEmptyNameOn(compDir) {
+		return ast.NewIllegalNode(p.curToken)
+	}
+
+	compDir.Name = ast.NewStrExpr(
 		p.curToken,
 		file.ReplacePathAlias(p.curToken.Lit, file.PathAliasComp),
 	)
 
-	if p.peekIs(token.COMMA) {
-		p.next() // move to ","
-		p.next() // skip ","
+	if p.peekTokenIs(token.COMMA) {
+		p.nextToken() // move to ","
+		p.nextToken() // skip ","
 
-		obj, ok := p.expression(LOWEST).(*ast.ObjLit)
+		obj, ok := p.expression(LOWEST).(*ast.ObjExpr)
 		if !ok {
-			p.newError(p.curToken.ErrorLine(), fail.ErrExpectedObjLit, p.curToken.Lit)
+			p.newError(p.curToken.Pos, fail.ErrExpectedObjLit, p.curToken.Lit)
 			return nil
 		}
 
-		stmt.Argument = obj
+		compDir.Argument = obj
 	}
 
 	if !p.expectPeek(token.RPAREN) { // move to ")"
-		return p.illegalNodeUntil(token.TEXT)
-	}
-
-	if p.peekIs(token.TEXT) && isWhitespace(p.peekToken.Lit) {
-		p.next() // move to ")"
+		return p.illegalUntil(token.TEXT)
 	}
 
 	return nil
 }
 
-func (p *Parser) assignSlotsToComp(stmt *ast.ComponentStmt) ast.Statement {
-	slots := p.slots(stmt.Name.Val)
-	stmt.Slots = make([]ast.SlotStatement, len(slots))
-	for i := range slots {
-		slot, ok := slots[i].(ast.SlotStatement)
-		if !ok {
-			return slots[i]
-		}
-
-		stmt.Slots[i] = slot
-	}
-
-	return nil
-}
-
-// slotStmt parses an external slot statement inside a component file.
-// Slots inside a @component are parsed by other function.
-func (p *Parser) slotStmt() ast.Statement {
-	tok := p.curToken // "@slot"
+// slotDir parses an @slot inside a component file.
+func (p *Parser) slotDir() ast.Chunk {
+	slotDir := ast.NewSlotDir(p.curToken, p.file.Name)
 
 	// Handle default @slot without name
-	if !p.peekIs(token.LPAREN) {
-		name := ast.NewStrLit(p.curToken, "")
-		stmt := ast.NewSlotStmt(tok, name, p.file.Name, false)
-		stmt.SetIsDefault(true)
-		return stmt
+	if !p.peekTokenIs(token.LPAREN) {
+		slotDir.Name = ast.NewStrExpr(p.curToken, "")
+		return p.endSlotDir(slotDir)
 	}
 
-	p.next() // skip "@slot"
-	p.next() // skip "("
+	p.nextToken() // skip "@slot"
+	p.nextToken() // skip "("
 
 	// Handle named @slot with name
-	name := ast.NewStrLit(p.curToken, p.curToken.Lit)
+	slotDir.Name = ast.NewStrExpr(p.curToken, p.curToken.Lit)
 
 	if !p.expectPeek(token.RPAREN) { // move to ")"
-		return p.illegalNodeUntil(token.END)
+		return p.illegalUntil(token.END)
 	}
 
-	stmt := ast.NewSlotStmt(tok, name, p.file.Name, false)
-	stmt.SetEndPosition(p.curToken.Pos)
-
-	return stmt
+	return p.endSlotDir(slotDir)
 }
 
-func (p *Parser) dumpStmt() ast.Statement {
+func (p *Parser) endSlotDir(slotDir *ast.SlotDir) ast.Chunk {
+	name := slotDir.Name.Val
+	if _, ok := p.prog.Slots[name]; ok {
+		p.newError(slotDir.Name.Pos(), fail.ErrDuplicateSlots, name, p.file.Abs)
+		return nil
+	}
+
+	slotDir.SetEndPosition(p.curToken.Pos)
+	p.prog.Slots[name] = slotDir
+
+	return slotDir
+}
+
+func (p *Parser) dumpDir() ast.Chunk {
 	tok := p.curToken // "@dump"
 
 	var args []ast.Expression
@@ -612,694 +642,716 @@ func (p *Parser) dumpStmt() ast.Statement {
 
 	args = p.expressionList(token.RPAREN)
 
-	stmt := ast.NewDumpStmt(tok, args)
-	stmt.SetEndPosition(p.curToken.Pos)
+	dir := ast.NewDumpDir(tok, args)
+	dir.SetEndPosition(p.curToken.Pos)
 
-	return stmt
+	return dir
 }
 
-// slots parses local slots inside of @component directive's body
-func (p *Parser) slots(compName string) []ast.Statement {
-	var slots []ast.Statement
+func (p *Parser) passDir() ast.Chunk {
+	passDir := ast.NewPassDir(p.curToken, nil)
+	hasCondition := p.curToken.Type == token.PASSIF
 
-	for p.curTokenIs(token.SLOT, token.SLOTIF) {
-		slotName := ast.NewStrLit(p.curToken, "")
+	p.nextToken() // move to "("
+	p.nextToken() // skip "("
 
-		switch p.curToken.Type {
-		case token.SLOT:
-			slots = append(slots, p.localSlotStmt(slotName, compName))
-		case token.SLOTIF:
-			slots = append(slots, p.slotifStmt(slotName, compName))
-		default:
-			panic("Unknown slot token when parsing component slots")
-		}
-
-		for p.curTokenIs(token.TEXT) {
-			p.next() // skip whitespace
-		}
+	if hasCondition {
+		passDir.Cond = p.expression(LOWEST)
 	}
 
-	return slots
-}
-
-func (p *Parser) localSlotStmt(name *ast.StrLit, compName string) ast.Statement {
-	stmt := ast.NewSlotStmt(p.curToken, name, compName, true)
-	stmt.SetIsDefault(!p.peekIs(token.LPAREN))
-
-	// When slot has a name @slot('name')
-	if p.peekIs(token.LPAREN) {
-		p.next() // move to "(" from '@slot'
-		p.next() // skip "("
-
-		name.Token = p.curToken
-		name.Val = p.curToken.Lit
-
-		if !p.expectPeek(token.RPAREN) { // move to ")"
-			return p.illegalNode() // create an error
-		}
-
-		p.next() // skip ")"
-	} else {
-		p.next() // skip "@slot"
+	if p.peekTokenIs(token.COMMA) {
+		p.nextToken() // move to ","
 	}
 
-	if !p.curTokenIs(token.END) {
-		stmt.SetBlock(p.blockStmt())
+	if p.peekTokenIs(token.STR) {
+		p.nextToken() // move to string
 	}
 
-	p.next() // skip "@end"
-	stmt.SetEndPosition(p.curToken.Pos)
-
-	return stmt
-}
-
-func (p *Parser) slotifStmt(name *ast.StrLit, compName string) ast.Statement {
-	stmt := ast.NewSlotifStmt(p.curToken, name, compName)
-
-	if illegal := p.slotifStmtHeader(stmt, name); illegal != nil { // skips ")"
-		return illegal
+	if !p.expectNonEmptyNameOn(passDir) {
+		return ast.NewIllegalNode(p.curToken)
 	}
 
-	// Handle empty slotif body
-	if p.curTokenIs(token.END) {
-		stmt.SetEndPosition(p.curToken.Pos)
-		p.next() // skip "@end"
-		return stmt
-	}
-
-	stmt.SetBlock(p.blockStmt())
-
-	if !p.curTokenIs(token.END) {
-		return p.illegalNodeUntil(token.END)
-	}
-
-	stmt.SetEndPosition(p.curToken.Pos)
-
-	p.next() // skip "@end"
-
-	return stmt
-}
-
-func (p *Parser) slotifStmtHeader(stmt *ast.SlotifStmt, name *ast.StrLit) *ast.IllegalNode {
-	if !p.expectPeek(token.LPAREN) { // move from "@slotif" to "("
-		p.illegalNodeUntil(token.END)
-	}
-
-	p.next() // skip "("
-
-	stmt.Condition = p.expression(LOWEST)
-
-	// When slot has name
-	if p.peekIs(token.COMMA) {
-		p.next() // move to ","
-		p.next() // skip ","
-
-		name.Token = p.curToken
-		name.Val = p.curToken.Lit
-	} else {
-		stmt.SetIsDefault(true)
-	}
+	passDir.Name = ast.NewStrExpr(p.curToken, p.curToken.Lit)
 
 	if !p.expectPeek(token.RPAREN) { // move to ")"
-		return p.illegalNodeUntil(token.END)
+		return p.illegal()
 	}
 
-	p.next() // skip ")"
+	p.nextToken() // skip ")"
 
-	return nil
+	if !p.curTokenIs(token.END) {
+		passDir.Block = p.block()
+	}
+
+	passDir.SetEndPosition(p.curToken.Pos)
+
+	return passDir
 }
 
-func (p *Parser) reserveStmt() ast.Statement {
-	stmt := ast.NewReserveStmt(p.curToken)
+func (p *Parser) reserveDir() ast.Chunk {
+	reserveDir := ast.NewReserveDir(p.curToken)
 
 	if !p.expectPeek(token.LPAREN) { // move to "("
-		return p.illegalNode()
+		return p.illegal()
 	}
 
-	p.next() // skip "("
+	p.nextToken() // skip "("
 
-	stmt.Name = ast.NewStrLit(p.curToken, p.curToken.Lit)
-
-	// Handle when has second argument (fallback value) after comma
-	if p.peekIs(token.COMMA) {
-		p.next() // move to "," from string
-		p.next() // move to expression from ","
-		stmt.Fallback = p.expression(LOWEST)
+	if !p.expectType(token.STR) {
+		return p.illegal()
 	}
+
+	if !p.expectNonEmptyNameOn(reserveDir) {
+		return p.illegal()
+	}
+
+	reserveDir.Name = ast.NewStrExpr(p.curToken, p.curToken.Lit)
+	reserveDir.Fallback = p.reserveDirFallback()
 
 	if !p.expectPeek(token.RPAREN) { // move to ")"
-		return p.illegalNode()
+		return p.illegal()
 	}
 
-	stmt.SetEndPosition(p.curToken.Pos)
+	reserveDir.SetEndPosition(p.curToken.Pos)
 
 	// Check for duplicate reserve statements
-	if _, ok := p.reserves[stmt.Name.Val]; ok {
-		p.newError(stmt.Token.ErrorLine(), fail.ErrDuplicateReserves, stmt.Name.Val, p.file.Abs)
+	if _, ok := p.prog.Reserves[reserveDir.Name.Val]; ok {
+		p.newError(
+			reserveDir.Name.Pos(),
+			fail.ErrDuplicateReserves,
+			reserveDir.Name.Val,
+			p.file.Abs,
+		)
 		return nil
 	}
 
-	p.reserves[stmt.Name.Val] = stmt
+	p.prog.Reserves[reserveDir.Name.Val] = reserveDir
 
-	return stmt
+	return reserveDir
 }
 
-func (p *Parser) insertStmt() ast.Statement {
-	stmt := ast.NewInsertStmt(p.curToken, p.file.Abs)
+// reserveDirFallback parses the second argument (fallback value) after comma
+// for @reserve statement. If there are no expression, set Fallback to Empty.
+func (p *Parser) reserveDirFallback() ast.Expression {
+	if !p.peekTokenIs(token.COMMA) {
+		return ast.NewEmpty(p.curToken.Pos)
+	}
 
-	illegal, done := p.insertStmtHeader(stmt) // moves to ")"
+	p.nextToken() // move to "," from string
+	p.nextToken() // move to expression from ","
+
+	return p.expression(LOWEST)
+}
+
+func (p *Parser) insertDir() ast.Chunk {
+	insertDir := ast.NewInsertDir(p.curToken, p.file.Abs)
+
+	illegal, done := p.insertDirHeader(insertDir) // moves to ")"
 	if illegal != nil {
 		return illegal
 	}
 
 	if done {
-		return stmt
+		return insertDir
 	}
 
-	p.next() // skip ")"
+	p.nextToken() // skip ")"
 
 	// Handle empty block
 	if p.curTokenIs(token.END) {
-		stmt.SetEndPosition(p.curToken.Pos)
-		return stmt
+		insertDir.SetEndPosition(p.curToken.Pos)
+		return insertDir
 	}
 
-	stmt.Block = p.blockStmt()
+	insertDir.Block = p.block()
 
 	// skip block and move to @end
 	if !p.curTokenIs(token.END) {
-		return p.illegalNodeUntil(token.END)
+		p.newError(insertDir.Pos(), fail.ErrInsertMustHaveContent, insertDir.Name.Val)
+		return nil
 	}
 
-	stmt.SetEndPosition(p.curToken.Pos)
+	insertDir.SetEndPosition(p.curToken.Pos)
 
-	p.inserts[stmt.Name.Val] = stmt
+	p.prog.Inserts[insertDir.Name.Val] = insertDir
 
-	return stmt
+	return insertDir
 }
 
-func (p *Parser) insertStmtHeader(stmt *ast.InsertStmt) (*ast.IllegalNode, bool) {
-	done := false
+func (p *Parser) insertDirHeader(insertDir *ast.InsertDir) (*ast.Illegal, bool) {
 	if !p.expectPeek(token.LPAREN) { // move to "("
-		return p.illegalNode(), done
+		return p.illegal(), false
 	}
 
-	p.next() // skip "("
+	p.nextToken() // skip "("
 
-	stmt.Name = ast.NewStrLit(p.curToken, p.curToken.Lit)
-
-	if ok := p.checkDuplicateInserts(stmt); ok {
-		return nil, done
+	if !p.expectType(token.STR) {
+		return p.illegal(), false
 	}
 
-	// Handle inline @insert without block
-	if p.peekIs(token.COMMA) {
-		p.next() // skip insert name
-		p.next() // skip ","
-		stmt.Argument = p.expression(LOWEST)
+	if !p.expectNonEmptyNameOn(insertDir) {
+		return p.illegal(), false
+	}
 
-		if !p.expectPeek(token.RPAREN) { // move to ")"
-			return p.illegalNodeUntil(token.RBRACE), done
-		}
+	insertDir.Name = ast.NewStrExpr(p.curToken, p.curToken.Lit)
 
-		stmt.SetEndPosition(p.curToken.Pos)
+	if ok := p.hasDuplicateInserts(insertDir); ok {
+		return p.illegal(), false
+	}
 
-		p.inserts[stmt.Name.Val] = stmt
-		done = true
+	illegal, done := p.insertDirArgument(insertDir)
 
-		return nil, done
+	if illegal != nil {
+		return illegal, false
+	}
+
+	if done {
+		return nil, true
 	}
 
 	if !p.expectPeek(token.RPAREN) { // move to ")"
-		return p.illegalNodeUntil(token.END), done
+		return p.illegal(), false
 	}
 
-	return nil, done
+	return nil, false
 }
 
-func (p *Parser) checkDuplicateInserts(stmt *ast.InsertStmt) bool {
-	if _, hasDuplicate := p.inserts[stmt.Name.Val]; hasDuplicate {
-		p.newError(
-			stmt.Token.ErrorLine(),
-			fail.ErrDuplicateInserts,
-			stmt.Name.Val,
-		)
-
-		return true
+func (p *Parser) insertDirArgument(insertDir *ast.InsertDir) (*ast.Illegal, bool) {
+	if !p.peekTokenIs(token.COMMA) {
+		insertDir.Argument = ast.NewEmpty(p.curToken.Pos)
+		return nil, false
 	}
 
-	return false
+	p.nextToken() // skip insert name
+	p.nextToken() // skip ","
+	insertDir.Argument = p.expression(LOWEST)
+
+	if !p.expectPeek(token.RPAREN) { // move to ")"
+		return p.illegal(), false
+	}
+
+	insertDir.SetEndPosition(p.curToken.Pos)
+
+	p.prog.Inserts[insertDir.Name.Val] = insertDir
+
+	return nil, true
 }
 
-func (p *Parser) indexExp(left ast.Expression) ast.Expression {
-	exp := ast.NewIndexExp(*left.Tok(), left)
+func (p *Parser) hasDuplicateInserts(insertDir *ast.InsertDir) bool {
+	if _, ok := p.prog.Inserts[insertDir.Name.Val]; !ok {
+		return false
+	}
+	p.newError(insertDir.Name.Pos(), fail.ErrDuplicateInserts, insertDir.Name.Val)
+	return true
+}
 
-	p.next() // skip "["
+func (p *Parser) indexExpr(left ast.Expression) ast.Expression {
+	expr := ast.NewIndexExpr(*left.Tok(), left)
 
-	exp.Index = p.expression(LOWEST)
+	p.nextToken() // skip "["
+
+	expr.Index = p.expression(LOWEST)
 
 	if !p.expectPeek(token.RBRACKET) { // move to "]"
-		return p.illegalNode()
+		return p.illegal()
 	}
 
-	exp.SetEndPosition(p.curToken.Pos)
+	expr.SetEndPosition(p.curToken.Pos)
 
-	return exp
+	return expr
 }
 
-func (p *Parser) postfixExp(left ast.Expression) ast.Expression {
-	return ast.NewPostfixExp(p.curToken, left, p.curToken.Lit)
+func (p *Parser) incStmt(left ast.Expression) ast.Statement {
+	return ast.NewIncStmt(p.curToken, left)
 }
 
-func (p *Parser) dotExp(left ast.Expression) ast.Expression {
-	exp := ast.NewDotExp(*left.Tok(), left)
+func (p *Parser) decStmt(left ast.Expression) ast.Statement {
+	return ast.NewDecStmt(p.curToken, left)
+}
 
-	if p.peekIs(token.INT) {
-		p.newError(p.curToken.ErrorLine(), fail.ErrObjKeyUseGet)
-		return nil
-	}
+func (p *Parser) dotExpr(left ast.Expression) ast.Expression {
+	expr := ast.NewDotExpr(*left.Tok(), left)
 
 	if !p.expectPeek(token.IDENT) { // skip "." and move to identifier
-		return p.illegalNode()
+		return p.illegal()
 	}
 
-	if p.peekIs(token.LPAREN) {
-		return p.callExp(left)
+	if p.peekTokenIs(token.LPAREN) {
+		return p.callExpr(left)
 	}
 
-	exp.Key = ast.NewIdent(p.curToken, p.curToken.Lit)
+	expr.Key = ast.NewIdentExpr(p.curToken, p.curToken.Lit)
 
-	return exp
+	return expr
 }
 
-func (p *Parser) globalCallExp(ident *ast.Ident) ast.Expression {
-	exp := ast.NewGlobalCallExp(p.curToken, ident)
+func (p *Parser) globalCallExpr(ident *ast.IdentExpr) ast.Expression {
+	name := ast.GlobalFuncName(ident.Name)
 
-	if !p.expectPeek(token.LPAREN) { // move to "("
-		return p.illegalNode()
-	}
-
-	exp.Arguments = p.expressionList(token.RPAREN)
-	exp.SetEndPosition(p.curToken.Pos)
-
-	return exp
-}
-
-func (p *Parser) callExp(receiver ast.Expression) ast.Expression {
-	ident := ast.NewIdent(p.curToken, p.curToken.Lit)
-	exp := ast.NewCallExp(p.curToken, receiver, ident)
-
-	if !p.expectPeek(token.LPAREN) { // move to "("
-		return p.illegalNode()
-	}
-
-	exp.Arguments = p.expressionList(token.RPAREN)
-	exp.SetEndPosition(p.curToken.Pos)
-
-	return exp
-}
-
-func (p *Parser) infixExp(left ast.Expression) ast.Expression {
-	exp := ast.NewInfixExp(*left.Tok(), left, p.curToken.Lit)
-
-	precedence := precedences[p.curToken.Type]
-
-	p.next() // skip operator
-
-	if p.curTokenIs(token.RBRACES) {
-		p.newError(p.curToken.ErrorLine(), fail.ErrExpectedExpression)
+	rules, exists := ast.GlobalFunctions[name]
+	if !exists {
+		p.newError(p.peekToken.Pos, fail.ErrGlobalFuncMissing, ident.Name)
 		return nil
 	}
 
-	exp.Right = p.expression(precedence)
-	exp.SetEndPosition(p.curToken.Pos)
+	expr := ast.NewGlobalCallExpr(p.curToken, name)
 
-	return exp
-}
-
-func (p *Parser) ternaryExp(left ast.Expression) ast.Expression {
-	exp := ast.NewTernaryExp(*left.Tok(), left)
-
-	p.next() // skip "?"
-
-	exp.IfBlock = p.expression(TERNARY)
-
-	if !p.expectPeek(token.COLON) { // move to ":"
-		return p.illegalNode()
+	if !p.expectPeek(token.LPAREN) { // move to "("
+		return p.illegal()
 	}
 
-	p.next() // skip ":"
+	expr.Arguments = p.expressionList(token.RPAREN)
+	expr.SetEndPosition(p.curToken.Pos)
+	argsLen := len(expr.Arguments)
 
-	exp.ElseBlock = p.expression(LOWEST)
-	exp.SetEndPosition(p.curToken.Pos)
+	if argsLen < rules.Min {
+		p.newError(expr.Pos(), fail.ErrGlobalFuncFewArgs, name, rules.Min, argsLen)
+		return nil
+	}
 
-	return exp
+	if argsLen > rules.Max {
+		p.newError(expr.Pos(), fail.ErrGlobalFuncLotsOfArgs, name, rules.Max, argsLen)
+		return nil
+	}
+
+	return expr
 }
 
-func (p *Parser) ifStmt() ast.Statement {
-	stmt := ast.NewIfStmt(p.curToken)
+func (p *Parser) callExpr(receiver ast.Expression) ast.Expression {
+	ident := ast.NewIdentExpr(p.curToken, p.curToken.Lit)
+	expr := ast.NewCallExpr(p.curToken, receiver, ident)
 
-	if illegal := p.ifStmtHeader(stmt); illegal != nil { // skips ")"
+	if !p.expectPeek(token.LPAREN) { // move to "("
+		return p.illegal()
+	}
+
+	expr.Arguments = p.expressionList(token.RPAREN)
+	expr.SetEndPosition(p.curToken.Pos)
+
+	return expr
+}
+
+func (p *Parser) infixExpr(left ast.Expression) ast.Expression {
+	opTok := p.curToken
+	expr := ast.NewInfixExpr(*left.Tok(), left, opTok.Lit)
+
+	precedence := precedences[opTok.Type]
+
+	if p.peekTokenIs(token.RBRACES) {
+		pos := left.Pos()
+		pos.EndCol = opTok.Pos.EndCol
+		p.newError(pos, fail.ErrExpectExprAfter, opTok.Lit)
+		return nil
+	}
+
+	p.nextToken() // skip operator
+
+	expr.Right = p.expression(precedence)
+	expr.SetEndPosition(p.curToken.Pos)
+
+	return expr
+}
+
+func (p *Parser) ternaryExpr(left ast.Expression) ast.Expression {
+	expr := ast.NewTernaryExpr(*left.Tok(), left)
+
+	p.nextToken() // skip "?"
+
+	expr.IfExpr = p.expression(TERNARY)
+
+	if !p.expectPeek(token.COLON) { // move to ":"
+		return p.illegal()
+	}
+
+	p.nextToken() // skip ":"
+
+	expr.ElseExpr = p.expression(LOWEST)
+	expr.SetEndPosition(p.curToken.Pos)
+
+	return expr
+}
+
+func (p *Parser) ifDir() ast.Chunk {
+	dir := ast.NewIfDir(p.curToken)
+
+	if illegal := p.ifDirHeader(dir); illegal != nil { // skips ")"
 		return illegal
 	}
 
-	stmt.IfBlock = p.blockStmt()
-
+	dir.IfBlock = p.block()
 	if p.curTokenIs(token.END) {
-		stmt.SetEndPosition(p.curToken.Pos)
-		return stmt
+		dir.SetEndPosition(p.curToken.Pos)
+		return dir
 	}
 
 	for p.curTokenIs(token.ELSEIF) {
-		elseifStmt := p.elseifStmt()
-		stmt.ElseifStmts = append(stmt.ElseifStmts, elseifStmt)
+		elseifDir, illegal := p.elseifDir()
+		if illegal != nil {
+			return illegal
+		}
+
+		dir.ElseifDirs = append(dir.ElseifDirs, elseifDir)
 	}
 
-	stmt.ElseBlock = p.elseBlock()
+	dir.ElseBlock = p.elseBlock()
 
 	if !p.curTokenIs(token.END) { // move to "@end"
-		return p.illegalNode()
+		return p.illegal()
 	}
 
-	stmt.SetEndPosition(p.curToken.Pos)
+	dir.SetEndPosition(p.curToken.Pos)
 
-	return stmt
+	return dir
 }
 
-func (p *Parser) ifStmtHeader(stmt *ast.IfStmt) *ast.IllegalNode {
+func (p *Parser) ifDirHeader(ifDir *ast.IfDir) *ast.Illegal {
 	if !p.expectPeek(token.LPAREN) { // move to "("
-		return p.illegalNodeUntil(token.END)
+		return p.illegal()
 	}
 
-	p.next() // skip "("
+	p.nextToken() // skip "("
 
-	stmt.Condition = p.expression(LOWEST)
+	ifDir.Cond = p.expression(LOWEST)
 
 	if !p.expectPeek(token.RPAREN) { // move to ")"
-		return p.illegalNodeUntil(token.END)
+		return p.illegal()
 	}
 
-	p.next() // skip ")"
+	p.nextToken() // skip ")"
 
 	return nil
 }
 
-func (p *Parser) elseifStmt() ast.Statement {
-	stmt := ast.NewElseIfStmt(p.curToken)
+func (p *Parser) elseifDir() (*ast.ElseIfDir, *ast.Illegal) {
+	dir := ast.NewElseIfDir(p.curToken)
 
-	p.next() // skip "@elseif"
-	p.next() // skip "("
+	p.nextToken() // skip "@elseif"
+	p.nextToken() // skip "("
 
-	stmt.Condition = p.expression(LOWEST)
+	dir.Cond = p.expression(LOWEST)
 
 	if !p.expectPeek(token.RPAREN) { // move to ")"
-		return p.illegalNode()
+		return nil, p.illegal()
 	}
 
-	p.next() // skip ")"
+	p.nextToken() // skip ")"
 
-	stmt.Block = p.blockStmt()
-	stmt.SetEndPosition(p.curToken.Pos)
+	dir.Block = p.block()
+	dir.SetEndPosition(p.curToken.Pos)
 
-	return stmt
+	return dir, nil
 }
 
-func (p *Parser) elseBlock() *ast.BlockStmt {
+func (p *Parser) elseBlock() *ast.Block {
 	if p.curTokenIs(token.ELSE) {
-		p.next() // skip "@else"
+		p.nextToken() // skip "@else"
 	}
 
 	if p.curTokenIs(token.ELSE, token.END) {
 		return nil
 	}
 
-	stmt := p.blockStmt()
+	block := p.block()
 
-	if p.peekIs(token.ELSEIF) {
-		p.newError(p.peekToken.ErrorLine(), fail.ErrElseifCannotFollowElse)
+	if p.peekTokenIs(token.ELSEIF) {
+		p.newError(p.peekToken.Pos, fail.ErrElseifCannotFollowElse)
 		return nil
 	}
 
-	stmt.SetEndPosition(p.curToken.Pos)
+	block.SetEndPosition(p.curToken.Pos)
 
-	return stmt
+	return block
 }
 
-func (p *Parser) forStmt() ast.Statement {
-	stmt := ast.NewForStmt(p.curToken)
+func (p *Parser) forDir() ast.Chunk {
+	dir := ast.NewForDir(p.curToken)
 
-	if illegal := p.forStmtHeader(stmt); illegal != nil { // skips ")"
+	if illegal := p.forDirHeader(dir); illegal != nil { // skips ")"
 		return illegal
 	}
 
-	stmt.Block = p.blockStmt()
+	dir.Block = p.block()
 
 	if p.curTokenIs(token.END) {
-		stmt.SetEndPosition(p.curToken.Pos)
-		return stmt
+		dir.SetEndPosition(p.curToken.Pos)
+		return dir
 	}
 
-	stmt.ElseBlock = p.elseBlock()
+	dir.ElseBlock = p.elseBlock()
 
 	if !p.curTokenIs(token.END) {
-		return p.illegalNodeUntil(token.END)
+		return p.illegalUntil(token.END)
 	}
 
-	stmt.SetEndPosition(p.curToken.Pos)
+	dir.SetEndPosition(p.curToken.Pos)
 
-	return stmt
+	return dir
 }
 
-func (p *Parser) forStmtHeader(stmt *ast.ForStmt) *ast.IllegalNode {
+func (p *Parser) forDirHeader(forDir *ast.ForDir) *ast.Illegal {
 	if !p.expectPeek(token.LPAREN) { // move to "("
-		return p.illegalNodeUntil(token.END)
+		return p.illegalUntil(token.END)
 	}
 
-	// Parse Init
-	if !p.peekIs(token.SEMI) {
-		stmt.Init = p.embeddedCode()
-	}
+	forDir.Init = p.parserForDirInit()
 
 	if !p.expectPeek(token.SEMI) { // move to ";"
-		return p.illegalNodeUntil(token.END)
+		return p.illegalUntil(token.END)
 	}
 
-	// Parse Condition
-	if !p.peekIs(token.SEMI) {
-		p.next() // skip ";"
-		stmt.Condition = p.expression(LOWEST)
-	}
+	forDir.Cond = p.parserForDirCond()
 
 	if !p.expectPeek(token.SEMI) { // move to ";"
-		return p.illegalNodeUntil(token.END)
+		return p.illegalUntil(token.END)
 	}
 
-	// Parse Post statement
-	if !p.peekIs(token.RPAREN) {
-		stmt.Post = p.statement()
+	post := p.parseForDirPost()
+	if post == nil {
+		return nil
 	}
+
+	forDir.Post = post
 
 	if !p.expectPeek(token.RPAREN) { // move to ")"
-		return p.illegalNodeUntil(token.END)
+		return p.illegalUntil(token.END)
 	}
 
-	p.next() // skip ")"
+	p.nextToken() // skip ")"
 
 	return nil
 }
 
-func (p *Parser) eachStmt() ast.Statement {
-	stmt := ast.NewEachStmt(p.curToken)
+func (p *Parser) parserForDirInit() ast.Statement {
+	if p.peekTokenIs(token.SEMI) {
+		return ast.NewEmpty(p.curToken.Pos)
+	}
 
-	if illegal := p.eachStmtHeader(stmt); illegal != nil { // skips ")"
+	p.nextToken() // move to first token of init statement
+	left := p.expression(LOWEST)
+	p.nextToken() // move to =/++/--
+
+	return p.statement(left)
+}
+
+func (p *Parser) parserForDirCond() ast.Expression {
+	if p.peekTokenIs(token.SEMI) {
+		return ast.NewEmpty(p.curToken.Pos)
+	}
+
+	p.nextToken() // skip ";"
+
+	return p.expression(LOWEST)
+}
+
+func (p *Parser) parseForDirPost() ast.Statement {
+	if p.peekTokenIs(token.RPAREN) {
+		return ast.NewEmpty(p.curToken.Pos)
+	}
+
+	p.nextToken() // skip ";"
+	left := p.expression(LOWEST)
+	p.nextToken() // move to ++/--
+
+	if p.curTokenIs(token.RPAREN) {
+		p.newError(left.Pos(), fail.ErrForLoopExpectStmt, left.String())
+		return nil
+	}
+
+	return p.statement(left)
+}
+
+func (p *Parser) eachDir() ast.Chunk {
+	dir := ast.NewEachDir(p.curToken)
+
+	if illegal := p.eachDirHeader(dir); illegal != nil { // skips ")"
 		return illegal
 	}
 
-	stmt.Block = p.blockStmt()
+	dir.Block = p.block()
 
 	if p.curTokenIs(token.END) {
-		stmt.SetEndPosition(p.curToken.Pos)
-		return stmt
+		dir.SetEndPosition(p.curToken.Pos)
+		return dir
 	}
 
-	stmt.ElseBlock = p.elseBlock()
+	dir.ElseBlock = p.elseBlock()
 
 	if !p.curTokenIs(token.END) {
-		return p.illegalNodeUntil(token.END)
+		return p.illegalUntil(token.END)
 	}
 
-	stmt.SetEndPosition(p.curToken.Pos)
+	dir.SetEndPosition(p.curToken.Pos)
 
-	return stmt
+	return dir
 }
 
-func (p *Parser) eachStmtHeader(stmt *ast.EachStmt) *ast.IllegalNode {
+func (p *Parser) eachDirHeader(dir *ast.EachDir) *ast.Illegal {
 	if !p.expectPeek(token.LPAREN) { // move to "("
-		return p.illegalNodeUntil(token.END)
+		return p.illegal()
 	}
 
-	p.next() // skip "("
+	p.nextToken() // skip "("
 
-	stmt.Var = ast.NewIdent(p.curToken, p.curToken.Lit)
+	if !p.expectType(token.IDENT) {
+		return p.illegal()
+	}
+
+	dir.Var = ast.NewIdentExpr(p.curToken, p.curToken.Lit)
 
 	if !p.expectPeek(token.IN) { // move to "in"
-		return p.illegalNodeUntil(token.END)
+		return p.illegal()
 	}
 
-	p.next() // skip "in"
+	p.nextToken() // skip "in"
 
-	stmt.Arr = p.expression(LOWEST)
+	dir.Arr = p.expression(LOWEST)
 
 	if !p.expectPeek(token.RPAREN) { // move to ")"
-		return p.illegalNodeUntil(token.END)
+		return p.illegal()
 	}
 
-	p.next() // skip ")"
+	p.nextToken() // skip ")"
 
 	return nil
 }
 
-func (p *Parser) blockStmt() *ast.BlockStmt {
+func (p *Parser) block() *ast.Block {
 	if p.curTokenIs(token.ELSE, token.ELSEIF, token.END) {
 		return nil
 	}
 
-	stmt := ast.NewBlockStmt(p.curToken)
-	stmt.SetEndPosition(p.curToken.Pos)
+	block := ast.NewBlock(p.curToken)
+	block.SetEndPosition(p.curToken.Pos)
 
 	for !p.curTokenIs(token.END) && !p.curTokenIs(token.EOF) {
-		block := p.statement()
-		stmt.SetEndPosition(p.curToken.Pos)
+		chunk := p.chunk()
+		block.SetEndPosition(p.curToken.Pos)
 
-		if block != nil {
-			stmt.Statements = append(stmt.Statements, block)
+		if chunk != nil {
+			block.Chunks = append(block.Chunks, chunk)
 		}
 
-		if p.peekIs(token.ELSE, token.ELSEIF, token.END) {
-			p.next() // skip statement
+		if p.peekTokenIs(token.ELSE, token.ELSEIF, token.END) {
+			p.nextToken() // skip chunk
 			break
 		}
 
-		p.next() // skip statement
+		p.nextToken() // skip chunk
 	}
 
-	return stmt
+	block.Trim()
+
+	return block
 }
 
-func (p *Parser) expressionStmt() ast.Statement {
-	prevTok := p.curToken
-
-	exp := p.expression(LOWEST)
-	stmt := ast.NewExpressionStmt(prevTok, exp)
-	stmt.SetEndPosition(p.curToken.Pos)
-
-	if p.peekIs(token.RBRACES) {
-		p.next() // skip "}}"
+func (p *Parser) statement(left ast.Expression) ast.Statement {
+	switch p.curToken.Type {
+	case token.ASSIGN:
+		return p.assignStmt(left)
+	case token.INC:
+		return p.incStmt(left)
+	case token.DEC:
+		return p.decStmt(left)
 	}
 
-	if p.peekIs(token.ASSIGN) {
-		return p.assignStmt(exp)
-	}
-
-	return stmt
+	return nil
 }
 
 func (p *Parser) expression(precedence int) ast.Expression {
 	prefix := p.prefixParseFns[p.curToken.Type]
 
 	if prefix == nil {
-		p.newError(
-			p.curToken.ErrorLine(),
-			fail.ErrNoPrefixParseFunc,
-			token.String(p.curToken.Type),
-		)
-		return nil
+		return p.illegal()
 	}
 
-	leftExp := prefix()
+	leftExpr := prefix()
 
-	for !p.peekIs(token.RBRACES, token.SEMI, token.RPAREN) && precedence < p.peekPrecedence() {
+	for !p.peekTokenIs(token.RBRACES, token.SEMI, token.RPAREN) && precedence < p.peekPrecedence() {
 		infix := p.infixParseFns[p.peekToken.Type]
 
 		if infix == nil {
-			return leftExp
+			return leftExpr
 		}
 
-		p.next()
+		p.nextToken()
 
-		leftExp = infix(leftExp)
+		leftExpr = infix(leftExpr)
 	}
 
-	if leftExp != nil {
-		leftExp.SetEndPosition(p.curToken.Pos)
+	if leftExpr != nil {
+		leftExpr.SetEndPosition(p.curToken.Pos)
 	}
 
-	return leftExp
+	return leftExpr
 }
 
-func (p *Parser) prefixExp() ast.Expression {
-	exp := ast.NewPrefixExp(p.curToken, p.curToken.Lit)
+func (p *Parser) prefixExpr() ast.Expression {
+	expr := ast.NewPrefixExpr(p.curToken, p.curToken.Lit)
 
-	p.next() // skip prefix operator
+	p.nextToken() // skip prefix operator
 
-	exp.Right = p.expression(PREFIX)
-	exp.SetEndPosition(p.curToken.Pos)
+	expr.Right = p.expression(PREFIX)
+	expr.SetEndPosition(p.curToken.Pos)
 
-	return exp
+	return expr
 }
 
-func (p *Parser) groupedExp() ast.Expression {
-	p.next() // skip "("
+func (p *Parser) groupedExpr() ast.Expression {
+	exprTok := p.curToken
 
-	exp := p.expression(LOWEST)
+	p.nextToken() // skip "("
+
+	expr := p.expression(LOWEST)
+	expr.SetTok(exprTok)
 
 	if !p.expectPeek(token.RPAREN) { // move to ")"
-		return p.illegalNode()
+		return p.illegal()
 	}
 
-	return exp
+	return expr
 }
 
 func (p *Parser) expressionList(endTok token.TokenType) []ast.Expression {
-	var expressions []ast.Expression
+	firstTok := p.curToken
+	var exprs []ast.Expression
 
-	if p.peekIs(endTok) {
-		p.next() // skip endTok token
-		return expressions
+	if p.peekTokenIs(endTok) {
+		p.nextToken() // skip endTok token
+		return exprs
 	}
 
-	if p.peekIs(token.END) {
-		expressions = append(expressions, p.illegalNode())
-		return expressions
+	if p.peekTokenIs(token.END) {
+		p.newError(p.peekToken.Pos, fail.ErrExpectExprAfter, firstTok.Lit)
+		return nil
 	}
 
-	p.next() // move to first expression
+	p.nextToken() // move to first expression
 
-	expressions = append(expressions, p.expression(LOWEST))
+	exprs = append(exprs, p.expression(LOWEST))
 
-	for p.peekIs(token.COMMA) && !p.curTokenIs(token.EOF) {
-		p.next() // move to ","
+	for p.peekTokenIs(token.COMMA) && !p.curTokenIs(token.EOF) {
+		p.nextToken() // move to ","
 
 		// break when has a trailing comma
-		if p.peekIs(endTok) {
+		if p.peekTokenIs(endTok) {
 			break
 		}
 
-		p.next() // skip ","
-		expressions = append(expressions, p.expression(LOWEST))
+		p.nextToken() // skip ","
+		exprs = append(exprs, p.expression(LOWEST))
 	}
 
 	if !p.expectPeek(endTok) { // move to endTok
-		expressions = append(expressions, ast.NewIllegalNode(p.curToken))
-		return expressions
+		exprs = append(exprs, ast.NewIllegalNode(p.curToken))
+		return exprs
 	}
 
-	return expressions
+	return exprs
 }
 
-func (p *Parser) illegalNode() *ast.IllegalNode {
+func (p *Parser) illegal() *ast.Illegal {
 	p.newError(
-		p.curToken.ErrorLine(),
+		p.curToken.Pos,
 		fail.ErrIllegalToken,
 		p.curToken.Lit,
 	)
@@ -1307,10 +1359,10 @@ func (p *Parser) illegalNode() *ast.IllegalNode {
 	return ast.NewIllegalNode(p.curToken)
 }
 
-func (p *Parser) illegalNodeUntil(tok token.TokenType) *ast.IllegalNode {
+func (p *Parser) illegalUntil(tok token.TokenType) *ast.Illegal {
 	for !p.curTokenIs(tok) && !p.curTokenIs(token.EOF) {
-		p.next()
+		p.nextToken()
 	}
 
-	return p.illegalNode()
+	return p.illegal()
 }

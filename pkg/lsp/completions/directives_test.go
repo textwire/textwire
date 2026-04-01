@@ -3,7 +3,7 @@ package completions
 import (
 	"testing"
 
-	"github.com/textwire/textwire/v3/pkg/token"
+	"github.com/textwire/textwire/v4/pkg/token"
 )
 
 func TestGetDirectives(t *testing.T) {
@@ -29,7 +29,10 @@ func TestGetDirectives(t *testing.T) {
 
 	directivesCount := len(token.GetDirectives())
 	if directivesCount != len(directives) {
-		t.Fatalf("GetDirectives() should return %d directives, got %d",
-			directivesCount, len(directives))
+		t.Fatalf(
+			"GetDirectives() should return %d directives, got %d",
+			directivesCount,
+			len(directives),
+		)
 	}
 }

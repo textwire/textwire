@@ -1,7 +1,7 @@
 package evaluator
 
 import (
-	"github.com/textwire/textwire/v3/pkg/value"
+	"github.com/textwire/textwire/v4/pkg/value"
 )
 
 var functions = map[value.ValueType]map[string]*value.Builtin{
@@ -64,7 +64,7 @@ var functions = map[value.ValueType]map[string]*value.Builtin{
 }
 
 // jsonFunc convert value to json representation
-func jsonFunc(receiver value.Value, _ ...value.Value) (value.Value, error) {
+func jsonFunc(receiver value.Literal, _ ...value.Literal) (value.Literal, error) {
 	json, err := receiver.JSON()
 	if err != nil {
 		return nil, err

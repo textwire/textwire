@@ -6,11 +6,11 @@ import (
 	"io"
 	"os"
 
-	"github.com/textwire/textwire/v3/pkg/evaluator"
-	"github.com/textwire/textwire/v3/pkg/fail"
-	"github.com/textwire/textwire/v3/pkg/lexer"
-	"github.com/textwire/textwire/v3/pkg/parser"
-	"github.com/textwire/textwire/v3/pkg/value"
+	"github.com/textwire/textwire/v4/pkg/evaluator"
+	"github.com/textwire/textwire/v4/pkg/fail"
+	"github.com/textwire/textwire/v4/pkg/lexer"
+	"github.com/textwire/textwire/v4/pkg/parser"
+	"github.com/textwire/textwire/v4/pkg/value"
 )
 
 const PROMPT = ">>> "
@@ -49,9 +49,6 @@ func Start(in io.Reader, out io.Writer) error {
 		e := evaluator.New(nil, nil)
 		ctx := evaluator.NewContext(scope, prog.AbsPath)
 		evaluated := e.Eval(prog, ctx)
-		if evaluated == nil {
-			continue
-		}
 
 		if _, err := io.WriteString(out, evaluated.String()+"\n"); err != nil {
 			return err

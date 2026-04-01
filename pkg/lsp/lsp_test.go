@@ -121,7 +121,7 @@ func TestIsInLoop(t *testing.T) {
 		    @component('~header', {
 		        title: "About Us",
 		        description: "We have %n potatoes",
-		    })
+		    })@end
 
 		    @each(name in names)
 		        {{ loop }}

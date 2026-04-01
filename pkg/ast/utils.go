@@ -1,6 +1,8 @@
 package ast
 
-import "github.com/textwire/textwire/v3/pkg/fail"
+import (
+	"github.com/textwire/textwire/v4/pkg/fail"
+)
 
 func FindProg(name string, programs []*Program) *Program {
 	for i := range programs {
@@ -8,59 +10,43 @@ func FindProg(name string, programs []*Program) *Program {
 			return programs[i]
 		}
 	}
-
 	return nil
 }
 
-func CheckUnusedInserts(prog *Program, inserts map[string]*InsertStmt) *fail.Error {
+func CheckUnusedInserts(prog *Program, inserts map[string]*InsertDir) *fail.Error {
 	for name := range inserts {
 		if _, ok := prog.Reserves[name]; ok {
 			continue
 		}
 
-		line := inserts[name].Line()
+		pos := inserts[name].Pos()
 		path := inserts[name].AbsPath
 		name := inserts[name].Name.Val
 
-		return fail.New(line, path, "parser", fail.ErrUnusedInsertDetected, name, name)
+		return fail.New(pos, path, fail.OriginLink, fail.ErrUnusedInsertDetected, name, name)
 	}
 
 	return nil
 }
 
-func findSlotIndex(stmts []Statement, slotName string) int {
-	for i, stmt := range stmts {
-		slot, ok := stmt.(*SlotStmt)
-		if !ok {
-			continue
-		}
-
-		if slot.Name().Val == slotName {
-			return i
-		}
-	}
-
-	return -1
-}
-
-func findDuplicateSlot(slots []SlotStatement) (SlotStatement, int) {
+func FindDuplicatePasses(compDir *CompDir) (*PassDir, int) {
 	counts := map[string]int{}
-	firstSeen := map[string]SlotStatement{}
+	firstSeen := map[string]*PassDir{}
 
-	var maxSlot SlotStatement
+	var maxSlot *PassDir
 	var maxCount int
 
-	for _, slot := range slots {
-		name := slot.Name().Val
+	for _, passDir := range compDir.Passes {
+		name := passDir.Name.Val
 		counts[name]++
 
 		if firstSeen[name] == nil {
-			firstSeen[name] = slot
+			firstSeen[name] = passDir
 		}
 
 		if counts[name] > 1 && counts[name] > maxCount {
 			maxCount = counts[name]
-			maxSlot = firstSeen[name]
+			maxSlot = passDir
 		}
 	}
 

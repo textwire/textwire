@@ -3,7 +3,7 @@ package ast
 import (
 	"fmt"
 
-	"github.com/textwire/textwire/v3/pkg/token"
+	"github.com/textwire/textwire/v4/pkg/token"
 )
 
 type AssignStmt struct {
@@ -19,8 +19,9 @@ func NewAssignStmt(tok token.Token, left Expression) *AssignStmt {
 	}
 }
 
-func (as *AssignStmt) statementNode() {}
+func (*AssignStmt) statementNode() {}
+func (*AssignStmt) segmentNode()   {}
 
 func (as *AssignStmt) String() string {
-	return fmt.Sprintf("%s = %s", as.Left, as.Right)
+	return fmt.Sprintf("(%s = %s)", as.Left, as.Right)
 }

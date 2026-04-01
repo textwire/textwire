@@ -185,3 +185,7 @@ For more detailed information about this release, read the [Textwire v2.1.0 Rele
     1. Change all the imports from `github.com/textwire/textwire` to `github.com/textwire/textwire/v2`
     2. Run `go mod tidy` to update the dependencies
     3. Change the package name from `textwire.Config` to `config.Config` in your code if you use configuration and import `"github.com/textwire/textwire/v2/config"`. If you already have a package named `config`, you can alias the import like `twconfig "github.com/textwire/textwire/v2/config"`
+
+## [Release Notes V1](CHANGELOG-V1.md)
+
+## [Emojis Meaning](EMOJIS.md)

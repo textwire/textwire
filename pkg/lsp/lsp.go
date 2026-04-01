@@ -1,12 +1,13 @@
 package lsp
 
 import (
-	"github.com/textwire/textwire/v3/pkg/fail"
-	"github.com/textwire/textwire/v3/pkg/token"
+	"github.com/textwire/textwire/v4/pkg/fail"
+	"github.com/textwire/textwire/v4/pkg/position"
+	"github.com/textwire/textwire/v4/pkg/token"
 
-	"github.com/textwire/textwire/v3/pkg/ast"
-	"github.com/textwire/textwire/v3/pkg/lexer"
-	"github.com/textwire/textwire/v3/pkg/parser"
+	"github.com/textwire/textwire/v4/pkg/ast"
+	"github.com/textwire/textwire/v4/pkg/lexer"
+	"github.com/textwire/textwire/v4/pkg/parser"
 )
 
 // IsInLoop checks if given position of the cursor is inside of a loop
@@ -19,16 +20,16 @@ func IsInLoop(doc, filePath string, line, col uint) (bool, []*fail.Error) {
 		return false, p.Errors()
 	}
 
-	for _, stmt := range program.Stmts() {
-		isEachLoop := stmt.Tok().Type == token.EACH
-		isForLoop := stmt.Tok().Type == token.FOR
+	for _, chunk := range program.AllChunks() {
+		isEachLoop := chunk.Tok().Type == token.EACH
+		isForLoop := chunk.Tok().Type == token.FOR
 
 		if !isEachLoop && !isForLoop {
 			continue
 		}
 
-		loopStmt := stmt.(ast.LoopStmt)
-		pos := loopStmt.LoopBlock().Pos
+		loopStmt := chunk.(ast.LoopDirective)
+		pos := loopStmt.LoopBlock().Pos()
 
 		if IsCursorInBlock(line, col, pos) {
 			return true, p.Errors()
@@ -38,7 +39,7 @@ func IsInLoop(doc, filePath string, line, col uint) (bool, []*fail.Error) {
 	return false, p.Errors()
 }
 
-func IsCursorInBlock(line, col uint, pos token.Position) bool {
+func IsCursorInBlock(line, col uint, pos *position.Pos) bool {
 	// Line outside range
 	if line < pos.StartLine || line > pos.EndLine {
 		return false

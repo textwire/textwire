@@ -6,7 +6,7 @@ type Bool struct {
 	Val bool
 }
 
-func (b *Bool) Type() ValueType {
+func (*Bool) Type() ValueType {
 	return BOOL_VAL
 }
 

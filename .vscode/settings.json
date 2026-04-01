@@ -6,6 +6,7 @@
         "GTHAN",
         "LBRACES",
         "LTHAN",
+        "passif",
         "RBRACES",
         "stmts",
         "templating",

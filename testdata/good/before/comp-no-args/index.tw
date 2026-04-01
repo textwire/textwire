@@ -1,2 +1,2 @@
-<ul>@component("components/user")</ul>
-<ol>@component("~user")</ol>
+<ul>@component("components/user")@end</ul>
+<ol>@component("~user")@end</ol>

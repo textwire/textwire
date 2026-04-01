@@ -1,11 +1,14 @@
 package token
 
+import "github.com/textwire/textwire/v4/pkg/position"
+
 type TokenType int
 
 const (
 	// Special types
 	ILLEGAL TokenType = iota // An illegal token
 	EOF                      // The end of the file
+	EMPTY                    // The absense of a token, used for empty statements/expressions
 	IDENT                    // foo, bar
 
 	// Literals
@@ -76,7 +79,8 @@ const (
 	CONTINUE
 	COMPONENT
 	SLOT
-	SLOTIF
+	PASSIF
+	PASS
 	DUMP
 )
 
@@ -101,15 +105,12 @@ var directives = map[string]TokenType{
 	"@continue":   CONTINUE,
 	"@break":      BREAK,
 	"@component":  COMPONENT,
-	"@slotif":     SLOTIF,
+	"@pass":       PASS,
+	"@passif":     PASSIF,
 	"@slot":       SLOT,
 	"@dump":       DUMP,
 	"@continueif": CONTINUEIF,
 	"@breakif":    BREAKIF,
-	// Deprecated: use @continueif. Will be removed in v4.0.0
-	"@continueIf": CONTINUEIF,
-	// Deprecated: use @breakif. Will be removed in v4.0.0
-	"@breakIf": BREAKIF,
 }
 
 func GetDirectives() map[string]TokenType {
@@ -119,14 +120,12 @@ func GetDirectives() map[string]TokenType {
 type Token struct {
 	Type TokenType
 	Lit  string
-	Pos  Position
+	Pos  *position.Pos
 }
 
-// ErrorLine returns the start line position of the token.
-// It is used to display the error message and starts from 1.
-func (t *Token) ErrorLine() uint {
-	// add 1 because StartLine starts with 0
-	return t.Pos.EndLine + 1
+// Line returns the end line position of the token for error display.
+func (t *Token) Line() uint {
+	return t.Pos.Line()
 }
 
 func LookupIdent(ident string) TokenType {

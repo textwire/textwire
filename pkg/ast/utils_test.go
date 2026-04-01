@@ -3,77 +3,54 @@ package ast
 import (
 	"testing"
 
-	"github.com/textwire/textwire/v3/pkg/token"
+	"github.com/textwire/textwire/v4/pkg/token"
 )
 
-func TestFindSlotIndex(t *testing.T) {
-	t.Run("found", func(t *testing.T) {
-		slots := []Statement{
-			NewSlotStmt(token.Token{}, &StrLit{Val: "country"}, "", false),
-			NewSlotStmt(token.Token{}, &StrLit{Val: "city"}, "", false),
-			NewSlotStmt(token.Token{}, &StrLit{Val: "street"}, "", false),
-		}
-
-		if idx := findSlotIndex(slots, "city"); idx != 1 {
-			t.Errorf("Function should return index 1 but got %d", idx)
-		}
-	})
-
-	t.Run("not found", func(t *testing.T) {
-		slots := []Statement{
-			NewSlotStmt(token.Token{}, &StrLit{Val: "country"}, "", false),
-			NewSlotStmt(token.Token{}, &StrLit{Val: "city"}, "", false),
-			NewSlotStmt(token.Token{}, &StrLit{Val: "street"}, "", false),
-		}
-
-		if idx := findSlotIndex(slots, "name"); idx != -1 {
-			t.Errorf("Function should return index -1 but got %d", idx)
-		}
-	})
-}
-
-func TestFindDuplicateSlot(t *testing.T) {
-	t.Run("returns duplicate slot", func(t *testing.T) {
+func TestFindDuplicatePasses(t *testing.T) {
+	t.Run("returns duplicate pass", func(t *testing.T) {
 		expectTimes := 3
-		expectDupl := "firstName"
-		slots := []SlotStatement{
-			NewSlotStmt(token.Token{}, &StrLit{Val: "lastname"}, "", false),
-			NewSlotStmt(token.Token{}, &StrLit{Val: "lastName"}, "", false),
-			NewSlotStmt(token.Token{}, &StrLit{Val: expectDupl}, "", false),
-			NewSlotStmt(token.Token{}, &StrLit{Val: expectDupl}, "", false),
-			NewSlotStmt(token.Token{}, &StrLit{Val: expectDupl}, "", false),
+		expectDuplicate := "firstName"
+
+		compDir := NewCompDir(token.Token{})
+		compDir.Passes = []*PassDir{
+			NewPassDir(token.Token{}, &StrExpr{Val: "lastname"}),
+			NewPassDir(token.Token{}, &StrExpr{Val: "lastName"}),
+			NewPassDir(token.Token{}, &StrExpr{Val: expectDuplicate}),
+			NewPassDir(token.Token{}, &StrExpr{Val: expectDuplicate}),
+			NewPassDir(token.Token{}, &StrExpr{Val: expectDuplicate}),
 		}
 
-		slot, times := findDuplicateSlot(slots)
+		duplicate, times := FindDuplicatePasses(compDir)
 		if times != expectTimes {
-			t.Fatalf("Should find %d duplicate slots, found %d", expectTimes, times)
+			t.Fatalf("should find %d duplicate passes, found %d", expectTimes, times)
 		}
 
-		if slot == nil {
-			t.Fatalf("Function returned nil instead of slot")
+		if duplicate == nil {
+			t.Fatalf("function returned nil instead of slot")
 		}
 
-		if slot.Name().Val != expectDupl {
-			t.Fatalf("The duplicate slot name must be %s, got %s", expectDupl, slot.Name().Val)
+		if duplicate.Name.Val != expectDuplicate {
+			t.Fatalf("duplicate pass name must be %s, got %s", expectDuplicate, duplicate.Name.Val)
 		}
 	})
 
 	t.Run("returns nil and 0 for no duplicates", func(t *testing.T) {
-		slots := []SlotStatement{
-			NewSlotStmt(token.Token{}, &StrLit{Val: "lastname"}, "", false),
-			NewSlotStmt(token.Token{}, &StrLit{Val: "lastName"}, "", false),
-			NewSlotStmt(token.Token{}, &StrLit{Val: "last_name"}, "", false),
-			NewSlotStmt(token.Token{}, &StrLit{Val: "last-name"}, "", false),
-			NewSlotStmt(token.Token{}, &StrLit{Val: "LastName"}, "", false),
+		compDir := NewCompDir(token.Token{})
+		compDir.Passes = []*PassDir{
+			NewPassDir(token.Token{}, &StrExpr{Val: "lastname"}),
+			NewPassDir(token.Token{}, &StrExpr{Val: "lastName"}),
+			NewPassDir(token.Token{}, &StrExpr{Val: "last_name"}),
+			NewPassDir(token.Token{}, &StrExpr{Val: "last-name"}),
+			NewPassDir(token.Token{}, &StrExpr{Val: "LastName"}),
 		}
 
-		slot, times := findDuplicateSlot(slots)
+		duplicate, times := FindDuplicatePasses(compDir)
 		if times != 0 {
-			t.Fatalf("Should find 0 duplicate slots, found %d", times)
+			t.Fatalf("should find 0 duplicate passes, found %d", times)
 		}
 
-		if slot != nil {
-			t.Fatalf("Function should return nil, got %v", slot)
+		if duplicate != nil {
+			t.Fatalf("function should return nil, got %v", duplicate)
 		}
 	})
 }

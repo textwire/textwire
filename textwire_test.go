@@ -5,11 +5,11 @@ import (
 	"log"
 	"os"
 	"testing"
+	"time"
 
-	"github.com/textwire/textwire/v3/pkg/fail"
-	"github.com/textwire/textwire/v3/pkg/file"
-	"github.com/textwire/textwire/v3/pkg/token"
-	"github.com/textwire/textwire/v3/pkg/value"
+	"github.com/textwire/textwire/v4/pkg/fail"
+	"github.com/textwire/textwire/v4/pkg/file"
+	"github.com/textwire/textwire/v4/pkg/value"
 )
 
 func readFile(fileName string) (string, error) {
@@ -33,6 +33,8 @@ func readFile(fileName string) (string, error) {
 }
 
 func TestEvalStr(t *testing.T) {
+	datetime, _ := time.Parse("2006-01-02 15:04:05", "1990-12-23 11:22:33")
+	date, _ := time.Parse("2006-01-02", "1990-12-23")
 	var age *int
 
 	cases := []struct {
@@ -123,6 +125,18 @@ func TestEvalStr(t *testing.T) {
 			inp:    "<span>{{ global }}</span>",
 			expect: "<span>{}</span>",
 			data:   nil,
+		},
+		{
+			name:   "Properly parses date time with time.Time struct",
+			inp:    "{{ date1 }} and {{ date2 }}",
+			expect: "1990-12-23 11:22:33 and 1990-12-23 11:22:33",
+			data:   map[string]any{"date1": datetime, "date2": &datetime},
+		},
+		{
+			name:   "Properly parses date with time.Time struct",
+			inp:    "{{ date1 }} and {{ date2 }}",
+			expect: "1990-12-23 00:00:00 and 1990-12-23 00:00:00",
+			data:   map[string]any{"date1": date, "date2": &date},
 		},
 	}
 
@@ -436,16 +450,11 @@ func TestErrorHandling(t *testing.T) {
 		data map[string]any
 	}{
 		{
-			inp:  `<div>@slotif(true)No@end</div>`,
-			err:  fail.New(1, "", "parser", fail.ErrSlotifPosition),
-			data: nil,
-		},
-		{
 			inp: `{{ defined(name.undefinedFunc()) }}`,
 			err: fail.New(
-				1,
+				nil,
 				"",
-				"evaluator",
+				fail.OriginEval,
 				fail.ErrFuncNotDefined,
 				value.STR_VAL,
 				"undefinedFunc",
@@ -454,30 +463,30 @@ func TestErrorHandling(t *testing.T) {
 		},
 		{
 			inp:  `@use("someTemplate")`,
-			err:  fail.New(1, "", "evaluator", fail.ErrSomeDirsOnlyInTemplates),
+			err:  fail.New(nil, "", fail.OriginEval, fail.ErrTemplateDirectives),
 			data: nil,
 		},
 		{
 			inp:  `@insert("title", "hi")`,
-			err:  fail.New(1, "", "evaluator", fail.ErrSomeDirsOnlyInTemplates),
+			err:  fail.New(nil, "", fail.OriginEval, fail.ErrTemplateDirectives),
 			data: nil,
 		},
 		{
 			inp:  `@reserve("content")`,
-			err:  fail.New(1, "", "evaluator", fail.ErrSomeDirsOnlyInTemplates),
+			err:  fail.New(nil, "", fail.OriginEval, fail.ErrTemplateDirectives),
 			data: nil,
 		},
 		{
 			inp:  `@component("~header")`,
-			err:  fail.New(1, "", "evaluator", fail.ErrSomeDirsOnlyInTemplates),
+			err:  fail.New(nil, "", fail.OriginEval, fail.ErrTemplateDirectives),
 			data: nil,
 		},
 		{
 			inp: `{{ 1 + "a" }}`,
 			err: fail.New(
-				1,
+				nil,
 				"",
-				"evaluator",
+				fail.OriginEval,
 				fail.ErrCannotUseOperator,
 				"+",
 				value.INT_VAL,
@@ -488,30 +497,30 @@ func TestErrorHandling(t *testing.T) {
 		},
 		{
 			inp:  `{{ loop = "test" }}`,
-			err:  fail.New(1, "", "evaluator", fail.ErrReservedIdentifiers),
+			err:  fail.New(nil, "", fail.OriginEval, fail.ErrReservedIdentifiers),
 			data: nil,
 		},
 		{
 			inp:  `{{ global = "test" }}`,
-			err:  fail.New(1, "", "evaluator", fail.ErrReservedIdentifiers),
+			err:  fail.New(nil, "", fail.OriginEval, fail.ErrReservedIdentifiers),
 			data: nil,
 		},
 		{
 			inp: `{{ loop }}`,
 			err: fail.New(
-				0,
+				nil,
 				"",
-				"evaluator",
+				fail.OriginEval,
 				fail.ErrReservedIdentifiers,
 			), data: map[string]any{"loop": "test"},
 		},
 		{
 			inp: `{{ n = 1; n = "test" }}`,
 			err: fail.New(
-				1,
+				nil,
 				"",
-				"evaluator",
-				fail.ErrIdentifierTypeMismatch,
+				fail.OriginEval,
+				fail.ErrIdentTypeMismatch,
 				"n",
 				value.INT_VAL,
 				value.STR_VAL,
@@ -520,15 +529,15 @@ func TestErrorHandling(t *testing.T) {
 		},
 		{
 			inp:  `{{ user = {}; user.address.zip }}`,
-			err:  fail.New(1, "", "evaluator", fail.ErrKeyOnNonObj, value.NIL_VAL, "zip"),
+			err:  fail.New(nil, "", fail.OriginEval, fail.ErrKeyOnNonObj, value.NIL_VAL, "zip"),
 			data: nil,
 		},
 		{
 			inp: `{{ 5.someFunction() }}`,
 			err: fail.New(
-				1,
+				nil,
 				"",
-				"evaluator",
+				fail.OriginEval,
 				fail.ErrFuncNotDefined,
 				value.INT_VAL,
 				"someFunction",
@@ -537,80 +546,102 @@ func TestErrorHandling(t *testing.T) {
 		},
 		{
 			inp:  `{{ 3 / 0 }}`,
-			err:  fail.New(1, "", "evaluator", fail.ErrDivisionByZero),
+			err:  fail.New(nil, "", fail.OriginEval, fail.ErrDivisionByZero),
 			data: nil,
 		},
 		{
 			inp:  `{{ undefinedVar }}`,
-			err:  fail.New(1, "", "evaluator", fail.ErrVariableIsUndefined, "undefinedVar"),
+			err:  fail.New(nil, "", fail.OriginEval, fail.ErrVariableIsUndefined, "undefinedVar"),
 			data: nil,
 		},
 		{
 			inp:  `{{ obj = {name: "Amy"}; obj.name.id }}`,
-			err:  fail.New(1, "", "evaluator", fail.ErrKeyOnNonObj, value.STR_VAL, "id"),
-			data: nil,
-		},
-		{
-			inp: `{{ obj."str" }}`,
-			err: fail.New(
-				1,
-				"",
-				"evaluator",
-				fail.ErrWrongNextToken,
-				token.String(token.IDENT),
-				token.String(token.STR),
-			),
+			err:  fail.New(nil, "", fail.OriginEval, fail.ErrKeyOnNonObj, value.STR_VAL, "id"),
 			data: nil,
 		},
 		{
 			inp:  `@each(v in {}){{ v }}@end`,
-			err:  fail.New(1, "", "evaluator", fail.ErrEachDirWithNonArrArg, value.OBJ_VAL),
+			err:  fail.New(nil, "", fail.OriginEval, fail.ErrEachDirWithNonArrArg, value.OBJ_VAL),
 			data: nil,
 		},
 		{
 			inp:  `{{ 1 = 10 }}`,
-			err:  fail.New(1, "", "evaluator", fail.ErrNotSupportedAssign, value.INT_VAL),
+			err:  fail.New(nil, "", fail.OriginEval, fail.ErrNotSupportedAssign, value.INT_VAL),
 			data: nil,
 		},
 		{
 			inp:  `{{ {} = 10 }}`,
-			err:  fail.New(1, "", "evaluator", fail.ErrNotSupportedAssign, value.OBJ_VAL),
+			err:  fail.New(nil, "", fail.OriginEval, fail.ErrNotSupportedAssign, value.OBJ_VAL),
 			data: nil,
 		},
 		{
 			inp:  `{{ [] = 10 }}`,
-			err:  fail.New(1, "", "evaluator", fail.ErrNotSupportedAssign, value.ARR_VAL),
+			err:  fail.New(nil, "", fail.OriginEval, fail.ErrNotSupportedAssign, value.ARR_VAL),
 			data: nil,
 		},
 		{
 			inp:  `{{ 1.1 = 10 }}`,
-			err:  fail.New(1, "", "evaluator", fail.ErrNotSupportedAssign, value.FLOAT_VAL),
+			err:  fail.New(nil, "", fail.OriginEval, fail.ErrNotSupportedAssign, value.FLOAT_VAL),
 			data: nil,
 		},
 		{
 			inp:  `{{ true = 10 }}`,
-			err:  fail.New(1, "", "evaluator", fail.ErrNotSupportedAssign, value.BOOL_VAL),
+			err:  fail.New(nil, "", fail.OriginEval, fail.ErrNotSupportedAssign, value.BOOL_VAL),
 			data: nil,
 		},
 		{
 			inp:  `{{ 'anna' = 10 }}`,
-			err:  fail.New(1, "", "evaluator", fail.ErrNotSupportedAssign, value.STR_VAL),
+			err:  fail.New(nil, "", fail.OriginEval, fail.ErrNotSupportedAssign, value.STR_VAL),
 			data: nil,
 		},
 		{
 			inp:  `{{ "serhii" = 10 }}`,
-			err:  fail.New(1, "", "evaluator", fail.ErrNotSupportedAssign, value.STR_VAL),
+			err:  fail.New(nil, "", fail.OriginEval, fail.ErrNotSupportedAssign, value.STR_VAL),
 			data: nil,
 		},
 		{
 			inp:  `{{ false = 10 }}`,
-			err:  fail.New(1, "", "evaluator", fail.ErrNotSupportedAssign, value.BOOL_VAL),
+			err:  fail.New(nil, "", fail.OriginEval, fail.ErrNotSupportedAssign, value.BOOL_VAL),
 			data: nil,
 		},
 		{
 			inp:  `{{ nil = 10 }}`,
-			err:  fail.New(1, "", "evaluator", fail.ErrNotSupportedAssign, value.NIL_VAL),
+			err:  fail.New(nil, "", fail.OriginEval, fail.ErrNotSupportedAssign, value.NIL_VAL),
 			data: nil,
+		},
+		// Global functions
+		{
+			inp: `{{ formatDate(date, '2006-01-02') }}`,
+			err: fail.New(
+				nil,
+				"",
+				fail.OriginEval,
+				fail.ErrFormatDateWrongDate,
+				"2026-03-24 13:03",
+			),
+			data: map[string]any{"date": "2026-03-24 13:03"},
+		},
+		{
+			inp: `{{ formatDate(date, '2006-01-02') }}`,
+			err: fail.New(
+				nil,
+				"",
+				fail.OriginEval,
+				fail.ErrFormatDateWrongDate,
+				"2026-03-4 13:03:00",
+			),
+			data: map[string]any{"date": "2026-03-4 13:03:00"},
+		},
+		{
+			inp: `{{ formatDate(date, '2006-01-02') }}`,
+			err: fail.New(
+				nil,
+				"",
+				fail.OriginEval,
+				fail.ErrFormatDateWrongDate,
+				" 2026-03-34 13:03:00",
+			),
+			data: map[string]any{"date": " 2026-03-34 13:03:00"},
 		},
 	}
 
@@ -620,7 +651,7 @@ func TestErrorHandling(t *testing.T) {
 			t.Fatalf("Expected error but got none")
 		}
 
-		if err.Error() != tc.err.String() {
+		if err.String() != tc.err.String() {
 			t.Errorf("Wrong error message. Expected:\n%q\ngot:\n%q", tc.err, err)
 		}
 	}
@@ -642,14 +673,14 @@ func TestEvaluateFile(t *testing.T) {
 		t.Errorf("Error evaluating file: %q", err)
 	}
 
-	expect, err := readFile("testdata/good/expected/two-vars-no-use.html")
-	if err != nil {
-		t.Errorf("Error reading file: %q", err)
+	expect, err2 := readFile("testdata/good/expected/two-vars-no-use.html")
+	if err2 != nil {
+		t.Errorf("Error reading file: %q", err2)
 		return
 	}
 
 	if actual != expect {
-		t.Errorf("Wrong output. Expect:\n%q\ngot:\n%q", expect, actual)
+		t.Errorf("Wrong output. Expect:\n%s\ngot:\n%s", expect, actual)
 	}
 }
 
@@ -794,9 +825,10 @@ func TestCustomFunctions(t *testing.T) {
 			t.Fatalf("Expect error but got none")
 		}
 
-		expect := fail.New(0, "", "API", fail.ErrFuncAlreadyDefined, "_len", "strings")
-		if err.Error() != expect.Error().Error() {
-			t.Fatalf("Wrong error message. Expect:\n%q\ngot:\n%q", expect, err)
+		expect := fail.New(nil, "", fail.OriginTpl, fail.ErrFuncAlreadyDefined, "_len", "strings")
+
+		if err := compareFailures(err, expect); err != nil {
+			t.Fatal(err)
 		}
 	})
 
