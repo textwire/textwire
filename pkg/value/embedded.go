@@ -1,15 +1,17 @@
 package value
 
 import (
+	"html"
 	"strings"
 )
 
 type Embedded struct {
 	Segments []Literal
+	IsRaw    bool
 }
 
-func NewEmbedded(cap int) *Embedded {
-	return &Embedded{Segments: make([]Literal, 0, cap)}
+func NewEmbedded(cap int, isRaw bool) *Embedded {
+	return &Embedded{Segments: make([]Literal, 0, cap), IsRaw: isRaw}
 }
 
 func (*Embedded) Type() ValueType {
@@ -24,7 +26,10 @@ func (b *Embedded) String() string {
 		out.WriteString(b.Segments[i].String())
 	}
 
-	return out.String()
+	if b.IsRaw {
+		return out.String()
+	}
+	return html.EscapeString(out.String())
 }
 
 func (b *Embedded) Is(t ValueType) bool {

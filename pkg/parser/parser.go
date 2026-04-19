@@ -65,6 +65,9 @@ type Parser struct {
 	curToken  token.Token
 	peekToken token.Token
 
+	// Ending token can be }} or !}} for embedded
+	tokenEnd token.TokenType
+
 	prefixParseFns map[token.TokenType]prefixParseFn
 	infixParseFns  map[token.TokenType]infixParseFn
 
@@ -154,7 +157,9 @@ func (p *Parser) chunk() ast.Chunk {
 	case token.TEXT:
 		return p.text()
 	case token.LBRACES:
-		return p.embedded()
+		return p.embedded(token.RBRACES)
+	case token.LBRACESRAW:
+		return p.embedded(token.RBRACESRAW)
 	case token.IF:
 		return p.ifDir()
 	case token.FOR:
@@ -188,10 +193,11 @@ func (p *Parser) chunk() ast.Chunk {
 	return p.illegal()
 }
 
-func (p *Parser) embedded() ast.Chunk {
-	embedded := ast.NewEmbedded(p.curToken)
+func (p *Parser) embedded(tokenEnd token.TokenType) ast.Chunk {
+	p.tokenEnd = tokenEnd
+	embedded := ast.NewEmbedded(p.curToken, tokenEnd == token.RBRACESRAW)
 
-	if p.peekTokenIs(token.RBRACES) {
+	if p.peekTokenIs(tokenEnd) {
 		pos := p.curToken.Pos
 		pos.EndCol = p.peekToken.Pos.EndCol
 		p.newError(pos, fail.ErrEmptyBraces)
@@ -200,8 +206,8 @@ func (p *Parser) embedded() ast.Chunk {
 
 	p.nextToken() // skip "{{"
 
-	// Loop until we find the closing "}}" or reach the end of file
-	for !p.curTokenIs(token.RBRACES, token.EOF) {
+	// Loop until we find the closing braces or reach the end of file
+	for !p.curTokenIs(tokenEnd, token.EOF) {
 		if segment := p.segment(); segment != nil {
 			embedded.Segments = append(embedded.Segments, segment)
 			if p.curTokenIs(token.SEMI) {
@@ -210,8 +216,8 @@ func (p *Parser) embedded() ast.Chunk {
 		}
 	}
 
-	if p.peekTokenIs(token.RBRACES) {
-		p.nextToken() // skip "}}"
+	if p.peekTokenIs(tokenEnd) {
+		p.nextToken() // skip "}}" or "!!}"
 	}
 
 	return embedded
@@ -434,7 +440,7 @@ func (p *Parser) assignStmt(left ast.Expression) ast.Statement {
 
 	p.nextToken() // skip "="
 
-	if p.curTokenIs(token.RBRACES) {
+	if p.curTokenIs(p.tokenEnd) {
 		p.newError(p.curToken.Pos, fail.ErrExpectExprAfter, token.String(token.ASSIGN))
 		return nil
 	}
@@ -937,7 +943,7 @@ func (p *Parser) infixExpr(left ast.Expression) ast.Expression {
 
 	precedence := precedences[opTok.Type]
 
-	if p.peekTokenIs(token.RBRACES) {
+	if p.peekTokenIs(p.tokenEnd) {
 		pos := left.Pos()
 		pos.EndCol = opTok.Pos.EndCol
 		p.newError(pos, fail.ErrExpectExprAfter, opTok.Lit)
@@ -1266,7 +1272,7 @@ func (p *Parser) expression(precedence int) ast.Expression {
 
 	leftExpr := prefix()
 
-	for !p.peekTokenIs(token.RBRACES, token.SEMI, token.RPAREN) && precedence < p.peekPrecedence() {
+	for !p.peekTokenIs(p.tokenEnd, token.SEMI, token.RPAREN) && precedence < p.peekPrecedence() {
 		infix := p.infixParseFns[p.peekToken.Type]
 
 		if infix == nil {
