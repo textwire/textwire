@@ -1,5 +1,9 @@
 # Release notes
 
+## v5.0.0 (2026-05-20)
+
+- 🐛 Change string escaping. It used to be that strings would be escaped using `raw` function, but now, strings are escaped when they are the result of `{{ <result> }}`. The final result between curly braces is scaped. Function [raw](https://textwire.github.io/v4/functions/str#raw) is removed. Now, you need to use `{!!` and `!!}` to print raw unescaped string. Example: `{!! myData !!}`.
+
 ## v4.0.1 (2026-04-01)
 
 - 🐛 Fix `IsInLoop` function for the LSP server.
