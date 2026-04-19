@@ -1,7 +1,7 @@
 package ast
 
 import (
-	"github.com/textwire/textwire/v4/pkg/token"
+	"github.com/textwire/textwire/v5/pkg/token"
 )
 
 type Illegal struct {

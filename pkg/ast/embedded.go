@@ -1,14 +1,16 @@
 package ast
 
 import (
+	"html"
 	"strings"
 
-	"github.com/textwire/textwire/v4/pkg/token"
+	"github.com/textwire/textwire/v5/pkg/token"
 )
 
 type Embedded struct {
 	BaseNode
 	Segments []Segment
+	IsRaw    bool
 }
 
 func NewEmbedded(tok token.Token) *Embedded {
@@ -35,5 +37,8 @@ func (e *Embedded) String() string {
 
 	out.WriteString(" }}")
 
-	return out.String()
+	if e.IsRaw {
+		return out.String()
+	}
+	return html.EscapeString(out.String())
 }

@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/textwire/textwire/v4/pkg/position"
+	"github.com/textwire/textwire/v5/pkg/position"
 )
 
 // Each string constant here is also an ErrorID on Error object.

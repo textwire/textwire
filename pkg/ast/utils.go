@@ -1,7 +1,7 @@
 package ast
 
 import (
-	"github.com/textwire/textwire/v4/pkg/fail"
+	"github.com/textwire/textwire/v5/pkg/fail"
 )
 
 func FindProg(name string, programs []*Program) *Program {

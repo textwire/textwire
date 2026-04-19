@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/textwire/textwire/v4/pkg/utils"
+	"github.com/textwire/textwire/v5/pkg/utils"
 )
 
 type Float struct {

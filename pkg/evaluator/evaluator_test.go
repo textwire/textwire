@@ -4,12 +4,12 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/textwire/textwire/v4/config"
-	"github.com/textwire/textwire/v4/pkg/fail"
-	"github.com/textwire/textwire/v4/pkg/file"
-	"github.com/textwire/textwire/v4/pkg/lexer"
-	"github.com/textwire/textwire/v4/pkg/parser"
-	"github.com/textwire/textwire/v4/pkg/value"
+	"github.com/textwire/textwire/v5/config"
+	"github.com/textwire/textwire/v5/pkg/fail"
+	"github.com/textwire/textwire/v5/pkg/file"
+	"github.com/textwire/textwire/v5/pkg/lexer"
+	"github.com/textwire/textwire/v5/pkg/parser"
+	"github.com/textwire/textwire/v5/pkg/value"
 )
 
 func testEval(inp string) (value.Value, *fail.Error) {

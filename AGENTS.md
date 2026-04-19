@@ -112,7 +112,7 @@ func NewIdentifier(tok token.Token, val string) *Identifier {
 ### Fail Package Usage
 Import the fail package for structured error handling:
 ```go
-import "github.com/textwire/textwire/v4/pkg/fail"
+import "github.com/textwire/textwire/v5/pkg/fail"
 ```
 
 ### Error Constants
