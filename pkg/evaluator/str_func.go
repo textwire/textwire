@@ -45,12 +45,6 @@ func strSplitFunc(receiver value.Literal, args ...value.Literal) (value.Literal,
 	return &value.Arr{Elements: elems}, nil
 }
 
-// strRawFunc prevents escaping HTML tags in a string
-func strRawFunc(receiver value.Literal, _ ...value.Literal) (value.Literal, error) {
-	val := receiver.(*value.Str).Val
-	return &value.Str{Val: val, IsRaw: true}, nil
-}
-
 // strTrimFunc returns a string with leading and trailing whitespace removed
 func strTrimFunc(receiver value.Literal, args ...value.Literal) (value.Literal, error) {
 	chars := defaultCharTrim

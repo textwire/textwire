@@ -8,7 +8,6 @@ var functions = map[value.ValueType]map[string]*value.Builtin{
 	value.STR_VAL: {
 		"len":        {Fn: strLenFunc},
 		"split":      {Fn: strSplitFunc},
-		"raw":        {Fn: strRawFunc},
 		"trim":       {Fn: strTrimFunc},
 		"trimRight":  {Fn: strTrimRightFunc},
 		"trimLeft":   {Fn: strTrimLeftFunc},
