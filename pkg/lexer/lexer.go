@@ -104,8 +104,16 @@ func (l *Lexer) Next() token.Token {
 		return l.bracesToken(token.LBRACES, "{{")
 	}
 
+	if l.startsWith('{', '!', '!') {
+		return l.bracesToken(token.LBRACESRAW, "{!!")
+	}
+
 	if l.startsWith('}', '}') && l.countCurlyBraces == 0 {
 		return l.bracesToken(token.RBRACES, "}}")
+	}
+
+	if l.startsWith('!', '!', '}') && l.countCurlyBraces == 0 {
+		return l.bracesToken(token.RBRACESRAW, "!!}")
 	}
 
 	if l.isDirectiveToken() {

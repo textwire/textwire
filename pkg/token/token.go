@@ -43,19 +43,21 @@ const (
 	GTHAN_EQ // >=
 
 	// Delimiters
-	LBRACES  // {{
-	RBRACES  // }}
-	LBRACE   // {
-	RBRACE   // }
-	LPAREN   // (
-	RPAREN   // )
-	LBRACKET // [
-	RBRACKET // ]
-	QUESTION // ?
-	COLON    // :
-	COMMA    // ,
-	DOT      // .
-	SEMI     // ;
+	LBRACES    // {{
+	RBRACES    // }}
+	LBRACESRAW // {!!
+	RBRACESRAW // !!}
+	LBRACE     // {
+	RBRACE     // }
+	LPAREN     // (
+	RPAREN     // )
+	LBRACKET   // [
+	RBRACKET   // ]
+	QUESTION   // ?
+	COLON      // :
+	COMMA      // ,
+	DOT        // .
+	SEMI       // ;
 
 	// Keywords
 	TRUE
