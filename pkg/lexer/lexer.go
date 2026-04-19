@@ -105,7 +105,7 @@ func (l *Lexer) Next() token.Token {
 	}
 
 	if l.startsWith('{', '!', '!') {
-		return l.bracesToken(token.LBRACESRAW, "{!!")
+		return l.rawBracesToken(token.LBRACESRAW, "{!!")
 	}
 
 	if l.startsWith('}', '}') && l.countCurlyBraces == 0 {
@@ -113,7 +113,7 @@ func (l *Lexer) Next() token.Token {
 	}
 
 	if l.startsWith('!', '!', '}') && l.countCurlyBraces == 0 {
-		return l.bracesToken(token.RBRACESRAW, "!!}")
+		return l.rawBracesToken(token.RBRACESRAW, "!!}")
 	}
 
 	if l.isDirectiveToken() {
@@ -150,6 +150,15 @@ func (l *Lexer) bracesToken(tok token.TokenType, literal string) token.Token {
 
 	l.tokenBegins()
 	l.readChars(2) // skip braces
+
+	return l.newToken(tok, literal)
+}
+
+func (l *Lexer) rawBracesToken(tok token.TokenType, literal string) token.Token {
+	l.isText = tok != token.LBRACESRAW
+
+	l.tokenBegins()
+	l.readChars(3) // skip braces
 
 	return l.newToken(tok, literal)
 }
