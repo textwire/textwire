@@ -18,20 +18,20 @@ func (*Embedded) Type() ValueType {
 	return EMBEDDED_VAL
 }
 
-func (b *Embedded) String() string {
+func (e *Embedded) String() string {
 	var out strings.Builder
-	out.Grow(len(b.Segments))
+	out.Grow(len(e.Segments))
 
-	for i := range b.Segments {
-		out.WriteString(b.Segments[i].String())
+	for i := range e.Segments {
+		out.WriteString(e.Segments[i].String())
 	}
 
-	if b.IsRaw {
+	if e.IsRaw {
 		return out.String()
 	}
 	return html.EscapeString(out.String())
 }
 
-func (b *Embedded) Is(t ValueType) bool {
-	return t == b.Type()
+func (e *Embedded) Is(t ValueType) bool {
+	return t == e.Type()
 }

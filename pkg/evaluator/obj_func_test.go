@@ -52,8 +52,8 @@ func TestObjJSON(t *testing.T) {
 		},
 		{
 			130,
-			`{{ json = {desc: "Here"}.json(); }}<filter :prop='{!! "%s".format(json) !!}' />`,
-			`<filter :prop="{&#34;desc&#34;:&#34;Here&#34;}" />`,
+			`{{ json = {desc: "Here"}.json(); }}<filter :prop='{{ "%s".format(json) }}' />`,
+			`<filter :prop='{&#34;desc&#34;:&#34;Here&#34;}' />`,
 		},
 	}
 
@@ -75,7 +75,7 @@ func TestObjCamel(t *testing.T) {
 		},
 		{
 			640,
-			`{{ {HTTP: "https://", NAME: "Serhii"}.camel() }}`,
+			`{!! {HTTP: "https://", NAME: "Serhii"}.camel() !!}`,
 			`{http: "https://", name: "Serhii"}`,
 		},
 		{
@@ -146,7 +146,7 @@ func TestObjCamel(t *testing.T) {
 		},
 		{
 			800,
-			`{{ {user_data: {first_name: "John", last_name: "Doe"}}.camel() }}`,
+			`{!! {user_data: {first_name: "John", last_name: "Doe"}}.camel() !!}`,
 			`{userData: {firstName: "John", lastName: "Doe"}}`,
 		},
 	}
