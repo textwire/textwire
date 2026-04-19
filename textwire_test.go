@@ -72,7 +72,7 @@ func TestEvalStr(t *testing.T) {
 			},
 		},
 		{
-			name:   "Accessing propery name on empty obj variable",
+			name:   "Integer pointer",
 			inp:    `<p>{{ age }}</p>`,
 			expect: `<p></p>`,
 			data:   map[string]any{"age": age},
@@ -137,6 +137,12 @@ func TestEvalStr(t *testing.T) {
 			inp:    "{{ date1 }} and {{ date2 }}",
 			expect: "1990-12-23 00:00:00 and 1990-12-23 00:00:00",
 			data:   map[string]any{"date1": date, "date2": &date},
+		},
+		{
+			name:   "Raw string print",
+			inp:    "{!! str !!}",
+			expect: "<span>Skirk</span>",
+			data:   map[string]any{"str": "<span>Skirk</span>"},
 		},
 	}
 
