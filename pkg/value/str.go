@@ -2,12 +2,10 @@ package value
 
 import (
 	"fmt"
-	"html"
 )
 
 type Str struct {
-	Val   string
-	IsRaw bool
+	Val string
 }
 
 func (*Str) Type() ValueType {
@@ -15,10 +13,7 @@ func (*Str) Type() ValueType {
 }
 
 func (s *Str) String() string {
-	if s.IsRaw {
-		return s.Val
-	}
-	return html.EscapeString(s.Val)
+	return s.Val
 }
 
 func (s *Str) Dump(ident int) string {

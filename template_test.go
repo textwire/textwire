@@ -7,11 +7,11 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/textwire/textwire/v4/config"
-	"github.com/textwire/textwire/v4/pkg/fail"
-	"github.com/textwire/textwire/v4/pkg/file"
-	"github.com/textwire/textwire/v4/pkg/position"
-	"github.com/textwire/textwire/v4/pkg/value"
+	"github.com/textwire/textwire/v5/config"
+	"github.com/textwire/textwire/v5/pkg/fail"
+	"github.com/textwire/textwire/v5/pkg/file"
+	"github.com/textwire/textwire/v5/pkg/position"
+	"github.com/textwire/textwire/v5/pkg/value"
 )
 
 func TestErrorHandlingEvaluatingTemplate(t *testing.T) {

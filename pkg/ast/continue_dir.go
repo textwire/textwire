@@ -1,6 +1,6 @@
 package ast
 
-import "github.com/textwire/textwire/v4/pkg/token"
+import "github.com/textwire/textwire/v5/pkg/token"
 
 type ContinueDir struct {
 	BaseNode

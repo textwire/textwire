@@ -29,9 +29,9 @@ func TestEvalArrFunctions(t *testing.T) {
 		{110, `{{ [[[4]]].rand().rand().rand() }}`, "4"},
 		// reverse
 		{120, `{{ [1, 2, 3].reverse() }}`, "3, 2, 1"},
-		{130, `{{ ['Chiori'].reverse() }}`, "Chiori"},
+		{130, `{{ ['Mona'].reverse() }}`, "Mona"},
 		{140, `{{ [].reverse() }}`, ""},
-		{150, `{{ ['Raiden', 'Venti', 'Chiori'].reverse() }}`, "Chiori, Venti, Raiden"},
+		{150, `{{ ['Raiden', 'Venti', 'Barbara'].reverse() }}`, "Barbara, Venti, Raiden"},
 		{160, `{{ [4, 3, [1, 2]].reverse() }}`, "1, 2, 3, 4"},
 		// slice
 		{170, `{{ [].slice(0) }}`, ""},
@@ -43,8 +43,8 @@ func TestEvalArrFunctions(t *testing.T) {
 		{230, `{{ ['Chiori', 'Venti', 'Raiden', "Nahida"].slice(1, 2) }}`, "Venti"},
 		{
 			240,
-			`{{ ['Chiori', 'Venti', 'Raiden', "Nahida"].slice(0, -3) }}`,
-			"Chiori, Venti, Raiden, Nahida",
+			`{{ ['Kokomi', 'Venti', 'Raiden', "Nahida"].slice(0, -3) }}`,
+			"Kokomi, Venti, Raiden, Nahida",
 		},
 		{250, `{{ [1, 2, 3, 4].slice(-3, -1) }}`, "1, 2, 3, 4"},
 		{251, `{{ [1, 2, 3].slice(2, 2) }}`, ""},
@@ -52,7 +52,7 @@ func TestEvalArrFunctions(t *testing.T) {
 		// shuffle
 		{260, `{{ [].shuffle() }}`, ""},
 		{270, `{{ [1].shuffle() }}`, "1"},
-		{280, `{{ ['Chiori'].shuffle() }}`, "Chiori"},
+		{280, `{{ ['Cryo'].shuffle() }}`, "Cryo"},
 		// contains
 		{290, `{{ [].contains(1) }}`, "0"},
 		{300, `{{ [1, 2, 3].contains(1) }}`, "1"},
@@ -94,22 +94,22 @@ func TestEvalArrFunctions(t *testing.T) {
 		{580, `{{ [].json() }}`, "[]"},
 		{
 			590,
-			`{{ [1, 2.1, true, false, nil, "Chiori", []].json().raw() }}`,
+			`{!! [1, 2.1, true, false, nil, "Chiori", []].json() !!}`,
 			`[1,2.1,true,false,null,"Chiori",[]]`,
 		},
 		{
 			600,
-			`{{ [{name: "Chiori", game: "Genshin Impact"}, -10].json().raw() }}`,
-			`[{"game":"Genshin Impact","name":"Chiori"},-10]`,
+			`{!! [{name: "Skirk", game: "Genshin Impact"}, -10].json() !!}`,
+			`[{"game":"Genshin Impact","name":"Skirk"},-10]`,
 		},
 		{610, `{{ [[[[[1,2]]]]].json() }}`, "[[[[[1,2]]]]]"},
 		{
 			611,
-			`{{ [{name: 'Venti'}, {name: 'Chiori'}].json().raw() }}`,
-			`[{"name":"Venti"},{"name":"Chiori"}]`,
+			`{!! [{name: 'Venti'}, {name: 'Escoffier'}].json() !!}`,
+			`[{"name":"Venti"},{"name":"Escoffier"}]`,
 		},
 		{612, `{{ [true, false, nil].json() }}`, "[true,false,null]"},
-		{613, `{{ [{a: [1, {b: 2}]}].json().raw() }}`, `[{"a":[1,{"b":2}]}]`},
+		{613, `{!! [{a: [1, {b: 2}]}].json() !!}`, `[{"a":[1,{"b":2}]}]`},
 		{614, `{{ [0.0/0.0].json() }}`, "[null]"},
 		{615, `{{ [1.0/0.0].json() }}`, "[null]"},
 		{616, `{{ [-1.0/0.0].json() }}`, "[null]"},

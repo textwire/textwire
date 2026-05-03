@@ -4,8 +4,8 @@ import (
 	"bytes"
 	"strings"
 
-	"github.com/textwire/textwire/v4/pkg/position"
-	"github.com/textwire/textwire/v4/pkg/token"
+	"github.com/textwire/textwire/v5/pkg/position"
+	"github.com/textwire/textwire/v5/pkg/token"
 )
 
 var simpleTokens = map[byte]token.TokenType{
@@ -104,8 +104,16 @@ func (l *Lexer) Next() token.Token {
 		return l.bracesToken(token.LBRACES, "{{")
 	}
 
+	if l.startsWith('{', '!', '!') {
+		return l.rawBracesToken(token.LBRACESRAW, "{!!")
+	}
+
 	if l.startsWith('}', '}') && l.countCurlyBraces == 0 {
 		return l.bracesToken(token.RBRACES, "}}")
+	}
+
+	if l.startsWith('!', '!', '}') && l.countCurlyBraces == 0 {
+		return l.rawBracesToken(token.RBRACESRAW, "!!}")
 	}
 
 	if l.isDirectiveToken() {
@@ -142,6 +150,15 @@ func (l *Lexer) bracesToken(tok token.TokenType, literal string) token.Token {
 
 	l.tokenBegins()
 	l.readChars(2) // skip braces
+
+	return l.newToken(tok, literal)
+}
+
+func (l *Lexer) rawBracesToken(tok token.TokenType, literal string) token.Token {
+	l.isText = tok != token.LBRACESRAW
+
+	l.tokenBegins()
+	l.readChars(3) // skip braces
 
 	return l.newToken(tok, literal)
 }

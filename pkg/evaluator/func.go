@@ -1,14 +1,13 @@
 package evaluator
 
 import (
-	"github.com/textwire/textwire/v4/pkg/value"
+	"github.com/textwire/textwire/v5/pkg/value"
 )
 
 var functions = map[value.ValueType]map[string]*value.Builtin{
 	value.STR_VAL: {
 		"len":        {Fn: strLenFunc},
 		"split":      {Fn: strSplitFunc},
-		"raw":        {Fn: strRawFunc},
 		"trim":       {Fn: strTrimFunc},
 		"trimRight":  {Fn: strTrimRightFunc},
 		"trimLeft":   {Fn: strTrimLeftFunc},

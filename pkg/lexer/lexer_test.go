@@ -4,8 +4,8 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/textwire/textwire/v4/pkg/position"
-	"github.com/textwire/textwire/v4/pkg/token"
+	"github.com/textwire/textwire/v5/pkg/position"
+	"github.com/textwire/textwire/v5/pkg/token"
 )
 
 func TokenizeString(t *testing.T, input string, expectTokens []token.Token) {
@@ -857,5 +857,29 @@ func TestPassifDirective(t *testing.T) {
 		{Type: token.TEXT, Lit: "HERE", Pos: &position.Pos{StartCol: 13, EndCol: 16}},
 		{Type: token.END, Lit: "@end", Pos: &position.Pos{StartCol: 17, EndCol: 20}},
 		{Type: token.EOF, Lit: "", Pos: &position.Pos{StartCol: 21, EndCol: 21}},
+	})
+}
+
+func TestRawEmbedded(t *testing.T) {
+	inp := "{!! myVar !!}"
+
+	TokenizeString(t, inp, []token.Token{
+		{Type: token.LBRACESRAW, Lit: "{!!", Pos: &position.Pos{EndCol: 2}},
+		{Type: token.IDENT, Lit: "myVar", Pos: &position.Pos{StartCol: 4, EndCol: 8}},
+		{Type: token.RBRACESRAW, Lit: "!!}", Pos: &position.Pos{StartCol: 10, EndCol: 12}},
+		{Type: token.EOF, Lit: "", Pos: &position.Pos{StartCol: 13, EndCol: 13}},
+	})
+}
+
+func TestRawEmbeddedMultipleSegments(t *testing.T) {
+	inp := "{!! one; two !!}"
+
+	TokenizeString(t, inp, []token.Token{
+		{Type: token.LBRACESRAW, Lit: "{!!", Pos: &position.Pos{EndCol: 2}},
+		{Type: token.IDENT, Lit: "one", Pos: &position.Pos{StartCol: 4, EndCol: 6}},
+		{Type: token.SEMI, Lit: ";", Pos: &position.Pos{StartCol: 7, EndCol: 7}},
+		{Type: token.IDENT, Lit: "two", Pos: &position.Pos{StartCol: 9, EndCol: 11}},
+		{Type: token.RBRACESRAW, Lit: "!!}", Pos: &position.Pos{StartCol: 13, EndCol: 15}},
+		{Type: token.EOF, Lit: "", Pos: &position.Pos{StartCol: 16, EndCol: 16}},
 	})
 }

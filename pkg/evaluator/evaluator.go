@@ -4,10 +4,10 @@ import (
 	"reflect"
 	"time"
 
-	"github.com/textwire/textwire/v4/config"
-	"github.com/textwire/textwire/v4/pkg/ast"
-	"github.com/textwire/textwire/v4/pkg/fail"
-	"github.com/textwire/textwire/v4/pkg/value"
+	"github.com/textwire/textwire/v5/config"
+	"github.com/textwire/textwire/v5/pkg/ast"
+	"github.com/textwire/textwire/v5/pkg/fail"
+	"github.com/textwire/textwire/v5/pkg/value"
 )
 
 var (
@@ -150,7 +150,7 @@ func (e *Evaluator) program(prog *ast.Program, ctx *Context) value.Value {
 }
 
 func (e *Evaluator) embedded(embeddedAst *ast.Embedded, ctx *Context) value.Value {
-	embedded := value.NewEmbedded(len(embeddedAst.Segments))
+	embedded := value.NewEmbedded(len(embeddedAst.Segments), embeddedAst.IsRaw)
 
 	for _, segment := range embeddedAst.Segments {
 		segment := e.evalLiteral(segment, ctx)

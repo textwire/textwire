@@ -6,11 +6,11 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/textwire/textwire/v4/pkg/ast"
-	"github.com/textwire/textwire/v4/pkg/fail"
-	"github.com/textwire/textwire/v4/pkg/file"
-	"github.com/textwire/textwire/v4/pkg/lexer"
-	"github.com/textwire/textwire/v4/pkg/parser"
+	"github.com/textwire/textwire/v5/pkg/ast"
+	"github.com/textwire/textwire/v5/pkg/fail"
+	"github.com/textwire/textwire/v5/pkg/file"
+	"github.com/textwire/textwire/v5/pkg/lexer"
+	"github.com/textwire/textwire/v5/pkg/parser"
 )
 
 //go:embed embed/default-error-page.tw

@@ -1,6 +1,6 @@
 package token
 
-import "github.com/textwire/textwire/v4/pkg/position"
+import "github.com/textwire/textwire/v5/pkg/position"
 
 type TokenType int
 
@@ -43,19 +43,21 @@ const (
 	GTHAN_EQ // >=
 
 	// Delimiters
-	LBRACES  // {{
-	RBRACES  // }}
-	LBRACE   // {
-	RBRACE   // }
-	LPAREN   // (
-	RPAREN   // )
-	LBRACKET // [
-	RBRACKET // ]
-	QUESTION // ?
-	COLON    // :
-	COMMA    // ,
-	DOT      // .
-	SEMI     // ;
+	LBRACES    // {{
+	RBRACES    // }}
+	LBRACESRAW // {!!
+	RBRACESRAW // !!}
+	LBRACE     // {
+	RBRACE     // }
+	LPAREN     // (
+	RPAREN     // )
+	LBRACKET   // [
+	RBRACKET   // ]
+	QUESTION   // ?
+	COLON      // :
+	COMMA      // ,
+	DOT        // .
+	SEMI       // ;
 
 	// Keywords
 	TRUE
