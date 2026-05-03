@@ -140,6 +140,7 @@ func TestParseStrExpr(t *testing.T) {
 		{`{{ "Serhii \"Cho\"" }}`, `Serhii "Cho"`, 3, 18},
 		{`{{ 'Hello World' }}`, "Hello World", 3, 15},
 		{`{{ "" }}`, "", 3, 4},
+		{`{!! 'Hello World' !!}`, "Hello World", 4, 16},
 	}
 
 	for _, tc := range cases {
