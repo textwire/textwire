@@ -483,7 +483,7 @@ func (l *Lexer) readNumber() (string, bool) {
 }
 
 func (l *Lexer) areBracesToken() (areBraces bool, escapedBraces bool) {
-	braces := l.startsWith('{', '{')
+	braces := l.startsWith('{', '{') || l.startsWith('{', '!', '!')
 	escapedBraces = l.prevChar() == '\\' && braces
 
 	return braces && l.prevChar() != '\\', escapedBraces

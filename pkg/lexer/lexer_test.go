@@ -872,14 +872,16 @@ func TestRawEmbedded(t *testing.T) {
 }
 
 func TestRawEmbeddedMultipleSegments(t *testing.T) {
-	inp := "{!! one; two !!}"
+	inp := "<h1>{!! one; two !!}</h1>"
 
 	TokenizeString(t, inp, []token.Token{
-		{Type: token.LBRACESRAW, Lit: "{!!", Pos: &position.Pos{EndCol: 2}},
-		{Type: token.IDENT, Lit: "one", Pos: &position.Pos{StartCol: 4, EndCol: 6}},
-		{Type: token.SEMI, Lit: ";", Pos: &position.Pos{StartCol: 7, EndCol: 7}},
-		{Type: token.IDENT, Lit: "two", Pos: &position.Pos{StartCol: 9, EndCol: 11}},
-		{Type: token.RBRACESRAW, Lit: "!!}", Pos: &position.Pos{StartCol: 13, EndCol: 15}},
-		{Type: token.EOF, Lit: "", Pos: &position.Pos{StartCol: 16, EndCol: 16}},
+		{Type: token.TEXT, Lit: "<h1>", Pos: &position.Pos{EndCol: 3}},
+		{Type: token.LBRACESRAW, Lit: "{!!", Pos: &position.Pos{StartCol: 4, EndCol: 6}},
+		{Type: token.IDENT, Lit: "one", Pos: &position.Pos{StartCol: 8, EndCol: 10}},
+		{Type: token.SEMI, Lit: ";", Pos: &position.Pos{StartCol: 11, EndCol: 11}},
+		{Type: token.IDENT, Lit: "two", Pos: &position.Pos{StartCol: 13, EndCol: 15}},
+		{Type: token.RBRACESRAW, Lit: "!!}", Pos: &position.Pos{StartCol: 17, EndCol: 19}},
+		{Type: token.TEXT, Lit: "</h1>", Pos: &position.Pos{StartCol: 20, EndCol: 24}},
+		{Type: token.EOF, Lit: "", Pos: &position.Pos{StartCol: 25, EndCol: 25}},
 	})
 }
