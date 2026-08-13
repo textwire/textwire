@@ -9,8 +9,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/textwire/textwire/v5/pkg/fail"
-	"github.com/textwire/textwire/v5/pkg/value"
+	"codeberg.org/textwire/textwire/v5/pkg/fail"
+	"codeberg.org/textwire/textwire/v5/pkg/value"
 )
 
 // arrLenFunc returns the length of the given arr

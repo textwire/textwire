@@ -4,8 +4,8 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/textwire/textwire/v5/pkg/position"
-	"github.com/textwire/textwire/v5/pkg/token"
+	"codeberg.org/textwire/textwire/v5/pkg/position"
+	"codeberg.org/textwire/textwire/v5/pkg/token"
 )
 
 func TokenizeString(t *testing.T, input string, expectTokens []token.Token) {

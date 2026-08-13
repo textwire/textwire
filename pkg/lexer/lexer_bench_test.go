@@ -3,7 +3,7 @@ package lexer
 import (
 	"testing"
 
-	"github.com/textwire/textwire/v5/pkg/token"
+	"codeberg.org/textwire/textwire/v5/pkg/token"
 )
 
 func BenchmarkReadDirective(b *testing.B) {

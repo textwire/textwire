@@ -6,10 +6,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/textwire/textwire/v5/pkg/ast"
-	"github.com/textwire/textwire/v5/pkg/fail"
-	"github.com/textwire/textwire/v5/pkg/file"
-	"github.com/textwire/textwire/v5/pkg/linker"
+	"codeberg.org/textwire/textwire/v5/pkg/ast"
+	"codeberg.org/textwire/textwire/v5/pkg/fail"
+	"codeberg.org/textwire/textwire/v5/pkg/file"
+	"codeberg.org/textwire/textwire/v5/pkg/linker"
 )
 
 // fileWatcher monitors template files for changes and refreshes parsed AST nodes.

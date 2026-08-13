@@ -3,7 +3,7 @@ package ast
 import (
 	"strings"
 
-	"github.com/textwire/textwire/v5/pkg/token"
+	"codeberg.org/textwire/textwire/v5/pkg/token"
 )
 
 type SlotDir struct {

@@ -3,15 +3,15 @@ package parser
 import (
 	"strconv"
 
-	"github.com/textwire/textwire/v5/pkg/file"
-	"github.com/textwire/textwire/v5/pkg/position"
-	"github.com/textwire/textwire/v5/pkg/token"
+	"codeberg.org/textwire/textwire/v5/pkg/file"
+	"codeberg.org/textwire/textwire/v5/pkg/position"
+	"codeberg.org/textwire/textwire/v5/pkg/token"
 
 	"slices"
 
-	"github.com/textwire/textwire/v5/pkg/ast"
-	"github.com/textwire/textwire/v5/pkg/fail"
-	"github.com/textwire/textwire/v5/pkg/lexer"
+	"codeberg.org/textwire/textwire/v5/pkg/ast"
+	"codeberg.org/textwire/textwire/v5/pkg/fail"
+	"codeberg.org/textwire/textwire/v5/pkg/lexer"
 )
 
 type (

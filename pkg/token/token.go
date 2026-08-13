@@ -1,6 +1,6 @@
 package token
 
-import "github.com/textwire/textwire/v5/pkg/position"
+import "codeberg.org/textwire/textwire/v5/pkg/position"
 
 type TokenType int
 
