@@ -3,9 +3,9 @@ package evaluator
 import (
 	"testing"
 
-	"github.com/textwire/textwire/v5/pkg/lexer"
-	"github.com/textwire/textwire/v5/pkg/parser"
-	"github.com/textwire/textwire/v5/pkg/value"
+	"codeberg.org/textwire/textwire/v5/pkg/lexer"
+	"codeberg.org/textwire/textwire/v5/pkg/parser"
+	"codeberg.org/textwire/textwire/v5/pkg/value"
 )
 
 var inp = `<div>

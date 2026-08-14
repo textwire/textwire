@@ -3,7 +3,7 @@ package token
 import (
 	"testing"
 
-	"github.com/textwire/textwire/v5/pkg/position"
+	"codeberg.org/textwire/textwire/v5/pkg/position"
 )
 
 func TestTokenContainsPosition(t *testing.T) {

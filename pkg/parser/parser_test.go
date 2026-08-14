@@ -5,11 +5,11 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/textwire/textwire/v5/pkg/ast"
-	"github.com/textwire/textwire/v5/pkg/fail"
-	"github.com/textwire/textwire/v5/pkg/lexer"
-	"github.com/textwire/textwire/v5/pkg/position"
-	"github.com/textwire/textwire/v5/pkg/token"
+	"codeberg.org/textwire/textwire/v5/pkg/ast"
+	"codeberg.org/textwire/textwire/v5/pkg/fail"
+	"codeberg.org/textwire/textwire/v5/pkg/lexer"
+	"codeberg.org/textwire/textwire/v5/pkg/position"
+	"codeberg.org/textwire/textwire/v5/pkg/token"
 )
 
 func TestParseIdentifier(t *testing.T) {
