@@ -15,6 +15,11 @@ jobs:
         go-version: ["1.25", "1.26"]
 
     steps:
+      - name: Install dependencies
+        run: |
+          apt update
+          apt install -y wget
+
       - name: Checkout
         uses: actions/checkout@v4
 
@@ -27,7 +32,9 @@ jobs:
         run: go install github.com/golangci/golines@latest
 
       - name: Install golangci-lint
-        run: go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.8.0
+        run: |
+          wget -q https://github.com/golangci/golangci-lint/releases/download/v2.12.2/golangci-lint-2.12.2-linux-amd64.deb
+          dpkg -i golangci-lint-2.12.2-linux-amd64.deb
 
       - name: Build
         run: go build -v ./...
