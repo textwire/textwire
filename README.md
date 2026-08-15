@@ -10,18 +10,4 @@
 
 Textwire is a simple yet powerful templating language for Go. It is designed to easily inject variables from Go code into a template file or just a regular string.
 
-### [Read Official Documentation](https://textwire.github.io)
-
-## Installation
-
-```bash
-go get github.com/textwire/textwire/v5
-```
-
-## Neovim and VSCode Support
-
-If you use [Neovim](https://neovim.io/) or [VSCode](https://code.visualstudio.com/) as your primary editor, you can install the [Neovim Plugin](https://github.com/textwire/textwire.nvim) or [VSCode Extension](https://marketplace.visualstudio.com/items?itemName=SerhiiCho.textwire) to get syntax highlighting and other features for Textwire.
-
-## License
-
-The Textwire project is licensed under the [MIT License](https://github.com/textwire/textwire/blob/master/LICENSE)
+Moved to Codeberg [codeberg.org/textwire/textwire](https://codeberg.org/textwire/textwire)
