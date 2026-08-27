@@ -8,7 +8,7 @@ on:
 
 jobs:
   build-and-test:
-    runs-on: podman
+    runs-on: debian13
     name: Build and test
     strategy:
       matrix:
