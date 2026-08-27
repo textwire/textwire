@@ -8,7 +8,8 @@ on:
 
 jobs:
   build-and-test:
-    runs-on: debian13-node
+    runs-on: podman
+    container: docker.io/library/node:26
     name: Build and test
     strategy:
       matrix:
