@@ -8,7 +8,7 @@ on:
 
 jobs:
   build-and-test:
-    runs-on: debian13
+    runs-on: debian13-node
     name: Build and test
     strategy:
       matrix:
