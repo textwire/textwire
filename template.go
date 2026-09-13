@@ -42,7 +42,7 @@ func NewTemplate(opt *config.Config) (*Template, *fail.Error) {
 
 	tpl := &Template{linker: ln}
 
-	if opt.FileWatcher {
+	if userConf.FileWatcher {
 		newFileWatcher(ln).Watch()
 	}
 

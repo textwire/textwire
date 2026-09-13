@@ -1,5 +1,9 @@
 # Release notes V5
 
+## v5.1.1 (2026-09-13)
+
+- 🐛 Fixed issue where you couldn't start the server with no Textwire config
+
 ## v5.1.0 (2026-08-14)
 
 - 🧑‍💻 Moved from GitHub to Codeberg

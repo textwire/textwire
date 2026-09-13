@@ -84,6 +84,7 @@ func (c *Config) UsesFS() bool {
 
 func (c *Config) Configure(opt *Config) {
 	if opt == nil {
+		c.TemplateFS = os.DirFS(c.TemplateDir)
 		return
 	}
 
