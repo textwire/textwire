@@ -4,7 +4,7 @@
 
 Textwire is a simple yet powerful templating language for Go. It is designed to easily inject variables from Go code into a template file or just a regular string.
 
-### [Read Official Documentation](https://textwire.codeberg.org)
+### [Read Official Documentation](https://textwire.codeberg.page)
 
 ## Installation
 
