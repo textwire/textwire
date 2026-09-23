@@ -956,6 +956,12 @@ func TestEvalEachDir(t *testing.T) {
 		// Variable modification from outside scope
 		{240, `{{ sum = 0 }}@each(num in [1]){{ sum = sum + num }}@end{{ sum }}`, "1"},
 		{250, `{{ sum = 0 }}@each(num in [1]){{ a = sum + num }}@end{{ sum }}`, "0"},
+		// Accumulation across multiple iterations
+		{260, `{{ sum = 0 }}@each(num in [1, 2, 3]){{ sum = sum + num }}@end{{ sum }}`, "6"},
+		// String concatenation across iterations
+		{270, `{{ str = "" }}@each(char in ["x", "y", "z"]){{ str = str + char }}@end{{ str }}`, "xyz"},
+		// Nested @each loops modifying outside scope
+		{280, `{{ count = 0 }}@each(i in [1, 2])@each(j in [1, 2]){{ count++ }}@end@end{{ count }}`, "4"},
 	}
 
 	for _, tc := range cases {
