@@ -169,7 +169,7 @@ func (e *Evaluator) ifDir(ifDir *ast.IfDir, ctx *Context) value.Value {
 		return cond
 	}
 
-	ifCtx := NewContext(ctx.scope.Child(), ctx.absPath)
+	ifCtx := NewContext(ctx.scope, ctx.absPath)
 	if isTruthy(cond) {
 		return e.Eval(ifDir.IfBlock, ifCtx)
 	}

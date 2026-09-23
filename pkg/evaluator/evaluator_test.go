@@ -597,6 +597,18 @@ func TestEvalIfDir(t *testing.T) {
 			`,
 			"Marry",
 		},
+		// Variable modification from outside scope
+		{400, `{{ sum = 0 }}@if(true){{ sum++ }}@end{{ sum }}`, "1"},
+		// Nested @if
+		{410, `{{ val = 1 }}@if(true)@if(true){{ val = val * 5 }}@end@end{{ val }}`, "5"},
+		// Modification inside @else
+		{420, `{{ status = "pending" }}@if(false)@else{{ status = "done" }}@end{{ status }}`, "done"},
+		// Sequential modifications
+		{430, `{{ n = 10 }}@if(n > 5){{ n = n - 2 }}@end@if(n == 8){{ n = 0 }}@end{{ n }}`, "0"},
+		// Deep nesting
+		{440, `{{ deep = 0 }}@if(true)@if(true)@if(true){{ deep = 42 }}@end@end@end{{ deep }}`, "42"},
+		// Modification inside @elseif
+		{420, `{{ status = "pending" }}@if(false)@elseif(true){{ status = "done" }}@end{{ status }}`, "done"},
 	}
 
 	for _, tc := range cases {

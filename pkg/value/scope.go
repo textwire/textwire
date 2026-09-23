@@ -36,12 +36,6 @@ func NewScopeFromMap(data map[string]any) (*Scope, *fail.Error) {
 	return scope, nil
 }
 
-func (s *Scope) Child() *Scope {
-	child := NewScope()
-	child.parent = s
-	return child
-}
-
 func (e *Scope) Get(name string) (Literal, bool) {
 	obj, ok := e.vars[name]
 	if !ok && e.parent != nil {
