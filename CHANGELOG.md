@@ -1,5 +1,17 @@
 # Release notes V5
 
+## v5.1.2 (2026-09-23)
+
+- 🐛 Fixed wrong scope with `@each` loop and `@if`. It wasn't extending the parent scope. Therefore, this code would result in 0:
+
+```textwire
+{{ sum = 0 }}
+@each(num in [1, 2, 3])
+    {{ sum = sum + num }}
+@end
+{{ sum }}
+```
+
 ## v5.1.1 (2026-09-13)
 
 - 🐛 Fixed issue where you couldn't start the server with no Textwire config

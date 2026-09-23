@@ -597,6 +597,30 @@ func TestEvalIfDir(t *testing.T) {
 			`,
 			"Marry",
 		},
+		// Variable modification from outside scope
+		{400, `{{ sum = 0 }}@if(true){{ sum++ }}@end{{ sum }}`, "1"},
+		// Nested @if
+		{410, `{{ val = 1 }}@if(true)@if(true){{ val = val * 5 }}@end@end{{ val }}`, "5"},
+		// Modification inside @else
+		{
+			420,
+			`{{ status = "pending" }}@if(false)@else{{ status = "done" }}@end{{ status }}`,
+			"done",
+		},
+		// Sequential modifications
+		{430, `{{ n = 10 }}@if(n > 5){{ n = n - 2 }}@end@if(n == 8){{ n = 0 }}@end{{ n }}`, "0"},
+		// Deep nesting
+		{
+			440,
+			`{{ deep = 0 }}@if(true)@if(true)@if(true){{ deep = 42 }}@end@end@end{{ deep }}`,
+			"42",
+		},
+		// Modification inside @elseif
+		{
+			420,
+			`{{ status = "pending" }}@if(false)@elseif(true){{ status = "done" }}@end{{ status }}`,
+			"done",
+		},
 	}
 
 	for _, tc := range cases {
@@ -935,12 +959,31 @@ func TestEvalEachDir(t *testing.T) {
 			"ann serhii ",
 		},
 		// test @continueif directive
-		{210, `@each(n in [1, 2, 3, 4, 5])@continueif(n == 3){{ n }}@end`, "1245"},
+		{220, `@each(n in [1, 2, 3, 4, 5])@continueif(n == 3){{ n }}@end`, "1245"},
 		{
 			230,
 			`@each(n in ["ann", "serhii", "sam"])@continueif(n == 'sam'){{ n }}{{' '}}@end`,
 			"ann serhii ",
 		},
+		// Variable modification from outside scope
+		{240, `{{ sum = 0 }}@each(num in [1]){{ sum = sum + num }}@end{{ sum }}`, "1"},
+		{250, `{{ sum = 0 }}@each(num in [1]){{ a = sum + num }}@end{{ sum }}`, "0"},
+		// Accumulation across multiple iterations
+		{260, `{{ sum = 0 }}@each(num in [1, 2, 3]){{ sum = sum + num }}@end{{ sum }}`, "6"},
+		// String concatenation across iterations
+		{
+			270,
+			`{{ str = "" }}@each(char in ["x", "y", "z"]){{ str = str + char }}@end{{ str }}`,
+			"xyz",
+		},
+		// Nested @each loops modifying outside scope
+		{
+			280,
+			`{{ count = 0 }}@each(i in [1, 2])@each(j in [1, 2]){{ count++ }}@end@end{{ count }}`,
+			"4",
+		},
+		// Shadowing an outside variable with the loop iterator
+		{290, `{{ fruit = "apple" }}@each(fruit in ["banana"])@end{{ fruit }}`, "banana"},
 	}
 
 	for _, tc := range cases {

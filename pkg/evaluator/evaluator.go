@@ -169,7 +169,7 @@ func (e *Evaluator) ifDir(ifDir *ast.IfDir, ctx *Context) value.Value {
 		return cond
 	}
 
-	ifCtx := NewContext(ctx.scope.Child(), ctx.absPath)
+	ifCtx := NewContext(ctx.scope, ctx.absPath)
 	if isTruthy(cond) {
 		return e.Eval(ifDir.IfBlock, ifCtx)
 	}
@@ -520,7 +520,7 @@ func (e *Evaluator) forDir(forDir *ast.ForDir, ctx *Context) value.Value {
 }
 
 func (e *Evaluator) eachDir(eachDir *ast.EachDir, ctx *Context) value.Value {
-	eachCtx := NewContext(ctx.scope.Child(), ctx.absPath)
+	eachCtx := NewContext(ctx.scope, ctx.absPath)
 	varName := eachDir.Var.Name
 
 	arrObj := e.evalLiteral(eachDir.Arr, eachCtx)
