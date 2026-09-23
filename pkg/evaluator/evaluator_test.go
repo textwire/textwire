@@ -602,13 +602,25 @@ func TestEvalIfDir(t *testing.T) {
 		// Nested @if
 		{410, `{{ val = 1 }}@if(true)@if(true){{ val = val * 5 }}@end@end{{ val }}`, "5"},
 		// Modification inside @else
-		{420, `{{ status = "pending" }}@if(false)@else{{ status = "done" }}@end{{ status }}`, "done"},
+		{
+			420,
+			`{{ status = "pending" }}@if(false)@else{{ status = "done" }}@end{{ status }}`,
+			"done",
+		},
 		// Sequential modifications
 		{430, `{{ n = 10 }}@if(n > 5){{ n = n - 2 }}@end@if(n == 8){{ n = 0 }}@end{{ n }}`, "0"},
 		// Deep nesting
-		{440, `{{ deep = 0 }}@if(true)@if(true)@if(true){{ deep = 42 }}@end@end@end{{ deep }}`, "42"},
+		{
+			440,
+			`{{ deep = 0 }}@if(true)@if(true)@if(true){{ deep = 42 }}@end@end@end{{ deep }}`,
+			"42",
+		},
 		// Modification inside @elseif
-		{420, `{{ status = "pending" }}@if(false)@elseif(true){{ status = "done" }}@end{{ status }}`, "done"},
+		{
+			420,
+			`{{ status = "pending" }}@if(false)@elseif(true){{ status = "done" }}@end{{ status }}`,
+			"done",
+		},
 	}
 
 	for _, tc := range cases {
@@ -959,9 +971,17 @@ func TestEvalEachDir(t *testing.T) {
 		// Accumulation across multiple iterations
 		{260, `{{ sum = 0 }}@each(num in [1, 2, 3]){{ sum = sum + num }}@end{{ sum }}`, "6"},
 		// String concatenation across iterations
-		{270, `{{ str = "" }}@each(char in ["x", "y", "z"]){{ str = str + char }}@end{{ str }}`, "xyz"},
+		{
+			270,
+			`{{ str = "" }}@each(char in ["x", "y", "z"]){{ str = str + char }}@end{{ str }}`,
+			"xyz",
+		},
 		// Nested @each loops modifying outside scope
-		{280, `{{ count = 0 }}@each(i in [1, 2])@each(j in [1, 2]){{ count++ }}@end@end{{ count }}`, "4"},
+		{
+			280,
+			`{{ count = 0 }}@each(i in [1, 2])@each(j in [1, 2]){{ count++ }}@end@end{{ count }}`,
+			"4",
+		},
 		// Shadowing an outside variable with the loop iterator
 		{290, `{{ fruit = "apple" }}@each(fruit in ["banana"])@end{{ fruit }}`, "banana"},
 	}
