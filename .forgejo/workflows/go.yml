@@ -40,5 +40,5 @@ jobs:
       - name: Build
         run: go build -v ./...
 
-      - name: Run cheks
+      - name: Run checks
         run: make check
