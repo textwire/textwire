@@ -941,6 +941,9 @@ func TestEvalEachDir(t *testing.T) {
 			`@each(n in ["ann", "serhii", "sam"])@continueif(n == 'sam'){{ n }}{{' '}}@end`,
 			"ann serhii ",
 		},
+		// Variable modification from outside scope
+		{240, `{{ sum = 0 }}@each(num in [1]){{ sum = sum + num }}@end{{ sum }}`, "1"},
+		{250, `{{ sum = 0 }}@each(num in [1]){{ a = sum + num }}@end{{ sum }}`, "0"},
 	}
 
 	for _, tc := range cases {
