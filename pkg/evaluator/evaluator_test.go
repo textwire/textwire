@@ -947,7 +947,7 @@ func TestEvalEachDir(t *testing.T) {
 			"ann serhii ",
 		},
 		// test @continueif directive
-		{210, `@each(n in [1, 2, 3, 4, 5])@continueif(n == 3){{ n }}@end`, "1245"},
+		{220, `@each(n in [1, 2, 3, 4, 5])@continueif(n == 3){{ n }}@end`, "1245"},
 		{
 			230,
 			`@each(n in ["ann", "serhii", "sam"])@continueif(n == 'sam'){{ n }}{{' '}}@end`,
@@ -962,6 +962,8 @@ func TestEvalEachDir(t *testing.T) {
 		{270, `{{ str = "" }}@each(char in ["x", "y", "z"]){{ str = str + char }}@end{{ str }}`, "xyz"},
 		// Nested @each loops modifying outside scope
 		{280, `{{ count = 0 }}@each(i in [1, 2])@each(j in [1, 2]){{ count++ }}@end@end{{ count }}`, "4"},
+		// Shadowing an outside variable with the loop iterator
+		{290, `{{ fruit = "apple" }}@each(fruit in ["banana"])@end{{ fruit }}`, "banana"},
 	}
 
 	for _, tc := range cases {
