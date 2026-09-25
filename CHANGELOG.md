@@ -1,5 +1,9 @@
 # Release notes V5
 
+## v5.1.3 (2026-09-25)
+
+- 🐛 Fixed wrong URLs to documentation.
+
 ## v5.1.2 (2026-09-23)
 
 - 🐛 Fixed wrong scope with `@each` loop and `@if`. It wasn't extending the parent scope. Therefore, this code would result in 0:
