@@ -13,7 +13,7 @@ jobs:
     name: Build and test
     strategy:
       matrix:
-        go-version: ["1.25", "1.26"]
+        go-version: ["1.25", "1.26", "1.27"]
 
     steps:
       - name: Install dependencies
@@ -33,9 +33,7 @@ jobs:
         run: go install github.com/golangci/golines@latest
 
       - name: Install golangci-lint
-        run: |
-          wget -q https://github.com/golangci/golangci-lint/releases/download/v2.12.2/golangci-lint-2.12.2-linux-arm64.deb
-          dpkg -i golangci-lint-2.12.2-linux-arm64.deb
+        run: curl -sSfL https://golangci-lint.run/install.sh | sh -s -- -b $(go env GOPATH)/bin v2.13.2
 
       - name: Build
         run: go build -v ./...
