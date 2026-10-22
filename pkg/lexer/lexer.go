@@ -558,7 +558,7 @@ func (l *Lexer) readChars(chars int) {
 }
 
 func (l *Lexer) peek(ahead int) byte {
-	if l.readPos >= len(l.input) {
+	if l.readPos+ahead >= len(l.input) {
 		return 0
 	}
 

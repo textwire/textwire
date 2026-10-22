@@ -2,7 +2,7 @@
 
 ## v5.1.5 (2026-10-23)
 
-- 🐛 
+- 🐛 Fixed a lexer panic when a template ended with an unclosed `{{`, `{!`, or `{{-`. The same crash could happen in the language server while typing.
 
 ## v5.1.4 (2026-10-22)
 
