@@ -149,6 +149,16 @@ func TestObjCamel(t *testing.T) {
 			`{!! {user_data: {first_name: "John", last_name: "Doe"}}.camel() !!}`,
 			`{userData: {firstName: "John", lastName: "Doe"}}`,
 		},
+		{
+			801,
+			`{!! obj = {first_name: "John"}; res = obj.camel(); obj.json() !!}`,
+			`{"first_name":"John"}`,
+		},
+		{
+			802,
+			`{!! obj = {user_data: {first_name: "John"}}; res = obj.camel(); obj.json() !!}`,
+			`{"user_data":{"first_name":"John"}}`,
+		},
 	}
 
 	for _, tc := range cases {

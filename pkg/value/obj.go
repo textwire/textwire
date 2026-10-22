@@ -139,7 +139,7 @@ func (o Obj) ToCamel() map[string]Literal {
 	for k, v := range o.Pairs {
 		key := utils.ToCamel(k)
 		if v.Is(OBJ_VAL) {
-			v.(*Obj).Pairs = v.(*Obj).ToCamel()
+			v = &Obj{Pairs: v.(*Obj).ToCamel()}
 		}
 		res[key] = v
 	}
