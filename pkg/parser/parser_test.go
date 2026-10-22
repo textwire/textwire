@@ -2028,6 +2028,26 @@ func TestParseObjExpr(t *testing.T) {
 	}
 }
 
+func TestParseMalformedObjExpr(t *testing.T) {
+	cases := []struct {
+		name string
+		inp  string
+	}{
+		{name: "unclosed object", inp: "{{ {a: 1"},
+		{name: "missing colon", inp: "{{ {a 1} }}"},
+		{name: "non-ascii key", inp: "{{ {é: 1} }}"},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			_, err := parseEmbedded[*ast.ObjExpr](tc.inp, defaultParseOpts)
+			if err == nil {
+				t.Fatal("expected an error, got nil")
+			}
+		})
+	}
+}
+
 func TestParseObjWithShorthandKeyNotation(t *testing.T) {
 	inp := `{{ { name, age } }}`
 

@@ -323,6 +323,69 @@ func TestLogicalOrOp(t *testing.T) {
 	})
 }
 
+func TestUnterminatedBraces(t *testing.T) {
+	cases := []struct {
+		name string
+		inp  string
+		toks []token.Token
+	}{
+		{
+			name: "unclosed braces",
+			inp:  "{{",
+			toks: []token.Token{
+				{Type: token.LBRACES, Lit: "{{"},
+				{Type: token.EOF},
+			},
+		},
+		{
+			name: "incomplete raw braces",
+			inp:  "{!",
+			toks: []token.Token{
+				{Type: token.TEXT, Lit: "{!"},
+				{Type: token.EOF},
+			},
+		},
+		{
+			name: "unclosed comment",
+			inp:  "{{-",
+			toks: []token.Token{
+				{Type: token.LBRACES, Lit: "{{"},
+				{Type: token.SUB, Lit: "-"},
+				{Type: token.EOF},
+			},
+		},
+		{
+			name: "text ending with incomplete raw braces",
+			inp:  "<p>Hello {!",
+			toks: []token.Token{
+				{Type: token.TEXT, Lit: "<p>Hello {!"},
+				{Type: token.EOF},
+			},
+		},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			l := New(tc.inp)
+
+			for i, want := range tc.toks {
+				got := l.Next()
+
+				if got.Type != want.Type || got.Lit != want.Lit {
+					t.Fatalf(
+						"token %d: expected %s %q, got %s %q",
+						i,
+						token.String(want.Type),
+						want.Lit,
+						token.String(got.Type),
+						got.Lit,
+					)
+				}
+			}
+		})
+	}
+}
+
 func TestOther(t *testing.T) {
 	inp := "{{ , == != <= >= > < }}"
 
