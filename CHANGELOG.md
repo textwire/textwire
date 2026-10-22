@@ -1,6 +1,6 @@
 # Release notes V5
 
-## v5.1.5 (2026-10-22)
+## v5.1.4 (2026-10-22)
 
 - 🐛 Remove mutation from `<object>.camel()` function. Now it matches behavior that is written in docs.
 
