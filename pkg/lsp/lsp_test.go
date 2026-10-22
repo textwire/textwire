@@ -11,6 +11,7 @@ func TestIsInLoop(t *testing.T) {
 	}{
 		{doc: `s`, linePos: 0, colPos: 0, expect: false},
 		{doc: `<div>{!`, linePos: 0, colPos: 7, expect: false},
+		{doc: `{{ {a: 1`, linePos: 0, colPos: 7, expect: false},
 		{doc: `@each(x in users){{x}}@end`, linePos: 0, colPos: 16, expect: false},
 		{doc: `@each(x in users){{x}}@end`, linePos: 0, colPos: 17, expect: true},
 		{doc: `@each(x in users){{x}}@end`, linePos: 0, colPos: 18, expect: true},

@@ -403,7 +403,7 @@ func (p *Parser) objExpr() ast.Expression {
 		return obj
 	}
 
-	for !p.curTokenIs(token.RBRACE) {
+	for !p.curTokenIs(token.RBRACE, token.EOF) {
 		key := p.curToken.Lit
 
 		if p.peekTokenIs(token.COLON) {
@@ -423,7 +423,17 @@ func (p *Parser) objExpr() ast.Expression {
 		if p.peekTokenIs(token.COMMA) {
 			p.nextToken() // move to ","
 			p.nextToken() // skip ","
+			continue
 		}
+
+		p.newError(
+			p.peekToken.Pos,
+			fail.ErrWrongPeekToken,
+			token.String(token.RBRACE),
+			p.peekToken.Lit,
+		)
+
+		break
 	}
 
 	obj.SetEndPosition(p.curToken.Pos)
