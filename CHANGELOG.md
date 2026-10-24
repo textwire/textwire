@@ -3,6 +3,7 @@
 ## v5.1.6 (2026-10-24)
 
 - 🐛 Fixed a parser crash when an invalid function call or oversized number was followed by an operator, like `defined() + 1`.
+- 🐛 Fixed a crash when `@for` had an empty body.
 
 ## v5.1.5 (2026-10-22)
 

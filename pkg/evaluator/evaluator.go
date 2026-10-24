@@ -483,7 +483,12 @@ func (e *Evaluator) forDir(forDir *ast.ForDir, ctx *Context) value.Value {
 		return e.Eval(forDir.ElseBlock, forCtx)
 	}
 
-	block := value.NewBlock(len(forDir.Block.Chunks))
+	blockLen := 0
+	if forDir.Block != nil {
+		blockLen = len(forDir.Block.Chunks)
+	}
+
+	block := value.NewBlock(blockLen)
 
 	// Loop through the block until the user's condition is false
 	for {

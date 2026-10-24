@@ -862,6 +862,9 @@ func TestEvalForDir(t *testing.T) {
 		{10, `@for(i = 0; i < 2; i++){{ i }}@end`, "01"},
 		{20, `@for(i = 1; i <= 3; i++){{ i }}@end`, "123"},
 		{30, `@for(i = 5; i > 0; i--){{ i }}@end`, "54321"},
+		// Empty loop body
+		{40, `@for(i = 0; i < 2; i++)@end`, ""},
+		{41, `@for(i = 0; i < 2; i++)@else@end`, ""},
 		// Empty loop header parts
 		{50, `@for(; false;)Here@end`, ""},
 		{60, `@for(; true;)x@break@end`, "x"},
