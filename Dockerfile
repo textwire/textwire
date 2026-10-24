@@ -1,7 +1,7 @@
 FROM golang:1.25.0
 
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends
+    && apt-get install -y --no-install-recommends \
         make \
         curl \
         ca-certificates \

@@ -3,10 +3,11 @@ MAX_LINE_LENGTH := 100
 OCI ?= podman-compose
 RUN = $(OCI) run --rm -T checks
 RUN_IT= $(OCI) run --rm checks
+IMAGE ?= registry.serhiicho.com/textwire:checks
 
 .PHONY: image
 image:
-	@$(OCI) pull
+	@$(OCI) build
 
 .PHONY: repl
 repl: image
