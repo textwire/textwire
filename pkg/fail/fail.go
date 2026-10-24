@@ -61,13 +61,14 @@ const (
 	ErrUseDirIsNotAllowed    = "@use() not allowed in layout files - causes infinite recursion"
 
 	// Functions
-	ErrFuncNotDefined   = "%s.%s() is not defined"
-	ErrFuncMissingArg   = "%s.%s(arg) missing required argument"
-	ErrFuncFirstArgInt  = "argument 1 on %s.%s() must be 'integer'"
-	ErrFuncFirstArgStr  = "argument 1 on %s.%s() must be 'string'"
-	ErrFuncSecondArgInt = "argument 2 on %s.%s() must be 'integer'"
-	ErrFuncSecondArgStr = "argument 2 on %s.%s() must be 'string'"
-	ErrFuncMaxArgs      = "%s.%s() takes at most %d arguments"
+	ErrFuncNotDefined     = "%s.%s() is not defined"
+	ErrFuncMissingArg     = "%s.%s(arg) missing required argument"
+	ErrFuncFirstArgInt    = "argument 1 on %s.%s() must be 'integer'"
+	ErrFuncFirstArgStr    = "argument 1 on %s.%s() must be 'string'"
+	ErrFuncSecondArgInt   = "argument 2 on %s.%s() must be 'integer'"
+	ErrFuncSecondArgStr   = "argument 2 on %s.%s() must be 'string'"
+	ErrFuncMaxArgs        = "%s.%s() takes at most %d arguments"
+	ErrFuncResultTooLarge = "%s.%s() result is too large, maximum is %d bytes"
 
 	// Template errors
 	ErrUnsupportedType    = "unsupported value type '%T'"

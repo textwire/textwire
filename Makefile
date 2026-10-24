@@ -1,45 +1,56 @@
 MAX_LINE_LENGTH := 100
 
-.PHONY: build
-build:
-	@clear || true
-	cd textwire/example && go build main.go
+OCI ?= podman-compose
+RUN = $(OCI) run --rm -T checks
+RUN_IT= $(OCI) run --rm checks
+IMAGE ?= registry.serhiicho.com/textwire:checks
+
+.PHONY: pull
+pull:
+	@$(OCI) pull
+
+.PHONY: push
+push:
+	@podman manifest rm $(IMAGE) 2>/dev/null || true
+	@podman build --platform linux/amd64,linux/arm64 --manifest $(IMAGE) .
+	@podman manifest push --all $(IMAGE) docker://$(IMAGE)
 
 .PHONY: repl
 repl:
 	@clear || true
-	@go run pkg/repl/repl.go
+	@$(RUN_IT) go run pkg/repl/repl.go
 
 .PHONY: cover
 cover:
-	@go test -coverprofile=coverage.html
-	@go tool cover -html=coverage.html
-	rm coverage.html
+	@$(RUN) go test -coverprofile=coverage.out
+	@$(RUN) go tool cover -html=coverage.out -o coverage.html
+	@rm -f coverage.out
+	@echo "✅ Coverage written to coverage.html"
 
 .PHONY: test
 test:
 	@clear || true
-	@go test -count=1 ./...
+	@$(RUN) go test -count=1 ./...
 	@echo "✅ All tests passed!"
 
 .PHONY: fmt
 fmt:
-	@go fmt ./...
+	@$(RUN) go fmt ./...
 	@echo "✅ Code formatted!"
 
 .PHONY: line
 line:
-	@golines -w -m $(MAX_LINE_LENGTH) .
+	@$(RUN) golines -w -m $(MAX_LINE_LENGTH) .
 	@echo "✅ Lines limited!"
 
 .PHONY: lint
 lint:
-	@golangci-lint run
+	@$(RUN) golangci-lint run
 	@echo "✅ Linting passed!"
 
 .PHONY: todo
 todo:
-	@if grep -I --exclude="Makefile" --exclude-dir=".git" -r TODO .; then \
+	@if $(RUN) grep -I --exclude="Makefile" --exclude-dir=".git" -r TODO .; then \
 		echo "❌ Found TODOs" >&2; \
 		exit 1; \
 	fi
@@ -47,4 +58,4 @@ todo:
 .PHONY: check
 check: test line fmt lint todo
 
-.DEFAULT_GOAL := test
+.DEFAULT_GOAL := check

@@ -42,6 +42,7 @@ func TestEvalIntFunctions(t *testing.T) {
 		{270, `{{ 100.decimal('|', 1) }}`, "100|0"},
 		{280, `{{ (-100).decimal('|', 0) }}`, "-100"},
 		{290, `{{ 1.decimal(',') }}`, "1,00"},
+		{300, `{{ 1.decimal('.', -1) }}`, "1"},
 	}
 
 	for _, tc := range cases {

@@ -41,11 +41,26 @@ In template files you can use globals like this `{{ globals.env }}`.
 ## Development Environment & Commands
 
 ### Available Commands
+
+All commands run inside a container. Pull the image once before using them:
+
+```bash
+make pull
+```
+
+- `make pull` - Pull the checks container image
 - `make test` - Run all tests
 - `make fmt` - Format Go code
 - `make lint` - Run linter
 - `make shell` - Start the REPL
 - `make check` - Combines commands like: test, fmt, lint
+- `make` - Defaults to `make check`
+
+Commands use `podman-compose` by default. To use Docker Compose instead, override `OCI`:
+
+```bash
+make check OCI='docker compose'
+```
 
 ### Single Test Execution
 

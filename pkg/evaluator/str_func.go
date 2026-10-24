@@ -11,6 +11,7 @@ import (
 )
 
 const defaultCharTrim = "\t \n\r"
+const maxRepeatLen = 1 << 20 // 1 MiB
 
 // strLenFunc returns the length of the given string
 func strLenFunc(receiver value.Literal, _ ...value.Literal) (value.Literal, error) {
@@ -212,7 +213,7 @@ func strAtFunc(receiver value.Literal, args ...value.Literal) (value.Literal, er
 		index = len(chars) + index
 	}
 
-	if index >= len(chars) {
+	if index < 0 || index >= len(chars) {
 		return &value.Nil{}, nil
 	}
 
@@ -282,8 +283,14 @@ func strRepeatFunc(receiver value.Literal, args ...value.Literal) (value.Literal
 	val := receiver.(*value.Str).Val
 	count := int(firstArg.Val)
 
-	if count < 0 {
+	if count <= 0 || val == "" {
 		return &value.Str{Val: ""}, nil
+	}
+
+	// Reject output larger than maxRepeatLen bytes.
+	if count > maxRepeatLen/len(val) {
+		msg := fmt.Sprintf(fail.ErrFuncResultTooLarge, value.STR_VAL, "repeat", maxRepeatLen)
+		return nil, errors.New(msg)
 	}
 
 	repeated := strings.Repeat(val, count)

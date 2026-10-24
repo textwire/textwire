@@ -126,6 +126,7 @@ func TestEvalStringFunctions(t *testing.T) {
 		{1050, `{{ "0.001".decimal() }}`, "0.001"},
 		{1060, `{{ "1000000".decimal() }}`, "1000000.00"},
 		{1070, `{{ "-0.5".decimal() }}`, "-0.50"},
+		{1075, `{{ "1".decimal('.', -1) }}`, "1"},
 		// at
 		{1080, `{{ "Textwire is awesome".at() }}`, "T"},
 		{1090, `{{ "Textwire is awesome".at(0) }}`, "T"},
@@ -140,6 +141,8 @@ func TestEvalStringFunctions(t *testing.T) {
 		{1180, `{{ "Hello World".at(-1) }}`, "d"},
 		{1190, `{{ "cho".at(-3) }}`, "c"},
 		{1200, `{{ "我爱中国".at(-2) }}`, "中"},
+		{1201, `{{ "cho".at(-4) }}`, ""},
+		{1202, `{{ "abc".at(-100) }}`, ""},
 		// first
 		{1210, `{{ "Textwire is awesome".first() }}`, "T"},
 		{1220, `{{ "我爱你".first() }}`, "我"},

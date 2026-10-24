@@ -1,5 +1,13 @@
 # Release notes V5
 
+## v5.1.7 (2026-10-24)
+
+- 🐛 Fixed `str.at()` panicking when a negative index points before the start of the string.
+- 🐛 Fixed `slice()` panicking when the start index is after the end index.
+- 🐛 Fixed `decimal()` panicking when the number of decimals is negative.
+- 🐛 Fixed `repeat()` panicking or exhausting memory when the count is too large.
+- 🧑‍💻 Change make commands to work through container instead of relying on local Go installation.
+
 ## v5.1.6 (2026-10-24)
 
 - 🐛 Fixed a parser crash when an invalid function call or oversized number was followed by an operator, like `defined() + 1`.

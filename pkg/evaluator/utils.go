@@ -150,7 +150,7 @@ func getDecimalConfig(
 		if !ok {
 			return "", 0, fmt.Errorf(fail.ErrFuncSecondArgInt, objType, "decimal")
 		}
-		decimals = int(decimalArg.Val)
+		decimals = max(int(decimalArg.Val), 0)
 	}
 
 	return separator, decimals, nil
