@@ -1,45 +1,49 @@
 MAX_LINE_LENGTH := 100
 
-.PHONY: build
-build:
-	@clear || true
-	cd textwire/example && go build main.go
+OCI ?= podman-compose
+RUN = $(OCI) run --rm -T checks
+RUN_IT= $(OCI) run --rm checks
+
+.PHONY: image
+image:
+	@$(OCI) build
 
 .PHONY: repl
-repl:
+repl: image
 	@clear || true
-	@go run pkg/repl/repl.go
+	@$(RUN_IT) go run pkg/repl/repl.go
 
 .PHONY: cover
-cover:
-	@go test -coverprofile=coverage.html
-	@go tool cover -html=coverage.html
-	rm coverage.html
+cover: image
+	@$(RUN) go test -coverprofile=coverage.out
+	@$(RUN) go tool cover -html=coverage.out -o coverage.html
+	@rm -f coverage.out
+	@echo "✅ Coverage written to coverage.html"
 
 .PHONY: test
-test:
+test: image
 	@clear || true
-	@go test -count=1 ./...
+	@$(RUN) go test -count=1 ./...
 	@echo "✅ All tests passed!"
 
 .PHONY: fmt
-fmt:
-	@go fmt ./...
+fmt: image
+	@$(RUN) go fmt ./...
 	@echo "✅ Code formatted!"
 
 .PHONY: line
-line:
-	@golines -w -m $(MAX_LINE_LENGTH) .
+line: image
+	@$(RUN) golines -w -m $(MAX_LINE_LENGTH) .
 	@echo "✅ Lines limited!"
 
 .PHONY: lint
-lint:
-	@golangci-lint run
+lint: image
+	@$(RUN) golangci-lint run
 	@echo "✅ Linting passed!"
 
 .PHONY: todo
-todo:
-	@if grep -I --exclude="Makefile" --exclude-dir=".git" -r TODO .; then \
+todo: image
+	@if $(RUN) grep -I --exclude="Makefile" --exclude-dir=".git" -r TODO .; then \
 		echo "❌ Found TODOs" >&2; \
 		exit 1; \
 	fi
