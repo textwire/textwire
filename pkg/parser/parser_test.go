@@ -997,6 +997,34 @@ func TestErrorHandling(t *testing.T) {
 	}
 }
 
+func TestParseExpressionErrorWithOperator(t *testing.T) {
+	cases := []struct {
+		name string
+		inp  string
+	}{
+		{name: "unknown function before infix", inp: "{{ foo() + 1 }}"},
+		{name: "few args before infix", inp: "{{ defined() + 1 }}"},
+		{name: "few args in grouped expr", inp: "{{ (defined()) }}"},
+		{name: "few args before method call", inp: "{{ defined().len() }}"},
+		{name: "int overflow before infix", inp: "{{ 99999999999999999999 + 1 }}"},
+		{name: "int overflow before ternary", inp: "{{ 99999999999999999999 ? 1 : 2 }}"},
+		{name: "int overflow before index", inp: "{{ 99999999999999999999[0] }}"},
+		{name: "float overflow before infix", inp: "{{ " + strings.Repeat("9", 400) + ".0 + 1 }}"},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			l := lexer.New(tc.inp)
+			p := New(l, nil)
+			p.ParseProgram()
+
+			if !p.HasErrors() {
+				t.Fatal("expected an error, got nil")
+			}
+		})
+	}
+}
+
 func TestParseTernaryExpr(t *testing.T) {
 	inp := `{{ true ? 100 : "Some string" }}`
 

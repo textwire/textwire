@@ -1,5 +1,9 @@
 # Release notes V5
 
+## v5.1.6 (2026-10-24)
+
+- 🐛 Fixed a parser crash when an invalid function call or oversized number was followed by an operator, like `defined() + 1`.
+
 ## v5.1.5 (2026-10-22)
 
 - 🐛 Fixed a lexer panic when a template ended with an unclosed `{{`, `{!`, or `{{-`. The same crash could happen in the language server while typing.

@@ -350,7 +350,7 @@ func (p *Parser) intExpr() ast.Expression {
 			p.curToken.Lit,
 			"INT",
 		)
-		return nil
+		return ast.NewIllegalNode(p.curToken)
 	}
 
 	return ast.NewIntExpr(p.curToken, val)
@@ -365,7 +365,7 @@ func (p *Parser) floatExpr() ast.Expression {
 			p.curToken.Lit,
 			"FLOAT",
 		)
-		return nil
+		return ast.NewIllegalNode(p.curToken)
 	}
 
 	return ast.NewFloatExpr(p.curToken, val)
@@ -907,7 +907,7 @@ func (p *Parser) globalCallExpr(ident *ast.IdentExpr) ast.Expression {
 	rules, exists := ast.GlobalFunctions[name]
 	if !exists {
 		p.newError(p.peekToken.Pos, fail.ErrGlobalFuncMissing, ident.Name)
-		return nil
+		return ast.NewIllegalNode(p.curToken)
 	}
 
 	expr := ast.NewGlobalCallExpr(p.curToken, name)
@@ -922,12 +922,12 @@ func (p *Parser) globalCallExpr(ident *ast.IdentExpr) ast.Expression {
 
 	if argsLen < rules.Min {
 		p.newError(expr.Pos(), fail.ErrGlobalFuncFewArgs, name, rules.Min, argsLen)
-		return nil
+		return ast.NewIllegalNode(p.curToken)
 	}
 
 	if argsLen > rules.Max {
 		p.newError(expr.Pos(), fail.ErrGlobalFuncLotsOfArgs, name, rules.Max, argsLen)
-		return nil
+		return ast.NewIllegalNode(p.curToken)
 	}
 
 	return expr
