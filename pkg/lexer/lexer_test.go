@@ -386,6 +386,44 @@ func TestUnterminatedBraces(t *testing.T) {
 	}
 }
 
+func TestUnterminatedString(t *testing.T) {
+	cases := []struct {
+		name string
+		inp  string
+		lit  string
+	}{
+		{name: "unterminated double quote", inp: `{{ "unterminated }}`, lit: "unterminated }}"},
+		{name: "unterminated single quote", inp: `{{ 'abc`, lit: "abc"},
+		{name: "escaped quote eats closing", inp: `{{ "unterminated\"`, lit: `unterminated\"`},
+		{
+			name: "escaped single quote eats closing",
+			inp:  `{{ 'unterminated\'`,
+			lit:  `unterminated\'`,
+		},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			l := New(tc.inp)
+
+			for {
+				tok := l.Next()
+
+				if tok.Type == token.ILLEGAL {
+					if tok.Lit != tc.lit {
+						t.Fatalf("expected ILLEGAL literal %q, got %q", tc.lit, tok.Lit)
+					}
+					return
+				}
+
+				if tok.Type == token.EOF {
+					t.Fatal("expected an ILLEGAL token, got EOF")
+				}
+			}
+		})
+	}
+}
+
 func TestOther(t *testing.T) {
 	inp := "{{ , == != <= >= > < }}"
 

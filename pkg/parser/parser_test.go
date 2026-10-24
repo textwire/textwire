@@ -682,7 +682,7 @@ func TestErrorHandling(t *testing.T) {
 		},
 		{
 			id:  230,
-			inp: "@component   ('",
+			inp: "@component   ('')",
 			err: fail.New(
 				&position.Pos{StartCol: 14, EndCol: 15},
 				"",
@@ -776,7 +776,7 @@ func TestErrorHandling(t *testing.T) {
 		},
 		{
 			id:  430,
-			inp: "@insert('nice",
+			inp: "@insert('nice'",
 			err: fail.New(
 				&position.Pos{StartCol: 14, EndCol: 14},
 				"",
