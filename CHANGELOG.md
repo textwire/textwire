@@ -3,6 +3,7 @@
 ## v5.1.8 (2026-10-25)
 
 - 🐛 Fixed `@for` running the post statement after `@break`, incrementing the loop variable one extra time.
+- 🐛 Fixed missing closing `}}` or `!!}` being silently accepted.
 
 ## v5.1.7 (2026-10-24)
 

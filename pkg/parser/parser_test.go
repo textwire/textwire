@@ -555,6 +555,28 @@ func TestErrorHandling(t *testing.T) {
 			err: fail.New(&position.Pos{EndCol: 4}, "", fail.OriginPars, fail.ErrEmptyBraces),
 		},
 		{
+			id:  41,
+			inp: "{{ name",
+			err: fail.New(
+				&position.Pos{StartCol: 7, EndCol: 7},
+				"",
+				fail.OriginPars,
+				fail.ErrMissingClosingBraces,
+				token.String(token.RBRACES),
+			),
+		},
+		{
+			id:  42,
+			inp: "{!! name",
+			err: fail.New(
+				&position.Pos{StartCol: 8, EndCol: 8},
+				"",
+				fail.OriginPars,
+				fail.ErrMissingClosingBraces,
+				token.String(token.RBRACESRAW),
+			),
+		},
+		{
 			id:  50,
 			inp: `{{ 1 ~ 8 }}`,
 			err: fail.New(

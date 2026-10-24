@@ -216,6 +216,11 @@ func (p *Parser) embedded(tokenEnd token.TokenType) ast.Chunk {
 		}
 	}
 
+	if p.curTokenIs(token.EOF) {
+		p.newError(p.curToken.Pos, fail.ErrMissingClosingBraces, token.String(tokenEnd))
+		return embedded
+	}
+
 	if p.peekTokenIs(tokenEnd) {
 		p.nextToken() // skip "}}" or "!!}"
 	}
