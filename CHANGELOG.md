@@ -3,6 +3,7 @@
 ## v5.1.7 (2026-10-24)
 
 - 🐛 Fixed `str.at()` panicking when a negative index points before the start of the string.
+- 🐛 Fixed `slice()` panicking when the start index is after the end index.
 - 🧑‍💻 Change make commands to work through container instead of relying on local Go installation.
 
 ## v5.1.6 (2026-10-24)

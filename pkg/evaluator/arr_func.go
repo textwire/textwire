@@ -107,6 +107,10 @@ func arrSliceFunc(receiver value.Literal, args ...value.Literal) (value.Literal,
 		end = len(elems)
 	}
 
+	if end < start {
+		end = start
+	}
+
 	return &value.Arr{Elements: elems[start:end]}, nil
 }
 
