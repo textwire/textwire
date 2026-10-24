@@ -483,7 +483,17 @@ func (e *Evaluator) forDir(forDir *ast.ForDir, ctx *Context) value.Value {
 		return e.Eval(forDir.ElseBlock, forCtx)
 	}
 
-	block := value.NewBlock(len(forDir.Block.Chunks))
+	blockLen := 0
+	if forDir.Block != nil {
+		blockLen = len(forDir.Block.Chunks)
+	}
+
+	block := value.NewBlock(blockLen)
+
+	hasCond := forDir.Cond != nil
+	if _, isEmpty := forDir.Cond.(*ast.Empty); isEmpty {
+		hasCond = false
+	}
 
 	// Loop through the block until the user's condition is false
 	for {
@@ -492,7 +502,7 @@ func (e *Evaluator) forDir(forDir *ast.ForDir, ctx *Context) value.Value {
 			return cond
 		}
 
-		if cond != NIL && !isTruthy(cond) {
+		if hasCond && !isTruthy(cond) {
 			break
 		}
 
@@ -501,18 +511,16 @@ func (e *Evaluator) forDir(forDir *ast.ForDir, ctx *Context) value.Value {
 			return val
 		}
 
-		block.Chunks = append(block.Chunks, val)
+		broken := hasBreak(val)
+
+		block.Chunks = append(block.Chunks, stripControlStmts(val))
 		post := e.evalLiteral(forDir.Post, forCtx)
 		if isError(post) {
 			return post
 		}
 
-		if hasBreak(block) {
+		if broken {
 			break
-		}
-
-		if hasContinue(block) {
-			continue
 		}
 	}
 
@@ -559,13 +567,11 @@ func (e *Evaluator) eachDir(eachDir *ast.EachDir, ctx *Context) value.Value {
 			return val
 		}
 
-		block.Chunks = append(block.Chunks, val)
-		if hasBreak(block) {
-			break
-		}
+		broken := hasBreak(val)
 
-		if hasContinue(block) {
-			continue
+		block.Chunks = append(block.Chunks, stripControlStmts(val))
+		if broken {
+			break
 		}
 	}
 
@@ -1125,6 +1131,9 @@ func (e *Evaluator) intInfixExp(
 		}
 		return &value.Int{Val: l.Val / r.Val}
 	case "%":
+		if r.Val == 0 {
+			return e.newError(leftNode, ctx, fail.ErrDivisionByZero)
+		}
 		return &value.Int{Val: l.Val % r.Val}
 	case ">":
 		return nativeBoolToBoolObj(l.Val > r.Val)

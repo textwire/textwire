@@ -1,5 +1,13 @@
 # Release notes V5
 
+## v5.1.6 (2026-10-24)
+
+- 🐛 Fixed a parser crash when an invalid function call or oversized number was followed by an operator, like `defined() + 1`.
+- 🐛 Fixed a crash when `@for` had an empty body.
+- 🐛 Fixed `@for` looping forever when its condition evaluated to `nil`.
+- 🐛 Fixed `@break` and `@continue` in a nested loop also stopping the outer loop.
+- 🐛 Fixed modulo by zero panicking instead of returning a division-by-zero error.
+
 ## v5.1.5 (2026-10-22)
 
 - 🐛 Fixed a lexer panic when a template ended with an unclosed `{{`, `{!`, or `{{-`. The same crash could happen in the language server while typing.
