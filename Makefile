@@ -5,8 +5,8 @@ RUN = $(OCI) run --rm -T checks
 RUN_IT= $(OCI) run --rm checks
 IMAGE ?= registry.serhiicho.com/textwire:checks
 
-.PHONY: image
-image:
+.PHONY: pull
+pull:
 	@$(OCI) pull
 
 .PHONY: push
@@ -16,40 +16,40 @@ push:
 	@podman manifest push --all $(IMAGE) docker://$(IMAGE)
 
 .PHONY: repl
-repl: image
+repl:
 	@clear || true
 	@$(RUN_IT) go run pkg/repl/repl.go
 
 .PHONY: cover
-cover: image
+cover:
 	@$(RUN) go test -coverprofile=coverage.out
 	@$(RUN) go tool cover -html=coverage.out -o coverage.html
 	@rm -f coverage.out
 	@echo "✅ Coverage written to coverage.html"
 
 .PHONY: test
-test: image
+test:
 	@clear || true
 	@$(RUN) go test -count=1 ./...
 	@echo "✅ All tests passed!"
 
 .PHONY: fmt
-fmt: image
+fmt:
 	@$(RUN) go fmt ./...
 	@echo "✅ Code formatted!"
 
 .PHONY: line
-line: image
+line:
 	@$(RUN) golines -w -m $(MAX_LINE_LENGTH) .
 	@echo "✅ Lines limited!"
 
 .PHONY: lint
-lint: image
+lint:
 	@$(RUN) golangci-lint run
 	@echo "✅ Linting passed!"
 
 .PHONY: todo
-todo: image
+todo:
 	@if $(RUN) grep -I --exclude="Makefile" --exclude-dir=".git" -r TODO .; then \
 		echo "❌ Found TODOs" >&2; \
 		exit 1; \
@@ -58,4 +58,4 @@ todo: image
 .PHONY: check
 check: test line fmt lint todo
 
-.DEFAULT_GOAL := test
+.DEFAULT_GOAL := check
