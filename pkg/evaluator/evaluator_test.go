@@ -933,6 +933,9 @@ func TestEvalForDir(t *testing.T) {
 			`@for(i = 0; i < 3; i++)@for(j = 0; j < 2; j++)@continueif(j == 0){{ i }}{{ j }}@end;@end`,
 			"01;11;21;",
 		},
+		// @break must not run the post statement
+		{390, `@for(i = 0; i < 10; i++)@breakif(i == 3)@end{{ i }}`, "3"},
+		{400, `@for(i = 0; i < 10; i++)@if(i == 3)@break@end@end{{ i }}`, "3"},
 	}
 
 	for _, tc := range cases {
