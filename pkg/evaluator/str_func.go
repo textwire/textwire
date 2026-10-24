@@ -212,7 +212,7 @@ func strAtFunc(receiver value.Literal, args ...value.Literal) (value.Literal, er
 		index = len(chars) + index
 	}
 
-	if index >= len(chars) {
+	if index < 0 || index >= len(chars) {
 		return &value.Nil{}, nil
 	}
 

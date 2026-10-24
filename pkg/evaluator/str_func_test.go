@@ -140,6 +140,8 @@ func TestEvalStringFunctions(t *testing.T) {
 		{1180, `{{ "Hello World".at(-1) }}`, "d"},
 		{1190, `{{ "cho".at(-3) }}`, "c"},
 		{1200, `{{ "我爱中国".at(-2) }}`, "中"},
+		{1201, `{{ "cho".at(-4) }}`, ""},
+		{1202, `{{ "abc".at(-100) }}`, ""},
 		// first
 		{1210, `{{ "Textwire is awesome".first() }}`, "T"},
 		{1220, `{{ "我爱你".first() }}`, "我"},
