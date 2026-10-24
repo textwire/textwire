@@ -1141,6 +1141,9 @@ func (e *Evaluator) intInfixExp(
 		}
 		return &value.Int{Val: l.Val / r.Val}
 	case "%":
+		if r.Val == 0 {
+			return e.newError(leftNode, ctx, fail.ErrDivisionByZero)
+		}
 		return &value.Int{Val: l.Val % r.Val}
 	case ">":
 		return nativeBoolToBoolObj(l.Val > r.Val)

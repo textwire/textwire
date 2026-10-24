@@ -556,6 +556,11 @@ func TestErrorHandling(t *testing.T) {
 			data: nil,
 		},
 		{
+			inp:  `{{ 3 % 0 }}`,
+			err:  fail.New(nil, "", fail.OriginEval, fail.ErrDivisionByZero),
+			data: nil,
+		},
+		{
 			inp:  `{{ undefinedVar }}`,
 			err:  fail.New(nil, "", fail.OriginEval, fail.ErrVariableIsUndefined, "undefinedVar"),
 			data: nil,
