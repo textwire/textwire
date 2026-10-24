@@ -62,6 +62,28 @@ func hasContinue(obj value.Value) bool {
 	return hasControlStmt(obj, value.CONTINUE_VAL)
 }
 
+// stripControlStmts removes break/continue values from a block so a loop
+// doesn't pass control statements it has already handled to its parent loop.
+func stripControlStmts(obj value.Value) value.Value {
+	block, ok := obj.(*value.Block)
+	if !ok {
+		return obj
+	}
+
+	chunks := make([]value.Value, 0, len(block.Chunks))
+	for _, chunk := range block.Chunks {
+		if chunk.Is(value.BREAK_VAL) || chunk.Is(value.CONTINUE_VAL) {
+			continue
+		}
+
+		chunks = append(chunks, stripControlStmts(chunk))
+	}
+
+	block.Chunks = chunks
+
+	return block
+}
+
 func hasControlStmt(obj value.Value, controlType value.ValueType) bool {
 	block, ok := obj.(*value.Block)
 	if !ok {

@@ -922,6 +922,17 @@ func TestEvalForDir(t *testing.T) {
 			inp:    `@for(i = 1; i <= 3; i++){{ i }} -> {{ i * i }}|@end`,
 			expect: "1 -> 1|2 -> 4|3 -> 9|",
 		},
+		// Control statements only affect the current loop
+		{
+			370,
+			`@for(i = 0; i < 3; i++)@for(j = 0; j < 3; j++)@breakif(j == 1){{ i }}{{ j }}@end;@end`,
+			"00;10;20;",
+		},
+		{
+			380,
+			`@for(i = 0; i < 3; i++)@for(j = 0; j < 2; j++)@continueif(j == 0){{ i }}{{ j }}@end;@end`,
+			"01;11;21;",
+		},
 	}
 
 	for _, tc := range cases {
@@ -992,6 +1003,22 @@ func TestEvalEachDir(t *testing.T) {
 		},
 		// Shadowing an outside variable with the loop iterator
 		{290, `{{ fruit = "apple" }}@each(fruit in ["banana"])@end{{ fruit }}`, "banana"},
+		// Control statements only affect the current loop
+		{
+			300,
+			`@each(i in [0, 1, 2])@each(j in [0, 1, 2])@breakif(j == 1){{ i }}{{ j }}@end;@end`,
+			"00;10;20;",
+		},
+		{
+			310,
+			`@each(i in [0, 1, 2])@each(j in [0, 1])@continueif(j == 0){{ i }}{{ j }}@end;@end`,
+			"01;11;21;",
+		},
+		{
+			320,
+			`@each(i in [0, 1, 2])@for(j = 0; j < 3; j++)@breakif(j == 1){{ i }}{{ j }}@end;@end`,
+			"00;10;20;",
+		},
 	}
 
 	for _, tc := range cases {

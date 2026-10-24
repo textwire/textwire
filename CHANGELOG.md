@@ -5,6 +5,7 @@
 - 🐛 Fixed a parser crash when an invalid function call or oversized number was followed by an operator, like `defined() + 1`.
 - 🐛 Fixed a crash when `@for` had an empty body.
 - 🐛 Fixed `@for` looping forever when its condition evaluated to `nil`.
+- 🐛 Fixed `@break` and `@continue` in a nested loop also stopping the outer loop.
 
 ## v5.1.5 (2026-10-22)
 

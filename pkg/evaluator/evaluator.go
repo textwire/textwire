@@ -511,17 +511,20 @@ func (e *Evaluator) forDir(forDir *ast.ForDir, ctx *Context) value.Value {
 			return val
 		}
 
-		block.Chunks = append(block.Chunks, val)
+		broken := hasBreak(val)
+		cont := hasContinue(val)
+
+		block.Chunks = append(block.Chunks, stripControlStmts(val))
 		post := e.evalLiteral(forDir.Post, forCtx)
 		if isError(post) {
 			return post
 		}
 
-		if hasBreak(block) {
+		if broken {
 			break
 		}
 
-		if hasContinue(block) {
+		if cont {
 			continue
 		}
 	}
@@ -569,12 +572,15 @@ func (e *Evaluator) eachDir(eachDir *ast.EachDir, ctx *Context) value.Value {
 			return val
 		}
 
-		block.Chunks = append(block.Chunks, val)
-		if hasBreak(block) {
+		broken := hasBreak(val)
+		cont := hasContinue(val)
+
+		block.Chunks = append(block.Chunks, stripControlStmts(val))
+		if broken {
 			break
 		}
 
-		if hasContinue(block) {
+		if cont {
 			continue
 		}
 	}
