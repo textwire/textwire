@@ -514,13 +514,14 @@ func (e *Evaluator) forDir(forDir *ast.ForDir, ctx *Context) value.Value {
 		broken := hasBreak(val)
 
 		block.Chunks = append(block.Chunks, stripControlStmts(val))
-		post := e.evalLiteral(forDir.Post, forCtx)
-		if isError(post) {
-			return post
-		}
 
 		if broken {
 			break
+		}
+
+		post := e.evalLiteral(forDir.Post, forCtx)
+		if isError(post) {
+			return post
 		}
 	}
 

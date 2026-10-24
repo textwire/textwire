@@ -1,5 +1,11 @@
 # Release notes V5
 
+## v5.1.8 (2026-10-24)
+
+- 🐛 Fixed `@for` running the post statement after `@break`, incrementing the loop variable one extra time.
+- 🐛 Fixed missing closing `}}` or `!!}` being silently accepted.
+- 🐛 Fixed unterminated string literals being accepted instead of raising a syntax error. This `{{ "unterminated }}` would evaluate to `unterminated }}` before.
+
 ## v5.1.7 (2026-10-24)
 
 - 🐛 Fixed `str.at()` panicking when a negative index points before the start of the string.

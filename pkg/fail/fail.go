@@ -13,6 +13,7 @@ import (
 const (
 	// Parser errors
 	ErrEmptyBraces            = "empty expression {{}} - must contain valid code like {{ variable }} or {{ 1 + 2 }}"
+	ErrMissingClosingBraces   = "missing closing '%s'"
 	ErrWrongPeekToken         = "syntax error: expected '%s' but found '%s'"
 	ErrExpectExprAfter        = "expected expression after '%s'"
 	ErrCouldNotParseAs        = "cannot parse '%s' as '%s'"

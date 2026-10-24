@@ -206,7 +206,11 @@ func (l *Lexer) embeddedCodeToken() token.Token {
 	case ')':
 		return l.rightParenthesesToken()
 	case '"', '\'':
-		return l.newToken(token.STR, l.readString())
+		literal, terminated := l.readString()
+		if !terminated {
+			return l.newToken(token.ILLEGAL, literal)
+		}
+		return l.newToken(token.STR, literal)
 	case '<':
 		return l.operatorToken('=', token.LTHAN_EQ, token.LTHAN, "<=", "<")
 	case '>':
@@ -418,35 +422,42 @@ func (l *Lexer) hasIfVariant(tok token.TokenType) bool {
 	return l.startsWith('i', 'f')
 }
 
-func (l *Lexer) readString() string {
+// readString reads a quoted string literal starting at the opening quote.
+// It returns the string with escape sequences processed, and whether the
+// closing quote was found before end of input.
+func (l *Lexer) readString() (string, bool) {
 	quote := l.char
-	strLiteral := ""
 
 	l.tokenBegins()
-	l.readChar() // skip the first quote
+	l.readChar() // skip the opening quote
 
-	if l.char == quote {
-		l.readChar() // skip the last quote
-		return strLiteral
+	start := l.pos
+	terminated := l.scanToClosingQuote(quote)
+	raw := l.input[start:l.pos]
+
+	if !terminated {
+		return raw, false // keep the raw text for the ILLEGAL token
 	}
 
-	pos := l.pos
+	l.readChar() // skip the closing quote
 
+	return handleEscapeSequences(raw, quote), true
+}
+
+// scanToClosingQuote advances until it reaches an unescaped quote or EOF.
+// It leaves the lexer positioned on the closing quote and reports whether
+// one was found.
+func (l *Lexer) scanToClosingQuote(quote byte) bool {
 	for l.char != 0 {
-		prevChar := l.char
-
-		l.readChar()
-
-		if l.char == quote && prevChar != '\\' {
-			break
+		switch l.char {
+		case quote:
+			return true
+		case '\\':
+			l.readChar() // skip the escaped character
 		}
+		l.readChar()
 	}
-
-	strLiteral = l.input[pos:l.pos]
-
-	l.readChar() // skip the last quote
-
-	return handleEscapeSequences(strLiteral, quote)
+	return false
 }
 
 func handleEscapeSequences(s string, quote byte) string {
