@@ -1,6 +1,5 @@
 services:
   checks:
-    build: .
     image: registry.serhiicho.com/textwire:checks
     working_dir: /app
     volumes:
