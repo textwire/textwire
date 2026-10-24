@@ -6,7 +6,7 @@ RUN_IT= $(OCI) run --rm checks
 
 .PHONY: image
 image:
-	@$(OCI) build
+	@$(OCI) pull
 
 .PHONY: repl
 repl: image
