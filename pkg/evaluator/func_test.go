@@ -537,6 +537,19 @@ func TestFunctionGivesError(t *testing.T) {
 				"repeat",
 			),
 		},
+		{
+			435,
+			`{{ "ab".repeat(9223372036854775807) }}`,
+			fail.New(
+				nil,
+				"/path/to/file",
+				fail.OriginEval,
+				fail.ErrFuncResultTooLarge,
+				value.STR_VAL,
+				"repeat",
+				maxRepeatLen,
+			),
+		},
 		// string contains
 		{
 			440,
