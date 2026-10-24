@@ -490,6 +490,11 @@ func (e *Evaluator) forDir(forDir *ast.ForDir, ctx *Context) value.Value {
 
 	block := value.NewBlock(blockLen)
 
+	hasCond := forDir.Cond != nil
+	if _, isEmpty := forDir.Cond.(*ast.Empty); isEmpty {
+		hasCond = false
+	}
+
 	// Loop through the block until the user's condition is false
 	for {
 		cond = e.evalLiteral(forDir.Cond, forCtx)
@@ -497,7 +502,7 @@ func (e *Evaluator) forDir(forDir *ast.ForDir, ctx *Context) value.Value {
 			return cond
 		}
 
-		if cond != NIL && !isTruthy(cond) {
+		if hasCond && !isTruthy(cond) {
 			break
 		}
 

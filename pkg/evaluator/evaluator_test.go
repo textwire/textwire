@@ -865,6 +865,10 @@ func TestEvalForDir(t *testing.T) {
 		// Empty loop body
 		{40, `@for(i = 0; i < 2; i++)@end`, ""},
 		{41, `@for(i = 0; i < 2; i++)@else@end`, ""},
+		// Condition evaluates to nil
+		{42, `{{ nilVar = nil }}@for(i = 0; nilVar; i++)x@end`, ""},
+		{43, `@for(i = 0; nil; i++)Some content@end`, ""},
+		{44, `{{ user = {} }}@for(i = 0; user.missing; i++)x@breakif(i == 3)@end`, ""},
 		// Empty loop header parts
 		{50, `@for(; false;)Here@end`, ""},
 		{60, `@for(; true;)x@break@end`, "x"},
