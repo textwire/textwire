@@ -8,35 +8,12 @@ on:
 
 jobs:
   build-and-test:
-    runs-on: podman
-    container: docker.io/library/node:26
+    runs-on: debian13-podman
     name: Run checks for Go ${{ matrix.go-version }}
     strategy:
       matrix:
         go-version: ["1.25", "1.26", "1.27"]
 
     steps:
-      - name: Install dependencies
-        run: |
-          apt update
-          apt install -y wget
-
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Set up Go
-        uses: https://github.com/actions/setup-go@v7
-        with:
-          go-version: ${{ matrix.go-version }}
-
-      - name: Install line length checker
-        run: go install github.com/golangci/golines@v0.15.0
-
-      - name: Install golangci-lint
-        run: curl -sSfL https://golangci-lint.run/install.sh | sh -s -- -b $(go env GOPATH)/bin v2.15.0
-
-      - name: Build
-        run: go build -v ./...
-
       - name: Run checks
         run: make check
