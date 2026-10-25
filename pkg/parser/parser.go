@@ -210,9 +210,7 @@ func (p *Parser) embedded(tokenEnd token.TokenType) ast.Chunk {
 	for !p.curTokenIs(tokenEnd, token.EOF) {
 		if segment := p.segment(); segment != nil {
 			embedded.Segments = append(embedded.Segments, segment)
-			if p.curTokenIs(token.SEMI) {
-				p.nextToken() // skip ";"
-			}
+			p.finishSegment(tokenEnd)
 		}
 	}
 
@@ -226,6 +224,45 @@ func (p *Parser) embedded(tokenEnd token.TokenType) ast.Chunk {
 	}
 
 	return embedded
+}
+
+// finishSegment consumes the ";" after a segment. If the segment is followed
+// by anything else, it reports the error and skips to the next separator to
+// avoid cascading errors.
+func (p *Parser) finishSegment(tokenEnd token.TokenType) {
+	if !p.curTokenIs(token.SEMI, tokenEnd, token.EOF) {
+		p.reportUnexpectedTokenAfterSegment()
+		p.skipUntil(token.SEMI, tokenEnd, token.EOF)
+	}
+
+	if p.curTokenIs(token.SEMI) {
+		p.nextToken() // skip ";"
+	}
+}
+
+// reportUnexpectedTokenAfterSegment reports why the current token cannot
+// follow a segment.
+func (p *Parser) reportUnexpectedTokenAfterSegment() {
+	// Tokens that cannot start an expression, like an unknown operator,
+	// get a dedicated error.
+	if p.prefixParseFns[p.curToken.Type] == nil {
+		p.newError(p.curToken.Pos, fail.ErrIllegalToken, p.curToken.Lit)
+		return
+	}
+
+	p.newError(
+		p.curToken.Pos,
+		fail.ErrWrongPeekToken,
+		token.String(token.SEMI),
+		p.curToken.Lit,
+	)
+}
+
+// skipUntil advances until the current token is one of the given types.
+func (p *Parser) skipUntil(types ...token.TokenType) {
+	for !p.curTokenIs(types...) {
+		p.nextToken()
+	}
 }
 
 func (p *Parser) peekIsStatement() bool {
