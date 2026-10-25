@@ -109,6 +109,8 @@ func TestEvalStringFunctions(t *testing.T) {
 		{890, `{{ "test".truncate(-1) }}`, "..."},
 		{900, `{{ "test".truncate(100) }}`, "test"},
 		{910, `{{ "".truncate(5) }}`, ""},
+		{915, `{{ "привіт".truncate(2) }}`, "пр..."},
+		{916, `{{ "привіт".truncate(3, "") }}`, "при"},
 		// decimal
 		{920, `{{ "".decimal() }}`, ""},
 		{930, `{{ "0".decimal() }}`, "0.00"},
