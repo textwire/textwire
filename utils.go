@@ -11,7 +11,6 @@ import (
 	"codeberg.org/textwire/textwire/v5/pkg/file"
 	"codeberg.org/textwire/textwire/v5/pkg/lexer"
 	"codeberg.org/textwire/textwire/v5/pkg/parser"
-	"codeberg.org/textwire/textwire/v5/pkg/position"
 )
 
 //go:embed embed/default-error-page.tw
@@ -36,41 +35,7 @@ func errorPage(failure *fail.Error) (string, *fail.Error) {
 	return out, nil
 }
 
-// nulByteError reports an error if the template contains a NUL byte. The lexer
-// uses 0 to mark the end of input, so a real NUL byte would cut the template
-// short without any warning.
-func nulByteError(text, absPath string) *fail.Error {
-	idx := strings.IndexByte(text, 0)
-	hasNulByte := idx >= 0
-
-	if !hasNulByte {
-		return nil
-	}
-
-	line := uint(strings.Count(text[:idx], "\n"))
-	lineStart := strings.LastIndexByte(text[:idx], '\n') + 1
-	col := uint(idx - lineStart)
-
-	pos := &position.Pos{
-		StartLine: line,
-		StartCol:  col,
-		EndLine:   line,
-		EndCol:    col,
-	}
-
-	return fail.New(
-		pos,
-		absPath,
-		fail.OriginPars,
-		fail.ErrNulByte,
-	)
-}
-
 func parseStr(text string) (*ast.Program, []*fail.Error) {
-	if err := nulByteError(text, ""); err != nil {
-		return nil, []*fail.Error{err}
-	}
-
 	l := lexer.New(text)
 	p := parser.New(l, nil)
 
@@ -106,10 +71,6 @@ func parseFile(f *file.SourceFile) (*ast.Program, *fail.Error, error) {
 	content, err := f.Content()
 	if err != nil {
 		return nil, nil, err
-	}
-
-	if failure := nulByteError(content, f.Abs); failure != nil {
-		return nil, failure, nil
 	}
 
 	l := lexer.New(content)

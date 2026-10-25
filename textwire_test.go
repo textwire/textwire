@@ -678,25 +678,6 @@ func TestErrorHandling(t *testing.T) {
 	}
 }
 
-func TestNulByteInTemplate(t *testing.T) {
-	_, err := EvaluateString("a\x00b{{ name }}c", nil)
-	if err == nil {
-		t.Fatal("expected an error for a NUL byte, got none")
-	}
-
-	if err.Message() != fail.ErrNulByte {
-		t.Fatalf("expected %q, got %q", fail.ErrNulByte, err.Message())
-	}
-
-	if err.Pos().Line() != 1 || err.Pos().Col() != 2 {
-		t.Fatalf(
-			"expected position line 1, col 2, got line %d, col %d",
-			err.Pos().Line(),
-			err.Pos().Col(),
-		)
-	}
-}
-
 func TestEvaluateFile(t *testing.T) {
 	absPath, fileErr := file.ToFullPath("testdata/good/before/two-vars-no-use/index.tw")
 	if fileErr != nil {
