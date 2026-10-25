@@ -68,6 +68,10 @@ type Parser struct {
 	// Ending token can be }} or !}} for embedded
 	tokenEnd token.TokenType
 
+	// loopDepth is the number of loops we are currently parsing. It's used to
+	// reject @break and @continue outside of a loop.
+	loopDepth int
+
 	prefixParseFns map[token.TokenType]prefixParseFn
 	infixParseFns  map[token.TokenType]infixParseFn
 
@@ -185,8 +189,14 @@ func (p *Parser) chunk() ast.Chunk {
 	case token.DUMP:
 		return p.dumpDir()
 	case token.BREAK:
+		if illegal := p.illegalIfOutsideLoop(); illegal != nil {
+			return illegal
+		}
 		return ast.NewBreakDir(p.curToken)
 	case token.CONTINUE:
+		if illegal := p.illegalIfOutsideLoop(); illegal != nil {
+			return illegal
+		}
 		return ast.NewContinueDir(p.curToken)
 	}
 
@@ -576,6 +586,10 @@ func (p *Parser) useDir() ast.Chunk {
 }
 
 func (p *Parser) breakifDir() ast.Chunk {
+	if illegal := p.illegalIfOutsideLoop(); illegal != nil {
+		return illegal
+	}
+
 	dir := ast.NewBreakIfDir(p.curToken)
 
 	if !p.expectPeek(token.LPAREN) { // move to "("
@@ -596,6 +610,10 @@ func (p *Parser) breakifDir() ast.Chunk {
 }
 
 func (p *Parser) continueifDir() ast.Chunk {
+	if illegal := p.illegalIfOutsideLoop(); illegal != nil {
+		return illegal
+	}
+
 	dir := ast.NewContinueIfDir(p.curToken)
 
 	if !p.expectPeek(token.LPAREN) { // move to "("
@@ -1163,6 +1181,9 @@ func (p *Parser) forDir() ast.Chunk {
 		return illegal
 	}
 
+	p.loopDepth++
+	defer func() { p.loopDepth-- }()
+
 	dir.Block = p.block()
 
 	if p.curTokenIs(token.END) {
@@ -1259,6 +1280,9 @@ func (p *Parser) eachDir() ast.Chunk {
 	if illegal := p.eachDirHeader(dir); illegal != nil { // skips ")"
 		return illegal
 	}
+
+	p.loopDepth++
+	defer func() { p.loopDepth-- }()
 
 	dir.Block = p.block()
 
@@ -1444,17 +1468,27 @@ func (p *Parser) expressionList(endTok token.TokenType) []ast.Expression {
 
 func (p *Parser) illegal() *ast.Illegal {
 	if p.curTokenIs(token.UNCLOSED_COMMENT) {
-		p.newError(p.curToken.Pos, fail.ErrMissingClosingBraces, "--}}")
-		return ast.NewIllegalNode(p.curToken)
+		return p.illegalWith(fail.ErrMissingClosingBraces, "--}}")
+	}
+	return p.illegalWith(fail.ErrIllegalToken, p.curToken.Lit)
+}
+
+// illegalWith records an error at the current token and returns an illegal
+// node for it.
+func (p *Parser) illegalWith(msg string, args ...any) *ast.Illegal {
+	p.newError(p.curToken.Pos, msg, args...)
+	return ast.NewIllegalNode(p.curToken)
+}
+
+// illegalIfOutsideLoop returns an Illegal node (and reports an error) when a
+// loop control directive is used outside of a loop. It returns nil when the
+// directive is allowed.
+func (p *Parser) illegalIfOutsideLoop() *ast.Illegal {
+	if p.loopDepth > 0 {
+		return nil
 	}
 
-	p.newError(
-		p.curToken.Pos,
-		fail.ErrIllegalToken,
-		p.curToken.Lit,
-	)
-
-	return ast.NewIllegalNode(p.curToken)
+	return p.illegalWith(fail.ErrLoopControlOutsideLoop, p.curToken.Lit)
 }
 
 func (p *Parser) illegalUntil(tok token.TokenType) *ast.Illegal {

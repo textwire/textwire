@@ -1,5 +1,9 @@
 # Release notes V5
 
+## v5.1.10 (2026-10-25)
+
+- 🐛 Fixed `@break`, `@continue`, `@breakif` and `@continueif` being silently ignored outside of a loop. They now report `'@break' can only be used inside a loop` (or the matching directive name).
+
 ## v5.1.9 (2026-10-25)
 
 - 🐛 Fixed string escapes with backslashes. `{{ "a\\" }}` now gives `a\` instead of swallowing the closing quote, and `{{ "C:\\new" }}` no longer turns the escaped backslash into a newline.
