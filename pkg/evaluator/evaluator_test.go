@@ -93,6 +93,10 @@ func TestEvalNumericExp(t *testing.T) {
 		{120, `{{ 3 * 3 * 3 + 10 }}`, "37"},
 		{130, `{{ (5 + 10 * 2 + 15 / 3) * 2 + -10 }}`, "50"},
 		{140, `{{ ((5 + 10) * ((2 + 15) / 3) + 2) }}`, "77"},
+		{150, "{{ -9223372036854775808 }}", "-9223372036854775808"},
+		{151, "{{ -9223372036854775808 + 1 }}", "-9223372036854775807"},
+		{152, "{{ -9223372036854775808 * 1 }}", "-9223372036854775808"},
+		{153, "{{ 9223372036854775807 + 1 }}", "-9223372036854775808"},
 		// Floats
 		{220, "{{ 5.11 }}", "5.11"},
 		{230, "{{ -12.3 }}", "-12.3"},
@@ -100,6 +104,25 @@ func TestEvalNumericExp(t *testing.T) {
 		{250, `{{ 2.0 + 1.2 }}`, "3.2"},
 		{260, `{{ 0.0 + 0.0 }}`, "0.0"},
 		{270, `{{ 0.0 }}`, "0.0"},
+	}
+
+	for _, tc := range cases {
+		evaluationExpected(t, tc.inp, tc.expect, tc.id)
+	}
+}
+
+func TestEvalFloatOverflow(t *testing.T) {
+	// 308 nines is just below math.MaxFloat64, so multiplying by 10 overflows.
+	huge := strings.Repeat("9", 308) + ".0"
+
+	cases := []struct {
+		id     uint
+		inp    string
+		expect string
+	}{
+		{10, "{{ " + huge + " * 10.0 }}", "+Inf"},
+		{20, "{{ -" + huge + " * 10.0 }}", "-Inf"},
+		{30, "{{ (" + huge + " * 10.0) - (" + huge + " * 10.0) }}", "NaN"},
 	}
 
 	for _, tc := range cases {

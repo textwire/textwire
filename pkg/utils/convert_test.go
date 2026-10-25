@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"math"
 	"testing"
 )
 
@@ -23,6 +24,9 @@ func TestFloatToStr(t *testing.T) {
 		{name: "Negative medium float", input: -987654321.9876543, expect: "-987654321.9876543"},
 		{name: "Float with many trailing zeros", input: 42.0000000000, expect: "42.0"},
 		{name: "Very large decimal", input: 999999999999999.999, expect: "1000000000000000.0"},
+		{name: "Positive infinity", input: math.Inf(1), expect: "+Inf"},
+		{name: "Negative infinity", input: math.Inf(-1), expect: "-Inf"},
+		{name: "NaN", input: math.NaN(), expect: "NaN"},
 	}
 
 	for _, tt := range tc {

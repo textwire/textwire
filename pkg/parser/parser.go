@@ -1,6 +1,7 @@
 package parser
 
 import (
+	"math"
 	"strconv"
 
 	"codeberg.org/textwire/textwire/v5/pkg/file"
@@ -67,6 +68,10 @@ type Parser struct {
 
 	// Ending token can be }} or !}} for embedded
 	tokenEnd token.TokenType
+
+	// loopDepth is the number of loops we are currently parsing. It's used to
+	// reject @break and @continue outside of a loop.
+	loopDepth int
 
 	prefixParseFns map[token.TokenType]prefixParseFn
 	infixParseFns  map[token.TokenType]infixParseFn
@@ -185,8 +190,14 @@ func (p *Parser) chunk() ast.Chunk {
 	case token.DUMP:
 		return p.dumpDir()
 	case token.BREAK:
+		if illegal := p.illegalIfOutsideLoop(); illegal != nil {
+			return illegal
+		}
 		return ast.NewBreakDir(p.curToken)
 	case token.CONTINUE:
+		if illegal := p.illegalIfOutsideLoop(); illegal != nil {
+			return illegal
+		}
 		return ast.NewContinueDir(p.curToken)
 	}
 
@@ -243,10 +254,10 @@ func (p *Parser) finishSegment(tokenEnd token.TokenType) {
 // reportUnexpectedTokenAfterSegment reports why the current token cannot
 // follow a segment.
 func (p *Parser) reportUnexpectedTokenAfterSegment() {
-	// Tokens that cannot start an expression, like an unknown operator,
-	// get a dedicated error.
 	if p.prefixParseFns[p.curToken.Type] == nil {
-		p.newError(p.curToken.Pos, fail.ErrIllegalToken, p.curToken.Lit)
+		// Tokens that cannot start an expression, like an unknown operator,
+		// get a dedicated error.
+		p.illegalWith(fail.ErrIllegalToken, p.curToken.Lit)
 		return
 	}
 
@@ -386,13 +397,7 @@ func (p *Parser) ident() ast.Expression {
 func (p *Parser) intExpr() ast.Expression {
 	val, err := strconv.ParseInt(p.curToken.Lit, 10, 64)
 	if err != nil {
-		p.newError(
-			p.curToken.Pos,
-			fail.ErrCouldNotParseAs,
-			p.curToken.Lit,
-			"INT",
-		)
-		return ast.NewIllegalNode(p.curToken)
+		return p.illegalWith(fail.ErrCouldNotParseAs, p.curToken.Lit, "INT")
 	}
 
 	return ast.NewIntExpr(p.curToken, val)
@@ -401,13 +406,7 @@ func (p *Parser) intExpr() ast.Expression {
 func (p *Parser) floatExpr() ast.Expression {
 	val, err := strconv.ParseFloat(p.curToken.Lit, 64)
 	if err != nil {
-		p.newError(
-			p.curToken.Pos,
-			fail.ErrCouldNotParseAs,
-			p.curToken.Lit,
-			"FLOAT",
-		)
-		return ast.NewIllegalNode(p.curToken)
+		return p.illegalWith(fail.ErrCouldNotParseAs, p.curToken.Lit, "FLOAT")
 	}
 
 	return ast.NewFloatExpr(p.curToken, val)
@@ -576,6 +575,10 @@ func (p *Parser) useDir() ast.Chunk {
 }
 
 func (p *Parser) breakifDir() ast.Chunk {
+	if illegal := p.illegalIfOutsideLoop(); illegal != nil {
+		return illegal
+	}
+
 	dir := ast.NewBreakIfDir(p.curToken)
 
 	if !p.expectPeek(token.LPAREN) { // move to "("
@@ -596,6 +599,10 @@ func (p *Parser) breakifDir() ast.Chunk {
 }
 
 func (p *Parser) continueifDir() ast.Chunk {
+	if illegal := p.illegalIfOutsideLoop(); illegal != nil {
+		return illegal
+	}
+
 	dir := ast.NewContinueIfDir(p.curToken)
 
 	if !p.expectPeek(token.LPAREN) { // move to "("
@@ -1163,6 +1170,9 @@ func (p *Parser) forDir() ast.Chunk {
 		return illegal
 	}
 
+	p.loopDepth++
+	defer func() { p.loopDepth-- }()
+
 	dir.Block = p.block()
 
 	if p.curTokenIs(token.END) {
@@ -1259,6 +1269,9 @@ func (p *Parser) eachDir() ast.Chunk {
 	if illegal := p.eachDirHeader(dir); illegal != nil { // skips ")"
 		return illegal
 	}
+
+	p.loopDepth++
+	defer func() { p.loopDepth-- }()
 
 	dir.Block = p.block()
 
@@ -1379,14 +1392,45 @@ func (p *Parser) expression(precedence int) ast.Expression {
 }
 
 func (p *Parser) prefixExpr() ast.Expression {
-	expr := ast.NewPrefixExpr(p.curToken, p.curToken.Lit)
+	prefixTok := p.curToken
 
 	p.nextToken() // skip prefix operator
 
+	if expr, ok := p.negativeIntLiteral(prefixTok); ok {
+		return expr
+	}
+
+	expr := ast.NewPrefixExpr(prefixTok, prefixTok.Lit)
 	expr.Right = p.expression(PREFIX)
 	expr.SetEndPosition(p.curToken.Pos)
 
 	return expr
+}
+
+// negativeIntLiteral handles "-9223372036854775808", the one literal whose
+// magnitude doesn't fit in int64 but whose negative value does. Everything
+// else goes through the regular prefix-expression path.
+func (p *Parser) negativeIntLiteral(opTok token.Token) (ast.Expression, bool) {
+	if opTok.Type != token.SUB || !p.curTokenIs(token.INT) {
+		return nil, false
+	}
+
+	lit := p.curToken.Lit
+
+	// Happy path when the literal is not the special case.
+	val, err := strconv.ParseInt("-"+lit, 10, 64)
+	if err != nil || val != math.MinInt64 {
+		return nil, false
+	}
+
+	// The literal's position spans from the "-" to the end of the number.
+	pos := *p.curToken.Pos
+	pos.StartLine = opTok.Pos.StartLine
+	pos.StartCol = opTok.Pos.StartCol
+
+	tok := token.Token{Type: token.INT, Lit: lit, Pos: &pos}
+
+	return ast.NewIntExpr(tok, val), true
 }
 
 func (p *Parser) groupedExpr() ast.Expression {
@@ -1444,17 +1488,27 @@ func (p *Parser) expressionList(endTok token.TokenType) []ast.Expression {
 
 func (p *Parser) illegal() *ast.Illegal {
 	if p.curTokenIs(token.UNCLOSED_COMMENT) {
-		p.newError(p.curToken.Pos, fail.ErrMissingClosingBraces, "--}}")
-		return ast.NewIllegalNode(p.curToken)
+		return p.illegalWith(fail.ErrMissingClosingBraces, "--}}")
+	}
+	return p.illegalWith(fail.ErrIllegalToken, p.curToken.Lit)
+}
+
+// illegalWith records an error at the current token and returns an illegal
+// node for it.
+func (p *Parser) illegalWith(msg string, args ...any) *ast.Illegal {
+	p.newError(p.curToken.Pos, msg, args...)
+	return ast.NewIllegalNode(p.curToken)
+}
+
+// illegalIfOutsideLoop returns an Illegal node (and reports an error) when a
+// loop control directive is used outside of a loop. It returns nil when the
+// directive is allowed.
+func (p *Parser) illegalIfOutsideLoop() *ast.Illegal {
+	if p.loopDepth > 0 {
+		return nil
 	}
 
-	p.newError(
-		p.curToken.Pos,
-		fail.ErrIllegalToken,
-		p.curToken.Lit,
-	)
-
-	return ast.NewIllegalNode(p.curToken)
+	return p.illegalWith(fail.ErrLoopControlOutsideLoop, p.curToken.Lit)
 }
 
 func (p *Parser) illegalUntil(tok token.TokenType) *ast.Illegal {

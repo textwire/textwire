@@ -1,5 +1,13 @@
 # Release notes V5
 
+## v5.1.10 (2026-10-25)
+
+- 🐛 Fixed `@break`, `@continue`, `@breakif` and `@continueif` being silently ignored outside of a loop. They now report `'@break' can only be used inside a loop` (or the matching directive name).
+- 🐛 Fixed a NUL byte in a template silently cutting the output. The lexer used `0` to mark the end of input, so everything after the byte disappeared; NUL is now treated as a regular character and the rest of the template renders.
+- 🐛 Fixed illegal-token errors showing mojibake for non-ASCII characters. `{{ café }}` now reports `illegal token 'é'` instead of `illegal token 'Ã'`.
+- 🐛 Fixed `-9223372036854775808` failing with `cannot parse '9223372036854775808' as 'INT'`. The magnitude doesn't fit into `int64`, but the negative value does, so the literal is now parsed as a whole. Integer arithmetic still wraps around like Go.
+- 🐛 Fixed non-finite floats rendering as `+Inf.0`, `-Inf.0` and `NaN.0`. They now print as `+Inf`, `-Inf` and `NaN`, like Go, without a misleading decimal part.
+
 ## v5.1.9 (2026-10-25)
 
 - 🐛 Fixed string escapes with backslashes. `{{ "a\\" }}` now gives `a\` instead of swallowing the closing quote, and `{{ "C:\\new" }}` no longer turns the escaped backslash into a newline.

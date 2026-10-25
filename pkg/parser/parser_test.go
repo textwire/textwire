@@ -657,7 +657,7 @@ func TestErrorHandling(t *testing.T) {
 			),
 		},
 		{
-			id:  51,
+			id:  50,
 			inp: "{{ {'a' + 'b': 1} }}",
 			err: fail.New(
 				&position.Pos{StartCol: 8, EndCol: 8},
@@ -669,7 +669,51 @@ func TestErrorHandling(t *testing.T) {
 			),
 		},
 		{
-			id:  50,
+			id:  51,
+			inp: "a@breakb",
+			err: fail.New(
+				&position.Pos{StartCol: 1, EndCol: 6},
+				"",
+				fail.OriginPars,
+				fail.ErrLoopControlOutsideLoop,
+				"@break",
+			),
+		},
+		{
+			id:  52,
+			inp: "a@continueb",
+			err: fail.New(
+				&position.Pos{StartCol: 1, EndCol: 9},
+				"",
+				fail.OriginPars,
+				fail.ErrLoopControlOutsideLoop,
+				"@continue",
+			),
+		},
+		{
+			id:  53,
+			inp: "x@breakif(true)y",
+			err: fail.New(
+				&position.Pos{StartCol: 1, EndCol: 8},
+				"",
+				fail.OriginPars,
+				fail.ErrLoopControlOutsideLoop,
+				"@breakif",
+			),
+		},
+		{
+			id:  54,
+			inp: "x@continueif(true)y",
+			err: fail.New(
+				&position.Pos{StartCol: 1, EndCol: 11},
+				"",
+				fail.OriginPars,
+				fail.ErrLoopControlOutsideLoop,
+				"@continueif",
+			),
+		},
+		{
+			id:  56,
 			inp: `{{ 1 ~ 8 }}`,
 			err: fail.New(
 				&position.Pos{StartCol: 5, EndCol: 5},
@@ -677,6 +721,17 @@ func TestErrorHandling(t *testing.T) {
 				fail.OriginPars,
 				fail.ErrIllegalToken,
 				"~",
+			),
+		},
+		{
+			id:  57,
+			inp: "{{ café }}",
+			err: fail.New(
+				&position.Pos{StartCol: 6, EndCol: 6},
+				"",
+				fail.OriginPars,
+				fail.ErrIllegalToken,
+				"é",
 			),
 		},
 		{
@@ -2294,7 +2349,7 @@ func TestParseDotExp(t *testing.T) {
 func TestParseBreakDir(t *testing.T) {
 	inp := `@break`
 
-	breakDir, err := parseDirective[*ast.BreakDir](inp, defaultParseOpts)
+	breakDir, err := parseChunkInLoop[*ast.BreakDir](inp, defaultParseOpts)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -2307,7 +2362,7 @@ func TestParseBreakDir(t *testing.T) {
 func TestParseContinueDir(t *testing.T) {
 	inp := `@continue`
 
-	continueDir, err := parseDirective[*ast.ContinueDir](inp, defaultParseOpts)
+	continueDir, err := parseChunkInLoop[*ast.ContinueDir](inp, defaultParseOpts)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -2320,14 +2375,14 @@ func TestParseContinueDir(t *testing.T) {
 func TestParseBreakifDir(t *testing.T) {
 	inp := `@breakif(true)`
 
-	breakifDir, err := parseDirective[*ast.BreakifDir](inp, defaultParseOpts)
+	breakifDir, err := parseChunkInLoop[*ast.BreakifDir](inp, defaultParseOpts)
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	err = testTokPosition(breakifDir.Pos(), &position.Pos{
-		StartCol: 0,
-		EndCol:   13,
+		StartCol: 15,
+		EndCol:   28,
 	})
 
 	if err != nil {
@@ -2351,14 +2406,14 @@ func TestParseBreakifDir(t *testing.T) {
 func TestParseContinueifDir(t *testing.T) {
 	inp := "@continueif(false)"
 
-	continueifDir, err := parseDirective[*ast.ContinueifDir](inp, defaultParseOpts)
+	continueifDir, err := parseChunkInLoop[*ast.ContinueifDir](inp, defaultParseOpts)
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	err = testTokPosition(continueifDir.Pos(), &position.Pos{
-		StartCol: 0,
-		EndCol:   17,
+		StartCol: 15,
+		EndCol:   32,
 	})
 
 	if err != nil {

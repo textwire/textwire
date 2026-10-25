@@ -3,6 +3,7 @@ package lexer
 import (
 	"bytes"
 	"strings"
+	"unicode/utf8"
 
 	"codeberg.org/textwire/textwire/v5/pkg/position"
 	"codeberg.org/textwire/textwire/v5/pkg/token"
@@ -90,7 +91,7 @@ func (l *Lexer) Next() token.Token {
 		l.skipWhitespace()
 	}
 
-	if l.char == 0 {
+	if l.atEnd() {
 		l.tokenBegins()
 		return l.newToken(token.EOF, "")
 	}
@@ -128,6 +129,11 @@ func (l *Lexer) Next() token.Token {
 	}
 
 	return l.newToken(token.TEXT, l.readText())
+}
+
+// atEnd reports whether the lexer has consumed all input.
+func (l *Lexer) atEnd() bool {
+	return l.pos >= len(l.input)
 }
 
 func (l *Lexer) startsWith(chars ...byte) bool {
@@ -168,8 +174,11 @@ func (l *Lexer) rawBracesToken(tok token.TokenType, literal string) token.Token 
 
 func (l *Lexer) illegalToken() token.Token {
 	l.tokenBegins()
-	tok := l.newToken(token.ILLEGAL, string(l.char))
-	l.readChar()
+
+	illegalChar, size := utf8.DecodeRuneInString(l.input[l.pos:])
+	tok := l.newToken(token.ILLEGAL, string(illegalChar))
+	l.readChars(size)
+
 	return tok
 }
 
@@ -451,13 +460,13 @@ func (l *Lexer) readString() (string, bool) {
 // It leaves the lexer positioned on the closing quote and reports whether
 // one was found.
 func (l *Lexer) scanToClosingQuote(quote byte) bool {
-	for l.char != 0 {
+	for !l.atEnd() {
 		switch l.char {
 		case quote:
 			return true
 		case '\\':
 			l.readChar() // skip the escaped character
-			if l.char == 0 {
+			if l.atEnd() {
 				return false
 			}
 		}
@@ -551,7 +560,7 @@ func (l *Lexer) readText() string {
 	var out bytes.Buffer
 	l.tokenBegins()
 
-	for l.isText && l.char != 0 {
+	for l.isText && !l.atEnd() {
 		areBraces, escapedBraces := l.areBracesToken()
 
 		if areBraces || l.isDirectiveToken() {
@@ -648,7 +657,7 @@ func (l *Lexer) skipComment() bool {
 
 	l.readChars(4) // skip "{{--"
 
-	for l.char != 0 && depth > 0 {
+	for !l.atEnd() && depth > 0 {
 		if l.startsWith('{', '{', '-', '-') {
 			l.readChars(4) // skip "{{--"
 			depth++
