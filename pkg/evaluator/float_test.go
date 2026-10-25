@@ -60,7 +60,13 @@ func TestFloatArithmeticMatchesGo(t *testing.T) {
 
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
-			got := e.floatInfixExp(tc.op, &value.Float{Val: tc.b}, &value.Float{Val: tc.a}, nil, ctx)
+			got := e.floatInfixExp(
+				tc.op,
+				&value.Float{Val: tc.b},
+				&value.Float{Val: tc.a},
+				nil,
+				ctx,
+			)
 
 			result, ok := got.(*value.Float)
 			if !ok {
