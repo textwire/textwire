@@ -1,6 +1,7 @@
 package parser
 
 import (
+	"math"
 	"strconv"
 
 	"codeberg.org/textwire/textwire/v5/pkg/file"
@@ -1391,14 +1392,45 @@ func (p *Parser) expression(precedence int) ast.Expression {
 }
 
 func (p *Parser) prefixExpr() ast.Expression {
-	expr := ast.NewPrefixExpr(p.curToken, p.curToken.Lit)
+	prefixTok := p.curToken
 
 	p.nextToken() // skip prefix operator
 
+	if expr, ok := p.negativeIntLiteral(prefixTok); ok {
+		return expr
+	}
+
+	expr := ast.NewPrefixExpr(prefixTok, prefixTok.Lit)
 	expr.Right = p.expression(PREFIX)
 	expr.SetEndPosition(p.curToken.Pos)
 
 	return expr
+}
+
+// negativeIntLiteral handles "-9223372036854775808", the one literal whose
+// magnitude doesn't fit in int64 but whose negative value does. Everything
+// else goes through the regular prefix-expression path.
+func (p *Parser) negativeIntLiteral(opTok token.Token) (ast.Expression, bool) {
+	if opTok.Type != token.SUB || !p.curTokenIs(token.INT) {
+		return nil, false
+	}
+
+	lit := p.curToken.Lit
+
+	// Happy path when the literal is not the special case.
+	val, err := strconv.ParseInt("-"+lit, 10, 64)
+	if err != nil || val != math.MinInt64 {
+		return nil, false
+	}
+
+	// The literal's position spans from the "-" to the end of the number.
+	pos := *p.curToken.Pos
+	pos.StartLine = opTok.Pos.StartLine
+	pos.StartCol = opTok.Pos.StartCol
+
+	tok := token.Token{Type: token.INT, Lit: lit, Pos: &pos}
+
+	return ast.NewIntExpr(tok, val), true
 }
 
 func (p *Parser) groupedExpr() ast.Expression {
