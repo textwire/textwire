@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"math"
 	"strconv"
 	"strings"
 )
@@ -8,6 +9,11 @@ import (
 // FloatToStr converts float64 to string using a
 // precision of -1 to preserve the exact value
 func FloatToStr(f float64) string {
+	// Infinities and NaN have no decimal part, so don't add ".0" to them.
+	if math.IsInf(f, 0) || math.IsNaN(f) {
+		return strconv.FormatFloat(f, 'g', -1, 64)
+	}
+
 	// Use 'floatStr' format first to see if it uses scientific notation
 	floatStr := strconv.FormatFloat(f, 'g', -1, 64)
 

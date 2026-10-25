@@ -111,6 +111,25 @@ func TestEvalNumericExp(t *testing.T) {
 	}
 }
 
+func TestEvalFloatOverflow(t *testing.T) {
+	// 308 nines is just below math.MaxFloat64, so multiplying by 10 overflows.
+	huge := strings.Repeat("9", 308) + ".0"
+
+	cases := []struct {
+		id     uint
+		inp    string
+		expect string
+	}{
+		{10, "{{ " + huge + " * 10.0 }}", "+Inf"},
+		{20, "{{ -" + huge + " * 10.0 }}", "-Inf"},
+		{30, "{{ (" + huge + " * 10.0) - (" + huge + " * 10.0) }}", "NaN"},
+	}
+
+	for _, tc := range cases {
+		evaluationExpected(t, tc.inp, tc.expect, tc.id)
+	}
+}
+
 func TestEvalBooleanExp(t *testing.T) {
 	cases := []struct {
 		id     uint
