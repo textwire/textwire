@@ -1224,6 +1224,9 @@ func (e *Evaluator) floatInfixExp(
 	case "*":
 		return &value.Float{Val: l.Val * r.Val}
 	case "/":
+		if r.Val == 0 {
+			return e.newError(leftNode, ctx, fail.ErrDivisionByZero)
+		}
 		return &value.Float{Val: l.Val / r.Val}
 	case ">":
 		return nativeBoolToBoolObj(l.Val > r.Val)

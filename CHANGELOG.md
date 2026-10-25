@@ -5,6 +5,7 @@
 - 🐛 Fixed string escapes with backslashes. `{{ "a\\" }}` now gives `a\` instead of swallowing the closing quote, and `{{ "C:\\new" }}` no longer turns the escaped backslash into a newline.
 - 🐛 Fixed unclosed comments silently deleting the rest of the template. A `{{-- comment` without the closing `--}}` used to make everything after it disappear from the output, leaving you with no clue why. Now it reports `missing closing '--}}'` pointing at the end of the file.
 - 🐛 Fixed `truncate()` cutting bytes instead of characters. `'привіт'.truncate(2)` now gives `пр...` and `'привіт'.truncate(3, '')` gives `при` instead of leaving invalid UTF-8 in the output.
+- 🐛 Fixed float division by zero rendering `+Inf.0` or `NaN.0` in the page. `{{ 1.0 / 0.0 }}` now reports the same `division by zero` error as integer division.
 
 ## v5.1.8 (2026-10-24)
 
