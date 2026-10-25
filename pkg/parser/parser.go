@@ -253,10 +253,10 @@ func (p *Parser) finishSegment(tokenEnd token.TokenType) {
 // reportUnexpectedTokenAfterSegment reports why the current token cannot
 // follow a segment.
 func (p *Parser) reportUnexpectedTokenAfterSegment() {
-	// Tokens that cannot start an expression, like an unknown operator,
-	// get a dedicated error.
 	if p.prefixParseFns[p.curToken.Type] == nil {
-		p.newError(p.curToken.Pos, fail.ErrIllegalToken, p.curToken.Lit)
+		// Tokens that cannot start an expression, like an unknown operator,
+		// get a dedicated error.
+		p.illegalWith(fail.ErrIllegalToken, p.curToken.Lit)
 		return
 	}
 
@@ -396,13 +396,7 @@ func (p *Parser) ident() ast.Expression {
 func (p *Parser) intExpr() ast.Expression {
 	val, err := strconv.ParseInt(p.curToken.Lit, 10, 64)
 	if err != nil {
-		p.newError(
-			p.curToken.Pos,
-			fail.ErrCouldNotParseAs,
-			p.curToken.Lit,
-			"INT",
-		)
-		return ast.NewIllegalNode(p.curToken)
+		return p.illegalWith(fail.ErrCouldNotParseAs, p.curToken.Lit, "INT")
 	}
 
 	return ast.NewIntExpr(p.curToken, val)
@@ -411,13 +405,7 @@ func (p *Parser) intExpr() ast.Expression {
 func (p *Parser) floatExpr() ast.Expression {
 	val, err := strconv.ParseFloat(p.curToken.Lit, 64)
 	if err != nil {
-		p.newError(
-			p.curToken.Pos,
-			fail.ErrCouldNotParseAs,
-			p.curToken.Lit,
-			"FLOAT",
-		)
-		return ast.NewIllegalNode(p.curToken)
+		return p.illegalWith(fail.ErrCouldNotParseAs, p.curToken.Lit, "FLOAT")
 	}
 
 	return ast.NewFloatExpr(p.curToken, val)
