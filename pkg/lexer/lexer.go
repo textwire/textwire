@@ -3,6 +3,7 @@ package lexer
 import (
 	"bytes"
 	"strings"
+	"unicode/utf8"
 
 	"codeberg.org/textwire/textwire/v5/pkg/position"
 	"codeberg.org/textwire/textwire/v5/pkg/token"
@@ -173,8 +174,11 @@ func (l *Lexer) rawBracesToken(tok token.TokenType, literal string) token.Token 
 
 func (l *Lexer) illegalToken() token.Token {
 	l.tokenBegins()
-	tok := l.newToken(token.ILLEGAL, string(l.char))
-	l.readChar()
+
+	illegalChar, size := utf8.DecodeRuneInString(l.input[l.pos:])
+	tok := l.newToken(token.ILLEGAL, string(illegalChar))
+	l.readChars(size)
+
 	return tok
 }
 

@@ -496,6 +496,18 @@ func TestStringEscapes(t *testing.T) {
 	}
 }
 
+func TestIllegalTokenWithMultibyteRune(t *testing.T) {
+	inp := "{{ café }}"
+
+	TokenizeString(t, inp, []token.Token{
+		{Type: token.LBRACES, Lit: "{{", Pos: &position.Pos{EndCol: 1}},
+		{Type: token.IDENT, Lit: "caf", Pos: &position.Pos{StartCol: 3, EndCol: 5}},
+		{Type: token.ILLEGAL, Lit: "é", Pos: &position.Pos{StartCol: 6, EndCol: 6}},
+		{Type: token.RBRACES, Lit: "}}", Pos: &position.Pos{StartCol: 9, EndCol: 10}},
+		{Type: token.EOF, Lit: "", Pos: &position.Pos{StartCol: 11, EndCol: 11}},
+	})
+}
+
 func TestOther(t *testing.T) {
 	inp := "{{ , == != <= >= > < }}"
 

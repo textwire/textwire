@@ -4,6 +4,7 @@
 
 - 🐛 Fixed `@break`, `@continue`, `@breakif` and `@continueif` being silently ignored outside of a loop. They now report `'@break' can only be used inside a loop` (or the matching directive name).
 - 🐛 Fixed a NUL byte in a template silently cutting the output. The lexer used `0` to mark the end of input, so everything after the byte disappeared; NUL is now treated as a regular character and the rest of the template renders.
+- 🐛 Fixed illegal-token errors showing mojibake for non-ASCII characters. `{{ café }}` now reports `illegal token 'é'` instead of `illegal token 'Ã'`.
 
 ## v5.1.9 (2026-10-25)
 

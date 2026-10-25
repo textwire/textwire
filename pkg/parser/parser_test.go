@@ -724,6 +724,17 @@ func TestErrorHandling(t *testing.T) {
 			),
 		},
 		{
+			id:  57,
+			inp: "{{ café }}",
+			err: fail.New(
+				&position.Pos{StartCol: 6, EndCol: 6},
+				"",
+				fail.OriginPars,
+				fail.ErrIllegalToken,
+				"é",
+			),
+		},
+		{
 			id:  60,
 			inp: "{{ ) }}",
 			err: fail.New(
