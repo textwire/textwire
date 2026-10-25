@@ -657,7 +657,7 @@ func TestErrorHandling(t *testing.T) {
 			),
 		},
 		{
-			id:  51,
+			id:  50,
 			inp: "{{ {'a' + 'b': 1} }}",
 			err: fail.New(
 				&position.Pos{StartCol: 8, EndCol: 8},
@@ -669,7 +669,7 @@ func TestErrorHandling(t *testing.T) {
 			),
 		},
 		{
-			id:  52,
+			id:  51,
 			inp: "a@breakb",
 			err: fail.New(
 				&position.Pos{StartCol: 1, EndCol: 6},
@@ -680,7 +680,7 @@ func TestErrorHandling(t *testing.T) {
 			),
 		},
 		{
-			id:  53,
+			id:  52,
 			inp: "a@continueb",
 			err: fail.New(
 				&position.Pos{StartCol: 1, EndCol: 9},
@@ -691,7 +691,7 @@ func TestErrorHandling(t *testing.T) {
 			),
 		},
 		{
-			id:  54,
+			id:  53,
 			inp: "x@breakif(true)y",
 			err: fail.New(
 				&position.Pos{StartCol: 1, EndCol: 8},
@@ -702,7 +702,7 @@ func TestErrorHandling(t *testing.T) {
 			),
 		},
 		{
-			id:  55,
+			id:  54,
 			inp: "x@continueif(true)y",
 			err: fail.New(
 				&position.Pos{StartCol: 1, EndCol: 11},
@@ -713,7 +713,7 @@ func TestErrorHandling(t *testing.T) {
 			),
 		},
 		{
-			id:  50,
+			id:  56,
 			inp: `{{ 1 ~ 8 }}`,
 			err: fail.New(
 				&position.Pos{StartCol: 5, EndCol: 5},
