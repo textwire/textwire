@@ -1423,9 +1423,6 @@ func (p *Parser) illegal() *ast.Illegal {
 }
 
 func (p *Parser) illegalUntil(tok token.TokenType) *ast.Illegal {
-	for !p.curTokenIs(tok) && !p.curTokenIs(token.EOF) {
-		p.nextToken()
-	}
-
+	p.skipUntil(tok, token.EOF)
 	return p.illegal()
 }
