@@ -1,5 +1,9 @@
 # Release notes V5
 
+## v5.1.9 (2026-10-25)
+
+- 🐛 Fixed string escapes with backslashes. `{{ "a\\" }}` now gives `a\` instead of swallowing the closing quote, and `{{ "C:\\new" }}` no longer turns the escaped backslash into a newline.
+
 ## v5.1.8 (2026-10-24)
 
 - 🐛 Fixed `@for` running the post statement after `@break`, incrementing the loop variable one extra time.

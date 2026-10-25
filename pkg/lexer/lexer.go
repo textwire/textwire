@@ -454,22 +454,61 @@ func (l *Lexer) scanToClosingQuote(quote byte) bool {
 			return true
 		case '\\':
 			l.readChar() // skip the escaped character
+			if l.char == 0 {
+				return false
+			}
 		}
 		l.readChar()
 	}
 	return false
 }
 
+// handleEscapeSequences decodes backslash escapes in a raw string literal.
+// Recognized escapes are \n, \t, \r, \\ and an escaped quote. Any other
+// escape, and a trailing lone backslash, is kept as written.
 func handleEscapeSequences(s string, quote byte) string {
-	// remove slashes before quotes
-	s = strings.ReplaceAll(s, "\\"+string(quote), string(quote))
+	if strings.IndexByte(s, '\\') < 0 {
+		return s // nothing to decode
+	}
 
-	// handle other escape sequences
-	s = strings.ReplaceAll(s, "\\n", "\n")
-	s = strings.ReplaceAll(s, "\\t", "\t")
-	s = strings.ReplaceAll(s, "\\r", "\r")
+	var out strings.Builder
+	out.Grow(len(s))
 
-	return strings.ReplaceAll(s, "\\\\", "\\")
+	for i := 0; i < len(s); i++ {
+		isEscape := s[i] == '\\' && i+1 < len(s)
+
+		if !isEscape {
+			out.WriteByte(s[i])
+			continue
+		}
+
+		i++ // move onto the escaped character
+
+		if decoded, ok := decodeEscape(s[i], quote); ok {
+			out.WriteByte(decoded)
+		} else {
+			out.WriteByte('\\')
+			out.WriteByte(s[i])
+		}
+	}
+
+	return out.String()
+}
+
+// decodeEscape returns the byte that the escape `\<c>` stands for,
+// or false if the escape is not recognized.
+func decodeEscape(c, quote byte) (byte, bool) {
+	switch c {
+	case 'n':
+		return '\n', true
+	case 't':
+		return '\t', true
+	case 'r':
+		return '\r', true
+	case '\\', quote:
+		return c, true
+	}
+	return 0, false
 }
 
 func (l *Lexer) readNumber() (string, bool) {

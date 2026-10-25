@@ -418,6 +418,8 @@ func TestEvalStringExp(t *testing.T) {
 		{40, `<div {{ "data-attr='Test'" }}></div>`, "<div data-attr=&#39;Test&#39;></div>"},
 		// String with escaped characters
 		{50, `{{ "She \"is\" pretty" }}`, "She &#34;is&#34; pretty"},
+		{51, `{{ "a\\" }}`, `a\`},
+		{52, `{{ "C:\\new" }}`, `C:\new`},
 		// String concatenation
 		{60, `{{ "Korotchaeva" + " " + "Anna" }}`, "Korotchaeva Anna"},
 		{70, `{{ "She" + " " + "is" + " " + "nice" }}`, "She is nice"},
