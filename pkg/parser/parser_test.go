@@ -635,6 +635,40 @@ func TestErrorHandling(t *testing.T) {
 			),
 		},
 		{
+			id:  48,
+			inp: "{{ {#: 1} }}",
+			err: fail.New(
+				&position.Pos{StartCol: 4, EndCol: 4},
+				"",
+				fail.OriginPars,
+				fail.ErrInvalidObjKey,
+				"#",
+			),
+		},
+		{
+			id:  49,
+			inp: "{{ {1.5: 2} }}",
+			err: fail.New(
+				&position.Pos{StartCol: 4, EndCol: 6},
+				"",
+				fail.OriginPars,
+				fail.ErrInvalidObjKey,
+				"1.5",
+			),
+		},
+		{
+			id:  51,
+			inp: "{{ {'a' + 'b': 1} }}",
+			err: fail.New(
+				&position.Pos{StartCol: 8, EndCol: 8},
+				"",
+				fail.OriginPars,
+				fail.ErrWrongPeekToken,
+				token.String(token.COLON),
+				"+",
+			),
+		},
+		{
 			id:  50,
 			inp: `{{ 1 ~ 8 }}`,
 			err: fail.New(

@@ -446,16 +446,13 @@ func (p *Parser) objExpr() ast.Expression {
 	}
 
 	for !p.curTokenIs(token.RBRACE, token.EOF) {
-		key := p.curToken.Lit
-
-		if p.peekTokenIs(token.COLON) {
-			p.nextToken() // move to ":"
-			p.nextToken() // skip to ":"
-
-			obj.Pairs[key] = p.expression(LOWEST)
-		} else {
-			obj.Pairs[key] = p.expression(LOWEST)
+		key, ok := p.objKey()
+		if !ok {
+			p.skipUntil(token.RBRACE, token.EOF)
+			break
 		}
+
+		obj.Pairs[key] = p.expression(LOWEST)
 
 		if p.peekTokenIs(token.RBRACE) {
 			p.nextToken() // skip "}"
@@ -481,6 +478,44 @@ func (p *Parser) objExpr() ast.Expression {
 	obj.SetEndPosition(p.curToken.Pos)
 
 	return obj
+}
+
+// objKey reads an object key and the ":" that follows it.
+// The second return reports whether the key was valid.
+//
+// Identifiers can also use the shorthand notation `{ key }`,
+// which is the same as `{ key: key }`.
+func (p *Parser) objKey() (string, bool) {
+	if !p.curTokenIs(token.IDENT, token.STR) {
+		p.newError(p.curToken.Pos, fail.ErrInvalidObjKey, p.curToken.Lit)
+		return "", false
+	}
+
+	key := p.curToken.Lit
+
+	switch {
+	case p.peekTokenIs(token.COLON):
+		p.nextToken() // move to ":"
+		p.nextToken() // skip ":"
+		return key, true
+	case p.isShorthandKey():
+		return key, true
+	}
+
+	p.newError(
+		p.peekToken.Pos,
+		fail.ErrWrongPeekToken,
+		token.String(token.COLON),
+		p.peekToken.Lit,
+	)
+
+	return "", false
+}
+
+// isShorthandKey reports whether the current identifier is a shorthand
+// property, as in `{ key }` or `{ key, other: 1 }`.
+func (p *Parser) isShorthandKey() bool {
+	return p.curTokenIs(token.IDENT) && p.peekTokenIs(token.COMMA, token.RBRACE)
 }
 
 func (p *Parser) text() ast.Chunk {

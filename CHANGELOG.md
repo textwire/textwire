@@ -7,6 +7,7 @@
 - 🐛 Fixed `truncate()` cutting bytes instead of characters. `'привіт'.truncate(2)` now gives `пр...` and `'привіт'.truncate(3, '')` gives `при` instead of leaving invalid UTF-8 in the output.
 - 🐛 Fixed float division by zero rendering `+Inf.0` or `NaN.0` in the page. `{{ 1.0 / 0.0 }}` now reports the same `division by zero` error as integer division.
 - 🐛 Fixed expressions without `;` between them being accepted and glued together. `{{ 1 2 }}` used to render `12` and `{{ name name }}` rendered `AnnaAnna`; now they report `expected ';' but found '2'` (or the token that follows).
+- 🐛 Fixed object keys accepting almost any token. `{#: 1}` and `{1.5: 2}` now report `object key must be an identifier or a string, got '...'`, and expression keys like `{'a' + 'b': 1}` are rejected instead of quietly building a different object.
 
 ## v5.1.8 (2026-10-24)
 
