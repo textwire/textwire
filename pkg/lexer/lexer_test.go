@@ -400,6 +400,7 @@ func TestUnterminatedString(t *testing.T) {
 			inp:  `{{ 'unterminated\'`,
 			lit:  `unterminated\'`,
 		},
+		{name: "trailing backslash", inp: `{{ "abc\`, lit: `abc\`},
 	}
 
 	for _, tc := range cases {
@@ -418,6 +419,77 @@ func TestUnterminatedString(t *testing.T) {
 
 				if tok.Type == token.EOF {
 					t.Fatal("expected an ILLEGAL token, got EOF")
+				}
+			}
+		})
+	}
+}
+
+func TestUnclosedComment(t *testing.T) {
+	cases := []struct {
+		name string
+		inp  string
+	}{
+		{name: "comment at end of input", inp: "{{-- todo"},
+		{
+			name: "multiline comment at end of input",
+			inp:  "{{-- todo\n<h1>{{ name }}</h1>",
+		},
+		{name: "comment swallows the rest", inp: "a{{-- c --}b{{ name }}"},
+		{name: "nested comment never closed", inp: "{{-- a {{-- b --}}"},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			l := New(tc.inp)
+
+			for {
+				tok := l.Next()
+
+				if tok.Type == token.UNCLOSED_COMMENT {
+					return
+				}
+
+				if tok.Type == token.EOF {
+					t.Fatal("expected an UNCLOSED_COMMENT token, got EOF")
+				}
+			}
+		})
+	}
+}
+
+func TestStringEscapes(t *testing.T) {
+	cases := []struct {
+		name string
+		inp  string
+		lit  string
+	}{
+		{name: "escaped backslash", inp: `{{ "a\\" }}`, lit: `a\`},
+		{name: "escaped backslash before n", inp: `{{ "C:\\new" }}`, lit: `C:\new`},
+		{name: "newline escape", inp: `{{ "a\nb" }}`, lit: "a\nb"},
+		{name: "tab escape", inp: `{{ "a\tb" }}`, lit: "a\tb"},
+		{name: "carriage return escape", inp: `{{ "a\rb" }}`, lit: "a\rb"},
+		{name: "escaped double quote", inp: `{{ "a\"b" }}`, lit: `a"b`},
+		{name: "escaped single quote", inp: `{{ 'a\'b' }}`, lit: `a'b`},
+		{name: "unknown escape kept", inp: `{{ "a\xb" }}`, lit: `a\xb`},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			l := New(tc.inp)
+
+			for {
+				tok := l.Next()
+
+				if tok.Type == token.STR {
+					if tok.Lit != tc.lit {
+						t.Fatalf("expected STR literal %q, got %q", tc.lit, tok.Lit)
+					}
+					return
+				}
+
+				if tok.Type == token.EOF {
+					t.Fatal("expected a STR token, got EOF")
 				}
 			}
 		})

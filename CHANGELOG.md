@@ -1,5 +1,14 @@
 # Release notes V5
 
+## v5.1.9 (2026-10-25)
+
+- 🐛 Fixed string escapes with backslashes. `{{ "a\\" }}` now gives `a\` instead of swallowing the closing quote, and `{{ "C:\\new" }}` no longer turns the escaped backslash into a newline.
+- 🐛 Fixed unclosed comments silently deleting the rest of the template. A `{{-- comment` without the closing `--}}` used to make everything after it disappear from the output, leaving you with no clue why. Now it reports `missing closing '--}}'` pointing at the end of the file.
+- 🐛 Fixed `truncate()` cutting bytes instead of characters. `'привіт'.truncate(2)` now gives `пр...` and `'привіт'.truncate(3, '')` gives `при` instead of leaving invalid UTF-8 in the output.
+- 🐛 Fixed float division by zero rendering `+Inf.0` or `NaN.0` in the page. `{{ 1.0 / 0.0 }}` now reports the same `division by zero` error as integer division.
+- 🐛 Fixed expressions without `;` between them being accepted and glued together. `{{ 1 2 }}` used to render `12` and `{{ name name }}` rendered `AnnaAnna`; now they report `expected ';' but found '2'` (or the token that follows).
+- 🐛 Fixed object keys accepting almost any token. `{#: 1}` and `{1.5: 2}` now report `object key must be an identifier or a string, got '...'`, and expression keys like `{'a' + 'b': 1}` are rejected instead of quietly building a different object.
+
 ## v5.1.8 (2026-10-24)
 
 - 🐛 Fixed `@for` running the post statement after `@break`, incrementing the loop variable one extra time.

@@ -164,7 +164,7 @@ func strTruncateFunc(receiver value.Literal, args ...value.Literal) (value.Liter
 	}
 
 	// Truncate the string at the limit and append the suffix
-	return &value.Str{Val: val[:limit] + ellipsis}, nil
+	return &value.Str{Val: string([]rune(val)[:limit]) + ellipsis}, nil
 }
 
 // strDecimalFunc returns a string formatted as a decimal number.

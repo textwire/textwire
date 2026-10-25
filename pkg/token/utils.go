@@ -4,6 +4,8 @@ var tokens = [...]string{
 	ILLEGAL: "illegal",
 	EOF:     "eof",
 
+	UNCLOSED_COMMENT: "unclosed comment",
+
 	IDENT: "identifier",
 	TEXT:  "text",
 	INT:   "integer",

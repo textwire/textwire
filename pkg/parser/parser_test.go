@@ -577,6 +577,98 @@ func TestErrorHandling(t *testing.T) {
 			),
 		},
 		{
+			id:  43,
+			inp: "{{-- todo",
+			err: fail.New(
+				&position.Pos{StartCol: 9, EndCol: 9},
+				"",
+				fail.OriginPars,
+				fail.ErrMissingClosingBraces,
+				"--}}",
+			),
+		},
+		{
+			id:  44,
+			inp: "a{{-- c --}b{{ name }}",
+			err: fail.New(
+				&position.Pos{StartCol: 22, EndCol: 22},
+				"",
+				fail.OriginPars,
+				fail.ErrMissingClosingBraces,
+				"--}}",
+			),
+		},
+		{
+			id:  45,
+			inp: "{{ 1 2 }}",
+			err: fail.New(
+				&position.Pos{StartCol: 5, EndCol: 5},
+				"",
+				fail.OriginPars,
+				fail.ErrWrongPeekToken,
+				token.String(token.SEMI),
+				"2",
+			),
+		},
+		{
+			id:  46,
+			inp: "{{ name name }}",
+			err: fail.New(
+				&position.Pos{StartCol: 8, EndCol: 11},
+				"",
+				fail.OriginPars,
+				fail.ErrWrongPeekToken,
+				token.String(token.SEMI),
+				"name",
+			),
+		},
+		{
+			id:  47,
+			inp: "{{ a = 1 b = 2; a + b }}",
+			err: fail.New(
+				&position.Pos{StartCol: 9, EndCol: 9},
+				"",
+				fail.OriginPars,
+				fail.ErrWrongPeekToken,
+				token.String(token.SEMI),
+				"b",
+			),
+		},
+		{
+			id:  48,
+			inp: "{{ {#: 1} }}",
+			err: fail.New(
+				&position.Pos{StartCol: 4, EndCol: 4},
+				"",
+				fail.OriginPars,
+				fail.ErrInvalidObjKey,
+				"#",
+			),
+		},
+		{
+			id:  49,
+			inp: "{{ {1.5: 2} }}",
+			err: fail.New(
+				&position.Pos{StartCol: 4, EndCol: 6},
+				"",
+				fail.OriginPars,
+				fail.ErrInvalidObjKey,
+				"1.5",
+			),
+		},
+		{
+			id:  51,
+			inp: "{{ {'a' + 'b': 1} }}",
+			err: fail.New(
+				&position.Pos{StartCol: 8, EndCol: 8},
+				"",
+				fail.OriginPars,
+				fail.ErrWrongPeekToken,
+				token.String(token.COLON),
+				"+",
+			),
+		},
+		{
 			id:  50,
 			inp: `{{ 1 ~ 8 }}`,
 			err: fail.New(

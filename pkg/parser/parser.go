@@ -210,9 +210,7 @@ func (p *Parser) embedded(tokenEnd token.TokenType) ast.Chunk {
 	for !p.curTokenIs(tokenEnd, token.EOF) {
 		if segment := p.segment(); segment != nil {
 			embedded.Segments = append(embedded.Segments, segment)
-			if p.curTokenIs(token.SEMI) {
-				p.nextToken() // skip ";"
-			}
+			p.finishSegment(tokenEnd)
 		}
 	}
 
@@ -226,6 +224,45 @@ func (p *Parser) embedded(tokenEnd token.TokenType) ast.Chunk {
 	}
 
 	return embedded
+}
+
+// finishSegment consumes the ";" after a segment. If the segment is followed
+// by anything else, it reports the error and skips to the next separator to
+// avoid cascading errors.
+func (p *Parser) finishSegment(tokenEnd token.TokenType) {
+	if !p.curTokenIs(token.SEMI, tokenEnd, token.EOF) {
+		p.reportUnexpectedTokenAfterSegment()
+		p.skipUntil(token.SEMI, tokenEnd, token.EOF)
+	}
+
+	if p.curTokenIs(token.SEMI) {
+		p.nextToken() // skip ";"
+	}
+}
+
+// reportUnexpectedTokenAfterSegment reports why the current token cannot
+// follow a segment.
+func (p *Parser) reportUnexpectedTokenAfterSegment() {
+	// Tokens that cannot start an expression, like an unknown operator,
+	// get a dedicated error.
+	if p.prefixParseFns[p.curToken.Type] == nil {
+		p.newError(p.curToken.Pos, fail.ErrIllegalToken, p.curToken.Lit)
+		return
+	}
+
+	p.newError(
+		p.curToken.Pos,
+		fail.ErrWrongPeekToken,
+		token.String(token.SEMI),
+		p.curToken.Lit,
+	)
+}
+
+// skipUntil advances until the current token is one of the given types.
+func (p *Parser) skipUntil(types ...token.TokenType) {
+	for !p.curTokenIs(types...) {
+		p.nextToken()
+	}
 }
 
 func (p *Parser) peekIsStatement() bool {
@@ -409,16 +446,13 @@ func (p *Parser) objExpr() ast.Expression {
 	}
 
 	for !p.curTokenIs(token.RBRACE, token.EOF) {
-		key := p.curToken.Lit
-
-		if p.peekTokenIs(token.COLON) {
-			p.nextToken() // move to ":"
-			p.nextToken() // skip to ":"
-
-			obj.Pairs[key] = p.expression(LOWEST)
-		} else {
-			obj.Pairs[key] = p.expression(LOWEST)
+		key, ok := p.objKey()
+		if !ok {
+			p.skipUntil(token.RBRACE, token.EOF)
+			break
 		}
+
+		obj.Pairs[key] = p.expression(LOWEST)
 
 		if p.peekTokenIs(token.RBRACE) {
 			p.nextToken() // skip "}"
@@ -444,6 +478,44 @@ func (p *Parser) objExpr() ast.Expression {
 	obj.SetEndPosition(p.curToken.Pos)
 
 	return obj
+}
+
+// objKey reads an object key and the ":" that follows it.
+// The second return reports whether the key was valid.
+//
+// Identifiers can also use the shorthand notation `{ key }`,
+// which is the same as `{ key: key }`.
+func (p *Parser) objKey() (string, bool) {
+	if !p.curTokenIs(token.IDENT, token.STR) {
+		p.newError(p.curToken.Pos, fail.ErrInvalidObjKey, p.curToken.Lit)
+		return "", false
+	}
+
+	key := p.curToken.Lit
+
+	switch {
+	case p.peekTokenIs(token.COLON):
+		p.nextToken() // move to ":"
+		p.nextToken() // skip ":"
+		return key, true
+	case p.isShorthandKey():
+		return key, true
+	}
+
+	p.newError(
+		p.peekToken.Pos,
+		fail.ErrWrongPeekToken,
+		token.String(token.COLON),
+		p.peekToken.Lit,
+	)
+
+	return "", false
+}
+
+// isShorthandKey reports whether the current identifier is a shorthand
+// property, as in `{ key }` or `{ key, other: 1 }`.
+func (p *Parser) isShorthandKey() bool {
+	return p.curTokenIs(token.IDENT) && p.peekTokenIs(token.COMMA, token.RBRACE)
 }
 
 func (p *Parser) text() ast.Chunk {
@@ -1371,6 +1443,11 @@ func (p *Parser) expressionList(endTok token.TokenType) []ast.Expression {
 }
 
 func (p *Parser) illegal() *ast.Illegal {
+	if p.curTokenIs(token.UNCLOSED_COMMENT) {
+		p.newError(p.curToken.Pos, fail.ErrMissingClosingBraces, "--}}")
+		return ast.NewIllegalNode(p.curToken)
+	}
+
 	p.newError(
 		p.curToken.Pos,
 		fail.ErrIllegalToken,
@@ -1381,9 +1458,6 @@ func (p *Parser) illegal() *ast.Illegal {
 }
 
 func (p *Parser) illegalUntil(tok token.TokenType) *ast.Illegal {
-	for !p.curTokenIs(tok) && !p.curTokenIs(token.EOF) {
-		p.nextToken()
-	}
-
+	p.skipUntil(tok, token.EOF)
 	return p.illegal()
 }
