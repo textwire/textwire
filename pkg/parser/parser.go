@@ -1371,6 +1371,11 @@ func (p *Parser) expressionList(endTok token.TokenType) []ast.Expression {
 }
 
 func (p *Parser) illegal() *ast.Illegal {
+	if p.curTokenIs(token.UNCLOSED_COMMENT) {
+		p.newError(p.curToken.Pos, fail.ErrMissingClosingBraces, "--}}")
+		return ast.NewIllegalNode(p.curToken)
+	}
+
 	p.newError(
 		p.curToken.Pos,
 		fail.ErrIllegalToken,

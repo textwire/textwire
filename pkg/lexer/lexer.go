@@ -96,7 +96,10 @@ func (l *Lexer) Next() token.Token {
 	}
 
 	if l.startsWith('{', '{', '-', '-') {
-		l.skipComment()
+		if !l.skipComment() {
+			l.tokenBegins()
+			return l.newToken(token.UNCLOSED_COMMENT, "")
+		}
 		return l.Next()
 	}
 
@@ -330,8 +333,8 @@ func (l *Lexer) newToken(tokType token.TokenType, literal string) token.Token {
 	// We need to set the end column and line to the values of the previous
 	// character because we already read the last character and incremented
 	// the column index.
-	// For EOF and ILLEGAL we don't need to decrement the column index.
-	if tokType != token.EOF && tokType != token.ILLEGAL {
+	// For EOF, ILLEGAL and UNCLOSED_COMMENT we don't need to decrement the column index.
+	if tokType != token.EOF && tokType != token.ILLEGAL && tokType != token.UNCLOSED_COMMENT {
 		endCol = l.prevCol
 		endLine = l.prevLine
 	}
@@ -639,7 +642,8 @@ func (l *Lexer) skipWhitespace() {
 	}
 }
 
-func (l *Lexer) skipComment() {
+// skipComment skips a comment and reports whether its closing "--}}" was found.
+func (l *Lexer) skipComment() bool {
 	depth := 1
 
 	l.readChars(4) // skip "{{--"
@@ -661,4 +665,6 @@ func (l *Lexer) skipComment() {
 	}
 
 	l.isText = true
+
+	return depth == 0
 }

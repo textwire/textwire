@@ -425,6 +425,39 @@ func TestUnterminatedString(t *testing.T) {
 	}
 }
 
+func TestUnclosedComment(t *testing.T) {
+	cases := []struct {
+		name string
+		inp  string
+	}{
+		{name: "comment at end of input", inp: "{{-- todo"},
+		{
+			name: "multiline comment at end of input",
+			inp:  "{{-- todo\n<h1>{{ name }}</h1>",
+		},
+		{name: "comment swallows the rest", inp: "a{{-- c --}b{{ name }}"},
+		{name: "nested comment never closed", inp: "{{-- a {{-- b --}}"},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			l := New(tc.inp)
+
+			for {
+				tok := l.Next()
+
+				if tok.Type == token.UNCLOSED_COMMENT {
+					return
+				}
+
+				if tok.Type == token.EOF {
+					t.Fatal("expected an UNCLOSED_COMMENT token, got EOF")
+				}
+			}
+		})
+	}
+}
+
 func TestStringEscapes(t *testing.T) {
 	cases := []struct {
 		name string

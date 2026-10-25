@@ -577,6 +577,28 @@ func TestErrorHandling(t *testing.T) {
 			),
 		},
 		{
+			id:  43,
+			inp: "{{-- todo",
+			err: fail.New(
+				&position.Pos{StartCol: 9, EndCol: 9},
+				"",
+				fail.OriginPars,
+				fail.ErrMissingClosingBraces,
+				"--}}",
+			),
+		},
+		{
+			id:  44,
+			inp: "a{{-- c --}b{{ name }}",
+			err: fail.New(
+				&position.Pos{StartCol: 22, EndCol: 22},
+				"",
+				fail.OriginPars,
+				fail.ErrMissingClosingBraces,
+				"--}}",
+			),
+		},
+		{
 			id:  50,
 			inp: `{{ 1 ~ 8 }}`,
 			err: fail.New(
