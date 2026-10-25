@@ -22,6 +22,7 @@ const (
 	ErrExpectedObjLit         = "expected object literal, got '%s'"
 	ErrInvalidObjKey          = "object key must be an identifier or a string, got '%s'"
 	ErrLoopControlOutsideLoop = "'%s' can only be used inside a loop"
+	ErrNulByte                = "unexpected NUL byte in template"
 	ErrSlotNotDefined         = "@component('%s') references @slot('%s') which doesn't exist in the component file"
 	ErrDuplicateReserves      = "found duplicate @reserve('%s') inside of a layout file '%s'"
 	ErrDuplicateSlots         = "found duplicate @slot('%s') inside of a component file '%s'"
