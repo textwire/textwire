@@ -4,6 +4,7 @@
 
 - 🐛 Fixed saving a template with a syntax error while `FileWatcher` is on crashing the whole app. The watcher now logs the parse error and keeps the previously working program instead of dereferencing a nil one.
 - 🐛 Fixed the file watcher calling `os.Exit` when it failed to walk the template folder. It now logs the error and keeps watching.
+- 🐛 Fixed a panic when the right operand is missing inside parentheses, like `{{ (1 + }}`. It now reports `expected expression after '+'` instead of crashing the parser, REPL and file watcher.
 
 ## v5.1.10 (2026-10-25)
 

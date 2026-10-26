@@ -484,6 +484,21 @@ func TestParseOperatorPrecedence(t *testing.T) {
 	}
 }
 
+func TestMissingRightOperandDoesNotPanic(t *testing.T) {
+	cases := []string{"{{ (1 + }}", "{{(1+}}", `{{A%(""%}}`}
+
+	for _, inp := range cases {
+		t.Run(inp, func(t *testing.T) {
+			p := New(lexer.New(inp), nil)
+			p.ParseProgram()
+
+			if !p.HasErrors() {
+				t.Fatalf("expected a parse error for %q", inp)
+			}
+		})
+	}
+}
+
 func TestErrorHandling(t *testing.T) {
 	cases := []struct {
 		id  uint
@@ -732,6 +747,17 @@ func TestErrorHandling(t *testing.T) {
 				fail.OriginPars,
 				fail.ErrIllegalToken,
 				"é",
+			),
+		},
+		{
+			id:  58,
+			inp: "{{ (1 + }}",
+			err: fail.New(
+				&position.Pos{StartCol: 4, EndCol: 6},
+				"",
+				fail.OriginPars,
+				fail.ErrExpectExprAfter,
+				"+",
 			),
 		},
 		{
