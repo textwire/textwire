@@ -2,6 +2,9 @@
 
 ## v5.1.11 (2026-10-26)
 
+- 🐛 Fixed saving a template with a syntax error while `FileWatcher` is on crashing the whole app. The watcher now logs the parse error and keeps the previously working program instead of dereferencing a nil one.
+- 🐛 Fixed the file watcher calling `os.Exit` when it failed to walk the template folder. It now logs the error and keeps watching.
+
 ## v5.1.10 (2026-10-25)
 
 - 🐛 Fixed `@break`, `@continue`, `@breakif` and `@continueif` being silently ignored outside of a loop. They now report `'@break' can only be used inside a loop` (or the matching directive name).
