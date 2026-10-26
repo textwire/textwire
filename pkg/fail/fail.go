@@ -74,9 +74,10 @@ const (
 	ErrFuncResultTooLarge = "%s.%s() result is too large, maximum is %d bytes"
 
 	// Template errors
-	ErrUnsupportedType    = "unsupported value type '%T'"
-	ErrTemplateNotFound   = "template file '%s' not found"
-	ErrFuncAlreadyDefined = "custom function '%s' already defined for type '%s'"
+	ErrUnsupportedType      = "unsupported value type '%s'"
+	ErrUnsupportedFieldType = "unsupported value type '%s' for field '%s'"
+	ErrTemplateNotFound     = "template file '%s' not found"
+	ErrFuncAlreadyDefined   = "custom function '%s' already defined for type '%s'"
 
 	// Linker errors
 	ErrDefaultSlotNotDefined = "you are passing default content in your @component('%s'), but default @slot is not defined in component file '%s'"
