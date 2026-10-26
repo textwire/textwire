@@ -1041,7 +1041,7 @@ func (p *Parser) infixExpr(left ast.Expression) ast.Expression {
 		pos := left.Pos()
 		pos.EndCol = opTok.Pos.EndCol
 		p.newError(pos, fail.ErrExpectExprAfter, opTok.Lit)
-		return nil
+		return ast.NewIllegalNode(opTok)
 	}
 
 	p.nextToken() // skip operator
@@ -1439,6 +1439,10 @@ func (p *Parser) groupedExpr() ast.Expression {
 	p.nextToken() // skip "("
 
 	expr := p.expression(LOWEST)
+	if expr == nil {
+		return p.illegal()
+	}
+
 	expr.SetTok(exprTok)
 
 	if !p.expectPeek(token.RPAREN) { // move to ")"

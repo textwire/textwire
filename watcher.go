@@ -121,7 +121,8 @@ func (fw *fileWatcher) handleNewOrDeletedFiles() {
 
 	files, err := locateFiles()
 	if err != nil {
-		fw.logger.Fatal("error locating files " + err.Error())
+		fw.logger.Error("error locating files " + err.Error())
+		return
 	}
 
 	fw.files = files
@@ -148,6 +149,7 @@ func (fw *fileWatcher) updateFileIfModified(f *file.SourceFile) {
 
 	if failure != nil {
 		fw.logger.Error(failure.Error().Error())
+		return
 	}
 
 	fw.updateOrAddProgram(prog)
