@@ -24,8 +24,8 @@ func NewScopeFromMap(data map[string]any) (*Scope, *fail.Error) {
 
 	for key, val := range data {
 		obj := NativeToValue(val)
-		if obj == nil {
-			return nil, fail.New(nil, "", fail.OriginTpl, fail.ErrUnsupportedType, val)
+		if errObj, ok := obj.(*Error); ok {
+			return nil, errObj.Err
 		}
 
 		if err := scope.Set(key, obj); err != nil {

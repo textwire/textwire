@@ -6,120 +6,145 @@ import (
 	"reflect"
 	"strings"
 	"time"
+
+	"codeberg.org/textwire/textwire/v5/pkg/fail"
 )
 
 func NativeToValue(val any) Literal {
-	switch v := val.(type) {
-	case string:
-		return &Str{Val: v}
-	case bool:
-		return &Bool{Val: v}
-	case float32:
-		return &Float{Val: float64(v)}
-	case float64:
-		return &Float{Val: v}
-	case int64:
-		return &Int{Val: v}
-	case int:
-		return &Int{Val: int64(v)}
-	case int8:
-		return &Int{Val: int64(v)}
-	case int16:
-		return &Int{Val: int64(v)}
-	case int32:
-		return &Int{Val: int64(v)}
-	case uint:
-		return &Int{Val: int64(v)}
-	case uint8:
-		return &Int{Val: int64(v)}
-	case uint16:
-		return &Int{Val: int64(v)}
-	case uint32:
-		return &Int{Val: int64(v)}
-	case uint64:
-		return &Int{Val: int64(v)}
-	case time.Time:
-		return &Str{Val: v.Format("2006-01-02 15:04:05")}
-	case nil:
+	if val == nil {
 		return new(Nil)
 	}
 
-	valType := reflect.TypeOf(val)
+	lit, failure := reflectToLiteral(reflect.ValueOf(val))
+	if failure != nil {
+		return &Error{Err: failure}
+	}
 
-	switch valType.Kind() {
+	return lit
+}
+
+// reflectToLiteral converts v into a Literal. It returns an error for kinds
+// Textwire can't represent, like func, chan and complex.
+func reflectToLiteral(v reflect.Value) (Literal, *fail.Error) {
+	if !v.IsValid() {
+		return new(Nil), nil
+	}
+
+	switch v.Kind() {
+	case reflect.String:
+		return &Str{Val: v.String()}, nil
+	case reflect.Bool:
+		return &Bool{Val: v.Bool()}, nil
+	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+		return &Int{Val: v.Int()}, nil
+	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+		return &Int{Val: int64(v.Uint())}, nil
+	case reflect.Float32, reflect.Float64:
+		return &Float{Val: v.Float()}, nil
 	case reflect.Struct:
-		return nativeStructToValue(val)
-	case reflect.Slice:
-		return nativeSliceToArrValue(convertToInterfaceSlice(val))
+		if t, ok := v.Interface().(time.Time); ok {
+			return &Str{Val: t.Format("2006-01-02 15:04:05")}, nil
+		}
+		return nativeStructToValue(v)
+	case reflect.Slice, reflect.Array:
+		return nativeSliceToValue(v)
 	case reflect.Map:
-		return nativeMapToValue(val)
+		return nativeMapToValue(v)
 	case reflect.Pointer:
-		v := reflect.ValueOf(val)
 		if v.IsNil() {
-			return new(Nil)
+			return new(Nil), nil
+		}
+		return reflectToLiteral(v.Elem())
+	case reflect.Interface:
+		if v.IsNil() {
+			return new(Nil), nil
+		}
+		return reflectToLiteral(v.Elem())
+	}
+
+	return nil, unsupportedTypeError(v, "")
+}
+
+func unsupportedTypeError(v reflect.Value, field string) *fail.Error {
+	if field == "" {
+		return fail.New(nil, "", fail.OriginTpl, fail.ErrUnsupportedType, v.Type())
+	}
+	return fail.New(nil, "", fail.OriginTpl, fail.ErrUnsupportedFieldType, v.Type(), field)
+}
+
+func nativeMapToValue(v reflect.Value) (Literal, *fail.Error) {
+	obj := NewObj(nil)
+	iter := v.MapRange()
+
+	for iter.Next() {
+		lit, failure := reflectToLiteral(iter.Value())
+		if failure != nil {
+			return nil, failure
 		}
 
-		// NativeToValue is used recursively here
-		return NativeToValue(v.Elem().Interface())
+		obj.Pairs[iter.Key().String()] = lit
 	}
 
-	return nil
+	return obj, nil
 }
 
-func nativeMapToValue(val any) Literal {
+func nativeStructToValue(v reflect.Value) (Literal, *fail.Error) {
 	obj := NewObj(nil)
+	valType := v.Type()
 
-	valValue := reflect.ValueOf(val)
-	for _, key := range valValue.MapKeys() {
-		obj.Pairs[key.String()] = NativeToValue(valValue.MapIndex(key).Interface())
-	}
-
-	return obj
-}
-
-func convertToInterfaceSlice(slice any) []any {
-	s := reflect.ValueOf(slice)
-
-	if s.Kind() != reflect.Slice {
-		panic("InterfaceSlice() given a non-slice type")
-	}
-
-	vals := make([]any, s.Len())
-	for i := 0; i < s.Len(); i++ {
-		vals[i] = s.Index(i).Interface()
-	}
-
-	return vals
-}
-
-func nativeStructToValue(val any) Literal {
-	obj := NewObj(nil)
-
-	valType := reflect.TypeOf(val)
-
-	for i := 0; i < valType.NumField(); i++ {
+	for i := 0; i < v.NumField(); i++ {
 		field := valType.Field(i)
-
 		if !field.IsExported() {
 			continue
 		}
 
-		fieldVal := reflect.ValueOf(val).Field(i).Interface()
+		fieldVal := v.Field(i)
 
-		obj.Pairs[field.Name] = NativeToValue(fieldVal)
+		if !isSupportedKind(fieldVal.Kind()) {
+			return nil, unsupportedTypeError(fieldVal, field.Name)
+		}
+
+		lit, failure := reflectToLiteral(fieldVal)
+		if failure != nil {
+			return nil, failure
+		}
+
+		obj.Pairs[field.Name] = lit
 	}
 
-	return obj
+	return obj, nil
 }
 
-func nativeSliceToArrValue(slice []any) *Arr {
+func nativeSliceToValue(v reflect.Value) (Literal, *fail.Error) {
 	arr := new(Arr)
-	arr.Elements = make([]Literal, len(slice))
-	for i := range slice {
-		arr.Elements[i] = NativeToValue(slice[i])
+	arr.Elements = make([]Literal, v.Len())
+
+	for i := 0; i < v.Len(); i++ {
+		lit, failure := reflectToLiteral(v.Index(i))
+		if failure != nil {
+			return nil, failure
+		}
+
+		arr.Elements[i] = lit
 	}
 
-	return arr
+	return arr, nil
+}
+
+// isSupportedKind reports whether the kind can be converted without looking
+// into the value itself.
+func isSupportedKind(kind reflect.Kind) bool {
+	switch kind {
+	case reflect.String, reflect.Bool,
+		reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
+		reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64,
+		reflect.Float32, reflect.Float64,
+		reflect.Struct, reflect.Slice, reflect.Array, reflect.Map,
+		reflect.Pointer, reflect.Interface:
+		return true
+	}
+
+	return false
 }
 
 // marshalJSONString encodes s as a JSON string without HTML escaping. Textwire

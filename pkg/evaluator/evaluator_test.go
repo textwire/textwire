@@ -1084,12 +1084,17 @@ func TestEvalObjLit(t *testing.T) {
 		// Case-insensitive first character access
 		{100, `{{ {"Name": "Ann"}.name }}`, "Ann"},
 		{110, `{{ {"name": "Ann"}.Name }}`, ""},
+		{105, `{{ {"Name": "Ann"}["name"] }}`, "Ann"},
+		{115, `{{ {"name": "Ann"}["Name"] }}`, ""},
 		// Non-existent keys
 		{120, `{{ obj = {"name": "Ann"}; obj.age }}`, ""},
 		{130, `{{ obj = {"name": "Ann"}; obj['missing'] }}`, ""},
 		// Empty object
 		{140, `{{ {}.name }}`, ""},
 		{150, `{{ obj = {}; obj.name }}`, ""},
+		// Empty string key
+		{160, `{{ {a: 1}[""] }}`, ""},
+		{170, `{{ obj = {a: 1}; key = ""; obj[key] }}`, ""},
 	}
 
 	for _, tc := range cases {

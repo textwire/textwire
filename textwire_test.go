@@ -4,6 +4,7 @@ import (
 	"io"
 	"log"
 	"os"
+	"strings"
 	"testing"
 	"time"
 
@@ -30,6 +31,30 @@ func readFile(fileName string) (string, error) {
 	}
 
 	return string(bytes), nil
+}
+
+type namedRole string
+
+type namedUser struct {
+	Name string
+	Role namedRole
+}
+
+type namedUserWithHooks struct {
+	Name string
+	Role namedRole
+	Fn   func()
+	Ch   chan int
+}
+
+type namedUserWithChan struct {
+	Name string
+	Ch   chan int
+}
+
+type namedUserWithComplex struct {
+	Name string
+	Num  complex128
 }
 
 func TestEvalStr(t *testing.T) {
@@ -143,6 +168,36 @@ func TestEvalStr(t *testing.T) {
 			inp:    "{!! str !!}",
 			expect: "<span>Skirk</span>",
 			data:   map[string]any{"str": "<span>Skirk</span>"},
+		},
+		{
+			name:   "Named type in struct field",
+			inp:    `{{ u.role }}`,
+			expect: "editor",
+			data:   map[string]any{"u": namedUser{Name: "Bob", Role: "editor"}},
+		},
+		{
+			name:   "Named type in struct field via index",
+			inp:    `{{ u["role"] }}`,
+			expect: "editor",
+			data:   map[string]any{"u": namedUser{Name: "Bob", Role: "editor"}},
+		},
+		{
+			name:   "Top-level named string type",
+			inp:    `{{ role }}`,
+			expect: "admin",
+			data:   map[string]any{"role": namedRole("admin")},
+		},
+		{
+			name:   "Fixed-size array",
+			inp:    `{{ nums }}`,
+			expect: "1, 2, 3",
+			data:   map[string]any{"nums": [3]int{1, 2, 3}},
+		},
+		{
+			name:   "Fixed-size array with negative ints",
+			inp:    `{{ nums }}`,
+			expect: "-1, -2, 0",
+			data:   map[string]any{"nums": [3]int{-1, -2, 0}},
 		},
 	}
 
@@ -664,6 +719,53 @@ func TestErrorHandling(t *testing.T) {
 			),
 			data: map[string]any{"date": " 2026-03-34 13:03:00"},
 		},
+		{
+			inp: "x",
+			err: fail.New(
+				nil,
+				"",
+				fail.OriginTpl,
+				fail.ErrUnsupportedFieldType,
+				"func()",
+				"Fn",
+			),
+			data: map[string]any{
+				"u": namedUserWithHooks{
+					Name: "Bob",
+					Role: "editor",
+					Fn:   func() {},
+				},
+			},
+		},
+		{
+			inp:  "x",
+			err:  fail.New(nil, "", fail.OriginTpl, fail.ErrUnsupportedType, "func()"),
+			data: map[string]any{"callback": func() {}},
+		},
+		{
+			inp: "x",
+			err: fail.New(
+				nil,
+				"",
+				fail.OriginTpl,
+				fail.ErrUnsupportedFieldType,
+				"chan int",
+				"Ch",
+			),
+			data: map[string]any{"u": namedUserWithChan{Name: "Bob", Ch: make(chan int)}},
+		},
+		{
+			inp: "x",
+			err: fail.New(
+				nil,
+				"",
+				fail.OriginTpl,
+				fail.ErrUnsupportedFieldType,
+				"complex128",
+				"Num",
+			),
+			data: map[string]any{"u": namedUserWithComplex{Name: "Bob", Num: complex(1, 2)}},
+		},
 	}
 
 	for _, tc := range cases {
@@ -729,6 +831,46 @@ func TestJSONEscaping(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestDumpEscapesHTML(t *testing.T) {
+	t.Run("string value", func(t *testing.T) {
+		got, err := EvaluateString(`@dump(x)`, map[string]any{
+			"x": `</span><script>alert(1)</script>`,
+		})
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		if strings.Contains(got, "<script>alert(1)</script>") {
+			t.Fatalf("dump output contains a raw script tag:\n%s", got)
+		}
+
+		if !strings.Contains(got, "&lt;script&gt;alert(1)&lt;/script&gt;") {
+			t.Fatalf("dump output doesn't contain the escaped script tag:\n%s", got)
+		}
+	})
+
+	t.Run("object key and value", func(t *testing.T) {
+		got, err := EvaluateString(`@dump(x)`, map[string]any{
+			"x": map[string]any{"<b>key</b>": "<i>value</i>"},
+		})
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		if strings.Contains(got, "<b>key</b>") || strings.Contains(got, "<i>value</i>") {
+			t.Fatalf("dump output contains raw HTML from the object:\n%s", got)
+		}
+
+		if !strings.Contains(got, "&lt;b&gt;key&lt;/b&gt;") {
+			t.Fatalf("dump output doesn't contain the escaped key:\n%s", got)
+		}
+
+		if !strings.Contains(got, "&lt;i&gt;value&lt;/i&gt;") {
+			t.Fatalf("dump output doesn't contain the escaped value:\n%s", got)
+		}
+	})
 }
 
 func TestEvaluateFile(t *testing.T) {

@@ -28,7 +28,7 @@ tpl, err = textwire.NewTemplate(&config.Config{
 })
 ```
 
-In template files you can use globals like this `{{ globals.env }}`.
+In template files you can use globals like this `{{ global.env }}`.
 
 ## Project Overview
 
@@ -36,7 +36,7 @@ In template files you can use globals like this `{{ globals.env }}`.
 - **Template Extensions**: `.tw`
 - **Architecture**: Modular design with separate packages for lexer, parser, evaluator, AST, token, and object handling
 - **LSP Support**: Full Language Server Protocol implementation for editor integration
-- **Precedence**: All the precedence defined in `./parser/parser.go:20-70`
+- **Precedence**: All the precedence defined in `./pkg/parser/parser.go:20-70`
 
 ## Development Environment & Commands
 
@@ -52,7 +52,7 @@ make pull
 - `make test` - Run all tests
 - `make fmt` - Format Go code
 - `make lint` - Run linter
-- `make shell` - Start the REPL
+- `make repl` - Start the REPL
 - `make check` - Combines commands like: test, fmt, lint
 - `make` - Defaults to `make check`
 
@@ -60,24 +60,6 @@ Commands use `podman-compose` by default. To use Docker Compose instead, overrid
 
 ```bash
 make check OCI='docker compose'
-```
-
-### Single Test Execution
-
-Use these patterns for running specific tests:
-
-```bash
-# Run specific test function
-go test -run TestSpecificFunction ./parser/
-
-# Run tests for specific package with verbose output
-go test -v ./parser/
-
-# Run all tests in parser package
-go test ./parser/...
-
-# Run tests with coverage
-go test -cover ./parser/
 ```
 
 ## Project Architecture

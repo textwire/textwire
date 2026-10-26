@@ -7,7 +7,6 @@ import (
 	"reflect"
 	"slices"
 	"strings"
-	"time"
 
 	"codeberg.org/textwire/textwire/v5/pkg/fail"
 	"codeberg.org/textwire/textwire/v5/pkg/value"
@@ -126,9 +125,6 @@ func arrShuffleFunc(receiver value.Literal, _ ...value.Literal) (value.Literal, 
 	// Create a copy of the elements to shuffle
 	shuffled := make([]value.Literal, length)
 	copy(shuffled, elems)
-
-	// Seed the random number generator to ensure different results
-	rand.New(rand.NewSource(time.Now().UnixNano()))
 
 	// Perform Fisher-Yates shuffle
 	for i := length - 1; i > 0; i-- {
