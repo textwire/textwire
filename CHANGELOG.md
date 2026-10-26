@@ -6,6 +6,7 @@
 - 🐛 Fixed a panic when accessing an object with an empty string key, like `{{ {a: 1}[""] }}`. It now returns `nil` like any other missing key.
 - 🐛 Fixed named Go types and fixed-size arrays in template data. `type Role string`, `time.Duration` and `[3]int` now convert instead of failing. Unsupported kinds like `func`, `chan` or `complex` no longer leave a nil value that panicked on access; they report `unsupported value type 'func()' for field 'Fn'` instead.
 - 📝 Fixed README.md file examples.
+- 🧑‍💻 Removed a useless random generator creation from `shuffle()`. It was created and thrown away before the shuffle ran, and Go seeds the global RNG automatically.
 
 ## v5.1.11 (2026-10-26)
 
