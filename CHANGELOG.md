@@ -3,6 +3,7 @@
 ## v5.1.12 (2026-10-26)
 
 - 🐛 Fixed `@dump` printing strings and object keys without HTML escaping, which let dumped data inject markup into the page. They're now escaped with `html.EscapeString`.
+- 🐛 Fixed a panic when accessing an object with an empty string key, like `{{ {a: 1}[""] }}`. It now returns `nil` like any other missing key.
 
 ## v5.1.11 (2026-10-26)
 

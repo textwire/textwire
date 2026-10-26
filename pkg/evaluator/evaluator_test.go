@@ -1090,6 +1090,9 @@ func TestEvalObjLit(t *testing.T) {
 		// Empty object
 		{140, `{{ {}.name }}`, ""},
 		{150, `{{ obj = {}; obj.name }}`, ""},
+		// Empty string key
+		{160, `{{ {a: 1}[""] }}`, ""},
+		{170, `{{ obj = {a: 1}; key = ""; obj[key] }}`, ""},
 	}
 
 	for _, tc := range cases {

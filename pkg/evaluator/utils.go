@@ -194,6 +194,10 @@ func strIsInt(s string) bool {
 // a stack buffer to avoid heap allocations. Returns the original string
 // unchanged if the first character is not a lowercase ASCII letter.
 func capitalizeFirst(s string) string {
+	if len(s) == 0 {
+		return s
+	}
+
 	first := s[0]
 	if first < 'a' || first > 'z' {
 		return s
