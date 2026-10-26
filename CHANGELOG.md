@@ -1,5 +1,7 @@
 # Release notes V5
 
+## v5.1.11 (2026-10-26)
+
 ## v5.1.10 (2026-10-25)
 
 - 🐛 Fixed `@break`, `@continue`, `@breakif` and `@continueif` being silently ignored outside of a loop. They now report `'@break' can only be used inside a loop` (or the matching directive name).
