@@ -69,12 +69,19 @@ func (o *Obj) JSON() (string, error) {
 			out.WriteByte(',')
 		}
 
+		encodedKey, err := marshalJSONString(k)
+		if err != nil {
+			return "", err
+		}
+
 		jsonVal, err := pair.JSON()
 		if err != nil {
 			return "", err
 		}
 
-		fmt.Fprintf(&out, `"%s":%s`, k, jsonVal)
+		out.WriteString(encodedKey)
+		out.WriteByte(':')
+		out.WriteString(jsonVal)
 	}
 
 	out.WriteByte('}')

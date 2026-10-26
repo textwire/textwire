@@ -1,7 +1,10 @@
 package value
 
 import (
+	"bytes"
+	"encoding/json"
 	"reflect"
+	"strings"
 	"time"
 )
 
@@ -117,4 +120,21 @@ func nativeSliceToArrValue(slice []any) *Arr {
 	}
 
 	return arr
+}
+
+// marshalJSONString encodes s as a JSON string without HTML escaping. Textwire
+// is a text engine and {!! !!} is the explicit no-escaping operator, so .json()
+// doesn't escape HTML characters like <, > and &.
+func marshalJSONString(s string) (string, error) {
+	var buf bytes.Buffer
+
+	enc := json.NewEncoder(&buf)
+	enc.SetEscapeHTML(false)
+
+	if err := enc.Encode(s); err != nil {
+		return "", err
+	}
+
+	// Encode writes a trailing newline after the value, we remove it
+	return strings.TrimSuffix(buf.String(), "\n"), nil
 }

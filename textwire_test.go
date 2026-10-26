@@ -678,6 +678,59 @@ func TestErrorHandling(t *testing.T) {
 	}
 }
 
+func TestJSONEscaping(t *testing.T) {
+	cases := []struct {
+		name   string
+		inp    string
+		data   map[string]any
+		expect string
+	}{
+		{
+			name:   "html characters are not escaped",
+			inp:    `{!! {k: x}.json() !!}`,
+			data:   map[string]any{"x": `</script><script>alert(1)</script>`},
+			expect: `{"k":"</script><script>alert(1)</script>"}`,
+		},
+		{
+			name:   "control character is escaped",
+			inp:    `{!! [x].json() !!}`,
+			data:   map[string]any{"x": "a\x01b"},
+			expect: `["a\u0001b"]`,
+		},
+		{
+			name:   "invalid utf8 is replaced",
+			inp:    `{!! [x].json() !!}`,
+			data:   map[string]any{"x": "a\xffb"},
+			expect: `["a\ufffdb"]`,
+		},
+		{
+			name:   "object key is escaped",
+			inp:    `{!! {"a\"b": 1}.json() !!}`,
+			data:   nil,
+			expect: `{"a\"b":1}`,
+		},
+		{
+			name:   "escaped braces html-escape the json",
+			inp:    `{{ {k: x}.json() }}`,
+			data:   map[string]any{"x": `<&>`},
+			expect: `{&#34;k&#34;:&#34;&lt;&amp;&gt;&#34;}`,
+		},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			got, err := EvaluateString(tc.inp, tc.data)
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			if got != tc.expect {
+				t.Fatalf("expected %q, got %q", tc.expect, got)
+			}
+		})
+	}
+}
+
 func TestEvaluateFile(t *testing.T) {
 	absPath, fileErr := file.ToFullPath("testdata/good/before/two-vars-no-use/index.tw")
 	if fileErr != nil {

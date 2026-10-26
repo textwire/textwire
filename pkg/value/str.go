@@ -21,7 +21,7 @@ func (s *Str) Dump(ident int) string {
 }
 
 func (s *Str) JSON() (string, error) {
-	return fmt.Sprintf("%q", s.Val), nil
+	return marshalJSONString(s.Val)
 }
 
 func (s *Str) Native() any {
