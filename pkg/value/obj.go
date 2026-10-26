@@ -2,6 +2,7 @@ package value
 
 import (
 	"fmt"
+	"html"
 	"sort"
 	"strings"
 
@@ -114,7 +115,7 @@ func (o *Obj) Dump(ident int) string {
 	for key, pair := range o.Pairs {
 		out.WriteString(insideSpaces)
 		fmt.Fprintf(&out, `<span style="%s">"`, DUMP_PROP)
-		out.WriteString(key)
+		out.WriteString(html.EscapeString(key))
 		fmt.Fprintf(&out, `"</span>: `)
 		out.WriteString(pair.Dump(ident))
 		out.WriteString(",\n")

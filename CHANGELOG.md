@@ -1,5 +1,9 @@
 # Release notes V5
 
+## v5.1.12 (2026-10-26)
+
+- 🐛 Fixed `@dump` printing strings and object keys without HTML escaping, which let dumped data inject markup into the page. They're now escaped with `html.EscapeString`.
+
 ## v5.1.11 (2026-10-26)
 
 - 🐛 Fixed saving a template with a syntax error while `FileWatcher` is on crashing the whole app. The watcher now logs the parse error and keeps the previously working program instead of dereferencing a nil one.

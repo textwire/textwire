@@ -4,6 +4,7 @@ import (
 	"io"
 	"log"
 	"os"
+	"strings"
 	"testing"
 	"time"
 
@@ -729,6 +730,46 @@ func TestJSONEscaping(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestDumpEscapesHTML(t *testing.T) {
+	t.Run("string value", func(t *testing.T) {
+		got, err := EvaluateString(`@dump(x)`, map[string]any{
+			"x": `</span><script>alert(1)</script>`,
+		})
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		if strings.Contains(got, "<script>alert(1)</script>") {
+			t.Fatalf("dump output contains a raw script tag:\n%s", got)
+		}
+
+		if !strings.Contains(got, "&lt;script&gt;alert(1)&lt;/script&gt;") {
+			t.Fatalf("dump output doesn't contain the escaped script tag:\n%s", got)
+		}
+	})
+
+	t.Run("object key and value", func(t *testing.T) {
+		got, err := EvaluateString(`@dump(x)`, map[string]any{
+			"x": map[string]any{"<b>key</b>": "<i>value</i>"},
+		})
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		if strings.Contains(got, "<b>key</b>") || strings.Contains(got, "<i>value</i>") {
+			t.Fatalf("dump output contains raw HTML from the object:\n%s", got)
+		}
+
+		if !strings.Contains(got, "&lt;b&gt;key&lt;/b&gt;") {
+			t.Fatalf("dump output doesn't contain the escaped key:\n%s", got)
+		}
+
+		if !strings.Contains(got, "&lt;i&gt;value&lt;/i&gt;") {
+			t.Fatalf("dump output doesn't contain the escaped value:\n%s", got)
+		}
+	})
 }
 
 func TestEvaluateFile(t *testing.T) {
