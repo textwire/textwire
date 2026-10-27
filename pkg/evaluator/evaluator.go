@@ -1257,12 +1257,10 @@ func (e *Evaluator) minusPrefixOpExp(
 }
 
 func (e *Evaluator) bangOpExp(right value.Literal, node ast.Node, ctx *Context) value.Literal {
-	switch right {
-	case FALSE:
-		return TRUE
-	case TRUE:
-		return FALSE
-	case NIL:
+	switch right := right.(type) {
+	case *value.Bool:
+		return nativeBoolToBoolObj(!right.Val)
+	case *value.Nil:
 		return TRUE
 	}
 

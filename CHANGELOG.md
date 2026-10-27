@@ -2,6 +2,7 @@
 
 ## v5.1.13 (2026-10-27)
 
+- 🐛 Fixed `!` rejecting booleans from data, logical expressions and functions. It now negates boolean values regardless of their source.
 - 🐛 Fixed a panic when a `@for` init statement is missing its operator, like `@for(i 0; ...)`. It now reports a syntax error.
 - 🐛 Fixed `uint64` values above `math.MaxInt64` rendering as negative numbers. They now report `unsigned integer '...' is out of int64 range` instead of silently wrapping to `-1`.
 

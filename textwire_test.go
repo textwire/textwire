@@ -75,6 +75,18 @@ func TestEvalStr(t *testing.T) {
 		data   map[string]any
 	}{
 		{
+			name:   "Negate boolean from data",
+			inp:    `{{ !isAdmin }}`,
+			expect: "1",
+			data:   map[string]any{"isAdmin": false},
+		},
+		{
+			name:   "Negate nil from data",
+			inp:    `{{ !nothing }}`,
+			expect: "1",
+			data:   map[string]any{"nothing": nil},
+		},
+		{
 			name:   "Accessing propery name on empty obj variable",
 			inp:    `@if(item && item.items && item.items > 1)YES@elseNO@end`,
 			expect: "NO",
