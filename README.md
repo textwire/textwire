@@ -1,6 +1,6 @@
 # Textwire. A templating language for Go
 
-<p align="center"><img src="https://textwire.serhiicho.com/images/logo.png" width="150" height="150" /></p>
+<p align="center"><img src=".forgejo/textwire-logo.png" width="150" height="150" /></p>
 
 Textwire is a simple yet powerful templating language for Go. It is designed to easily inject variables from Go code into a template file or just a regular string.
 
@@ -168,3 +168,13 @@ Write clear, descriptive error messages:
 ## License
 
 The Textwire project is licensed under the [MIT License](https://codeberg.org/textwire/textwire/src/branch/master/LICENSE)
+
+## Thanks To
+
+Thanks to Codeberg and Forgejo for hosting Textwire.
+
+<p align="center">
+<img src=".forgejo/codeberg-logo.png" width="50" height="50" />
+<img src=".forgejo/textwire-logo.png" width="50" height="50" />
+<img src=".forgejo/forgejo-logo.png" width="50" height="50" />
+</p>
