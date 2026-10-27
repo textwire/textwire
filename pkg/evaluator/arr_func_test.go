@@ -1,7 +1,10 @@
 package evaluator
 
 import (
+	"slices"
 	"testing"
+
+	"codeberg.org/textwire/textwire/v5/pkg/value"
 )
 
 func TestEvalArrFunctions(t *testing.T) {
@@ -118,5 +121,34 @@ func TestEvalArrFunctions(t *testing.T) {
 
 	for _, tc := range cases {
 		evaluationExpected(t, tc.inp, tc.expect, tc.id)
+	}
+}
+
+func TestArrRandFunc_CanSelectAnyElement(t *testing.T) {
+	const calls = 100
+
+	elems := []value.Literal{
+		&value.Int{Val: 1},
+		&value.Int{Val: 2},
+		&value.Int{Val: 3},
+	}
+	arr := &value.Arr{Elements: elems}
+
+	seen := make(map[value.Literal]bool)
+	for range calls {
+		got, err := arrRandFunc(arr)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if !slices.Contains(elems, got) {
+			t.Fatalf("rand returned an element outside the array: %v", got)
+		}
+		seen[got] = true
+	}
+
+	for i, elem := range elems {
+		if !seen[elem] {
+			t.Errorf("element %d was never returned in %d calls", i, calls)
+		}
 	}
 }

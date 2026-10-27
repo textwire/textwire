@@ -2,6 +2,7 @@
 
 ## v5.1.13 (2026-10-27)
 
+- 🐛 Fixed array `.rand()` always returning the first element. It now selects a random element.
 - 🐛 Fixed float decrement failing for negative values, underflowing values between 0 and 1, and mutating aliased values. Decrement now assigns a new float value.
 - 🐛 Fixed absolute `TemplateDir` paths losing their leading slash. Template directories are now cleaned without turning absolute paths into relative ones.
 - 🐛 Fixed `@reserve` and `@slot` rendering fallback or empty inside conditionals and loops. Child evaluation contexts now share directive data, which remains available across loop iterations. For example, with `@insert("title", "Home")`, this now renders `Home` instead of `Untitled`:
