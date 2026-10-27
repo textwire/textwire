@@ -1,9 +1,13 @@
 package value
 
 import (
+	"fmt"
+	"math"
 	"reflect"
 	"testing"
 	"time"
+
+	"codeberg.org/textwire/textwire/v5/pkg/fail"
 )
 
 // Named types used to verify that NativeToValue looks at the underlying kind.
@@ -25,6 +29,11 @@ type testModel struct {
 	Callback func()
 	Ch       chan int
 	Data     [3]int
+}
+
+type testUintModel struct {
+	Name string
+	Big  uint64
 }
 
 func assertValue(t *testing.T, input any, want Literal) {
@@ -135,4 +144,20 @@ func TestNativeToValue_UnsupportedValues(t *testing.T) {
 			assertErrorMessage(t, tt.input, tt.wantErr)
 		})
 	}
+}
+
+func TestNativeToValue_UintOverflow(t *testing.T) {
+	t.Run("max int64 fits", func(t *testing.T) {
+		assertValue(t, uint64(math.MaxInt64), &Int{Val: math.MaxInt64})
+	})
+
+	t.Run("above max int64 errors", func(t *testing.T) {
+		val := uint64(math.MaxInt64) + 1
+		assertErrorMessage(t, val, fmt.Sprintf(fail.ErrUintOverflow, val))
+	})
+
+	t.Run("above max int64 in a field names the field", func(t *testing.T) {
+		input := testUintModel{Name: "Bob", Big: uint64(math.MaxUint64)}
+		assertErrorMessage(t, input, fmt.Sprintf(fail.ErrUintOverflowField, input.Big, "Big"))
+	})
 }

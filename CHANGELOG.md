@@ -1,5 +1,9 @@
 # Release notes V5
 
+## v5.1.13 (2026-10-27)
+
+- 🐛 Fixed `uint64` values above `math.MaxInt64` rendering as negative numbers. They now report `unsigned integer '...' is out of int64 range` instead of silently wrapping to `-1`.
+
 ## v5.1.12 (2026-10-26)
 
 - 🐛 Fixed `@dump` printing strings and object keys without HTML escaping, which let dumped data inject markup into the page. They're now escaped with `html.EscapeString`.

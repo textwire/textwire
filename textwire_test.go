@@ -3,6 +3,7 @@ package textwire
 import (
 	"io"
 	"log"
+	"math"
 	"os"
 	"strings"
 	"testing"
@@ -55,6 +56,11 @@ type namedUserWithChan struct {
 type namedUserWithComplex struct {
 	Name string
 	Num  complex128
+}
+
+type namedUserWithUint struct {
+	Name string
+	Big  uint64
 }
 
 func TestEvalStr(t *testing.T) {
@@ -192,6 +198,12 @@ func TestEvalStr(t *testing.T) {
 			inp:    `{{ nums }}`,
 			expect: "1, 2, 3",
 			data:   map[string]any{"nums": [3]int{1, 2, 3}},
+		},
+		{
+			name:   "Largest int64 as uint64",
+			inp:    `{{ n }}`,
+			expect: "9223372036854775807",
+			data:   map[string]any{"n": uint64(math.MaxInt64)},
 		},
 		{
 			name:   "Fixed-size array with negative ints",
@@ -765,6 +777,23 @@ func TestErrorHandling(t *testing.T) {
 				"Num",
 			),
 			data: map[string]any{"u": namedUserWithComplex{Name: "Bob", Num: complex(1, 2)}},
+		},
+		{
+			inp:  "x",
+			err:  fail.New(nil, "", fail.OriginTpl, fail.ErrUintOverflow, uint64(math.MaxUint64)),
+			data: map[string]any{"big": uint64(math.MaxUint64)},
+		},
+		{
+			inp: "x",
+			err: fail.New(
+				nil,
+				"",
+				fail.OriginTpl,
+				fail.ErrUintOverflowField,
+				uint64(math.MaxUint64),
+				"Big",
+			),
+			data: map[string]any{"u": namedUserWithUint{Name: "Bob", Big: math.MaxUint64}},
 		},
 	}
 
