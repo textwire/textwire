@@ -3,6 +3,7 @@ package textwire
 import (
 	"fmt"
 	"net/http"
+	"strings"
 
 	"codeberg.org/textwire/textwire/v5/config"
 	"codeberg.org/textwire/textwire/v5/pkg/ast"
@@ -94,8 +95,14 @@ func (t *Template) Response(w http.ResponseWriter, name string, data map[string]
 		return nil
 	}
 
+	status := http.StatusInternalServerError
+	if isTemplateNotFound(failure) {
+		status = http.StatusNotFound
+	}
+
 	hasErrPage := userConf.ErrorPagePath != ""
 	if hasErrPage && !userConf.DebugMode {
+		w.WriteHeader(status)
 		if err := t.responseErrorPage(w); err != nil {
 			return err
 		}
@@ -108,12 +115,26 @@ func (t *Template) Response(w http.ResponseWriter, name string, data map[string]
 		return err
 	}
 
+	w.WriteHeader(status)
 	_, err2 := fmt.Fprint(w, errPage)
 	if err2 != nil {
 		return fail.FromError(err2, nil, name, fail.OriginTpl)
 	}
 
 	return failure
+}
+
+// isTemplateNotFound reports whether the failure is caused by a missing
+// template file.
+func isTemplateNotFound(failure *fail.Error) bool {
+	if failure == nil {
+		return false
+	}
+
+	msg := failure.Message()
+	return failure.Origin() == fail.OriginTpl &&
+		strings.HasPrefix(msg, "template file '") &&
+		strings.HasSuffix(msg, "' not found")
 }
 
 func (t *Template) responseErrorPage(w http.ResponseWriter) *fail.Error {

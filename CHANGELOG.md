@@ -1,5 +1,9 @@
 # Release notes V5
 
+## v5.1.14 (2026-10-27)
+
+- 🐛 Fixed `Template.Response` sending error pages with HTTP 200. It now writes 500 for render errors and 404 for missing templates.
+
 ## v5.1.13 (2026-10-27)
 
 - 🐛 Fixed native maps with non-string keys collapsing into one object entry. Keys now use their formatted values, so `map[int]string{1: "one", 2: "two"}` retains both entries.
