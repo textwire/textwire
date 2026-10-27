@@ -1,0 +1,3 @@
+<div>@if(true)@slot("if")@end</div>
+<p>@each(i in [1, 2])[@slot("each")]@end</p>
+<p>@for(i = 0; i < 2; i++)[@slot("for")]@end</p>

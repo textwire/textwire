@@ -245,6 +245,7 @@ func TestNewTemplate(t *testing.T) {
 		{conf: &config.Config{}, view: "index", data: nil, dir: "inserts-and-html"},
 		{conf: &config.Config{}, view: "index", data: nil, dir: "comp-no-args"},
 		{conf: &config.Config{}, view: "index", data: nil, dir: "insert-is-optional"},
+		{conf: &config.Config{}, view: "index", data: nil, dir: "nested-reserve-slot"},
 		{conf: &config.Config{}, view: "index", data: nil, dir: "use-with-comp-inside"},
 		{conf: &config.Config{}, view: "home", data: nil, dir: "comp-in-other-comp"},
 		{

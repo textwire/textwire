@@ -39,3 +39,12 @@ func NewContext(scope *value.Scope, absPath string) *Context {
 		slots:   SlotsStore{},
 	}
 }
+
+func (ctx *Context) child() *Context {
+	return &Context{
+		scope:   ctx.scope,
+		absPath: ctx.absPath,
+		inserts: ctx.inserts,
+		slots:   ctx.slots,
+	}
+}
