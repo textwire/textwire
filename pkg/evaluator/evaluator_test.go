@@ -142,6 +142,8 @@ func TestEvalBooleanExp(t *testing.T) {
 		{30, "{{ !true }}", "0"},
 		{40, "{{ !false }}", "1"},
 		{50, "{{ !nil }}", "1"},
+		{55, "{{ !(1 == 1 && 2 == 2) }}", "0"},
+		{57, `{{ !"Hello".contains("World") }}`, "1"},
 		{60, "{{ !!true }}", "1"},
 		{70, "{{ !!false }}", "0"},
 		// --------------------------- Logical ---------------------------
@@ -867,9 +869,13 @@ func TestIncDecDir(t *testing.T) {
 		// Integer
 		{10, `{{ i = 10; i++; i }}`, "11"},
 		{20, `{{ x = 0; x++; x }}`, "1"},
+		{21, `{{ a = 2; b = a; b--; a }}`, "2"},
 		// Float
-		{30, `{{ x = 4.4; x--; x }}`, "3.4"},
+		{30, `{{ x = 4.4; x--; x }}`, "3.4000000000000004"},
 		{48, `{{ x = 0.0; x--; x }}`, "-1.0"},
+		{49, `{{ x = 0.5; x--; x }}`, "-0.5"},
+		{50, `{{ x = -1.5; x--; x }}`, "-2.5"},
+		{51, `{{ a = 2.5; b = a; b--; a }}`, "2.5"},
 	}
 
 	for _, tc := range cases {
@@ -978,6 +984,8 @@ func TestEvalEachDir(t *testing.T) {
 		{20, `@each(num in [1, 2, 3]){{ num }}@end`, "123"},
 		{30, `@each(num in []){{ num }}@end`, ""},
 		{31, `@each(item in [nil, nil]){{ item }}@end`, ""},
+		{32, `@each(x in [1, nil, 2]){{ x }},@end`, "1,,2,"},
+		{33, `@each(x in [1, "two"]){{ x }}@end`, "1two"},
 		// test loop variable
 		{40, `@each(num in [43, 12, 53]){{ loop.index }}@end`, "012"},
 		{50, `@each(num in [100]){{ loop.index }}@end`, "0"},

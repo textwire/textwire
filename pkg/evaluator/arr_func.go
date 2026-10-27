@@ -58,7 +58,7 @@ func arrRandFunc(receiver value.Literal, _ ...value.Literal) (value.Literal, err
 		return &value.Nil{}, nil
 	}
 
-	return elems[0], nil
+	return elems[rand.Intn(len(elems))], nil
 }
 
 // arrReverseFunc reverses the elements of the given arr

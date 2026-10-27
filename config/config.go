@@ -3,7 +3,7 @@ package config
 import (
 	"io/fs"
 	"os"
-	"strings"
+	"path/filepath"
 	"time"
 )
 
@@ -89,7 +89,7 @@ func (c *Config) Configure(opt *Config) {
 	}
 
 	if opt.TemplateDir != "" {
-		c.TemplateDir = strings.Trim(opt.TemplateDir, "/")
+		c.TemplateDir = filepath.Clean(opt.TemplateDir)
 	}
 
 	if opt.TemplateExt != "" {

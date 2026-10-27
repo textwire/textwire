@@ -11,7 +11,7 @@ import (
 // TestFloatArithmeticMatchesGo pins down that float arithmetic follows IEEE 754
 // like Go does: overflow goes to infinity, underflow goes to zero, and NaN
 // propagates, all without an error.
-func TestFloatArithmeticMatchesGo(t *testing.T) {
+func TestFloatInfixExp_MatchesGoArithmetic(t *testing.T) {
 	e := New(&config.Func{}, nil)
 	ctx := NewContext(value.NewScope(), "")
 

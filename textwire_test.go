@@ -3,6 +3,7 @@ package textwire
 import (
 	"io"
 	"log"
+	"math"
 	"os"
 	"strings"
 	"testing"
@@ -57,6 +58,11 @@ type namedUserWithComplex struct {
 	Num  complex128
 }
 
+type namedUserWithUint struct {
+	Name string
+	Big  uint64
+}
+
 func TestEvalStr(t *testing.T) {
 	datetime, _ := time.Parse("2006-01-02 15:04:05", "1990-12-23 11:22:33")
 	date, _ := time.Parse("2006-01-02", "1990-12-23")
@@ -68,6 +74,24 @@ func TestEvalStr(t *testing.T) {
 		expect string
 		data   map[string]any
 	}{
+		{
+			name:   "Negate boolean from data",
+			inp:    `{{ !isAdmin }}`,
+			expect: "1",
+			data:   map[string]any{"isAdmin": false},
+		},
+		{
+			name:   "Negate nil from data",
+			inp:    `{{ !nothing }}`,
+			expect: "1",
+			data:   map[string]any{"nothing": nil},
+		},
+		{
+			name:   "Iterating over mixed Go values",
+			inp:    `@each(x in items){{ x }}|@end`,
+			expect: "1|two|3.5||",
+			data:   map[string]any{"items": []any{1, "two", 3.5, nil}},
+		},
 		{
 			name:   "Accessing propery name on empty obj variable",
 			inp:    `@if(item && item.items && item.items > 1)YES@elseNO@end`,
@@ -192,6 +216,12 @@ func TestEvalStr(t *testing.T) {
 			inp:    `{{ nums }}`,
 			expect: "1, 2, 3",
 			data:   map[string]any{"nums": [3]int{1, 2, 3}},
+		},
+		{
+			name:   "Largest int64 as uint64",
+			inp:    `{{ n }}`,
+			expect: "9223372036854775807",
+			data:   map[string]any{"n": uint64(math.MaxInt64)},
 		},
 		{
 			name:   "Fixed-size array with negative ints",
@@ -511,6 +541,11 @@ func TestErrorHandling(t *testing.T) {
 		data map[string]any
 	}{
 		{
+			inp:  "@for(i 0; i < 2; i++)x@end",
+			err:  fail.New(nil, "", fail.OriginPars, fail.ErrForLoopExpectStmt, "i"),
+			data: nil,
+		},
+		{
 			inp: `{{ defined(name.undefinedFunc()) }}`,
 			err: fail.New(
 				nil,
@@ -765,6 +800,23 @@ func TestErrorHandling(t *testing.T) {
 				"Num",
 			),
 			data: map[string]any{"u": namedUserWithComplex{Name: "Bob", Num: complex(1, 2)}},
+		},
+		{
+			inp:  "x",
+			err:  fail.New(nil, "", fail.OriginTpl, fail.ErrUintOverflow, uint64(math.MaxUint64)),
+			data: map[string]any{"big": uint64(math.MaxUint64)},
+		},
+		{
+			inp: "x",
+			err: fail.New(
+				nil,
+				"",
+				fail.OriginTpl,
+				fail.ErrUintOverflowField,
+				uint64(math.MaxUint64),
+				"Big",
+			),
+			data: map[string]any{"u": namedUserWithUint{Name: "Bob", Big: math.MaxUint64}},
 		},
 	}
 

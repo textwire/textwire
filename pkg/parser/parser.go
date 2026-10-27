@@ -1233,7 +1233,13 @@ func (p *Parser) parserForDirInit() ast.Statement {
 	left := p.expression(LOWEST)
 	p.nextToken() // move to =/++/--
 
-	return p.statement(left)
+	stmt := p.statement(left)
+	if stmt != nil {
+		return stmt
+	}
+
+	p.newError(left.Pos(), fail.ErrForLoopExpectStmt, left.String())
+	return nil
 }
 
 func (p *Parser) parserForDirCond() ast.Expression {

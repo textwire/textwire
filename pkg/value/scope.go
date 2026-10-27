@@ -58,6 +58,15 @@ func (e *Scope) Set(key string, val Literal) error {
 	return nil
 }
 
+func (e *Scope) SetLoopVariable(key string, val Literal) error {
+	if key == "loop" || key == "global" {
+		return errors.New(fail.ErrReservedIdentifiers)
+	}
+
+	e.vars[key] = val
+	return nil
+}
+
 func (e *Scope) SetLoopVar(pairs map[string]Literal) {
 	e.vars["loop"] = NewObj(pairs)
 }

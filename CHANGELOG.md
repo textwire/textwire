@@ -1,5 +1,23 @@
 # Release notes V5
 
+## v5.1.13 (2026-10-27)
+
+- 🐛 Fixed native maps with non-string keys collapsing into one object entry. Keys now use their formatted values, so `map[int]string{1: "one", 2: "two"}` retains both entries.
+- 🐛 Fixed `@each` failing when array elements have different types. The loop variable is now redefined for each element instead of being type-checked as an assignment.
+- 🐛 Fixed `.capitalize()` corrupting strings that start with a multi-byte character. It now uppercases the first Unicode rune without splitting its UTF-8 encoding.
+- 🐛 Fixed array `.rand()` always returning the first element. It now selects a random element.
+- 🐛 Fixed float decrement failing for negative values, underflowing values between 0 and 1, and mutating aliased values. Decrement now assigns a new float value.
+- 🐛 Fixed absolute `TemplateDir` paths losing their leading slash. Template directories are now cleaned without turning absolute paths into relative ones.
+- 🐛 Fixed `!` rejecting booleans from data, logical expressions and functions. It now negates boolean values regardless of their source.
+- 🐛 Fixed a panic when a `@for` init statement is missing its operator, like `@for(i 0; ...)`. It now reports a syntax error.
+- 🐛 Fixed `uint64` values above `math.MaxInt64` rendering as negative numbers. They now report `unsigned integer '...' is out of int64 range` instead of silently wrapping to `-1`.
+- 🐛 Fixed `@reserve` and `@slot` rendering fallback or empty inside conditionals and loops. Child evaluation contexts now share directive data, which remains available across loop iterations. For example, with `@insert("title", "Home")`, this now renders `Home` instead of `Untitled`:
+  ```textwire
+  @if(showTitle)
+      @reserve("title", "Untitled")
+  @end
+  ```
+
 ## v5.1.12 (2026-10-26)
 
 - 🐛 Fixed `@dump` printing strings and object keys without HTML escaping, which let dumped data inject markup into the page. They're now escaped with `html.EscapeString`.

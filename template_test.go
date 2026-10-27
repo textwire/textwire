@@ -3,6 +3,8 @@ package textwire
 import (
 	"fmt"
 	"net/http/httptest"
+	"os"
+	"path/filepath"
 	"reflect"
 	"strings"
 	"testing"
@@ -245,6 +247,7 @@ func TestNewTemplate(t *testing.T) {
 		{conf: &config.Config{}, view: "index", data: nil, dir: "inserts-and-html"},
 		{conf: &config.Config{}, view: "index", data: nil, dir: "comp-no-args"},
 		{conf: &config.Config{}, view: "index", data: nil, dir: "insert-is-optional"},
+		{conf: &config.Config{}, view: "index", data: nil, dir: "nested-reserve-slot"},
 		{conf: &config.Config{}, view: "index", data: nil, dir: "use-with-comp-inside"},
 		{conf: &config.Config{}, view: "home", data: nil, dir: "comp-in-other-comp"},
 		{
@@ -310,6 +313,33 @@ func TestNewTemplate(t *testing.T) {
 				t.Fatalf("Wrong result. Expect:\n'%s'\ngot:\n'%s'", expect, actual)
 			}
 		})
+	}
+}
+
+func TestNewTemplate_WithAbsoluteTemplateDir(t *testing.T) {
+	templateDir := t.TempDir()
+
+	err := os.WriteFile(
+		filepath.Join(templateDir, "index.tw"),
+		[]byte("hello"),
+		0o600,
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	tpl, failure := NewTemplate(&config.Config{TemplateDir: templateDir})
+	if failure != nil {
+		t.Fatal(failure)
+	}
+
+	actual, failure := tpl.String("index", nil)
+	if failure != nil {
+		t.Fatal(failure)
+	}
+
+	if actual != "hello" {
+		t.Fatalf("expected 'hello', got %q", actual)
 	}
 }
 

@@ -1,0 +1,11 @@
+<title>@if(true)@reserve("title", "fallback")@end</title>
+
+<p>@each(i in [1, 2])@reserve("each")@end</p>
+
+<p>@for(i = 0; i < 2; i++)@reserve("for")@end</p>
+
+@component("card")
+@pass("if")T1@end
+@pass("each")E1@end
+@pass("for")F1@end
+@end

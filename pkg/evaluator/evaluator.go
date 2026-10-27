@@ -169,7 +169,7 @@ func (e *Evaluator) ifDir(ifDir *ast.IfDir, ctx *Context) value.Value {
 		return cond
 	}
 
-	ifCtx := NewContext(ctx.scope, ctx.absPath)
+	ifCtx := ctx.child()
 	if isTruthy(cond) {
 		return e.Eval(ifDir.IfBlock, ifCtx)
 	}
@@ -371,9 +371,6 @@ func (e *Evaluator) reserveDir(reserveDir *ast.ReserveDir, ctx *Context) value.V
 		return e.evalLiteral(reserveDir.Fallback, ctx)
 	}
 
-	// Delete reserve after it's been used by reserve
-	defer delete(ctx.inserts, name)
-
 	return &value.Reserve{
 		Name:   name,
 		Insert: insert,
@@ -466,7 +463,7 @@ func (e *Evaluator) passCompArgsToCtx(compDir *ast.CompDir, ctx, compCtx *Contex
 }
 
 func (e *Evaluator) forDir(forDir *ast.ForDir, ctx *Context) value.Value {
-	forCtx := NewContext(ctx.scope, ctx.absPath)
+	forCtx := ctx.child()
 
 	init := e.evalLiteral(forDir.Init, forCtx)
 	if isError(init) {
@@ -529,7 +526,7 @@ func (e *Evaluator) forDir(forDir *ast.ForDir, ctx *Context) value.Value {
 }
 
 func (e *Evaluator) eachDir(eachDir *ast.EachDir, ctx *Context) value.Value {
-	eachCtx := NewContext(ctx.scope, ctx.absPath)
+	eachCtx := ctx.child()
 	varName := eachDir.Var.Name
 
 	arrObj := e.evalLiteral(eachDir.Arr, eachCtx)
@@ -552,7 +549,7 @@ func (e *Evaluator) eachDir(eachDir *ast.EachDir, ctx *Context) value.Value {
 	block := value.NewBlock(len(arrElems))
 
 	for i := range arrElems {
-		if err := eachCtx.scope.Set(varName, arrElems[i]); err != nil {
+		if err := eachCtx.scope.SetLoopVariable(varName, arrElems[i]); err != nil {
 			return e.newError(eachDir, eachCtx, "%s", err.Error())
 		}
 
@@ -615,9 +612,6 @@ func (e *Evaluator) slotDir(slotDir *ast.SlotDir, ctx *Context) value.Value {
 		// Slots are optional in component files since v3.1.0
 		return NIL
 	}
-
-	// delete slot after it's been used by external component
-	defer delete(ctx.slots[compName], name)
 
 	return &value.Slot{Name: name, Content: content}
 }
@@ -886,11 +880,7 @@ func (e *Evaluator) decStmt(decInc *ast.DecStmt, ctx *Context) value.Literal {
 	case *value.Int:
 		return e.assignTo(decInc.Left, &value.Int{Val: l.Val - 1}, ctx)
 	case *value.Float:
-		err := l.SubtractFromFloat(1)
-		if err != nil {
-			return e.newError(decInc, ctx, fail.ErrCannotDecFromFloat, left, err)
-		}
-		return e.assignTo(decInc.Left, l, ctx)
+		return e.assignTo(decInc.Left, &value.Float{Val: l.Val - 1}, ctx)
 	}
 
 	return e.newError(decInc, ctx, fail.ErrIllegalTypeForDec, left.Type())
@@ -1257,12 +1247,10 @@ func (e *Evaluator) minusPrefixOpExp(
 }
 
 func (e *Evaluator) bangOpExp(right value.Literal, node ast.Node, ctx *Context) value.Literal {
-	switch right {
-	case FALSE:
-		return TRUE
-	case TRUE:
-		return FALSE
-	case NIL:
+	switch right := right.(type) {
+	case *value.Bool:
+		return nativeBoolToBoolObj(!right.Val)
+	case *value.Nil:
 		return TRUE
 	}
 

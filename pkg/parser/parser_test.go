@@ -1008,6 +1008,17 @@ func TestErrorHandling(t *testing.T) {
 		},
 		// For directive
 		{
+			id:  490,
+			inp: "@for(i 0; i < 2; i++)x@end",
+			err: fail.New(
+				&position.Pos{StartCol: 5, EndCol: 5},
+				"",
+				fail.OriginPars,
+				fail.ErrForLoopExpectStmt,
+				"i",
+			),
+		},
+		{
 			id:  500,
 			inp: "@for(i = 0; i < 4; i+2){{ i }}@end",
 			err: fail.New(

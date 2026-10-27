@@ -76,6 +76,8 @@ const (
 	// Template errors
 	ErrUnsupportedType      = "unsupported value type '%s'"
 	ErrUnsupportedFieldType = "unsupported value type '%s' for field '%s'"
+	ErrUintOverflow         = "unsigned integer '%d' is out of int64 range"
+	ErrUintOverflowField    = "unsigned integer '%d' for field '%s' is out of int64 range"
 	ErrTemplateNotFound     = "template file '%s' not found"
 	ErrFuncAlreadyDefined   = "custom function '%s' already defined for type '%s'"
 
