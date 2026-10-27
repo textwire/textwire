@@ -880,11 +880,7 @@ func (e *Evaluator) decStmt(decInc *ast.DecStmt, ctx *Context) value.Literal {
 	case *value.Int:
 		return e.assignTo(decInc.Left, &value.Int{Val: l.Val - 1}, ctx)
 	case *value.Float:
-		err := l.SubtractFromFloat(1)
-		if err != nil {
-			return e.newError(decInc, ctx, fail.ErrCannotDecFromFloat, left, err)
-		}
-		return e.assignTo(decInc.Left, l, ctx)
+		return e.assignTo(decInc.Left, &value.Float{Val: l.Val - 1}, ctx)
 	}
 
 	return e.newError(decInc, ctx, fail.ErrIllegalTypeForDec, left.Type())

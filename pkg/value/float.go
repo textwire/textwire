@@ -3,8 +3,6 @@ package value
 import (
 	"fmt"
 	"math"
-	"strconv"
-	"strings"
 
 	"codeberg.org/textwire/textwire/v5/pkg/utils"
 )
@@ -34,40 +32,6 @@ func (e *Float) JSON() (string, error) {
 
 func (f *Float) Native() any {
 	return f.Val
-}
-
-func (f *Float) SubtractFromFloat(num uint) error {
-	// Convert the float to a string
-	strVal := strconv.FormatFloat(f.Val, 'f', -1, 64)
-
-	if !strings.Contains(strVal, ".") {
-		f.Val -= float64(num)
-		return nil
-	}
-
-	nums := strings.Split(strVal, ".")
-
-	// Parse the integer part
-	intPart, err := strconv.ParseUint(nums[0], 10, 64)
-	if err != nil {
-		return err
-	}
-
-	// Subtract the uint value from the integer part
-	intPart -= uint64(num)
-
-	// Combine the modified integer part and the decimal part
-	resultStr := fmt.Sprintf("%d.%s", intPart, nums[1])
-
-	// Parse the result back to float64
-	result, err := strconv.ParseFloat(resultStr, 64)
-	if err != nil {
-		return err
-	}
-
-	f.Val = result
-
-	return nil
 }
 
 func (f *Float) Is(t ValueType) bool {
