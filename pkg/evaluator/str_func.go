@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"strings"
+	"unicode"
 	"unicode/utf8"
 
 	"codeberg.org/textwire/textwire/v5/pkg/fail"
@@ -84,7 +85,8 @@ func strCapitalizeFunc(receiver value.Literal, _ ...value.Literal) (value.Litera
 		return &value.Str{Val: ""}, nil
 	}
 
-	newVal := strings.ToUpper(val[:1]) + val[1:]
+	first, size := utf8.DecodeRuneInString(val)
+	newVal := string(unicode.ToUpper(first)) + val[size:]
 
 	return &value.Str{Val: newVal}, nil
 }

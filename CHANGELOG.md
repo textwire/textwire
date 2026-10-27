@@ -2,6 +2,7 @@
 
 ## v5.1.13 (2026-10-27)
 
+- 🐛 Fixed `.capitalize()` corrupting strings that start with a multi-byte character. It now uppercases the first Unicode rune without splitting its UTF-8 encoding.
 - 🐛 Fixed array `.rand()` always returning the first element. It now selects a random element.
 - 🐛 Fixed float decrement failing for negative values, underflowing values between 0 and 1, and mutating aliased values. Decrement now assigns a new float value.
 - 🐛 Fixed absolute `TemplateDir` paths losing their leading slash. Template directories are now cleaned without turning absolute paths into relative ones.
