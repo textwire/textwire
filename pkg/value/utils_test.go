@@ -93,6 +93,14 @@ func TestNativeToValue_SupportedValues(t *testing.T) {
 		{"pointer to named string", &role, &Str{Val: "admin"}},
 		{"fixed-size array", [3]int{1, 2, 3}, intsArray(1, 2, 3)},
 		{
+			"map with integer keys",
+			map[int]string{1: "one", 2: "two"},
+			NewObj(map[string]Literal{
+				"1": &Str{Val: "one"},
+				"2": &Str{Val: "two"},
+			}),
+		},
+		{
 			name:  "struct with named field",
 			input: testUser{Name: "Bob", Role: "editor"},
 			want: NewObj(map[string]Literal{

@@ -2,6 +2,7 @@
 
 ## v5.1.13 (2026-10-27)
 
+- 🐛 Fixed native maps with non-string keys collapsing into one object entry. Keys now use their formatted values, so `map[int]string{1: "one", 2: "two"}` retains both entries.
 - 🐛 Fixed `@each` failing when array elements have different types. The loop variable is now redefined for each element instead of being type-checked as an assignment.
 - 🐛 Fixed `.capitalize()` corrupting strings that start with a multi-byte character. It now uppercases the first Unicode rune without splitting its UTF-8 encoding.
 - 🐛 Fixed array `.rand()` always returning the first element. It now selects a random element.

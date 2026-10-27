@@ -3,6 +3,7 @@ package value
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"math"
 	"reflect"
 	"strings"
@@ -105,7 +106,7 @@ func nativeMapToValue(v reflect.Value) (Literal, *fail.Error) {
 			return nil, failure
 		}
 
-		obj.Pairs[iter.Key().String()] = lit
+		obj.Pairs[fmt.Sprint(iter.Key().Interface())] = lit
 	}
 
 	return obj, nil
