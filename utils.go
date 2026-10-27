@@ -111,7 +111,7 @@ func locateFiles() ([]*file.SourceFile, error) {
 				return err
 			}
 
-			if d.IsDir() || !strings.Contains(path, userConf.TemplateExt) {
+			if d.IsDir() || !strings.HasSuffix(path, userConf.TemplateExt) {
 				return nil
 			}
 
@@ -128,7 +128,7 @@ func locateFiles() ([]*file.SourceFile, error) {
 				return err
 			}
 
-			name := strings.Replace(path, userConf.TemplateExt, "", 1)
+			name := strings.TrimSuffix(path, userConf.TemplateExt)
 			file := file.New(name, relPath, absPath, userConf)
 
 			fileInfo, err := d.Info()

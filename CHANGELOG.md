@@ -3,6 +3,7 @@
 ## v5.1.14 (2026-10-27)
 
 - 🐛 Fixed `Template.Response` sending error pages with HTTP 200. It now writes 500 for render errors and 404 for missing templates.
+- 🐛 Fixed `locateFiles` treating any path containing `.tw` as a template. It now only loads files ending in the template extension, and no longer mangles names in directories like `my.tweaks/`.
 
 ## v5.1.13 (2026-10-27)
 

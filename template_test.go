@@ -498,6 +498,43 @@ func TestTemplateResponseStatusCodes(t *testing.T) {
 	})
 }
 
+func TestLocateFiles_IgnoresNonTemplateFiles(t *testing.T) {
+	templateDir := t.TempDir()
+
+	files := map[string]string{
+		"index.tw":     "hello",
+		"notes.twig":   "junk @end",
+		"some.tw.twig": "@end",
+		"card.tw.html": "@end",
+	}
+
+	for name, content := range files {
+		err := os.WriteFile(
+			filepath.Join(templateDir, name),
+			[]byte(content),
+			0o600,
+		)
+
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	tpl, failure := NewTemplate(&config.Config{TemplateDir: templateDir})
+	if failure != nil {
+		t.Fatalf("unexpected template error: %s", failure)
+	}
+
+	actual, err := tpl.String("index", nil)
+	if err != nil {
+		t.Fatalf("unexpected eval error: %s", err)
+	}
+
+	if actual != "hello" {
+		t.Fatalf("expected 'hello', got %q", actual)
+	}
+}
+
 func TestTwoTemplates(t *testing.T) {
 	tpl, tplErr := NewTemplate(&config.Config{
 		TemplateDir: "testdata/good/before/two-templates",
