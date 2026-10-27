@@ -2,6 +2,7 @@ package textwire
 
 import (
 	"fmt"
+	"net/http"
 	"net/http/httptest"
 	"os"
 	"path/filepath"
@@ -469,6 +470,68 @@ func TestRegisteringCustomFunction(t *testing.T) {
 
 	if actual != expect {
 		t.Errorf("Wrong result. Expect:\n'%s'\ngot:\n'%s'", expect, actual)
+	}
+}
+
+func TestTemplateResponseStatusCodes(t *testing.T) {
+	tpl, tplErr := NewTemplate(&config.Config{
+		TemplateDir: "testdata/bad/undefined-var-in-comp",
+	})
+	if tplErr != nil {
+		t.Fatalf("Unexpected template error: %s", tplErr)
+	}
+
+	t.Run("render error returns 500", func(t *testing.T) {
+		rr := httptest.NewRecorder()
+		tpl.Response(rr, "index", nil)
+		if rr.Code != http.StatusInternalServerError {
+			t.Fatalf("expected status %d, got %d", http.StatusInternalServerError, rr.Code)
+		}
+	})
+
+	t.Run("missing template returns 404", func(t *testing.T) {
+		rr := httptest.NewRecorder()
+		tpl.Response(rr, "nonexistent", nil)
+		if rr.Code != http.StatusNotFound {
+			t.Fatalf("expected status %d, got %d", http.StatusNotFound, rr.Code)
+		}
+	})
+}
+
+func TestLocateFiles_IgnoresNonTemplateFiles(t *testing.T) {
+	templateDir := t.TempDir()
+
+	files := map[string]string{
+		"index.tw":     "hello",
+		"notes.twig":   "junk @end",
+		"some.tw.twig": "@end",
+		"card.tw.html": "@end",
+	}
+
+	for name, content := range files {
+		err := os.WriteFile(
+			filepath.Join(templateDir, name),
+			[]byte(content),
+			0o600,
+		)
+
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	tpl, failure := NewTemplate(&config.Config{TemplateDir: templateDir})
+	if failure != nil {
+		t.Fatalf("unexpected template error: %s", failure)
+	}
+
+	actual, err := tpl.String("index", nil)
+	if err != nil {
+		t.Fatalf("unexpected eval error: %s", err)
+	}
+
+	if actual != "hello" {
+		t.Fatalf("expected 'hello', got %q", actual)
 	}
 }
 

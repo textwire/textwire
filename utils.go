@@ -100,48 +100,64 @@ func makeFileNameSet(files []*file.SourceFile) map[string]bool {
 }
 
 // locateFiles recursively finds all Textwire files in the templates directory,
-// creates a *file wrapper for each of them, and returns the discovered files.
+// creates a *file.SourceFile wrapper for each of them, and returns the
+// discovered files.
 func locateFiles() ([]*file.SourceFile, error) {
-	files := make([]*file.SourceFile, 0, 4)
-	err := fs.WalkDir(
-		userConf.TemplateFS,
-		".",
-		func(path string, d fs.DirEntry, err error) error {
-			if err != nil {
-				return err
-			}
+	var files []*file.SourceFile
 
-			if d.IsDir() || !strings.Contains(path, userConf.TemplateExt) {
-				return nil
-			}
+	walk := func(path string, d fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
 
-			// When using config.TemplateFS to embed templates into binary,
-			// we need to exclude config.TemplateDir from path since it
-			// already contains it.
-			if userConf.UsesFS() {
-				path = strings.Replace(path, userConf.TemplateDir, "", 1)
-			}
-
-			relPath := file.JoinPaths(userConf.TemplateDir, path)
-			absPath, err := filepath.Abs(relPath)
-			if err != nil {
-				return err
-			}
-
-			name := strings.Replace(path, userConf.TemplateExt, "", 1)
-			file := file.New(name, relPath, absPath, userConf)
-
-			fileInfo, err := d.Info()
-			if err != nil {
-				return err
-			}
-
-			file.ModTime = fileInfo.ModTime()
-			files = append(files, file)
-
+		if !isTemplateFile(path, d) {
 			return nil
-		},
-	)
+		}
 
-	return files, err
+		sf, err := newSourceFile(path, d)
+		if err != nil {
+			return err
+		}
+
+		files = append(files, sf)
+		return nil
+	}
+
+	if err := fs.WalkDir(userConf.TemplateFS, ".", walk); err != nil {
+		return nil, err
+	}
+
+	return files, nil
+}
+
+// isTemplateFile reports whether the entry is a regular file with the
+// configured template extension.
+func isTemplateFile(path string, d fs.DirEntry) bool {
+	return !d.IsDir() && strings.HasSuffix(path, userConf.TemplateExt)
+}
+
+// newSourceFile builds a SourceFile for the template at the given walk path.
+func newSourceFile(path string, d fs.DirEntry) (*file.SourceFile, error) {
+	// When templates are embedded via config.TemplateFS, the walked path
+	// already contains config.TemplateDir, so strip it to avoid duplication.
+	if userConf.UsesFS() {
+		path = strings.Replace(path, userConf.TemplateDir, "", 1)
+	}
+
+	relPath := file.JoinPaths(userConf.TemplateDir, path)
+	absPath, err := filepath.Abs(relPath)
+	if err != nil {
+		return nil, err
+	}
+
+	info, err := d.Info()
+	if err != nil {
+		return nil, err
+	}
+
+	name := strings.TrimSuffix(path, userConf.TemplateExt)
+	sf := file.New(name, relPath, absPath, userConf)
+	sf.ModTime = info.ModTime()
+
+	return sf, nil
 }
