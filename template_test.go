@@ -3,6 +3,8 @@ package textwire
 import (
 	"fmt"
 	"net/http/httptest"
+	"os"
+	"path/filepath"
 	"reflect"
 	"strings"
 	"testing"
@@ -311,6 +313,33 @@ func TestNewTemplate(t *testing.T) {
 				t.Fatalf("Wrong result. Expect:\n'%s'\ngot:\n'%s'", expect, actual)
 			}
 		})
+	}
+}
+
+func TestNewTemplate_WithAbsoluteTemplateDir(t *testing.T) {
+	templateDir := t.TempDir()
+
+	err := os.WriteFile(
+		filepath.Join(templateDir, "index.tw"),
+		[]byte("hello"),
+		0o600,
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	tpl, failure := NewTemplate(&config.Config{TemplateDir: templateDir})
+	if failure != nil {
+		t.Fatal(failure)
+	}
+
+	actual, failure := tpl.String("index", nil)
+	if failure != nil {
+		t.Fatal(failure)
+	}
+
+	if actual != "hello" {
+		t.Fatalf("expected 'hello', got %q", actual)
 	}
 }
 

@@ -2,6 +2,7 @@
 
 ## v5.1.13 (2026-10-27)
 
+- 🐛 Fixed absolute `TemplateDir` paths losing their leading slash. Template directories are now cleaned without turning absolute paths into relative ones.
 - 🐛 Fixed `@reserve` and `@slot` rendering fallback or empty inside conditionals and loops. Child evaluation contexts now share directive data, which remains available across loop iterations. For example, with `@insert("title", "Home")`, this now renders `Home` instead of `Untitled`:
   ```textwire
   @if(showTitle)
