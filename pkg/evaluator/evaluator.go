@@ -549,7 +549,7 @@ func (e *Evaluator) eachDir(eachDir *ast.EachDir, ctx *Context) value.Value {
 	block := value.NewBlock(len(arrElems))
 
 	for i := range arrElems {
-		if err := eachCtx.scope.Set(varName, arrElems[i]); err != nil {
+		if err := eachCtx.scope.SetLoopVariable(varName, arrElems[i]); err != nil {
 			return e.newError(eachDir, eachCtx, "%s", err.Error())
 		}
 

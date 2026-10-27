@@ -984,6 +984,8 @@ func TestEvalEachDir(t *testing.T) {
 		{20, `@each(num in [1, 2, 3]){{ num }}@end`, "123"},
 		{30, `@each(num in []){{ num }}@end`, ""},
 		{31, `@each(item in [nil, nil]){{ item }}@end`, ""},
+		{32, `@each(x in [1, nil, 2]){{ x }},@end`, "1,,2,"},
+		{33, `@each(x in [1, "two"]){{ x }}@end`, "1two"},
 		// test loop variable
 		{40, `@each(num in [43, 12, 53]){{ loop.index }}@end`, "012"},
 		{50, `@each(num in [100]){{ loop.index }}@end`, "0"},

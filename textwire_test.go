@@ -87,6 +87,12 @@ func TestEvalStr(t *testing.T) {
 			data:   map[string]any{"nothing": nil},
 		},
 		{
+			name:   "Iterating over mixed Go values",
+			inp:    `@each(x in items){{ x }}|@end`,
+			expect: "1|two|3.5||",
+			data:   map[string]any{"items": []any{1, "two", 3.5, nil}},
+		},
+		{
 			name:   "Accessing propery name on empty obj variable",
 			inp:    `@if(item && item.items && item.items > 1)YES@elseNO@end`,
 			expect: "NO",
