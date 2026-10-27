@@ -158,23 +158,40 @@ func (fw *fileWatcher) updateFileIfModified(f *file.SourceFile) {
 // updateOrAddProgram updates an existing program or adds a new one to the linker.
 func (fw *fileWatcher) updateOrAddProgram(prog *ast.Program) {
 	fw.withLock(func() {
-		for i := range fw.linker.Programs {
-			if fw.linker.Programs[i].Name == prog.Name {
-				fw.linker.Programs[i] = prog
+		newProgs := make([]*ast.Program, len(fw.linker.Programs))
+		copy(newProgs, fw.linker.Programs)
+
+		for i, existing := range newProgs {
+			if existing.Name == prog.Name {
+				newProgs[i] = prog
+				fw.linker.Programs = newProgs
 				return
 			}
 		}
-		fw.linker.Programs = append(fw.linker.Programs, prog)
+
+		fw.linker.Programs = append(newProgs, prog)
 	})
 }
 
-// relinkPrograms links all programs together and tracks any linking errors.
+// relinkPrograms parses the current files into fresh programs, links them, and
+// swaps the whole slice under the write lock. Existing programs are never
+// mutated, so renders that hold older programs stay consistent.
 func (fw *fileWatcher) relinkPrograms() {
-	fw.withLock(func() {
-		ln := linker.New(fw.linker.Programs)
-		failure := ln.LinkNodes()
-		fw.linker.Programs = ln.Programs
+	if fw.files == nil {
+		return
+	}
 
+	programs, parseFailure := parseFiles(fw.files)
+	if parseFailure != nil {
+		fw.logger.Error(parseFailure.String())
+		return
+	}
+
+	ln := linker.New(programs)
+	failure := ln.LinkNodes()
+
+	fw.withLock(func() {
+		fw.linker.Programs = ln.Programs
 		fw.trackLinkingError(failure)
 	})
 }
@@ -204,7 +221,7 @@ func (fw *fileWatcher) cleanupDeletedPrograms(oldFiles []*file.SourceFile) {
 	deletedFiles := fw.findDeletedFiles(oldFiles)
 
 	fw.withLock(func() {
-		newProgs := fw.linker.Programs[:0]
+		newProgs := make([]*ast.Program, 0, len(fw.linker.Programs))
 		for _, prog := range fw.linker.Programs {
 			if !deletedFiles[prog.Name] {
 				newProgs = append(newProgs, prog)
@@ -231,13 +248,12 @@ func (fw *fileWatcher) findDeletedFiles(oldFiles []*file.SourceFile) map[string]
 // removeProgramsByName removes programs with the specified names from the linker.
 func (fw *fileWatcher) removeProgramByName(name string) {
 	fw.withLock(func() {
-		newProgs := fw.linker.Programs[:0]
+		newProgs := make([]*ast.Program, 0, len(fw.linker.Programs))
 		for _, prog := range fw.linker.Programs {
 			if prog.Name != name {
 				newProgs = append(newProgs, prog)
 			}
 		}
-
 		fw.linker.Programs = newProgs
 	})
 }
