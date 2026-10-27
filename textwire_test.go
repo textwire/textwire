@@ -523,6 +523,11 @@ func TestErrorHandling(t *testing.T) {
 		data map[string]any
 	}{
 		{
+			inp:  "@for(i 0; i < 2; i++)x@end",
+			err:  fail.New(nil, "", fail.OriginPars, fail.ErrForLoopExpectStmt, "i"),
+			data: nil,
+		},
+		{
 			inp: `{{ defined(name.undefinedFunc()) }}`,
 			err: fail.New(
 				nil,
