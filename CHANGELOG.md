@@ -6,15 +6,15 @@
 - 🐛 Fixed array `.rand()` always returning the first element. It now selects a random element.
 - 🐛 Fixed float decrement failing for negative values, underflowing values between 0 and 1, and mutating aliased values. Decrement now assigns a new float value.
 - 🐛 Fixed absolute `TemplateDir` paths losing their leading slash. Template directories are now cleaned without turning absolute paths into relative ones.
+- 🐛 Fixed `!` rejecting booleans from data, logical expressions and functions. It now negates boolean values regardless of their source.
+- 🐛 Fixed a panic when a `@for` init statement is missing its operator, like `@for(i 0; ...)`. It now reports a syntax error.
+- 🐛 Fixed `uint64` values above `math.MaxInt64` rendering as negative numbers. They now report `unsigned integer '...' is out of int64 range` instead of silently wrapping to `-1`.
 - 🐛 Fixed `@reserve` and `@slot` rendering fallback or empty inside conditionals and loops. Child evaluation contexts now share directive data, which remains available across loop iterations. For example, with `@insert("title", "Home")`, this now renders `Home` instead of `Untitled`:
   ```textwire
   @if(showTitle)
       @reserve("title", "Untitled")
   @end
   ```
-- 🐛 Fixed `!` rejecting booleans from data, logical expressions and functions. It now negates boolean values regardless of their source.
-- 🐛 Fixed a panic when a `@for` init statement is missing its operator, like `@for(i 0; ...)`. It now reports a syntax error.
-- 🐛 Fixed `uint64` values above `math.MaxInt64` rendering as negative numbers. They now report `unsigned integer '...' is out of int64 range` instead of silently wrapping to `-1`.
 
 ## v5.1.12 (2026-10-26)
 
