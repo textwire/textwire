@@ -1,4 +1,4 @@
-name: Go
+name: Build and test
 
 on:
   push:
@@ -7,26 +7,21 @@ on:
     branches: [master]
 
 jobs:
-  build:
+  build-and-test:
     runs-on: ubuntu-latest
+    name: Run checks for Go ${{ matrix.go-version }}
     strategy:
       matrix:
-        go-version: [1.25, 1.26]
+        go-version: ["1.25", "1.26", "1.27"]
 
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - name: Set up Go
-        uses: actions/setup-go@v4
+      - uses: webgtx/setup-podman-compose@v1
 
-      - name: Install line length checker
-        run: go install github.com/golangci/golines@latest
+      - name: Pull image
+        run: make pull
 
-      - name: Install golangci-lint
-        run: curl -sSfL https://golangci-lint.run/install.sh | sh -s -- -b $(go env GOPATH)/bin v2.8.0 | curl -sSfL https://golangci-lint.run/install.sh | sh -s v2.8.0 | wget -O- -nv https://golangci-lint.run/install.sh | sh -s v2.8.0
-
-      - name: Build
-        run: go build -v ./...
-
-      - name: Test
-        run: make check
+      - name: Run checks
+        run: make

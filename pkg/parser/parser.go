@@ -1,6 +1,7 @@
 package parser
 
 import (
+	"math"
 	"strconv"
 
 	"github.com/textwire/textwire/v5/pkg/file"
@@ -67,6 +68,10 @@ type Parser struct {
 
 	// Ending token can be }} or !}} for embedded
 	tokenEnd token.TokenType
+
+	// loopDepth is the number of loops we are currently parsing. It's used to
+	// reject @break and @continue outside of a loop.
+	loopDepth int
 
 	prefixParseFns map[token.TokenType]prefixParseFn
 	infixParseFns  map[token.TokenType]infixParseFn
@@ -185,8 +190,14 @@ func (p *Parser) chunk() ast.Chunk {
 	case token.DUMP:
 		return p.dumpDir()
 	case token.BREAK:
+		if illegal := p.illegalIfOutsideLoop(); illegal != nil {
+			return illegal
+		}
 		return ast.NewBreakDir(p.curToken)
 	case token.CONTINUE:
+		if illegal := p.illegalIfOutsideLoop(); illegal != nil {
+			return illegal
+		}
 		return ast.NewContinueDir(p.curToken)
 	}
 
@@ -210,10 +221,13 @@ func (p *Parser) embedded(tokenEnd token.TokenType) ast.Chunk {
 	for !p.curTokenIs(tokenEnd, token.EOF) {
 		if segment := p.segment(); segment != nil {
 			embedded.Segments = append(embedded.Segments, segment)
-			if p.curTokenIs(token.SEMI) {
-				p.nextToken() // skip ";"
-			}
+			p.finishSegment(tokenEnd)
 		}
+	}
+
+	if p.curTokenIs(token.EOF) {
+		p.newError(p.curToken.Pos, fail.ErrMissingClosingBraces, token.String(tokenEnd))
+		return embedded
 	}
 
 	if p.peekTokenIs(tokenEnd) {
@@ -221,6 +235,45 @@ func (p *Parser) embedded(tokenEnd token.TokenType) ast.Chunk {
 	}
 
 	return embedded
+}
+
+// finishSegment consumes the ";" after a segment. If the segment is followed
+// by anything else, it reports the error and skips to the next separator to
+// avoid cascading errors.
+func (p *Parser) finishSegment(tokenEnd token.TokenType) {
+	if !p.curTokenIs(token.SEMI, tokenEnd, token.EOF) {
+		p.reportUnexpectedTokenAfterSegment()
+		p.skipUntil(token.SEMI, tokenEnd, token.EOF)
+	}
+
+	if p.curTokenIs(token.SEMI) {
+		p.nextToken() // skip ";"
+	}
+}
+
+// reportUnexpectedTokenAfterSegment reports why the current token cannot
+// follow a segment.
+func (p *Parser) reportUnexpectedTokenAfterSegment() {
+	if p.prefixParseFns[p.curToken.Type] == nil {
+		// Tokens that cannot start an expression, like an unknown operator,
+		// get a dedicated error.
+		p.illegalWith(fail.ErrIllegalToken, p.curToken.Lit)
+		return
+	}
+
+	p.newError(
+		p.curToken.Pos,
+		fail.ErrWrongPeekToken,
+		token.String(token.SEMI),
+		p.curToken.Lit,
+	)
+}
+
+// skipUntil advances until the current token is one of the given types.
+func (p *Parser) skipUntil(types ...token.TokenType) {
+	for !p.curTokenIs(types...) {
+		p.nextToken()
+	}
 }
 
 func (p *Parser) peekIsStatement() bool {
@@ -344,13 +397,7 @@ func (p *Parser) ident() ast.Expression {
 func (p *Parser) intExpr() ast.Expression {
 	val, err := strconv.ParseInt(p.curToken.Lit, 10, 64)
 	if err != nil {
-		p.newError(
-			p.curToken.Pos,
-			fail.ErrCouldNotParseAs,
-			p.curToken.Lit,
-			"INT",
-		)
-		return nil
+		return p.illegalWith(fail.ErrCouldNotParseAs, p.curToken.Lit, "INT")
 	}
 
 	return ast.NewIntExpr(p.curToken, val)
@@ -359,13 +406,7 @@ func (p *Parser) intExpr() ast.Expression {
 func (p *Parser) floatExpr() ast.Expression {
 	val, err := strconv.ParseFloat(p.curToken.Lit, 64)
 	if err != nil {
-		p.newError(
-			p.curToken.Pos,
-			fail.ErrCouldNotParseAs,
-			p.curToken.Lit,
-			"FLOAT",
-		)
-		return nil
+		return p.illegalWith(fail.ErrCouldNotParseAs, p.curToken.Lit, "FLOAT")
 	}
 
 	return ast.NewFloatExpr(p.curToken, val)
@@ -403,17 +444,14 @@ func (p *Parser) objExpr() ast.Expression {
 		return obj
 	}
 
-	for !p.curTokenIs(token.RBRACE) {
-		key := p.curToken.Lit
-
-		if p.peekTokenIs(token.COLON) {
-			p.nextToken() // move to ":"
-			p.nextToken() // skip to ":"
-
-			obj.Pairs[key] = p.expression(LOWEST)
-		} else {
-			obj.Pairs[key] = p.expression(LOWEST)
+	for !p.curTokenIs(token.RBRACE, token.EOF) {
+		key, ok := p.objKey()
+		if !ok {
+			p.skipUntil(token.RBRACE, token.EOF)
+			break
 		}
+
+		obj.Pairs[key] = p.expression(LOWEST)
 
 		if p.peekTokenIs(token.RBRACE) {
 			p.nextToken() // skip "}"
@@ -423,12 +461,60 @@ func (p *Parser) objExpr() ast.Expression {
 		if p.peekTokenIs(token.COMMA) {
 			p.nextToken() // move to ","
 			p.nextToken() // skip ","
+			continue
 		}
+
+		p.newError(
+			p.peekToken.Pos,
+			fail.ErrWrongPeekToken,
+			token.String(token.RBRACE),
+			p.peekToken.Lit,
+		)
+
+		break
 	}
 
 	obj.SetEndPosition(p.curToken.Pos)
 
 	return obj
+}
+
+// objKey reads an object key and the ":" that follows it.
+// The second return reports whether the key was valid.
+//
+// Identifiers can also use the shorthand notation `{ key }`,
+// which is the same as `{ key: key }`.
+func (p *Parser) objKey() (string, bool) {
+	if !p.curTokenIs(token.IDENT, token.STR) {
+		p.newError(p.curToken.Pos, fail.ErrInvalidObjKey, p.curToken.Lit)
+		return "", false
+	}
+
+	key := p.curToken.Lit
+
+	switch {
+	case p.peekTokenIs(token.COLON):
+		p.nextToken() // move to ":"
+		p.nextToken() // skip ":"
+		return key, true
+	case p.isShorthandKey():
+		return key, true
+	}
+
+	p.newError(
+		p.peekToken.Pos,
+		fail.ErrWrongPeekToken,
+		token.String(token.COLON),
+		p.peekToken.Lit,
+	)
+
+	return "", false
+}
+
+// isShorthandKey reports whether the current identifier is a shorthand
+// property, as in `{ key }` or `{ key, other: 1 }`.
+func (p *Parser) isShorthandKey() bool {
+	return p.curTokenIs(token.IDENT) && p.peekTokenIs(token.COMMA, token.RBRACE)
 }
 
 func (p *Parser) text() ast.Chunk {
@@ -489,6 +575,10 @@ func (p *Parser) useDir() ast.Chunk {
 }
 
 func (p *Parser) breakifDir() ast.Chunk {
+	if illegal := p.illegalIfOutsideLoop(); illegal != nil {
+		return illegal
+	}
+
 	dir := ast.NewBreakIfDir(p.curToken)
 
 	if !p.expectPeek(token.LPAREN) { // move to "("
@@ -509,6 +599,10 @@ func (p *Parser) breakifDir() ast.Chunk {
 }
 
 func (p *Parser) continueifDir() ast.Chunk {
+	if illegal := p.illegalIfOutsideLoop(); illegal != nil {
+		return illegal
+	}
+
 	dir := ast.NewContinueIfDir(p.curToken)
 
 	if !p.expectPeek(token.LPAREN) { // move to "("
@@ -897,7 +991,7 @@ func (p *Parser) globalCallExpr(ident *ast.IdentExpr) ast.Expression {
 	rules, exists := ast.GlobalFunctions[name]
 	if !exists {
 		p.newError(p.peekToken.Pos, fail.ErrGlobalFuncMissing, ident.Name)
-		return nil
+		return ast.NewIllegalNode(p.curToken)
 	}
 
 	expr := ast.NewGlobalCallExpr(p.curToken, name)
@@ -912,12 +1006,12 @@ func (p *Parser) globalCallExpr(ident *ast.IdentExpr) ast.Expression {
 
 	if argsLen < rules.Min {
 		p.newError(expr.Pos(), fail.ErrGlobalFuncFewArgs, name, rules.Min, argsLen)
-		return nil
+		return ast.NewIllegalNode(p.curToken)
 	}
 
 	if argsLen > rules.Max {
 		p.newError(expr.Pos(), fail.ErrGlobalFuncLotsOfArgs, name, rules.Max, argsLen)
-		return nil
+		return ast.NewIllegalNode(p.curToken)
 	}
 
 	return expr
@@ -947,7 +1041,7 @@ func (p *Parser) infixExpr(left ast.Expression) ast.Expression {
 		pos := left.Pos()
 		pos.EndCol = opTok.Pos.EndCol
 		p.newError(pos, fail.ErrExpectExprAfter, opTok.Lit)
-		return nil
+		return ast.NewIllegalNode(opTok)
 	}
 
 	p.nextToken() // skip operator
@@ -1076,6 +1170,9 @@ func (p *Parser) forDir() ast.Chunk {
 		return illegal
 	}
 
+	p.loopDepth++
+	defer func() { p.loopDepth-- }()
+
 	dir.Block = p.block()
 
 	if p.curTokenIs(token.END) {
@@ -1136,7 +1233,13 @@ func (p *Parser) parserForDirInit() ast.Statement {
 	left := p.expression(LOWEST)
 	p.nextToken() // move to =/++/--
 
-	return p.statement(left)
+	stmt := p.statement(left)
+	if stmt != nil {
+		return stmt
+	}
+
+	p.newError(left.Pos(), fail.ErrForLoopExpectStmt, left.String())
+	return nil
 }
 
 func (p *Parser) parserForDirCond() ast.Expression {
@@ -1172,6 +1275,9 @@ func (p *Parser) eachDir() ast.Chunk {
 	if illegal := p.eachDirHeader(dir); illegal != nil { // skips ")"
 		return illegal
 	}
+
+	p.loopDepth++
+	defer func() { p.loopDepth-- }()
 
 	dir.Block = p.block()
 
@@ -1292,14 +1398,45 @@ func (p *Parser) expression(precedence int) ast.Expression {
 }
 
 func (p *Parser) prefixExpr() ast.Expression {
-	expr := ast.NewPrefixExpr(p.curToken, p.curToken.Lit)
+	prefixTok := p.curToken
 
 	p.nextToken() // skip prefix operator
 
+	if expr, ok := p.negativeIntLiteral(prefixTok); ok {
+		return expr
+	}
+
+	expr := ast.NewPrefixExpr(prefixTok, prefixTok.Lit)
 	expr.Right = p.expression(PREFIX)
 	expr.SetEndPosition(p.curToken.Pos)
 
 	return expr
+}
+
+// negativeIntLiteral handles "-9223372036854775808", the one literal whose
+// magnitude doesn't fit in int64 but whose negative value does. Everything
+// else goes through the regular prefix-expression path.
+func (p *Parser) negativeIntLiteral(opTok token.Token) (ast.Expression, bool) {
+	if opTok.Type != token.SUB || !p.curTokenIs(token.INT) {
+		return nil, false
+	}
+
+	lit := p.curToken.Lit
+
+	// Happy path when the literal is not the special case.
+	val, err := strconv.ParseInt("-"+lit, 10, 64)
+	if err != nil || val != math.MinInt64 {
+		return nil, false
+	}
+
+	// The literal's position spans from the "-" to the end of the number.
+	pos := *p.curToken.Pos
+	pos.StartLine = opTok.Pos.StartLine
+	pos.StartCol = opTok.Pos.StartCol
+
+	tok := token.Token{Type: token.INT, Lit: lit, Pos: &pos}
+
+	return ast.NewIntExpr(tok, val), true
 }
 
 func (p *Parser) groupedExpr() ast.Expression {
@@ -1308,6 +1445,10 @@ func (p *Parser) groupedExpr() ast.Expression {
 	p.nextToken() // skip "("
 
 	expr := p.expression(LOWEST)
+	if expr == nil {
+		return p.illegal()
+	}
+
 	expr.SetTok(exprTok)
 
 	if !p.expectPeek(token.RPAREN) { // move to ")"
@@ -1356,19 +1497,31 @@ func (p *Parser) expressionList(endTok token.TokenType) []ast.Expression {
 }
 
 func (p *Parser) illegal() *ast.Illegal {
-	p.newError(
-		p.curToken.Pos,
-		fail.ErrIllegalToken,
-		p.curToken.Lit,
-	)
+	if p.curTokenIs(token.UNCLOSED_COMMENT) {
+		return p.illegalWith(fail.ErrMissingClosingBraces, "--}}")
+	}
+	return p.illegalWith(fail.ErrIllegalToken, p.curToken.Lit)
+}
 
+// illegalWith records an error at the current token and returns an illegal
+// node for it.
+func (p *Parser) illegalWith(msg string, args ...any) *ast.Illegal {
+	p.newError(p.curToken.Pos, msg, args...)
 	return ast.NewIllegalNode(p.curToken)
 }
 
-func (p *Parser) illegalUntil(tok token.TokenType) *ast.Illegal {
-	for !p.curTokenIs(tok) && !p.curTokenIs(token.EOF) {
-		p.nextToken()
+// illegalIfOutsideLoop returns an Illegal node (and reports an error) when a
+// loop control directive is used outside of a loop. It returns nil when the
+// directive is allowed.
+func (p *Parser) illegalIfOutsideLoop() *ast.Illegal {
+	if p.loopDepth > 0 {
+		return nil
 	}
 
+	return p.illegalWith(fail.ErrLoopControlOutsideLoop, p.curToken.Lit)
+}
+
+func (p *Parser) illegalUntil(tok token.TokenType) *ast.Illegal {
+	p.skipUntil(tok, token.EOF)
 	return p.illegal()
 }

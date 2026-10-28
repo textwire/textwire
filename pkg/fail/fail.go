@@ -13,12 +13,15 @@ import (
 const (
 	// Parser errors
 	ErrEmptyBraces            = "empty expression {{}} - must contain valid code like {{ variable }} or {{ 1 + 2 }}"
+	ErrMissingClosingBraces   = "missing closing '%s'"
 	ErrWrongPeekToken         = "syntax error: expected '%s' but found '%s'"
 	ErrExpectExprAfter        = "expected expression after '%s'"
 	ErrCouldNotParseAs        = "cannot parse '%s' as '%s'"
 	ErrIllegalToken           = "illegal token '%s'"
 	ErrElseifCannotFollowElse = "'@elseif' cannot come after '@else'"
 	ErrExpectedObjLit         = "expected object literal, got '%s'"
+	ErrInvalidObjKey          = "object key must be an identifier or a string, got '%s'"
+	ErrLoopControlOutsideLoop = "'%s' can only be used inside a loop"
 	ErrSlotNotDefined         = "@component('%s') references @slot('%s') which doesn't exist in the component file"
 	ErrDuplicateReserves      = "found duplicate @reserve('%s') inside of a layout file '%s'"
 	ErrDuplicateSlots         = "found duplicate @slot('%s') inside of a component file '%s'"
@@ -61,18 +64,22 @@ const (
 	ErrUseDirIsNotAllowed    = "@use() not allowed in layout files - causes infinite recursion"
 
 	// Functions
-	ErrFuncNotDefined   = "%s.%s() is not defined"
-	ErrFuncMissingArg   = "%s.%s(arg) missing required argument"
-	ErrFuncFirstArgInt  = "argument 1 on %s.%s() must be 'integer'"
-	ErrFuncFirstArgStr  = "argument 1 on %s.%s() must be 'string'"
-	ErrFuncSecondArgInt = "argument 2 on %s.%s() must be 'integer'"
-	ErrFuncSecondArgStr = "argument 2 on %s.%s() must be 'string'"
-	ErrFuncMaxArgs      = "%s.%s() takes at most %d arguments"
+	ErrFuncNotDefined     = "%s.%s() is not defined"
+	ErrFuncMissingArg     = "%s.%s(arg) missing required argument"
+	ErrFuncFirstArgInt    = "argument 1 on %s.%s() must be 'integer'"
+	ErrFuncFirstArgStr    = "argument 1 on %s.%s() must be 'string'"
+	ErrFuncSecondArgInt   = "argument 2 on %s.%s() must be 'integer'"
+	ErrFuncSecondArgStr   = "argument 2 on %s.%s() must be 'string'"
+	ErrFuncMaxArgs        = "%s.%s() takes at most %d arguments"
+	ErrFuncResultTooLarge = "%s.%s() result is too large, maximum is %d bytes"
 
 	// Template errors
-	ErrUnsupportedType    = "unsupported value type '%T'"
-	ErrTemplateNotFound   = "template file '%s' not found"
-	ErrFuncAlreadyDefined = "custom function '%s' already defined for type '%s'"
+	ErrUnsupportedType      = "unsupported value type '%s'"
+	ErrUnsupportedFieldType = "unsupported value type '%s' for field '%s'"
+	ErrUintOverflow         = "unsigned integer '%d' is out of int64 range"
+	ErrUintOverflowField    = "unsigned integer '%d' for field '%s' is out of int64 range"
+	ErrTemplateNotFound     = "template file '%s' not found"
+	ErrFuncAlreadyDefined   = "custom function '%s' already defined for type '%s'"
 
 	// Linker errors
 	ErrDefaultSlotNotDefined = "you are passing default content in your @component('%s'), but default @slot is not defined in component file '%s'"

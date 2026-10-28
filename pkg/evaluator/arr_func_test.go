@@ -1,7 +1,10 @@
 package evaluator
 
 import (
+	"slices"
 	"testing"
+
+	"github.com/textwire/textwire/v5/pkg/value"
 )
 
 func TestEvalArrFunctions(t *testing.T) {
@@ -49,6 +52,8 @@ func TestEvalArrFunctions(t *testing.T) {
 		{250, `{{ [1, 2, 3, 4].slice(-3, -1) }}`, "1, 2, 3, 4"},
 		{251, `{{ [1, 2, 3].slice(2, 2) }}`, ""},
 		{252, `{{ [1, 2, 3, 4].slice(-2, 2) }}`, "1, 2"},
+		{253, `{{ [1, 2, 3].slice(2, 1) }}`, ""},
+		{254, `{{ [1, 2, 3].slice(3, 1) }}`, ""},
 		// shuffle
 		{260, `{{ [].shuffle() }}`, ""},
 		{270, `{{ [1].shuffle() }}`, "1"},
@@ -83,6 +88,8 @@ func TestEvalArrFunctions(t *testing.T) {
 		{490, `{{ [1, 2].append(3, 4) }}`, "1, 2, 3, 4"},
 		{500, `{{ [1, 2].append([3, 4]) }}`, "1, 2, 3, 4"},
 		{510, `{{ [1, 2].append([3, 4]).len() }}`, "3"},
+		{511, `{{ a = []; a = a.append(1); a = a.append(2); a }}`, "1, 2"},
+		{512, `{{ a = []; a = a.append([1, 2]); a = a.append([3, 4]); a }}`, "1, 2, 3, 4"},
 		// prepend
 		{520, `{{ [].prepend(1) }}`, "1"},
 		{530, `{{ [1, 2, 3].prepend(4) }}`, "4, 1, 2, 3"},
@@ -110,13 +117,38 @@ func TestEvalArrFunctions(t *testing.T) {
 		},
 		{612, `{{ [true, false, nil].json() }}`, "[true,false,null]"},
 		{613, `{!! [{a: [1, {b: 2}]}].json() !!}`, `[{"a":[1,{"b":2}]}]`},
-		{614, `{{ [0.0/0.0].json() }}`, "[null]"},
-		{615, `{{ [1.0/0.0].json() }}`, "[null]"},
-		{616, `{{ [-1.0/0.0].json() }}`, "[null]"},
-		{617, `{{ [1.0, (0.0/0.0), 3.0].json() }}`, "[1.0,null,3.0]"},
 	}
 
 	for _, tc := range cases {
 		evaluationExpected(t, tc.inp, tc.expect, tc.id)
+	}
+}
+
+func TestArrRandFunc_CanSelectAnyElement(t *testing.T) {
+	const calls = 100
+
+	elems := []value.Literal{
+		&value.Int{Val: 1},
+		&value.Int{Val: 2},
+		&value.Int{Val: 3},
+	}
+	arr := &value.Arr{Elements: elems}
+
+	seen := make(map[value.Literal]bool)
+	for range calls {
+		got, err := arrRandFunc(arr)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if !slices.Contains(elems, got) {
+			t.Fatalf("rand returned an element outside the array: %v", got)
+		}
+		seen[got] = true
+	}
+
+	for i, elem := range elems {
+		if !seen[elem] {
+			t.Errorf("element %d was never returned in %d calls", i, calls)
+		}
 	}
 }

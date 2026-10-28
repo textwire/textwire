@@ -62,6 +62,28 @@ func hasContinue(obj value.Value) bool {
 	return hasControlStmt(obj, value.CONTINUE_VAL)
 }
 
+// stripControlStmts removes break/continue values from a block so a loop
+// doesn't pass control statements it has already handled to its parent loop.
+func stripControlStmts(obj value.Value) value.Value {
+	block, ok := obj.(*value.Block)
+	if !ok {
+		return obj
+	}
+
+	chunks := make([]value.Value, 0, len(block.Chunks))
+	for _, chunk := range block.Chunks {
+		if chunk.Is(value.BREAK_VAL) || chunk.Is(value.CONTINUE_VAL) {
+			continue
+		}
+
+		chunks = append(chunks, stripControlStmts(chunk))
+	}
+
+	block.Chunks = chunks
+
+	return block
+}
+
 func hasControlStmt(obj value.Value, controlType value.ValueType) bool {
 	block, ok := obj.(*value.Block)
 	if !ok {
@@ -128,7 +150,7 @@ func getDecimalConfig(
 		if !ok {
 			return "", 0, fmt.Errorf(fail.ErrFuncSecondArgInt, objType, "decimal")
 		}
-		decimals = int(decimalArg.Val)
+		decimals = max(int(decimalArg.Val), 0)
 	}
 
 	return separator, decimals, nil
@@ -172,6 +194,10 @@ func strIsInt(s string) bool {
 // a stack buffer to avoid heap allocations. Returns the original string
 // unchanged if the first character is not a lowercase ASCII letter.
 func capitalizeFirst(s string) string {
+	if len(s) == 0 {
+		return s
+	}
+
 	first := s[0]
 	if first < 'a' || first > 'z' {
 		return s

@@ -1,0 +1,12 @@
+services:
+  checks:
+    image: registry.serhiicho.com/textwire:checks
+    working_dir: /app
+    volumes:
+      - .:/app:z
+      - go-mod:/go/pkg/mod
+      - go-build:/root/.cache/go-build
+
+volumes:
+  go-mod:
+  go-build:

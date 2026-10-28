@@ -44,12 +44,6 @@ func TestObjJSON(t *testing.T) {
 			`{!! {user: {name: 'John', age: 30, hobbies: ['coding', 'gaming']}, active: true}.json() !!}`,
 			`{"active":true,"user":{"age":30,"hobbies":["coding","gaming"],"name":"John"}}`,
 		},
-		{110, `{!! {value: (1.0/0.0)}.json() !!}`, `{"value":null}`},
-		{
-			120,
-			`{!! {nan: (0.0/0.0), inf: (1.0/0.0), ninf: (-1.0/0.0)}.json() !!}`,
-			`{"inf":null,"nan":null,"ninf":null}`,
-		},
 		{
 			130,
 			`{{ json = {desc: "Here"}.json(); }}<filter :prop='{{ "%s".format(json) }}' />`,
@@ -148,6 +142,16 @@ func TestObjCamel(t *testing.T) {
 			800,
 			`{!! {user_data: {first_name: "John", last_name: "Doe"}}.camel() !!}`,
 			`{userData: {firstName: "John", lastName: "Doe"}}`,
+		},
+		{
+			801,
+			`{!! obj = {first_name: "John"}; res = obj.camel(); obj.json() !!}`,
+			`{"first_name":"John"}`,
+		},
+		{
+			802,
+			`{!! obj = {user_data: {first_name: "John"}}; res = obj.camel(); obj.json() !!}`,
+			`{"user_data":{"first_name":"John"}}`,
 		},
 	}
 

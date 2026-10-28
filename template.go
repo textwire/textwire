@@ -3,6 +3,7 @@ package textwire
 import (
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/textwire/textwire/v5/config"
 	"github.com/textwire/textwire/v5/pkg/ast"
@@ -11,6 +12,11 @@ import (
 	"github.com/textwire/textwire/v5/pkg/file"
 	"github.com/textwire/textwire/v5/pkg/linker"
 	"github.com/textwire/textwire/v5/pkg/value"
+)
+
+const (
+	tplNotFoundPrefix = "template file '"
+	tplNotFoundSuffix = "' not found"
 )
 
 // Template holds all necessary data which it will use when individual
@@ -42,7 +48,7 @@ func NewTemplate(opt *config.Config) (*Template, *fail.Error) {
 
 	tpl := &Template{linker: ln}
 
-	if opt.FileWatcher {
+	if userConf.FileWatcher {
 		newFileWatcher(ln).Watch()
 	}
 
@@ -86,37 +92,71 @@ func (t *Template) String(name string, data map[string]any) (string, *fail.Error
 func (t *Template) Response(w http.ResponseWriter, name string, data map[string]any) *fail.Error {
 	evaluated, failure := t.String(name, data)
 	if failure == nil {
-		_, err := fmt.Fprint(w, evaluated)
-		if err != nil {
-			return fail.FromError(err, nil, name, fail.OriginTpl)
-		}
-
-		return nil
+		return writeBody(w, name, evaluated)
 	}
 
-	hasErrPage := userConf.ErrorPagePath != ""
-	if hasErrPage && !userConf.DebugMode {
-		if err := t.responseErrorPage(w); err != nil {
-			return err
-		}
-
-		return failure
-	}
-
-	errPage, err := errorPage(failure)
-	if err != nil {
+	// Rendering the error response itself failed: report that error instead.
+	if err := t.writeFailure(w, name, failure); err != nil {
 		return err
-	}
-
-	_, err2 := fmt.Fprint(w, errPage)
-	if err2 != nil {
-		return fail.FromError(err2, nil, name, fail.OriginTpl)
 	}
 
 	return failure
 }
 
-func (t *Template) responseErrorPage(w http.ResponseWriter) *fail.Error {
+// isTemplateNotFound reports whether the failure is caused by a missing
+// template file.
+func isTemplateNotFound(failure *fail.Error) bool {
+	if failure == nil || failure.Origin() != fail.OriginTpl {
+		return false
+	}
+
+	msg := failure.Message()
+	return strings.HasPrefix(msg, tplNotFoundPrefix) &&
+		strings.HasSuffix(msg, tplNotFoundSuffix)
+}
+
+// httpStatusFor maps a template failure to the HTTP status code to respond with.
+func httpStatusFor(failure *fail.Error) int {
+	if isTemplateNotFound(failure) {
+		return http.StatusNotFound
+	}
+
+	return http.StatusInternalServerError
+}
+
+// writeBody writes the given content to w, wrapping any write error.
+func writeBody(w http.ResponseWriter, name, content string) *fail.Error {
+	if _, err := fmt.Fprint(w, content); err != nil {
+		return fail.FromError(err, nil, name, fail.OriginTpl)
+	}
+
+	return nil
+}
+
+// writeFailure writes the error response (custom error page or the built-in
+// one) for the given failure, using the appropriate HTTP status.
+func (t *Template) writeFailure(
+	w http.ResponseWriter,
+	name string,
+	failure *fail.Error,
+) *fail.Error {
+	status := httpStatusFor(failure)
+
+	if userConf.ErrorPagePath != "" && !userConf.DebugMode {
+		w.WriteHeader(status)
+		return t.responseCustomErrorPage(w)
+	}
+
+	page, err := errorPage(failure)
+	if err != nil {
+		return err
+	}
+
+	w.WriteHeader(status)
+	return writeBody(w, name, page)
+}
+
+func (t *Template) responseCustomErrorPage(w http.ResponseWriter) *fail.Error {
 	evaluated, failure := t.String(userConf.ErrorPagePath, nil)
 	if failure != nil {
 		return failure

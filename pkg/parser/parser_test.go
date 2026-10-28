@@ -484,6 +484,21 @@ func TestParseOperatorPrecedence(t *testing.T) {
 	}
 }
 
+func TestMissingRightOperandDoesNotPanic(t *testing.T) {
+	cases := []string{"{{ (1 + }}", "{{(1+}}", `{{A%(""%}}`}
+
+	for _, inp := range cases {
+		t.Run(inp, func(t *testing.T) {
+			p := New(lexer.New(inp), nil)
+			p.ParseProgram()
+
+			if !p.HasErrors() {
+				t.Fatalf("expected a parse error for %q", inp)
+			}
+		})
+	}
+}
+
 func TestErrorHandling(t *testing.T) {
 	cases := []struct {
 		id  uint
@@ -555,7 +570,165 @@ func TestErrorHandling(t *testing.T) {
 			err: fail.New(&position.Pos{EndCol: 4}, "", fail.OriginPars, fail.ErrEmptyBraces),
 		},
 		{
+			id:  41,
+			inp: "{{ name",
+			err: fail.New(
+				&position.Pos{StartCol: 7, EndCol: 7},
+				"",
+				fail.OriginPars,
+				fail.ErrMissingClosingBraces,
+				token.String(token.RBRACES),
+			),
+		},
+		{
+			id:  42,
+			inp: "{!! name",
+			err: fail.New(
+				&position.Pos{StartCol: 8, EndCol: 8},
+				"",
+				fail.OriginPars,
+				fail.ErrMissingClosingBraces,
+				token.String(token.RBRACESRAW),
+			),
+		},
+		{
+			id:  43,
+			inp: "{{-- todo",
+			err: fail.New(
+				&position.Pos{StartCol: 9, EndCol: 9},
+				"",
+				fail.OriginPars,
+				fail.ErrMissingClosingBraces,
+				"--}}",
+			),
+		},
+		{
+			id:  44,
+			inp: "a{{-- c --}b{{ name }}",
+			err: fail.New(
+				&position.Pos{StartCol: 22, EndCol: 22},
+				"",
+				fail.OriginPars,
+				fail.ErrMissingClosingBraces,
+				"--}}",
+			),
+		},
+		{
+			id:  45,
+			inp: "{{ 1 2 }}",
+			err: fail.New(
+				&position.Pos{StartCol: 5, EndCol: 5},
+				"",
+				fail.OriginPars,
+				fail.ErrWrongPeekToken,
+				token.String(token.SEMI),
+				"2",
+			),
+		},
+		{
+			id:  46,
+			inp: "{{ name name }}",
+			err: fail.New(
+				&position.Pos{StartCol: 8, EndCol: 11},
+				"",
+				fail.OriginPars,
+				fail.ErrWrongPeekToken,
+				token.String(token.SEMI),
+				"name",
+			),
+		},
+		{
+			id:  47,
+			inp: "{{ a = 1 b = 2; a + b }}",
+			err: fail.New(
+				&position.Pos{StartCol: 9, EndCol: 9},
+				"",
+				fail.OriginPars,
+				fail.ErrWrongPeekToken,
+				token.String(token.SEMI),
+				"b",
+			),
+		},
+		{
+			id:  48,
+			inp: "{{ {#: 1} }}",
+			err: fail.New(
+				&position.Pos{StartCol: 4, EndCol: 4},
+				"",
+				fail.OriginPars,
+				fail.ErrInvalidObjKey,
+				"#",
+			),
+		},
+		{
+			id:  49,
+			inp: "{{ {1.5: 2} }}",
+			err: fail.New(
+				&position.Pos{StartCol: 4, EndCol: 6},
+				"",
+				fail.OriginPars,
+				fail.ErrInvalidObjKey,
+				"1.5",
+			),
+		},
+		{
 			id:  50,
+			inp: "{{ {'a' + 'b': 1} }}",
+			err: fail.New(
+				&position.Pos{StartCol: 8, EndCol: 8},
+				"",
+				fail.OriginPars,
+				fail.ErrWrongPeekToken,
+				token.String(token.COLON),
+				"+",
+			),
+		},
+		{
+			id:  51,
+			inp: "a@breakb",
+			err: fail.New(
+				&position.Pos{StartCol: 1, EndCol: 6},
+				"",
+				fail.OriginPars,
+				fail.ErrLoopControlOutsideLoop,
+				"@break",
+			),
+		},
+		{
+			id:  52,
+			inp: "a@continueb",
+			err: fail.New(
+				&position.Pos{StartCol: 1, EndCol: 9},
+				"",
+				fail.OriginPars,
+				fail.ErrLoopControlOutsideLoop,
+				"@continue",
+			),
+		},
+		{
+			id:  53,
+			inp: "x@breakif(true)y",
+			err: fail.New(
+				&position.Pos{StartCol: 1, EndCol: 8},
+				"",
+				fail.OriginPars,
+				fail.ErrLoopControlOutsideLoop,
+				"@breakif",
+			),
+		},
+		{
+			id:  54,
+			inp: "x@continueif(true)y",
+			err: fail.New(
+				&position.Pos{StartCol: 1, EndCol: 11},
+				"",
+				fail.OriginPars,
+				fail.ErrLoopControlOutsideLoop,
+				"@continueif",
+			),
+		},
+		{
+			id:  56,
 			inp: `{{ 1 ~ 8 }}`,
 			err: fail.New(
 				&position.Pos{StartCol: 5, EndCol: 5},
@@ -563,6 +736,28 @@ func TestErrorHandling(t *testing.T) {
 				fail.OriginPars,
 				fail.ErrIllegalToken,
 				"~",
+			),
+		},
+		{
+			id:  57,
+			inp: "{{ café }}",
+			err: fail.New(
+				&position.Pos{StartCol: 6, EndCol: 6},
+				"",
+				fail.OriginPars,
+				fail.ErrIllegalToken,
+				"é",
+			),
+		},
+		{
+			id:  58,
+			inp: "{{ (1 + }}",
+			err: fail.New(
+				&position.Pos{StartCol: 4, EndCol: 6},
+				"",
+				fail.OriginPars,
+				fail.ErrExpectExprAfter,
+				"+",
 			),
 		},
 		{
@@ -660,7 +855,7 @@ func TestErrorHandling(t *testing.T) {
 		},
 		{
 			id:  230,
-			inp: "@component   ('",
+			inp: "@component   ('')",
 			err: fail.New(
 				&position.Pos{StartCol: 14, EndCol: 15},
 				"",
@@ -754,7 +949,7 @@ func TestErrorHandling(t *testing.T) {
 		},
 		{
 			id:  430,
-			inp: "@insert('nice",
+			inp: "@insert('nice'",
 			err: fail.New(
 				&position.Pos{StartCol: 14, EndCol: 14},
 				"",
@@ -812,6 +1007,17 @@ func TestErrorHandling(t *testing.T) {
 			),
 		},
 		// For directive
+		{
+			id:  490,
+			inp: "@for(i 0; i < 2; i++)x@end",
+			err: fail.New(
+				&position.Pos{StartCol: 5, EndCol: 5},
+				"",
+				fail.OriginPars,
+				fail.ErrForLoopExpectStmt,
+				"i",
+			),
+		},
 		{
 			id:  500,
 			inp: "@for(i = 0; i < 4; i+2){{ i }}@end",
@@ -994,6 +1200,34 @@ func TestErrorHandling(t *testing.T) {
 				err.Pos(),
 			)
 		}
+	}
+}
+
+func TestParseExpressionErrorWithOperator(t *testing.T) {
+	cases := []struct {
+		name string
+		inp  string
+	}{
+		{name: "unknown function before infix", inp: "{{ foo() + 1 }}"},
+		{name: "few args before infix", inp: "{{ defined() + 1 }}"},
+		{name: "few args in grouped expr", inp: "{{ (defined()) }}"},
+		{name: "few args before method call", inp: "{{ defined().len() }}"},
+		{name: "int overflow before infix", inp: "{{ 99999999999999999999 + 1 }}"},
+		{name: "int overflow before ternary", inp: "{{ 99999999999999999999 ? 1 : 2 }}"},
+		{name: "int overflow before index", inp: "{{ 99999999999999999999[0] }}"},
+		{name: "float overflow before infix", inp: "{{ " + strings.Repeat("9", 400) + ".0 + 1 }}"},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			l := lexer.New(tc.inp)
+			p := New(l, nil)
+			p.ParseProgram()
+
+			if !p.HasErrors() {
+				t.Fatal("expected an error, got nil")
+			}
+		})
 	}
 }
 
@@ -2028,6 +2262,26 @@ func TestParseObjExpr(t *testing.T) {
 	}
 }
 
+func TestParseMalformedObjExpr(t *testing.T) {
+	cases := []struct {
+		name string
+		inp  string
+	}{
+		{name: "unclosed object", inp: "{{ {a: 1"},
+		{name: "missing colon", inp: "{{ {a 1} }}"},
+		{name: "non-ascii key", inp: "{{ {é: 1} }}"},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			_, err := parseEmbedded[*ast.ObjExpr](tc.inp, defaultParseOpts)
+			if err == nil {
+				t.Fatal("expected an error, got nil")
+			}
+		})
+	}
+}
+
 func TestParseObjWithShorthandKeyNotation(t *testing.T) {
 	inp := `{{ { name, age } }}`
 
@@ -2132,7 +2386,7 @@ func TestParseDotExp(t *testing.T) {
 func TestParseBreakDir(t *testing.T) {
 	inp := `@break`
 
-	breakDir, err := parseDirective[*ast.BreakDir](inp, defaultParseOpts)
+	breakDir, err := parseChunkInLoop[*ast.BreakDir](inp, defaultParseOpts)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -2145,7 +2399,7 @@ func TestParseBreakDir(t *testing.T) {
 func TestParseContinueDir(t *testing.T) {
 	inp := `@continue`
 
-	continueDir, err := parseDirective[*ast.ContinueDir](inp, defaultParseOpts)
+	continueDir, err := parseChunkInLoop[*ast.ContinueDir](inp, defaultParseOpts)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -2158,14 +2412,14 @@ func TestParseContinueDir(t *testing.T) {
 func TestParseBreakifDir(t *testing.T) {
 	inp := `@breakif(true)`
 
-	breakifDir, err := parseDirective[*ast.BreakifDir](inp, defaultParseOpts)
+	breakifDir, err := parseChunkInLoop[*ast.BreakifDir](inp, defaultParseOpts)
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	err = testTokPosition(breakifDir.Pos(), &position.Pos{
-		StartCol: 0,
-		EndCol:   13,
+		StartCol: 15,
+		EndCol:   28,
 	})
 
 	if err != nil {
@@ -2189,14 +2443,14 @@ func TestParseBreakifDir(t *testing.T) {
 func TestParseContinueifDir(t *testing.T) {
 	inp := "@continueif(false)"
 
-	continueifDir, err := parseDirective[*ast.ContinueifDir](inp, defaultParseOpts)
+	continueifDir, err := parseChunkInLoop[*ast.ContinueifDir](inp, defaultParseOpts)
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	err = testTokPosition(continueifDir.Pos(), &position.Pos{
-		StartCol: 0,
-		EndCol:   17,
+		StartCol: 15,
+		EndCol:   32,
 	})
 
 	if err != nil {

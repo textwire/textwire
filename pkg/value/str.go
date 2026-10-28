@@ -2,6 +2,7 @@ package value
 
 import (
 	"fmt"
+	"html"
 )
 
 type Str struct {
@@ -17,11 +18,11 @@ func (s *Str) String() string {
 }
 
 func (s *Str) Dump(ident int) string {
-	return fmt.Sprintf(`<span style="%s">%q</span>`, DUMP_STR, s.Val)
+	return fmt.Sprintf(`<span style="%s">%q</span>`, DUMP_STR, html.EscapeString(s.Val))
 }
 
 func (s *Str) JSON() (string, error) {
-	return fmt.Sprintf("%q", s.Val), nil
+	return marshalJSONString(s.Val)
 }
 
 func (s *Str) Native() any {

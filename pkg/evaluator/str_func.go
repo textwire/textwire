@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"strings"
+	"unicode"
 	"unicode/utf8"
 
 	"github.com/textwire/textwire/v5/pkg/fail"
@@ -11,6 +12,7 @@ import (
 )
 
 const defaultCharTrim = "\t \n\r"
+const maxRepeatLen = 1 << 20 // 1 MiB
 
 // strLenFunc returns the length of the given string
 func strLenFunc(receiver value.Literal, _ ...value.Literal) (value.Literal, error) {
@@ -83,7 +85,8 @@ func strCapitalizeFunc(receiver value.Literal, _ ...value.Literal) (value.Litera
 		return &value.Str{Val: ""}, nil
 	}
 
-	newVal := strings.ToUpper(val[:1]) + val[1:]
+	first, size := utf8.DecodeRuneInString(val)
+	newVal := string(unicode.ToUpper(first)) + val[size:]
 
 	return &value.Str{Val: newVal}, nil
 }
@@ -163,7 +166,7 @@ func strTruncateFunc(receiver value.Literal, args ...value.Literal) (value.Liter
 	}
 
 	// Truncate the string at the limit and append the suffix
-	return &value.Str{Val: val[:limit] + ellipsis}, nil
+	return &value.Str{Val: string([]rune(val)[:limit]) + ellipsis}, nil
 }
 
 // strDecimalFunc returns a string formatted as a decimal number.
@@ -212,7 +215,7 @@ func strAtFunc(receiver value.Literal, args ...value.Literal) (value.Literal, er
 		index = len(chars) + index
 	}
 
-	if index >= len(chars) {
+	if index < 0 || index >= len(chars) {
 		return &value.Nil{}, nil
 	}
 
@@ -282,8 +285,14 @@ func strRepeatFunc(receiver value.Literal, args ...value.Literal) (value.Literal
 	val := receiver.(*value.Str).Val
 	count := int(firstArg.Val)
 
-	if count < 0 {
+	if count <= 0 || val == "" {
 		return &value.Str{Val: ""}, nil
+	}
+
+	// Reject output larger than maxRepeatLen bytes.
+	if count > maxRepeatLen/len(val) {
+		msg := fmt.Sprintf(fail.ErrFuncResultTooLarge, value.STR_VAL, "repeat", maxRepeatLen)
+		return nil, errors.New(msg)
 	}
 
 	repeated := strings.Repeat(val, count)

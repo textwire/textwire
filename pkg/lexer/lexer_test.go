@@ -323,6 +323,191 @@ func TestLogicalOrOp(t *testing.T) {
 	})
 }
 
+func TestUnterminatedBraces(t *testing.T) {
+	cases := []struct {
+		name string
+		inp  string
+		toks []token.Token
+	}{
+		{
+			name: "unclosed braces",
+			inp:  "{{",
+			toks: []token.Token{
+				{Type: token.LBRACES, Lit: "{{"},
+				{Type: token.EOF},
+			},
+		},
+		{
+			name: "incomplete raw braces",
+			inp:  "{!",
+			toks: []token.Token{
+				{Type: token.TEXT, Lit: "{!"},
+				{Type: token.EOF},
+			},
+		},
+		{
+			name: "unclosed comment",
+			inp:  "{{-",
+			toks: []token.Token{
+				{Type: token.LBRACES, Lit: "{{"},
+				{Type: token.SUB, Lit: "-"},
+				{Type: token.EOF},
+			},
+		},
+		{
+			name: "text ending with incomplete raw braces",
+			inp:  "<p>Hello {!",
+			toks: []token.Token{
+				{Type: token.TEXT, Lit: "<p>Hello {!"},
+				{Type: token.EOF},
+			},
+		},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			l := New(tc.inp)
+
+			for i, want := range tc.toks {
+				got := l.Next()
+
+				if got.Type != want.Type || got.Lit != want.Lit {
+					t.Fatalf(
+						"token %d: expected %s %q, got %s %q",
+						i,
+						token.String(want.Type),
+						want.Lit,
+						token.String(got.Type),
+						got.Lit,
+					)
+				}
+			}
+		})
+	}
+}
+
+func TestUnterminatedString(t *testing.T) {
+	cases := []struct {
+		name string
+		inp  string
+		lit  string
+	}{
+		{name: "unterminated double quote", inp: `{{ "unterminated }}`, lit: "unterminated }}"},
+		{name: "unterminated single quote", inp: `{{ 'abc`, lit: "abc"},
+		{name: "escaped quote eats closing", inp: `{{ "unterminated\"`, lit: `unterminated\"`},
+		{
+			name: "escaped single quote eats closing",
+			inp:  `{{ 'unterminated\'`,
+			lit:  `unterminated\'`,
+		},
+		{name: "trailing backslash", inp: `{{ "abc\`, lit: `abc\`},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			l := New(tc.inp)
+
+			for {
+				tok := l.Next()
+
+				if tok.Type == token.ILLEGAL {
+					if tok.Lit != tc.lit {
+						t.Fatalf("expected ILLEGAL literal %q, got %q", tc.lit, tok.Lit)
+					}
+					return
+				}
+
+				if tok.Type == token.EOF {
+					t.Fatal("expected an ILLEGAL token, got EOF")
+				}
+			}
+		})
+	}
+}
+
+func TestUnclosedComment(t *testing.T) {
+	cases := []struct {
+		name string
+		inp  string
+	}{
+		{name: "comment at end of input", inp: "{{-- todo"},
+		{
+			name: "multiline comment at end of input",
+			inp:  "{{-- todo\n<h1>{{ name }}</h1>",
+		},
+		{name: "comment swallows the rest", inp: "a{{-- c --}b{{ name }}"},
+		{name: "nested comment never closed", inp: "{{-- a {{-- b --}}"},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			l := New(tc.inp)
+
+			for {
+				tok := l.Next()
+
+				if tok.Type == token.UNCLOSED_COMMENT {
+					return
+				}
+
+				if tok.Type == token.EOF {
+					t.Fatal("expected an UNCLOSED_COMMENT token, got EOF")
+				}
+			}
+		})
+	}
+}
+
+func TestStringEscapes(t *testing.T) {
+	cases := []struct {
+		name string
+		inp  string
+		lit  string
+	}{
+		{name: "escaped backslash", inp: `{{ "a\\" }}`, lit: `a\`},
+		{name: "escaped backslash before n", inp: `{{ "C:\\new" }}`, lit: `C:\new`},
+		{name: "newline escape", inp: `{{ "a\nb" }}`, lit: "a\nb"},
+		{name: "tab escape", inp: `{{ "a\tb" }}`, lit: "a\tb"},
+		{name: "carriage return escape", inp: `{{ "a\rb" }}`, lit: "a\rb"},
+		{name: "escaped double quote", inp: `{{ "a\"b" }}`, lit: `a"b`},
+		{name: "escaped single quote", inp: `{{ 'a\'b' }}`, lit: `a'b`},
+		{name: "unknown escape kept", inp: `{{ "a\xb" }}`, lit: `a\xb`},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			l := New(tc.inp)
+
+			for {
+				tok := l.Next()
+
+				if tok.Type == token.STR {
+					if tok.Lit != tc.lit {
+						t.Fatalf("expected STR literal %q, got %q", tc.lit, tok.Lit)
+					}
+					return
+				}
+
+				if tok.Type == token.EOF {
+					t.Fatal("expected a STR token, got EOF")
+				}
+			}
+		})
+	}
+}
+
+func TestIllegalTokenWithMultibyteRune(t *testing.T) {
+	inp := "{{ café }}"
+
+	TokenizeString(t, inp, []token.Token{
+		{Type: token.LBRACES, Lit: "{{", Pos: &position.Pos{EndCol: 1}},
+		{Type: token.IDENT, Lit: "caf", Pos: &position.Pos{StartCol: 3, EndCol: 5}},
+		{Type: token.ILLEGAL, Lit: "é", Pos: &position.Pos{StartCol: 6, EndCol: 6}},
+		{Type: token.RBRACES, Lit: "}}", Pos: &position.Pos{StartCol: 9, EndCol: 10}},
+		{Type: token.EOF, Lit: "", Pos: &position.Pos{StartCol: 11, EndCol: 11}},
+	})
+}
+
 func TestOther(t *testing.T) {
 	inp := "{{ , == != <= >= > < }}"
 

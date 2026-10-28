@@ -93,6 +93,10 @@ func TestEvalNumericExp(t *testing.T) {
 		{120, `{{ 3 * 3 * 3 + 10 }}`, "37"},
 		{130, `{{ (5 + 10 * 2 + 15 / 3) * 2 + -10 }}`, "50"},
 		{140, `{{ ((5 + 10) * ((2 + 15) / 3) + 2) }}`, "77"},
+		{150, "{{ -9223372036854775808 }}", "-9223372036854775808"},
+		{151, "{{ -9223372036854775808 + 1 }}", "-9223372036854775807"},
+		{152, "{{ -9223372036854775808 * 1 }}", "-9223372036854775808"},
+		{153, "{{ 9223372036854775807 + 1 }}", "-9223372036854775808"},
 		// Floats
 		{220, "{{ 5.11 }}", "5.11"},
 		{230, "{{ -12.3 }}", "-12.3"},
@@ -100,6 +104,25 @@ func TestEvalNumericExp(t *testing.T) {
 		{250, `{{ 2.0 + 1.2 }}`, "3.2"},
 		{260, `{{ 0.0 + 0.0 }}`, "0.0"},
 		{270, `{{ 0.0 }}`, "0.0"},
+	}
+
+	for _, tc := range cases {
+		evaluationExpected(t, tc.inp, tc.expect, tc.id)
+	}
+}
+
+func TestEvalFloatOverflow(t *testing.T) {
+	// 308 nines is just below math.MaxFloat64, so multiplying by 10 overflows.
+	huge := strings.Repeat("9", 308) + ".0"
+
+	cases := []struct {
+		id     uint
+		inp    string
+		expect string
+	}{
+		{10, "{{ " + huge + " * 10.0 }}", "+Inf"},
+		{20, "{{ -" + huge + " * 10.0 }}", "-Inf"},
+		{30, "{{ (" + huge + " * 10.0) - (" + huge + " * 10.0) }}", "NaN"},
 	}
 
 	for _, tc := range cases {
@@ -119,6 +142,8 @@ func TestEvalBooleanExp(t *testing.T) {
 		{30, "{{ !true }}", "0"},
 		{40, "{{ !false }}", "1"},
 		{50, "{{ !nil }}", "1"},
+		{55, "{{ !(1 == 1 && 2 == 2) }}", "0"},
+		{57, `{{ !"Hello".contains("World") }}`, "1"},
 		{60, "{{ !!true }}", "1"},
 		{70, "{{ !!false }}", "0"},
 		// --------------------------- Logical ---------------------------
@@ -418,6 +443,8 @@ func TestEvalStringExp(t *testing.T) {
 		{40, `<div {{ "data-attr='Test'" }}></div>`, "<div data-attr=&#39;Test&#39;></div>"},
 		// String with escaped characters
 		{50, `{{ "She \"is\" pretty" }}`, "She &#34;is&#34; pretty"},
+		{51, `{{ "a\\" }}`, `a\`},
+		{52, `{{ "C:\\new" }}`, `C:\new`},
 		// String concatenation
 		{60, `{{ "Korotchaeva" + " " + "Anna" }}`, "Korotchaeva Anna"},
 		{70, `{{ "She" + " " + "is" + " " + "nice" }}`, "She is nice"},
@@ -596,6 +623,30 @@ func TestEvalIfDir(t *testing.T) {
 				@end
 			`,
 			"Marry",
+		},
+		// Variable modification from outside scope
+		{400, `{{ sum = 0 }}@if(true){{ sum++ }}@end{{ sum }}`, "1"},
+		// Nested @if
+		{410, `{{ val = 1 }}@if(true)@if(true){{ val = val * 5 }}@end@end{{ val }}`, "5"},
+		// Modification inside @else
+		{
+			420,
+			`{{ status = "pending" }}@if(false)@else{{ status = "done" }}@end{{ status }}`,
+			"done",
+		},
+		// Sequential modifications
+		{430, `{{ n = 10 }}@if(n > 5){{ n = n - 2 }}@end@if(n == 8){{ n = 0 }}@end{{ n }}`, "0"},
+		// Deep nesting
+		{
+			440,
+			`{{ deep = 0 }}@if(true)@if(true)@if(true){{ deep = 42 }}@end@end@end{{ deep }}`,
+			"42",
+		},
+		// Modification inside @elseif
+		{
+			420,
+			`{{ status = "pending" }}@if(false)@elseif(true){{ status = "done" }}@end{{ status }}`,
+			"done",
 		},
 	}
 
@@ -818,9 +869,13 @@ func TestIncDecDir(t *testing.T) {
 		// Integer
 		{10, `{{ i = 10; i++; i }}`, "11"},
 		{20, `{{ x = 0; x++; x }}`, "1"},
+		{21, `{{ a = 2; b = a; b--; a }}`, "2"},
 		// Float
-		{30, `{{ x = 4.4; x--; x }}`, "3.4"},
+		{30, `{{ x = 4.4; x--; x }}`, "3.4000000000000004"},
 		{48, `{{ x = 0.0; x--; x }}`, "-1.0"},
+		{49, `{{ x = 0.5; x--; x }}`, "-0.5"},
+		{50, `{{ x = -1.5; x--; x }}`, "-2.5"},
+		{51, `{{ a = 2.5; b = a; b--; a }}`, "2.5"},
 	}
 
 	for _, tc := range cases {
@@ -838,6 +893,13 @@ func TestEvalForDir(t *testing.T) {
 		{10, `@for(i = 0; i < 2; i++){{ i }}@end`, "01"},
 		{20, `@for(i = 1; i <= 3; i++){{ i }}@end`, "123"},
 		{30, `@for(i = 5; i > 0; i--){{ i }}@end`, "54321"},
+		// Empty loop body
+		{40, `@for(i = 0; i < 2; i++)@end`, ""},
+		{41, `@for(i = 0; i < 2; i++)@else@end`, ""},
+		// Condition evaluates to nil
+		{42, `{{ nilVar = nil }}@for(i = 0; nilVar; i++)x@end`, ""},
+		{43, `@for(i = 0; nil; i++)Some content@end`, ""},
+		{44, `{{ user = {} }}@for(i = 0; user.missing; i++)x@breakif(i == 3)@end`, ""},
 		// Empty loop header parts
 		{50, `@for(; false;)Here@end`, ""},
 		{60, `@for(; true;)x@break@end`, "x"},
@@ -891,6 +953,20 @@ func TestEvalForDir(t *testing.T) {
 			inp:    `@for(i = 1; i <= 3; i++){{ i }} -> {{ i * i }}|@end`,
 			expect: "1 -> 1|2 -> 4|3 -> 9|",
 		},
+		// Control statements only affect the current loop
+		{
+			370,
+			`@for(i = 0; i < 3; i++)@for(j = 0; j < 3; j++)@breakif(j == 1){{ i }}{{ j }}@end;@end`,
+			"00;10;20;",
+		},
+		{
+			380,
+			`@for(i = 0; i < 3; i++)@for(j = 0; j < 2; j++)@continueif(j == 0){{ i }}{{ j }}@end;@end`,
+			"01;11;21;",
+		},
+		// @break must not run the post statement
+		{390, `@for(i = 0; i < 10; i++)@breakif(i == 3)@end{{ i }}`, "3"},
+		{400, `@for(i = 0; i < 10; i++)@if(i == 3)@break@end@end{{ i }}`, "3"},
 	}
 
 	for _, tc := range cases {
@@ -907,6 +983,9 @@ func TestEvalEachDir(t *testing.T) {
 		{10, `@each(name in ["anna", "serhii"]) {{ name }} @end`, "annaserhii"},
 		{20, `@each(num in [1, 2, 3]){{ num }}@end`, "123"},
 		{30, `@each(num in []){{ num }}@end`, ""},
+		{31, `@each(item in [nil, nil]){{ item }}@end`, ""},
+		{32, `@each(x in [1, nil, 2]){{ x }},@end`, "1,,2,"},
+		{33, `@each(x in [1, "two"]){{ x }}@end`, "1two"},
 		// test loop variable
 		{40, `@each(num in [43, 12, 53]){{ loop.index }}@end`, "012"},
 		{50, `@each(num in [100]){{ loop.index }}@end`, "0"},
@@ -935,11 +1014,46 @@ func TestEvalEachDir(t *testing.T) {
 			"ann serhii ",
 		},
 		// test @continueif directive
-		{210, `@each(n in [1, 2, 3, 4, 5])@continueif(n == 3){{ n }}@end`, "1245"},
+		{220, `@each(n in [1, 2, 3, 4, 5])@continueif(n == 3){{ n }}@end`, "1245"},
 		{
 			230,
 			`@each(n in ["ann", "serhii", "sam"])@continueif(n == 'sam'){{ n }}{{' '}}@end`,
 			"ann serhii ",
+		},
+		// Variable modification from outside scope
+		{240, `{{ sum = 0 }}@each(num in [1]){{ sum = sum + num }}@end{{ sum }}`, "1"},
+		{250, `{{ sum = 0 }}@each(num in [1]){{ a = sum + num }}@end{{ sum }}`, "0"},
+		// Accumulation across multiple iterations
+		{260, `{{ sum = 0 }}@each(num in [1, 2, 3]){{ sum = sum + num }}@end{{ sum }}`, "6"},
+		// String concatenation across iterations
+		{
+			270,
+			`{{ str = "" }}@each(char in ["x", "y", "z"]){{ str = str + char }}@end{{ str }}`,
+			"xyz",
+		},
+		// Nested @each loops modifying outside scope
+		{
+			280,
+			`{{ count = 0 }}@each(i in [1, 2])@each(j in [1, 2]){{ count++ }}@end@end{{ count }}`,
+			"4",
+		},
+		// Shadowing an outside variable with the loop iterator
+		{290, `{{ fruit = "apple" }}@each(fruit in ["banana"])@end{{ fruit }}`, "banana"},
+		// Control statements only affect the current loop
+		{
+			300,
+			`@each(i in [0, 1, 2])@each(j in [0, 1, 2])@breakif(j == 1){{ i }}{{ j }}@end;@end`,
+			"00;10;20;",
+		},
+		{
+			310,
+			`@each(i in [0, 1, 2])@each(j in [0, 1])@continueif(j == 0){{ i }}{{ j }}@end;@end`,
+			"01;11;21;",
+		},
+		{
+			320,
+			`@each(i in [0, 1, 2])@for(j = 0; j < 3; j++)@breakif(j == 1){{ i }}{{ j }}@end;@end`,
+			"00;10;20;",
 		},
 	}
 
@@ -978,12 +1092,17 @@ func TestEvalObjLit(t *testing.T) {
 		// Case-insensitive first character access
 		{100, `{{ {"Name": "Ann"}.name }}`, "Ann"},
 		{110, `{{ {"name": "Ann"}.Name }}`, ""},
+		{105, `{{ {"Name": "Ann"}["name"] }}`, "Ann"},
+		{115, `{{ {"name": "Ann"}["Name"] }}`, ""},
 		// Non-existent keys
 		{120, `{{ obj = {"name": "Ann"}; obj.age }}`, ""},
 		{130, `{{ obj = {"name": "Ann"}; obj['missing'] }}`, ""},
 		// Empty object
 		{140, `{{ {}.name }}`, ""},
 		{150, `{{ obj = {}; obj.name }}`, ""},
+		// Empty string key
+		{160, `{{ {a: 1}[""] }}`, ""},
+		{170, `{{ obj = {a: 1}; key = ""; obj[key] }}`, ""},
 	}
 
 	for _, tc := range cases {

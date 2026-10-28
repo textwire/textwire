@@ -3,7 +3,9 @@ package textwire
 import (
 	"io"
 	"log"
+	"math"
 	"os"
+	"strings"
 	"testing"
 	"time"
 
@@ -32,6 +34,35 @@ func readFile(fileName string) (string, error) {
 	return string(bytes), nil
 }
 
+type namedRole string
+
+type namedUser struct {
+	Name string
+	Role namedRole
+}
+
+type namedUserWithHooks struct {
+	Name string
+	Role namedRole
+	Fn   func()
+	Ch   chan int
+}
+
+type namedUserWithChan struct {
+	Name string
+	Ch   chan int
+}
+
+type namedUserWithComplex struct {
+	Name string
+	Num  complex128
+}
+
+type namedUserWithUint struct {
+	Name string
+	Big  uint64
+}
+
 func TestEvalStr(t *testing.T) {
 	datetime, _ := time.Parse("2006-01-02 15:04:05", "1990-12-23 11:22:33")
 	date, _ := time.Parse("2006-01-02", "1990-12-23")
@@ -43,6 +74,24 @@ func TestEvalStr(t *testing.T) {
 		expect string
 		data   map[string]any
 	}{
+		{
+			name:   "Negate boolean from data",
+			inp:    `{{ !isAdmin }}`,
+			expect: "1",
+			data:   map[string]any{"isAdmin": false},
+		},
+		{
+			name:   "Negate nil from data",
+			inp:    `{{ !nothing }}`,
+			expect: "1",
+			data:   map[string]any{"nothing": nil},
+		},
+		{
+			name:   "Iterating over mixed Go values",
+			inp:    `@each(x in items){{ x }}|@end`,
+			expect: "1|two|3.5||",
+			data:   map[string]any{"items": []any{1, "two", 3.5, nil}},
+		},
 		{
 			name:   "Accessing propery name on empty obj variable",
 			inp:    `@if(item && item.items && item.items > 1)YES@elseNO@end`,
@@ -143,6 +192,42 @@ func TestEvalStr(t *testing.T) {
 			inp:    "{!! str !!}",
 			expect: "<span>Skirk</span>",
 			data:   map[string]any{"str": "<span>Skirk</span>"},
+		},
+		{
+			name:   "Named type in struct field",
+			inp:    `{{ u.role }}`,
+			expect: "editor",
+			data:   map[string]any{"u": namedUser{Name: "Bob", Role: "editor"}},
+		},
+		{
+			name:   "Named type in struct field via index",
+			inp:    `{{ u["role"] }}`,
+			expect: "editor",
+			data:   map[string]any{"u": namedUser{Name: "Bob", Role: "editor"}},
+		},
+		{
+			name:   "Top-level named string type",
+			inp:    `{{ role }}`,
+			expect: "admin",
+			data:   map[string]any{"role": namedRole("admin")},
+		},
+		{
+			name:   "Fixed-size array",
+			inp:    `{{ nums }}`,
+			expect: "1, 2, 3",
+			data:   map[string]any{"nums": [3]int{1, 2, 3}},
+		},
+		{
+			name:   "Largest int64 as uint64",
+			inp:    `{{ n }}`,
+			expect: "9223372036854775807",
+			data:   map[string]any{"n": uint64(math.MaxInt64)},
+		},
+		{
+			name:   "Fixed-size array with negative ints",
+			inp:    `{{ nums }}`,
+			expect: "-1, -2, 0",
+			data:   map[string]any{"nums": [3]int{-1, -2, 0}},
 		},
 	}
 
@@ -456,6 +541,11 @@ func TestErrorHandling(t *testing.T) {
 		data map[string]any
 	}{
 		{
+			inp:  "@for(i 0; i < 2; i++)x@end",
+			err:  fail.New(nil, "", fail.OriginPars, fail.ErrForLoopExpectStmt, "i"),
+			data: nil,
+		},
+		{
 			inp: `{{ defined(name.undefinedFunc()) }}`,
 			err: fail.New(
 				nil,
@@ -556,6 +646,21 @@ func TestErrorHandling(t *testing.T) {
 			data: nil,
 		},
 		{
+			inp:  `{{ 3 % 0 }}`,
+			err:  fail.New(nil, "", fail.OriginEval, fail.ErrDivisionByZero),
+			data: nil,
+		},
+		{
+			inp:  `{{ 1.0 / 0.0 }}`,
+			err:  fail.New(nil, "", fail.OriginEval, fail.ErrDivisionByZero),
+			data: nil,
+		},
+		{
+			inp:  `{{ 0.0 / 0.0 }}`,
+			err:  fail.New(nil, "", fail.OriginEval, fail.ErrDivisionByZero),
+			data: nil,
+		},
+		{
 			inp:  `{{ undefinedVar }}`,
 			err:  fail.New(nil, "", fail.OriginEval, fail.ErrVariableIsUndefined, "undefinedVar"),
 			data: nil,
@@ -649,6 +754,70 @@ func TestErrorHandling(t *testing.T) {
 			),
 			data: map[string]any{"date": " 2026-03-34 13:03:00"},
 		},
+		{
+			inp: "x",
+			err: fail.New(
+				nil,
+				"",
+				fail.OriginTpl,
+				fail.ErrUnsupportedFieldType,
+				"func()",
+				"Fn",
+			),
+			data: map[string]any{
+				"u": namedUserWithHooks{
+					Name: "Bob",
+					Role: "editor",
+					Fn:   func() {},
+				},
+			},
+		},
+		{
+			inp:  "x",
+			err:  fail.New(nil, "", fail.OriginTpl, fail.ErrUnsupportedType, "func()"),
+			data: map[string]any{"callback": func() {}},
+		},
+		{
+			inp: "x",
+			err: fail.New(
+				nil,
+				"",
+				fail.OriginTpl,
+				fail.ErrUnsupportedFieldType,
+				"chan int",
+				"Ch",
+			),
+			data: map[string]any{"u": namedUserWithChan{Name: "Bob", Ch: make(chan int)}},
+		},
+		{
+			inp: "x",
+			err: fail.New(
+				nil,
+				"",
+				fail.OriginTpl,
+				fail.ErrUnsupportedFieldType,
+				"complex128",
+				"Num",
+			),
+			data: map[string]any{"u": namedUserWithComplex{Name: "Bob", Num: complex(1, 2)}},
+		},
+		{
+			inp:  "x",
+			err:  fail.New(nil, "", fail.OriginTpl, fail.ErrUintOverflow, uint64(math.MaxUint64)),
+			data: map[string]any{"big": uint64(math.MaxUint64)},
+		},
+		{
+			inp: "x",
+			err: fail.New(
+				nil,
+				"",
+				fail.OriginTpl,
+				fail.ErrUintOverflowField,
+				uint64(math.MaxUint64),
+				"Big",
+			),
+			data: map[string]any{"u": namedUserWithUint{Name: "Bob", Big: math.MaxUint64}},
+		},
 	}
 
 	for _, tc := range cases {
@@ -661,6 +830,99 @@ func TestErrorHandling(t *testing.T) {
 			t.Errorf("Wrong error message. Expected:\n%q\ngot:\n%q", tc.err, err)
 		}
 	}
+}
+
+func TestJSONEscaping(t *testing.T) {
+	cases := []struct {
+		name   string
+		inp    string
+		data   map[string]any
+		expect string
+	}{
+		{
+			name:   "html characters are not escaped",
+			inp:    `{!! {k: x}.json() !!}`,
+			data:   map[string]any{"x": `</script><script>alert(1)</script>`},
+			expect: `{"k":"</script><script>alert(1)</script>"}`,
+		},
+		{
+			name:   "control character is escaped",
+			inp:    `{!! [x].json() !!}`,
+			data:   map[string]any{"x": "a\x01b"},
+			expect: `["a\u0001b"]`,
+		},
+		{
+			name:   "invalid utf8 is replaced",
+			inp:    `{!! [x].json() !!}`,
+			data:   map[string]any{"x": "a\xffb"},
+			expect: `["a\ufffdb"]`,
+		},
+		{
+			name:   "object key is escaped",
+			inp:    `{!! {"a\"b": 1}.json() !!}`,
+			data:   nil,
+			expect: `{"a\"b":1}`,
+		},
+		{
+			name:   "escaped braces html-escape the json",
+			inp:    `{{ {k: x}.json() }}`,
+			data:   map[string]any{"x": `<&>`},
+			expect: `{&#34;k&#34;:&#34;&lt;&amp;&gt;&#34;}`,
+		},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			got, err := EvaluateString(tc.inp, tc.data)
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			if got != tc.expect {
+				t.Fatalf("expected %q, got %q", tc.expect, got)
+			}
+		})
+	}
+}
+
+func TestDumpEscapesHTML(t *testing.T) {
+	t.Run("string value", func(t *testing.T) {
+		got, err := EvaluateString(`@dump(x)`, map[string]any{
+			"x": `</span><script>alert(1)</script>`,
+		})
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		if strings.Contains(got, "<script>alert(1)</script>") {
+			t.Fatalf("dump output contains a raw script tag:\n%s", got)
+		}
+
+		if !strings.Contains(got, "&lt;script&gt;alert(1)&lt;/script&gt;") {
+			t.Fatalf("dump output doesn't contain the escaped script tag:\n%s", got)
+		}
+	})
+
+	t.Run("object key and value", func(t *testing.T) {
+		got, err := EvaluateString(`@dump(x)`, map[string]any{
+			"x": map[string]any{"<b>key</b>": "<i>value</i>"},
+		})
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		if strings.Contains(got, "<b>key</b>") || strings.Contains(got, "<i>value</i>") {
+			t.Fatalf("dump output contains raw HTML from the object:\n%s", got)
+		}
+
+		if !strings.Contains(got, "&lt;b&gt;key&lt;/b&gt;") {
+			t.Fatalf("dump output doesn't contain the escaped key:\n%s", got)
+		}
+
+		if !strings.Contains(got, "&lt;i&gt;value&lt;/i&gt;") {
+			t.Fatalf("dump output doesn't contain the escaped value:\n%s", got)
+		}
+	})
 }
 
 func TestEvaluateFile(t *testing.T) {

@@ -78,6 +78,10 @@ func TestEvalStringFunctions(t *testing.T) {
 		{610, `{{ "".lower() }}`, ""},
 		{620, `{{ "中国很大".lower() }}`, "中国很大"},
 		{630, `{{ "😡🤣😤".lower() }}`, "😡🤣😤"},
+		// capitalize
+		{635, `{{ "їжак".capitalize() }}`, "Їжак"},
+		{636, `{{ "élan".capitalize() }}`, "Élan"},
+		{637, `{{ "skirk".capitalize() }}`, "Skirk"},
 		// reverse
 		{640, `{{ "Hello World".reverse() }}`, "dlroW olleH"},
 		{650, `{{ "reverse_-1234567890!@#$%^*()=+".reverse() }}`, "+=)(*^%$#@!0987654321-_esrever"},
@@ -109,6 +113,8 @@ func TestEvalStringFunctions(t *testing.T) {
 		{890, `{{ "test".truncate(-1) }}`, "..."},
 		{900, `{{ "test".truncate(100) }}`, "test"},
 		{910, `{{ "".truncate(5) }}`, ""},
+		{915, `{{ "привіт".truncate(2) }}`, "пр..."},
+		{916, `{{ "привіт".truncate(3, "") }}`, "при"},
 		// decimal
 		{920, `{{ "".decimal() }}`, ""},
 		{930, `{{ "0".decimal() }}`, "0.00"},
@@ -126,6 +132,7 @@ func TestEvalStringFunctions(t *testing.T) {
 		{1050, `{{ "0.001".decimal() }}`, "0.001"},
 		{1060, `{{ "1000000".decimal() }}`, "1000000.00"},
 		{1070, `{{ "-0.5".decimal() }}`, "-0.50"},
+		{1075, `{{ "1".decimal('.', -1) }}`, "1"},
 		// at
 		{1080, `{{ "Textwire is awesome".at() }}`, "T"},
 		{1090, `{{ "Textwire is awesome".at(0) }}`, "T"},
@@ -140,6 +147,8 @@ func TestEvalStringFunctions(t *testing.T) {
 		{1180, `{{ "Hello World".at(-1) }}`, "d"},
 		{1190, `{{ "cho".at(-3) }}`, "c"},
 		{1200, `{{ "我爱中国".at(-2) }}`, "中"},
+		{1201, `{{ "cho".at(-4) }}`, ""},
+		{1202, `{{ "abc".at(-100) }}`, ""},
 		// first
 		{1210, `{{ "Textwire is awesome".first() }}`, "T"},
 		{1220, `{{ "我爱你".first() }}`, "我"},

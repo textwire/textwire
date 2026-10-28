@@ -3,6 +3,7 @@ package lexer
 import (
 	"bytes"
 	"strings"
+	"unicode/utf8"
 
 	"github.com/textwire/textwire/v5/pkg/position"
 	"github.com/textwire/textwire/v5/pkg/token"
@@ -90,13 +91,16 @@ func (l *Lexer) Next() token.Token {
 		l.skipWhitespace()
 	}
 
-	if l.char == 0 {
+	if l.atEnd() {
 		l.tokenBegins()
 		return l.newToken(token.EOF, "")
 	}
 
 	if l.startsWith('{', '{', '-', '-') {
-		l.skipComment()
+		if !l.skipComment() {
+			l.tokenBegins()
+			return l.newToken(token.UNCLOSED_COMMENT, "")
+		}
 		return l.Next()
 	}
 
@@ -125,6 +129,11 @@ func (l *Lexer) Next() token.Token {
 	}
 
 	return l.newToken(token.TEXT, l.readText())
+}
+
+// atEnd reports whether the lexer has consumed all input.
+func (l *Lexer) atEnd() bool {
+	return l.pos >= len(l.input)
 }
 
 func (l *Lexer) startsWith(chars ...byte) bool {
@@ -165,8 +174,11 @@ func (l *Lexer) rawBracesToken(tok token.TokenType, literal string) token.Token 
 
 func (l *Lexer) illegalToken() token.Token {
 	l.tokenBegins()
-	tok := l.newToken(token.ILLEGAL, string(l.char))
-	l.readChar()
+
+	illegalChar, size := utf8.DecodeRuneInString(l.input[l.pos:])
+	tok := l.newToken(token.ILLEGAL, string(illegalChar))
+	l.readChars(size)
+
 	return tok
 }
 
@@ -206,7 +218,11 @@ func (l *Lexer) embeddedCodeToken() token.Token {
 	case ')':
 		return l.rightParenthesesToken()
 	case '"', '\'':
-		return l.newToken(token.STR, l.readString())
+		literal, terminated := l.readString()
+		if !terminated {
+			return l.newToken(token.ILLEGAL, literal)
+		}
+		return l.newToken(token.STR, literal)
 	case '<':
 		return l.operatorToken('=', token.LTHAN_EQ, token.LTHAN, "<=", "<")
 	case '>':
@@ -326,8 +342,8 @@ func (l *Lexer) newToken(tokType token.TokenType, literal string) token.Token {
 	// We need to set the end column and line to the values of the previous
 	// character because we already read the last character and incremented
 	// the column index.
-	// For EOF and ILLEGAL we don't need to decrement the column index.
-	if tokType != token.EOF && tokType != token.ILLEGAL {
+	// For EOF, ILLEGAL and UNCLOSED_COMMENT we don't need to decrement the column index.
+	if tokType != token.EOF && tokType != token.ILLEGAL && tokType != token.UNCLOSED_COMMENT {
 		endCol = l.prevCol
 		endLine = l.prevLine
 	}
@@ -418,47 +434,93 @@ func (l *Lexer) hasIfVariant(tok token.TokenType) bool {
 	return l.startsWith('i', 'f')
 }
 
-func (l *Lexer) readString() string {
+// readString reads a quoted string literal starting at the opening quote.
+// It returns the string with escape sequences processed, and whether the
+// closing quote was found before end of input.
+func (l *Lexer) readString() (string, bool) {
 	quote := l.char
-	strLiteral := ""
 
 	l.tokenBegins()
-	l.readChar() // skip the first quote
+	l.readChar() // skip the opening quote
 
-	if l.char == quote {
-		l.readChar() // skip the last quote
-		return strLiteral
+	start := l.pos
+	terminated := l.scanToClosingQuote(quote)
+	raw := l.input[start:l.pos]
+
+	if !terminated {
+		return raw, false // keep the raw text for the ILLEGAL token
 	}
 
-	pos := l.pos
+	l.readChar() // skip the closing quote
 
-	for l.char != 0 {
-		prevChar := l.char
+	return handleEscapeSequences(raw, quote), true
+}
 
+// scanToClosingQuote advances until it reaches an unescaped quote or EOF.
+// It leaves the lexer positioned on the closing quote and reports whether
+// one was found.
+func (l *Lexer) scanToClosingQuote(quote byte) bool {
+	for !l.atEnd() {
+		switch l.char {
+		case quote:
+			return true
+		case '\\':
+			l.readChar() // skip the escaped character
+			if l.atEnd() {
+				return false
+			}
+		}
 		l.readChar()
+	}
+	return false
+}
 
-		if l.char == quote && prevChar != '\\' {
-			break
+// handleEscapeSequences decodes backslash escapes in a raw string literal.
+// Recognized escapes are \n, \t, \r, \\ and an escaped quote. Any other
+// escape, and a trailing lone backslash, is kept as written.
+func handleEscapeSequences(s string, quote byte) string {
+	if strings.IndexByte(s, '\\') < 0 {
+		return s // nothing to decode
+	}
+
+	var out strings.Builder
+	out.Grow(len(s))
+
+	for i := 0; i < len(s); i++ {
+		isEscape := s[i] == '\\' && i+1 < len(s)
+
+		if !isEscape {
+			out.WriteByte(s[i])
+			continue
+		}
+
+		i++ // move onto the escaped character
+
+		if decoded, ok := decodeEscape(s[i], quote); ok {
+			out.WriteByte(decoded)
+		} else {
+			out.WriteByte('\\')
+			out.WriteByte(s[i])
 		}
 	}
 
-	strLiteral = l.input[pos:l.pos]
-
-	l.readChar() // skip the last quote
-
-	return handleEscapeSequences(strLiteral, quote)
+	return out.String()
 }
 
-func handleEscapeSequences(s string, quote byte) string {
-	// remove slashes before quotes
-	s = strings.ReplaceAll(s, "\\"+string(quote), string(quote))
-
-	// handle other escape sequences
-	s = strings.ReplaceAll(s, "\\n", "\n")
-	s = strings.ReplaceAll(s, "\\t", "\t")
-	s = strings.ReplaceAll(s, "\\r", "\r")
-
-	return strings.ReplaceAll(s, "\\\\", "\\")
+// decodeEscape returns the byte that the escape `\<c>` stands for,
+// or false if the escape is not recognized.
+func decodeEscape(c, quote byte) (byte, bool) {
+	switch c {
+	case 'n':
+		return '\n', true
+	case 't':
+		return '\t', true
+	case 'r':
+		return '\r', true
+	case '\\', quote:
+		return c, true
+	}
+	return 0, false
 }
 
 func (l *Lexer) readNumber() (string, bool) {
@@ -498,7 +560,7 @@ func (l *Lexer) readText() string {
 	var out bytes.Buffer
 	l.tokenBegins()
 
-	for l.isText && l.char != 0 {
+	for l.isText && !l.atEnd() {
 		areBraces, escapedBraces := l.areBracesToken()
 
 		if areBraces || l.isDirectiveToken() {
@@ -558,7 +620,7 @@ func (l *Lexer) readChars(chars int) {
 }
 
 func (l *Lexer) peek(ahead int) byte {
-	if l.readPos >= len(l.input) {
+	if l.readPos+ahead >= len(l.input) {
 		return 0
 	}
 
@@ -589,12 +651,13 @@ func (l *Lexer) skipWhitespace() {
 	}
 }
 
-func (l *Lexer) skipComment() {
+// skipComment skips a comment and reports whether its closing "--}}" was found.
+func (l *Lexer) skipComment() bool {
 	depth := 1
 
 	l.readChars(4) // skip "{{--"
 
-	for l.char != 0 && depth > 0 {
+	for !l.atEnd() && depth > 0 {
 		if l.startsWith('{', '{', '-', '-') {
 			l.readChars(4) // skip "{{--"
 			depth++
@@ -611,4 +674,6 @@ func (l *Lexer) skipComment() {
 	}
 
 	l.isText = true
+
+	return depth == 0
 }

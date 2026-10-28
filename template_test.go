@@ -2,7 +2,10 @@ package textwire
 
 import (
 	"fmt"
+	"net/http"
 	"net/http/httptest"
+	"os"
+	"path/filepath"
 	"reflect"
 	"strings"
 	"testing"
@@ -245,6 +248,7 @@ func TestNewTemplate(t *testing.T) {
 		{conf: &config.Config{}, view: "index", data: nil, dir: "inserts-and-html"},
 		{conf: &config.Config{}, view: "index", data: nil, dir: "comp-no-args"},
 		{conf: &config.Config{}, view: "index", data: nil, dir: "insert-is-optional"},
+		{conf: &config.Config{}, view: "index", data: nil, dir: "nested-reserve-slot"},
 		{conf: &config.Config{}, view: "index", data: nil, dir: "use-with-comp-inside"},
 		{conf: &config.Config{}, view: "home", data: nil, dir: "comp-in-other-comp"},
 		{
@@ -310,6 +314,33 @@ func TestNewTemplate(t *testing.T) {
 				t.Fatalf("Wrong result. Expect:\n'%s'\ngot:\n'%s'", expect, actual)
 			}
 		})
+	}
+}
+
+func TestNewTemplate_WithAbsoluteTemplateDir(t *testing.T) {
+	templateDir := t.TempDir()
+
+	err := os.WriteFile(
+		filepath.Join(templateDir, "index.tw"),
+		[]byte("hello"),
+		0o600,
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	tpl, failure := NewTemplate(&config.Config{TemplateDir: templateDir})
+	if failure != nil {
+		t.Fatal(failure)
+	}
+
+	actual, failure := tpl.String("index", nil)
+	if failure != nil {
+		t.Fatal(failure)
+	}
+
+	if actual != "hello" {
+		t.Fatalf("expected 'hello', got %q", actual)
 	}
 }
 
@@ -439,6 +470,68 @@ func TestRegisteringCustomFunction(t *testing.T) {
 
 	if actual != expect {
 		t.Errorf("Wrong result. Expect:\n'%s'\ngot:\n'%s'", expect, actual)
+	}
+}
+
+func TestTemplateResponseStatusCodes(t *testing.T) {
+	tpl, tplErr := NewTemplate(&config.Config{
+		TemplateDir: "testdata/bad/undefined-var-in-comp",
+	})
+	if tplErr != nil {
+		t.Fatalf("Unexpected template error: %s", tplErr)
+	}
+
+	t.Run("render error returns 500", func(t *testing.T) {
+		rr := httptest.NewRecorder()
+		tpl.Response(rr, "index", nil)
+		if rr.Code != http.StatusInternalServerError {
+			t.Fatalf("expected status %d, got %d", http.StatusInternalServerError, rr.Code)
+		}
+	})
+
+	t.Run("missing template returns 404", func(t *testing.T) {
+		rr := httptest.NewRecorder()
+		tpl.Response(rr, "nonexistent", nil)
+		if rr.Code != http.StatusNotFound {
+			t.Fatalf("expected status %d, got %d", http.StatusNotFound, rr.Code)
+		}
+	})
+}
+
+func TestLocateFiles_IgnoresNonTemplateFiles(t *testing.T) {
+	templateDir := t.TempDir()
+
+	files := map[string]string{
+		"index.tw":     "hello",
+		"notes.twig":   "junk @end",
+		"some.tw.twig": "@end",
+		"card.tw.html": "@end",
+	}
+
+	for name, content := range files {
+		err := os.WriteFile(
+			filepath.Join(templateDir, name),
+			[]byte(content),
+			0o600,
+		)
+
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	tpl, failure := NewTemplate(&config.Config{TemplateDir: templateDir})
+	if failure != nil {
+		t.Fatalf("unexpected template error: %s", failure)
+	}
+
+	actual, err := tpl.String("index", nil)
+	if err != nil {
+		t.Fatalf("unexpected eval error: %s", err)
+	}
+
+	if actual != "hello" {
+		t.Fatalf("expected 'hello', got %q", actual)
 	}
 }
 

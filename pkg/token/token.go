@@ -6,10 +6,11 @@ type TokenType int
 
 const (
 	// Special types
-	ILLEGAL TokenType = iota // An illegal token
-	EOF                      // The end of the file
-	EMPTY                    // The absense of a token, used for empty statements/expressions
-	IDENT                    // foo, bar
+	ILLEGAL          TokenType = iota // An illegal token
+	EOF                               // The end of the file
+	UNCLOSED_COMMENT                  // A comment missing its closing "--}}"
+	EMPTY                             // The absense of a token, used for empty statements/expressions
+	IDENT                             // foo, bar
 
 	// Literals
 	TEXT  // Text

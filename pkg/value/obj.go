@@ -2,6 +2,7 @@ package value
 
 import (
 	"fmt"
+	"html"
 	"sort"
 	"strings"
 
@@ -69,12 +70,19 @@ func (o *Obj) JSON() (string, error) {
 			out.WriteByte(',')
 		}
 
+		encodedKey, err := marshalJSONString(k)
+		if err != nil {
+			return "", err
+		}
+
 		jsonVal, err := pair.JSON()
 		if err != nil {
 			return "", err
 		}
 
-		fmt.Fprintf(&out, `"%s":%s`, k, jsonVal)
+		out.WriteString(encodedKey)
+		out.WriteByte(':')
+		out.WriteString(jsonVal)
 	}
 
 	out.WriteByte('}')
@@ -107,7 +115,7 @@ func (o *Obj) Dump(ident int) string {
 	for key, pair := range o.Pairs {
 		out.WriteString(insideSpaces)
 		fmt.Fprintf(&out, `<span style="%s">"`, DUMP_PROP)
-		out.WriteString(key)
+		out.WriteString(html.EscapeString(key))
 		fmt.Fprintf(&out, `"</span>: `)
 		out.WriteString(pair.Dump(ident))
 		out.WriteString(",\n")
@@ -139,7 +147,7 @@ func (o Obj) ToCamel() map[string]Literal {
 	for k, v := range o.Pairs {
 		key := utils.ToCamel(k)
 		if v.Is(OBJ_VAL) {
-			v.(*Obj).Pairs = v.(*Obj).ToCamel()
+			v = &Obj{Pairs: v.(*Obj).ToCamel()}
 		}
 		res[key] = v
 	}

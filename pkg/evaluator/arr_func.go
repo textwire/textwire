@@ -7,7 +7,6 @@ import (
 	"reflect"
 	"slices"
 	"strings"
-	"time"
 
 	"github.com/textwire/textwire/v5/pkg/fail"
 	"github.com/textwire/textwire/v5/pkg/value"
@@ -59,7 +58,7 @@ func arrRandFunc(receiver value.Literal, _ ...value.Literal) (value.Literal, err
 		return &value.Nil{}, nil
 	}
 
-	return elems[0], nil
+	return elems[rand.Intn(len(elems))], nil
 }
 
 // arrReverseFunc reverses the elements of the given arr
@@ -107,6 +106,10 @@ func arrSliceFunc(receiver value.Literal, args ...value.Literal) (value.Literal,
 		end = len(elems)
 	}
 
+	if end < start {
+		end = start
+	}
+
 	return &value.Arr{Elements: elems[start:end]}, nil
 }
 
@@ -122,9 +125,6 @@ func arrShuffleFunc(receiver value.Literal, _ ...value.Literal) (value.Literal, 
 	// Create a copy of the elements to shuffle
 	shuffled := make([]value.Literal, length)
 	copy(shuffled, elems)
-
-	// Seed the random number generator to ensure different results
-	rand.New(rand.NewSource(time.Now().UnixNano()))
 
 	// Perform Fisher-Yates shuffle
 	for i := length - 1; i > 0; i-- {

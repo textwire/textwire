@@ -24,8 +24,8 @@ func NewScopeFromMap(data map[string]any) (*Scope, *fail.Error) {
 
 	for key, val := range data {
 		obj := NativeToValue(val)
-		if obj == nil {
-			return nil, fail.New(nil, "", fail.OriginTpl, fail.ErrUnsupportedType, val)
+		if errObj, ok := obj.(*Error); ok {
+			return nil, errObj.Err
 		}
 
 		if err := scope.Set(key, obj); err != nil {
@@ -34,12 +34,6 @@ func NewScopeFromMap(data map[string]any) (*Scope, *fail.Error) {
 	}
 
 	return scope, nil
-}
-
-func (s *Scope) Child() *Scope {
-	child := NewScope()
-	child.parent = s
-	return child
 }
 
 func (e *Scope) Get(name string) (Literal, bool) {
@@ -61,6 +55,15 @@ func (e *Scope) Set(key string, val Literal) error {
 
 	e.vars[key] = val
 
+	return nil
+}
+
+func (e *Scope) SetLoopVariable(key string, val Literal) error {
+	if key == "loop" || key == "global" {
+		return errors.New(fail.ErrReservedIdentifiers)
+	}
+
+	e.vars[key] = val
 	return nil
 }
 

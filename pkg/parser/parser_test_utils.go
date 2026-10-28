@@ -104,6 +104,37 @@ func parseDirective[T ast.Chunk](inp string, opts parseOpts) (T, error) {
 	return dir, nil
 }
 
+// parseChunkInLoop parses a chunk that is only valid inside a loop. It wraps the
+// input in an "@each" loop and returns the first chunk of the loop's block.
+func parseChunkInLoop[T ast.Chunk](inp string, opts parseOpts) (T, error) {
+	var zero T
+
+	chunks, err := parseChunks("@each(x in [1])"+inp+"@end", opts)
+	if err != nil {
+		return zero, err
+	}
+
+	eachDir, ok := chunks[0].(*ast.EachDir)
+	if !ok {
+		return zero, fmt.Errorf("chunks[0] is not an EachDir, got %T", chunks[0])
+	}
+
+	if len(eachDir.Block.Chunks) == 0 {
+		return zero, fmt.Errorf("loop block has no chunks for input %q", inp)
+	}
+
+	chunk, ok := eachDir.Block.Chunks[0].(T)
+	if !ok {
+		return zero, fmt.Errorf(
+			"loop block chunk is not %T, got %T",
+			zero,
+			eachDir.Block.Chunks[0],
+		)
+	}
+
+	return chunk, nil
+}
+
 func testInfixExpr(expr ast.Expression, left any, op string, right any) error {
 	infixExpr, ok := expr.(*ast.InfixExpr)
 	if !ok {
