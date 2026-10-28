@@ -9,7 +9,7 @@ import (
 	"strings"
 	"time"
 
-	"codeberg.org/textwire/textwire/v5/pkg/fail"
+	"github.com/textwire/textwire/v5/pkg/fail"
 )
 
 func NativeToValue(val any) Literal {

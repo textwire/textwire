@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"codeberg.org/textwire/textwire/v5/config"
+	"github.com/textwire/textwire/v5/config"
 )
 
 // SourceFile holds information about individual Textwire source file,

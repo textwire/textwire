@@ -6,7 +6,7 @@ import (
 	"sort"
 	"strings"
 
-	"codeberg.org/textwire/textwire/v5/pkg/utils"
+	"github.com/textwire/textwire/v5/pkg/utils"
 )
 
 type Obj struct {

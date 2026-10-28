@@ -1,13 +1,13 @@
 package lsp
 
 import (
-	"codeberg.org/textwire/textwire/v5/pkg/fail"
-	"codeberg.org/textwire/textwire/v5/pkg/position"
-	"codeberg.org/textwire/textwire/v5/pkg/token"
+	"github.com/textwire/textwire/v5/pkg/fail"
+	"github.com/textwire/textwire/v5/pkg/position"
+	"github.com/textwire/textwire/v5/pkg/token"
 
-	"codeberg.org/textwire/textwire/v5/pkg/ast"
-	"codeberg.org/textwire/textwire/v5/pkg/lexer"
-	"codeberg.org/textwire/textwire/v5/pkg/parser"
+	"github.com/textwire/textwire/v5/pkg/ast"
+	"github.com/textwire/textwire/v5/pkg/lexer"
+	"github.com/textwire/textwire/v5/pkg/parser"
 )
 
 // IsInLoop checks if given position of the cursor is inside of a loop

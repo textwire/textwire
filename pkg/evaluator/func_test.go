@@ -3,8 +3,8 @@ package evaluator
 import (
 	"testing"
 
-	"codeberg.org/textwire/textwire/v5/pkg/fail"
-	"codeberg.org/textwire/textwire/v5/pkg/value"
+	"github.com/textwire/textwire/v5/pkg/fail"
+	"github.com/textwire/textwire/v5/pkg/value"
 )
 
 func TestFunctionGivesError(t *testing.T) {

@@ -1,6 +1,6 @@
 package evaluator
 
-import "codeberg.org/textwire/textwire/v5/pkg/value"
+import "github.com/textwire/textwire/v5/pkg/value"
 
 // SlotsStore stores slots. Example below:
 //

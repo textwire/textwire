@@ -6,9 +6,9 @@ import (
 	"strconv"
 	"strings"
 
-	"codeberg.org/textwire/textwire/v5/config"
-	"codeberg.org/textwire/textwire/v5/pkg/fail"
-	"codeberg.org/textwire/textwire/v5/pkg/value"
+	"github.com/textwire/textwire/v5/config"
+	"github.com/textwire/textwire/v5/pkg/fail"
+	"github.com/textwire/textwire/v5/pkg/value"
 )
 
 func isTruthy(obj value.Literal) bool {

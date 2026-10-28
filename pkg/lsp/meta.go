@@ -8,8 +8,8 @@ import (
 
 	"slices"
 
-	"codeberg.org/textwire/textwire/v5/pkg/lsp/utils"
-	"codeberg.org/textwire/textwire/v5/pkg/token"
+	"github.com/textwire/textwire/v5/pkg/lsp/utils"
+	"github.com/textwire/textwire/v5/pkg/token"
 )
 
 // Locale represents a language locale for metadata.

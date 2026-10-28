@@ -3,7 +3,7 @@ package ast
 import (
 	"testing"
 
-	"codeberg.org/textwire/textwire/v5/pkg/token"
+	"github.com/textwire/textwire/v5/pkg/token"
 )
 
 func TestFindDuplicatePasses(t *testing.T) {

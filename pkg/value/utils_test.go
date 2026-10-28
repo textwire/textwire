@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	"codeberg.org/textwire/textwire/v5/pkg/fail"
+	"github.com/textwire/textwire/v5/pkg/fail"
 )
 
 // Named types used to verify that NativeToValue looks at the underlying kind.

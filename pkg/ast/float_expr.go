@@ -1,8 +1,8 @@
 package ast
 
 import (
-	"codeberg.org/textwire/textwire/v5/pkg/token"
-	"codeberg.org/textwire/textwire/v5/pkg/utils"
+	"github.com/textwire/textwire/v5/pkg/token"
+	"github.com/textwire/textwire/v5/pkg/utils"
 )
 
 type FloatExpr struct {

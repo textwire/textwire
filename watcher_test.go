@@ -6,11 +6,11 @@ import (
 	"testing"
 	"time"
 
-	"codeberg.org/textwire/textwire/v5/config"
-	"codeberg.org/textwire/textwire/v5/pkg/ast"
-	"codeberg.org/textwire/textwire/v5/pkg/fail"
-	"codeberg.org/textwire/textwire/v5/pkg/file"
-	"codeberg.org/textwire/textwire/v5/pkg/linker"
+	"github.com/textwire/textwire/v5/config"
+	"github.com/textwire/textwire/v5/pkg/ast"
+	"github.com/textwire/textwire/v5/pkg/fail"
+	"github.com/textwire/textwire/v5/pkg/file"
+	"github.com/textwire/textwire/v5/pkg/linker"
 )
 
 const (

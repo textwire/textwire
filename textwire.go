@@ -1,11 +1,11 @@
 package textwire
 
 import (
-	"codeberg.org/textwire/textwire/v5/config"
-	"codeberg.org/textwire/textwire/v5/pkg/evaluator"
-	"codeberg.org/textwire/textwire/v5/pkg/fail"
-	"codeberg.org/textwire/textwire/v5/pkg/file"
-	"codeberg.org/textwire/textwire/v5/pkg/value"
+	"github.com/textwire/textwire/v5/config"
+	"github.com/textwire/textwire/v5/pkg/evaluator"
+	"github.com/textwire/textwire/v5/pkg/fail"
+	"github.com/textwire/textwire/v5/pkg/file"
+	"github.com/textwire/textwire/v5/pkg/value"
 )
 
 var (

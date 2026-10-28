@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	"codeberg.org/textwire/textwire/v5/pkg/token"
+	"github.com/textwire/textwire/v5/pkg/token"
 )
 
 func TestGetTokenMeta(t *testing.T) {

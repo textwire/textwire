@@ -1,4 +1,4 @@
-<p align="center"><img src="/textwire/textwire/raw/branch/master/.forgejo/assets/textwire-logo.png" width="200" height="200" /></p>
+<p align="center"><img src=".github/assets/textwire-logo.png" width="200" height="200" /></p>
 
 # Textwire. A templating language for Go
 
@@ -9,12 +9,12 @@ Textwire is a simple yet powerful templating language for Go. It is designed to 
 ## Installation
 
 ```bash
-go get codeberg.org/textwire/textwire/v5
+go get github.com/textwire/textwire/v5
 ```
 
 ## Neovim and VSCode Support
 
-If you use [Neovim](https://neovim.io/) or [VSCode](https://code.visualstudio.com/) as your primary editor, you can install the [Neovim Plugin](https://codeberg.org/textwire/textwire.nvim) or [VSCode Extension](https://marketplace.visualstudio.com/items?itemName=SerhiiCho.textwire) to get syntax highlighting and other features for Textwire.
+If you use [Neovim](https://neovim.io/) or [VSCode](https://code.visualstudio.com/) as your primary editor, you can install the [Neovim Plugin](https://github.com/textwire/textwire.nvim) or [VSCode Extension](https://marketplace.visualstudio.com/items?itemName=SerhiiCho.textwire) to get syntax highlighting and other features for Textwire.
 
 ## Globals Usage
 
@@ -32,7 +32,7 @@ In template files you can use globals like this `{{ global.env }}`.
 
 ## Project Overview
 
-- **Module**: `codeberg.org/textwire/textwire/v5`
+- **Module**: `github.com/textwire/textwire/v5`
 - **Template Extensions**: `.tw`
 - **Architecture**: Modular design with separate packages for lexer, parser, evaluator, AST, token, and object handling
 - **LSP Support**: Full Language Server Protocol implementation for editor integration
@@ -89,7 +89,7 @@ make check OCI='docker compose'
 ### Import Organization
 
 - Group imports: standard library, third-party, local packages
-- Local packages use `codeberg.org/textwire/textwire/v5/` prefix
+- Local packages use `github.com/textwire/textwire/v5/` prefix
 - Keep imports sorted and remove unused imports
 
 ### Formatting Requirements
@@ -167,14 +167,4 @@ Write clear, descriptive error messages:
 
 ## License
 
-The Textwire project is licensed under the [MIT License](https://codeberg.org/textwire/textwire/src/branch/master/LICENSE)
-
-## Thanks To
-
-Thanks to Codeberg and Forgejo for hosting Textwire.
-
-<p align="center">
-<img src="/textwire/textwire/raw/branch/master/.forgejo/assets/codeberg-logo.png" width="50" height="50" />
-<img src="/textwire/textwire/raw/branch/master/.forgejo/assets/textwire-logo.png" width="50" height="50" />
-<img src="/textwire/textwire/raw/branch/master/.forgejo/assets/forgejo-logo.png" width="50" height="50" />
-</p>
+The Textwire project is licensed under the [MIT License](https://github.com/textwire/textwire/blob/master/LICENSE)

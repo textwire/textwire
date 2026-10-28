@@ -1,7 +1,7 @@
 package evaluator
 
 import (
-	"codeberg.org/textwire/textwire/v5/pkg/value"
+	"github.com/textwire/textwire/v5/pkg/value"
 )
 
 var functions = map[value.ValueType]map[string]*value.Builtin{

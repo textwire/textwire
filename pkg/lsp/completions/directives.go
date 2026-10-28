@@ -3,9 +3,9 @@ package completions
 import (
 	"errors"
 
-	"codeberg.org/textwire/textwire/v5/pkg/lsp"
-	"codeberg.org/textwire/textwire/v5/pkg/lsp/utils"
-	"codeberg.org/textwire/textwire/v5/pkg/token"
+	"github.com/textwire/textwire/v5/pkg/lsp"
+	"github.com/textwire/textwire/v5/pkg/lsp/utils"
+	"github.com/textwire/textwire/v5/pkg/token"
 )
 
 func GetDirectives(locale lsp.Locale) ([]Completion, error) {

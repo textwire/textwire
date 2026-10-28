@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 
-	"codeberg.org/textwire/textwire/v5/pkg/fail"
+	"github.com/textwire/textwire/v5/pkg/fail"
 )
 
 type Scope struct {
