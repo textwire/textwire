@@ -19,5 +19,9 @@ jobs:
         uses: actions/checkout@v4
 
       - uses: webgtx/setup-podman-compose@v1
-        name: Pull image
-        run: make pull && make
+
+      - name: Pull image
+        run: make pull
+
+      - name: Run checks
+        run: make
