@@ -8,7 +8,7 @@ on:
 
 jobs:
   build-and-test:
-    runs-on: debian13-podman
+    runs-on: ubuntu-latest
     name: Run checks for Go ${{ matrix.go-version }}
     strategy:
       matrix:
