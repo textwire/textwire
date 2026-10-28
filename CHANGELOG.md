@@ -2,7 +2,7 @@
 
 ## v5.1.16 (2026-10-28)
 
-- 🧑‍💻 Moved from Codeberg back to GitHub.
+- 🧑‍💻 Temporary moved from Codeberg back to GitHub so that people who are still using github version get lots of bug fixes.
 
 ## v5.1.15 (2026-10-28)
 
