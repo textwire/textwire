@@ -169,7 +169,7 @@ func (e *Evaluator) ifDir(ifDir *ast.IfDir, ctx *Context) value.Value {
 		return cond
 	}
 
-	ifCtx := ctx.child()
+	ifCtx := ctx.childContext()
 	if isTruthy(cond) {
 		return e.Eval(ifDir.IfBlock, ifCtx)
 	}
@@ -463,9 +463,9 @@ func (e *Evaluator) passCompArgsToCtx(compDir *ast.CompDir, ctx, compCtx *Contex
 }
 
 func (e *Evaluator) forDir(forDir *ast.ForDir, ctx *Context) value.Value {
-	forCtx := ctx.child()
+	forCtx := ctx.childContextWithNewScope()
 
-	init := e.evalLiteral(forDir.Init, forCtx)
+	init := e.forDirInit(forDir.Init, forCtx)
 	if isError(init) {
 		return init
 	}
@@ -487,10 +487,7 @@ func (e *Evaluator) forDir(forDir *ast.ForDir, ctx *Context) value.Value {
 
 	block := value.NewBlock(blockLen)
 
-	hasCond := forDir.Cond != nil
-	if _, isEmpty := forDir.Cond.(*ast.Empty); isEmpty {
-		hasCond = false
-	}
+	hasCond := hasForCond(forDir.Cond)
 
 	// Loop through the block until the user's condition is false
 	for {
@@ -525,8 +522,43 @@ func (e *Evaluator) forDir(forDir *ast.ForDir, ctx *Context) value.Value {
 	return block
 }
 
+// hasForCond reports whether a @for directive has a real condition.
+// A missing or empty condition means the loop runs until it breaks.
+func hasForCond(cond ast.Expression) bool {
+	if cond == nil {
+		return false
+	}
+
+	_, isEmpty := cond.(*ast.Empty)
+
+	return !isEmpty
+}
+
+func (e *Evaluator) forDirInit(init ast.Statement, ctx *Context) value.Literal {
+	assign, ok := init.(*ast.AssignStmt)
+	if !ok {
+		return e.evalLiteral(init, ctx)
+	}
+
+	ident, ok := assign.Left.(*ast.IdentExpr)
+	if !ok {
+		return e.evalLiteral(init, ctx)
+	}
+
+	right := e.evalLiteral(assign.Right, ctx)
+	if isError(right) {
+		return right
+	}
+
+	if err := ctx.scope.SetLoopVariable(ident.Name, right); err != nil {
+		return e.newError(init, ctx, "%s", err.Error())
+	}
+
+	return NIL
+}
+
 func (e *Evaluator) eachDir(eachDir *ast.EachDir, ctx *Context) value.Value {
-	eachCtx := ctx.child()
+	eachCtx := ctx.childContextWithNewScope()
 	varName := eachDir.Var.Name
 
 	arrObj := e.evalLiteral(eachDir.Arr, eachCtx)

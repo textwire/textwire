@@ -19,6 +19,10 @@ func NewScope() *Scope {
 	return &Scope{vars: vars}
 }
 
+func NewChildScope(parent *Scope) *Scope {
+	return &Scope{vars: map[string]Literal{}, parent: parent}
+}
+
 func NewScopeFromMap(data map[string]any) (*Scope, *fail.Error) {
 	scope := NewScope()
 
@@ -53,9 +57,28 @@ func (e *Scope) Set(key string, val Literal) error {
 		return e.identifierMismatchError(key, oldVar, val)
 	}
 
-	e.vars[key] = val
+	writeScope := e.scopeOf(key)
+	if writeScope == nil {
+		writeScope = e
+	}
+
+	writeScope.vars[key] = val
 
 	return nil
+}
+
+// scopeOf walks up from the current scope and returns the closest one
+// that defines key. It returns nil when no scope in the chain defines it.
+func (e *Scope) scopeOf(key string) *Scope {
+	if _, ok := e.vars[key]; ok {
+		return e
+	}
+
+	if e.parent == nil {
+		return nil
+	}
+
+	return e.parent.scopeOf(key)
 }
 
 func (e *Scope) SetLoopVariable(key string, val Literal) error {

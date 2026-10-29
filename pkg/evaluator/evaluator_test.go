@@ -986,8 +986,9 @@ func TestEvalForDir(t *testing.T) {
 			"01;11;21;",
 		},
 		// @break must not run the post statement
-		{390, `@for(i = 0; i < 10; i++)@breakif(i == 3)@end{{ i }}`, "3"},
-		{400, `@for(i = 0; i < 10; i++)@if(i == 3)@break@end@end{{ i }}`, "3"},
+		{390, `{{ i = 0 }}@for(; i < 10; i++)@breakif(i == 3)@end{{ i }}`, "3"},
+		{391, `{{ i = "hi" }}@for(i = 0; i < 2; i++){{ i }}@end{{ i }}`, "01hi"},
+		{400, `{{ i = 0 }}@for(; i < 10; i++)@if(i == 3)@break@end@end{{ i }}`, "3"},
 	}
 
 	for _, tc := range cases {
@@ -1059,7 +1060,13 @@ func TestEvalEachDir(t *testing.T) {
 			"4",
 		},
 		// Shadowing an outside variable with the loop iterator
-		{290, `{{ fruit = "apple" }}@each(fruit in ["banana"])@end{{ fruit }}`, "banana"},
+		{290, `{{ fruit = "apple" }}@each(fruit in ["banana"])@end{{ fruit }}`, "apple"},
+		// Loop variable does not clash with outer variable of another type
+		{291, `{{ x = "hi" }}@each(x in [1, 2]){{ x }}@end`, "12"},
+		// Loop variable does not leak outside the loop
+		{292, `{{ x = "hi" }}@each(x in [1, 2]){{ x }}@end{{ x }}`, "12hi"},
+		// Loop variable does not overwrite outer variable of the same type
+		{293, `{{ x = 9 }}@each(x in [1, 2]){{ x }}@end{{ x }}`, "129"},
 		// Control statements only affect the current loop
 		{
 			300,
