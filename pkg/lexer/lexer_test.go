@@ -323,6 +323,32 @@ func TestLogicalOrOp(t *testing.T) {
 	})
 }
 
+func TestSingleAmpersandIsIllegal(t *testing.T) {
+	inp := `{{ 1 & 2 }}`
+
+	TokenizeString(t, inp, []token.Token{
+		{Type: token.LBRACES, Lit: "{{", Pos: &position.Pos{EndCol: 1}},
+		{Type: token.INT, Lit: "1", Pos: &position.Pos{StartCol: 3, EndCol: 3}},
+		{Type: token.ILLEGAL, Lit: "&", Pos: &position.Pos{StartCol: 5, EndCol: 5}},
+		{Type: token.INT, Lit: "2", Pos: &position.Pos{StartCol: 7, EndCol: 7}},
+		{Type: token.RBRACES, Lit: "}}", Pos: &position.Pos{StartCol: 9, EndCol: 10}},
+		{Type: token.EOF, Lit: "", Pos: &position.Pos{StartCol: 11, EndCol: 11}},
+	})
+}
+
+func TestSinglePipeIsIllegal(t *testing.T) {
+	inp := `{{ 1 | 2 }}`
+
+	TokenizeString(t, inp, []token.Token{
+		{Type: token.LBRACES, Lit: "{{", Pos: &position.Pos{EndCol: 1}},
+		{Type: token.INT, Lit: "1", Pos: &position.Pos{StartCol: 3, EndCol: 3}},
+		{Type: token.ILLEGAL, Lit: "|", Pos: &position.Pos{StartCol: 5, EndCol: 5}},
+		{Type: token.INT, Lit: "2", Pos: &position.Pos{StartCol: 7, EndCol: 7}},
+		{Type: token.RBRACES, Lit: "}}", Pos: &position.Pos{StartCol: 9, EndCol: 10}},
+		{Type: token.EOF, Lit: "", Pos: &position.Pos{StartCol: 11, EndCol: 11}},
+	})
+}
+
 func TestUnterminatedBraces(t *testing.T) {
 	cases := []struct {
 		name string

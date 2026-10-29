@@ -235,12 +235,12 @@ func (l *Lexer) embeddedCodeToken() token.Token {
 		if l.peek(0) == '&' {
 			return l.twoCharToken(token.AND, "&&")
 		}
-		fallthrough
+		return l.illegalToken()
 	case '|':
 		if l.peek(0) == '|' {
 			return l.twoCharToken(token.OR, "||")
 		}
-		fallthrough
+		return l.illegalToken()
 	case '+':
 		return l.operatorToken('+', token.INC, token.ADD, "++", "+")
 	case '=':
