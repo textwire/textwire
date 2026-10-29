@@ -106,6 +106,75 @@ func TestNewScopeFromMap(t *testing.T) {
 	}
 }
 
+func TestNewChildScope(t *testing.T) {
+	parent := NewScope()
+	parent.vars["title"] = &Str{Val: "Hello"}
+
+	child := NewChildScope(parent)
+
+	obj, ok := child.Get("title")
+	if !ok {
+		t.Fatalf("child.Get(title) returned !ok, expected parent's variable")
+	}
+
+	if obj.String() != "Hello" {
+		t.Fatalf("child.Get(title) returned %q, expected %q", obj, "Hello")
+	}
+}
+
+func TestScopeOf(t *testing.T) {
+	grandparent := NewScope()
+	grandparent.vars["title"] = &Str{Val: "grandparent"}
+	grandparent.vars["name"] = &Str{Val: "grandparent"}
+
+	parent := NewChildScope(grandparent)
+	parent.vars["name"] = &Str{Val: "parent"}
+
+	child := NewChildScope(parent)
+	child.vars["age"] = &Int{Val: 1}
+
+	cases := []struct {
+		name   string
+		scope  *Scope
+		key    string
+		expect *Scope
+	}{
+		{
+			name:   "key defined in current scope",
+			scope:  child,
+			key:    "age",
+			expect: child,
+		},
+		{
+			name:   "key defined only in grandparent scope",
+			scope:  child,
+			key:    "title",
+			expect: grandparent,
+		},
+		{
+			name:   "closest scope wins when key is shadowed",
+			scope:  child,
+			key:    "name",
+			expect: parent,
+		},
+		{
+			name:   "key not defined in any scope",
+			scope:  child,
+			key:    "missing",
+			expect: nil,
+		},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			got := tc.scope.scopeOf(tc.key)
+			if got != tc.expect {
+				t.Fatalf("scopeOf(%q) returned %p, expected %p", tc.key, got, tc.expect)
+			}
+		})
+	}
+}
+
 func TestAddGlobalData(t *testing.T) {
 	cases := []struct {
 		name      string

@@ -36,6 +36,7 @@ func TestEvalArrFunctions(t *testing.T) {
 		{140, `{{ [].reverse() }}`, ""},
 		{150, `{{ ['Raiden', 'Venti', 'Barbara'].reverse() }}`, "Barbara, Venti, Raiden"},
 		{160, `{{ [4, 3, [1, 2]].reverse() }}`, "1, 2, 3, 4"},
+		{161, `{{ a = [1, 2, 3]; b = a.reverse(); a }}`, "1, 2, 3"},
 		// slice
 		{170, `{{ [].slice(0) }}`, ""},
 		{180, `{{ [1, 2, 3].slice(0) }}`, "1, 2, 3"},
@@ -120,7 +121,7 @@ func TestEvalArrFunctions(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		evaluationExpected(t, tc.inp, tc.expect, tc.id)
+		evaluationExpected(t, tc.inp, tc.expect, nil, tc.id)
 	}
 }
 

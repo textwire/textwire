@@ -191,7 +191,7 @@ func TestEvalStringFunctions(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		evaluationExpected(t, tc.inp, tc.expect, tc.id)
+		evaluationExpected(t, tc.inp, tc.expect, nil, tc.id)
 	}
 }
 
@@ -208,6 +208,6 @@ func TestStringMethodChaining(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		evaluationExpected(t, tc.inp, tc.expect, tc.id)
+		evaluationExpected(t, tc.inp, tc.expect, nil, tc.id)
 	}
 }

@@ -12,11 +12,15 @@ import (
 	"codeberg.org/textwire/textwire/v5/pkg/value"
 )
 
-func testEval(inp string) (value.Value, *fail.Error) {
+func testEval(inp string, data map[string]any) (value.Value, *fail.Error) {
 	l := lexer.New(inp)
 	p := parser.New(l, file.New("file", "to/file", "/path/to/file", nil))
 	prog := p.ParseProgram()
-	scope := value.NewScope()
+
+	scope, failure := value.NewScopeFromMap(data)
+	if failure != nil {
+		return nil, failure
+	}
 
 	if p.HasErrors() {
 		return nil, p.Errors()[0]
@@ -28,8 +32,13 @@ func testEval(inp string) (value.Value, *fail.Error) {
 	return e.Eval(prog, ctx), nil
 }
 
-func evaluationExpected(t *testing.T, inp, expect string, idx uint) {
-	evaluated, failure := testEval(inp)
+func evaluationExpected(
+	t *testing.T,
+	inp, expect string,
+	data map[string]any,
+	idx uint,
+) {
+	evaluated, failure := testEval(inp, data)
 	if failure != nil {
 		t.Fatalf("Case: %d. evaluation failed: %s", idx, failure)
 	}
@@ -68,7 +77,7 @@ func TestEvalText(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		evaluationExpected(t, tc.inp, tc.expect, tc.id)
+		evaluationExpected(t, tc.inp, tc.expect, nil, tc.id)
 	}
 }
 
@@ -107,7 +116,7 @@ func TestEvalNumericExp(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		evaluationExpected(t, tc.inp, tc.expect, tc.id)
+		evaluationExpected(t, tc.inp, tc.expect, nil, tc.id)
 	}
 }
 
@@ -126,7 +135,7 @@ func TestEvalFloatOverflow(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		evaluationExpected(t, tc.inp, tc.expect, tc.id)
+		evaluationExpected(t, tc.inp, tc.expect, nil, tc.id)
 	}
 }
 
@@ -407,7 +416,7 @@ func TestEvalBooleanExp(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		evaluated, failure := testEval(tc.inp)
+		evaluated, failure := testEval(tc.inp, nil)
 		if failure != nil {
 			t.Fatalf("Case: %d. evaluation failed: %s", tc.id, failure)
 		}
@@ -425,8 +434,20 @@ func TestEvalBooleanExp(t *testing.T) {
 }
 
 func TestEvalNilExp(t *testing.T) {
-	inp := "<h1>{{ nil }}</h1>"
-	evaluationExpected(t, inp, "<h1></h1>", 10)
+	cases := []struct {
+		id     uint
+		inp    string
+		expect string
+		data   map[string]any
+	}{
+		{1, `<h1>{{ nil }}</h1>`, "<h1></h1>", nil},
+		{2, `<h1>{{ nil; nil }}</h1>`, "<h1></h1>", nil},
+		{3, `<h1>{{ data }}</h1>`, "<h1></h1>", map[string]any{"data": nil}},
+	}
+
+	for _, tc := range cases {
+		evaluationExpected(t, tc.inp, tc.expect, tc.data, tc.id)
+	}
 }
 
 func TestEvalStringExp(t *testing.T) {
@@ -495,7 +516,7 @@ func TestEvalStringExp(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		evaluationExpected(t, tc.inp, tc.expect, tc.id)
+		evaluationExpected(t, tc.inp, tc.expect, nil, tc.id)
 	}
 }
 
@@ -543,7 +564,7 @@ func TestEvalTernaryExp(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		evaluationExpected(t, tc.inp, tc.expect, tc.id)
+		evaluationExpected(t, tc.inp, tc.expect, nil, tc.id)
 	}
 }
 
@@ -608,7 +629,7 @@ func TestEvalIfDir(t *testing.T) {
 		{440, `@if(-1 + 2)Yes@elseNo@end`, "Yes"},
 		// Nested if statements
 		{
-			390,
+			450,
 			`
 				@if(true)
 					@if(false)
@@ -625,33 +646,33 @@ func TestEvalIfDir(t *testing.T) {
 			"Marry",
 		},
 		// Variable modification from outside scope
-		{400, `{{ sum = 0 }}@if(true){{ sum++ }}@end{{ sum }}`, "1"},
+		{460, `{{ sum = 0 }}@if(true){{ sum++ }}@end{{ sum }}`, "1"},
 		// Nested @if
-		{410, `{{ val = 1 }}@if(true)@if(true){{ val = val * 5 }}@end@end{{ val }}`, "5"},
+		{470, `{{ val = 1 }}@if(true)@if(true){{ val = val * 5 }}@end@end{{ val }}`, "5"},
 		// Modification inside @else
 		{
-			420,
+			480,
 			`{{ status = "pending" }}@if(false)@else{{ status = "done" }}@end{{ status }}`,
 			"done",
 		},
 		// Sequential modifications
-		{430, `{{ n = 10 }}@if(n > 5){{ n = n - 2 }}@end@if(n == 8){{ n = 0 }}@end{{ n }}`, "0"},
+		{490, `{{ n = 10 }}@if(n > 5){{ n = n - 2 }}@end@if(n == 8){{ n = 0 }}@end{{ n }}`, "0"},
 		// Deep nesting
 		{
-			440,
+			500,
 			`{{ deep = 0 }}@if(true)@if(true)@if(true){{ deep = 42 }}@end@end@end{{ deep }}`,
 			"42",
 		},
 		// Modification inside @elseif
 		{
-			420,
+			510,
 			`{{ status = "pending" }}@if(false)@elseif(true){{ status = "done" }}@end{{ status }}`,
 			"done",
 		},
 	}
 
 	for _, tc := range cases {
-		evaluated, failure := testEval(tc.inp)
+		evaluated, failure := testEval(tc.inp, nil)
 		if failure != nil {
 			t.Fatalf("Case: %d. evaluation failed: %s", tc.id, failure)
 		}
@@ -713,7 +734,7 @@ func TestEvalArr(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		evaluationExpected(t, tc.inp, tc.expect, tc.id)
+		evaluationExpected(t, tc.inp, tc.expect, nil, tc.id)
 	}
 }
 
@@ -754,7 +775,7 @@ func TestEvalIndexExp(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		evaluationExpected(t, tc.inp, tc.expect, tc.id)
+		evaluationExpected(t, tc.inp, tc.expect, nil, tc.id)
 	}
 }
 
@@ -856,7 +877,7 @@ func TestEvalAssign(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		evaluationExpected(t, tc.inp, tc.expect, tc.id)
+		evaluationExpected(t, tc.inp, tc.expect, nil, tc.id)
 	}
 }
 
@@ -879,7 +900,7 @@ func TestIncDecDir(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		evaluationExpected(t, tc.inp, tc.expect, tc.id)
+		evaluationExpected(t, tc.inp, tc.expect, nil, tc.id)
 	}
 }
 
@@ -936,7 +957,7 @@ func TestEvalForDir(t *testing.T) {
 		{300, `@for(i = 1; i <= 2; i++)@for(j = 1; j <= 2; j++){{ i * j }}@end@end`, "1224"},
 		// For loop with HTML
 		{
-			300,
+			301,
 			`<ul>@for(i = 1; i <= 3; i++)<li>{{ i }}</li>@end</ul>`,
 			"<ul><li>1</li><li>2</li><li>3</li></ul>",
 		},
@@ -965,12 +986,13 @@ func TestEvalForDir(t *testing.T) {
 			"01;11;21;",
 		},
 		// @break must not run the post statement
-		{390, `@for(i = 0; i < 10; i++)@breakif(i == 3)@end{{ i }}`, "3"},
-		{400, `@for(i = 0; i < 10; i++)@if(i == 3)@break@end@end{{ i }}`, "3"},
+		{390, `{{ i = 0 }}@for(; i < 10; i++)@breakif(i == 3)@end{{ i }}`, "3"},
+		{391, `{{ i = "hi" }}@for(i = 0; i < 2; i++){{ i }}@end{{ i }}`, "01hi"},
+		{400, `{{ i = 0 }}@for(; i < 10; i++)@if(i == 3)@break@end@end{{ i }}`, "3"},
 	}
 
 	for _, tc := range cases {
-		evaluationExpected(t, tc.inp, tc.expect, tc.id)
+		evaluationExpected(t, tc.inp, tc.expect, nil, tc.id)
 	}
 }
 
@@ -1038,7 +1060,13 @@ func TestEvalEachDir(t *testing.T) {
 			"4",
 		},
 		// Shadowing an outside variable with the loop iterator
-		{290, `{{ fruit = "apple" }}@each(fruit in ["banana"])@end{{ fruit }}`, "banana"},
+		{290, `{{ fruit = "apple" }}@each(fruit in ["banana"])@end{{ fruit }}`, "apple"},
+		// Loop variable does not clash with outer variable of another type
+		{291, `{{ x = "hi" }}@each(x in [1, 2]){{ x }}@end`, "12"},
+		// Loop variable does not leak outside the loop
+		{292, `{{ x = "hi" }}@each(x in [1, 2]){{ x }}@end{{ x }}`, "12hi"},
+		// Loop variable does not overwrite outer variable of the same type
+		{293, `{{ x = 9 }}@each(x in [1, 2]){{ x }}@end{{ x }}`, "129"},
 		// Control statements only affect the current loop
 		{
 			300,
@@ -1058,7 +1086,7 @@ func TestEvalEachDir(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		evaluationExpected(t, tc.inp, tc.expect, tc.id)
+		evaluationExpected(t, tc.inp, tc.expect, nil, tc.id)
 	}
 }
 
@@ -1106,7 +1134,7 @@ func TestEvalObjLit(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		evaluationExpected(t, tc.inp, tc.expect, tc.id)
+		evaluationExpected(t, tc.inp, tc.expect, nil, tc.id)
 	}
 }
 
@@ -1159,7 +1187,7 @@ func TestEvalComments(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		evaluationExpected(t, tc.inp, tc.expect, tc.id)
+		evaluationExpected(t, tc.inp, tc.expect, nil, tc.id)
 	}
 }
 
@@ -1257,7 +1285,7 @@ func TestCannotUseOperatorError(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		evaluated, failure := testEval(tc.inp)
+		evaluated, failure := testEval(tc.inp, nil)
 		if failure != nil {
 			t.Fatalf("Case: %d. evaluation failed: %s", tc.id, failure)
 		}
@@ -1277,6 +1305,7 @@ func TestCannotUseOperatorError(t *testing.T) {
 			tc.op,
 			tc.right,
 		)
+
 		if err.String() != expect.String() {
 			t.Fatalf("Case: %d. Error message must be:\n%q\ngot:\n%q", tc.id, expect, err)
 		}
@@ -1364,6 +1393,6 @@ func TestEvalFormatDateGlobalFunc(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		evaluationExpected(t, tc.inp, tc.expect, tc.id)
+		evaluationExpected(t, tc.inp, tc.expect, nil, tc.id)
 	}
 }

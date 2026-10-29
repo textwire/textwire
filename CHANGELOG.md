@@ -1,5 +1,13 @@
 # Release notes V5
 
+## v5.1.17 (2026-10-29)
+
+- 🐛 Fixed file watcher serving an edited template before its layout and components were linked.
+- 🐛 Fixed single `&` and `|` being silently treated as `+`. They now produce a syntax error instead.
+- 🐛 Fixed `reverse()` mutating the original array. It now returns a reversed copy.
+- 🐛 Fixed `get()` on objects not finding struct fields that dot access finds.
+- 🐛 Fixed `@each` and `@for` loop variables leaking out of the loop and clashing with or overwriting outer variables. Loop variables now live in their own scope.
+
 ## v5.1.15 (2026-10-28)
 
 - ♻️ Refactored file watcher. Added unit tests to it.

@@ -20,14 +20,16 @@ type fileWatcher struct {
 	logger    *WatcherLogger
 	ticker    *time.Ticker
 	files     []*file.SourceFile
+	sources   map[string]string // last valid source of each template, by name
 	lastError string
 }
 
 // newFileWatcher creates a new file watcher instance.
 func newFileWatcher(oldLinker *linker.NodeLinker) *fileWatcher {
 	return &fileWatcher{
-		linker: oldLinker,
-		logger: NewWatcherLogger(),
+		linker:  oldLinker,
+		logger:  NewWatcherLogger(),
+		sources: make(map[string]string),
 	}
 }
 
@@ -51,22 +53,17 @@ func (fw *fileWatcher) Watch() {
 
 	go func() {
 		for range fw.ticker.C {
-			fw.checkForChanges()
+			fw.tick()
 		}
 	}()
 }
 
-// checkForChanges runs on every tick. It re-scans the template dir when files
-// are added or deleted, reparses changed files on their own so one broken
-// template doesn't block the rest, then relinks everything so link errors are
-// tracked.
-func (fw *fileWatcher) checkForChanges() {
+// tick runs on every tick. It rescans the template dir when files
+// are added or deleted, then relinks everything so changed templates and link
+// errors are tracked.
+func (fw *fileWatcher) tick() {
 	if fw.filesAddedOrDeleted() {
-		fw.reScanTemplateDir()
-	}
-
-	for _, f := range fw.files {
-		fw.reparseIfModified(f)
+		fw.rescanTemplateDir()
 	}
 
 	fw.relinkAllPrograms()
@@ -77,9 +74,9 @@ func (fw *fileWatcher) filesAddedOrDeleted() bool {
 	return fw.countFiles() != len(fw.files) || slices.ContainsFunc(fw.files, fw.fileWasDeleted)
 }
 
-// reScanTemplateDir re-locates template files and updates tracking of new and
-// deleted files.
-func (fw *fileWatcher) reScanTemplateDir() {
+// rescanTemplateDir re-locates template files and removes programs of files
+// that were deleted.
+func (fw *fileWatcher) rescanTemplateDir() {
 	fw.logger.Info("file count changed, updating...")
 	oldFiles := fw.files
 
@@ -90,58 +87,12 @@ func (fw *fileWatcher) reScanTemplateDir() {
 	}
 
 	fw.files = files
-	fw.markNewFilesForParsing(oldFiles)
 	fw.removeDeletedPrograms(oldFiles)
 }
 
 func (fw *fileWatcher) fileWasDeleted(f *file.SourceFile) bool {
 	_, err := os.Stat(f.Abs)
 	return os.IsNotExist(err)
-}
-
-// reparseIfModified reparses a file if it has been modified since last check.
-func (fw *fileWatcher) reparseIfModified(f *file.SourceFile) {
-	modTime := fw.getFileModTime(f)
-	if modTime.IsZero() || !modTime.After(f.ModTime) {
-		return
-	}
-
-	fw.logger.Info("updated " + f.Rel)
-	f.ModTime = modTime
-
-	prog, failure, parseErr := parseFile(f)
-	if parseErr != nil {
-		fw.logger.Error(parseErr.Error())
-		fw.removeProgramByName(f.Name)
-		return
-	}
-
-	if failure != nil {
-		fw.logger.Error(failure.Error().Error())
-		return
-	}
-
-	fw.upsertProgram(prog)
-}
-
-// upsertProgram replaces the program with the same name, or appends it
-// when none exists. The slice is copied so renders holding it stay consistent.
-func (fw *fileWatcher) upsertProgram(prog *ast.Program) {
-	fw.withLock(func() {
-		programs := slices.Clone(fw.linker.Programs)
-
-		i := slices.IndexFunc(programs, func(p *ast.Program) bool {
-			return p.Name == prog.Name
-		})
-
-		if i == -1 {
-			programs = append(programs, prog)
-		} else {
-			programs[i] = prog
-		}
-
-		fw.linker.Programs = programs
-	})
 }
 
 // relinkAllPrograms parses the current files into fresh programs, links them, and
@@ -152,10 +103,11 @@ func (fw *fileWatcher) relinkAllPrograms() {
 		return
 	}
 
-	programs, parseFailure := parseFiles(fw.files)
-	if parseFailure != nil {
-		fw.logger.Error(parseFailure.String())
-		return
+	programs := make([]*ast.Program, 0, len(fw.files))
+	for _, f := range fw.files {
+		if prog := fw.parseFileOrLastValid(f); prog != nil {
+			programs = append(programs, prog)
+		}
 	}
 
 	ln := linker.New(programs)
@@ -165,6 +117,38 @@ func (fw *fileWatcher) relinkAllPrograms() {
 		fw.linker.Programs = ln.Programs
 		fw.trackLinkingError(failure)
 	})
+}
+
+// parseFileOrLastValid parses f into a fresh program. When f fails to parse, it
+// parses the last valid source of f instead, so one broken template doesn't
+// block the rest. Returns nil when f has never parsed.
+func (fw *fileWatcher) parseFileOrLastValid(f *file.SourceFile) *ast.Program {
+	content, err := f.Content()
+	if err != nil {
+		fw.logger.Error(err.Error())
+		return fw.parseLastValid(f)
+	}
+
+	prog, failure := parseContent(f, content)
+	if failure != nil {
+		fw.logger.Error(failure.Error().Error())
+		return fw.parseLastValid(f)
+	}
+
+	fw.sources[f.Name] = content
+	return prog
+}
+
+// parseLastValid parses the last valid source of f into a fresh program.
+// Returns nil when f has never parsed.
+func (fw *fileWatcher) parseLastValid(f *file.SourceFile) *ast.Program {
+	content, ok := fw.sources[f.Name]
+	if !ok {
+		return nil
+	}
+
+	prog, _ := parseContent(f, content)
+	return prog
 }
 
 // trackLinkingError logs linking errors once and stores them for Template access.
@@ -188,18 +172,14 @@ func (fw *fileWatcher) trackLinkingError(failure *fail.Error) {
 	fw.lastError = errMsg
 }
 
-// removeDeletedPrograms removes programs of files that existed in oldFiles but
-// are no longer in fw.files.
+// removeDeletedPrograms removes programs and cached sources of files that
+// existed in oldFiles but are no longer in fw.files.
 func (fw *fileWatcher) removeDeletedPrograms(oldFiles []*file.SourceFile) {
-	deletedNames := make(map[string]bool)
 	for _, f := range fw.findDeletedFiles(oldFiles) {
 		fw.logger.Info("removed " + f.Rel)
-		deletedNames[f.Name] = true
+		delete(fw.sources, f.Name)
+		fw.removeProgramByName(f.Name)
 	}
-
-	fw.filterPrograms(func(p *ast.Program) bool {
-		return !deletedNames[p.Name]
-	})
 }
 
 // findDeletedFiles returns files from oldFiles that are not in fw.files.
@@ -242,30 +222,6 @@ func (fw *fileWatcher) withLock(fn func()) {
 	fw.linker.Lock()
 	defer fw.linker.Unlock()
 	fn()
-}
-
-// getFileModTime retrieves the last modification time of a file.
-// Returns zero time if the file does not exist or cannot be accessed.
-func (fw *fileWatcher) getFileModTime(f *file.SourceFile) time.Time {
-	info, err := os.Stat(f.Abs)
-	if err != nil {
-		if !os.IsNotExist(err) {
-			fw.logger.Error("failed to stat file " + f.Abs)
-		}
-		return time.Time{}
-	}
-
-	return info.ModTime()
-}
-
-// markNewFilesForParsing sets ModTime to zero for newly created files to force reparse.
-func (fw *fileWatcher) markNewFilesForParsing(oldFiles []*file.SourceFile) {
-	oldSet := makeFileNameSet(oldFiles)
-	for _, f := range fw.files {
-		if !oldSet[f.Name] {
-			f.ModTime = time.Time{}
-		}
-	}
 }
 
 // countFiles counts template files in the templates directory on disk.

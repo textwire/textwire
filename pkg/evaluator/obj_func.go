@@ -36,7 +36,7 @@ func objGetFunc(receiver value.Literal, args ...value.Literal) (value.Literal, e
 
 	patternStr := pattern.String()
 
-	if result, ok := obj.Pairs[patternStr]; ok {
+	if result, ok := lookupObjPair(obj.Pairs, patternStr); ok {
 		return result, nil
 	}
 
@@ -44,11 +44,26 @@ func objGetFunc(receiver value.Literal, args ...value.Literal) (value.Literal, e
 	return findObjKey(props, obj.Pairs), nil
 }
 
+// lookupObjPair returns the value stored under key, falling back to the
+// capitalized key so struct fields (e.g. "name" -> "Name") resolve like
+// dot access does.
+func lookupObjPair(pairs map[string]value.Literal, key string) (value.Literal, bool) {
+	if val, ok := pairs[key]; ok {
+		return val, true
+	}
+
+	if val, ok := pairs[capitalizeFirst(key)]; ok {
+		return val, true
+	}
+
+	return nil, false
+}
+
 func findObjKey(props []string, pairs map[string]value.Literal) value.Literal {
 	current := pairs
 
 	for i := range props {
-		result, ok := current[props[i]]
+		result, ok := lookupObjPair(current, props[i])
 		if !ok {
 			return NIL
 		}
