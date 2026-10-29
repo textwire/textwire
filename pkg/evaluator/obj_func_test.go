@@ -52,7 +52,7 @@ func TestObjJSON(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		evaluationExpected(t, tc.inp, tc.expect, tc.id)
+		evaluationExpected(t, tc.inp, tc.expect, nil, tc.id)
 	}
 }
 
@@ -156,7 +156,7 @@ func TestObjCamel(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		evaluationExpected(t, tc.inp, tc.expect, tc.id)
+		evaluationExpected(t, tc.inp, tc.expect, nil, tc.id)
 	}
 }
 
@@ -253,6 +253,137 @@ func TestObjGet(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		evaluationExpected(t, tc.inp, tc.expect, tc.id)
+		evaluationExpected(t, tc.inp, tc.expect, nil, tc.id)
+	}
+}
+
+type getTestAddress struct {
+	Street string
+	City   string
+}
+
+type getTestUser struct {
+	Name    string
+	Age     int
+	Address getTestAddress
+	Tags    []string
+	Meta    map[string]any
+	Manager *getTestUser
+	secret  string
+}
+
+func TestObjGetWithStructs(t *testing.T) {
+	cases := []struct {
+		id     uint
+		inp    string
+		expect string
+		data   map[string]any
+	}{
+		{
+			1290,
+			`{{ user.get('Name') }}`,
+			"Chiori",
+			map[string]any{"user": getTestUser{Name: "Chiori"}},
+		},
+		{
+			1300,
+			`{{ user.get('name') }}`,
+			"Chiori",
+			map[string]any{"user": getTestUser{Name: "Chiori"}},
+		},
+		{
+			1310,
+			`{{ user.get('age') }}`,
+			"30",
+			map[string]any{"user": getTestUser{Age: 30}},
+		},
+		{
+			1320,
+			`{{ user.get('address.street') }}`,
+			"Hunan Road",
+			map[string]any{"user": getTestUser{Address: getTestAddress{Street: "Hunan Road"}}},
+		},
+		{
+			1330,
+			`{{ user.get('Address.City') }}`,
+			"Liyue",
+			map[string]any{"user": getTestUser{Address: getTestAddress{City: "Liyue"}}},
+		},
+		{
+			1340,
+			`{{ user.get('aDDress.city') }}`,
+			"",
+			map[string]any{"user": getTestUser{Address: getTestAddress{City: "Liyue"}}},
+		},
+		{
+			1350,
+			`{{ user.get('address.zip') }}`,
+			"",
+			map[string]any{"user": getTestUser{Address: getTestAddress{City: "Liyue"}}},
+		},
+		{
+			1360,
+			`{{ user.get('address.street.house') }}`,
+			"",
+			map[string]any{"user": getTestUser{Address: getTestAddress{Street: "Hunan Road"}}},
+		},
+		{
+			1370,
+			`{{ user.get('missing') }}`,
+			"",
+			map[string]any{"user": getTestUser{Name: "Chiori"}},
+		},
+		{
+			1380,
+			`{{ user.get('secret') }}`,
+			"",
+			map[string]any{"user": getTestUser{secret: "hidden"}},
+		},
+		{
+			1390,
+			`{{ user.get('tags') }}`,
+			"a, b",
+			map[string]any{"user": getTestUser{Tags: []string{"a", "b"}}},
+		},
+		{
+			1400,
+			`{{ user.get('meta.key') }}`,
+			"value",
+			map[string]any{"user": getTestUser{Meta: map[string]any{"key": "value"}}},
+		},
+		{
+			1410,
+			`{{ user.get('manager.name') }}`,
+			"",
+			map[string]any{"user": getTestUser{Name: "Chiori"}},
+		},
+		{
+			1420,
+			`{{ user.get('manager.name') }}`,
+			"Paimon",
+			map[string]any{"user": getTestUser{Manager: &getTestUser{Name: "Paimon"}}},
+		},
+		{
+			1430,
+			`{{ user.get('id') }}`,
+			"",
+			map[string]any{"user": struct{ ID int }{ID: 7}},
+		},
+		{
+			1440,
+			`{{ user.get('ID') }}`,
+			"7",
+			map[string]any{"user": struct{ ID int }{ID: 7}},
+		},
+		{
+			1450,
+			`{{ user.get('name') }}`,
+			"Chiori",
+			map[string]any{"user": &getTestUser{Name: "Chiori"}},
+		},
+	}
+
+	for _, tc := range cases {
+		evaluationExpected(t, tc.inp, tc.expect, tc.data, tc.id)
 	}
 }

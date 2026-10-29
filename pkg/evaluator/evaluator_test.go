@@ -12,11 +12,15 @@ import (
 	"codeberg.org/textwire/textwire/v5/pkg/value"
 )
 
-func testEval(inp string) (value.Value, *fail.Error) {
+func testEval(inp string, data map[string]any) (value.Value, *fail.Error) {
 	l := lexer.New(inp)
 	p := parser.New(l, file.New("file", "to/file", "/path/to/file", nil))
 	prog := p.ParseProgram()
-	scope := value.NewScope()
+
+	scope, failure := value.NewScopeFromMap(data)
+	if failure != nil {
+		return nil, failure
+	}
 
 	if p.HasErrors() {
 		return nil, p.Errors()[0]
@@ -28,8 +32,13 @@ func testEval(inp string) (value.Value, *fail.Error) {
 	return e.Eval(prog, ctx), nil
 }
 
-func evaluationExpected(t *testing.T, inp, expect string, idx uint) {
-	evaluated, failure := testEval(inp)
+func evaluationExpected(
+	t *testing.T,
+	inp, expect string,
+	data map[string]any,
+	idx uint,
+) {
+	evaluated, failure := testEval(inp, data)
 	if failure != nil {
 		t.Fatalf("Case: %d. evaluation failed: %s", idx, failure)
 	}
@@ -68,7 +77,7 @@ func TestEvalText(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		evaluationExpected(t, tc.inp, tc.expect, tc.id)
+		evaluationExpected(t, tc.inp, tc.expect, nil, tc.id)
 	}
 }
 
@@ -107,7 +116,7 @@ func TestEvalNumericExp(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		evaluationExpected(t, tc.inp, tc.expect, tc.id)
+		evaluationExpected(t, tc.inp, tc.expect, nil, tc.id)
 	}
 }
 
@@ -126,7 +135,7 @@ func TestEvalFloatOverflow(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		evaluationExpected(t, tc.inp, tc.expect, tc.id)
+		evaluationExpected(t, tc.inp, tc.expect, nil, tc.id)
 	}
 }
 
@@ -407,7 +416,7 @@ func TestEvalBooleanExp(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		evaluated, failure := testEval(tc.inp)
+		evaluated, failure := testEval(tc.inp, nil)
 		if failure != nil {
 			t.Fatalf("Case: %d. evaluation failed: %s", tc.id, failure)
 		}
@@ -425,8 +434,20 @@ func TestEvalBooleanExp(t *testing.T) {
 }
 
 func TestEvalNilExp(t *testing.T) {
-	inp := "<h1>{{ nil }}</h1>"
-	evaluationExpected(t, inp, "<h1></h1>", 10)
+	cases := []struct {
+		id     uint
+		inp    string
+		expect string
+		data   map[string]any
+	}{
+		{1, `<h1>{{ nil }}</h1>`, "<h1></h1>", nil},
+		{2, `<h1>{{ nil; nil }}</h1>`, "<h1></h1>", nil},
+		{3, `<h1>{{ data }}</h1>`, "<h1></h1>", map[string]any{"data": nil}},
+	}
+
+	for _, tc := range cases {
+		evaluationExpected(t, tc.inp, tc.expect, tc.data, tc.id)
+	}
 }
 
 func TestEvalStringExp(t *testing.T) {
@@ -495,7 +516,7 @@ func TestEvalStringExp(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		evaluationExpected(t, tc.inp, tc.expect, tc.id)
+		evaluationExpected(t, tc.inp, tc.expect, nil, tc.id)
 	}
 }
 
@@ -543,7 +564,7 @@ func TestEvalTernaryExp(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		evaluationExpected(t, tc.inp, tc.expect, tc.id)
+		evaluationExpected(t, tc.inp, tc.expect, nil, tc.id)
 	}
 }
 
@@ -651,7 +672,7 @@ func TestEvalIfDir(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		evaluated, failure := testEval(tc.inp)
+		evaluated, failure := testEval(tc.inp, nil)
 		if failure != nil {
 			t.Fatalf("Case: %d. evaluation failed: %s", tc.id, failure)
 		}
@@ -713,7 +734,7 @@ func TestEvalArr(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		evaluationExpected(t, tc.inp, tc.expect, tc.id)
+		evaluationExpected(t, tc.inp, tc.expect, nil, tc.id)
 	}
 }
 
@@ -754,7 +775,7 @@ func TestEvalIndexExp(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		evaluationExpected(t, tc.inp, tc.expect, tc.id)
+		evaluationExpected(t, tc.inp, tc.expect, nil, tc.id)
 	}
 }
 
@@ -856,7 +877,7 @@ func TestEvalAssign(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		evaluationExpected(t, tc.inp, tc.expect, tc.id)
+		evaluationExpected(t, tc.inp, tc.expect, nil, tc.id)
 	}
 }
 
@@ -879,7 +900,7 @@ func TestIncDecDir(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		evaluationExpected(t, tc.inp, tc.expect, tc.id)
+		evaluationExpected(t, tc.inp, tc.expect, nil, tc.id)
 	}
 }
 
@@ -970,7 +991,7 @@ func TestEvalForDir(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		evaluationExpected(t, tc.inp, tc.expect, tc.id)
+		evaluationExpected(t, tc.inp, tc.expect, nil, tc.id)
 	}
 }
 
@@ -1058,7 +1079,7 @@ func TestEvalEachDir(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		evaluationExpected(t, tc.inp, tc.expect, tc.id)
+		evaluationExpected(t, tc.inp, tc.expect, nil, tc.id)
 	}
 }
 
@@ -1106,7 +1127,7 @@ func TestEvalObjLit(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		evaluationExpected(t, tc.inp, tc.expect, tc.id)
+		evaluationExpected(t, tc.inp, tc.expect, nil, tc.id)
 	}
 }
 
@@ -1159,7 +1180,7 @@ func TestEvalComments(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		evaluationExpected(t, tc.inp, tc.expect, tc.id)
+		evaluationExpected(t, tc.inp, tc.expect, nil, tc.id)
 	}
 }
 
@@ -1257,7 +1278,7 @@ func TestCannotUseOperatorError(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		evaluated, failure := testEval(tc.inp)
+		evaluated, failure := testEval(tc.inp, nil)
 		if failure != nil {
 			t.Fatalf("Case: %d. evaluation failed: %s", tc.id, failure)
 		}
@@ -1277,6 +1298,7 @@ func TestCannotUseOperatorError(t *testing.T) {
 			tc.op,
 			tc.right,
 		)
+
 		if err.String() != expect.String() {
 			t.Fatalf("Case: %d. Error message must be:\n%q\ngot:\n%q", tc.id, expect, err)
 		}
@@ -1364,6 +1386,6 @@ func TestEvalFormatDateGlobalFunc(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		evaluationExpected(t, tc.inp, tc.expect, tc.id)
+		evaluationExpected(t, tc.inp, tc.expect, nil, tc.id)
 	}
 }

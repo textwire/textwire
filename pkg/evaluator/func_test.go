@@ -1031,7 +1031,7 @@ func TestFunctionGivesError(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		evaluated, failure := testEval(tc.inp)
+		evaluated, failure := testEval(tc.inp, nil)
 		if failure != nil {
 			t.Fatalf("Case: %d. evaluation failed: %s", tc.id, failure)
 		}
