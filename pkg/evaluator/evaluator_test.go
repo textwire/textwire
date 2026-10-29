@@ -629,7 +629,7 @@ func TestEvalIfDir(t *testing.T) {
 		{440, `@if(-1 + 2)Yes@elseNo@end`, "Yes"},
 		// Nested if statements
 		{
-			390,
+			450,
 			`
 				@if(true)
 					@if(false)
@@ -646,26 +646,26 @@ func TestEvalIfDir(t *testing.T) {
 			"Marry",
 		},
 		// Variable modification from outside scope
-		{400, `{{ sum = 0 }}@if(true){{ sum++ }}@end{{ sum }}`, "1"},
+		{460, `{{ sum = 0 }}@if(true){{ sum++ }}@end{{ sum }}`, "1"},
 		// Nested @if
-		{410, `{{ val = 1 }}@if(true)@if(true){{ val = val * 5 }}@end@end{{ val }}`, "5"},
+		{470, `{{ val = 1 }}@if(true)@if(true){{ val = val * 5 }}@end@end{{ val }}`, "5"},
 		// Modification inside @else
 		{
-			420,
+			480,
 			`{{ status = "pending" }}@if(false)@else{{ status = "done" }}@end{{ status }}`,
 			"done",
 		},
 		// Sequential modifications
-		{430, `{{ n = 10 }}@if(n > 5){{ n = n - 2 }}@end@if(n == 8){{ n = 0 }}@end{{ n }}`, "0"},
+		{490, `{{ n = 10 }}@if(n > 5){{ n = n - 2 }}@end@if(n == 8){{ n = 0 }}@end{{ n }}`, "0"},
 		// Deep nesting
 		{
-			440,
+			500,
 			`{{ deep = 0 }}@if(true)@if(true)@if(true){{ deep = 42 }}@end@end@end{{ deep }}`,
 			"42",
 		},
 		// Modification inside @elseif
 		{
-			420,
+			510,
 			`{{ status = "pending" }}@if(false)@elseif(true){{ status = "done" }}@end{{ status }}`,
 			"done",
 		},
@@ -957,7 +957,7 @@ func TestEvalForDir(t *testing.T) {
 		{300, `@for(i = 1; i <= 2; i++)@for(j = 1; j <= 2; j++){{ i * j }}@end@end`, "1224"},
 		// For loop with HTML
 		{
-			300,
+			301,
 			`<ul>@for(i = 1; i <= 3; i++)<li>{{ i }}</li>@end</ul>`,
 			"<ul><li>1</li><li>2</li><li>3</li></ul>",
 		},

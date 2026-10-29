@@ -209,7 +209,12 @@ func TestObjGet(t *testing.T) {
 		{1050, `{{ {"日本語": "Japanese"}.get('日本語') }}`, "Japanese", nil},
 		{1060, `{{ {"中文": {nested: "Chinese"}}.get('中文.nested') }}`, "Chinese", nil},
 		{1070, `{{ {"emoji🎉": "party"}.get('emoji🎉') }}`, "party", nil},
-		{1080, `{{ {"café": {"résumé": {"naïve": "test"}}}.get('café.résumé.naïve') }}`, "test", nil},
+		{
+			1080,
+			`{{ {"café": {"résumé": {"naïve": "test"}}}.get('café.résumé.naïve') }}`,
+			"test",
+			nil,
+		},
 		{1090, `{{ {"München": "Munich"}.get('München') }}`, "Munich", nil},
 		{1100, `{{ {"Ñoño": "child"}.get('Ñoño') }}`, "child", nil},
 		// Long paths (10+ levels deep)
@@ -272,8 +277,14 @@ func TestObjGet(t *testing.T) {
 			"path_xz",
 			nil,
 		},
-		{1270, `{{ {"a.b": "ab", "a.b.c": "abc", a: {b: {c: "nested"}}}.get('a.b.c') }}`, "abc", nil},
+		{
+			1270,
+			`{{ {"a.b": "ab", "a.b.c": "abc", a: {b: {c: "nested"}}}.get('a.b.c') }}`,
+			"abc",
+			nil,
+		},
 		{1280, `{{ {"a.b": "ab", a: {b: "path_b", c: "path_c"}}.get('a.c') }}`, "path_c", nil},
+		// With structs
 		{
 			1290,
 			`{{ user.get('Name') }}`,
@@ -301,8 +312,8 @@ func TestObjGet(t *testing.T) {
 		{
 			1330,
 			`{{ user.get('Address.City') }}`,
-			"Liyue",
-			map[string]any{"user": testUser{Address: testAddress{City: "Liyue"}}},
+			"Sumeru",
+			map[string]any{"user": testUser{Address: testAddress{City: "Sumeru"}}},
 		},
 		{
 			1340,
@@ -373,8 +384,8 @@ func TestObjGet(t *testing.T) {
 		{
 			1450,
 			`{{ user.get('name') }}`,
-			"Chiori",
-			map[string]any{"user": &testUser{Name: "Chiori"}},
+			"Barbara",
+			map[string]any{"user": &testUser{Name: "Barbara"}},
 		},
 	}
 
