@@ -1,5 +1,9 @@
 # Release notes V5
 
+## v5.1.18 (2026-10-30)
+
+- 🐛
+
 ## v5.1.17 (2026-10-29)
 
 - 🐛 Fixed file watcher serving an edited template before its layout and components were linked.
