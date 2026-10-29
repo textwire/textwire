@@ -68,9 +68,10 @@ func arrReverseFunc(receiver value.Literal, _ ...value.Literal) (value.Literal, 
 		return receiver, nil
 	}
 
-	slices.Reverse(elems)
+	reversed := slices.Clone(elems)
+	slices.Reverse(reversed)
 
-	return &value.Arr{Elements: elems}, nil
+	return &value.Arr{Elements: reversed}, nil
 }
 
 // arrSliceFunc returns a slice of the given arr

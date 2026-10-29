@@ -4,6 +4,7 @@
 
 - 🐛 Fixed file watcher serving an edited template before its layout and components were linked.
 - 🐛 Fixed single `&` and `|` being silently treated as `+`. They now produce a syntax error instead.
+- 🐛 Fixed `reverse()` mutating the original array. It now returns a reversed copy.
 
 ## v5.1.15 (2026-10-28)
 
