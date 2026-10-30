@@ -2,7 +2,7 @@
 
 ## v5.1.18 (2026-10-30)
 
-- 🐛
+- 🐛 Fixed `decimal()` on strings: it now applies the requested separator to values that already have enough decimals, keeps large integers exact, and leaves non-numeric strings like `nan` unchanged.
 
 ## v5.1.17 (2026-10-29)
 

@@ -3,7 +3,6 @@ package evaluator
 import (
 	"fmt"
 	"slices"
-	"strconv"
 	"strings"
 
 	"codeberg.org/textwire/textwire/v5/config"
@@ -164,30 +163,62 @@ func formatIntDecimals(val, separator string, decimals int) string {
 	return val + separator + strings.Repeat("0", decimals)
 }
 
-// formatFloatDecimals ensures a float string has at least the requested decimal places.
-func formatFloatDecimals(val, separator string, decimals int) string {
-	parts := strings.Split(val, ".")
-	if len(parts) == 2 && len(parts[1]) >= decimals {
+// ensureMinFloatDecimals ensures a float string has at least the requested
+// decimal places. It only adds decimals, never removes.
+func ensureMinFloatDecimals(val, separator string, decimals int) string {
+	intPart, fracPart, found := strings.Cut(val, ".")
+	if !found {
 		return val
 	}
 
-	f, _ := strconv.ParseFloat(val, 64)
-	formatted := fmt.Sprintf("%."+strconv.Itoa(decimals)+"f", f)
-	if separator != "." {
-		formatted = strings.Replace(formatted, ".", separator, 1)
+	missing := decimals - len(fracPart)
+	if missing > 0 {
+		fracPart += strings.Repeat("0", missing)
 	}
-	return formatted
+
+	return intPart + separator + fracPart
 }
 
-// isValidFloat checks if string represents a valid float.
+// isValidFloat checks if string represents a valid float, e.g. "1.5",
+// "-0.5", "1.". Special values like "nan" or "inf" and exponent notation
+// are not valid.
 func isValidFloat(s string) bool {
-	_, err := strconv.ParseFloat(s, 64)
-	return err == nil
+	intPart, fracPart, found := strings.Cut(trimSign(s), ".")
+	if !found || intPart+fracPart == "" {
+		return false
+	}
+
+	return isDigits(intPart) && isDigits(fracPart)
 }
 
 func strIsInt(s string) bool {
-	_, err := strconv.Atoi(s)
-	return err == nil
+	digits := trimSign(s)
+	return digits != "" && isDigits(digits)
+}
+
+// trimSign removes one leading '+' or '-' sign from s.
+func trimSign(s string) string {
+	if s == "" {
+		return s
+	}
+
+	switch s[0] {
+	case '+', '-':
+		return s[1:]
+	}
+
+	return s
+}
+
+// isDigits reports whether s contains only ASCII digits.
+// Empty string is valid.
+func isDigits(str string) bool {
+	for _, char := range str {
+		if char < '0' || char > '9' {
+			return false
+		}
+	}
+	return true
 }
 
 // capitalizeFirst returns the string with its first character uppercased using

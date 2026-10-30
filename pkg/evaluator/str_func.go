@@ -184,7 +184,7 @@ func strDecimalFunc(receiver value.Literal, args ...value.Literal) (value.Litera
 	case strIsInt(val):
 		return &value.Str{Val: formatIntDecimals(val, separator, decimals)}, nil
 	case isValidFloat(val):
-		return &value.Str{Val: formatFloatDecimals(val, separator, decimals)}, nil
+		return &value.Str{Val: ensureMinFloatDecimals(val, separator, decimals)}, nil
 	default:
 		return &value.Str{Val: val}, nil
 	}
