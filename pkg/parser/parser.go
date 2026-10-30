@@ -1057,7 +1057,7 @@ func (p *Parser) ternaryExpr(left ast.Expression) ast.Expression {
 
 	p.nextToken() // skip "?"
 
-	expr.IfExpr = p.expression(TERNARY)
+	expr.IfExpr = p.expression(LOWEST)
 
 	if !p.expectPeek(token.COLON) { // move to ":"
 		return p.illegal()
