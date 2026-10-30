@@ -148,6 +148,14 @@ func TestEnsureMinFloatDecimals(t *testing.T) {
 		{"Positive sign", "+1.5", ".", 2, "+1.50"},
 		{"Trailing dot gets padded", "1.", ".", 2, "1.00"},
 		{"Large value stays exact", "123456789012345678901.5", ".", 2, "123456789012345678901.50"},
+		{"No dot returns value as-is", "5", ".", 2, "5"},
+		{"Zero fraction padded", "0.0", ".", 3, "0.000"},
+		{"Pads to larger decimals", "1.5", ".", 5, "1.50000"},
+		{"Multi-character separator", "1.5", "||", 2, "1||50"},
+		{"Empty separator", "1.5", "", 2, "150"},
+		{"Plus sign kept", "+1.5", ",", 2, "+1,50"},
+		{"Trailing dot padded with separator", "1.", ",", 2, "1,00"},
+		{"Trailing dot with zero decimals", "1.", ".", 0, "1."},
 	}
 
 	for _, tt := range tc {

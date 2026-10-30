@@ -164,7 +164,10 @@ func formatIntDecimals(val, separator string, decimals int) string {
 }
 
 // ensureMinFloatDecimals ensures a float string has at least the requested
-// decimal places. It only adds decimals, never removes.
+// decimal places.
+// - Only adds decimals, never removes.
+// - Only works with floats with dot separator.
+// - Changes seperator to the one you pass.
 func ensureMinFloatDecimals(val, separator string, decimals int) string {
 	intPart, fracPart, found := strings.Cut(val, ".")
 	if !found {
