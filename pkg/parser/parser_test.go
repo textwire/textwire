@@ -1176,6 +1176,55 @@ func TestErrorHandling(t *testing.T) {
 				"",
 			),
 		},
+		// Unclosed directive
+		{
+			id:  1000,
+			inp: "@if(true) no end",
+			err: fail.New(
+				&position.Pos{StartLine: 0, StartCol: 16, EndLine: 0, EndCol: 16},
+				"",
+				fail.OriginPars,
+				fail.ErrMissingEnd,
+				"@if",
+				1,
+			),
+		},
+		{
+			id:  1010,
+			inp: "@each(x in [1]) no end",
+			err: fail.New(
+				&position.Pos{StartLine: 0, StartCol: 22, EndLine: 0, EndCol: 22},
+				"",
+				fail.OriginPars,
+				fail.ErrMissingEnd,
+				"@each",
+				1,
+			),
+		},
+		{
+			id:  1020,
+			inp: "@for(i=0;i<1;i++) x",
+			err: fail.New(
+				&position.Pos{StartLine: 0, StartCol: 19, EndLine: 0, EndCol: 19},
+				"",
+				fail.OriginPars,
+				fail.ErrMissingEnd,
+				"@for",
+				1,
+			),
+		},
+		{
+			id:  1030,
+			inp: "@component('test') x",
+			err: fail.New(
+				&position.Pos{StartLine: 0, StartCol: 20, EndLine: 0, EndCol: 20},
+				"",
+				fail.OriginPars,
+				fail.ErrMissingEnd,
+				"@component",
+				1,
+			),
+		},
 	}
 
 	for _, tc := range cases {

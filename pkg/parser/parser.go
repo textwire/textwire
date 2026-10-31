@@ -640,6 +640,10 @@ func (p *Parser) compDir() ast.Chunk {
 		compDir.DefaultPass = block.ToDefaultPassDir(compDir.Name.Val)
 	}
 
+	if illegal := p.expectEnd("@component", compDir.Token.Pos.StartLine+1); illegal != nil {
+		return illegal
+	}
+
 	return p.endCompDir(compDir)
 }
 
@@ -652,6 +656,7 @@ func (p *Parser) endCompDir(compDir *ast.CompDir) ast.Chunk {
 
 	p.prog.Components = append(p.prog.Components, compDir)
 	compDir.SetEndPosition(p.curToken.Pos)
+
 	return compDir
 }
 
@@ -1079,11 +1084,22 @@ func (p *Parser) ifDir() ast.Chunk {
 	}
 
 	dir.IfBlock = p.block()
-	if p.curTokenIs(token.END) {
-		dir.SetEndPosition(p.curToken.Pos)
-		return dir
+
+	// Only look for @elseif/@else when the block wasn't closed by @end.
+	if !p.curTokenIs(token.END) {
+		if illegal := p.ifDirBranches(dir); illegal != nil {
+			return illegal
+		}
 	}
 
+	dir.SetEndPosition(p.curToken.Pos)
+
+	return dir
+}
+
+// ifDirBranches parses the @elseif/@else part and verifies the closing @end.
+// It returns a non-nil node only when parsing failed.
+func (p *Parser) ifDirBranches(dir *ast.IfDir) ast.Chunk {
 	for p.curTokenIs(token.ELSEIF) {
 		elseifDir, illegal := p.elseifDir()
 		if illegal != nil {
@@ -1095,13 +1111,23 @@ func (p *Parser) ifDir() ast.Chunk {
 
 	dir.ElseBlock = p.elseBlock()
 
-	if !p.curTokenIs(token.END) { // move to "@end"
-		return p.illegal()
+	return p.expectEnd("@if", dir.Token.Pos.StartLine+1)
+}
+
+// expectEnd checks that the current token is @end. It returns nil when the
+// directive is properly closed and an illegal node otherwise. When the file
+// ends before @end, it reports the missing @end for the directive.
+func (p *Parser) expectEnd(dirName string, startLine uint) ast.Chunk {
+	if p.curTokenIs(token.END) {
+		return nil
 	}
 
-	dir.SetEndPosition(p.curToken.Pos)
+	if p.curTokenIs(token.EOF) {
+		p.newError(p.curToken.Pos, fail.ErrMissingEnd, dirName, startLine)
+		return ast.NewIllegalNode(p.curToken)
+	}
 
-	return dir
+	return p.illegal()
 }
 
 func (p *Parser) ifDirHeader(ifDir *ast.IfDir) *ast.Illegal {
@@ -1182,8 +1208,8 @@ func (p *Parser) forDir() ast.Chunk {
 
 	dir.ElseBlock = p.elseBlock()
 
-	if !p.curTokenIs(token.END) {
-		return p.illegalUntil(token.END)
+	if illegal := p.expectEnd("@for", dir.Token.Pos.StartLine+1); illegal != nil {
+		return illegal
 	}
 
 	dir.SetEndPosition(p.curToken.Pos)
@@ -1288,8 +1314,8 @@ func (p *Parser) eachDir() ast.Chunk {
 
 	dir.ElseBlock = p.elseBlock()
 
-	if !p.curTokenIs(token.END) {
-		return p.illegalUntil(token.END)
+	if illegal := p.expectEnd("@each", dir.Token.Pos.StartLine+1); illegal != nil {
+		return illegal
 	}
 
 	dir.SetEndPosition(p.curToken.Pos)

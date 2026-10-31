@@ -1,5 +1,9 @@
 # Release notes V5
 
+## v5.1.19 (2026-10-31)
+
+- 🐛 Fixed unclosed `@if`, `@each`, `@for` and `@component` directives. The first three reported `illegal token ''` on line 1, while `@component` silently parsed. They now report `missing @end for @if started on line N`.
+
 ## v5.1.18 (2026-10-30)
 
 - 🐛 Fixed `decimal()` on strings: it now applies the requested separator to values that already have enough decimals, keeps large integers exact, and leaves non-numeric strings like `nan` unchanged.

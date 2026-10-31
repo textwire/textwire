@@ -573,7 +573,7 @@ func TestErrorHandling(t *testing.T) {
 			data: nil,
 		},
 		{
-			inp:  `@component("~header")`,
+			inp:  `@component("~header")@end`,
 			err:  fail.New(nil, "", fail.OriginEval, fail.ErrTemplateDirectives),
 			data: nil,
 		},
