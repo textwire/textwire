@@ -241,4 +241,25 @@ func TestNativeToValue_CircularValues(t *testing.T) {
 			t.Fatalf("unexpected error: %s", got)
 		}
 	})
+
+	t.Run("sub-slice cycle", func(t *testing.T) {
+		input := make([]any, 2)
+		input[0] = input[:1]
+
+		if got := NativeToValue(input); !got.Is(ERR_VAL) {
+			t.Fatalf("expected circular reference error, got %s", got)
+		}
+	})
+
+	t.Run("sub-slice of ancestor without cycle", func(t *testing.T) {
+		input := make([]any, 2)
+		input[0] = 1
+		input[1] = input[:1]
+
+		if got := NativeToValue(input); got.Is(ERR_VAL) {
+			t.Fatalf("unexpected error: %s", got)
+		}
+	})
+}
+
 }
