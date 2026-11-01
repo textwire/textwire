@@ -3,6 +3,8 @@ package evaluator
 import (
 	"testing"
 
+	"codeberg.org/textwire/textwire/v5/pkg/ast"
+	"codeberg.org/textwire/textwire/v5/pkg/token"
 	"codeberg.org/textwire/textwire/v5/pkg/value"
 )
 
@@ -127,6 +129,65 @@ func TestIsValidFloat(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestExprToText(t *testing.T) {
+	t.Run("nil expression", func(t *testing.T) {
+		if got := exprToText(nil); got != "" {
+			t.Errorf("expect %q, got %q", "", got)
+		}
+	})
+
+	t.Run("identifier", func(t *testing.T) {
+		expr := ast.NewIdentExpr(token.Token{Lit: "user"}, "user")
+		if got := exprToText(expr); got != "user" {
+			t.Errorf("expect %q, got %q", "user", got)
+		}
+	})
+
+	t.Run("integer", func(t *testing.T) {
+		expr := ast.NewIntExpr(token.Token{Lit: "1"}, 1)
+		if got := exprToText(expr); got != "1" {
+			t.Errorf("expect %q, got %q", "1", got)
+		}
+	})
+
+	t.Run("infix", func(t *testing.T) {
+		expr := ast.NewInfixExpr(
+			token.Token{Lit: "+"},
+			ast.NewIdentExpr(token.Token{Lit: "a"}, "a"),
+			"+",
+		)
+
+		expr.Right = ast.NewIdentExpr(token.Token{Lit: "b"}, "b")
+		if got := exprToText(expr); got != "a + b" {
+			t.Errorf("expect %q, got %q", "a + b", got)
+		}
+	})
+
+	t.Run("index", func(t *testing.T) {
+		expr := ast.NewIndexExpr(
+			token.Token{Lit: "["},
+			ast.NewIdentExpr(token.Token{Lit: "arr"}, "arr"),
+		)
+
+		expr.Index = ast.NewIntExpr(token.Token{Lit: "0"}, 0)
+		if got := exprToText(expr); got != "arr[0]" {
+			t.Errorf("expect %q, got %q", "arr[0]", got)
+		}
+	})
+
+	t.Run("dot", func(t *testing.T) {
+		expr := ast.NewDotExpr(
+			token.Token{Lit: "."},
+			ast.NewIdentExpr(token.Token{Lit: "user"}, "user"),
+		)
+
+		expr.Key = ast.NewIdentExpr(token.Token{Lit: "name"}, "name")
+		if got := exprToText(expr); got != "user.name" {
+			t.Errorf("expect %q, got %q", "user.name", got)
+		}
+	})
 }
 
 func TestEnsureMinFloatDecimals(t *testing.T) {

@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"codeberg.org/textwire/textwire/v5/config"
+	"codeberg.org/textwire/textwire/v5/pkg/ast"
 	"codeberg.org/textwire/textwire/v5/pkg/fail"
 	"codeberg.org/textwire/textwire/v5/pkg/value"
 )
@@ -34,6 +35,30 @@ func isTruthy(obj value.Literal) bool {
 
 func isError(obj value.Value) bool {
 	return obj.Is(value.ERR_VAL)
+}
+
+// exprToText formats an expression the way it appears in source code, without
+// the decorative parentheses used by ast.Expression.String().
+func exprToText(expr ast.Expression) string {
+	if expr == nil {
+		return ""
+	}
+
+	switch expr := expr.(type) {
+	case *ast.IdentExpr:
+		return expr.Name
+	case *ast.IndexExpr:
+		return exprToText(expr.Left) + "[" + exprToText(expr.Index) + "]"
+	case *ast.DotExpr:
+		return exprToText(expr.Left) + "." + exprToText(expr.Key)
+	}
+
+	text := expr.String()
+	if len(text) >= 2 && text[0] == '(' && text[len(text)-1] == ')' {
+		return text[1 : len(text)-1]
+	}
+
+	return text
 }
 
 func isUndefinedError(obj value.Value) bool {

@@ -6,6 +6,7 @@
 - 🐛 Fixed `decimal()` on strings: it now applies the requested separator to values that already have enough decimals, keeps large integers exact, and leaves non-numeric strings like `nan` unchanged.
 - 🐛 Fixed unclosed `@if`, `@each`, `@for` and `@component` directives. The first three reported `illegal token ''` on line 1, while `@component` silently parsed. They now report `missing @end for @if started on line N`.
 - 🐛 Fixed `slice()` returning an array that shared its backing array with the original, so changing the slice silently changed the source array.
+- 🐛 Fixed self-referencing arrays and objects crashing the process with a stack overflow or out of memory. Assignments that would create a circular reference now fail with `Cannot assign a to a[0]: assignment would create a circular reference.` String, JSON, dump and native conversion also detect cycles, and cyclic Go maps, slices and pointers are rejected during conversion. Example is `{{ a = [1]; a[0] = a; a }}` or `{{ b = {x: 1}; b.y = b; b }}`.
 
 ## v5.1.17 (2026-10-29)
 

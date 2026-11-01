@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math"
 	"reflect"
+	"strings"
 	"testing"
 	"time"
 
@@ -167,5 +168,77 @@ func TestNativeToValue_UintOverflow(t *testing.T) {
 	t.Run("above max int64 in a field names the field", func(t *testing.T) {
 		input := testUintModel{Name: "Bob", Big: uint64(math.MaxUint64)}
 		assertErrorMessage(t, input, fmt.Sprintf(fail.ErrUintOverflowField, input.Big, "Big"))
+	})
+}
+
+func TestNativeToValue_CircularValues(t *testing.T) {
+	t.Run("map cycle", func(t *testing.T) {
+		input := map[string]any{}
+		input["self"] = input
+
+		assertErrorMessage(t, input, fmt.Sprintf(fail.ErrCircularValue, "map[string]interface {}"))
+	})
+
+	t.Run("slice cycle", func(t *testing.T) {
+		input := make([]any, 1)
+		input[0] = input
+
+		assertErrorMessage(t, input, fmt.Sprintf(fail.ErrCircularValue, "[]interface {}"))
+	})
+
+	t.Run("struct pointer cycle", func(t *testing.T) {
+		type node struct {
+			Next *node
+		}
+
+		input := &node{}
+		input.Next = input
+
+		got := NativeToValue(input)
+		errObj, ok := got.(*Error)
+		if !ok {
+			t.Fatalf("NativeToValue(%T) returned %T, want *Error", input, got)
+		}
+
+		if !strings.Contains(errObj.Err.Message(), "circular reference") {
+			t.Fatalf("unexpected error: %q", errObj.Err.Message())
+		}
+	})
+
+	t.Run("shared value without cycle", func(t *testing.T) {
+		shared := map[string]any{"x": 1}
+		input := map[string]any{"a": shared, "b": shared}
+
+		if got := NativeToValue(input); got.Is(ERR_VAL) {
+			t.Fatalf("unexpected error: %s", got)
+		}
+	})
+
+	t.Run("parent pointer without cycle", func(t *testing.T) {
+		type Comment struct {
+			Parent *Comment
+		}
+
+		root := &Comment{}
+		child := &Comment{Parent: root}
+
+		if got := NativeToValue(child); got.Is(ERR_VAL) {
+			t.Fatalf("unexpected error: %s", got)
+		}
+	})
+
+	t.Run("pointer to first field without cycle", func(t *testing.T) {
+		type Inner struct{ X int }
+		type Outer struct {
+			In  Inner
+			Ref *Inner
+		}
+
+		outer := &Outer{}
+		outer.Ref = &outer.In
+
+		if got := NativeToValue(outer); got.Is(ERR_VAL) {
+			t.Fatalf("unexpected error: %s", got)
+		}
 	})
 }

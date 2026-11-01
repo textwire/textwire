@@ -30,7 +30,7 @@ cover:
 .PHONY: test
 test:
 	@clear || true
-	@$(RUN) go test -count=1 ./...
+	@$(RUN) go test -count=1 -timeout 30s ./...
 	@echo "✅ All tests passed!"
 
 .PHONY: fmt

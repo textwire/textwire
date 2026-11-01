@@ -63,6 +63,8 @@ const (
 	ErrIllegalTypeForInc     = "cannot increment '%s', only integer and float are allowed"
 	ErrIllegalTypeForDec     = "cannot decrement '%s', only integer and float are allowed"
 	ErrUseDirIsNotAllowed    = "@use() not allowed in layout files - causes infinite recursion"
+	ErrCircularReference     = "Cannot assign %s to %s: assignment would create a circular reference."
+	ErrCircularValue         = "circular reference detected in '%s'"
 
 	// Functions
 	ErrFuncNotDefined     = "%s.%s() is not defined"

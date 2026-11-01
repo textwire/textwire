@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"fmt"
 	"strings"
+
+	"codeberg.org/textwire/textwire/v5/pkg/fail"
 )
 
 type Arr struct {
@@ -15,13 +17,18 @@ func (*Arr) Type() ValueType {
 }
 
 func (a *Arr) String() string {
+	if HasCycle(a) {
+		return circularReference
+	}
+
 	if len(a.Elements) == 0 {
 		return ""
 	}
 
 	var out bytes.Buffer
 	for _, elem := range a.Elements {
-		out.WriteString(elem.String() + ", ")
+		out.WriteString(elem.String())
+		out.WriteString(", ")
 	}
 
 	if out.Len() > 1 {
@@ -32,6 +39,10 @@ func (a *Arr) String() string {
 }
 
 func (a *Arr) Dump(indent int) string {
+	if HasCycle(a) {
+		return circularReference
+	}
+
 	spaces := strings.Repeat("  ", indent)
 	indent += 1
 
@@ -67,6 +78,10 @@ func (a *Arr) Dump(indent int) string {
 }
 
 func (a *Arr) JSON() (string, error) {
+	if HasCycle(a) {
+		return "", fmt.Errorf(fail.ErrCircularValue, a.Type())
+	}
+
 	var out strings.Builder
 	out.Grow(len(a.Elements) + 2)
 
@@ -91,8 +106,11 @@ func (a *Arr) JSON() (string, error) {
 }
 
 func (a *Arr) Native() any {
-	var vals []any
+	if HasCycle(a) {
+		return nil
+	}
 
+	var vals []any
 	for _, elem := range a.Elements {
 		vals = append(vals, elem.Native())
 	}

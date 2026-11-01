@@ -223,21 +223,22 @@ func (e *Evaluator) assignStmt(assignStmt *ast.AssignStmt, ctx *Context) value.L
 		return right
 	}
 
-	return e.assignTo(assignStmt.Left, right, ctx)
+	return e.assignTo(assignStmt.Left, assignStmt.Right, right, ctx)
 }
 
 func (e *Evaluator) assignTo(
 	left ast.Expression,
-	right value.Literal,
+	rightExpr ast.Expression,
+	rightVal value.Literal,
 	ctx *Context,
 ) value.Literal {
 	switch l := left.(type) {
 	case *ast.IdentExpr:
-		return e.assignIdent(l, right, ctx)
+		return e.assignIdent(l, rightVal, ctx)
 	case *ast.IndexExpr:
-		return e.assignIndexExp(l, right, ctx)
+		return e.assignIndexExp(l, rightExpr, rightVal, ctx)
 	case *ast.DotExpr:
-		return e.assignDotExp(l, right, ctx)
+		return e.assignDotExp(l, rightExpr, rightVal, ctx)
 	}
 
 	return e.newError(
@@ -250,54 +251,60 @@ func (e *Evaluator) assignTo(
 
 func (e *Evaluator) assignIdent(
 	ident *ast.IdentExpr,
-	val value.Literal,
+	rightVal value.Literal,
 	ctx *Context,
 ) value.Literal {
-	if err := ctx.scope.Set(ident.Name, val); err != nil {
+	if err := ctx.scope.Set(ident.Name, rightVal); err != nil {
 		return e.newError(ident, ctx, "%s", err.Error())
 	}
 	return NIL
 }
 
 func (e *Evaluator) assignIndexExp(
-	indexExp *ast.IndexExpr,
-	val value.Literal,
+	indexExpr *ast.IndexExpr,
+	rightExpr ast.Expression,
+	rightVal value.Literal,
 	ctx *Context,
 ) value.Literal {
-	left := e.evalLiteral(indexExp.Left, ctx)
+	left := e.evalLiteral(indexExpr.Left, ctx)
 	if isError(left) {
 		return left
 	}
 
-	idx := e.evalLiteral(indexExp.Index, ctx)
+	idx := e.evalLiteral(indexExpr.Index, ctx)
 	if isError(idx) {
 		return idx
 	}
 
 	if !left.Is(value.ARR_VAL) {
-		return e.newError(indexExp, ctx, fail.ErrIndexNotSupported, left.Type())
+		return e.newError(indexExpr, ctx, fail.ErrIndexNotSupported, left.Type())
 	}
 
 	// Index must be integer
 	if !idx.Is(value.INT_VAL) {
-		return e.newError(indexExp, ctx, fail.ErrArrIndexInt, idx.Type())
+		return e.newError(indexExpr, ctx, fail.ErrArrIndexInt, idx.Type())
 	}
 
 	arr := left.(*value.Arr)
 	index := idx.(*value.Int).Val
 
 	if index < 0 || index >= int64(len(arr.Elements)) {
-		return e.newError(indexExp, ctx, fail.ErrArrIndexOutOfBound, index, len(arr.Elements))
+		return e.newError(indexExpr, ctx, fail.ErrArrIndexOutOfBound, index, len(arr.Elements))
 	}
 
-	arr.Elements[index] = val
+	if value.References(rightVal, arr) {
+		return e.circularAssignError(indexExpr, rightExpr, ctx)
+	}
+
+	arr.Elements[index] = rightVal
 
 	return NIL
 }
 
 func (e *Evaluator) assignDotExp(
 	dotExp *ast.DotExpr,
-	val value.Literal,
+	rightExpr ast.Expression,
+	rightVal value.Literal,
 	ctx *Context,
 ) value.Literal {
 	// Evaluate the left side to get the value
@@ -315,7 +322,11 @@ func (e *Evaluator) assignDotExp(
 		return e.newError(dotExp, ctx, fail.ErrKeyOnNonObj, left.Type(), key)
 	}
 
-	obj.Pairs[key] = val
+	if value.References(rightVal, obj) {
+		return e.circularAssignError(dotExp, rightExpr, ctx)
+	}
+
+	obj.Pairs[key] = rightVal
 
 	return NIL
 }
@@ -894,9 +905,9 @@ func (e *Evaluator) incStmt(incStmt *ast.IncStmt, ctx *Context) value.Literal {
 
 	switch l := left.(type) {
 	case *value.Int:
-		return e.assignTo(incStmt.Left, &value.Int{Val: l.Val + 1}, ctx)
+		return e.assignTo(incStmt.Left, nil, &value.Int{Val: l.Val + 1}, ctx)
 	case *value.Float:
-		return e.assignTo(incStmt.Left, &value.Float{Val: l.Val + 1}, ctx)
+		return e.assignTo(incStmt.Left, nil, &value.Float{Val: l.Val + 1}, ctx)
 	}
 
 	return e.newError(incStmt, ctx, fail.ErrIllegalTypeForInc, left.Type())
@@ -910,9 +921,9 @@ func (e *Evaluator) decStmt(decInc *ast.DecStmt, ctx *Context) value.Literal {
 
 	switch l := left.(type) {
 	case *value.Int:
-		return e.assignTo(decInc.Left, &value.Int{Val: l.Val - 1}, ctx)
+		return e.assignTo(decInc.Left, nil, &value.Int{Val: l.Val - 1}, ctx)
 	case *value.Float:
-		return e.assignTo(decInc.Left, &value.Float{Val: l.Val - 1}, ctx)
+		return e.assignTo(decInc.Left, nil, &value.Float{Val: l.Val - 1}, ctx)
 	}
 
 	return e.newError(decInc, ctx, fail.ErrIllegalTypeForDec, left.Type())
@@ -1320,4 +1331,18 @@ func (e *Evaluator) newError(node ast.Node, ctx *Context, format string, a ...an
 		Err:     fail.New(node.Pos(), ctx.absPath, fail.OriginEval, format, a...),
 		ErrorID: format,
 	}
+}
+
+func (e *Evaluator) circularAssignError(
+	left ast.Expression,
+	rightExpr ast.Expression,
+	ctx *Context,
+) value.Literal {
+	return e.newError(
+		left,
+		ctx,
+		fail.ErrCircularReference,
+		exprToText(rightExpr),
+		exprToText(left),
+	)
 }

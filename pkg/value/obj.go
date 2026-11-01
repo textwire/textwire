@@ -6,6 +6,7 @@ import (
 	"sort"
 	"strings"
 
+	"codeberg.org/textwire/textwire/v5/pkg/fail"
 	"codeberg.org/textwire/textwire/v5/pkg/utils"
 )
 
@@ -25,6 +26,10 @@ func (*Obj) Type() ValueType {
 }
 
 func (o *Obj) String() string {
+	if HasCycle(o) {
+		return circularReference
+	}
+
 	if o.Pairs == nil {
 		return "{}"
 	}
@@ -42,9 +47,14 @@ func (o *Obj) String() string {
 		}
 
 		if _, isStr := pair.(*Str); isStr {
-			out.WriteString(k + `: "` + pair.String() + `"`)
+			out.WriteString(k)
+			out.WriteString(`: "`)
+			out.WriteString(pair.String())
+			out.WriteString(`"`)
 		} else {
-			out.WriteString(k + ": " + pair.String())
+			out.WriteString(k)
+			out.WriteString(": ")
+			out.WriteString(pair.String())
 		}
 	}
 
@@ -54,6 +64,10 @@ func (o *Obj) String() string {
 }
 
 func (o *Obj) JSON() (string, error) {
+	if HasCycle(o) {
+		return "", fmt.Errorf(fail.ErrCircularValue, o.Type())
+	}
+
 	if o.Pairs == nil {
 		return "{}", nil
 	}
@@ -91,6 +105,10 @@ func (o *Obj) JSON() (string, error) {
 }
 
 func (o *Obj) Dump(ident int) string {
+	if HasCycle(o) {
+		return circularReference
+	}
+
 	if o.Pairs == nil {
 		return "{}"
 	}
@@ -128,6 +146,10 @@ func (o *Obj) Dump(ident int) string {
 }
 
 func (o *Obj) Native() any {
+	if HasCycle(o) {
+		return nil
+	}
+
 	res := map[string]any{}
 	for k, v := range o.Pairs {
 		res[k] = v.Native()
