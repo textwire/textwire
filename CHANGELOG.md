@@ -1,5 +1,8 @@
 # Release notes V5
 
+## v5.1.20 (2026-11-01)
+
+- 🐛 Fixed `slice()` returning an array that shared its backing array with the original, so changing the slice silently changed the source array.
 ## v5.1.19 (2026-10-31)
 
 - 🐛 Fixed unclosed `@if`, `@each`, `@for` and `@component` directives. The first three reported `illegal token ''` on line 1, while `@component` silently parsed. They now report `missing @end for @if started on line N`.
