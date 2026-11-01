@@ -262,4 +262,119 @@ func TestNativeToValue_CircularValues(t *testing.T) {
 	})
 }
 
+func TestRefKeyFor(t *testing.T) {
+	t.Run("slice key holds type, pointer and length", func(t *testing.T) {
+		input := make([]any, 2)
+
+		key, ok := refKeyFor(reflect.ValueOf(input))
+		if !ok {
+			t.Fatal("expected slice to be trackable")
+		}
+
+		expect := refKey{
+			typ: reflect.TypeFor[[]any](),
+			ptr: reflect.ValueOf(input).Pointer(),
+			len: 2,
+		}
+
+		if key != expect {
+			t.Fatalf("expected %+v, got %+v", expect, key)
+		}
+	})
+
+	t.Run("sub-slice key differs from its parent slice", func(t *testing.T) {
+		input := make([]any, 2)
+
+		whole, _ := refKeyFor(reflect.ValueOf(input))
+		part, _ := refKeyFor(reflect.ValueOf(input[:1]))
+		if whole == part {
+			t.Fatalf("expected different keys, got %+v", whole)
+		}
+	})
+
+	t.Run("map key holds type and pointer", func(t *testing.T) {
+		input := map[string]any{}
+
+		key, ok := refKeyFor(reflect.ValueOf(input))
+		if !ok {
+			t.Fatal("expected map to be trackable")
+		}
+
+		expect := refKey{
+			typ: reflect.TypeFor[map[string]any](),
+			ptr: reflect.ValueOf(input).Pointer(),
+		}
+
+		if key != expect {
+			t.Fatalf("expected %+v, got %+v", expect, key)
+		}
+	})
+
+	t.Run("non-nil pointer is trackable", func(t *testing.T) {
+		input := &struct{}{}
+
+		if _, ok := refKeyFor(reflect.ValueOf(input)); !ok {
+			t.Fatal("expected pointer to be trackable")
+		}
+	})
+
+	t.Run("nil pointer is not trackable", func(t *testing.T) {
+		var input *struct{}
+
+		if _, ok := refKeyFor(reflect.ValueOf(input)); ok {
+			t.Fatal("expected nil pointer not to be trackable")
+		}
+	})
+
+	t.Run("int is not trackable", func(t *testing.T) {
+		if _, ok := refKeyFor(reflect.ValueOf(1)); ok {
+			t.Fatal("expected int not to be trackable")
+		}
+	})
+
+	t.Run("pointer key holds type and address", func(t *testing.T) {
+		input := &struct{ X int }{}
+
+		key, ok := refKeyFor(reflect.ValueOf(input))
+		if !ok {
+			t.Fatal("expected pointer to be trackable")
+		}
+
+		expect := refKey{
+			typ: reflect.TypeFor[*struct{ X int }](),
+			ptr: reflect.ValueOf(input).Pointer(),
+		}
+
+		if key != expect {
+			t.Fatalf("expected %+v, got %+v", expect, key)
+		}
+	})
+
+	t.Run("different types at same address have different keys", func(t *testing.T) {
+		type Inner struct{ X int }
+		type Outer struct{ In Inner }
+
+		outer := &Outer{}
+		inner := &outer.In
+
+		outerValue := reflect.ValueOf(outer)
+		innerValue := reflect.ValueOf(inner)
+		if outerValue.Pointer() != innerValue.Pointer() {
+			t.Fatal("expected Outer and its first field to share an address")
+		}
+
+		keyOuter, ok := refKeyFor(outerValue)
+		if !ok {
+			t.Fatal("expected Outer pointer to be trackable")
+		}
+
+		keyInner, ok := refKeyFor(innerValue)
+		if !ok {
+			t.Fatal("expected Inner pointer to be trackable")
+		}
+
+		if keyOuter == keyInner {
+			t.Fatal("expected different keys for Outer and Inner pointers at same address")
+		}
+	})
 }
