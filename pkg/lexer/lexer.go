@@ -420,14 +420,14 @@ func (l *Lexer) isEscapedDirective() bool {
 
 func (l *Lexer) hasIfVariant(tok token.TokenType) bool {
 	// Tokens that can be extended with "if" variants, like @breakif
-	longTokens := map[token.TokenType]struct{}{
+	optionalIfTokens := map[token.TokenType]struct{}{
 		token.ELSE:     {},
 		token.BREAK:    {},
 		token.CONTINUE: {},
 		token.PASS:     {},
 	}
 
-	if _, ok := longTokens[tok]; !ok {
+	if _, ok := optionalIfTokens[tok]; !ok {
 		return false
 	}
 

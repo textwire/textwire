@@ -12,6 +12,10 @@ import (
 // objCamelFunc converts object keys to camel case recursively
 func objCamelFunc(receiver value.Literal, _ ...value.Literal) (value.Literal, error) {
 	obj := receiver.(*value.Obj)
+	if value.HasCycle(obj) {
+		return nil, fmt.Errorf(fail.ErrCircularValue, value.OBJ_VAL)
+	}
+
 	return &value.Obj{Pairs: obj.ToCamel()}, nil
 }
 

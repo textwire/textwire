@@ -558,6 +558,10 @@ func TestEvalTernaryExp(t *testing.T) {
 		{210, `{{ true ? (true ? "A" : "B") : "C" }}`, "A"},
 		{220, `{{ true ? (false ? "A" : "B") : "C" }}`, "B"},
 		{230, `{{ false ? (true ? "A" : "B") : "C" }}`, "C"},
+		// Unparenthesised nested ternary in the true branch
+		{231, `{{ true ? true ? "A" : "B" : "C" }}`, "A"},
+		{232, `{{ true ? false ? "A" : "B" : "C" }}`, "B"},
+		{233, `{{ 1 > 0 ? 1 > 2 ? "x" : "y" : "z" }}`, "y"},
 		// Arithmetic expressions
 		{240, `{{ 1 + 1 == 2 ? "Yes" : "No" }}`, "Yes"},
 		{250, `{{ 10 - 5 > 3 ? "Yes" : "No" }}`, "Yes"},
