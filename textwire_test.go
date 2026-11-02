@@ -721,6 +721,21 @@ func TestErrorHandling(t *testing.T) {
 			err:  fail.New(nil, "", fail.OriginEval, fail.ErrNotSupportedAssign, value.NIL_VAL),
 			data: nil,
 		},
+		{
+			inp:  `{{ -x = 2 }}`,
+			err:  fail.New(nil, "", fail.OriginEval, fail.ErrNotSupportedAssign, "prefix expression"),
+			data: nil,
+		},
+		{
+			inp:  `{{ a = [1]; a[0] + 1 = 3 }}`,
+			err:  fail.New(nil, "", fail.OriginEval, fail.ErrNotSupportedAssign, "infix expression"),
+			data: nil,
+		},
+		{
+			inp:  `{{ x = 1; x + 1 = 2 }}`,
+			err:  fail.New(nil, "", fail.OriginEval, fail.ErrNotSupportedAssign, "infix expression"),
+			data: nil,
+		},
 		// Global functions
 		{
 			inp: `{{ formatDate(date, '2006-01-02') }}`,

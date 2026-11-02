@@ -245,8 +245,24 @@ func (e *Evaluator) assignTo(
 		left,
 		ctx,
 		fail.ErrNotSupportedAssign,
-		value.FromTokenToValueType(left.Tok().Type),
+		assignTargetName(left),
 	)
+}
+
+// assignTargetName names the type of an expression that cannot be assigned to.
+func assignTargetName(expr ast.Expression) string {
+	switch expr.(type) {
+	case *ast.PrefixExpr:
+		return "prefix expression"
+	case *ast.InfixExpr:
+		return "infix expression"
+	}
+
+	if valType := value.FromTokenToValueType(expr.Tok().Type); valType != value.ERR_VAL {
+		return string(valType)
+	}
+
+	return "expression"
 }
 
 func (e *Evaluator) assignIdent(
