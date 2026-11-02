@@ -304,6 +304,11 @@ func TestSplitClusters(t *testing.T) {
 			expect: []string{"\u2764\ufe0f"},
 		},
 		{
+			name:   "skin tone modifier attaches to its base",
+			input:  "\U0001F44D\U0001F3FD", // thumbs up, medium skin tone
+			expect: []string{"\U0001F44D\U0001F3FD"},
+		},
+		{
 			name:   "leading combining mark stands alone",
 			input:  "\u0301",
 			expect: []string{"\u0301"},

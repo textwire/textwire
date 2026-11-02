@@ -274,8 +274,14 @@ func capitalizeFirst(s string) string {
 	return string(buf[:len(s)])
 }
 
+// isClusterExtender reports whether r continues the cluster of the rune before it.
+func isClusterExtender(r rune) bool {
+	return unicode.IsMark(r) || (r >= 0x1F3FB && r <= 0x1F3FF)
+}
+
 // splitClusters splits s into approximate user-perceived characters: each
-// base rune together with any combining marks that follow it. The returned
+// base rune together with any combining marks or skin tone modifiers that
+// follow it. The returned
 // strings are substrings of s, so no per-cluster copying occurs.
 func splitClusters(s string) []string {
 	var clusters []string
@@ -284,7 +290,7 @@ func splitClusters(s string) []string {
 	for i, r := range s {
 		// A non-mark rune (other than the first) begins a new cluster,
 		// so close out the previous one.
-		if i > 0 && !unicode.IsMark(r) {
+		if i > 0 && !isClusterExtender(r) {
 			clusters = append(clusters, s[start:i])
 			start = i
 		}
