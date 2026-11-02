@@ -1,5 +1,9 @@
 # Release notes V5
 
+## v5.1.19 (2026-11-02)
+
+- 🐛 Fixed `@for()` reporting a bad init as a bad post statement. Init failures now report `expects statement as init conditional`.
+
 ## v5.1.18 (2026-11-01)
 
 - 🧑‍💻 Improved nested ternary in the true branch logic. Before, it needed parentheses, now `a ? b ? "x" : "y" : "z"` parses without parentheses.

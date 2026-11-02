@@ -542,7 +542,7 @@ func TestErrorHandling(t *testing.T) {
 	}{
 		{
 			inp:  "@for(i 0; i < 2; i++)x@end",
-			err:  fail.New(nil, "", fail.OriginPars, fail.ErrForLoopExpectStmt, "i"),
+			err:  fail.New(nil, "", fail.OriginPars, fail.ErrForLoopExpectInitStmt, "i"),
 			data: nil,
 		},
 		{

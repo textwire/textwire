@@ -1014,7 +1014,7 @@ func TestErrorHandling(t *testing.T) {
 				&position.Pos{StartCol: 5, EndCol: 5},
 				"",
 				fail.OriginPars,
-				fail.ErrForLoopExpectStmt,
+				fail.ErrForLoopExpectInitStmt,
 				"i",
 			),
 		},

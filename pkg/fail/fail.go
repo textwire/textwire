@@ -31,6 +31,7 @@ const (
 	ErrUnusedInsertDetected   = "@insert('%s') needs to have a matching @reserve('%s') in layout file"
 	ErrOnlyOneUseDir          = "@use() directive can only be used once per template"
 	ErrForLoopExpectStmt      = "@for() expects statement as post conditional, got expression '%s', like 'i++', 'i = i + 2', etc"
+	ErrForLoopExpectInitStmt  = "@for() expects statement as init conditional, got expression '%s', like 'i++', 'i = i + 2', etc"
 	ErrWrongTokenType         = "expected type '%s' but '%s' received"
 	ErrNameCannotBeEmpty      = "'%s' name cannot be empty"
 	ErrGlobalFuncFewArgs      = "global function %s() must have at least '%d' arguments, got '%d'"
