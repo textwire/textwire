@@ -144,7 +144,8 @@ func strTruncateFunc(receiver value.Literal, args ...value.Literal) (value.Liter
 
 	// If the string is already shorter than or equal to the limit, return it unchanged
 	// This ensures we don't truncate strings that don't need truncation
-	if limit >= utf8.RuneCountInString(val) {
+	clusters := splitClusters(val)
+	if limit >= len(clusters) {
 		return &value.Str{Val: val}, nil
 	}
 
@@ -162,7 +163,7 @@ func strTruncateFunc(receiver value.Literal, args ...value.Literal) (value.Liter
 	}
 
 	// Truncate the string at the limit and append the suffix
-	return &value.Str{Val: string([]rune(val)[:limit]) + ellipsis}, nil
+	return &value.Str{Val: strings.Join(clusters[:limit], "") + ellipsis}, nil
 }
 
 // strDecimalFunc returns a string formatted as a decimal number.
