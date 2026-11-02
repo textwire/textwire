@@ -91,6 +91,7 @@ func TestEvalStringFunctions(t *testing.T) {
 		{680, `{{ "我爱中文".reverse() }}`, "文中爱我"},
 		{690, `{{ "😡🤣😤".reverse() }}`, "😤🤣😡"},
 		{641, `{{ "éx".reverse() }}`, "xé"},
+		{643, "{{ \"a\xffb\".reverse() }}", "b\xffa"},
 		{642, `{{ "👍🏽".reverse() }}`, "👍🏽"},
 		// contains
 		{700, `{{ "Hello World".contains("World") }}`, "1"},
