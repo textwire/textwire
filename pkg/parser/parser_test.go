@@ -771,6 +771,39 @@ func TestErrorHandling(t *testing.T) {
 				token.String(token.RPAREN),
 			),
 		},
+		{
+			id:  61,
+			inp: "{{ \u00a0 }}",
+			err: fail.New(
+				&position.Pos{StartCol: 3, EndCol: 3},
+				"",
+				fail.OriginPars,
+				fail.ErrIllegalToken,
+				"U+00A0",
+			),
+		},
+		{
+			id:  62,
+			inp: "{{ \x00 }}",
+			err: fail.New(
+				&position.Pos{StartCol: 3, EndCol: 3},
+				"",
+				fail.OriginPars,
+				fail.ErrIllegalToken,
+				"U+0000",
+			),
+		},
+		{
+			id:  63,
+			inp: "{{ a\xff }}",
+			err: fail.New(
+				&position.Pos{StartCol: 4, EndCol: 4},
+				"",
+				fail.OriginPars,
+				fail.ErrIllegalToken,
+				"0xFF",
+			),
+		},
 		// Use directive
 		{
 			id:  70,
