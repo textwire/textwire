@@ -418,3 +418,18 @@ func TestAddGlobalData(t *testing.T) {
 		})
 	}
 }
+
+func TestAddGlobal(t *testing.T) {
+	t.Run("unsupported type returns error and is not stored", func(t *testing.T) {
+		scope := NewScope()
+
+		err := scope.AddGlobal("ch", make(chan int))
+		if err == nil {
+			t.Fatal("Expected error for unsupported global type, got none")
+		}
+
+		if _, ok := scope.vars["global"].(*Obj).Pairs["ch"]; ok {
+			t.Fatal("Unsupported global should not be stored")
+		}
+	})
+}

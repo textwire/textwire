@@ -1,5 +1,13 @@
 # Release notes V5
 
+## v5.1.19 (2026-11-02)
+
+- 🐛 Fixed `@for()` reporting a bad init as a bad post statement. Init failures now report `expects statement as init conditional`.
+- 🐛 Fixed `reverse()` and `truncate()` splitting characters made of several code points. Accents written as separate code points and emoji with skin-tone modifiers now stay together, so `"e\u0301x".truncate(1)` gives `é...`. Invalid UTF-8 is preserved.
+- 🐛 Fixed `capitalize()` replacing an invalid first byte with U+FFFD. It now returns the string unchanged.
+- 🐛 Fixed template errors from file paths or messages containing `%` being mangled, like `/tmp/100%tw` becoming `/tmp/100%!t(MISSING)w`.
+- 🐛 Fixed global data with unsupported Go types, like channels, being silently stored. `AddGlobal` now returns the error.
+
 ## v5.1.18 (2026-11-01)
 
 - 🧑‍💻 Improved nested ternary in the true branch logic. Before, it needed parentheses, now `a ? b ? "x" : "y" : "z"` parses without parentheses.

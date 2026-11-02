@@ -1,6 +1,8 @@
 package evaluator
 
 import (
+	"reflect"
+	"strings"
 	"testing"
 
 	"codeberg.org/textwire/textwire/v5/pkg/ast"
@@ -225,6 +227,130 @@ func TestEnsureMinFloatDecimals(t *testing.T) {
 
 			if got != tt.expect {
 				t.Errorf("expect %q, got %q", tt.expect, got)
+			}
+		})
+	}
+}
+
+func TestSplitClusters(t *testing.T) {
+	tests := []struct {
+		name   string
+		input  string
+		expect []string
+	}{
+		{
+			name:   "empty string",
+			input:  "",
+			expect: nil,
+		},
+		{
+			name:   "single ASCII char",
+			input:  "a",
+			expect: []string{"a"},
+		},
+		{
+			name:   "plain ASCII",
+			input:  "abc",
+			expect: []string{"a", "b", "c"},
+		},
+		{
+			name:   "multibyte runes without marks",
+			input:  "日本語",
+			expect: []string{"日", "本", "語"},
+		},
+		{
+			name:   "precomposed character is a single rune",
+			input:  "\u00e9", // é
+			expect: []string{"\u00e9"},
+		},
+		{
+			name:   "base plus combining acute (Mn)",
+			input:  "e\u0301",
+			expect: []string{"e\u0301"},
+		},
+		{
+			name:   "mark in the middle attaches to the preceding char",
+			input:  "ae\u0301b",
+			expect: []string{"a", "e\u0301", "b"},
+		},
+		{
+			name:   "multiple stacked marks on one base",
+			input:  "a\u0301\u0302\u0303",
+			expect: []string{"a\u0301\u0302\u0303"},
+		},
+		{
+			name:   "enclosing mark (Me)",
+			input:  "a\u20dd", // combining enclosing circle
+			expect: []string{"a\u20dd"},
+		},
+		{
+			name:   "spacing combining mark (Mc)",
+			input:  "\u0915\u093e", // Devanagari ka + aa vowel sign
+			expect: []string{"\u0915\u093e"},
+		},
+		{
+			name:   "mixed Mn, Me, Mc in sequence",
+			input:  "a\u0301\u20dd\u093e",
+			expect: []string{"a\u0301\u20dd\u093e"},
+		},
+		{
+			name:   "several marked characters in a row",
+			input:  "e\u0301a\u0300o\u0308",
+			expect: []string{"e\u0301", "a\u0300", "o\u0308"},
+		},
+		{
+			name:   "variation selector (Mn) attaches to its base",
+			input:  "\u2764\ufe0f", // red heart with VS16
+			expect: []string{"\u2764\ufe0f"},
+		},
+		{
+			name:   "skin tone modifier attaches to its base",
+			input:  "\U0001F44D\U0001F3FD", // thumbs up, medium skin tone
+			expect: []string{"\U0001F44D\U0001F3FD"},
+		},
+		{
+			name:   "leading combining mark stands alone",
+			input:  "\u0301",
+			expect: []string{"\u0301"},
+		},
+		{
+			name:   "leading mark followed by base char",
+			input:  "\u0301a",
+			expect: []string{"\u0301", "a"},
+		},
+		{
+			name:   "multiple leading marks form one cluster",
+			input:  "\u0301\u0302a",
+			expect: []string{"\u0301\u0302", "a"},
+		},
+		{
+			name:   "space and punctuation are not marks",
+			input:  "a b.",
+			expect: []string{"a", " ", "b", "."},
+		},
+		{
+			name:   "invalid UTF-8 byte is its own cluster and preserved",
+			input:  "a\xffb",
+			expect: []string{"a", "\xff", "b"},
+		},
+		{
+			name:   "mark after invalid byte attaches to it",
+			input:  "\xff\u0301",
+			expect: []string{"\xff\u0301"},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := splitClusters(tt.input)
+
+			if !reflect.DeepEqual(got, tt.expect) {
+				t.Errorf("splitClusters(%q)\n got: %q\nwant: %q", tt.input, got, tt.expect)
+			}
+
+			// Invariant: clusters must reassemble to exactly the input.
+			if joined := strings.Join(got, ""); joined != tt.input {
+				t.Errorf("clusters do not reassemble: joined %q, input %q", joined, tt.input)
 			}
 		})
 	}

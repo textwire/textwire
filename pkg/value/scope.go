@@ -94,7 +94,12 @@ func (e *Scope) SetLoopVar(pairs map[string]Literal) {
 	e.vars["loop"] = NewObj(pairs)
 }
 
-func (e *Scope) AddGlobal(key string, val any) {
+func (e *Scope) AddGlobal(key string, val any) *fail.Error {
+	lit := NativeToValue(val)
+	if errObj, ok := lit.(*Error); ok {
+		return errObj.Err
+	}
+
 	var globalObj *Obj
 
 	switch v := e.vars["global"].(type) {
@@ -113,7 +118,8 @@ func (e *Scope) AddGlobal(key string, val any) {
 		globalObj.Pairs = map[string]Literal{}
 	}
 
-	globalObj.Pairs[key] = NativeToValue(val)
+	globalObj.Pairs[key] = lit
+	return nil
 }
 
 func (e *Scope) isTypeMismatch(key string, val Value) (Value, bool) {

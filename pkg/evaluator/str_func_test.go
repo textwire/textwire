@@ -82,6 +82,7 @@ func TestEvalStringFunctions(t *testing.T) {
 		{635, `{{ "їжак".capitalize() }}`, "Їжак"},
 		{636, `{{ "élan".capitalize() }}`, "Élan"},
 		{637, `{{ "skirk".capitalize() }}`, "Skirk"},
+		{638, "{{ \"\xffabc\".capitalize() }}", "\xffabc"},
 		// reverse
 		{640, `{{ "Hello World".reverse() }}`, "dlroW olleH"},
 		{650, `{{ "reverse_-1234567890!@#$%^*()=+".reverse() }}`, "+=)(*^%$#@!0987654321-_esrever"},
@@ -89,6 +90,11 @@ func TestEvalStringFunctions(t *testing.T) {
 		{670, `{{ "T".reverse() }}`, "T"},
 		{680, `{{ "我爱中文".reverse() }}`, "文中爱我"},
 		{690, `{{ "😡🤣😤".reverse() }}`, "😤🤣😡"},
+		{641, `{{ "éx".reverse() }}`, "xé"},
+		{643, "{{ \"a\xffb\".reverse() }}", "b\xffa"},
+		{642, `{{ "👍🏽".reverse() }}`, "👍🏽"},
+		{644, "{{ \"\u0301a\".reverse() }}", "a\u0301"},
+		{645, "{{ \"\U0001F44D\U0001F3FDx\".reverse() }}", "x\U0001F44D\U0001F3FD"},
 		// contains
 		{700, `{{ "Hello World".contains("World") }}`, "1"},
 		{710, `{{ "Hello World".contains("world") }}`, "0"},
@@ -114,7 +120,11 @@ func TestEvalStringFunctions(t *testing.T) {
 		{900, `{{ "test".truncate(100) }}`, "test"},
 		{910, `{{ "".truncate(5) }}`, ""},
 		{915, `{{ "привіт".truncate(2) }}`, "пр..."},
+		{917, `{{ "éx".truncate(1) }}`, "é..."},
 		{916, `{{ "привіт".truncate(3, "") }}`, "при"},
+		{918, "{{ \"e\u0301e\u0301\".truncate(2) }}", "e\u0301e\u0301"},
+		{919, "{{ \"e\u0301x\".truncate(0) }}", "..."},
+		{921, "{{ \"\U0001F44D\U0001F3FDx\".truncate(1) }}", "\U0001F44D\U0001F3FD..."},
 		// decimal
 		{920, `{{ "".decimal() }}`, ""},
 		{930, `{{ "0".decimal() }}`, "0.00"},
@@ -205,7 +215,7 @@ func TestEvalStringFunctions(t *testing.T) {
 	}
 }
 
-func TestStringMethodChaining(t *testing.T) {
+func TestString_MethodChaining(t *testing.T) {
 	cases := []struct {
 		id     uint
 		inp    string

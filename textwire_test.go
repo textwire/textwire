@@ -1,6 +1,7 @@
 package textwire
 
 import (
+	"fmt"
 	"io"
 	"log"
 	"math"
@@ -542,7 +543,7 @@ func TestErrorHandling(t *testing.T) {
 	}{
 		{
 			inp:  "@for(i 0; i < 2; i++)x@end",
-			err:  fail.New(nil, "", fail.OriginPars, fail.ErrForLoopExpectStmt, "i"),
+			err:  fail.New(nil, "", fail.OriginPars, fail.ErrForLoopExpectInitStmt, "i"),
 			data: nil,
 		},
 		{
@@ -1118,6 +1119,26 @@ func TestCustomFunctions(t *testing.T) {
 		// even though we redefined it.
 		if actual != "anna" {
 			t.Fatalf("Wrong output. Expect 'anna' but got '%s'", actual)
+		}
+	})
+
+	t.Run("returning unsupported Go type is an error", func(t *testing.T) {
+		err := RegisterIntFunc("_chanResult", func(num int, args ...any) any {
+			return make(chan int)
+		})
+
+		if err != nil {
+			t.Fatalf("Error registering function: %s", err)
+		}
+
+		_, err = EvaluateString("{{ 3._chanResult() }}", nil)
+		if err == nil {
+			t.Fatal("Expected error for unsupported return type, got none")
+		}
+
+		want := fmt.Sprintf(fail.ErrUnsupportedType, "chan int")
+		if err.Message() != want {
+			t.Fatalf("Wrong error message. Expect %q but got %q", want, err.Message())
 		}
 	})
 }

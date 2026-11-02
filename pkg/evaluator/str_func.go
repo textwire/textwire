@@ -3,6 +3,7 @@ package evaluator
 import (
 	"errors"
 	"fmt"
+	"slices"
 	"strings"
 	"unicode"
 	"unicode/utf8"
@@ -86,6 +87,10 @@ func strCapitalizeFunc(receiver value.Literal, _ ...value.Literal) (value.Litera
 	}
 
 	first, size := utf8.DecodeRuneInString(val)
+	if first == utf8.RuneError && size == 1 {
+		return &value.Str{Val: val}, nil
+	}
+
 	newVal := string(unicode.ToUpper(first)) + val[size:]
 
 	return &value.Str{Val: newVal}, nil
@@ -95,15 +100,10 @@ func strCapitalizeFunc(receiver value.Literal, _ ...value.Literal) (value.Litera
 func strReverseFunc(receiver value.Literal, _ ...value.Literal) (value.Literal, error) {
 	val := receiver.(*value.Str).Val
 
-	runes := []rune(val)
-	n := len(runes)
+	clusters := splitClusters(val)
+	slices.Reverse(clusters)
 
-	// Reverse the slice of runes
-	for i := 0; i < n/2; i++ {
-		runes[i], runes[n-1-i] = runes[n-1-i], runes[i]
-	}
-
-	return &value.Str{Val: string(runes)}, nil
+	return &value.Str{Val: strings.Join(clusters, "")}, nil
 }
 
 // strContainsFunc returns true if the string contains the given substring, false otherwise
@@ -148,7 +148,8 @@ func strTruncateFunc(receiver value.Literal, args ...value.Literal) (value.Liter
 
 	// If the string is already shorter than or equal to the limit, return it unchanged
 	// This ensures we don't truncate strings that don't need truncation
-	if limit >= utf8.RuneCountInString(val) {
+	clusters := splitClusters(val)
+	if limit >= len(clusters) {
 		return &value.Str{Val: val}, nil
 	}
 
@@ -166,7 +167,7 @@ func strTruncateFunc(receiver value.Literal, args ...value.Literal) (value.Liter
 	}
 
 	// Truncate the string at the limit and append the suffix
-	return &value.Str{Val: string([]rune(val)[:limit]) + ellipsis}, nil
+	return &value.Str{Val: strings.Join(clusters[:limit], "") + ellipsis}, nil
 }
 
 // strDecimalFunc returns a string formatted as a decimal number.
