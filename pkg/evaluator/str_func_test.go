@@ -82,7 +82,7 @@ func TestEvalStringFunctions(t *testing.T) {
 		{635, `{{ "їжак".capitalize() }}`, "Їжак"},
 		{636, `{{ "élan".capitalize() }}`, "Élan"},
 		{637, `{{ "skirk".capitalize() }}`, "Skirk"},
-		{638, `{{ "\xffabc".capitalize() }}`, `\xffabc`},
+		{638, "{{ \"\xffabc\".capitalize() }}", "\xffabc"},
 		// reverse
 		{640, `{{ "Hello World".reverse() }}`, "dlroW olleH"},
 		{650, `{{ "reverse_-1234567890!@#$%^*()=+".reverse() }}`, "+=)(*^%$#@!0987654321-_esrever"},
