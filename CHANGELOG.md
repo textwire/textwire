@@ -3,6 +3,8 @@
 ## v5.1.19 (2026-11-02)
 
 - 🐛 Fixed `@for()` reporting a bad init as a bad post statement. Init failures now report `expects statement as init conditional`.
+- 🐛 Fixed `reverse()` and `truncate()` splitting characters made of several code points. Accents written as separate code points and emoji with skin-tone modifiers now stay together, so `"e\u0301x".truncate(1)` gives `é...`. Invalid UTF-8 is preserved.
+- 🐛 Fixed `capitalize()` replacing an invalid first byte with U+FFFD. It now returns the string unchanged.
 
 ## v5.1.18 (2026-11-01)
 
