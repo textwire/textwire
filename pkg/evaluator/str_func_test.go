@@ -93,6 +93,8 @@ func TestEvalStringFunctions(t *testing.T) {
 		{641, `{{ "éx".reverse() }}`, "xé"},
 		{643, "{{ \"a\xffb\".reverse() }}", "b\xffa"},
 		{642, `{{ "👍🏽".reverse() }}`, "👍🏽"},
+		{644, "{{ \"\u0301a\".reverse() }}", "a\u0301"},
+		{645, "{{ \"\U0001F44D\U0001F3FDx\".reverse() }}", "x\U0001F44D\U0001F3FD"},
 		// contains
 		{700, `{{ "Hello World".contains("World") }}`, "1"},
 		{710, `{{ "Hello World".contains("world") }}`, "0"},
@@ -120,6 +122,9 @@ func TestEvalStringFunctions(t *testing.T) {
 		{915, `{{ "привіт".truncate(2) }}`, "пр..."},
 		{917, `{{ "éx".truncate(1) }}`, "é..."},
 		{916, `{{ "привіт".truncate(3, "") }}`, "при"},
+		{918, "{{ \"e\u0301e\u0301\".truncate(2) }}", "e\u0301e\u0301"},
+		{919, "{{ \"e\u0301x\".truncate(0) }}", "..."},
+		{921, "{{ \"\U0001F44D\U0001F3FDx\".truncate(1) }}", "\U0001F44D\U0001F3FD..."},
 		// decimal
 		{920, `{{ "".decimal() }}`, ""},
 		{930, `{{ "0".decimal() }}`, "0.00"},
