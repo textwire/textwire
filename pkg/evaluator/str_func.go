@@ -3,6 +3,7 @@ package evaluator
 import (
 	"errors"
 	"fmt"
+	"slices"
 	"strings"
 	"unicode"
 	"unicode/utf8"
@@ -95,15 +96,10 @@ func strCapitalizeFunc(receiver value.Literal, _ ...value.Literal) (value.Litera
 func strReverseFunc(receiver value.Literal, _ ...value.Literal) (value.Literal, error) {
 	val := receiver.(*value.Str).Val
 
-	runes := []rune(val)
-	n := len(runes)
+	clusters := splitClusters(val)
+	slices.Reverse(clusters)
 
-	// Reverse the slice of runes
-	for i := 0; i < n/2; i++ {
-		runes[i], runes[n-1-i] = runes[n-1-i], runes[i]
-	}
-
-	return &value.Str{Val: string(runes)}, nil
+	return &value.Str{Val: strings.Join(clusters, "")}, nil
 }
 
 // strContainsFunc returns true if the string contains the given substring, false otherwise
