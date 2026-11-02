@@ -1,5 +1,7 @@
 # Release notes V5
 
+## v5.1.19 (2026-11-03)
+
 ## v5.1.19 (2026-11-02)
 
 - 🐛 Fixed `@for()` reporting a bad init as a bad post statement. Init failures now report `expects statement as init conditional`.
