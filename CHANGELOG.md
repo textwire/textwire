@@ -6,6 +6,7 @@
 - 🐛 Fixed `reverse()` and `truncate()` splitting characters made of several code points. Accents written as separate code points and emoji with skin-tone modifiers now stay together, so `"e\u0301x".truncate(1)` gives `é...`. Invalid UTF-8 is preserved.
 - 🐛 Fixed `capitalize()` replacing an invalid first byte with U+FFFD. It now returns the string unchanged.
 - 🐛 Fixed template errors from file paths or messages containing `%` being mangled, like `/tmp/100%tw` becoming `/tmp/100%!t(MISSING)w`.
+- 🐛 Fixed global data with unsupported Go types, like channels, being silently stored. `AddGlobal` now returns the error.
 
 ## v5.1.18 (2026-11-01)
 
