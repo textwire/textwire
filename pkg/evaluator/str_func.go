@@ -87,6 +87,10 @@ func strCapitalizeFunc(receiver value.Literal, _ ...value.Literal) (value.Litera
 	}
 
 	first, size := utf8.DecodeRuneInString(val)
+	if first == utf8.RuneError && size == 1 {
+		return &value.Str{Val: val}, nil
+	}
+
 	newVal := string(unicode.ToUpper(first)) + val[size:]
 
 	return &value.Str{Val: newVal}, nil
