@@ -193,5 +193,5 @@ func FromError(err error, pos *position.Pos, absPath string, origin ErrOrigin, a
 		pos = &position.Pos{}
 	}
 
-	return New(pos, absPath, origin, err.Error(), args...)
+	return New(pos, absPath, origin, "%s", err.Error())
 }
