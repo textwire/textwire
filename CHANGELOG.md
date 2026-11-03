@@ -1,5 +1,7 @@
 # Release notes V5
 
+## v5.1.21 (2026-11-04)
+
 ## v5.1.20 (2026-11-03)
 
 - 🐛 Fixed `illegal token` errors showing invisible characters as a plain space. Non-breaking space and other invisible characters, like NUL, are now shown by code point, e.g. `U+00A0`. Invalid UTF-8 bytes are shown as `0xFF` instead of `�`. Closes [#145](https://codeberg.org/textwire/textwire/issues/145).
