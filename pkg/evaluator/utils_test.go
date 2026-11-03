@@ -452,8 +452,7 @@ func TestStripControlStmts(t *testing.T) {
 		block.Append(inner)
 
 		stripped := stripControlDirs(block).(*value.Block)
-
-		if hasBreak(stripped) {
+		if stripped.HasBreak() {
 			t.Fatal("expected break to be removed")
 		}
 	})

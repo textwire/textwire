@@ -81,25 +81,21 @@ func nativeBoolToBoolObj(input bool) value.Literal {
 	return FALSE
 }
 
-func hasBreak(obj value.Value) bool {
-	return hasControlStmt(obj, value.BREAK_VAL)
-}
-
-func hasContinue(obj value.Value) bool {
-	return hasControlStmt(obj, value.CONTINUE_VAL)
-}
-
 // stripControlDirs removes break/continue values from a block so a loop
 // doesn't pass control statements it has already handled to its parent loop.
 func stripControlDirs(obj value.Value) value.Value {
 	block, ok := obj.(*value.Block)
-	if !ok || (!hasBreak(block) && !hasContinue(block)) {
+	if !ok {
+		return obj
+	}
+
+	if !block.HasBreak() && !block.HasContinue() {
 		return obj
 	}
 
 	stripped := value.NewBlock(len(block.Chunks))
 	for _, chunk := range block.Chunks {
-		if chunk.Is(value.BREAK_VAL) || chunk.Is(value.CONTINUE_VAL) {
+		if value.IsControlDir(chunk) {
 			continue
 		}
 
@@ -107,15 +103,6 @@ func stripControlDirs(obj value.Value) value.Value {
 	}
 
 	return stripped
-}
-
-func hasControlStmt(obj value.Value, controlType value.ValueType) bool {
-	block, ok := obj.(*value.Block)
-	if !ok {
-		return obj.Is(controlType)
-	}
-
-	return block.HasControl(controlType)
 }
 
 // hasCustomFunc checks if the object has a custom function

@@ -378,3 +378,87 @@ func TestRefKeyFor(t *testing.T) {
 		}
 	})
 }
+
+func TestIsControlDir(t *testing.T) {
+	t.Run("break and continue are control directives", func(t *testing.T) {
+		if !IsControlDir(&Break{}) || !IsControlDir(&Continue{}) {
+			t.Fatal("expected break and continue to be control directives")
+		}
+	})
+
+	t.Run("text and blocks are not control directives", func(t *testing.T) {
+		if IsControlDir(&Text{Val: "a"}) || IsControlDir(NewBlock(0)) {
+			t.Fatal("expected text and block not to be control directives")
+		}
+	})
+}
+
+func TestHasBreak(t *testing.T) {
+	t.Run("break value has break", func(t *testing.T) {
+		if !HasBreak(&Break{}) {
+			t.Fatal("expected break value to have break")
+		}
+	})
+
+	t.Run("text value has no break", func(t *testing.T) {
+		if HasBreak(&Text{Val: "a"}) {
+			t.Fatal("expected text value to have no break")
+		}
+	})
+
+	t.Run("block with nested break has break", func(t *testing.T) {
+		inner := NewBlock(1)
+		inner.Append(&Break{})
+
+		block := NewBlock(1)
+		block.Append(inner)
+
+		if !HasBreak(block) {
+			t.Fatal("expected nested break to be found")
+		}
+	})
+
+	t.Run("block without break has no break", func(t *testing.T) {
+		block := NewBlock(1)
+		block.Append(&Text{Val: "a"})
+
+		if HasBreak(block) {
+			t.Fatal("expected block without break to have no break")
+		}
+	})
+}
+
+func TestHasContinue(t *testing.T) {
+	t.Run("continue value has continue", func(t *testing.T) {
+		if !HasContinue(&Continue{}) {
+			t.Fatal("expected continue value to have continue")
+		}
+	})
+
+	t.Run("text value has no continue", func(t *testing.T) {
+		if HasContinue(&Text{Val: "a"}) {
+			t.Fatal("expected text value to have no continue")
+		}
+	})
+
+	t.Run("block with nested continue has continue", func(t *testing.T) {
+		inner := NewBlock(1)
+		inner.Append(&Continue{})
+
+		block := NewBlock(1)
+		block.Append(inner)
+
+		if !HasContinue(block) {
+			t.Fatal("expected nested continue to be found")
+		}
+	})
+
+	t.Run("block without continue has no continue", func(t *testing.T) {
+		block := NewBlock(1)
+		block.Append(&Text{Val: "a"})
+
+		if HasContinue(block) {
+			t.Fatal("expected block without continue to have no continue")
+		}
+	})
+}

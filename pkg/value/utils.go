@@ -20,6 +20,29 @@ type refKey struct {
 	len int
 }
 
+// IsControlDir reports whether the value is a break or continue directive.
+func IsControlDir(val Value) bool {
+	return val.Is(BREAK_VAL) || val.Is(CONTINUE_VAL)
+}
+
+// HasBreak reports whether the value is a break, or a block holding one.
+func HasBreak(val Value) bool {
+	if block, ok := val.(*Block); ok {
+		return block.HasBreak()
+	}
+
+	return val.Is(BREAK_VAL)
+}
+
+// HasContinue reports whether the value is a continue, or a block holding one.
+func HasContinue(val Value) bool {
+	if block, ok := val.(*Block); ok {
+		return block.HasContinue()
+	}
+
+	return val.Is(CONTINUE_VAL)
+}
+
 func NativeToValue(val any) Literal {
 	if val == nil {
 		return new(Nil)

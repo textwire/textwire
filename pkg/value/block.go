@@ -45,6 +45,14 @@ func (b *Block) HasControl(t ValueType) bool {
 	return false
 }
 
+func (b *Block) HasBreak() bool {
+	return b.HasControl(BREAK_VAL)
+}
+
+func (b *Block) HasContinue() bool {
+	return b.HasControl(CONTINUE_VAL)
+}
+
 func (*Block) Type() ValueType {
 	return BLOCK_VAL
 }

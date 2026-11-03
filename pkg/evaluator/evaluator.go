@@ -209,7 +209,7 @@ func (e *Evaluator) block(astBlock *ast.Block, ctx *Context) value.Value {
 
 		block.Append(chunk)
 
-		if hasBreak(chunk) || hasContinue(chunk) {
+		if value.HasBreak(chunk) || value.HasContinue(chunk) {
 			break
 		}
 	}
@@ -532,7 +532,7 @@ func (e *Evaluator) forDir(forDir *ast.ForDir, ctx *Context) value.Value {
 			return val
 		}
 
-		broken := hasBreak(val)
+		broken := value.HasBreak(val)
 
 		block.Append(stripControlDirs(val))
 
@@ -624,7 +624,7 @@ func (e *Evaluator) eachDir(eachDir *ast.EachDir, ctx *Context) value.Value {
 			return val
 		}
 
-		broken := hasBreak(val)
+		broken := value.HasBreak(val)
 
 		block.Append(stripControlDirs(val))
 		if broken {
