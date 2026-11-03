@@ -89,9 +89,9 @@ func hasContinue(obj value.Value) bool {
 	return hasControlStmt(obj, value.CONTINUE_VAL)
 }
 
-// stripControlStmts removes break/continue values from a block so a loop
+// stripControlDirs removes break/continue values from a block so a loop
 // doesn't pass control statements it has already handled to its parent loop.
-func stripControlStmts(obj value.Value) value.Value {
+func stripControlDirs(obj value.Value) value.Value {
 	block, ok := obj.(*value.Block)
 	if !ok || (!hasBreak(block) && !hasContinue(block)) {
 		return obj
@@ -103,7 +103,7 @@ func stripControlStmts(obj value.Value) value.Value {
 			continue
 		}
 
-		stripped.Append(stripControlStmts(chunk))
+		stripped.Append(stripControlDirs(chunk))
 	}
 
 	return stripped

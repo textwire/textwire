@@ -438,7 +438,7 @@ func TestStripControlStmts(t *testing.T) {
 		block := value.NewBlock(1)
 		block.Append(inner)
 
-		if stripControlStmts(block) != block {
+		if stripControlDirs(block) != block {
 			t.Fatal("expected same block when there is nothing to strip")
 		}
 	})
@@ -451,7 +451,7 @@ func TestStripControlStmts(t *testing.T) {
 		block.Append(&value.Text{Val: "a"})
 		block.Append(inner)
 
-		stripped := stripControlStmts(block).(*value.Block)
+		stripped := stripControlDirs(block).(*value.Block)
 
 		if hasBreak(stripped) {
 			t.Fatal("expected break to be removed")

@@ -534,7 +534,7 @@ func (e *Evaluator) forDir(forDir *ast.ForDir, ctx *Context) value.Value {
 
 		broken := hasBreak(val)
 
-		block.Append(stripControlStmts(val))
+		block.Append(stripControlDirs(val))
 
 		if broken {
 			break
@@ -626,7 +626,7 @@ func (e *Evaluator) eachDir(eachDir *ast.EachDir, ctx *Context) value.Value {
 
 		broken := hasBreak(val)
 
-		block.Append(stripControlStmts(val))
+		block.Append(stripControlDirs(val))
 		if broken {
 			break
 		}
