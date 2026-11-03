@@ -37,25 +37,12 @@ func (b *Block) Append(chunk Value) {
 	}
 }
 
-// HasControl reports whether the block contains a break or continue value of
-// the given type, including inside nested blocks.
-func (b *Block) HasControl(t ValueType) bool {
-	switch t {
-	case BREAK_VAL:
-		return b.hasBreak
-	case CONTINUE_VAL:
-		return b.hasContinue
-	}
-
-	return false
-}
-
 func (b *Block) HasBreak() bool {
-	return b.HasControl(BREAK_VAL)
+	return b.hasBreak
 }
 
 func (b *Block) HasContinue() bool {
-	return b.HasControl(CONTINUE_VAL)
+	return b.hasContinue
 }
 
 func (*Block) Type() ValueType {

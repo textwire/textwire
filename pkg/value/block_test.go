@@ -69,7 +69,7 @@ func TestBlockAppend(t *testing.T) {
 	})
 }
 
-func TestBlockHasControl(t *testing.T) {
+func TestBlockHasBreak(t *testing.T) {
 	t.Run("finds break in nested block", func(t *testing.T) {
 		inner := NewBlock(1)
 		inner.Append(&Break{})
@@ -78,12 +78,8 @@ func TestBlockHasControl(t *testing.T) {
 		outer.Append(&Text{Val: "a"})
 		outer.Append(inner)
 
-		if !outer.HasControl(BREAK_VAL) {
+		if !outer.HasBreak() {
 			t.Fatal("expected break in nested block")
-		}
-
-		if outer.HasControl(CONTINUE_VAL) {
-			t.Fatal("unexpected continue in block")
 		}
 	})
 
@@ -92,8 +88,33 @@ func TestBlockHasControl(t *testing.T) {
 		block.Append(&Break{})
 		block.Append(&Text{Val: "a"})
 
-		if !block.HasControl(BREAK_VAL) {
+		if !block.HasBreak() {
 			t.Fatal("expected break to stay after a later chunk")
+		}
+	})
+
+	t.Run("false without break", func(t *testing.T) {
+		block := NewBlock(2)
+		block.Append(&Continue{})
+		block.Append(&Text{Val: "a"})
+
+		if block.HasBreak() {
+			t.Fatal("unexpected break in block")
+		}
+	})
+}
+
+func TestBlockHasContinue(t *testing.T) {
+	t.Run("finds continue in nested block", func(t *testing.T) {
+		inner := NewBlock(1)
+		inner.Append(&Continue{})
+
+		outer := NewBlock(1)
+		outer.Append(&Text{Val: "a"})
+		outer.Append(inner)
+
+		if !outer.HasContinue() {
+			t.Fatal("expected continue in nested block")
 		}
 	})
 
@@ -102,18 +123,18 @@ func TestBlockHasControl(t *testing.T) {
 		block.Append(&Continue{})
 		block.Append(&Text{Val: "a"})
 
-		if !block.HasControl(CONTINUE_VAL) {
+		if !block.HasContinue() {
 			t.Fatal("expected continue to stay after a later chunk")
 		}
 	})
 
-	t.Run("false without control values", func(t *testing.T) {
-		block := NewBlock(1)
+	t.Run("false without continue", func(t *testing.T) {
+		block := NewBlock(2)
+		block.Append(&Break{})
 		block.Append(&Text{Val: "a"})
-		block.Append(&Text{Val: "b"})
 
-		if block.HasControl(BREAK_VAL) || block.HasControl(CONTINUE_VAL) {
-			t.Fatal("expected no control values")
+		if block.HasContinue() {
+			t.Fatal("unexpected continue in block")
 		}
 	})
 }

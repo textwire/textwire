@@ -430,7 +430,7 @@ func TestFloatInInt64Range(t *testing.T) {
 	}
 }
 
-func TestStripControlStmts(t *testing.T) {
+func TestStripControlDir(t *testing.T) {
 	t.Run("returns block without control values as is", func(t *testing.T) {
 		inner := value.NewBlock(1)
 		inner.Append(&value.Text{Val: "a"})
