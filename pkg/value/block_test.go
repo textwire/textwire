@@ -11,11 +11,11 @@ func TestBlockAppend(t *testing.T) {
 		block.Append(first)
 		block.Append(second)
 
-		if len(block.Chunks) != 2 {
-			t.Fatalf("expected 2 chunks, got %d", len(block.Chunks))
+		if len(block.chunks) != 2 {
+			t.Fatalf("expected 2 chunks, got %d", len(block.chunks))
 		}
 
-		if block.Chunks[0] != first || block.Chunks[1] != second {
+		if block.chunks[0] != first || block.chunks[1] != second {
 			t.Fatal("expected chunks in append order")
 		}
 	})

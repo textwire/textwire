@@ -93,8 +93,8 @@ func stripControlDirs(obj value.Value) value.Value {
 		return obj
 	}
 
-	stripped := value.NewBlock(len(block.Chunks))
-	for _, chunk := range block.Chunks {
+	stripped := value.NewBlock(len(block.Chunks()))
+	for _, chunk := range block.Chunks() {
 		if value.IsControlDir(chunk) {
 			continue
 		}
