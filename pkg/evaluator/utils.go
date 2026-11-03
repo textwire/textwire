@@ -93,7 +93,7 @@ func hasContinue(obj value.Value) bool {
 // doesn't pass control statements it has already handled to its parent loop.
 func stripControlStmts(obj value.Value) value.Value {
 	block, ok := obj.(*value.Block)
-	if !ok {
+	if !ok || (!hasBreak(block) && !hasContinue(block)) {
 		return obj
 	}
 

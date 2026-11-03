@@ -6,7 +6,7 @@
 - 🐛 Fixed the invalid assignment error printing `got 'error'` for non-literal left sides. It now names the expression, e.g. `got 'prefix expression'` for `-x = 2` or `got 'infix expression'` for `x + 1 = 2`. Closes [#143](https://codeberg.org/textwire/textwire/issues/143).
 - 🐛 Fixed `decimal()` crashing on huge decimal counts, like `1.decimal(".", 9223372036854775807)` or `"12".decimal(".", 2000000000)`. It now fails with `result is too large`, the same limit as `repeat()`. Closes [#140](https://codeberg.org/textwire/textwire/issues/140) and [#142](https://codeberg.org/textwire/textwire/issues/142).
 - 🐛 Fixed `abs()`, `int()`, `ceil()`, `floor()` and `round()` returning wrong numbers outside the int64 range. `(-9223372036854775808).abs()` and `9223372036854775807.float().int()` now fail with `result is out of int64 range` instead of silently wrapping. Closes [#144](https://codeberg.org/textwire/textwire/issues/144).
-- 🚀  Improved nested `@if` and `@break` evaluation speed. Deeply nested templates no longer take quadratic time. Evaluation of nested `@if` blocks now scales linearly. Closes [#141](https://codeberg.org/textwire/textwire/issues/141).
+- 🚀  Improved nested `@if`, `@for` and `@each` evaluation speed. Deeply nested templates no longer take quadratic time. Evaluation of nested `@if` blocks now scales linearly. Closes [#141](https://codeberg.org/textwire/textwire/issues/141).
     | Nested `@if` levels | Before | After | Speedup |
     |---|---|---|---|
     | 1,000 | 30.9 ms | 5.9 ms | 5.2x |

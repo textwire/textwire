@@ -429,3 +429,32 @@ func TestFloatInInt64Range(t *testing.T) {
 		})
 	}
 }
+
+func TestStripControlStmts(t *testing.T) {
+	t.Run("returns block without control values as is", func(t *testing.T) {
+		inner := value.NewBlock(1)
+		inner.Append(&value.Text{Val: "a"})
+
+		block := value.NewBlock(1)
+		block.Append(inner)
+
+		if stripControlStmts(block) != block {
+			t.Fatal("expected same block when there is nothing to strip")
+		}
+	})
+
+	t.Run("removes nested break", func(t *testing.T) {
+		inner := value.NewBlock(1)
+		inner.Append(&value.Break{})
+
+		block := value.NewBlock(2)
+		block.Append(&value.Text{Val: "a"})
+		block.Append(inner)
+
+		stripped := stripControlStmts(block).(*value.Block)
+
+		if hasBreak(stripped) {
+			t.Fatal("expected break to be removed")
+		}
+	})
+}
