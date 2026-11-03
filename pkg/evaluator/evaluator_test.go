@@ -878,6 +878,13 @@ func TestEvalAssign(t *testing.T) {
 		{550, `{{ arr = [1, 2, 3]; arr[2] = 10; arr[2] }}`, "10"},
 		{560, `{{ arr = ['a', 'b', 'c']; arr[0] = arr[0] + 'x'; arr[0] }}`, "ax"},
 		{570, `{{ arr = [true, false]; arr[0] = false; arr[0] }}`, "0"},
+		// Object property assignment via index notation
+		{580, `{{ user = {}; user["name"] = "Anna"; user.name }}`, "Anna"},
+		{590, `{{ user = {name: "Ann"}; user["name"] = "Anna"; user["name"] }}`, "Anna"},
+		{600, `{{ user = {name: "Ann"}; user["name"] = nil; user["name"] }}`, ""},
+		{610, `{{ user = {}; key = "name"; user[key] = "Anna"; user.name }}`, "Anna"},
+		{620, `{{ u = {a: {s: "x"}}; u["a"]["s"] = "y"; u.a.s }}`, "y"},
+		{630, `{{ x = [{ name: 'Chiori' }]; x[0]['name'] = 'Mavuika'; x[0].name }}`, "Mavuika"},
 	}
 
 	for _, tc := range cases {

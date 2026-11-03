@@ -292,16 +292,29 @@ func (e *Evaluator) assignIndexExp(
 		return idx
 	}
 
-	if !left.Is(value.ARR_VAL) {
-		return e.newError(indexExpr, ctx, fail.ErrIndexNotSupported, left.Type())
+	switch l := left.(type) {
+	case *value.Arr:
+		return e.assignArrIndexExp(l, idx, indexExpr, rightExpr, rightVal, ctx)
+	case *value.Obj:
+		return e.assignObjIndexExp(l, idx, indexExpr, rightExpr, rightVal, ctx)
 	}
 
+	return e.newError(indexExpr, ctx, fail.ErrIndexNotSupported, left.Type())
+}
+
+func (e *Evaluator) assignArrIndexExp(
+	arr *value.Arr,
+	idx value.Literal,
+	indexExpr *ast.IndexExpr,
+	rightExpr ast.Expression,
+	rightVal value.Literal,
+	ctx *Context,
+) value.Literal {
 	// Index must be integer
 	if !idx.Is(value.INT_VAL) {
 		return e.newError(indexExpr, ctx, fail.ErrArrIndexInt, idx.Type())
 	}
 
-	arr := left.(*value.Arr)
 	index := idx.(*value.Int).Val
 
 	if index < 0 || index >= int64(len(arr.Elements)) {
@@ -313,6 +326,27 @@ func (e *Evaluator) assignIndexExp(
 	}
 
 	arr.Elements[index] = rightVal
+
+	return NIL
+}
+
+func (e *Evaluator) assignObjIndexExp(
+	obj *value.Obj,
+	idx value.Literal,
+	indexExpr *ast.IndexExpr,
+	rightExpr ast.Expression,
+	rightVal value.Literal,
+	ctx *Context,
+) value.Literal {
+	if !idx.Is(value.STR_VAL) {
+		return e.newError(indexExpr, ctx, fail.ErrObjIndexStr, idx.Type())
+	}
+
+	if value.References(rightVal, obj) {
+		return e.circularAssignError(indexExpr, rightExpr, ctx)
+	}
+
+	obj.Pairs[idx.(*value.Str).Val] = rightVal
 
 	return NIL
 }
