@@ -97,18 +97,16 @@ func stripControlStmts(obj value.Value) value.Value {
 		return obj
 	}
 
-	chunks := make([]value.Value, 0, len(block.Chunks))
+	stripped := value.NewBlock(len(block.Chunks))
 	for _, chunk := range block.Chunks {
 		if chunk.Is(value.BREAK_VAL) || chunk.Is(value.CONTINUE_VAL) {
 			continue
 		}
 
-		chunks = append(chunks, stripControlStmts(chunk))
+		stripped.Append(stripControlStmts(chunk))
 	}
 
-	block.Chunks = chunks
-
-	return block
+	return stripped
 }
 
 func hasControlStmt(obj value.Value, controlType value.ValueType) bool {
@@ -117,14 +115,7 @@ func hasControlStmt(obj value.Value, controlType value.ValueType) bool {
 		return obj.Is(controlType)
 	}
 
-	// also check recursively for nested blocks
-	for _, elem := range block.Chunks {
-		if hasControlStmt(elem, controlType) {
-			return true
-		}
-	}
-
-	return false
+	return block.HasControl(controlType)
 }
 
 // hasCustomFunc checks if the object has a custom function

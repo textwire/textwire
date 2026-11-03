@@ -143,7 +143,7 @@ func (e *Evaluator) program(prog *ast.Program, ctx *Context) value.Value {
 		if isError(val) {
 			return val
 		}
-		block.Chunks = append(block.Chunks, val)
+		block.Append(val)
 	}
 
 	return block
@@ -207,7 +207,7 @@ func (e *Evaluator) block(astBlock *ast.Block, ctx *Context) value.Value {
 			return chunk
 		}
 
-		block.Chunks = append(block.Chunks, chunk)
+		block.Append(chunk)
 
 		if hasBreak(chunk) || hasContinue(chunk) {
 			break
@@ -534,7 +534,7 @@ func (e *Evaluator) forDir(forDir *ast.ForDir, ctx *Context) value.Value {
 
 		broken := hasBreak(val)
 
-		block.Chunks = append(block.Chunks, stripControlStmts(val))
+		block.Append(stripControlStmts(val))
 
 		if broken {
 			break
@@ -626,7 +626,7 @@ func (e *Evaluator) eachDir(eachDir *ast.EachDir, ctx *Context) value.Value {
 
 		broken := hasBreak(val)
 
-		block.Chunks = append(block.Chunks, stripControlStmts(val))
+		block.Append(stripControlStmts(val))
 		if broken {
 			break
 		}
