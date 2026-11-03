@@ -48,5 +48,9 @@ func intDecimalFunc(receiver value.Literal, args ...value.Literal) (value.Litera
 		return nil, err
 	}
 
+	if err := checkDecimalResultSize(value.INT_VAL, val, separator, decimals); err != nil {
+		return nil, err
+	}
+
 	return &value.Str{Val: formatIntDecimals(val, separator, decimals)}, nil
 }

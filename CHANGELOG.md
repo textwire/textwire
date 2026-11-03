@@ -4,6 +4,7 @@
 
 - 🐛 Fixed `illegal token` errors showing invisible characters as a plain space. Non-breaking space and other invisible characters, like NUL, are now shown by code point, e.g. `U+00A0`. Invalid UTF-8 bytes are shown as `0xFF` instead of `�`. Closes [#145](https://codeberg.org/textwire/textwire/issues/145).
 - 🐛 Fixed the invalid assignment error printing `got 'error'` for non-literal left sides. It now names the expression, e.g. `got 'prefix expression'` for `-x = 2` or `got 'infix expression'` for `x + 1 = 2`. Closes [#143](https://codeberg.org/textwire/textwire/issues/143).
+- 🐛 Fixed `decimal()` crashing on huge decimal counts, like `1.decimal(".", 9223372036854775807)` or `"12".decimal(".", 2000000000)`. It now fails with `result is too large`, the same limit as `repeat()`. Closes [#140](https://codeberg.org/textwire/textwire/issues/140).
 
 ## v5.1.19 (2026-11-02)
 

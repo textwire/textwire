@@ -1028,6 +1028,58 @@ func TestFunctionGivesError(t *testing.T) {
 				1,
 			),
 		},
+		{
+			830,
+			`{{ 1234567.decimal(".", 9223372036854775807) }}`,
+			fail.New(
+				nil,
+				"/path/to/file",
+				fail.OriginEval,
+				fail.ErrFuncResultTooLarge,
+				value.INT_VAL,
+				"decimal",
+				maxRepeatLen,
+			),
+		},
+		{
+			840,
+			`{{ "12".decimal(".", 2000000000) }}`,
+			fail.New(
+				nil,
+				"/path/to/file",
+				fail.OriginEval,
+				fail.ErrFuncResultTooLarge,
+				value.STR_VAL,
+				"decimal",
+				maxRepeatLen,
+			),
+		},
+		{
+			850,
+			`{{ "1.5".decimal(".", 9223372036854775807) }}`,
+			fail.New(
+				nil,
+				"/path/to/file",
+				fail.OriginEval,
+				fail.ErrFuncResultTooLarge,
+				value.STR_VAL,
+				"decimal",
+				maxRepeatLen,
+			),
+		},
+		{
+			860,
+			`{{ "12".decimal(".", 1048574) }}`,
+			fail.New(
+				nil,
+				"/path/to/file",
+				fail.OriginEval,
+				fail.ErrFuncResultTooLarge,
+				value.STR_VAL,
+				"decimal",
+				maxRepeatLen,
+			),
+		},
 	}
 
 	for _, tc := range cases {

@@ -181,6 +181,27 @@ func getDecimalConfig(
 	return separator, decimals, nil
 }
 
+// checkDecimalResultSize returns an error if adding decimals to val would make
+// the result longer than maxRepeatLen bytes. Nothing is added when decimals is
+// not positive, so that case always passes.
+func checkDecimalResultSize(
+	objType value.ValueType,
+	val, separator string,
+	decimals int,
+) error {
+	if decimals <= 0 {
+		return nil
+	}
+
+	// Bytes left for decimal digits after the value and separator.
+	room := maxRepeatLen - len(val) - len(separator)
+	if decimals > room {
+		return fmt.Errorf(fail.ErrFuncResultTooLarge, objType, "decimal", maxRepeatLen)
+	}
+
+	return nil
+}
+
 // formatIntDecimals appends decimal places to an integer string.
 func formatIntDecimals(val, separator string, decimals int) string {
 	if decimals == 0 {
