@@ -68,14 +68,15 @@ const (
 	ErrCircularValue         = "circular reference detected in '%s'"
 
 	// Functions
-	ErrFuncNotDefined     = "%s.%s() is not defined"
-	ErrFuncMissingArg     = "%s.%s(arg) missing required argument"
-	ErrFuncFirstArgInt    = "argument 1 on %s.%s() must be 'integer'"
-	ErrFuncFirstArgStr    = "argument 1 on %s.%s() must be 'string'"
-	ErrFuncSecondArgInt   = "argument 2 on %s.%s() must be 'integer'"
-	ErrFuncSecondArgStr   = "argument 2 on %s.%s() must be 'string'"
-	ErrFuncMaxArgs        = "%s.%s() takes at most %d arguments"
-	ErrFuncResultTooLarge = "%s.%s() result is too large, maximum is %d bytes"
+	ErrFuncNotDefined      = "%s.%s() is not defined"
+	ErrFuncMissingArg      = "%s.%s(arg) missing required argument"
+	ErrFuncFirstArgInt     = "argument 1 on %s.%s() must be 'integer'"
+	ErrFuncFirstArgStr     = "argument 1 on %s.%s() must be 'string'"
+	ErrFuncSecondArgInt    = "argument 2 on %s.%s() must be 'integer'"
+	ErrFuncSecondArgStr    = "argument 2 on %s.%s() must be 'string'"
+	ErrFuncMaxArgs         = "%s.%s() takes at most %d arguments"
+	ErrFuncResultTooLarge  = "%s.%s() result is too large, maximum is %d bytes"
+	ErrFuncOutOfInt64Range = "%s.%s() result is out of int64 range"
 
 	// Template errors
 	ErrUnsupportedType      = "unsupported value type '%s'"

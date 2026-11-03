@@ -1,7 +1,9 @@
 package evaluator
 
 import (
+	"errors"
 	"fmt"
+	"math"
 	"slices"
 	"strings"
 	"unicode"
@@ -336,4 +338,19 @@ func getDateTimeLayout(date string) string {
 		return "2006-01-02"
 	}
 	return ""
+}
+
+// floatToInt wraps a float as a value.Int, failing when it is outside the int64 range
+func floatToInt(val float64, method string) (value.Literal, error) {
+	if !floatInInt64Range(val) {
+		msg := fmt.Sprintf(fail.ErrFuncOutOfInt64Range, value.FLOAT_VAL, method)
+		return nil, errors.New(msg)
+	}
+
+	return &value.Int{Val: int64(val)}, nil
+}
+
+// floatInInt64Range reports whether val can be converted to int64 without overflowing
+func floatInInt64Range(val float64) bool {
+	return val >= math.MinInt64 && val < -math.MinInt64
 }

@@ -10,7 +10,7 @@ import (
 // floatIntFunc returns the integer part of the given float
 func floatIntFunc(receiver value.Literal, _ ...value.Literal) (value.Literal, error) {
 	val := receiver.(*value.Float).Val
-	return &value.Int{Val: int64(val)}, nil
+	return floatToInt(val, "int")
 }
 
 // floatStrFunc converts a float to a string and returns it
@@ -32,17 +32,17 @@ func floatAbsFunc(receiver value.Literal, _ ...value.Literal) (value.Literal, er
 // floatCeilFunc returns the rounded up value of a float to the nearest integer
 func floatCeilFunc(receiver value.Literal, _ ...value.Literal) (value.Literal, error) {
 	val := receiver.(*value.Float).Val
-	return &value.Int{Val: int64(math.Ceil(val))}, nil
+	return floatToInt(math.Ceil(val), "ceil")
 }
 
 // floatFloorFunc returns the rounded down value of a float to the nearest integer
 func floatFloorFunc(receiver value.Literal, _ ...value.Literal) (value.Literal, error) {
 	val := receiver.(*value.Float).Val
-	return &value.Int{Val: int64(math.Floor(val))}, nil
+	return floatToInt(math.Floor(val), "floor")
 }
 
 // floatRoundFunc returns the rounded value of a float to the nearest integer
 func floatRoundFunc(receiver value.Literal, _ ...value.Literal) (value.Literal, error) {
 	val := receiver.(*value.Float).Val
-	return &value.Int{Val: int64(math.Round(val))}, nil
+	return floatToInt(math.Round(val), "round")
 }

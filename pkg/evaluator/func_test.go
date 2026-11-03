@@ -1080,6 +1080,71 @@ func TestFunctionGivesError(t *testing.T) {
 				maxRepeatLen,
 			),
 		},
+		// int abs
+		{
+			870,
+			`{{ (-9223372036854775808).abs() }}`,
+			fail.New(
+				nil,
+				"/path/to/file",
+				fail.OriginEval,
+				fail.ErrFuncOutOfInt64Range,
+				value.INT_VAL,
+				"abs",
+			),
+		},
+		// float int
+		{
+			880,
+			`{{ 9223372036854775807.float().int() }}`,
+			fail.New(
+				nil,
+				"/path/to/file",
+				fail.OriginEval,
+				fail.ErrFuncOutOfInt64Range,
+				value.FLOAT_VAL,
+				"int",
+			),
+		},
+		// float ceil
+		{
+			890,
+			`{{ 9223372036854775807.float().ceil() }}`,
+			fail.New(
+				nil,
+				"/path/to/file",
+				fail.OriginEval,
+				fail.ErrFuncOutOfInt64Range,
+				value.FLOAT_VAL,
+				"ceil",
+			),
+		},
+		// float floor
+		{
+			900,
+			`{{ 9223372036854775807.float().floor() }}`,
+			fail.New(
+				nil,
+				"/path/to/file",
+				fail.OriginEval,
+				fail.ErrFuncOutOfInt64Range,
+				value.FLOAT_VAL,
+				"floor",
+			),
+		},
+		// float round
+		{
+			910,
+			`{{ 9223372036854775807.float().round() }}`,
+			fail.New(
+				nil,
+				"/path/to/file",
+				fail.OriginEval,
+				fail.ErrFuncOutOfInt64Range,
+				value.FLOAT_VAL,
+				"round",
+			),
+		},
 	}
 
 	for _, tc := range cases {

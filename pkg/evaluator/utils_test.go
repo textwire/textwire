@@ -1,6 +1,7 @@
 package evaluator
 
 import (
+	"math"
 	"reflect"
 	"strings"
 	"testing"
@@ -232,6 +233,50 @@ func TestEnsureMinFloatDecimals(t *testing.T) {
 	}
 }
 
+func TestFloatToInt(t *testing.T) {
+	tc := []struct {
+		name    string
+		inp     float64
+		expect  int64
+		wantErr bool
+	}{
+		{"Zero", 0, 0, false},
+		{"Positive", 13, 13, false},
+		{"Negative", -13, -13, false},
+		{"Min int64", math.MinInt64, math.MinInt64, false},
+		{"Regular float", 22.22, 22, false},
+		{"Float 11.", 11., 11, false},
+		{"Float .10", .10, 0, false},
+		{"Float .40", .40, 0, false},
+		{"Above max int64", math.Exp2(63), 0, true},
+		{"Below min int64", -math.Exp2(63) - 4096, 0, true},
+		{"Positive infinity", math.Inf(1), 0, true},
+		{"Negative infinity", math.Inf(-1), 0, true},
+		{"NaN", math.NaN(), 0, true},
+	}
+
+	for _, tt := range tc {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := floatToInt(tt.inp, "int")
+
+			if tt.wantErr {
+				if err == nil {
+					t.Fatalf("expect error, got %v", got)
+				}
+				return
+			}
+
+			if err != nil {
+				t.Fatalf("expect no error, got %s", err)
+			}
+
+			if got.(*value.Int).Val != tt.expect {
+				t.Errorf("expect %d, got %d", tt.expect, got.(*value.Int).Val)
+			}
+		})
+	}
+}
+
 func TestSplitClusters(t *testing.T) {
 	tests := []struct {
 		name   string
@@ -351,6 +396,35 @@ func TestSplitClusters(t *testing.T) {
 			// Invariant: clusters must reassemble to exactly the input.
 			if joined := strings.Join(got, ""); joined != tt.input {
 				t.Errorf("clusters do not reassemble: joined %q, input %q", joined, tt.input)
+			}
+		})
+	}
+}
+
+func TestFloatInInt64Range(t *testing.T) {
+	tc := []struct {
+		name   string
+		inp    float64
+		expect bool
+	}{
+		{"Zero", 0, true},
+		{"Negative", -13.5, true},
+		{"Positive", 13.2, true},
+		{"Min int64", math.MinInt64, true},
+		{"Largest float below max int64", math.Nextafter(math.Exp2(63), 0), true},
+		{"Max int64 rounds to 2^63", math.Exp2(63), false},
+		{"Below min int64", -math.Exp2(63) - 4096, false},
+		{"Positive infinity", math.Inf(1), false},
+		{"Negative infinity", math.Inf(-1), false},
+		{"NaN", math.NaN(), false},
+	}
+
+	for _, tt := range tc {
+		t.Run(tt.name, func(t *testing.T) {
+			got := floatInInt64Range(tt.inp)
+
+			if got != tt.expect {
+				t.Errorf("expect %t, got %t", tt.expect, got)
 			}
 		})
 	}
