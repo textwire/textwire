@@ -175,8 +175,8 @@ func (l *Lexer) rawBracesToken(tok token.TokenType, literal string) token.Token 
 func (l *Lexer) illegalToken() token.Token {
 	l.tokenBegins()
 
-	illegalChar, size := utf8.DecodeRuneInString(l.input[l.pos:])
-	tok := l.newToken(token.ILLEGAL, string(illegalChar))
+	_, size := utf8.DecodeRuneInString(l.input[l.pos:])
+	tok := l.newToken(token.ILLEGAL, l.input[l.pos:l.pos+size])
 	l.readChars(size)
 
 	return tok

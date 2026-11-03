@@ -387,6 +387,10 @@ func TestObjGet(t *testing.T) {
 			"Barbara",
 			map[string]any{"user": &testUser{Name: "Barbara"}},
 		},
+		// Capitalized key fallback
+		{1460, `{{ {"Name": "Ann"}.get('name') }}`, "Ann", nil},
+		{1470, `{{ {"name": "lower", "Name": "upper"}.get('name') }}`, "lower", nil},
+		{1480, `{{ {"Name": "upper"}.get('Name') }}`, "upper", nil},
 	}
 
 	for _, tc := range cases {

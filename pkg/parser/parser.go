@@ -1,8 +1,11 @@
 package parser
 
 import (
+	"fmt"
 	"math"
 	"strconv"
+	"unicode"
+	"unicode/utf8"
 
 	"codeberg.org/textwire/textwire/v5/pkg/file"
 	"codeberg.org/textwire/textwire/v5/pkg/position"
@@ -257,7 +260,7 @@ func (p *Parser) reportUnexpectedTokenAfterSegment() {
 	if p.prefixParseFns[p.curToken.Type] == nil {
 		// Tokens that cannot start an expression, like an unknown operator,
 		// get a dedicated error.
-		p.illegalWith(fail.ErrIllegalToken, p.curToken.Lit)
+		p.illegalWith(fail.ErrIllegalToken, illegalLitText(p.curToken.Lit))
 		return
 	}
 
@@ -1531,7 +1534,27 @@ func (p *Parser) illegal() *ast.Illegal {
 	if p.curTokenIs(token.UNCLOSED_COMMENT) {
 		return p.illegalWith(fail.ErrMissingClosingBraces, "--}}")
 	}
-	return p.illegalWith(fail.ErrIllegalToken, p.curToken.Lit)
+	return p.illegalWith(fail.ErrIllegalToken, illegalLitText(p.curToken.Lit))
+}
+
+// illegalLitText returns a single illegal character as it is. Invisible
+// characters and invalid bytes are shown by their code point instead, so
+// they don't look like a regular space or a replacement character.
+func illegalLitText(lit string) string {
+	r, size := utf8.DecodeRuneInString(lit)
+	if size != len(lit) {
+		return lit
+	}
+
+	if r == utf8.RuneError && size == 1 {
+		return fmt.Sprintf("0x%02X", lit[0])
+	}
+
+	if unicode.IsPrint(r) {
+		return lit
+	}
+
+	return fmt.Sprintf("U+%04X", r)
 }
 
 // illegalWith records an error at the current token and returns an illegal

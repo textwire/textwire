@@ -1,7 +1,9 @@
 package evaluator
 
 import (
+	"errors"
 	"fmt"
+	"math"
 	"slices"
 	"strings"
 	"unicode"
@@ -79,50 +81,28 @@ func nativeBoolToBoolObj(input bool) value.Literal {
 	return FALSE
 }
 
-func hasBreak(obj value.Value) bool {
-	return hasControlStmt(obj, value.BREAK_VAL)
-}
-
-func hasContinue(obj value.Value) bool {
-	return hasControlStmt(obj, value.CONTINUE_VAL)
-}
-
-// stripControlStmts removes break/continue values from a block so a loop
+// stripControlDirs removes break/continue values from a block so a loop
 // doesn't pass control statements it has already handled to its parent loop.
-func stripControlStmts(obj value.Value) value.Value {
+func stripControlDirs(obj value.Value) value.Value {
 	block, ok := obj.(*value.Block)
 	if !ok {
 		return obj
 	}
 
-	chunks := make([]value.Value, 0, len(block.Chunks))
-	for _, chunk := range block.Chunks {
-		if chunk.Is(value.BREAK_VAL) || chunk.Is(value.CONTINUE_VAL) {
+	if !block.HasBreak() && !block.HasContinue() {
+		return obj
+	}
+
+	stripped := value.NewBlock(len(block.Chunks()))
+	for _, chunk := range block.Chunks() {
+		if value.IsControlDir(chunk) {
 			continue
 		}
 
-		chunks = append(chunks, stripControlStmts(chunk))
+		stripped.Append(stripControlDirs(chunk))
 	}
 
-	block.Chunks = chunks
-
-	return block
-}
-
-func hasControlStmt(obj value.Value, controlType value.ValueType) bool {
-	block, ok := obj.(*value.Block)
-	if !ok {
-		return obj.Is(controlType)
-	}
-
-	// also check recursively for nested blocks
-	for _, elem := range block.Chunks {
-		if hasControlStmt(elem, controlType) {
-			return true
-		}
-	}
-
-	return false
+	return stripped
 }
 
 // hasCustomFunc checks if the object has a custom function
@@ -179,6 +159,27 @@ func getDecimalConfig(
 	}
 
 	return separator, decimals, nil
+}
+
+// checkDecimalResultSize returns an error if adding decimals to val would make
+// the result longer than maxRepeatLen bytes. Nothing is added when decimals is
+// not positive, so that case always passes.
+func checkDecimalResultSize(
+	objType value.ValueType,
+	val, separator string,
+	decimals int,
+) error {
+	if decimals <= 0 {
+		return nil
+	}
+
+	// Bytes left for decimal digits after the value and separator.
+	room := maxRepeatLen - len(val) - len(separator)
+	if decimals > room {
+		return fmt.Errorf(fail.ErrFuncResultTooLarge, objType, "decimal", maxRepeatLen)
+	}
+
+	return nil
 }
 
 // formatIntDecimals appends decimal places to an integer string.
@@ -315,4 +316,19 @@ func getDateTimeLayout(date string) string {
 		return "2006-01-02"
 	}
 	return ""
+}
+
+// floatToInt wraps a float as a value.Int, failing when it is outside the int64 range
+func floatToInt(val float64, method string) (value.Literal, error) {
+	if !floatInInt64Range(val) {
+		msg := fmt.Sprintf(fail.ErrFuncOutOfInt64Range, value.FLOAT_VAL, method)
+		return nil, errors.New(msg)
+	}
+
+	return &value.Int{Val: int64(val)}, nil
+}
+
+// floatInInt64Range reports whether val can be converted to int64 without overflowing
+func floatInInt64Range(val float64) bool {
+	return val >= math.MinInt64 && val < -math.MinInt64
 }

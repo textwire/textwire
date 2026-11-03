@@ -143,7 +143,7 @@ func (e *Evaluator) program(prog *ast.Program, ctx *Context) value.Value {
 		if isError(val) {
 			return val
 		}
-		block.Chunks = append(block.Chunks, val)
+		block.Append(val)
 	}
 
 	return block
@@ -207,9 +207,9 @@ func (e *Evaluator) block(astBlock *ast.Block, ctx *Context) value.Value {
 			return chunk
 		}
 
-		block.Chunks = append(block.Chunks, chunk)
+		block.Append(chunk)
 
-		if hasBreak(chunk) || hasContinue(chunk) {
+		if value.HasBreak(chunk) || value.HasContinue(chunk) {
 			break
 		}
 	}
@@ -245,8 +245,24 @@ func (e *Evaluator) assignTo(
 		left,
 		ctx,
 		fail.ErrNotSupportedAssign,
-		value.FromTokenToValueType(left.Tok().Type),
+		assignTargetName(left),
 	)
+}
+
+// assignTargetName names the type of an expression that cannot be assigned to.
+func assignTargetName(expr ast.Expression) string {
+	switch expr.(type) {
+	case *ast.PrefixExpr:
+		return "prefix expression"
+	case *ast.InfixExpr:
+		return "infix expression"
+	}
+
+	if valType := value.FromTokenToValueType(expr.Tok().Type); valType != value.ERR_VAL {
+		return string(valType)
+	}
+
+	return "expression"
 }
 
 func (e *Evaluator) assignIdent(
@@ -516,9 +532,9 @@ func (e *Evaluator) forDir(forDir *ast.ForDir, ctx *Context) value.Value {
 			return val
 		}
 
-		broken := hasBreak(val)
+		broken := value.HasBreak(val)
 
-		block.Chunks = append(block.Chunks, stripControlStmts(val))
+		block.Append(stripControlDirs(val))
 
 		if broken {
 			break
@@ -608,9 +624,9 @@ func (e *Evaluator) eachDir(eachDir *ast.EachDir, ctx *Context) value.Value {
 			return val
 		}
 
-		broken := hasBreak(val)
+		broken := value.HasBreak(val)
 
-		block.Chunks = append(block.Chunks, stripControlStmts(val))
+		block.Append(stripControlDirs(val))
 		if broken {
 			break
 		}

@@ -1028,6 +1028,123 @@ func TestFunctionGivesError(t *testing.T) {
 				1,
 			),
 		},
+		{
+			830,
+			`{{ 1234567.decimal(".", 9223372036854775807) }}`,
+			fail.New(
+				nil,
+				"/path/to/file",
+				fail.OriginEval,
+				fail.ErrFuncResultTooLarge,
+				value.INT_VAL,
+				"decimal",
+				maxRepeatLen,
+			),
+		},
+		{
+			840,
+			`{{ "12".decimal(".", 2000000000) }}`,
+			fail.New(
+				nil,
+				"/path/to/file",
+				fail.OriginEval,
+				fail.ErrFuncResultTooLarge,
+				value.STR_VAL,
+				"decimal",
+				maxRepeatLen,
+			),
+		},
+		{
+			850,
+			`{{ "1.5".decimal(".", 9223372036854775807) }}`,
+			fail.New(
+				nil,
+				"/path/to/file",
+				fail.OriginEval,
+				fail.ErrFuncResultTooLarge,
+				value.STR_VAL,
+				"decimal",
+				maxRepeatLen,
+			),
+		},
+		{
+			860,
+			`{{ "12".decimal(".", 1048574) }}`,
+			fail.New(
+				nil,
+				"/path/to/file",
+				fail.OriginEval,
+				fail.ErrFuncResultTooLarge,
+				value.STR_VAL,
+				"decimal",
+				maxRepeatLen,
+			),
+		},
+		// int abs
+		{
+			870,
+			`{{ (-9223372036854775808).abs() }}`,
+			fail.New(
+				nil,
+				"/path/to/file",
+				fail.OriginEval,
+				fail.ErrFuncOutOfInt64Range,
+				value.INT_VAL,
+				"abs",
+			),
+		},
+		// float int
+		{
+			880,
+			`{{ 9223372036854775807.float().int() }}`,
+			fail.New(
+				nil,
+				"/path/to/file",
+				fail.OriginEval,
+				fail.ErrFuncOutOfInt64Range,
+				value.FLOAT_VAL,
+				"int",
+			),
+		},
+		// float ceil
+		{
+			890,
+			`{{ 9223372036854775807.float().ceil() }}`,
+			fail.New(
+				nil,
+				"/path/to/file",
+				fail.OriginEval,
+				fail.ErrFuncOutOfInt64Range,
+				value.FLOAT_VAL,
+				"ceil",
+			),
+		},
+		// float floor
+		{
+			900,
+			`{{ 9223372036854775807.float().floor() }}`,
+			fail.New(
+				nil,
+				"/path/to/file",
+				fail.OriginEval,
+				fail.ErrFuncOutOfInt64Range,
+				value.FLOAT_VAL,
+				"floor",
+			),
+		},
+		// float round
+		{
+			910,
+			`{{ 9223372036854775807.float().round() }}`,
+			fail.New(
+				nil,
+				"/path/to/file",
+				fail.OriginEval,
+				fail.ErrFuncOutOfInt64Range,
+				value.FLOAT_VAL,
+				"round",
+			),
+		},
 	}
 
 	for _, tc := range cases {
