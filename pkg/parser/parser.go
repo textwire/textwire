@@ -1227,7 +1227,7 @@ func (p *Parser) forDirHeader(forDir *ast.ForDir) *ast.Illegal {
 
 	forDir.Init = p.parserForDirInit()
 	if forDir.Init == nil {
-		p.skipUntil(token.END)
+		p.skipUntil(token.END, token.EOF)
 		return nil
 	}
 
@@ -1296,7 +1296,7 @@ func (p *Parser) parseForDirPost() ast.Statement {
 
 	if p.curTokenIs(token.RPAREN) {
 		p.newError(left.Pos(), fail.ErrForLoopExpectStmt, left.String())
-		p.skipUntil(token.END)
+		p.skipUntil(token.END, token.EOF)
 		return nil
 	}
 

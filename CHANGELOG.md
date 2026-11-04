@@ -2,6 +2,7 @@
 
 ## v5.2.1 (2026-11-05)
 
+- 🐛 Fixed parser hanging forever on a broken `@for` init or post statement without `@end`, like `@for(x)`. It now stops at EOF again. Closes [#151](https://codeberg.org/textwire/textwire/issues/151).
 - 🐛 Added missing `@end` to hover message on `@component`.
 - 🐛 Fixed `@reserve()`, `@insert()` and default `@pass` printing extra quotes, and `@insert()` with a block not printing its block. Closes [#155](https://codeberg.org/textwire/textwire/issues/155).
 

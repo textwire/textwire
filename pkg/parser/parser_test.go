@@ -949,6 +949,28 @@ func TestErrorHandling(t *testing.T) {
 			),
 		},
 		{
+			id:  491,
+			inp: "@for(x)",
+			err: fail.New(
+				&position.Pos{StartCol: 5, EndCol: 5},
+				"",
+				fail.OriginPars,
+				fail.ErrForLoopExpectInitStmt,
+				"x",
+			),
+		},
+		{
+			id:  492,
+			inp: "@for(i = 0; i < 3; i)",
+			err: fail.New(
+				&position.Pos{StartCol: 19, EndCol: 19},
+				"",
+				fail.OriginPars,
+				fail.ErrForLoopExpectStmt,
+				"i",
+			),
+		},
+		{
 			id:  500,
 			inp: "@for(i = 0; i < 4; i+2){{ i }}@end",
 			err: fail.New(
