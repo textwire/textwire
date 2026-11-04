@@ -15,7 +15,7 @@ import (
 func TestParseIdentifier(t *testing.T) {
 	inp := "{{ myName }}"
 
-	identExpr, err := parseEmbedded[*ast.IdentExpr](inp, defaultParseOpts)
+	identExpr, err := parseEmbedded[*ast.IdentExpr](inp)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -32,7 +32,7 @@ func TestParseIdentifier(t *testing.T) {
 func TestParseExpressionStatement(t *testing.T) {
 	inp := "{{ 3 / 2 }}"
 
-	infixExpr, err := parseEmbedded[*ast.InfixExpr](inp, defaultParseOpts)
+	infixExpr, err := parseEmbedded[*ast.InfixExpr](inp)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -54,7 +54,7 @@ func TestParseExpressionStatement(t *testing.T) {
 func TestParseIntExpr(t *testing.T) {
 	inp := "{{ 234 }}"
 
-	intExpr, err := parseEmbedded[*ast.IntExpr](inp, defaultParseOpts)
+	intExpr, err := parseEmbedded[*ast.IntExpr](inp)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -80,7 +80,7 @@ func TestParseIntExpr(t *testing.T) {
 func TestParseFloatExpr(t *testing.T) {
 	inp := "{{ 2.34149 }}"
 
-	floatExpr, err := parseEmbedded[*ast.FloatExpr](inp, defaultParseOpts)
+	floatExpr, err := parseEmbedded[*ast.FloatExpr](inp)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -106,7 +106,7 @@ func TestParseFloatExpr(t *testing.T) {
 func TestParseNilExpr(t *testing.T) {
 	inp := "{{ nil }}"
 
-	nilExpr, err := parseEmbedded[*ast.NilExpr](inp, defaultParseOpts)
+	nilExpr, err := parseEmbedded[*ast.NilExpr](inp)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -144,7 +144,7 @@ func TestParseStrExpr(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		strExpr, err := parseEmbedded[*ast.StrExpr](tc.inp, defaultParseOpts)
+		strExpr, err := parseEmbedded[*ast.StrExpr](tc.inp)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -167,7 +167,7 @@ func TestParseStrExpr(t *testing.T) {
 func TestStrConcatenation(t *testing.T) {
 	inp := `{{ 'Serhii' + " Anna" }}`
 
-	infixExpr, err := parseEmbedded[*ast.InfixExpr](inp, defaultParseOpts)
+	infixExpr, err := parseEmbedded[*ast.InfixExpr](inp)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -184,7 +184,7 @@ func TestStrConcatenation(t *testing.T) {
 func TestParseInfixExpression(t *testing.T) {
 	inp := "{{ 5 + 2 }}"
 
-	infixExpr, err := parseEmbedded[*ast.InfixExpr](inp, defaultParseOpts)
+	infixExpr, err := parseEmbedded[*ast.InfixExpr](inp)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -210,7 +210,7 @@ func TestParseInfixExpression(t *testing.T) {
 func TestParseGroupedExpression(t *testing.T) {
 	inp := "{{ (5 + 3) * 2 }}"
 
-	infixExpr, err := parseEmbedded[*ast.InfixExpr](inp, defaultParseOpts)
+	infixExpr, err := parseEmbedded[*ast.InfixExpr](inp)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -272,7 +272,7 @@ func TestParseInfixExp(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		infixExpr, err := parseEmbedded[*ast.InfixExpr](tc.inp, defaultParseOpts)
+		infixExpr, err := parseEmbedded[*ast.InfixExpr](tc.inp)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -309,7 +309,7 @@ func TestParseBooleanExpression(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		boolExpr, err := parseEmbedded[*ast.BoolExpr](tc.inp, defaultParseOpts)
+		boolExpr, err := parseEmbedded[*ast.BoolExpr](tc.inp)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -353,7 +353,7 @@ func TestParsePrefixExp(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		prefixExpr, err := parseEmbedded[*ast.PrefixExpr](tc.inp, defaultParseOpts)
+		prefixExpr, err := parseEmbedded[*ast.PrefixExpr](tc.inp)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -1316,7 +1316,7 @@ func TestParseExpressionErrorWithOperator(t *testing.T) {
 func TestParseTernaryExpr(t *testing.T) {
 	inp := `{{ true ? 100 : "Some string" }}`
 
-	terExpr, err := parseEmbedded[*ast.TernaryExpr](inp, defaultParseOpts)
+	terExpr, err := parseEmbedded[*ast.TernaryExpr](inp)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -1605,7 +1605,7 @@ func TestParseAssignStmt(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		assignStmt, err := parseEmbedded[*ast.AssignStmt](tc.inp, defaultParseOpts)
+		assignStmt, err := parseEmbedded[*ast.AssignStmt](tc.inp)
 		if err != nil {
 			t.Fatalf("Case: %d. %v", tc.id, err)
 		}
@@ -1780,7 +1780,7 @@ func TestInsertDir(t *testing.T) {
 func TestParseArr(t *testing.T) {
 	inp := `{{ [11, 234,] }}`
 
-	arr, err := parseEmbedded[*ast.ArrExpr](inp, defaultParseOpts)
+	arr, err := parseEmbedded[*ast.ArrExpr](inp)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -1813,7 +1813,7 @@ func TestParseArr(t *testing.T) {
 func TestParseIndexExp(t *testing.T) {
 	inp := `{{ arr[1 + 2][2] }}`
 
-	exp, err := parseEmbedded[*ast.IndexExpr](inp, defaultParseOpts)
+	exp, err := parseEmbedded[*ast.IndexExpr](inp)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -1839,7 +1839,7 @@ func TestParseIndexExp(t *testing.T) {
 func TestParseIncStmt(t *testing.T) {
 	inp := "{{ i++ }}"
 
-	stmt, err := parseEmbedded[*ast.IncStmt](inp, defaultParseOpts)
+	stmt, err := parseEmbedded[*ast.IncStmt](inp)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -1860,7 +1860,7 @@ func TestParseIncStmt(t *testing.T) {
 func TestParseDecStmt(t *testing.T) {
 	inp := "{{ i-- }}"
 
-	stmt, err := parseEmbedded[*ast.DecStmt](inp, defaultParseOpts)
+	stmt, err := parseEmbedded[*ast.DecStmt](inp)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -1958,7 +1958,7 @@ func TestParseTwoExpression(t *testing.T) {
 func TestParseGlobalCallExp(t *testing.T) {
 	inp := `{{ defined(var1, var2) }}`
 
-	globalCallExpr, err := parseEmbedded[*ast.GlobalCallExpr](inp, defaultParseOpts)
+	globalCallExpr, err := parseEmbedded[*ast.GlobalCallExpr](inp)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -1995,7 +1995,7 @@ func TestParseGlobalCallExp(t *testing.T) {
 func TestParseCallExp(t *testing.T) {
 	inp := `{{ "Serhii Cho".split(" ") }}`
 
-	callExpr, err := parseEmbedded[*ast.CallExpr](inp, defaultParseOpts)
+	callExpr, err := parseEmbedded[*ast.CallExpr](inp)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -2032,7 +2032,7 @@ func TestParseCallExp(t *testing.T) {
 func TestParseCallExpWithExpressionList(t *testing.T) {
 	inp := `{{ "nice".replace("n", "") }}`
 
-	callExpr, err := parseEmbedded[*ast.CallExpr](inp, defaultParseOpts)
+	callExpr, err := parseEmbedded[*ast.CallExpr](inp)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -2057,7 +2057,7 @@ func TestParseCallExpWithExpressionList(t *testing.T) {
 func TestParseCallExpWithEmptyString(t *testing.T) {
 	inp := `{{ "".len() }}`
 
-	callExpr, err := parseEmbedded[*ast.CallExpr](inp, defaultParseOpts)
+	callExpr, err := parseEmbedded[*ast.CallExpr](inp)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -2308,7 +2308,7 @@ func TestParseEmptyBlock(t *testing.T) {
 func TestParseObjExpr(t *testing.T) {
 	inp := `{{ {"father": {name: "John"},} }}`
 
-	objExpr, err := parseEmbedded[*ast.ObjExpr](inp, defaultParseOpts)
+	objExpr, err := parseEmbedded[*ast.ObjExpr](inp)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -2356,7 +2356,7 @@ func TestParseMalformedObjExpr(t *testing.T) {
 
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
-			_, err := parseEmbedded[*ast.ObjExpr](tc.inp, defaultParseOpts)
+			_, err := parseEmbedded[*ast.ObjExpr](tc.inp)
 			if err == nil {
 				t.Fatal("expected an error, got nil")
 			}
@@ -2367,7 +2367,7 @@ func TestParseMalformedObjExpr(t *testing.T) {
 func TestParseObjWithShorthandKeyNotation(t *testing.T) {
 	inp := `{{ { name, age } }}`
 
-	objExpr, err := parseEmbedded[*ast.ObjExpr](inp, defaultParseOpts)
+	objExpr, err := parseEmbedded[*ast.ObjExpr](inp)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -2415,7 +2415,7 @@ func TestParseText(t *testing.T) {
 func TestParseDotExp(t *testing.T) {
 	inp := "{{ person.father.name }}"
 
-	dotExpr, err := parseEmbedded[*ast.DotExpr](inp, defaultParseOpts)
+	dotExpr, err := parseEmbedded[*ast.DotExpr](inp)
 	if err != nil {
 		t.Fatal(err)
 	}

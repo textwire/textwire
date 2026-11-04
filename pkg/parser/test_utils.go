@@ -42,10 +42,10 @@ func parseChunks(inp string, opts parseOpts) ([]ast.Chunk, error) {
 	return prog.Chunks, nil
 }
 
-func parseEmbedded[T ast.Segment](inp string, opts parseOpts) (T, error) {
+func parseEmbedded[T ast.Segment](inp string) (T, error) {
 	var zero T
 
-	chunks, err := parseChunks(inp, opts)
+	chunks, err := parseChunks(inp, defaultParseOpts)
 	if err != nil {
 		return zero, err
 	}
