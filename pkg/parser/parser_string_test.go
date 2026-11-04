@@ -7,242 +7,115 @@ import (
 	"codeberg.org/textwire/textwire/v5/pkg/lexer"
 )
 
-func TestIdentExprString(t *testing.T) {
-	inp := "{{ myName }}"
-	expect := "myName"
+func testEmbeddedString[T ast.Segment](t *testing.T, inp, expect string) {
+	t.Helper()
 
-	identExpr, err := parseEmbedded[*ast.IdentExpr](inp)
+	node, err := parseEmbedded[T](inp)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	if err := testString(identExpr, expect); err != nil {
+	if err := testString(node, expect); err != nil {
 		t.Fatal(err)
 	}
+}
+
+func testDirectiveString[T ast.Chunk](t *testing.T, inp, expect string) {
+	t.Helper()
+
+	node, err := parseDirective[T](inp, defaultParseOpts)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if err := testString(node, expect); err != nil {
+		t.Fatal(err)
+	}
+}
+
+func testChunkInLoopString[T ast.Chunk](t *testing.T, inp, expect string) {
+	t.Helper()
+
+	node, err := parseChunkInLoop[T](inp, defaultParseOpts)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if err := testString(node, expect); err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestIdentExprString(t *testing.T) {
+	testEmbeddedString[*ast.IdentExpr](t, "{{ myName }}", "myName")
 }
 
 func TestIntExprString(t *testing.T) {
-	inp := "{{ 234 }}"
-	expect := "234"
-
-	intExpr, err := parseEmbedded[*ast.IntExpr](inp)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	if err := testString(intExpr, expect); err != nil {
-		t.Fatal(err)
-	}
+	testEmbeddedString[*ast.IntExpr](t, "{{ 234 }}", "234")
 }
 
 func TestFloatExprString(t *testing.T) {
-	inp := "{{ 2.34149 }}"
-	expect := "2.34149"
-
-	floatExpr, err := parseEmbedded[*ast.FloatExpr](inp)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	if err := testString(floatExpr, expect); err != nil {
-		t.Fatal(err)
-	}
+	testEmbeddedString[*ast.FloatExpr](t, "{{ 2.34149 }}", "2.34149")
 }
 
 func TestNilExprString(t *testing.T) {
-	inp := "{{ nil }}"
-	expect := "nil"
-
-	nilExpr, err := parseEmbedded[*ast.NilExpr](inp)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	if err := testString(nilExpr, expect); err != nil {
-		t.Fatal(err)
-	}
+	testEmbeddedString[*ast.NilExpr](t, "{{ nil }}", "nil")
 }
 
 func TestStrExprString(t *testing.T) {
-	inp := "{{ 'Serhii' }}"
-	expect := `"Serhii"`
-
-	strExpr, err := parseEmbedded[*ast.StrExpr](inp)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	if err := testString(strExpr, expect); err != nil {
-		t.Fatal(err)
-	}
+	testEmbeddedString[*ast.StrExpr](t, "{{ 'Serhii' }}", `"Serhii"`)
 }
 
 func TestBoolExprString(t *testing.T) {
-	inp := "{{ true }}"
-	expect := "true"
-
-	boolExpr, err := parseEmbedded[*ast.BoolExpr](inp)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	if err := testString(boolExpr, expect); err != nil {
-		t.Fatal(err)
-	}
+	testEmbeddedString[*ast.BoolExpr](t, "{{ true }}", "true")
 }
 
 func TestInfixExprString(t *testing.T) {
-	inp := "{{ 3 / 2 }}"
-	expect := "(3 / 2)"
-
-	infixExpr, err := parseEmbedded[*ast.InfixExpr](inp)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	if err := testString(infixExpr, expect); err != nil {
-		t.Fatal(err)
-	}
+	testEmbeddedString[*ast.InfixExpr](t, "{{ 3 / 2 }}", "(3 / 2)")
 }
 
 func TestPrefixExprString(t *testing.T) {
-	inp := "{{ -obj.test }}"
-	expect := "(-(obj.test))"
-
-	prefixExpr, err := parseEmbedded[*ast.PrefixExpr](inp)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	if err := testString(prefixExpr, expect); err != nil {
-		t.Fatal(err)
-	}
+	testEmbeddedString[*ast.PrefixExpr](t, "{{ -obj.test }}", "(-(obj.test))")
 }
 
 func TestTernaryExprString(t *testing.T) {
-	inp := "{{ true ? 1 : 0 }}"
-	expect := "(true ? 1 : 0)"
-
-	ternaryExpr, err := parseEmbedded[*ast.TernaryExpr](inp)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	if err := testString(ternaryExpr, expect); err != nil {
-		t.Fatal(err)
-	}
+	testEmbeddedString[*ast.TernaryExpr](t, "{{ true ? 1 : 0 }}", "(true ? 1 : 0)")
 }
 
 func TestArrExprString(t *testing.T) {
-	inp := "{{ [11, 234,] }}"
-	expect := "[11, 234]"
-
-	arrExpr, err := parseEmbedded[*ast.ArrExpr](inp)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	if err := testString(arrExpr, expect); err != nil {
-		t.Fatal(err)
-	}
+	testEmbeddedString[*ast.ArrExpr](t, "{{ [11, 234,] }}", "[11, 234]")
 }
 
 func TestObjExprString(t *testing.T) {
-	inp := `{{ {"father": {"name": "John"}} }}`
-	expect := `{"father": {"name": "John"}}`
-
-	objExpr, err := parseEmbedded[*ast.ObjExpr](inp)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	if err := testString(objExpr, expect); err != nil {
-		t.Fatal(err)
-	}
+	testEmbeddedString[*ast.ObjExpr](
+		t,
+		`{{ {"father": {"name": "John"}} }}`,
+		`{"father": {"name": "John"}}`,
+	)
 }
 
 func TestDotExprString(t *testing.T) {
-	inp := "{{ person.father.name }}"
-	expect := "((person.father).name)"
-
-	dotExpr, err := parseEmbedded[*ast.DotExpr](inp)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	if err := testString(dotExpr, expect); err != nil {
-		t.Fatal(err)
-	}
+	testEmbeddedString[*ast.DotExpr](t, "{{ person.father.name }}", "((person.father).name)")
 }
 
 func TestIndexExprString(t *testing.T) {
-	inp := "{{ arr[1 + 2][2] }}"
-	expect := "((arr[(1 + 2)])[2])"
-
-	indexExpr, err := parseEmbedded[*ast.IndexExpr](inp)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	if err := testString(indexExpr, expect); err != nil {
-		t.Fatal(err)
-	}
+	testEmbeddedString[*ast.IndexExpr](t, "{{ arr[1 + 2][2] }}", "((arr[(1 + 2)])[2])")
 }
 
 func TestCallExprString(t *testing.T) {
-	inp := "{{ name.len() }}"
-	expect := "(name.len())"
-
-	callExpr, err := parseEmbedded[*ast.CallExpr](inp)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	if err := testString(callExpr, expect); err != nil {
-		t.Fatal(err)
-	}
+	testEmbeddedString[*ast.CallExpr](t, "{{ name.len() }}", "(name.len())")
 }
 
 func TestGlobalCallExprString(t *testing.T) {
-	inp := "{{ defined(name) }}"
-	expect := "(defined(name))"
-
-	globalCallExpr, err := parseEmbedded[*ast.GlobalCallExpr](inp)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	if err := testString(globalCallExpr, expect); err != nil {
-		t.Fatal(err)
-	}
+	testEmbeddedString[*ast.GlobalCallExpr](t, "{{ defined(name) }}", "(defined(name))")
 }
 
 func TestIncStmtString(t *testing.T) {
-	inp := "{{ i++ }}"
-	expect := "(i++)"
-
-	incStmt, err := parseEmbedded[*ast.IncStmt](inp)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	if err := testString(incStmt, expect); err != nil {
-		t.Fatal(err)
-	}
+	testEmbeddedString[*ast.IncStmt](t, "{{ i++ }}", "(i++)")
 }
 
 func TestDecStmtString(t *testing.T) {
-	inp := "{{ i-- }}"
-	expect := "(i--)"
-
-	decStmt, err := parseEmbedded[*ast.DecStmt](inp)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	if err := testString(decStmt, expect); err != nil {
-		t.Fatal(err)
-	}
+	testEmbeddedString[*ast.DecStmt](t, "{{ i-- }}", "(i--)")
 }
 
 func TestAssignStmtString(t *testing.T) {
@@ -263,14 +136,7 @@ func TestAssignStmtString(t *testing.T) {
 
 	for _, tc := range cases {
 		t.Run(tc.inp, func(t *testing.T) {
-			assignStmt, err := parseEmbedded[*ast.AssignStmt](tc.inp)
-			if err != nil {
-				t.Fatal(err)
-			}
-
-			if err := testString(assignStmt, tc.expect); err != nil {
-				t.Fatal(err)
-			}
+			testEmbeddedString[*ast.AssignStmt](t, tc.inp, tc.expect)
 		})
 	}
 }
@@ -379,71 +245,34 @@ func TestOperatorPrecedenceString(t *testing.T) {
 }
 
 func TestEmbeddedRawString(t *testing.T) {
-	inp := "{!! 'x' !!}"
-	expect := `{!! "x" !!}`
-
-	embedded, err := parseDirective[*ast.Embedded](inp, defaultParseOpts)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	if err := testString(embedded, expect); err != nil {
-		t.Fatal(err)
-	}
+	testDirectiveString[*ast.Embedded](t, "{!! 'x' !!}", `{!! "x" !!}`)
 }
 
 func TestTextString(t *testing.T) {
 	inp := "<div><span>Hello</span></div>"
 
-	text, err := parseDirective[*ast.Text](inp, defaultParseOpts)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	if err := testString(text, inp); err != nil {
-		t.Fatal(err)
-	}
+	testDirectiveString[*ast.Text](t, inp, inp)
 }
 
 func TestUseDirString(t *testing.T) {
 	inp := `@use("main")`
 
-	useDir, err := parseDirective[*ast.UseDir](inp, defaultParseOpts)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	if err := testString(useDir, inp); err != nil {
-		t.Fatal(err)
-	}
+	testDirectiveString[*ast.UseDir](t, inp, inp)
 }
 
 func TestReserveDirString(t *testing.T) {
 	t.Run("without fallback", func(t *testing.T) {
 		inp := `@reserve("content")`
 
-		reserveDir, err := parseDirective[*ast.ReserveDir](inp, defaultParseOpts)
-		if err != nil {
-			t.Fatal(err)
-		}
-
-		if err := testString(reserveDir, inp); err != nil {
-			t.Fatal(err)
-		}
+		testDirectiveString[*ast.ReserveDir](t, inp, inp)
 	})
 
 	t.Run("with fallback", func(t *testing.T) {
-		inp := `@reserve("content", 'fallback')`
-		expect := `@reserve("content", "fallback")`
-
-		reserveDir, err := parseDirective[*ast.ReserveDir](inp, defaultParseOpts)
-		if err != nil {
-			t.Fatal(err)
-		}
-
-		if err := testString(reserveDir, expect); err != nil {
-			t.Fatal(err)
-		}
+		testDirectiveString[*ast.ReserveDir](
+			t,
+			`@reserve("content", 'fallback')`,
+			`@reserve("content", "fallback")`,
+		)
 	})
 }
 
@@ -451,224 +280,109 @@ func TestInsertDirString(t *testing.T) {
 	t.Run("with block", func(t *testing.T) {
 		inp := `@insert("content")<h1>Some content</h1>@end`
 
-		insertDir, err := parseDirective[*ast.InsertDir](inp, defaultParseOpts)
-		if err != nil {
-			t.Fatal(err)
-		}
-
-		if err := testString(insertDir, inp); err != nil {
-			t.Fatal(err)
-		}
+		testDirectiveString[*ast.InsertDir](t, inp, inp)
 	})
 
 	t.Run("with argument", func(t *testing.T) {
-		inp := "@insert('content', 'Some content')"
-		expect := `@insert("content", "Some content")`
-
-		insertDir, err := parseDirective[*ast.InsertDir](inp, defaultParseOpts)
-		if err != nil {
-			t.Fatal(err)
-		}
-
-		if err := testString(insertDir, expect); err != nil {
-			t.Fatal(err)
-		}
+		testDirectiveString[*ast.InsertDir](
+			t,
+			"@insert('content', 'Some content')",
+			`@insert("content", "Some content")`,
+		)
 	})
 }
 
 func TestCompDirString(t *testing.T) {
 	t.Run("without @pass", func(t *testing.T) {
-		inp := "@component('components/book-card', { c: card })@end"
-		expect := `@component("components/book-card", {"c": card})@end`
-
-		compDir, err := parseDirective[*ast.CompDir](inp, defaultParseOpts)
-		if err != nil {
-			t.Fatal(err)
-		}
-
-		if err := testString(compDir, expect); err != nil {
-			t.Fatal(err)
-		}
+		testDirectiveString[*ast.CompDir](
+			t,
+			"@component('components/book-card', { c: card })@end",
+			`@component("components/book-card", {"c": card})@end`,
+		)
 	})
 
 	t.Run("with default @pass", func(t *testing.T) {
 		inp := `@component("components/book-card")<h1>Header</h1>@end`
 
-		compDir, err := parseDirective[*ast.CompDir](inp, defaultParseOpts)
-		if err != nil {
-			t.Fatal(err)
-		}
-
-		if err := testString(compDir, inp); err != nil {
-			t.Fatal(err)
-		}
+		testDirectiveString[*ast.CompDir](t, inp, inp)
 	})
 
 	t.Run("with 2 @pass directives", func(t *testing.T) {
 		inp := `@component("x")@pass("header")<h1>Header</h1>@end@pass("footer")<footer>Footer</footer>@end@end`
 
-		compDir, err := parseDirective[*ast.CompDir](inp, defaultParseOpts)
-		if err != nil {
-			t.Fatal(err)
-		}
-
-		if err := testString(compDir, inp); err != nil {
-			t.Fatal(err)
-		}
+		testDirectiveString[*ast.CompDir](t, inp, inp)
 	})
 
 	t.Run("with @passif", func(t *testing.T) {
 		inp := `@component("user")@passif(false, "name")Test2@end@end`
 
-		compDir, err := parseDirective[*ast.CompDir](inp, defaultParseOpts)
-		if err != nil {
-			t.Fatal(err)
-		}
-
-		if err := testString(compDir, inp); err != nil {
-			t.Fatal(err)
-		}
+		testDirectiveString[*ast.CompDir](t, inp, inp)
 	})
 }
 
 func TestSlotDirString(t *testing.T) {
 	t.Run("named slot", func(t *testing.T) {
-		inp := "@slot('header')"
-		expect := `@slot("header")`
-
-		slotDir, err := parseDirective[*ast.SlotDir](inp, defaultParseOpts)
-		if err != nil {
-			t.Fatal(err)
-		}
-
-		if err := testString(slotDir, expect); err != nil {
-			t.Fatal(err)
-		}
+		testDirectiveString[*ast.SlotDir](t, "@slot('header')", `@slot("header")`)
 	})
 
 	t.Run("default slot", func(t *testing.T) {
-		inp := "@slot"
-
-		slotDir, err := parseDirective[*ast.SlotDir](inp, defaultParseOpts)
-		if err != nil {
-			t.Fatal(err)
-		}
-
-		if err := testString(slotDir, inp); err != nil {
-			t.Fatal(err)
-		}
+		testDirectiveString[*ast.SlotDir](t, "@slot", "@slot")
 	})
 }
 
 func TestDumpDirString(t *testing.T) {
-	inp := `@dump("test", 1 + 2, false)`
-	expect := `@dump("test",(1 + 2),false)`
-
-	dumpDir, err := parseDirective[*ast.DumpDir](inp, defaultParseOpts)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	if err := testString(dumpDir, expect); err != nil {
-		t.Fatal(err)
-	}
+	testDirectiveString[*ast.DumpDir](
+		t,
+		`@dump("test", 1 + 2, false)`,
+		`@dump("test",(1 + 2),false)`,
+	)
 }
 
 func TestIfDirString(t *testing.T) {
 	t.Run("regular @if", func(t *testing.T) {
 		inp := "@if(true)1@end"
 
-		ifDir, err := parseDirective[*ast.IfDir](inp, defaultParseOpts)
-		if err != nil {
-			t.Fatal(err)
-		}
-
-		if err := testString(ifDir, inp); err != nil {
-			t.Fatal(err)
-		}
+		testDirectiveString[*ast.IfDir](t, inp, inp)
 	})
 
 	t.Run("with @else", func(t *testing.T) {
 		inp := "@if(true)1@else2@end"
 
-		ifDir, err := parseDirective[*ast.IfDir](inp, defaultParseOpts)
-		if err != nil {
-			t.Fatal(err)
-		}
-
-		if err := testString(ifDir, inp); err != nil {
-			t.Fatal(err)
-		}
+		testDirectiveString[*ast.IfDir](t, inp, inp)
 	})
 
 	t.Run("with @elseif", func(t *testing.T) {
 		inp := "@if(true)first@elseif(false)second@end"
 
-		ifDir, err := parseDirective[*ast.IfDir](inp, defaultParseOpts)
-		if err != nil {
-			t.Fatal(err)
-		}
-
-		if err := testString(ifDir, inp); err != nil {
-			t.Fatal(err)
-		}
+		testDirectiveString[*ast.IfDir](t, inp, inp)
 	})
 
 	t.Run("with @elseif and @else", func(t *testing.T) {
 		inp := "@if(true)1@elseif(false)2@else3@end"
 
-		ifDir, err := parseDirective[*ast.IfDir](inp, defaultParseOpts)
-		if err != nil {
-			t.Fatal(err)
-		}
-
-		if err := testString(ifDir, inp); err != nil {
-			t.Fatal(err)
-		}
+		testDirectiveString[*ast.IfDir](t, inp, inp)
 	})
 }
 
 func TestForDirString(t *testing.T) {
 	t.Run("regular @for", func(t *testing.T) {
-		inp := "@for(i = 0; i < 10; i++){{ i }}@end"
-		expect := "@for((i = 0); (i < 10); (i++)){{ i }}@end"
-
-		forDir, err := parseDirective[*ast.ForDir](inp, defaultParseOpts)
-		if err != nil {
-			t.Fatal(err)
-		}
-
-		if err := testString(forDir, expect); err != nil {
-			t.Fatal(err)
-		}
+		testDirectiveString[*ast.ForDir](
+			t,
+			"@for(i = 0; i < 10; i++){{ i }}@end",
+			"@for((i = 0); (i < 10); (i++)){{ i }}@end",
+		)
 	})
 
 	t.Run("with @else", func(t *testing.T) {
-		inp := "@for(i = 0; i < 0; i++){{ i }}@elseEmpty@end"
-		expect := "@for((i = 0); (i < 0); (i++)){{ i }}@elseEmpty@end"
-
-		forDir, err := parseDirective[*ast.ForDir](inp, defaultParseOpts)
-		if err != nil {
-			t.Fatal(err)
-		}
-
-		if err := testString(forDir, expect); err != nil {
-			t.Fatal(err)
-		}
+		testDirectiveString[*ast.ForDir](
+			t,
+			"@for(i = 0; i < 0; i++){{ i }}@elseEmpty@end",
+			"@for((i = 0); (i < 0); (i++)){{ i }}@elseEmpty@end",
+		)
 	})
 
 	t.Run("infinite @for", func(t *testing.T) {
-		inp := "@for(;;)1@end"
-		expect := "@for(; ; )1@end"
-
-		forDir, err := parseDirective[*ast.ForDir](inp, defaultParseOpts)
-		if err != nil {
-			t.Fatal(err)
-		}
-
-		if err := testString(forDir, expect); err != nil {
-			t.Fatal(err)
-		}
+		testDirectiveString[*ast.ForDir](t, "@for(;;)1@end", "@for(; ; )1@end")
 	})
 }
 
@@ -676,78 +390,28 @@ func TestEachDirString(t *testing.T) {
 	t.Run("regular @each", func(t *testing.T) {
 		inp := `@each(name in ["anna", "serhii"]){{ name }}@end`
 
-		eachDir, err := parseDirective[*ast.EachDir](inp, defaultParseOpts)
-		if err != nil {
-			t.Fatal(err)
-		}
-
-		if err := testString(eachDir, inp); err != nil {
-			t.Fatal(err)
-		}
+		testDirectiveString[*ast.EachDir](t, inp, inp)
 	})
 
 	t.Run("with @else", func(t *testing.T) {
 		inp := "@each(v in []){{ v }}@elseTest@end"
 
-		eachDir, err := parseDirective[*ast.EachDir](inp, defaultParseOpts)
-		if err != nil {
-			t.Fatal(err)
-		}
-
-		if err := testString(eachDir, inp); err != nil {
-			t.Fatal(err)
-		}
+		testDirectiveString[*ast.EachDir](t, inp, inp)
 	})
 }
 
 func TestBreakDirString(t *testing.T) {
-	inp := "@break"
-
-	breakDir, err := parseChunkInLoop[*ast.BreakDir](inp, defaultParseOpts)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	if err := testString(breakDir, inp); err != nil {
-		t.Fatal(err)
-	}
+	testChunkInLoopString[*ast.BreakDir](t, "@break", "@break")
 }
 
 func TestContinueDirString(t *testing.T) {
-	inp := "@continue"
-
-	continueDir, err := parseChunkInLoop[*ast.ContinueDir](inp, defaultParseOpts)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	if err := testString(continueDir, inp); err != nil {
-		t.Fatal(err)
-	}
+	testChunkInLoopString[*ast.ContinueDir](t, "@continue", "@continue")
 }
 
 func TestBreakifDirString(t *testing.T) {
-	inp := "@breakif(true)"
-
-	breakifDir, err := parseChunkInLoop[*ast.BreakifDir](inp, defaultParseOpts)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	if err := testString(breakifDir, inp); err != nil {
-		t.Fatal(err)
-	}
+	testChunkInLoopString[*ast.BreakifDir](t, "@breakif(true)", "@breakif(true)")
 }
 
 func TestContinueifDirString(t *testing.T) {
-	inp := "@continueif(false)"
-
-	continueifDir, err := parseChunkInLoop[*ast.ContinueifDir](inp, defaultParseOpts)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	if err := testString(continueifDir, inp); err != nil {
-		t.Fatal(err)
-	}
+	testChunkInLoopString[*ast.ContinueifDir](t, "@continueif(false)", "@continueif(false)")
 }
