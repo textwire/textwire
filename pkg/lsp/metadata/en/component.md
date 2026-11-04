@@ -2,7 +2,7 @@
 Components help to organize and structure templates by encapsulating reusable parts of your user interface.
 
 ```textwire
-@component('path/to', { prop })
+@component('path/to', { prop })@end
 ```
 
 Optionally, you can include a block of content within the component through a slots.
