@@ -1,11 +1,7 @@
 package textwire
 
 import (
-	"fmt"
-	"io"
-	"log"
 	"math"
-	"os"
 	"strings"
 	"testing"
 	"time"
@@ -14,26 +10,6 @@ import (
 	"codeberg.org/textwire/textwire/v5/pkg/file"
 	"codeberg.org/textwire/textwire/v5/pkg/value"
 )
-
-func readFile(fileName string) (string, error) {
-	file, err := os.Open(fileName)
-	if err != nil {
-		return "", err
-	}
-
-	defer func() {
-		if err := file.Close(); err != nil {
-			log.Printf("Function readFile failed to close %s: %v", fileName, err)
-		}
-	}()
-
-	bytes, err := io.ReadAll(file)
-	if err != nil {
-		return "", err
-	}
-
-	return string(bytes), nil
-}
 
 type namedRole string
 
@@ -929,14 +905,7 @@ func TestJSONEscaping(t *testing.T) {
 
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
-			got, err := EvaluateString(tc.inp, tc.data)
-			if err != nil {
-				t.Fatal(err)
-			}
-
-			if got != tc.expect {
-				t.Fatalf("expected %q, got %q", tc.expect, got)
-			}
+			assertEvalOutput(t, tc.inp, tc.data, tc.expect)
 		})
 	}
 }
@@ -1006,194 +975,4 @@ func TestEvaluateFile(t *testing.T) {
 	if actual != expect {
 		t.Errorf("Wrong output. Expect:\n%s\ngot:\n%s", expect, actual)
 	}
-}
-
-func TestCustomFunctions(t *testing.T) {
-	t.Run("register for integer receiver", func(t *testing.T) {
-		err := RegisterIntFunc("_double", func(num int, args ...any) any {
-			return num * 2
-		})
-
-		if err != nil {
-			t.Fatalf("Error registering function: %s", err)
-		}
-
-		actual, err := EvaluateString("{{ 3._double() }}", nil)
-		if err != nil {
-			t.Fatalf("Error evaluating template: %s", err)
-		}
-
-		if actual != "6" {
-			t.Errorf("Wrong result. Expect 6 but got %s", actual)
-		}
-	})
-
-	t.Run("register for float receiver", func(t *testing.T) {
-		err := RegisterFloatFunc("_double", func(num float64, args ...any) any {
-			return num * 2
-		})
-
-		if err != nil {
-			t.Fatalf("Error registering function: %s", err)
-		}
-
-		actual, err := EvaluateString("{{ 3.5._double() }}", nil)
-		if err != nil {
-			t.Fatalf("Error evaluating template: %s", err)
-		}
-
-		if actual != "7.0" {
-			t.Fatalf("Wrong result. Expect 7.0 but got %s", actual)
-		}
-	})
-
-	t.Run("register for array receiver", func(t *testing.T) {
-		err := RegisterArrFunc("_addNumber", func(arr []any, args ...any) any {
-			firstArg := args[0].(int64)
-			arr = append(arr, firstArg)
-			return arr
-		})
-
-		if err != nil {
-			t.Fatalf("Error registering function: %s", err)
-		}
-
-		actual, err := EvaluateString("{{ [1, 2]._addNumber(3) }}", nil)
-		if err != nil {
-			t.Fatalf("Error evaluating template: %s", err)
-		}
-
-		if actual != "1, 2, 3" {
-			t.Fatalf("Wrong result. Expect '1, 2, 3' got '%s'", actual)
-		}
-	})
-
-	t.Run("register for object receiver", func(t *testing.T) {
-		err := RegisterObjFunc("_addProp", func(obj map[string]any, args ...any) any {
-			key := args[0].(string)
-			value := args[1]
-			obj[key] = value
-			return obj
-		})
-
-		if err != nil {
-			t.Fatalf("error registering function: %s", err)
-		}
-
-		inp := "{{ obj = {name: 'Anna'}; obj = obj._addProp('age', 25); obj.age }}"
-		actual, err := EvaluateString(inp, nil)
-		if err != nil {
-			t.Fatalf("Error evaluating template: %s", err)
-		}
-
-		if actual != "25" {
-			t.Fatalf("Wrong result. Expect 25 but got %s", actual)
-		}
-	})
-
-	t.Run("register for boolean receiver", func(t *testing.T) {
-		err := RegisterBoolFunc("_negate", func(b bool, args ...any) any {
-			return !b
-		})
-		if err != nil {
-			t.Fatalf("Error registering function: %s", err)
-		}
-
-		actual, err := EvaluateString("{{ true._negate() }}", nil)
-		if err != nil {
-			t.Fatalf("Error evaluating template: %s", err)
-		}
-
-		if actual != "0" {
-			t.Fatalf("Wrong result. Expect 0 but got %s", actual)
-		}
-	})
-
-	t.Run("register for string receiver", func(t *testing.T) {
-		err := RegisterStrFunc("_concat", func(s string, args ...any) any {
-			arg1Value := args[0].(string)
-			arg2Value := args[1].(string)
-
-			return s + arg1Value + arg2Value
-		})
-
-		if err != nil {
-			t.Fatalf("Error registering function: %s", err)
-		}
-
-		actual, err := EvaluateString("{{ 'anna'._concat(' ', 'cho') }}", nil)
-		if err != nil {
-			t.Fatalf("Error evaluating template: %s", err)
-		}
-
-		if actual != "anna cho" {
-			t.Fatalf("Wrong result. Expect 'anna cho' but got '%s'", actual)
-		}
-	})
-
-	t.Run("registering already registered function", func(t *testing.T) {
-		err := RegisterStrFunc("_len", func(s string, args ...any) any {
-			return "some output"
-		})
-
-		if err != nil {
-			t.Fatalf("Error registering function: %s", err)
-		}
-
-		// Registering the same function again should return an error
-		err = RegisterStrFunc("_len", func(s string, args ...any) any {
-			return "some output"
-		})
-
-		if err == nil {
-			t.Fatalf("Expect error but got none")
-		}
-
-		expect := fail.New(nil, "", fail.OriginTpl, fail.ErrFuncAlreadyDefined, "_len", "strings")
-
-		if err := compareFailures(err, expect); err != nil {
-			t.Fatal(err)
-		}
-	})
-
-	t.Run("redefining built-in function not working", func(t *testing.T) {
-		err := RegisterStrFunc("trim", func(s string, args ...any) any {
-			return "some output"
-		})
-
-		if err != nil {
-			t.Fatalf("Error registering function: %s", err)
-		}
-
-		actual, err := EvaluateString("{{ ' anna '.trim() }}", nil)
-		if err != nil {
-			t.Fatalf("Error registering function: %s", err)
-		}
-
-		// the output should be the same as the built-in function
-		// even though we redefined it.
-		if actual != "anna" {
-			t.Fatalf("Wrong output. Expect 'anna' but got '%s'", actual)
-		}
-	})
-
-	t.Run("returning unsupported Go type is an error", func(t *testing.T) {
-		err := RegisterIntFunc("_chanResult", func(num int, args ...any) any {
-			return make(chan int)
-		})
-
-		if err != nil {
-			t.Fatalf("Error registering function: %s", err)
-		}
-
-		_, err = EvaluateString("{{ 3._chanResult() }}", nil)
-		if err == nil {
-			t.Fatal("Expected error for unsupported return type, got none")
-		}
-
-		want := fmt.Sprintf(fail.ErrUnsupportedType, "chan int")
-		if err.Message() != want {
-			t.Fatalf("Wrong error message. Expect %q but got %q", want, err.Message())
-		}
-	})
 }
