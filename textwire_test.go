@@ -752,6 +752,17 @@ func TestErrorHandling(t *testing.T) {
 			),
 			data: nil,
 		},
+		{
+			inp: `{{ obj = {}; obj[nil] = "Skirk" }}`,
+			err: fail.New(
+				nil,
+				"",
+				fail.OriginEval,
+				fail.ErrObjIndexStr,
+				value.NIL_VAL,
+			),
+			data: nil,
+		},
 		// Global functions
 		{
 			inp: `{{ formatDate(date, '2006-01-02') }}`,
