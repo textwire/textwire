@@ -1,6 +1,6 @@
 # Release notes V5
 
-## v5.1.21 (2026-11-04)
+## v5.2.0 (2026-11-04)
 
 - ✨ Added support for object property assignment through index notation. Author [@peterlodri-sec](https://codeberg.org/peterlodri-sec). Closes [#147](https://codeberg.org/textwire/textwire/issues/147) and [#132](https://codeberg.org/textwire/textwire/issues/132).
 
