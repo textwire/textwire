@@ -908,6 +908,39 @@ func TestIncDecDir(t *testing.T) {
 		{49, `{{ x = 0.5; x--; x }}`, "-0.5"},
 		{50, `{{ x = -1.5; x--; x }}`, "-2.5"},
 		{51, `{{ a = 2.5; b = a; b--; a }}`, "2.5"},
+		// Object with property access
+		{60, `{{ user = {age: 30}; user.age++; user.age }}`, "31"},
+		{70, `{{ user = {age: 30}; user.age--; user.age }}`, "29"},
+		{80, `{{ user = {age: 30}; user.age++; user.age--; user.age }}`, "30"},
+		// Array with index access
+		{90, `{{ arr = [1, 2, 3]; arr[0]++; arr[0] }}`, "2"},
+		{100, `{{ arr = [1, 2, 3]; arr[1]--; arr[1] }}`, "1"},
+		{110, `{{ arr = [1, 2, 3]; arr[2]++; arr[2]--; arr[2] }}`, "3"},
+		// Nested object and array access
+		{120, `{{ data = {users: [{age: 20}]}; data.users[0].age++; data.users[0].age }}`, "21"},
+		{130, `{{ data = {users: [{age: 20}]}; data.users[0].age--; data.users[0].age }}`, "19"},
+		{
+			140,
+			`{{ data = {users: [{age: 20}]}; data.users[0].age++; data.users[0].age--; data.users[0].age }}`,
+			"20",
+		},
+		// Multiple increments and decrements
+		{150, `{{ x = 5; x++; x++; x }}`, "7"},
+		{160, `{{ y = 10; y--; y--; y }}`, "8"},
+		{170, `{{ z = 3; z++; z--; z++; z }}`, "4"},
+		// Edge cases
+		{180, `{{ x = 0; x--; x }}`, "-1"},
+		{190, `{{ x = -1; x++; x }}`, "0"},
+		{200, `{{ x = 0.0; x++; x }}`, "1.0"},
+		{210, `{{ x = -0.5; x--; x }}`, "-1.5"},
+		{220, `{{ x = 1.5; x++; x }}`, "2.5"},
+		{230, `{{ x = 1.5; x--; x }}`, "0.5"},
+		{240, `{{ x = -1.5; x++; x }}`, "-0.5"},
+		{250, `{{ x = -1.5; x--; x }}`, "-2.5"},
+		// Increment and decrement with expressions
+		{260, `{{ x = 5; x = x + 2; x++; x }}`, "8"},
+		{270, `{{ y = 10; y = y - 3; y--; y }}`, "6"},
+		{280, `{{ z = 3; z = z * 2; z++; z--; z }}`, "6"},
 	}
 
 	for _, tc := range cases {
