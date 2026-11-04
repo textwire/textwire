@@ -346,7 +346,8 @@ func (e *Evaluator) assignObjIndexExp(
 		return e.circularAssignError(indexExpr, rightExpr, ctx)
 	}
 
-	obj.Pairs[idx.(*value.Str).Val] = rightVal
+	key := resolveObjKey(obj, idx.(*value.Str).Val)
+	obj.Pairs[key] = rightVal
 
 	return NIL
 }
@@ -376,7 +377,7 @@ func (e *Evaluator) assignDotExp(
 		return e.circularAssignError(dotExp, rightExpr, ctx)
 	}
 
-	obj.Pairs[key] = rightVal
+	obj.Pairs[resolveObjKey(obj, key)] = rightVal
 
 	return NIL
 }
@@ -820,6 +821,21 @@ func (e *Evaluator) objKeyExp(obj *value.Obj, key string) value.Literal {
 	}
 
 	return NIL
+}
+
+// resolveObjKey returns the existing key that reads resolve to, so writes
+// update struct fields like Count instead of adding a new count key.
+func resolveObjKey(obj *value.Obj, key string) string {
+	if _, ok := obj.Pairs[key]; ok {
+		return key
+	}
+
+	capitalized := capitalizeFirst(key)
+	if _, ok := obj.Pairs[capitalized]; ok {
+		return capitalized
+	}
+
+	return key
 }
 
 func (e *Evaluator) dotExpr(dotExp *ast.DotExpr, ctx *Context) value.Literal {

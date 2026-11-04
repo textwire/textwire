@@ -1182,6 +1182,121 @@ func TestEvalObjLit(t *testing.T) {
 	}
 }
 
+func TestResolveObjKey(t *testing.T) {
+	cases := []struct {
+		name   string
+		pairs  map[string]value.Literal
+		key    string
+		expect string
+	}{
+		{
+			name: "exact key wins over capitalized key",
+			pairs: map[string]value.Literal{
+				"name": &value.Int{Val: 1},
+				"Name": &value.Int{Val: 2},
+			},
+			key:    "name",
+			expect: "name",
+		},
+		{
+			name:   "lowercase key resolves to capitalized key",
+			pairs:  map[string]value.Literal{"Name": &value.Int{Val: 2}},
+			key:    "name",
+			expect: "Name",
+		},
+		{
+			name:   "missing key returns key as given",
+			pairs:  map[string]value.Literal{"age": &value.Int{Val: 1}},
+			key:    "name",
+			expect: "name",
+		},
+		{
+			name:   "empty object returns key as given",
+			pairs:  map[string]value.Literal{},
+			key:    "name",
+			expect: "name",
+		},
+		{
+			name:   "capitalized key that exists is returned",
+			pairs:  map[string]value.Literal{"Name": &value.Int{Val: 1}},
+			key:    "Name",
+			expect: "Name",
+		},
+		{
+			name:   "missing capitalized key returns key as given",
+			pairs:  map[string]value.Literal{"name": &value.Int{Val: 1}},
+			key:    "Name",
+			expect: "Name",
+		},
+		{
+			name:   "empty key returns empty key",
+			pairs:  map[string]value.Literal{},
+			key:    "",
+			expect: "",
+		},
+		{
+			name:   "key with special characters resolves correctly",
+			pairs:  map[string]value.Literal{"user-name": &value.Int{Val: 1}},
+			key:    "user-name",
+			expect: "user-name",
+		},
+		{
+			name:   "key with special characters that doesn't exist returns key as given",
+			pairs:  map[string]value.Literal{"user-name": &value.Int{Val: 1}},
+			key:    "user_name",
+			expect: "user_name",
+		},
+		{
+			name:   "numeric string key resolves correctly",
+			pairs:  map[string]value.Literal{"123": &value.Int{Val: 1}},
+			key:    "123",
+			expect: "123",
+		},
+		{
+			name:   "numeric string key that doesn't exist returns key as given",
+			pairs:  map[string]value.Literal{"123": &value.Int{Val: 1}},
+			key:    "456",
+			expect: "456",
+		},
+		{
+			name:   "key with spaces resolves correctly",
+			pairs:  map[string]value.Literal{"first name": &value.Int{Val: 1}},
+			key:    "first name",
+			expect: "first name",
+		},
+		{
+			name:   "key with spaces that doesn't exist returns key as given",
+			pairs:  map[string]value.Literal{"first name": &value.Int{Val: 1}},
+			key:    "last name",
+			expect: "last name",
+		},
+		{
+			name:   "key with mixed case resolves correctly",
+			pairs:  map[string]value.Literal{"UserName": &value.Int{Val: 1}},
+			key:    "UserName",
+			expect: "UserName",
+		},
+		{
+			name:   "key with mixed case that doesn't exist returns key as given",
+			pairs:  map[string]value.Literal{"UserName": &value.Int{Val: 1}},
+			key:    "username",
+			expect: "username",
+		},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			obj := value.NewObj(tc.pairs)
+
+			got := resolveObjKey(obj, tc.key)
+
+			if got != tc.expect {
+				t.Errorf("expected %q, got %q", tc.expect, got)
+			}
+		})
+	}
+}
+
 func TestEvalComments(t *testing.T) {
 	cases := []struct {
 		id     uint

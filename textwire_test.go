@@ -131,8 +131,25 @@ func TestEvalStr(t *testing.T) {
 			name:   "First letter of the object property is case insensitive",
 			inp:    "{{ user.iD.str() + ' ' + user.ID.str() }}",
 			expect: "1 1",
-			data: map[string]any{
-				"user": struct{ ID uint }{1}},
+			data:   map[string]any{"user": struct{ ID uint }{1}},
+		},
+		{
+			name:   "Increment lowercase struct field updates capitalized field",
+			inp:    "{{ user.count++; user.Count }}",
+			expect: "2",
+			data:   map[string]any{"user": struct{ Count int }{1}},
+		},
+		{
+			name:   "Index assign lowercase key updates capitalized struct field",
+			inp:    `{{ user['count'] = 5; user.Count }}`,
+			expect: "5",
+			data:   map[string]any{"user": struct{ Count int }{1}},
+		},
+		{
+			name:   "Index assign on issing uppercase field doesn't change original",
+			inp:    `{{ user['Count'] = 5; user.count }}`,
+			expect: "1",
+			data:   map[string]any{"user": map[string]int{"count": 1}},
 		},
 		{
 			name:   "Accessing user.name.firstName property",
