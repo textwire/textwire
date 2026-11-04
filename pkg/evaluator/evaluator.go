@@ -789,6 +789,8 @@ func (e *Evaluator) indexExpr(indexExp *ast.IndexExpr, ctx *Context) value.Liter
 		return e.arrIndexExp(left, idx)
 	case left.Is(value.OBJ_VAL) && idx.Is(value.STR_VAL):
 		return e.objKeyExp(left.(*value.Obj), idx.(*value.Str).Val)
+	case left.Is(value.OBJ_VAL):
+		return e.newError(indexExp, ctx, fail.ErrObjIndexStr, idx.Type())
 	}
 
 	return e.newError(indexExp, ctx, fail.ErrIndexNotSupported, left.Type())
