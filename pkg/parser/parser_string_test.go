@@ -47,15 +47,54 @@ func testChunkInLoopString[T ast.Chunk](t *testing.T, inp, expect string) {
 }
 
 func TestIdentExprString(t *testing.T) {
-	testEmbeddedString[*ast.IdentExpr](t, "{{ myName }}", "myName")
+	cases := []struct {
+		inp    string
+		expect string
+	}{
+		{inp: "{{ x }}", expect: "x"},
+		{inp: "{{ myName }}", expect: "myName"},
+		{inp: "{{ user_name2 }}", expect: "user_name2"},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.inp, func(t *testing.T) {
+			testEmbeddedString[*ast.IdentExpr](t, tc.inp, tc.expect)
+		})
+	}
 }
 
 func TestIntExprString(t *testing.T) {
-	testEmbeddedString[*ast.IntExpr](t, "{{ 234 }}", "234")
+	cases := []struct {
+		inp    string
+		expect string
+	}{
+		{inp: "{{ 0 }}", expect: "0"},
+		{inp: "{{ 234 }}", expect: "234"},
+		{inp: "{{ 1234567890 }}", expect: "1234567890"},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.inp, func(t *testing.T) {
+			testEmbeddedString[*ast.IntExpr](t, tc.inp, tc.expect)
+		})
+	}
 }
 
 func TestFloatExprString(t *testing.T) {
-	testEmbeddedString[*ast.FloatExpr](t, "{{ 2.34149 }}", "2.34149")
+	cases := []struct {
+		inp    string
+		expect string
+	}{
+		{inp: "{{ 0.0 }}", expect: "0.0"},
+		{inp: "{{ 2.34149 }}", expect: "2.34149"},
+		{inp: "{{ 10.5 }}", expect: "10.5"},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.inp, func(t *testing.T) {
+			testEmbeddedString[*ast.FloatExpr](t, tc.inp, tc.expect)
+		})
+	}
 }
 
 func TestNilExprString(t *testing.T) {
@@ -63,11 +102,37 @@ func TestNilExprString(t *testing.T) {
 }
 
 func TestStrExprString(t *testing.T) {
-	testEmbeddedString[*ast.StrExpr](t, "{{ 'Serhii' }}", `"Serhii"`)
+	cases := []struct {
+		inp    string
+		expect string
+	}{
+		{inp: "{{ '' }}", expect: `""`},
+		{inp: "{{ 'Skirk' }}", expect: `"Skirk"`},
+		{inp: `{{ "Kokomi" }}`, expect: `"Kokomi"`},
+		{inp: "{{ 'hello world' }}", expect: `"hello world"`},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.inp, func(t *testing.T) {
+			testEmbeddedString[*ast.StrExpr](t, tc.inp, tc.expect)
+		})
+	}
 }
 
 func TestBoolExprString(t *testing.T) {
-	testEmbeddedString[*ast.BoolExpr](t, "{{ true }}", "true")
+	cases := []struct {
+		inp    string
+		expect string
+	}{
+		{inp: "{{ true }}", expect: "true"},
+		{inp: "{{ false }}", expect: "false"},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.inp, func(t *testing.T) {
+			testEmbeddedString[*ast.BoolExpr](t, tc.inp, tc.expect)
+		})
+	}
 }
 
 func TestInfixExprString(t *testing.T) {
@@ -75,7 +140,21 @@ func TestInfixExprString(t *testing.T) {
 }
 
 func TestPrefixExprString(t *testing.T) {
-	testEmbeddedString[*ast.PrefixExpr](t, "{{ -obj.test }}", "(-(obj.test))")
+	cases := []struct {
+		inp    string
+		expect string
+	}{
+		{inp: "{{ -234 }}", expect: "(-234)"},
+		{inp: "{{ -obj.test }}", expect: "(-(obj.test))"},
+		{inp: "{{ !true }}", expect: "(!true)"},
+		{inp: "{{ !false }}", expect: "(!false)"},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.inp, func(t *testing.T) {
+			testEmbeddedString[*ast.PrefixExpr](t, tc.inp, tc.expect)
+		})
+	}
 }
 
 func TestTernaryExprString(t *testing.T) {
@@ -83,7 +162,7 @@ func TestTernaryExprString(t *testing.T) {
 }
 
 func TestArrExprString(t *testing.T) {
-	testEmbeddedString[*ast.ArrExpr](t, "{{ [11, 234,] }}", "[11, 234]")
+	testEmbeddedString[*ast.ArrExpr](t, "{{ [11, 234] }}", "[11, 234]")
 }
 
 func TestObjExprString(t *testing.T) {
@@ -123,8 +202,8 @@ func TestAssignStmtString(t *testing.T) {
 		inp    string
 		expect string
 	}{
-		{inp: `{{ name = "Anna" }}`, expect: `(name = "Anna")`},
-		{inp: `{{ myAge = 34 }}`, expect: `(myAge = 34)`},
+		{inp: `{{ name = "Escoffier" }}`, expect: `(name = "Escoffier")`},
+		{inp: `{{ stars = 5 }}`, expect: `(stars = 5)`},
 		{inp: `{{ me.age = 34 }}`, expect: `((me.age) = 34)`},
 		{inp: `{{ arr[0] = 1 }}`, expect: `((arr[0]) = 1)`},
 		{
@@ -250,20 +329,17 @@ func TestEmbeddedRawString(t *testing.T) {
 
 func TestTextString(t *testing.T) {
 	inp := "<div><span>Hello</span></div>"
-
 	testDirectiveString[*ast.Text](t, inp, inp)
 }
 
 func TestUseDirString(t *testing.T) {
 	inp := `@use("main")`
-
 	testDirectiveString[*ast.UseDir](t, inp, inp)
 }
 
 func TestReserveDirString(t *testing.T) {
 	t.Run("without fallback", func(t *testing.T) {
 		inp := `@reserve("content")`
-
 		testDirectiveString[*ast.ReserveDir](t, inp, inp)
 	})
 
@@ -279,7 +355,6 @@ func TestReserveDirString(t *testing.T) {
 func TestInsertDirString(t *testing.T) {
 	t.Run("with block", func(t *testing.T) {
 		inp := `@insert("content")<h1>Some content</h1>@end`
-
 		testDirectiveString[*ast.InsertDir](t, inp, inp)
 	})
 
@@ -303,19 +378,16 @@ func TestCompDirString(t *testing.T) {
 
 	t.Run("with default @pass", func(t *testing.T) {
 		inp := `@component("components/book-card")<h1>Header</h1>@end`
-
 		testDirectiveString[*ast.CompDir](t, inp, inp)
 	})
 
 	t.Run("with 2 @pass directives", func(t *testing.T) {
 		inp := `@component("x")@pass("header")<h1>Header</h1>@end@pass("footer")<footer>Footer</footer>@end@end`
-
 		testDirectiveString[*ast.CompDir](t, inp, inp)
 	})
 
 	t.Run("with @passif", func(t *testing.T) {
 		inp := `@component("user")@passif(false, "name")Test2@end@end`
-
 		testDirectiveString[*ast.CompDir](t, inp, inp)
 	})
 }
@@ -341,25 +413,21 @@ func TestDumpDirString(t *testing.T) {
 func TestIfDirString(t *testing.T) {
 	t.Run("regular @if", func(t *testing.T) {
 		inp := "@if(true)1@end"
-
 		testDirectiveString[*ast.IfDir](t, inp, inp)
 	})
 
 	t.Run("with @else", func(t *testing.T) {
 		inp := "@if(true)1@else2@end"
-
 		testDirectiveString[*ast.IfDir](t, inp, inp)
 	})
 
 	t.Run("with @elseif", func(t *testing.T) {
 		inp := "@if(true)first@elseif(false)second@end"
-
 		testDirectiveString[*ast.IfDir](t, inp, inp)
 	})
 
 	t.Run("with @elseif and @else", func(t *testing.T) {
 		inp := "@if(true)1@elseif(false)2@else3@end"
-
 		testDirectiveString[*ast.IfDir](t, inp, inp)
 	})
 }
@@ -389,13 +457,11 @@ func TestForDirString(t *testing.T) {
 func TestEachDirString(t *testing.T) {
 	t.Run("regular @each", func(t *testing.T) {
 		inp := `@each(name in ["anna", "serhii"]){{ name }}@end`
-
 		testDirectiveString[*ast.EachDir](t, inp, inp)
 	})
 
 	t.Run("with @else", func(t *testing.T) {
 		inp := "@each(v in []){{ v }}@elseTest@end"
-
 		testDirectiveString[*ast.EachDir](t, inp, inp)
 	})
 }
