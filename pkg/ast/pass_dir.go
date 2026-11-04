@@ -45,7 +45,9 @@ func (pd *PassDir) String() string {
 		}
 	}
 
-	out.WriteString(pd.Name.String())
+	if pd.Name.Val != "" {
+		out.WriteString(pd.Name.String())
+	}
 
 	if hasParens {
 		out.WriteString(")")

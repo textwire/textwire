@@ -1,8 +1,9 @@
 # Release notes V5
 
-## v5.2.1 (2026-11-04)
+## v5.2.1 (2026-11-05)
 
 - 🐛 Added missing `@end` to hover message on `@component`.
+- 🐛 Fixed `@reserve()`, `@insert()` and default `@pass` printing extra quotes, and `@insert()` with a block not printing its block. Closes [#155](https://codeberg.org/textwire/textwire/issues/155).
 
 ## v5.2.0 (2026-11-04)
 
