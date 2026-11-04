@@ -129,33 +129,35 @@ func hasCustomFunc(customFunc *config.Func, t value.ValueType, funcName string) 
 	}
 }
 
-// getDecimalConfig extracts separator and decimal count from arguments.
-// Returns error if arguments are invalid.
+// getDecimalConfig extracts the separator and decimal count from args.
+// Both are optional and default to "." and 2. A negative decimal count
+// is clamped to 0. It returns an error if there are too many arguments
+// or if an argument has the wrong type.
 func getDecimalConfig(
 	objType value.ValueType,
 	args ...value.Literal,
-) (separator string, decimals int, err error) {
-	separator = "."
-	decimals = 2
-
+) (string, int, error) {
 	if len(args) > 2 {
 		return "", 0, fmt.Errorf(fail.ErrFuncMaxArgs, objType, "decimal", 2)
 	}
 
-	if len(args) >= 1 {
-		separatorArg, ok := args[0].(*value.Str)
+	separator := "."
+	decimals := 2
+
+	if len(args) > 0 {
+		arg, ok := args[0].(*value.Str)
 		if !ok {
 			return "", 0, fmt.Errorf(fail.ErrFuncFirstArgStr, objType, "decimal")
 		}
-		separator = separatorArg.Val
+		separator = arg.Val
 	}
 
-	if len(args) == 2 {
-		decimalArg, ok := args[1].(*value.Int)
+	if len(args) > 1 {
+		arg, ok := args[1].(*value.Int)
 		if !ok {
 			return "", 0, fmt.Errorf(fail.ErrFuncSecondArgInt, objType, "decimal")
 		}
-		decimals = max(int(decimalArg.Val), 0)
+		decimals = max(int(arg.Val), 0)
 	}
 
 	return separator, decimals, nil
