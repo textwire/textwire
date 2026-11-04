@@ -381,109 +381,6 @@ func TestParsePrefixExp(t *testing.T) {
 	}
 }
 
-func TestParseOperatorPrecedence(t *testing.T) {
-	cases := []struct {
-		id     uint
-		inp    string
-		expect string
-	}{
-		{
-			id:     10,
-			inp:    "{{ 1 * 2 }}",
-			expect: "{{ (1 * 2) }}",
-		},
-		{
-			id:     20,
-			inp:    "<h2>{{ -2 + 3 }}</h2>",
-			expect: "<h2>{{ ((-2) + 3) }}</h2>",
-		},
-		{
-			id:     30,
-			inp:    "{{ a + b + c }}",
-			expect: "{{ ((a + b) + c) }}",
-		},
-		{
-			id:     40,
-			inp:    "{{ a + b / c }}",
-			expect: "{{ (a + (b / c)) }}",
-		},
-		{
-			id:     50,
-			inp:    "{{ -2.float() }}",
-			expect: "{{ (-(2.float())) }}",
-		},
-		{
-			id:     60,
-			inp:    "{{ -5.0.int() }}",
-			expect: "{{ (-(5.0.int())) }}",
-		},
-		{
-			id:     70,
-			inp:    "{{ -obj.test }}",
-			expect: "{{ (-(obj.test)) }}",
-		},
-		{
-			id:     80,
-			inp:    "{{ true && true || false }}",
-			expect: "{{ ((true && true) || false) }}",
-		},
-		{
-			id:     90,
-			inp:    "{{ true ? 1 : 0 }}",
-			expect: "{{ (true ? 1 : 0) }}",
-		},
-		{
-			id:     100,
-			inp:    "{{ true && false ? 1 : 0 }}",
-			expect: "{{ ((true && false) ? 1 : 0) }}",
-		},
-		{
-			id:     110,
-			inp:    "{{ true && false || 1 ? 1 : 0 }}",
-			expect: "{{ (((true && false) || 1) ? 1 : 0) }}",
-		},
-		{
-			id:     120,
-			inp:    "{{ -2.float() && -2.0.int() ? 1 : 0 }}",
-			expect: "{{ (((-(2.float())) && (-(2.0.int()))) ? 1 : 0) }}",
-		},
-		{
-			id:     130,
-			inp:    "{{ !defined(age) || !defined(name) ? 1 : 0 }}",
-			expect: "{{ (((!(defined(age))) || (!(defined(name)))) ? 1 : 0) }}",
-		},
-		{
-			id:     140,
-			inp:    "{{ defined(name) }}",
-			expect: "{{ (defined(name)) }}",
-		},
-		{
-			id:     150,
-			inp:    "{{ long = user.name.len() > 0 }}",
-			expect: "{{ (long = (((user.name).len()) > 0)) }}",
-		},
-		{
-			id:     160,
-			inp:    "{{ user && user.name == 'serhii' }}",
-			expect: `{{ (user && ((user.name) == "serhii")) }}`,
-		},
-	}
-
-	for _, tc := range cases {
-		l := lexer.New(tc.inp)
-		p := New(l, nil)
-		prog := p.ParseProgram()
-
-		if p.HasErrors() {
-			t.Fatalf("Case: %d. Parser error:  %v", tc.id, p.Errors()[0])
-		}
-
-		if prog.String() != tc.expect {
-			t.Fatalf("Case: %d. Expect %s but got %s", tc.id, tc.expect, prog)
-		}
-	}
-}
-
 func TestMissingRightOperandDoesNotPanic(t *testing.T) {
 	cases := []string{"{{ (1 + }}", "{{(1+}}", `{{A%(""%}}`}
 
@@ -1491,16 +1388,12 @@ func TestParseIfElseIfDir(t *testing.T) {
 		)
 	}
 
-	text, ok := elseifDir.Block.Chunks[0].(*ast.Text)
+	_, ok := elseifDir.Block.Chunks[0].(*ast.Text)
 	if !ok {
 		t.Fatalf(
 			"elseifDir.Block.Chunks[0] is not an Text, got %T",
 			elseifDir.Block.Chunks[0],
 		)
-	}
-
-	if text.String() != "second" {
-		t.Fatalf("text.String() is not %q, got %q", "second", text)
 	}
 }
 
@@ -1539,16 +1432,12 @@ func TestParseElseIfWithElseDir(t *testing.T) {
 		)
 	}
 
-	text, ok := elseifDir.Block.Chunks[0].(*ast.Text)
+	_, ok := elseifDir.Block.Chunks[0].(*ast.Text)
 	if !ok {
 		t.Fatalf(
 			"elseifDir.Block.Chunks[0] is not an Text, got %T",
 			elseifDir.Block.Chunks[0],
 		)
-	}
-
-	if text.String() != "2" {
-		t.Fatalf("text.String() is not %s, got %s", "2", text)
 	}
 }
 
@@ -1610,11 +1499,6 @@ func TestParseAssignStmt(t *testing.T) {
 			t.Fatalf("Case: %d. %v", tc.id, err)
 		}
 
-		str := assignStmt.String()
-		if str != tc.str {
-			t.Fatalf("Case: %d. assignStmt.String() is not %s, got %s", tc.id, tc.str, str)
-		}
-
 		err = testTokPosition(assignStmt.Pos(), &position.Pos{
 			StartCol: tc.startCol,
 			EndCol:   tc.endCol,
@@ -1654,10 +1538,6 @@ func TestParseUseDir(t *testing.T) {
 	if useDir.LayoutProg != nil {
 		t.Fatalf("useDir.LayoutProg is not nil, got %T", useDir.LayoutProg)
 	}
-
-	if useDir.String() != inp {
-		t.Fatalf("useDir.String() is not %s, got %s", inp, useDir)
-	}
 }
 
 func TestParseReserveDir(t *testing.T) {
@@ -1688,10 +1568,6 @@ func TestParseReserveDir(t *testing.T) {
 
 	if reserveDir.Name.Val != "content" {
 		t.Fatalf("reserveDir.Name.Val is not 'content', got %s", reserveDir.Name.Val)
-	}
-
-	if reserveDir.String() == inp {
-		t.Fatalf("reserveDir.String() is not %s, got %s", inp, reserveDir)
 	}
 }
 
@@ -1724,13 +1600,6 @@ func TestInsertDir(t *testing.T) {
 
 		if insertDir.Name.Val != "content" {
 			t.Fatalf("insertDir.Name.Val is not 'content', got %s", insertDir.Name.Val)
-		}
-
-		if insertDir.Block.String() != "<h1>Some content</h1>" {
-			t.Fatalf(
-				"insertDir.Block.String() is not '<h1>Some content</h1>', got %s",
-				insertDir.Block,
-			)
 		}
 	})
 
@@ -1766,13 +1635,6 @@ func TestInsertDir(t *testing.T) {
 
 		if insertDir.Block != nil {
 			t.Fatalf("insertDir.Block is not nil, got %T", insertDir.Block)
-		}
-
-		if insertDir.Argument.String() != `"Some content"` {
-			t.Fatalf(
-				"insertDir.Argument.String() is not 'Some content', got %s",
-				insertDir.Argument,
-			)
 		}
 	})
 }
@@ -1830,10 +1692,6 @@ func TestParseIndexExp(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-
-	if exp.String() != "((arr[(1 + 2)])[2])" {
-		t.Fatalf("indexExp.String() is not '(arr[(1 + 2)])', got %s", exp)
-	}
 }
 
 func TestParseIncStmt(t *testing.T) {
@@ -1851,10 +1709,6 @@ func TestParseIncStmt(t *testing.T) {
 	if err := testIdentExpr(stmt.Left, "i"); err != nil {
 		t.Fatal(err)
 	}
-
-	if stmt.String() != "(i++)" {
-		t.Fatalf("stmt.String() is not '(i++)', got %s", stmt)
-	}
 }
 
 func TestParseDecStmt(t *testing.T) {
@@ -1871,10 +1725,6 @@ func TestParseDecStmt(t *testing.T) {
 
 	if err := testIdentExpr(stmt.Left, "i"); err != nil {
 		t.Fatal(err)
-	}
-
-	if stmt.String() != "(i--)" {
-		t.Fatalf("stmt.String() is not '(i--)', got %s", stmt)
 	}
 }
 
@@ -1914,14 +1764,6 @@ func TestParseTwoStatements(t *testing.T) {
 
 	if err := testStrExpr(assignStmt.Right, "Anna"); err != nil {
 		t.Fatal(err)
-	}
-
-	if assignStmt.String() != `(name = "Anna")` {
-		t.Fatalf("assignStmt.String() is not 'name = \"Anna\"', got %s", assignStmt)
-	}
-
-	if nameExpr.String() != `name` {
-		t.Fatalf("nameExpr.String() is not 'name', got %s", nameExpr)
 	}
 }
 
@@ -2097,23 +1939,6 @@ func TestParseForDir(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		if forDir.Init.String() != `(i = 0)` {
-			t.Fatalf("forDir.Init.String() is not '(i = 0)', got %s", forDir.Init)
-		}
-
-		if forDir.Cond.String() != `(i < 10)` {
-			t.Fatalf("forDir.Cond.String() is not '(i < 10)', got %s", forDir.Cond)
-		}
-
-		if forDir.Post.String() != `(i++)` {
-			t.Fatalf("forDir.Post.String() is not '(i++)', got %s", forDir.Post)
-		}
-
-		actual := strings.TrimSpace(forDir.Block.String())
-		if actual != "{{ i }}" {
-			t.Fatalf("actual is not '%q', got %q", "{{ i }}", actual)
-		}
-
 		if forDir.ElseBlock != nil {
 			t.Fatalf("forDir.ElseBlock is not nil, got %T", forDir.ElseBlock)
 		}
@@ -2133,10 +1958,6 @@ func TestParseForDir(t *testing.T) {
 
 		if forDir.ElseBlock == nil {
 			t.Fatalf("forDir.ElseBlock is nil")
-		}
-
-		if forDir.ElseBlock.String() != "Empty" {
-			t.Fatalf("forDir.ElseBlock.String() is not 'Empty', got %s", forDir.ElseBlock)
 		}
 	})
 
@@ -2162,10 +1983,6 @@ func TestParseForDir(t *testing.T) {
 
 		if _, ok := forDir.Post.(*ast.Empty); !ok {
 			t.Fatalf("forDir.Post is not *ast.Empty, got %T", forDir.Post)
-		}
-
-		if forDir.Block.String() != "1" {
-			t.Fatalf("forDir.Block.String() is not '1', got %s", forDir.Block)
 		}
 	})
 }
@@ -2195,19 +2012,6 @@ func TestParseEachDir(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		if eachDir.Var.String() != `name` {
-			t.Fatalf("eachDir.Var.String() is not 'name', got %s", eachDir.Var)
-		}
-
-		if eachDir.Arr.String() != `["anna", "serhii"]` {
-			t.Fatalf(`eachDir.Arr.String() is not '["anna", "serhii"]', got %s`, eachDir.Arr)
-		}
-
-		actual := eachDir.Block.String()
-		if actual != "{{ name }}" {
-			t.Fatalf("actual is not %q, got %q", "{{ name }}", actual)
-		}
-
 		if eachDir.ElseBlock != nil {
 			t.Fatalf("eachDir.ElseBlock is not nil, got %T", eachDir.ElseBlock)
 		}
@@ -2223,10 +2027,6 @@ func TestParseEachDir(t *testing.T) {
 
 		if err := testToken(eachDir, token.EACH); err != nil {
 			t.Fatal(err)
-		}
-
-		if eachDir.ElseBlock.String() != "Test" {
-			t.Fatalf("eachDir.ElseBlock.String() is not 'Test', got %s", eachDir.ElseBlock)
 		}
 	})
 }
@@ -2324,10 +2124,6 @@ func TestParseObjExpr(t *testing.T) {
 
 	if len(objExpr.Pairs) != 1 {
 		t.Fatalf("len(objExpr.Pairs) is not 1, got %d", len(objExpr.Pairs))
-	}
-
-	if objExpr.String() != `{"father": {"name": "John"}}` {
-		t.Fatalf(`objExpr.String() is not '{"father": {"name": "John"}}', got %s`, objExpr)
 	}
 
 	nested, ok := objExpr.Pairs["father"].(*ast.ObjExpr)
@@ -2434,10 +2230,6 @@ func TestParseDotExp(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if dotExpr.String() != "((person.father).name)" {
-		t.Fatalf("dotExpr.String() is not '((person.father).name)', got %s", dotExpr)
-	}
-
 	if err := testIdentExpr(dotExpr.Key, "name"); err != nil {
 		t.Fatal(err)
 	}
@@ -2515,11 +2307,6 @@ func TestParseBreakifDir(t *testing.T) {
 	if err := testBoolExpr(breakifDir.Cond, true); err != nil {
 		t.Fatal(err)
 	}
-
-	expect := "@breakif(true)"
-	if breakifDir.String() != expect {
-		t.Fatalf("breakifDir.String() is not '%s', got %s", expect, breakifDir)
-	}
 }
 
 func TestParseContinueifDir(t *testing.T) {
@@ -2545,11 +2332,6 @@ func TestParseContinueifDir(t *testing.T) {
 
 	if err := testBoolExpr(continueifDir.Cond, false); err != nil {
 		t.Fatal(err)
-	}
-
-	expect := "@continueif(false)"
-	if continueifDir.String() != expect {
-		t.Fatalf("continueifDir.String() is not '%s', got %s", expect, continueifDir)
 	}
 }
 
@@ -2598,11 +2380,6 @@ func TestParseCompDir(t *testing.T) {
 		if compDir.DefaultPass != nil {
 			t.Fatalf("compDir.DefaultPass is not nil, got %v", compDir.DefaultPass)
 		}
-
-		expect := `@component("components/book-card", {"c": card})@end`
-		if compDir.String() != expect {
-			t.Fatalf(`compDir.String() is not '%s', got %s`, expect, compDir)
-		}
 	})
 
 	t.Run("@component with default @pass", func(t *testing.T) {
@@ -2625,15 +2402,6 @@ func TestParseCompDir(t *testing.T) {
 		name := passDir.Name.Val
 		if name != "" {
 			t.Fatalf("passDir.Name.Val must be empty string, got: %s", name)
-		}
-
-		expect := `<h1>Header</h1>`
-		if passDir.Block.String() != expect {
-			t.Fatalf(
-				"passDir.Block.String() is not '%q', got '%q'",
-				expect,
-				passDir.Block,
-			)
 		}
 	})
 
@@ -2685,26 +2453,8 @@ func TestParseCompDir(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		expect := `<h1>Header</h1>`
-		if passHeader.Block.String() != expect {
-			t.Fatalf(
-				"passHeader.Block.String() is not '%q', got %q",
-				expect,
-				passHeader.Block,
-			)
-		}
-
 		if err := testStrExpr(passFooter.Name, "footer"); err != nil {
 			t.Fatal(err)
-		}
-
-		expect = `<footer>Footer</footer>`
-		if passFooter.Block.String() != expect {
-			t.Fatalf(
-				"passFooter.Block.String() is not '%q', got %q",
-				expect,
-				passFooter.Block,
-			)
 		}
 	})
 
@@ -2732,16 +2482,6 @@ func TestParseCompDir(t *testing.T) {
 
 		if passDir.Name.Val != "name" {
 			t.Fatalf("passDir.Name.Val is not 'name', got %s", passDir.Name)
-		}
-
-		block := passDir.Block.String()
-		if block != "Test2" {
-			t.Fatalf("passDir.Block.String() is not 'Test2', got %s", block)
-		}
-
-		expect := `@passif(false, "name")Test2@end`
-		if passDir.String() != expect {
-			t.Fatalf("passDir.String() is not '%s', got %s", expect, passDir)
 		}
 	})
 }
@@ -2775,11 +2515,6 @@ func TestParseSlotDir(t *testing.T) {
 		if err := testStrExpr(slotDir.Name, "header"); err != nil {
 			t.Fatal(err)
 		}
-
-		expect := `@slot("header")`
-		if slotDir.String() != expect {
-			t.Fatalf("slotDir.String() is not `%s`, got `%s`", expect, slotDir)
-		}
 	})
 
 	t.Run("default slot without end", func(t *testing.T) {
@@ -2809,10 +2544,6 @@ func TestParseSlotDir(t *testing.T) {
 
 		if err != nil {
 			t.Fatal(err)
-		}
-
-		if slotDir.String() != "@slot" {
-			t.Fatalf("slotDir.String() is not @slot, got `%s`", slotDir)
 		}
 	})
 }

@@ -325,13 +325,22 @@ func testBlock(block *ast.Block, val string) error {
 	return nil
 }
 
-func testToken(tok ast.Node, expect token.TokenType) error {
-	if tok.Tok().Type != expect {
-		return fmt.Errorf(
-			"token type is not %q, got %q",
-			token.String(expect),
-			token.String(tok.Tok().Type),
-		)
+func testToken(node ast.Node, expect token.TokenType) error {
+	if node.Tok().Type == expect {
+		return nil
 	}
-	return nil
+
+	return fmt.Errorf(
+		"token type is not %q, got %q",
+		token.String(expect),
+		token.String(node.Tok().Type),
+	)
+}
+
+func testString(node ast.Node, expect string) error {
+	if node.String() == expect {
+		return nil
+	}
+
+	return fmt.Errorf("node.String() is not %q, got %q", expect, node.String())
 }
