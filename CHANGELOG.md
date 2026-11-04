@@ -1,5 +1,9 @@
 # Release notes V5
 
+## v5.2.0 (2026-11-04)
+
+- ✨ Added support for object property assignment through index notation. Author [@peterlodri-sec](https://codeberg.org/peterlodri-sec). Closes [#147](https://codeberg.org/textwire/textwire/issues/147) and [#132](https://codeberg.org/textwire/textwire/issues/132).
+
 ## v5.1.20 (2026-11-03)
 
 - 🐛 Fixed `illegal token` errors showing invisible characters as a plain space. Non-breaking space and other invisible characters, like NUL, are now shown by code point, e.g. `U+00A0`. Invalid UTF-8 bytes are shown as `0xFF` instead of `�`. Closes [#145](https://codeberg.org/textwire/textwire/issues/145).

@@ -53,6 +53,7 @@ const (
 	ErrEachDirWithNonArrArg  = "cannot use @each(item in array) with non-array type '%s' after 'in' keyword"
 	ErrArrIndexInt           = "array index must be an integer, got '%s'"
 	ErrArrIndexOutOfBound    = "index %d out of bounds for array of length %d"
+	ErrObjIndexStr           = "object index must be a string, got '%s'"
 	ErrTemplateDirectives    = "@use, @insert, @reserve, @component only allowed in templates"
 	ErrInsertRequiresUse     = "@insert('%s') cannot be used without @use()"
 	ErrUseDirMissingLayout   = "@use('%s') missing layout file"

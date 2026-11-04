@@ -878,6 +878,13 @@ func TestEvalAssign(t *testing.T) {
 		{550, `{{ arr = [1, 2, 3]; arr[2] = 10; arr[2] }}`, "10"},
 		{560, `{{ arr = ['a', 'b', 'c']; arr[0] = arr[0] + 'x'; arr[0] }}`, "ax"},
 		{570, `{{ arr = [true, false]; arr[0] = false; arr[0] }}`, "0"},
+		// Object property assignment via index notation
+		{580, `{{ user = {}; user["name"] = "Barbara"; user.name }}`, "Barbara"},
+		{590, `{{ user = {name: "Skir"}; user["name"] = "Skirk"; user["name"] }}`, "Skirk"},
+		{600, `{{ user = {name: "Ann"}; user["name"] = nil; user["name"] }}`, ""},
+		{610, `{{ user = {}; key = "name"; user[key] = "Ifa"; user.name }}`, "Ifa"},
+		{620, `{{ u = {a: {s: "x"}}; u["a"]["s"] = "y"; u.a.s }}`, "y"},
+		{630, `{{ x = [{ name: 'Chiori' }]; x[0]['name'] = 'Mavuika'; x[0].name }}`, "Mavuika"},
 	}
 
 	for _, tc := range cases {
@@ -901,6 +908,39 @@ func TestIncDecDir(t *testing.T) {
 		{49, `{{ x = 0.5; x--; x }}`, "-0.5"},
 		{50, `{{ x = -1.5; x--; x }}`, "-2.5"},
 		{51, `{{ a = 2.5; b = a; b--; a }}`, "2.5"},
+		// Object with property access
+		{60, `{{ user = {age: 30}; user.age++; user.age }}`, "31"},
+		{70, `{{ user = {age: 30}; user.age--; user.age }}`, "29"},
+		{80, `{{ user = {age: 30}; user.age++; user.age--; user.age }}`, "30"},
+		// Array with index access
+		{90, `{{ arr = [1, 2, 3]; arr[0]++; arr[0] }}`, "2"},
+		{100, `{{ arr = [1, 2, 3]; arr[1]--; arr[1] }}`, "1"},
+		{110, `{{ arr = [1, 2, 3]; arr[2]++; arr[2]--; arr[2] }}`, "3"},
+		// Nested object and array access
+		{120, `{{ data = {users: [{age: 20}]}; data.users[0].age++; data.users[0].age }}`, "21"},
+		{130, `{{ data = {users: [{age: 20}]}; data.users[0].age--; data.users[0].age }}`, "19"},
+		{
+			140,
+			`{{ data = {users: [{age: 20}]}; data.users[0].age++; data.users[0].age--; data.users[0].age }}`,
+			"20",
+		},
+		// Multiple increments and decrements
+		{150, `{{ x = 5; x++; x++; x }}`, "7"},
+		{160, `{{ y = 10; y--; y--; y }}`, "8"},
+		{170, `{{ z = 3; z++; z--; z++; z }}`, "4"},
+		// Edge cases
+		{180, `{{ x = 0; x--; x }}`, "-1"},
+		{190, `{{ x = -1; x++; x }}`, "0"},
+		{200, `{{ x = 0.0; x++; x }}`, "1.0"},
+		{210, `{{ x = -0.5; x--; x }}`, "-1.5"},
+		{220, `{{ x = 1.5; x++; x }}`, "2.5"},
+		{230, `{{ x = 1.5; x--; x }}`, "0.5"},
+		{240, `{{ x = -1.5; x++; x }}`, "-0.5"},
+		{250, `{{ x = -1.5; x--; x }}`, "-2.5"},
+		// Increment and decrement with expressions
+		{260, `{{ x = 5; x = x + 2; x++; x }}`, "8"},
+		{270, `{{ y = 10; y = y - 3; y--; y }}`, "6"},
+		{280, `{{ z = 3; z = z * 2; z++; z--; z }}`, "6"},
 	}
 
 	for _, tc := range cases {
@@ -1139,6 +1179,121 @@ func TestEvalObjLit(t *testing.T) {
 
 	for _, tc := range cases {
 		evaluationExpected(t, tc.inp, tc.expect, nil, tc.id)
+	}
+}
+
+func TestResolveObjKey(t *testing.T) {
+	cases := []struct {
+		name   string
+		pairs  map[string]value.Literal
+		key    string
+		expect string
+	}{
+		{
+			name: "exact key wins over capitalized key",
+			pairs: map[string]value.Literal{
+				"name": &value.Int{Val: 1},
+				"Name": &value.Int{Val: 2},
+			},
+			key:    "name",
+			expect: "name",
+		},
+		{
+			name:   "lowercase key resolves to capitalized key",
+			pairs:  map[string]value.Literal{"Name": &value.Int{Val: 2}},
+			key:    "name",
+			expect: "Name",
+		},
+		{
+			name:   "missing key returns key as given",
+			pairs:  map[string]value.Literal{"age": &value.Int{Val: 1}},
+			key:    "name",
+			expect: "name",
+		},
+		{
+			name:   "empty object returns key as given",
+			pairs:  map[string]value.Literal{},
+			key:    "name",
+			expect: "name",
+		},
+		{
+			name:   "capitalized key that exists is returned",
+			pairs:  map[string]value.Literal{"Name": &value.Int{Val: 1}},
+			key:    "Name",
+			expect: "Name",
+		},
+		{
+			name:   "missing capitalized key returns key as given",
+			pairs:  map[string]value.Literal{"name": &value.Int{Val: 1}},
+			key:    "Name",
+			expect: "Name",
+		},
+		{
+			name:   "empty key returns empty key",
+			pairs:  map[string]value.Literal{},
+			key:    "",
+			expect: "",
+		},
+		{
+			name:   "key with special characters resolves correctly",
+			pairs:  map[string]value.Literal{"user-name": &value.Int{Val: 1}},
+			key:    "user-name",
+			expect: "user-name",
+		},
+		{
+			name:   "key with special characters that doesn't exist returns key as given",
+			pairs:  map[string]value.Literal{"user-name": &value.Int{Val: 1}},
+			key:    "user_name",
+			expect: "user_name",
+		},
+		{
+			name:   "numeric string key resolves correctly",
+			pairs:  map[string]value.Literal{"123": &value.Int{Val: 1}},
+			key:    "123",
+			expect: "123",
+		},
+		{
+			name:   "numeric string key that doesn't exist returns key as given",
+			pairs:  map[string]value.Literal{"123": &value.Int{Val: 1}},
+			key:    "456",
+			expect: "456",
+		},
+		{
+			name:   "key with spaces resolves correctly",
+			pairs:  map[string]value.Literal{"first name": &value.Int{Val: 1}},
+			key:    "first name",
+			expect: "first name",
+		},
+		{
+			name:   "key with spaces that doesn't exist returns key as given",
+			pairs:  map[string]value.Literal{"first name": &value.Int{Val: 1}},
+			key:    "last name",
+			expect: "last name",
+		},
+		{
+			name:   "key with mixed case resolves correctly",
+			pairs:  map[string]value.Literal{"UserName": &value.Int{Val: 1}},
+			key:    "UserName",
+			expect: "UserName",
+		},
+		{
+			name:   "key with mixed case that doesn't exist returns key as given",
+			pairs:  map[string]value.Literal{"UserName": &value.Int{Val: 1}},
+			key:    "username",
+			expect: "username",
+		},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			obj := value.NewObj(tc.pairs)
+
+			got := resolveObjKey(obj, tc.key)
+
+			if got != tc.expect {
+				t.Errorf("expected %q, got %q", tc.expect, got)
+			}
+		})
 	}
 }
 

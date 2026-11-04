@@ -21,6 +21,8 @@ func TestEvalCircularReference(t *testing.T) {
 		{50, `{{ o = {}; p = {o: o}; o.p = p; o }}`, "p", "o.p"},
 		{60, `{{ o = {}; p = {}; o.p = p; p.o = o; o }}`, "o", "p.o"},
 		{70, `{{ a = [[1]]; a[0][0] = a; a }}`, "a", "a[0][0]"},
+		{80, `{{ o = {}; o["self"] = o; o }}`, "o", `o["self"]`},
+		{90, `{{ o = {}; p = {o: o}; o["p"] = p; o }}`, "p", `o["p"]`},
 	}
 
 	for _, tc := range cases {

@@ -292,16 +292,29 @@ func (e *Evaluator) assignIndexExp(
 		return idx
 	}
 
-	if !left.Is(value.ARR_VAL) {
-		return e.newError(indexExpr, ctx, fail.ErrIndexNotSupported, left.Type())
+	switch l := left.(type) {
+	case *value.Arr:
+		return e.assignArrIndexExp(l, idx, indexExpr, rightExpr, rightVal, ctx)
+	case *value.Obj:
+		return e.assignObjIndexExp(l, idx, indexExpr, rightExpr, rightVal, ctx)
 	}
 
+	return e.newError(indexExpr, ctx, fail.ErrIndexNotSupported, left.Type())
+}
+
+func (e *Evaluator) assignArrIndexExp(
+	arr *value.Arr,
+	idx value.Literal,
+	indexExpr *ast.IndexExpr,
+	rightExpr ast.Expression,
+	rightVal value.Literal,
+	ctx *Context,
+) value.Literal {
 	// Index must be integer
 	if !idx.Is(value.INT_VAL) {
 		return e.newError(indexExpr, ctx, fail.ErrArrIndexInt, idx.Type())
 	}
 
-	arr := left.(*value.Arr)
 	index := idx.(*value.Int).Val
 
 	if index < 0 || index >= int64(len(arr.Elements)) {
@@ -313,6 +326,28 @@ func (e *Evaluator) assignIndexExp(
 	}
 
 	arr.Elements[index] = rightVal
+
+	return NIL
+}
+
+func (e *Evaluator) assignObjIndexExp(
+	obj *value.Obj,
+	idx value.Literal,
+	indexExpr *ast.IndexExpr,
+	rightExpr ast.Expression,
+	rightVal value.Literal,
+	ctx *Context,
+) value.Literal {
+	if !idx.Is(value.STR_VAL) {
+		return e.newError(indexExpr, ctx, fail.ErrObjIndexStr, idx.Type())
+	}
+
+	if value.References(rightVal, obj) {
+		return e.circularAssignError(indexExpr, rightExpr, ctx)
+	}
+
+	key := resolveObjKey(obj, idx.(*value.Str).Val)
+	obj.Pairs[key] = rightVal
 
 	return NIL
 }
@@ -342,7 +377,7 @@ func (e *Evaluator) assignDotExp(
 		return e.circularAssignError(dotExp, rightExpr, ctx)
 	}
 
-	obj.Pairs[key] = rightVal
+	obj.Pairs[resolveObjKey(obj, key)] = rightVal
 
 	return NIL
 }
@@ -755,6 +790,8 @@ func (e *Evaluator) indexExpr(indexExp *ast.IndexExpr, ctx *Context) value.Liter
 		return e.arrIndexExp(left, idx)
 	case left.Is(value.OBJ_VAL) && idx.Is(value.STR_VAL):
 		return e.objKeyExp(left.(*value.Obj), idx.(*value.Str).Val)
+	case left.Is(value.OBJ_VAL):
+		return e.newError(indexExp, ctx, fail.ErrObjIndexStr, idx.Type())
 	}
 
 	return e.newError(indexExp, ctx, fail.ErrIndexNotSupported, left.Type())
@@ -784,6 +821,21 @@ func (e *Evaluator) objKeyExp(obj *value.Obj, key string) value.Literal {
 	}
 
 	return NIL
+}
+
+// resolveObjKey returns the existing key that reads resolve to, so writes
+// update struct fields like Count instead of adding a new count key.
+func resolveObjKey(obj *value.Obj, key string) string {
+	if _, ok := obj.Pairs[key]; ok {
+		return key
+	}
+
+	capitalized := capitalizeFirst(key)
+	if _, ok := obj.Pairs[capitalized]; ok {
+		return capitalized
+	}
+
+	return key
 }
 
 func (e *Evaluator) dotExpr(dotExp *ast.DotExpr, ctx *Context) value.Literal {

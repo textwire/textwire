@@ -1,12 +1,10 @@
 package textwire
 
 import (
-	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"os"
 	"path/filepath"
-	"reflect"
 	"strings"
 	"testing"
 
@@ -205,33 +203,22 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 	}
 }
 
-func compareFailures(got, expect *fail.Error) error {
-	if got.String() != expect.String() {
-		return fmt.Errorf("wrong error message! Expect:\n%q\ngot:\n%q", expect, got)
-	}
-
-	if got.Origin() != expect.Origin() {
-		return fmt.Errorf(
-			"wrong origin on error message, expect %s, got: %s in error message:\n%q",
-			expect.Origin(),
-			got.Origin(),
-			got,
-		)
-	}
-
-	if !reflect.DeepEqual(got.Pos(), expect.Pos()) {
-		return fmt.Errorf(
-			"wrong position on error message, expect %v, got: %v in error message:\n%q",
-			expect.Pos(),
-			got.Pos(),
-			got,
-		)
-	}
-
-	return nil
-}
-
 func TestNewTemplate(t *testing.T) {
+	assertNoFailure(t, RegisterStrFunc("_wrapStr", func(s string, args ...any) any {
+		return "[" + s + "]"
+	}))
+
+	assertNoFailure(t, RegisterIntFunc("_twiceInt", func(num int, args ...any) any {
+		return num * 2
+	}))
+
+	assertNoFailure(t, RegisterStrFunc("_secondLetterUpper", func(s string, args ...any) any {
+		if len(s) < 2 {
+			return s
+		}
+		return string(s[0]) + string(s[1]-32) + s[2:]
+	}))
+
 	cases := []struct {
 		conf *config.Config
 		view string
@@ -251,6 +238,15 @@ func TestNewTemplate(t *testing.T) {
 		{conf: &config.Config{}, view: "index", data: nil, dir: "nested-reserve-slot"},
 		{conf: &config.Config{}, view: "index", data: nil, dir: "use-with-comp-inside"},
 		{conf: &config.Config{}, view: "home", data: nil, dir: "comp-in-other-comp"},
+		{conf: &config.Config{}, view: "index", data: nil, dir: "custom-funcs"},
+		{
+			conf: &config.Config{
+				GlobalData: map[string]any{"env": "dev", "name": "Serhii", "age": 36},
+			},
+			view: "index",
+			data: nil,
+			dir:  "globals",
+		},
 		{
 			conf: &config.Config{},
 			view: "index",
@@ -433,43 +429,6 @@ func TestTemplateResponse(t *testing.T) {
 				}
 			}
 		})
-	}
-}
-
-func TestRegisteringCustomFunction(t *testing.T) {
-	tpl, tplErr := NewTemplate(&config.Config{
-		TemplateDir: "testdata/good/before/globals",
-		GlobalData:  map[string]any{"env": "dev", "name": "Serhii", "age": 36},
-	})
-
-	if tplErr != nil {
-		t.Fatalf("Unexpected template error: %s", tplErr)
-	}
-
-	err := RegisterStrFunc("_secondLetterUpper", func(s string, args ...any) any {
-		if len(s) < 2 {
-			return s
-		}
-		return string(s[0]) + string(s[1]-32) + s[2:]
-	})
-
-	if err != nil {
-		t.Fatalf("Unexpected error registering function: %s", tplErr)
-	}
-
-	expect, fileErr := readFile("testdata/good/expected/globals.html")
-	if fileErr != nil {
-		t.Errorf("Error reading file: %s", fileErr)
-		return
-	}
-
-	actual, evalErr := tpl.String("index", nil)
-	if evalErr != nil {
-		t.Fatalf("Error evaluating template: %s", evalErr)
-	}
-
-	if actual != expect {
-		t.Errorf("Wrong result. Expect:\n'%s'\ngot:\n'%s'", expect, actual)
 	}
 }
 

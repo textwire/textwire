@@ -7,11 +7,9 @@ import (
 
 	"codeberg.org/textwire/textwire/v5/config"
 	"codeberg.org/textwire/textwire/v5/pkg/ast"
-	"codeberg.org/textwire/textwire/v5/pkg/evaluator"
 	"codeberg.org/textwire/textwire/v5/pkg/fail"
 	"codeberg.org/textwire/textwire/v5/pkg/file"
 	"codeberg.org/textwire/textwire/v5/pkg/linker"
-	"codeberg.org/textwire/textwire/v5/pkg/value"
 )
 
 const (
@@ -275,69 +273,4 @@ func TestTick(t *testing.T) {
 			t.Fatalf("broken program should not be in linker, got %v", programs)
 		}
 	})
-}
-
-// newStartedWatcher mirrors Watch setup without starting the ticker, so
-// tests can drive tick() directly.
-func newStartedWatcher(t *testing.T, ln *linker.NodeLinker) *fileWatcher {
-	t.Helper()
-
-	fw := newFileWatcher(ln)
-
-	files, err := locateFiles()
-	if err != nil {
-		t.Fatalf("failed to locate files: %v", err)
-	}
-
-	fw.files = files
-
-	return fw
-}
-
-func useTemplateDir(t *testing.T, dir string) {
-	t.Helper()
-
-	prev := *userConf
-	t.Cleanup(func() { *userConf = prev })
-
-	userConf.Configure(&config.Config{TemplateDir: dir})
-}
-
-// evalTpl evaluates a template given as source text or as a parsed program,
-// like Template.String does.
-func evalTpl[T string | *ast.Program](t *testing.T, input T) string {
-	t.Helper()
-
-	var prog *ast.Program
-	switch v := any(input).(type) {
-	case string:
-		parsed, errs := parseStr(v)
-		if errs != nil {
-			t.Fatalf("failed to parse %q: %v", v, errs[0].Error())
-		}
-		prog = parsed
-	case *ast.Program:
-		prog = v
-	}
-
-	scope, failure := value.NewScopeFromMap(map[string]any{"name": "Kokomi"})
-	if failure != nil {
-		t.Fatalf("failed to create scope: %v", failure.Error())
-	}
-
-	e := evaluator.New(customFunc, userConf)
-	evaluated := e.Eval(prog, evaluator.NewContext(scope, prog.AbsPath))
-	if evaluated.Is(value.ERR_VAL) {
-		t.Fatalf("failed to render program: %v", evaluated.(*value.Error).Err.Error())
-	}
-
-	return evaluated.String()
-}
-
-func writeTemplate(t *testing.T, path, content string) {
-	t.Helper()
-
-	if err := os.WriteFile(path, []byte(content), 0o644); err != nil {
-		t.Fatalf("failed to write template: %v", err)
-	}
 }

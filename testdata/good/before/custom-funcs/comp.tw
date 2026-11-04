@@ -1,0 +1,1 @@
+<span>{{ 2._twiceInt() }}</span>
