@@ -91,7 +91,7 @@ func strCapitalizeFunc(receiver value.Literal, _ ...value.Literal) (value.Litera
 		return &value.Str{Val: val}, nil
 	}
 
-	newVal := string(unicode.ToUpper(first)) + val[size:]
+	newVal := string(unicode.ToTitle(first)) + val[size:]
 
 	return &value.Str{Val: newVal}, nil
 }

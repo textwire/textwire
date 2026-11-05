@@ -3,6 +3,7 @@
 ## v5.2.2 (2026-11-06)
 
 - 🐛 Fixed `expected expression after '+'` pointing at the left operand instead of the operator, so multi-line expressions like `{{ 1\n\n\n+ }}` now report the line with `+`.
+- 🐛 Fixed `capitalize()` using upper case instead of title case for the first letter. `"ǆemal".capitalize()` now gives `ǅemal` instead of `Ǆemal`.
 
 ## v5.2.1 (2026-11-05)
 
