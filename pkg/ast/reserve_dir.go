@@ -22,7 +22,7 @@ func (*ReserveDir) chunkNode() {}
 
 func (rd *ReserveDir) String() string {
 	if _, ok := rd.Fallback.(*Empty); ok {
-		return fmt.Sprintf(`@reserve("%s")`, rd.Name)
+		return fmt.Sprintf(`@reserve("%s")`, rd.Name.Val)
 	}
-	return fmt.Sprintf(`@reserve("%s", %s)`, rd.Name, rd.Fallback)
+	return fmt.Sprintf(`@reserve("%s", %s)`, rd.Name.Val, rd.Fallback)
 }

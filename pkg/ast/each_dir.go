@@ -34,14 +34,14 @@ func (ed *EachDir) String() string {
 	var out strings.Builder
 	out.Grow(26)
 
-	fmt.Fprintf(&out, "@each(%s in %s)\n%s\n", ed.Var, ed.Arr, ed.Block)
+	fmt.Fprintf(&out, "@each(%s in %s)%s", ed.Var, ed.Arr, ed.Block)
 
 	if ed.ElseBlock != nil {
-		out.WriteString("@else\n")
-		out.WriteString(ed.ElseBlock.String() + "\n")
+		out.WriteString("@else")
+		out.WriteString(ed.ElseBlock.String())
 	}
 
-	out.WriteString("@end\n")
+	out.WriteString("@end")
 
 	return out.String()
 }

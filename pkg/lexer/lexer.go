@@ -601,7 +601,12 @@ func (l *Lexer) readChar() {
 	// initialization because it should be 0 when it starts
 	if l.pos > 0 {
 		l.prevCol = l.col
-		l.col += 1
+
+		// UTF-8 continuation bytes are part of the previous character, so
+		// they must not advance the column.
+		if !l.isContinuationByte() {
+			l.col += 1
+		}
 	}
 
 	if l.shouldResetCol {
@@ -611,6 +616,12 @@ func (l *Lexer) readChar() {
 	}
 
 	l.shouldResetCol = l.char == '\n'
+}
+
+// isContinuationByte reports whether the current byte continues
+// a UTF-8 encoded character.
+func (l *Lexer) isContinuationByte() bool {
+	return l.char&0xC0 == 0x80
 }
 
 func (l *Lexer) readChars(chars int) {

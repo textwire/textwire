@@ -12,7 +12,9 @@ func TestEvalStringFunctions(t *testing.T) {
 		{10, `{{ "anna".len() }}`, "4"},
 		{20, `{{ "".len() }}`, "0"},
 		{30, `{{ "中国很漂亮".len() }}`, "5"},
-		{40, `{{ "👋🏽🌍".len() }}`, "3"}, // 👋 + 🏽 skin tone modifier give length 2
+		{40, `{{ "👋🏽🌍".len() }}`, "2"}, // 👋🏽 skin tone modifier is one character
+		{41, `{{ "🇨🇭".len() }}`, "1"},
+		{42, `{{ "👨‍👩‍👧".len() }}`, "1"},
 		// split
 		{50, `{{ "one two three".split() }}`, "one, two, three"},
 		{60, `{{ "".split() }}`, ""},
@@ -95,6 +97,9 @@ func TestEvalStringFunctions(t *testing.T) {
 		{642, `{{ "👍🏽".reverse() }}`, "👍🏽"},
 		{644, "{{ \"\u0301a\".reverse() }}", "a\u0301"},
 		{645, "{{ \"\U0001F44D\U0001F3FDx\".reverse() }}", "x\U0001F44D\U0001F3FD"},
+		{646, `{{ "🇨🇳🇵🇱".reverse() }}`, "🇵🇱🇨🇳"},
+		{647, `{{ "👨‍👩‍👧 hi".reverse() }}`, "ih 👨‍👩‍👧"},
+		{648, `{{ "🏳️‍🌈x".reverse() }}`, "x🏳️‍🌈"},
 		// contains
 		{700, `{{ "Hello World".contains("World") }}`, "1"},
 		{710, `{{ "Hello World".contains("world") }}`, "0"},
@@ -125,6 +130,8 @@ func TestEvalStringFunctions(t *testing.T) {
 		{918, "{{ \"e\u0301e\u0301\".truncate(2) }}", "e\u0301e\u0301"},
 		{919, "{{ \"e\u0301x\".truncate(0) }}", "..."},
 		{921, "{{ \"\U0001F44D\U0001F3FDx\".truncate(1) }}", "\U0001F44D\U0001F3FD..."},
+		{922, `{{ "🇨🇳🇵🇱".truncate(1) }}`, "🇨🇳..."},
+		{923, `{{ "👨‍👩‍👧 hi".truncate(1) }}`, "👨‍👩‍👧..."},
 		// decimal
 		{920, `{{ "".decimal() }}`, ""},
 		{930, `{{ "0".decimal() }}`, "0.00"},
@@ -169,16 +176,27 @@ func TestEvalStringFunctions(t *testing.T) {
 		{1200, `{{ "我爱中国".at(-2) }}`, "中"},
 		{1201, `{{ "cho".at(-4) }}`, ""},
 		{1202, `{{ "abc".at(-100) }}`, ""},
+		{1203, `{{ "👍🏽".at(0) }}`, "👍🏽"},
+		{1204, `{{ "🇨🇭".at(0) }}`, "🇨🇭"},
+		{1205, `{{ "🇨🇭🇵🇱".at(1) }}`, "🇵🇱"},
+		{1206, `{{ "🇨🇭🇵🇱".at(-1) }}`, "🇵🇱"},
+		{1207, `{{ "👨‍👩‍👧".at(0) }}`, "👨‍👩‍👧"},
 		// first
 		{1210, `{{ "Textwire is awesome".first() }}`, "T"},
 		{1220, `{{ "我爱你".first() }}`, "我"},
 		{1230, `{{ "привет".first() }}`, "п"},
 		{1240, `{{ "".first() }}`, ""},
+		{1241, `{{ "👍🏽".first() }}`, "👍🏽"},
+		{1242, `{{ "🇨🇭".first() }}`, "🇨🇭"},
+		{1243, `{{ "👨‍👩‍👧".first() }}`, "👨‍👩‍👧"},
 		// last
 		{1250, `{{ "Textwire is awesome".last() }}`, "e"},
 		{1260, `{{ "我爱你".last() }}`, "你"},
 		{1270, `{{ "привет".last() }}`, "т"},
 		{1280, `{{ "".last() }}`, ""},
+		{1281, `{{ "👍🏽".last() }}`, "👍🏽"},
+		{1282, `{{ "🇨🇭".last() }}`, "🇨🇭"},
+		{1283, `{{ "👨‍👩‍👧".last() }}`, "👨‍👩‍👧"},
 		// format
 		{1290, `{{ "He has %s apples".format(2) }}`, "He has 2 apples"},
 		{1300, `{{ "First: %s. Last: %s".format('Amy', 'Adams') }}`, "First: Amy. Last: Adams"},

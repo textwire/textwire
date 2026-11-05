@@ -31,12 +31,12 @@ func (i *InsertDir) String() string {
 	var out strings.Builder
 	out.Grow(30)
 
-	if i.Argument != nil {
-		fmt.Fprintf(&out, `@insert("%s", %s)`, i.Name, i.Argument)
+	if _, ok := i.Argument.(*Empty); !ok {
+		fmt.Fprintf(&out, `@insert("%s", %s)`, i.Name.Val, i.Argument)
 		return out.String()
 	}
 
-	fmt.Fprintf(&out, `@insert("%s")`, i.Name)
+	fmt.Fprintf(&out, `@insert("%s")`, i.Name.Val)
 	out.WriteString(i.Block.String())
 	out.WriteString(`@end`)
 

@@ -354,6 +354,31 @@ func TestSplitClusters(t *testing.T) {
 			expect: []string{"\U0001F44D\U0001F3FD"},
 		},
 		{
+			name:   "flags pair regional indicators",
+			input:  "\U0001F1E8\U0001F1F3\U0001F1F5\U0001F1F1", // 🇨🇳🇵🇱
+			expect: []string{"\U0001F1E8\U0001F1F3", "\U0001F1F5\U0001F1F1"},
+		},
+		{
+			name:   "unpaired regional indicator stays alone",
+			input:  "\U0001F1E8\U0001F1F3\U0001F1F5", // Chinese flag plus an unpaired regional indicator
+			expect: []string{"\U0001F1E8\U0001F1F3", "\U0001F1F5"},
+		},
+		{
+			name:   "ZWJ family is one cluster",
+			input:  "\U0001F468\u200D\U0001F469\u200D\U0001F467", // 👨‍👩‍👧
+			expect: []string{"\U0001F468\u200D\U0001F469\u200D\U0001F467"},
+		},
+		{
+			name:   "ZWJ sequence after variation selector",
+			input:  "\U0001F3F3\uFE0F\u200D\U0001F308", // 🏳️‍🌈
+			expect: []string{"\U0001F3F3\uFE0F\u200D\U0001F308"},
+		},
+		{
+			name:   "ZWJ sequence followed by text",
+			input:  "\U0001F468\u200D\U0001F469\u200D\U0001F467 hi",
+			expect: []string{"\U0001F468\u200D\U0001F469\u200D\U0001F467", " ", "h", "i"},
+		},
+		{
 			name:   "leading combining mark stands alone",
 			input:  "\u0301",
 			expect: []string{"\u0301"},

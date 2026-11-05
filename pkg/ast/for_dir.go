@@ -35,16 +35,16 @@ func (fd *ForDir) String() string {
 	var out strings.Builder
 	out.Grow(20)
 
-	fmt.Fprintf(&out, "@for(%s; %s; %s)\n", fd.Init, fd.Cond, fd.Post)
+	fmt.Fprintf(&out, "@for(%s; %s; %s)", fd.Init, fd.Cond, fd.Post)
 
-	out.WriteString(fd.Block.String() + "\n")
+	out.WriteString(fd.Block.String())
 
 	if fd.ElseBlock != nil {
-		out.WriteString("@else\n")
-		out.WriteString(fd.ElseBlock.String() + "\n")
+		out.WriteString("@else")
+		out.WriteString(fd.ElseBlock.String())
 	}
 
-	out.WriteString("@end\n")
+	out.WriteString("@end")
 
 	return out.String()
 }

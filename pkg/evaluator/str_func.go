@@ -18,7 +18,7 @@ const maxRepeatLen = 1 << 20 // 1 MiB
 // strLenFunc returns the length of the given string
 func strLenFunc(receiver value.Literal, _ ...value.Literal) (value.Literal, error) {
 	val := receiver.(*value.Str).Val
-	chars := []rune(val)
+	chars := splitClusters(val)
 	return &value.Int{Val: int64(len(chars))}, nil
 }
 
@@ -215,20 +215,20 @@ func strAtFunc(receiver value.Literal, args ...value.Literal) (value.Literal, er
 
 	val := receiver.(*value.Str).Val
 
-	chars := []rune(val)
-	if len(chars) == 0 {
+	clusters := splitClusters(val)
+	if len(clusters) == 0 {
 		return &value.Nil{}, nil
 	}
 
 	if index < 0 {
-		index = len(chars) + index
+		index = len(clusters) + index
 	}
 
-	if index < 0 || index >= len(chars) {
+	if index < 0 || index >= len(clusters) {
 		return &value.Nil{}, nil
 	}
 
-	return &value.Str{Val: string(chars[index])}, nil
+	return &value.Str{Val: clusters[index]}, nil
 }
 
 // strFirstFunc returns the first character in the string

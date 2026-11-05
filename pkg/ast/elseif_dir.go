@@ -24,7 +24,7 @@ func (*ElseIfDir) chunkNode() {}
 func (ed *ElseIfDir) String() string {
 	var out strings.Builder
 
-	fmt.Fprintf(&out, "@elseif(%s)\n", ed.Cond)
+	fmt.Fprintf(&out, "@elseif(%s)", ed.Cond)
 	out.WriteString(ed.Block.String())
 
 	return out.String()
