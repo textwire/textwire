@@ -2,9 +2,10 @@
 
 ## v5.2.1 (2026-11-05)
 
-- 🐛 Fixed `reverse()` and `truncate()` splitting flags and ZWJ emoji sequences, like `🇨🇳🇵🇱`, `👨‍👩‍👧` and `🏳️‍🌈`, into separate characters. Closes [#152](https://codeberg.org/textwire/textwire/issues/152).
 - 🐛 Fixed parser hanging forever on a broken `@for` init or post statement without `@end`, like `@for(x)`. It now stops at EOF again. Closes [#151](https://codeberg.org/textwire/textwire/issues/151).
+- 🐛 Fixed `reverse()` and `truncate()` splitting flags and ZWJ emoji sequences, like `🇨🇳🇵🇱`, `👨‍👩‍👧` and `🏳️‍🌈`, into separate characters. Closes [#152](https://codeberg.org/textwire/textwire/issues/152).
 - 🐛 Added missing `@end` to hover message on `@component`.
+- 🐛 Fixed token columns counting UTF-8 bytes instead of characters, which shifted error columns, editor links and loop detection on lines with non-ASCII text. Closes [#154](https://codeberg.org/textwire/textwire/issues/154).
 - 🐛 Fixed `@reserve()`, `@insert()` and default `@pass` printing extra quotes, and `@insert()` with a block not printing its block. Closes [#155](https://codeberg.org/textwire/textwire/issues/155).
 
 ## v5.2.0 (2026-11-04)

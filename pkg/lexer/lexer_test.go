@@ -529,8 +529,25 @@ func TestIllegalTokenWithMultibyteRune(t *testing.T) {
 		{Type: token.LBRACES, Lit: "{{", Pos: &position.Pos{EndCol: 1}},
 		{Type: token.IDENT, Lit: "caf", Pos: &position.Pos{StartCol: 3, EndCol: 5}},
 		{Type: token.ILLEGAL, Lit: "é", Pos: &position.Pos{StartCol: 6, EndCol: 6}},
-		{Type: token.RBRACES, Lit: "}}", Pos: &position.Pos{StartCol: 9, EndCol: 10}},
-		{Type: token.EOF, Lit: "", Pos: &position.Pos{StartCol: 11, EndCol: 11}},
+		{Type: token.RBRACES, Lit: "}}", Pos: &position.Pos{StartCol: 8, EndCol: 9}},
+		{Type: token.EOF, Lit: "", Pos: &position.Pos{StartCol: 10, EndCol: 10}},
+	})
+}
+
+func TestMultibyteCharactersCountAsOneColumn(t *testing.T) {
+	inp := `<p>你好，世界！</p> {{ 1 + }}`
+
+	TokenizeString(t, inp, []token.Token{
+		{
+			Type: token.TEXT,
+			Lit:  `<p>你好，世界！</p> `,
+			Pos:  &position.Pos{EndCol: 13},
+		},
+		{Type: token.LBRACES, Lit: "{{", Pos: &position.Pos{StartCol: 14, EndCol: 15}},
+		{Type: token.INT, Lit: "1", Pos: &position.Pos{StartCol: 17, EndCol: 17}},
+		{Type: token.ADD, Lit: "+", Pos: &position.Pos{StartCol: 19, EndCol: 19}},
+		{Type: token.RBRACES, Lit: "}}", Pos: &position.Pos{StartCol: 21, EndCol: 22}},
+		{Type: token.EOF, Lit: "", Pos: &position.Pos{StartCol: 23, EndCol: 23}},
 	})
 }
 
