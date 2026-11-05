@@ -1046,9 +1046,7 @@ func (p *Parser) infixExpr(left ast.Expression) ast.Expression {
 	precedence := precedences[opTok.Type]
 
 	if p.peekTokenIs(p.tokenEnd) {
-		pos := left.Pos()
-		pos.EndCol = opTok.Pos.EndCol
-		p.newError(pos, fail.ErrExpectExprAfter, opTok.Lit)
+		p.newError(opTok.Pos, fail.ErrExpectExprAfter, opTok.Lit)
 		return ast.NewIllegalNode(opTok)
 	}
 

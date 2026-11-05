@@ -1,5 +1,9 @@
 # Release notes V5
 
+## v5.2.2 (2026-11-06)
+
+- 🐛 Fixed `expected expression after '+'` pointing at the left operand instead of the operator, so multi-line expressions like `{{ 1\n\n\n+ }}` now report the line with `+`.
+
 ## v5.2.1 (2026-11-05)
 
 - 🐛 Fixed parser hanging forever on a broken `@for` init or post statement without `@end`, like `@for(x)`. It now stops at EOF again. Closes [#151](https://codeberg.org/textwire/textwire/issues/151).

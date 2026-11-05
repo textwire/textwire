@@ -443,7 +443,18 @@ func TestErrorHandling(t *testing.T) {
 			id:  20,
 			inp: "{{ 5 + }}",
 			err: fail.New(
-				&position.Pos{StartCol: 3, EndCol: 5},
+				&position.Pos{StartCol: 5, EndCol: 5},
+				"",
+				fail.OriginPars,
+				fail.ErrExpectExprAfter,
+				"+",
+			),
+		},
+		{
+			id:  21,
+			inp: "{{ 1\n\n\n+ }}",
+			err: fail.New(
+				&position.Pos{StartLine: 3, StartCol: 0, EndLine: 3, EndCol: 0},
 				"",
 				fail.OriginPars,
 				fail.ErrExpectExprAfter,
@@ -650,7 +661,7 @@ func TestErrorHandling(t *testing.T) {
 			id:  58,
 			inp: "{{ (1 + }}",
 			err: fail.New(
-				&position.Pos{StartCol: 4, EndCol: 6},
+				&position.Pos{StartCol: 6, EndCol: 6},
 				"",
 				fail.OriginPars,
 				fail.ErrExpectExprAfter,
