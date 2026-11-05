@@ -196,7 +196,7 @@ func formatIntDecimals(val, separator string, decimals int) string {
 // decimal places.
 // - Only adds decimals, never removes.
 // - Only works with floats with dot separator.
-// - Changes seperator to the one you pass.
+// - Changes separator to the one you pass.
 func ensureMinFloatDecimals(val, separator string, decimals int) string {
 	intPart, fracPart, found := strings.Cut(val, ".")
 	if !found {
@@ -277,26 +277,55 @@ func capitalizeFirst(s string) string {
 	return string(buf[:len(s)])
 }
 
+const zeroWidthJoiner = '\u200D'
+
+// isRegionalIndicator reports whether r is one of the regional indicator
+// symbols used to build flag emoji.
+func isRegionalIndicator(r rune) bool {
+	return r >= 0x1F1E6 && r <= 0x1F1FF
+}
+
 // isClusterExtender reports whether r continues the cluster of the rune before it.
 func isClusterExtender(r rune) bool {
-	return unicode.IsMark(r) || (r >= 0x1F3FB && r <= 0x1F3FF)
+	skinToneMods := r >= 0x1F3FB && r <= 0x1F3FF
+	return unicode.IsMark(r) || skinToneMods || r == zeroWidthJoiner
 }
 
 // splitClusters splits s into approximate user-perceived characters: each
-// base rune together with any combining marks or skin tone modifiers that
-// follow it. The returned
-// strings are substrings of s, so no per-cluster copying occurs.
+// base rune together with any combining marks, skin tone modifiers or ZWJ
+// sequence parts that follow it. Flags built from two regional indicators
+// stay together too. The returned strings are substrings of s, so no
+// per-cluster copying occurs.
 func splitClusters(s string) []string {
 	var clusters []string
-	start := 0
+
+	start := 0           // byte offset where the current cluster begins
+	afterZWJ := false    // previous rune was a zero width joiner
+	hasOpenFlag := false // current cluster ends in a regional indicator still waiting for its pair
 
 	for i, r := range s {
-		// A non-mark rune (other than the first) begins a new cluster,
-		// so close out the previous one.
-		if i > 0 && !isClusterExtender(r) {
+		isRI := isRegionalIndicator(r)
+		isExtender := isClusterExtender(r)
+
+		continuesCluster := afterZWJ || isExtender || (isRI && hasOpenFlag)
+
+		// Save the finished cluster when the new one begins
+		if i > 0 && !continuesCluster {
 			clusters = append(clusters, s[start:i])
 			start = i
 		}
+
+		switch {
+		case isRI:
+			// First RI opens a flag, the second one completes it.
+			hasOpenFlag = !hasOpenFlag
+		case isExtender:
+			// Extenders don't change whether a flag is pending.
+		default:
+			hasOpenFlag = false
+		}
+
+		afterZWJ = r == zeroWidthJoiner
 	}
 
 	if start < len(s) {
