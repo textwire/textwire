@@ -37,7 +37,9 @@ func (fd *ForDir) String() string {
 
 	fmt.Fprintf(&out, "@for(%s; %s; %s)", fd.Init, fd.Cond, fd.Post)
 
-	out.WriteString(fd.Block.String())
+	if fd.Block != nil {
+		out.WriteString(fd.Block.String())
+	}
 
 	if fd.ElseBlock != nil {
 		out.WriteString("@else")

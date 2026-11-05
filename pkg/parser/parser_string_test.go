@@ -466,6 +466,80 @@ func TestEachDirString(t *testing.T) {
 	})
 }
 
+func TestProgramStringWithEmptyBlocks(t *testing.T) {
+	cases := []struct {
+		name   string
+		inp    string
+		expect string
+	}{
+		{
+			name:   "empty if block",
+			inp:    "@if(true)@end",
+			expect: "@if(true)@end",
+		},
+		{
+			name:   "empty if else block",
+			inp:    "@if(true)a@else@end",
+			expect: "@if(true)a@else@end",
+		},
+		{
+			name:   "empty elseif block",
+			inp:    "@if(true)a@elseif(false)@end",
+			expect: "@if(true)a@elseif(false)@end",
+		},
+		{
+			name:   "empty elseif else bodies",
+			inp:    "@if(true)a@elseif(false)@else@end",
+			expect: "@if(true)a@elseif(false)@else@end",
+		},
+		{
+			name:   "empty if elseif else bodies",
+			inp:    "@if(true)@elseif(false)@else@end",
+			expect: "@if(true)@elseif(false)@else@end",
+		},
+		{
+			name:   "empty each block",
+			inp:    "@each(x in [1])@end",
+			expect: "@each(x in [1])@end",
+		},
+		{
+			name:   "empty each else",
+			inp:    "@each(x in [1])a@else@end",
+			expect: "@each(x in [1])a@else@end",
+		},
+		{
+			name:   "empty for block",
+			inp:    "@for(i=0;i<1;i++)@end",
+			expect: "@for((i = 0); (i < 1); (i++))@end",
+		},
+		{
+			name:   "empty for else block",
+			inp:    "@for(i=0;i<1;i++)a@else@end",
+			expect: "@for((i = 0); (i < 1); (i++))a@else@end",
+		},
+		{
+			name:   "empty insert block",
+			inp:    `@insert("a")@end`,
+			expect: `@insert("a")@end`,
+		},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			p := New(lexer.New(tc.inp), nil)
+			prog := p.ParseProgram()
+
+			if p.HasErrors() {
+				t.Fatalf("parse errors for %q: %v", tc.inp, p.Errors()[0])
+			}
+
+			if got := prog.String(); got != tc.expect {
+				t.Fatalf("Program.String() for %q = %q, expect %q", tc.inp, got, tc.expect)
+			}
+		})
+	}
+}
+
 func TestBreakDirString(t *testing.T) {
 	testChunkInLoopString[*ast.BreakDir](t, "@break", "@break")
 }

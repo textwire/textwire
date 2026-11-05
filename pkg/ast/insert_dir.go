@@ -37,7 +37,11 @@ func (i *InsertDir) String() string {
 	}
 
 	fmt.Fprintf(&out, `@insert("%s")`, i.Name.Val)
-	out.WriteString(i.Block.String())
+
+	if i.Block != nil {
+		out.WriteString(i.Block.String())
+	}
+
 	out.WriteString(`@end`)
 
 	return out.String()

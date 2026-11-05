@@ -1050,6 +1050,16 @@ func TestErrorHandling(t *testing.T) {
 				token.String(token.LPAREN),
 			),
 		},
+		{
+			id:  811,
+			inp: "@if(true)@else@elseif(true)@end",
+			err: fail.New(
+				&position.Pos{StartCol: 14, EndCol: 20},
+				"",
+				fail.OriginPars,
+				fail.ErrElseifCannotFollowElse,
+			),
+		},
 		// Global functions
 		{
 			id:  900,
