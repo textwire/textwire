@@ -1046,9 +1046,7 @@ func (p *Parser) infixExpr(left ast.Expression) ast.Expression {
 	precedence := precedences[opTok.Type]
 
 	if p.peekTokenIs(p.tokenEnd) {
-		pos := left.Pos()
-		pos.EndCol = opTok.Pos.EndCol
-		p.newError(pos, fail.ErrExpectExprAfter, opTok.Lit)
+		p.newError(opTok.Pos, fail.ErrExpectExprAfter, opTok.Lit)
 		return ast.NewIllegalNode(opTok)
 	}
 
@@ -1172,18 +1170,38 @@ func (p *Parser) elseifDir() (*ast.ElseIfDir, *ast.Illegal) {
 }
 
 func (p *Parser) elseBlock() *ast.Block {
-	if p.curTokenIs(token.ELSE) {
+	hasElse := p.curTokenIs(token.ELSE)
+	if hasElse {
 		p.nextToken() // skip "@else"
 	}
 
+	// "@else" immediately followed by "@end" is an empty else block.
+	if hasElse && p.curTokenIs(token.END) {
+		block := ast.NewBlock(p.curToken)
+		block.SetEndPosition(p.curToken.Pos)
+		return block
+	}
+
+	// No else block here: either there was no "@else", or it is followed
+	// by another "@else".
 	if p.curTokenIs(token.ELSE, token.END) {
 		return nil
 	}
 
 	block := p.block()
 
-	if p.peekTokenIs(token.ELSEIF) {
+	// "@elseif" is not allowed after "@else". The peek token takes
+	// precedence when choosing the error position.
+	switch {
+	case p.peekTokenIs(token.ELSEIF):
 		p.newError(p.peekToken.Pos, fail.ErrElseifCannotFollowElse)
+		return nil
+	case p.curTokenIs(token.ELSEIF):
+		p.newError(p.curToken.Pos, fail.ErrElseifCannotFollowElse)
+		return nil
+	}
+
+	if block == nil {
 		return nil
 	}
 

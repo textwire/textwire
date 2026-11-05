@@ -1,5 +1,12 @@
 # Release notes V5
 
+## v5.2.2 (2026-11-05)
+
+- 🐛 Fixed `expected expression after '+'` pointing at the left operand instead of the operator, so multi-line expressions like `{{ 1\n\n\n+ }}` now report the line with `+`.
+- 🐛 Fixed `capitalize()` using upper case instead of title case for the first letter. `"ǆemal".capitalize()` now gives `ǅemal` instead of `Ǆemal`.
+- 🐛 Fixed `Program.String()` panicking on empty `@if`, `@elseif`, `@for`, `@each` and `@insert` bodies. Empty `@else` blocks now print as `@else` instead of disappearing.
+- 🐛 Fixed a parser panic when `@elseif` follows `@else`, like `@if(true)@else@elseif(true)@end`. It now reports `'@elseif' cannot come after '@else'`.
+
 ## v5.2.1 (2026-11-05)
 
 - 🐛 Fixed parser hanging forever on a broken `@for` init or post statement without `@end`, like `@for(x)`. It now stops at EOF again. Closes [#151](https://codeberg.org/textwire/textwire/issues/151).

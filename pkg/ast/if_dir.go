@@ -27,7 +27,11 @@ func (id *IfDir) String() string {
 	var out strings.Builder
 	out.Grow(20 + len(id.ElseifDirs)*2)
 
-	fmt.Fprintf(&out, "@if(%s)%s", id.Cond, id.IfBlock)
+	fmt.Fprintf(&out, "@if(%s)", id.Cond)
+
+	if id.IfBlock != nil {
+		out.WriteString(id.IfBlock.String())
+	}
 
 	for _, e := range id.ElseifDirs {
 		out.WriteString(e.String())
