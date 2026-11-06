@@ -35,9 +35,6 @@
 - ✨ Added [formatDate](https://textwire.github.io/v4/functions/global#formatdate) global function which converts string date. Closes [#111](https://github.com/textwire/textwire/issues/111).
 
 ## [Release Notes V1](CHANGELOG-V1.md)
-
 ## [Release Notes V2](CHANGELOG-V2.md)
-
 ## [Release Notes V3](CHANGELOG-V3.md)
-
 ## [Emojis Meaning](.github/EMOJIS.md)

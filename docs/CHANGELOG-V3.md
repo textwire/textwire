@@ -150,7 +150,5 @@
 7. Fixed variable leak from template to layout non-explicitly. In Textwire v2, if you had a variable in your template, it would be accessible in your layout without passing it explicitly. In Textwire v3, this is not available anymore.
 
 ## [Release Notes V1](CHANGELOG-V1.md)
-
 ## [Release Notes V2](CHANGELOG-V2.md)
-
 ## [Emojis Meaning](EMOJIS.md)
