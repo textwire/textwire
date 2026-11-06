@@ -9,121 +9,185 @@ import (
 
 func TestEvalArrFunctions(t *testing.T) {
 	cases := []struct {
-		id     uint
+		name   string
 		inp    string
 		expect string
 	}{
 		// len
-		{10, `{{ [].len() }}`, "0"},
-		{20, `{{ [1, 2, 3].len() }}`, "3"},
-		{30, `{{ [0, [2, [1, 2]]].len() }}`, "2"},
+		{"len of empty array", `{{ [].len() }}`, "0"},
+		{"len of three elements", `{{ [1, 2, 3].len() }}`, "3"},
+		{"len counts only top-level elements", `{{ [0, [2, [1, 2]]].len() }}`, "2"},
 		// join
-		{40, `{{ [1, 2, 3].join(", ") }}`, "1, 2, 3"},
-		{50, `{{ ['Chiori', 'Venti', 'Raiden'].join(" ") }}`, "Chiori Venti Raiden"},
-		{60, `{{ ['Chiori', 'Venti', 'Raiden'].join() }}`, "Chiori,Venti,Raiden"},
-		{70, `{{ [].join() }}`, ""},
-		{75, `{{ [1, 2.5, true, 'text'].join('-') }}`, "1-2.5-1-text"},
-		{76, `{{ [1, nil, 3].join(', ') }}`, "1, , 3"},
-		{77, `{{ [[1, 2], [3, 4]].join('|') }}`, "1, 2|3, 4"},
-		// rand
-		{80, `{{ [].rand() }}`, ""},
-		{90, `{{ [1].rand() }}`, "1"},
-		{100, `{{ ['Chiori'].rand() }}`, "Chiori"},
-		{110, `{{ [[[4]]].rand().rand().rand() }}`, "4"},
-		// reverse
-		{120, `{{ [1, 2, 3].reverse() }}`, "3, 2, 1"},
-		{130, `{{ ['Mona'].reverse() }}`, "Mona"},
-		{140, `{{ [].reverse() }}`, ""},
-		{150, `{{ ['Raiden', 'Venti', 'Barbara'].reverse() }}`, "Barbara, Venti, Raiden"},
-		{160, `{{ [4, 3, [1, 2]].reverse() }}`, "1, 2, 3, 4"},
-		{161, `{{ a = [1, 2, 3]; b = a.reverse(); a }}`, "1, 2, 3"},
-		// slice
-		{170, `{{ [].slice(0) }}`, ""},
-		{180, `{{ [1, 2, 3].slice(0) }}`, "1, 2, 3"},
-		{190, `{{ [1, 2, 3].slice(-34) }}`, "1, 2, 3"}, // should change -35 to 0
-		{200, `{{ [0, 1, 2, 3].slice(2) }}`, "2, 3"},
-		{210, `{{ [0, 1, 2, 3].slice(5) }}`, ""},
-		{220, `{{ [0, 1, 2, 3].slice(1, 3) }}`, "1, 2"},
-		{230, `{{ ['Chiori', 'Venti', 'Raiden', "Nahida"].slice(1, 2) }}`, "Venti"},
+		{"join ints with comma", `{{ [1, 2, 3].join(", ") }}`, "1, 2, 3"},
 		{
-			240,
+			"join strings with space",
+			`{{ ['Chiori', 'Venti', 'Raiden'].join(" ") }}`,
+			"Chiori Venti Raiden",
+		},
+		{
+			"join strings with default comma",
+			`{{ ['Chiori', 'Venti', 'Raiden'].join() }}`,
+			"Chiori,Venti,Raiden",
+		},
+		{"join empty array", `{{ [].join() }}`, ""},
+		{
+			"join mixed types with dash",
+			`{{ [1, 2.5, true, 'text'].join('-') }}`,
+			"1-2.5-1-text",
+		},
+		{"join with nil element", `{{ [1, nil, 3].join(', ') }}`, "1, , 3"},
+		{"join nested arrays", `{{ [[1, 2], [3, 4]].join('|') }}`, "1, 2|3, 4"},
+		// rand
+		{"rand on empty array", `{{ [].rand() }}`, ""},
+		{"rand on single int", `{{ [1].rand() }}`, "1"},
+		{"rand on single string", `{{ ['Chiori'].rand() }}`, "Chiori"},
+		{"rand unwraps nested arrays", `{{ [[[4]]].rand().rand().rand() }}`, "4"},
+		// reverse
+		{"reverse three ints", `{{ [1, 2, 3].reverse() }}`, "3, 2, 1"},
+		{"reverse single string", `{{ ['Mona'].reverse() }}`, "Mona"},
+		{"reverse empty array", `{{ [].reverse() }}`, ""},
+		{
+			"reverse three strings",
+			`{{ ['Raiden', 'Venti', 'Barbara'].reverse() }}`,
+			"Barbara, Venti, Raiden",
+		},
+		{"reverse nested array", `{{ [4, 3, [1, 2]].reverse() }}`, "1, 2, 3, 4"},
+		{"reverse does not mutate original", `{{ a = [1, 2, 3]; b = a.reverse(); a }}`, "1, 2, 3"},
+		// slice
+		{"slice empty array from zero", `{{ [].slice(0) }}`, ""},
+		{"slice full array from zero", `{{ [1, 2, 3].slice(0) }}`, "1, 2, 3"},
+		{
+			"slice with large negative start clamps to zero",
+			`{{ [1, 2, 3].slice(-34) }}`,
+			"1, 2, 3",
+		}, // should change -35 to 0
+		{"slice from index two", `{{ [0, 1, 2, 3].slice(2) }}`, "2, 3"},
+		{"slice start beyond length", `{{ [0, 1, 2, 3].slice(5) }}`, ""},
+		{"slice from one to three", `{{ [0, 1, 2, 3].slice(1, 3) }}`, "1, 2"},
+		{
+			"slice strings one to two",
+			`{{ ['Chiori', 'Venti', 'Raiden', "Nahida"].slice(1, 2) }}`,
+			"Venti",
+		},
+		{
+			"slice with negative end clamps to length",
 			`{{ ['Kokomi', 'Venti', 'Raiden', "Nahida"].slice(0, -3) }}`,
 			"Kokomi, Venti, Raiden, Nahida",
 		},
-		{250, `{{ [1, 2, 3, 4].slice(-3, -1) }}`, "1, 2, 3, 4"},
-		{251, `{{ [1, 2, 3].slice(2, 2) }}`, ""},
-		{252, `{{ [1, 2, 3, 4].slice(-2, 2) }}`, "1, 2"},
-		{253, `{{ [1, 2, 3].slice(2, 1) }}`, ""},
-		{254, `{{ [1, 2, 3].slice(3, 1) }}`, ""},
-		{255, `{{ a = [1, 2, 3]; b = a.slice(0); b[0] = 9; a }}`, "1, 2, 3"},
-		{256, `{{ a = [1, 2, 3]; b = a.slice(1, 2); b[0] = 9; a }}`, "1, 2, 3"},
-		// shuffle
-		{260, `{{ [].shuffle() }}`, ""},
-		{270, `{{ [1].shuffle() }}`, "1"},
-		{280, `{{ ['Cryo'].shuffle() }}`, "Cryo"},
-		// contains
-		{290, `{{ [].contains(1) }}`, "0"},
-		{300, `{{ [1, 2, 3].contains(1) }}`, "1"},
-		{310, `{{ [1, 2, 3].contains(2) }}`, "1"},
-		{320, `{{ [1, 2, 3].contains(3) }}`, "1"},
-		{330, `{{ [1, 2, 3].contains(4) }}`, "0"},
-		{340, `{{ [{}, [1, 2], 3].contains(1) }}`, "0"},
-		{350, `{{ [{}, [1, 2], 3].contains({}) }}`, "1"},
-		{360, `{{ [{nice: 3, cool: 'anna'}, [1, 2], 3].contains({nice:3, cool: 'anna'}) }}`, "1"},
-		{370, `{{ [{cool: 'anna', nice: 3}, [1, 2], 3].contains({nice:3, cool: 'anna'}) }}`, "1"},
-		{380, `{{ [[], 3].contains([]) }}`, "1"},
-		{390, `{{ [[1, 2], 3].contains([1, 2]) }}`, "1"},
-		{400, `{{ [[2, 1], 3].contains([1, 2]) }}`, "0"},
-		{410, `{{ [1, 2].contains({}) }}`, "0"},
-		{420, `{{ [{}, 21].contains({age: 21}) }}`, "0"},
-		{430, `{{ [[], [1], [2]].contains([2]) }}`, "1"},
-		{440, `{{ ![{}, 21].contains({age: 21}) }}`, "1"},
-		{450, `{{ ![[], [1], [2]].contains([2]) }}`, "0"},
-		{451, `{{ [1, nil, 3].contains(nil) }}`, "1"},
-		{452, `{{ [1, 0].contains(1) }}`, "1"},
-		{453, `{{ [1.5, 2.5].contains(1.5) }}`, "1"},
-		{454, `{{ [1, 'Venti', 3].contains('Venti') }}`, "1"},
-		{455, `{{ [[1, [2, 3]]].contains([1, [2, 3]]) }}`, "1"},
-		// append
-		{460, `{{ [].append(1) }}`, "1"},
-		{470, `{{ [1, 2, 3].append(4) }}`, "1, 2, 3, 4"},
-		{480, `{{ ['Chiori', 'Venti'].append('Raiden') }}`, "Chiori, Venti, Raiden"},
-		{490, `{{ [1, 2].append(3, 4) }}`, "1, 2, 3, 4"},
-		{500, `{{ [1, 2].append([3, 4]) }}`, "1, 2, 3, 4"},
-		{510, `{{ [1, 2].append([3, 4]).len() }}`, "3"},
-		{511, `{{ a = []; a = a.append(1); a = a.append(2); a }}`, "1, 2"},
-		{512, `{{ a = []; a = a.append([1, 2]); a = a.append([3, 4]); a }}`, "1, 2, 3, 4"},
-		// prepend
-		{520, `{{ [].prepend(1) }}`, "1"},
-		{530, `{{ [1, 2, 3].prepend(4) }}`, "4, 1, 2, 3"},
-		{540, `{{ ['Chiori', 'Venti'].prepend('Raiden') }}`, "Raiden, Chiori, Venti"},
-		{550, `{{ [1, 2].prepend(3, 4) }}`, "3, 4, 1, 2"},
-		{560, `{{ [1, 2].prepend([3, 4]) }}`, "3, 4, 1, 2"},
-		{570, `{{ [1, 2].prepend([3, 4]).len() }}`, "3"},
-		// json
-		{580, `{{ [].json() }}`, "[]"},
 		{
-			590,
+			"slice with both negative bounds clamps",
+			`{{ [1, 2, 3, 4].slice(-3, -1) }}`,
+			"1, 2, 3, 4",
+		},
+		{"slice with equal start and end", `{{ [1, 2, 3].slice(2, 2) }}`, ""},
+		{"slice negative start to positive end", `{{ [1, 2, 3, 4].slice(-2, 2) }}`, "1, 2"},
+		{"slice start greater than end", `{{ [1, 2, 3].slice(2, 1) }}`, ""},
+		{"slice start beyond length with end one", `{{ [1, 2, 3].slice(3, 1) }}`, ""},
+		{
+			"slice returns independent copy",
+			`{{ a = [1, 2, 3]; b = a.slice(0); b[0] = 9; a }}`,
+			"1, 2, 3",
+		},
+		{
+			"slice returns independent subarray copy",
+			`{{ a = [1, 2, 3]; b = a.slice(1, 2); b[0] = 9; a }}`,
+			"1, 2, 3",
+		},
+		// shuffle
+		{"shuffle empty array", `{{ [].shuffle() }}`, ""},
+		{"shuffle single int", `{{ [1].shuffle() }}`, "1"},
+		{"shuffle single string", `{{ ['Cryo'].shuffle() }}`, "Cryo"},
+		// contains
+		{"contains in empty array", `{{ [].contains(1) }}`, "0"},
+		{"contains first element", `{{ [1, 2, 3].contains(1) }}`, "1"},
+		{"contains middle element", `{{ [1, 2, 3].contains(2) }}`, "1"},
+		{"contains last element", `{{ [1, 2, 3].contains(3) }}`, "1"},
+		{"contains missing element", `{{ [1, 2, 3].contains(4) }}`, "0"},
+		{"contains int in mixed array", `{{ [{}, [1, 2], 3].contains(1) }}`, "0"},
+		{"contains empty object", `{{ [{}, [1, 2], 3].contains({}) }}`, "1"},
+		{
+			"contains object with all pairs matching",
+			`{{ [{nice: 3, cool: 'anna'}, [1, 2], 3].contains({nice:3, cool: 'anna'}) }}`,
+			"1",
+		},
+		{
+			"contains object regardless of pair order",
+			`{{ [{cool: 'anna', nice: 3}, [1, 2], 3].contains({nice:3, cool: 'anna'}) }}`,
+			"1",
+		},
+		{"contains empty array", `{{ [[], 3].contains([]) }}`, "1"},
+		{"contains array", `{{ [[1, 2], 3].contains([1, 2]) }}`, "1"},
+		{"contains array with different order", `{{ [[2, 1], 3].contains([1, 2]) }}`, "0"},
+		{"contains object in int array", `{{ [1, 2].contains({}) }}`, "0"},
+		{"contains object without matching pairs", `{{ [{}, 21].contains({age: 21}) }}`, "0"},
+		{"contains nested array", `{{ [[], [1], [2]].contains([2]) }}`, "1"},
+		{"negated contains missing object", `{{ ![{}, 21].contains({age: 21}) }}`, "1"},
+		{"negated contains present array", `{{ ![[], [1], [2]].contains([2]) }}`, "0"},
+		{"contains nil element", `{{ [1, nil, 3].contains(nil) }}`, "1"},
+		{"contains duplicate int", `{{ [1, 0].contains(1) }}`, "1"},
+		{"contains float", `{{ [1.5, 2.5].contains(1.5) }}`, "1"},
+		{"contains string in mixed array", `{{ [1, 'Venti', 3].contains('Venti') }}`, "1"},
+		{"contains nested array structure", `{{ [[1, [2, 3]]].contains([1, [2, 3]]) }}`, "1"},
+		// append
+		{"append to empty array", `{{ [].append(1) }}`, "1"},
+		{"append int", `{{ [1, 2, 3].append(4) }}`, "1, 2, 3, 4"},
+		{
+			"append string",
+			`{{ ['Chiori', 'Venti'].append('Raiden') }}`,
+			"Chiori, Venti, Raiden",
+		},
+		{"append multiple arguments", `{{ [1, 2].append(3, 4) }}`, "1, 2, 3, 4"},
+		{"append array flattens", `{{ [1, 2].append([3, 4]) }}`, "1, 2, 3, 4"},
+		{"append array then len", `{{ [1, 2].append([3, 4]).len() }}`, "3"},
+		{
+			"append twice with reassignment",
+			`{{ a = []; a = a.append(1); a = a.append(2); a }}`,
+			"1, 2",
+		},
+		{
+			"append arrays with reassignment",
+			`{{ a = []; a = a.append([1, 2]); a = a.append([3, 4]); a }}`,
+			"1, 2, 3, 4",
+		},
+		// prepend
+		{"prepend to empty array", `{{ [].prepend(1) }}`, "1"},
+		{"prepend int", `{{ [1, 2, 3].prepend(4) }}`, "4, 1, 2, 3"},
+		{
+			"prepend string",
+			`{{ ['Chiori', 'Venti'].prepend('Raiden') }}`,
+			"Raiden, Chiori, Venti",
+		},
+		{"prepend multiple arguments", `{{ [1, 2].prepend(3, 4) }}`, "3, 4, 1, 2"},
+		{"prepend array flattens", `{{ [1, 2].prepend([3, 4]) }}`, "3, 4, 1, 2"},
+		{"prepend array then len", `{{ [1, 2].prepend([3, 4]).len() }}`, "3"},
+		// json
+		{"json of empty array", `{{ [].json() }}`, "[]"},
+		{
+			"json of mixed values",
 			`{!! [1, 2.1, true, false, nil, "Chiori", []].json() !!}`,
 			`[1,2.1,true,false,null,"Chiori",[]]`,
 		},
 		{
-			600,
+			"json of object and negative int",
 			`{!! [{name: "Skirk", game: "Genshin Impact"}, -10].json() !!}`,
 			`[{"game":"Genshin Impact","name":"Skirk"},-10]`,
 		},
-		{610, `{{ [[[[[1,2]]]]].json() }}`, "[[[[[1,2]]]]]"},
+		{"json of deeply nested array", `{{ [[[[[1,2]]]]].json() }}`, "[[[[[1,2]]]]]"},
 		{
-			611,
+			"json of array of objects",
 			`{!! [{name: 'Venti'}, {name: 'Escoffier'}].json() !!}`,
 			`[{"name":"Venti"},{"name":"Escoffier"}]`,
 		},
-		{612, `{{ [true, false, nil].json() }}`, "[true,false,null]"},
-		{613, `{!! [{a: [1, {b: 2}]}].json() !!}`, `[{"a":[1,{"b":2}]}]`},
+		{"json of booleans and nil", `{{ [true, false, nil].json() }}`, "[true,false,null]"},
+		{
+			"json of nested object in array",
+			`{!! [{a: [1, {b: 2}]}].json() !!}`,
+			`[{"a":[1,{"b":2}]}]`,
+		},
 	}
 
 	for _, tc := range cases {
-		evaluationExpected(t, tc.inp, tc.expect, nil, tc.id)
+		evaluationExpected(t, tc.inp, tc.expect, nil, tc.name)
 	}
 }
 
