@@ -1033,6 +1033,43 @@ func TestEvalForDir(t *testing.T) {
 		{390, `{{ i = 0 }}@for(; i < 10; i++)@breakif(i == 3)@end{{ i }}`, "3"},
 		{391, `{{ i = "hi" }}@for(i = 0; i < 2; i++){{ i }}@end{{ i }}`, "01hi"},
 		{400, `{{ i = 0 }}@for(; i < 10; i++)@if(i == 3)@break@end@end{{ i }}`, "3"},
+		// test loop variable
+		{410, `@for(i = 0; i < 3; i++){{ loop.index }}@end`, "012"},
+		{420, `@for(i = 0; i < 3; i++){{ loop.iter }}@end`, "123"},
+		{430, `@for(i = 0; i < 3; i++){{ loop.first }}@end`, "100"},
+		// last is unavailable because a for loop may not have a known length
+		{440, `@for(i = 0; i < 2; i++){{ loop.last }}|@end`, "||"},
+		// the outermost loop has no parent
+		{450, `@for(i = 0; i < 2; i++){{ loop.parent }}|@end`, "||"},
+		// loop refers to the nearest enclosing loop
+		{
+			460,
+			`@for(i = 0; i < 2; i++)@for(j = 0; j < 2; j++){{ loop.index }}{{ loop.parent.index }};@end@end`,
+			"00;10;01;11;",
+		},
+		// the outer loop binding is restored after the inner loop ends
+		{
+			470,
+			`@for(i = 0; i < 2; i++)@for(j = 0; j < 1; j++)@end{{ loop.index }}@end`,
+			"01",
+		},
+		// loop.parent.parent reaches the outermost loop
+		{
+			480,
+			`@for(i = 0; i < 1; i++)@for(j = 0; j < 1; j++)@for(k = 0; k < 1; k++){{ loop.parent.parent.index }}@end@end@end`,
+			"0",
+		},
+		// loop metadata is available in body conditionals and is not affected by continue
+		{
+			490,
+			`@for(i = 0; i < 3; i++)@continueif(loop.index == 1){{ loop.index }}@end`,
+			"02",
+		},
+		{
+			500,
+			`@for(i = 0; i < 5; i++)@breakif(loop.iter == 3){{ loop.index }}@end`,
+			"01",
+		},
 	}
 
 	for _, tc := range cases {
@@ -1147,17 +1184,17 @@ func TestEvalEachDir(t *testing.T) {
 		},
 		// the outermost loop has no parent
 		{430, `@each(i in [1]){{ loop.parent }}|@end`, "|"},
-		// @for is transparent for loop scoping
+		// @for creates its own loop object
 		{
 			440,
-			`@each(i in [1, 2])@for(j = 0; j < 1; j++){{ loop.index }}@end@end`,
-			"01",
+			`@each(i in [1, 2])@for(j = 0; j < 1; j++){{ loop.index }}{{ loop.parent.index }}@end@end`,
+			"0001",
 		},
-		// an @each inside @for still points to its enclosing @each
+		// an @each inside @for points to the @for loop as its parent
 		{
 			450,
-			`@each(i in [1, 2])@for(j = 0; j < 1; j++)@each(k in [1]){{ loop.parent.index }}@end@end@end`,
-			"01",
+			`@each(i in [1])@for(j = 0; j < 2; j++)@each(k in [1]){{ loop.parent.index }}{{ loop.parent.parent.index }};@end@end@end`,
+			"00;10;",
 		},
 	}
 

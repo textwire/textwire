@@ -550,6 +550,8 @@ func (e *Evaluator) forDir(forDir *ast.ForDir, ctx *Context) value.Value {
 	block := value.NewBlock(blockLen)
 
 	hasCond := hasForCond(forDir.Cond)
+	parentLoop := nearestLoop(forCtx)
+	index := 0
 
 	// Loop through the block until the user's condition is false
 	for {
@@ -561,6 +563,9 @@ func (e *Evaluator) forDir(forDir *ast.ForDir, ctx *Context) value.Value {
 		if hasCond && !isTruthy(cond) {
 			break
 		}
+
+		forCtx.scope.SetLoopVar(loopObj(index, -1, parentLoop))
+		index++
 
 		val := e.Eval(forDir.Block, forCtx)
 		if isError(val) {
@@ -648,8 +653,7 @@ func (e *Evaluator) eachDir(eachDir *ast.EachDir, ctx *Context) value.Value {
 			return e.newError(eachDir, eachCtx, "%s", err.Error())
 		}
 
-		loopObj := eachLoopObj(i, len(arrElems), parentLoop)
-		eachCtx.scope.SetLoopVar(loopObj)
+		eachCtx.scope.SetLoopVar(loopObj(i, len(arrElems), parentLoop))
 
 		val := e.Eval(eachDir.Block, eachCtx)
 		if isError(val) {
@@ -677,15 +681,19 @@ func nearestLoop(ctx *Context) value.Literal {
 	return loop
 }
 
-// eachLoopObj builds the loop metadata for an @each iteration. The parent
-// field is only added for nested loops, so missing parent access follows the
-// normal object-property behavior.
-func eachLoopObj(index, total int, parent value.Literal) map[string]value.Literal {
+// loopObj builds the loop metadata for a loop iteration. A negative total
+// means the total iteration count is unknown, so the "last" property is
+// omitted. The parent field is only added for nested loops, so missing parent
+// access follows the normal object-property behavior.
+func loopObj(index, total int, parent value.Literal) map[string]value.Literal {
 	pairs := map[string]value.Literal{
 		"index": &value.Int{Val: int64(index)},
 		"first": nativeBoolToBoolObj(index == 0),
-		"last":  nativeBoolToBoolObj(index == total-1),
 		"iter":  &value.Int{Val: int64(index + 1)},
+	}
+
+	if total >= 0 {
+		pairs["last"] = nativeBoolToBoolObj(index == total-1)
 	}
 
 	if parent != nil {
