@@ -20,14 +20,20 @@ func (a *Arr) String() string {
 	if HasCycle(a) {
 		return circularReference
 	}
+	return a.stringNoCycleCheck()
+}
 
+// stringNoCycleCheck is the String() without the HasCycle check.
+// It builds the output from the elements, and for each element it skips
+// the cycle check for child arrays and objects.
+func (a *Arr) stringNoCycleCheck() string {
 	if len(a.Elements) == 0 {
 		return ""
 	}
 
 	var out bytes.Buffer
 	for _, elem := range a.Elements {
-		out.WriteString(elem.String())
+		out.WriteString(stringOf(elem))
 		out.WriteString(", ")
 	}
 
@@ -42,7 +48,10 @@ func (a *Arr) Dump(indent int) string {
 	if HasCycle(a) {
 		return circularReference
 	}
+	return a.dumpNoCycleCheck(indent)
+}
 
+func (a *Arr) dumpNoCycleCheck(indent int) string {
 	spaces := strings.Repeat("  ", indent)
 	indent += 1
 
@@ -61,7 +70,7 @@ func (a *Arr) Dump(indent int) string {
 
 	for _, elem := range a.Elements {
 		out.WriteString(insideSpaces)
-		out.WriteString(elem.Dump(indent))
+		out.WriteString(dumpOf(elem, indent))
 		out.WriteString(",\n")
 	}
 
@@ -81,7 +90,10 @@ func (a *Arr) JSON() (string, error) {
 	if HasCycle(a) {
 		return "", fmt.Errorf(fail.ErrCircularValue, a.Type())
 	}
+	return a.jsonNoCycleCheck()
+}
 
+func (a *Arr) jsonNoCycleCheck() (string, error) {
 	var out strings.Builder
 	out.Grow(len(a.Elements) + 2)
 
@@ -92,7 +104,7 @@ func (a *Arr) JSON() (string, error) {
 			out.WriteByte(',')
 		}
 
-		val, err := a.Elements[i].JSON()
+		val, err := jsonOf(a.Elements[i])
 		if err != nil {
 			return "", err
 		}
@@ -109,12 +121,14 @@ func (a *Arr) Native() any {
 	if HasCycle(a) {
 		return nil
 	}
+	return a.nativeNoCycleCheck()
+}
 
+func (a *Arr) nativeNoCycleCheck() any {
 	var vals []any
 	for _, elem := range a.Elements {
-		vals = append(vals, elem.Native())
+		vals = append(vals, nativeOf(elem))
 	}
-
 	return vals
 }
 

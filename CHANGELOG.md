@@ -3,6 +3,21 @@
 ## v5.2.3 (2026-11-06)
 
 - 🐛 Fixed a panic on a `@for` post statement that isn't followed by `)`, like `@for(i = 0; i < 1; x@end`. It now reports error. Closes [#162](https://codeberg.org/textwire/textwire/issues/162).
+- 🚀 Improved printing of deeply nested arrays and objects. `String()`, `JSON()`, `Dump()` and `Native()` now check for cycles once per value instead of at every nesting level, so printing scales linearly with depth. Closes [#163](https://codeberg.org/textwire/textwire/issues/163).
+    | Case | Depth | Before | After | Speedup |
+    |---|---|---|---|---|
+    | Nested arrays | 1,000 | 127 ms | 1.21 ms | 105x |
+    | Nested arrays | 2,000 | 551 ms | 2.59 ms | 213x |
+    | Nested arrays | 4,000 | 2.44 s | 5.80 ms | 420x |
+    | Nested objects | 1,000 | 184 ms | 3.60 ms | 51x |
+    | Nested objects | 2,000 | 812 ms | 11.4 ms | 71x |
+    | Nested objects | 4,000 | 3.64 s | 40.5 ms | 90x |
+    | Go `list.json()` | 1,000 | 215 ms | 8.95 ms | 24x |
+    | Go `list.json()` | 2,000 | 963 ms | 30.3 ms | 32x |
+    | Go `list.json()` | 4,000 | 3.64 s | 84.9 ms | 43x |
+    | Go `{{ list }}` | 1,000 | 211 ms | 7.57 ms | 28x |
+    | Go `{{ list }}` | 2,000 | 936 ms | 26.6 ms | 35x |
+    | Go `{{ list }}` | 4,000 | 3.62 s | 81.2 ms | 45x |
 
 ## v5.2.2 (2026-11-05)
 
