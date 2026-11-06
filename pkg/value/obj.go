@@ -29,7 +29,13 @@ func (o *Obj) String() string {
 	if HasCycle(o) {
 		return circularReference
 	}
+	return o.stringNoCycleCheck()
+}
 
+// stringNoCycleCheck is the String() without the HasCycle check.
+// It builds the output from the elements, and for each element it skips
+// the cycle check for child arrays and objects.
+func (o *Obj) stringNoCycleCheck() string {
 	if o.Pairs == nil {
 		return "{}"
 	}
@@ -54,7 +60,7 @@ func (o *Obj) String() string {
 		} else {
 			out.WriteString(k)
 			out.WriteString(": ")
-			out.WriteString(pair.String())
+			out.WriteString(stringOf(pair))
 		}
 	}
 
@@ -67,7 +73,10 @@ func (o *Obj) JSON() (string, error) {
 	if HasCycle(o) {
 		return "", fmt.Errorf(fail.ErrCircularValue, o.Type())
 	}
+	return o.jsonNoCycleCheck()
+}
 
+func (o *Obj) jsonNoCycleCheck() (string, error) {
 	if o.Pairs == nil {
 		return "{}", nil
 	}
@@ -89,7 +98,7 @@ func (o *Obj) JSON() (string, error) {
 			return "", err
 		}
 
-		jsonVal, err := pair.JSON()
+		jsonVal, err := jsonOf(pair)
 		if err != nil {
 			return "", err
 		}
@@ -108,7 +117,10 @@ func (o *Obj) Dump(ident int) string {
 	if HasCycle(o) {
 		return circularReference
 	}
+	return o.dumpNoCycleCheck(ident)
+}
 
+func (o *Obj) dumpNoCycleCheck(ident int) string {
 	if o.Pairs == nil {
 		return "{}"
 	}
@@ -135,7 +147,7 @@ func (o *Obj) Dump(ident int) string {
 		fmt.Fprintf(&out, `<span style="%s">"`, DUMP_PROP)
 		out.WriteString(html.EscapeString(key))
 		fmt.Fprintf(&out, `"</span>: `)
-		out.WriteString(pair.Dump(ident))
+		out.WriteString(dumpOf(pair, ident))
 		out.WriteString(",\n")
 	}
 
@@ -149,12 +161,14 @@ func (o *Obj) Native() any {
 	if HasCycle(o) {
 		return nil
 	}
+	return o.nativeNoCycleCheck()
+}
 
+func (o *Obj) nativeNoCycleCheck() any {
 	res := map[string]any{}
 	for k, v := range o.Pairs {
-		res[k] = v.Native()
+		res[k] = nativeOf(v)
 	}
-
 	return res
 }
 
