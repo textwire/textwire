@@ -103,6 +103,9 @@ func children(v Literal) ([]Literal, bool) {
 	}
 }
 
+// objectValues returns the values in random map order. Don't use it for
+// printing, the output would change between runs because it goes through Pairs
+// in random order.
 func objectValues(o *Obj) []Literal {
 	values := make([]Literal, 0, len(o.Pairs))
 	for _, value := range o.Pairs {
