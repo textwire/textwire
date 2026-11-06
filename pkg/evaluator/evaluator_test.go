@@ -1127,6 +1127,38 @@ func TestEvalEachDir(t *testing.T) {
 			`@each(i in [0, 1, 2])@for(j = 0; j < 3; j++)@breakif(j == 1){{ i }}{{ j }}@end;@end`,
 			"00;10;20;",
 		},
+		// loop refers to the nearest enclosing loop
+		{
+			400,
+			`@each(i in [1, 2])@each(j in [3, 4]){{ loop.parent.index }}:{{ loop.index }}|@end@end`,
+			"0:0|0:1|1:0|1:1|",
+		},
+		// the outer loop binding is restored after the inner loop ends
+		{
+			410,
+			`@each(i in [1, 2])@each(j in [3])@end{{ loop.index }}@end`,
+			"01",
+		},
+		// loop.parent.parent reaches the outermost loop
+		{
+			420,
+			`@each(i in [1, 2])@each(j in [3])@each(k in [4]){{ loop.parent.parent.index }}@end@end@end`,
+			"01",
+		},
+		// the outermost loop has no parent
+		{430, `@each(i in [1]){{ loop.parent }}|@end`, "|"},
+		// @for is transparent for loop scoping
+		{
+			440,
+			`@each(i in [1, 2])@for(j = 0; j < 1; j++){{ loop.index }}@end@end`,
+			"01",
+		},
+		// an @each inside @for still points to its enclosing @each
+		{
+			450,
+			`@each(i in [1, 2])@for(j = 0; j < 1; j++)@each(k in [1]){{ loop.parent.index }}@end@end@end`,
+			"01",
+		},
 	}
 
 	for _, tc := range cases {

@@ -641,18 +641,15 @@ func (e *Evaluator) eachDir(eachDir *ast.EachDir, ctx *Context) value.Value {
 	}
 
 	block := value.NewBlock(len(arrElems))
+	parentLoop := nearestLoop(eachCtx)
 
 	for i := range arrElems {
 		if err := eachCtx.scope.SetLoopVariable(varName, arrElems[i]); err != nil {
 			return e.newError(eachDir, eachCtx, "%s", err.Error())
 		}
 
-		eachCtx.scope.SetLoopVar(map[string]value.Literal{
-			"index": &value.Int{Val: int64(i)},
-			"first": nativeBoolToBoolObj(i == 0),
-			"last":  nativeBoolToBoolObj(i == len(arrElems)-1),
-			"iter":  &value.Int{Val: int64(i + 1)},
-		})
+		loopObj := eachLoopObj(i, len(arrElems), parentLoop)
+		eachCtx.scope.SetLoopVar(loopObj)
 
 		val := e.Eval(eachDir.Block, eachCtx)
 		if isError(val) {
@@ -668,6 +665,34 @@ func (e *Evaluator) eachDir(eachDir *ast.EachDir, ctx *Context) value.Value {
 	}
 
 	return block
+}
+
+// nearestLoop returns the loop object from the closest active loop.
+// It returns nil when the current context is not inside a loop.
+func nearestLoop(ctx *Context) value.Literal {
+	loop, ok := ctx.scope.Get("loop")
+	if !ok {
+		return nil
+	}
+	return loop
+}
+
+// eachLoopObj builds the loop metadata for an @each iteration. The parent
+// field is only added for nested loops, so missing parent access follows the
+// normal object-property behavior.
+func eachLoopObj(index, total int, parent value.Literal) map[string]value.Literal {
+	pairs := map[string]value.Literal{
+		"index": &value.Int{Val: int64(index)},
+		"first": nativeBoolToBoolObj(index == 0),
+		"last":  nativeBoolToBoolObj(index == total-1),
+		"iter":  &value.Int{Val: int64(index + 1)},
+	}
+
+	if parent != nil {
+		pairs["parent"] = parent
+	}
+
+	return pairs
 }
 
 func (e *Evaluator) breakifDir(breakifDir *ast.BreakifDir, ctx *Context) value.Value {

@@ -38,6 +38,13 @@ func GetLoopObjFields(locale lsp.Locale) ([]Completion, error) {
 					"(property) iter: int",
 					"The current iteration of the loop. Starts with 1"),
 			},
+			{
+				Label:      "parent",
+				InsertText: "parent",
+				Documentation: fmt.Sprintf("%s\n%s",
+					"(property) parent: object",
+					"The enclosing loop object. Returns `nil` for the outermost loop."),
+			},
 		},
 	}
 

@@ -623,6 +623,11 @@ func TestErrorHandling(t *testing.T) {
 			data: nil,
 		},
 		{
+			inp:  `@each(i in [1]){{ loop.parent.parent }}@end`,
+			err:  fail.New(nil, "", fail.OriginEval, fail.ErrKeyOnNonObj, value.NIL_VAL, "parent"),
+			data: nil,
+		},
+		{
 			inp: `{{ 5.someFunction() }}`,
 			err: fail.New(
 				nil,

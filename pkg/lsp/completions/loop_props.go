@@ -36,5 +36,13 @@ func GetLoopProperties() []Completion {
 				"The current iteration of the loop. Starts with 1.",
 			),
 		},
+		{
+			Label: "parent",
+			Documentation: fmt.Sprintf(
+				"%s\n%s",
+				"(property) parent: object",
+				"The enclosing loop object. Returns `nil` for the outermost loop.",
+			),
+		},
 	}
 }
