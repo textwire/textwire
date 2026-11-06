@@ -1,5 +1,9 @@
 # Release notes V5
 
+## v5.2.3 (2026-11-06)
+
+- 🐛 Fixed a panic on a `@for` post statement that isn't followed by `)`, like `@for(i = 0; i < 1; x@end`. It now reports error. Closes [#162](https://codeberg.org/textwire/textwire/issues/162).
+
 ## v5.2.2 (2026-11-05)
 
 - 🐛 Fixed `expected expression after '+'` pointing at the left operand instead of the operator, so multi-line expressions like `{{ 1\n\n\n+ }}` now report the line with `+`.

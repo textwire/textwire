@@ -1318,7 +1318,14 @@ func (p *Parser) parseForDirPost() ast.Statement {
 		return nil
 	}
 
-	return p.statement(left)
+	stmt := p.statement(left)
+	if stmt == nil {
+		p.newError(p.curToken.Pos, fail.ErrForLoopExpectRParen)
+		p.skipUntil(token.END, token.EOF)
+		return nil
+	}
+
+	return stmt
 }
 
 func (p *Parser) eachDir() ast.Chunk {
