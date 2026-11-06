@@ -87,18 +87,26 @@ func cycleFrom(v Literal, state map[Literal]visitState) bool {
 func children(v Literal) ([]Literal, bool) {
 	switch v := v.(type) {
 	case *Arr:
-		if v != nil {
-			return v.Elements, true
+		if v == nil {
+			return nil, false
 		}
-	case *Obj:
-		if v != nil {
-			kids := make([]Literal, 0, len(v.Pairs))
-			for _, pair := range v.Pairs {
-				kids = append(kids, pair)
-			}
-			return kids, true
-		}
-	}
+		return v.Elements, true
 
-	return nil, false
+	case *Obj:
+		if v == nil {
+			return nil, false
+		}
+		return objectValues(v), true
+
+	default:
+		return nil, false
+	}
+}
+
+func objectValues(o *Obj) []Literal {
+	values := make([]Literal, 0, len(o.Pairs))
+	for _, value := range o.Pairs {
+		values = append(values, value)
+	}
+	return values
 }
