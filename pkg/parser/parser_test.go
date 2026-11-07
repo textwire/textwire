@@ -636,6 +636,17 @@ func TestErrorHandling(t *testing.T) {
 			),
 		},
 		{
+			id:  55,
+			inp: "@each(name in names)@component('~user', { user })@break@end@end",
+			err: fail.New(
+				&position.Pos{StartCol: 49, EndCol: 54},
+				"",
+				fail.OriginPars,
+				fail.ErrLoopControlOutsideLoop,
+				"@break",
+			),
+		},
+		{
 			id:  56,
 			inp: `{{ 1 ~ 8 }}`,
 			err: fail.New(
@@ -2738,6 +2749,38 @@ func TestParseCompDir(t *testing.T) {
 			t.Fatalf("passDir.Name.Val is not 'name', got %s", passDir.Name)
 		}
 	})
+}
+
+func TestLoopControlInsideComponent(t *testing.T) {
+	cases := []struct {
+		name string
+		inp  string
+	}{
+		{
+			name: "break in @each inside component",
+			inp:  "@component('~user', { user })@each(name in names)@break@end@end",
+		},
+		{
+			name: "continue in @for inside component",
+			inp:  "@component('~user', { user })@for(i = 0; i < 3; i++)@continue@end@end",
+		},
+		{
+			name: "break in @if inside @each inside component",
+			inp:  "@component('~user', { user })@each(name in names)@if(name == 'Sam')@break@end@end@end",
+		},
+		{
+			name: "break after component inside @each",
+			inp:  "@each(name in names)@component('~user', { user })@end@break@end",
+		},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			if _, err := parseChunks(tc.inp, defaultParseOpts); err != nil {
+				t.Fatal(err)
+			}
+		})
+	}
 }
 
 func TestParseSlotDir(t *testing.T) {

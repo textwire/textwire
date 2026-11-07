@@ -638,7 +638,7 @@ func (p *Parser) compDir() ast.Chunk {
 		return p.endCompDir(compDir)
 	}
 
-	if block := p.block(); block != nil {
+	if block := p.componentBlock(); block != nil {
 		compDir.Passes = block.ExtractPassDirs()
 		compDir.DefaultPass = block.ToDefaultPassDir(compDir.Name.Val)
 	}
@@ -648,6 +648,26 @@ func (p *Parser) compDir() ast.Chunk {
 	}
 
 	return p.endCompDir(compDir)
+}
+
+// componentBlock parses a component body as a block with its own loop context.
+//
+// A component body is rendered inside the component's slot, not where it is
+// written, so a loop surrounding the component does not surround the body at
+// runtime. Resetting loopDepth makes loop control directives (@break, @breakif,
+// @continue, @continueif) invalid here unless the body has its own loop.
+//
+//	@each(name in names)
+//	    @component('~user', { user })
+//	        @breakif(name == 'Sam') // error: not inside a loop
+//	    @end
+//	@end
+func (p *Parser) componentBlock() *ast.Block {
+	outerLoopDepth := p.loopDepth
+	p.loopDepth = 0
+	defer func() { p.loopDepth = outerLoopDepth }()
+
+	return p.block()
 }
 
 func (p *Parser) endCompDir(compDir *ast.CompDir) ast.Chunk {
