@@ -21,7 +21,7 @@ func NewReserveDir(tok token.Token) *ReserveDir {
 func (*ReserveDir) chunkNode() {}
 
 func (rd *ReserveDir) String() string {
-	if _, ok := rd.Fallback.(*Empty); ok {
+	if _, ok := rd.Fallback.(*Absent); ok {
 		return fmt.Sprintf(`@reserve("%s")`, rd.Name.Val)
 	}
 	return fmt.Sprintf(`@reserve("%s", %s)`, rd.Name.Val, rd.Fallback)

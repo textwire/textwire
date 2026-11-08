@@ -1611,7 +1611,7 @@ func TestParseIfDir(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		if err := testToken(ifDir.IfBlock, token.TEXT); err != nil {
+		if err := testToken(ifDir.IfBlock, token.EMPTY); err != nil {
 			t.Fatal(err)
 		}
 
@@ -2238,16 +2238,16 @@ func TestParseForDir(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		if _, ok := forDir.Init.(*ast.Empty); !ok {
-			t.Fatalf("forDir.Init is not *ast.Empty, got %T", forDir.Init)
+		if _, ok := forDir.Init.(*ast.Absent); !ok {
+			t.Fatalf("forDir.Init is not *ast.Absent, got %T", forDir.Init)
 		}
 
-		if _, ok := forDir.Cond.(*ast.Empty); !ok {
-			t.Fatalf("forDir.Cond is not *ast.Empty, got %T", forDir.Cond)
+		if _, ok := forDir.Cond.(*ast.Absent); !ok {
+			t.Fatalf("forDir.Cond is not *ast.Absent, got %T", forDir.Cond)
 		}
 
-		if _, ok := forDir.Post.(*ast.Empty); !ok {
-			t.Fatalf("forDir.Post is not *ast.Empty, got %T", forDir.Post)
+		if _, ok := forDir.Post.(*ast.Absent); !ok {
+			t.Fatalf("forDir.Post is not *ast.Absent, got %T", forDir.Post)
 		}
 	})
 }

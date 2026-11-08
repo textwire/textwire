@@ -140,7 +140,12 @@ func (l *Lexer) Next() token.Token {
 		return l.embeddedCodeToken()
 	}
 
-	return l.newToken(token.TEXT, l.readText())
+	text := l.readText()
+	if text == "" {
+		return l.newToken(token.EMPTY, "")
+	}
+
+	return l.newToken(token.TEXT, text)
 }
 
 // atEnd reports whether the lexer has consumed all input.

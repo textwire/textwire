@@ -142,8 +142,7 @@ func (p *Parser) ParseProgram() *ast.Program {
 	p.prog.Chunks = []ast.Chunk{}
 
 	for !p.curTokenIs(token.EOF) {
-		chunk := p.chunk()
-		if chunk != nil && !isEmptyText(chunk) {
+		if chunk := p.chunk(); chunk != nil {
 			p.prog.Chunks = append(p.prog.Chunks, chunk)
 		}
 		p.nextToken()
@@ -164,6 +163,8 @@ func (p *Parser) chunk() ast.Chunk {
 	switch p.curToken.Type {
 	case token.TEXT:
 		return p.text()
+	case token.EMPTY:
+		return nil
 	case token.LBRACES:
 		return p.embedded(token.RBRACES)
 	case token.LBRACESRAW:
@@ -524,13 +525,6 @@ func (p *Parser) text() ast.Chunk {
 	return ast.NewText(p.curToken)
 }
 
-// isEmptyText reports whether chunk is a text node left with no characters
-// after whitespace was removed by the lexer.
-func isEmptyText(chunk ast.Chunk) bool {
-	text, ok := chunk.(*ast.Text)
-	return ok && text.Token.Lit == ""
-}
-
 func (p *Parser) assignStmt(left ast.Expression) ast.Statement {
 	stmt := ast.NewAssignStmt(*left.Tok(), left)
 
@@ -866,10 +860,10 @@ func (p *Parser) reserveDir() ast.Chunk {
 }
 
 // reserveDirFallback parses the second argument (fallback value) after comma
-// for @reserve statement. If there are no expression, set Fallback to Empty.
+// for @reserve statement. If there is no expression, set Fallback to Absent.
 func (p *Parser) reserveDirFallback() ast.Expression {
 	if !p.peekTokenIs(token.COMMA) {
-		return ast.NewEmpty(p.curToken.Pos)
+		return ast.NewAbsent(p.curToken.Pos)
 	}
 
 	p.nextToken() // move to "," from string
@@ -953,7 +947,7 @@ func (p *Parser) insertDirHeader(insertDir *ast.InsertDir) (*ast.Illegal, bool) 
 
 func (p *Parser) insertDirArgument(insertDir *ast.InsertDir) (*ast.Illegal, bool) {
 	if !p.peekTokenIs(token.COMMA) {
-		insertDir.Argument = ast.NewEmpty(p.curToken.Pos)
+		insertDir.Argument = ast.NewAbsent(p.curToken.Pos)
 		return nil, false
 	}
 
@@ -1304,7 +1298,7 @@ func (p *Parser) forDirHeader(forDir *ast.ForDir) *ast.Illegal {
 
 func (p *Parser) parserForDirInit() ast.Statement {
 	if p.peekTokenIs(token.SEMI) {
-		return ast.NewEmpty(p.curToken.Pos)
+		return ast.NewAbsent(p.curToken.Pos)
 	}
 
 	p.nextToken() // move to first token of init statement
@@ -1322,7 +1316,7 @@ func (p *Parser) parserForDirInit() ast.Statement {
 
 func (p *Parser) parserForDirCond() ast.Expression {
 	if p.peekTokenIs(token.SEMI) {
-		return ast.NewEmpty(p.curToken.Pos)
+		return ast.NewAbsent(p.curToken.Pos)
 	}
 
 	p.nextToken() // skip ";"
@@ -1332,7 +1326,7 @@ func (p *Parser) parserForDirCond() ast.Expression {
 
 func (p *Parser) parseForDirPost() ast.Statement {
 	if p.peekTokenIs(token.RPAREN) {
-		return ast.NewEmpty(p.curToken.Pos)
+		return ast.NewAbsent(p.curToken.Pos)
 	}
 
 	p.nextToken() // skip ";"
@@ -1425,7 +1419,7 @@ func (p *Parser) block() *ast.Block {
 		chunk := p.chunk()
 		block.SetEndPosition(p.curToken.Pos)
 
-		if chunk != nil && !isEmptyText(chunk) {
+		if chunk != nil {
 			block.Chunks = append(block.Chunks, chunk)
 		}
 

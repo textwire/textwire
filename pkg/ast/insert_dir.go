@@ -31,7 +31,7 @@ func (i *InsertDir) String() string {
 	var out strings.Builder
 	out.Grow(30)
 
-	if _, ok := i.Argument.(*Empty); !ok {
+	if _, ok := i.Argument.(*Absent); !ok {
 		fmt.Fprintf(&out, `@insert("%s", %s)`, i.Name.Val, i.Argument)
 		return out.String()
 	}

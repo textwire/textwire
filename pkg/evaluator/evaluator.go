@@ -129,7 +129,7 @@ func (e *Evaluator) evalLiteral(node ast.Node, ctx *Context) value.Literal {
 	case *ast.FloatExpr:
 		return &value.Float{Val: node.Val}
 
-	case *ast.NilExpr, *ast.Empty, *ast.Illegal:
+	case *ast.NilExpr, *ast.Absent, *ast.Illegal:
 		return NIL
 	}
 	return nil
@@ -596,7 +596,7 @@ func hasForCond(cond ast.Expression) bool {
 		return false
 	}
 
-	_, isEmpty := cond.(*ast.Empty)
+	_, isEmpty := cond.(*ast.Absent)
 
 	return !isEmpty
 }
