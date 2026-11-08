@@ -20,7 +20,7 @@
     @end
 </ul>
 
-{{ names = ["Anna", "Serhii", "Vladimir"] }}
+{{ names = ["Escoffier", "Kokomi", "Skirk"] }}
 
 <ul>
     @each(name in names)
