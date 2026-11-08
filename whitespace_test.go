@@ -230,7 +230,7 @@ func TestStandaloneControlDirectiveWhitespace(t *testing.T) {
 	}
 }
 
-func TestStandaloneTemplateDirectiveWhitespace(t *testing.T) {
+func TestStandaloneTemplateWhitespace(t *testing.T) {
 	cases := []struct {
 		name   string
 		files  map[string]string
