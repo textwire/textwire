@@ -214,6 +214,12 @@ func TestStandaloneControlDirectiveWhitespace(t *testing.T) {
 			data:   map[string]any{"x": "v"},
 			expect: "v hello\n",
 		},
+		{
+			name:   "mixed directive and embedded keeps output",
+			inp:    " @if(true){{ \"hi\" }}@end\n",
+			data:   nil,
+			expect: "hi",
+		},
 	}
 
 	for _, tc := range cases {
