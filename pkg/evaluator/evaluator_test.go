@@ -1459,7 +1459,7 @@ func TestEvalEachDir(t *testing.T) {
 		{
 			"each over strings",
 			`@each(name in ["anna", "serhii"]) {{ name }} @end`,
-			"annaserhii",
+			" anna  serhii ",
 		},
 		{"each over ints", `@each(num in [1, 2, 3]){{ num }}@end`, "123"},
 		{"each over empty array", `@each(num in []){{ num }}@end`, ""},

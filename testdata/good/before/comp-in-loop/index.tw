@@ -1,7 +1,9 @@
 @each(name in names)
     @component("~box")
-        @each(i in [1, 2, 3])@breakif(i == 2){{ name }}-{{ i }}@end
+        @each(i in [1, 2, 3])
+            @breakif(i == 2)
+            {{ name }}-{{ i }}
+        @end
     @end
-
     @breakif(name == "Serhii")
 @end

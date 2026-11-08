@@ -71,9 +71,21 @@ type Lexer struct {
 	// We increment it when we find "{" and decrement when we find "}".
 	// It helps to determine if we are in text or Textwire.
 	countCurlyBraces int
+
+	// skippedOffsets holds the byte offsets in input that are left out of text
+	// token literals.
+	// `int` is the index of the byte that needs to be skipped.
+	skippedOffsets map[int]struct{}
 }
 
 func New(input string) *Lexer {
+	l := newLexer(input)
+	l.skippedOffsets = skippedOffsets(input)
+
+	return l
+}
+
+func newLexer(input string) *Lexer {
 	l := &Lexer{
 		input:       input,
 		isText:      true,
@@ -128,7 +140,12 @@ func (l *Lexer) Next() token.Token {
 		return l.embeddedCodeToken()
 	}
 
-	return l.newToken(token.TEXT, l.readText())
+	text := l.readText()
+	if text == "" {
+		return l.Next()
+	}
+
+	return l.newToken(token.TEXT, text)
 }
 
 // atEnd reports whether the lexer has consumed all input.
@@ -571,7 +588,9 @@ func (l *Lexer) readText() string {
 			out.Truncate(out.Len() - 1)
 		}
 
-		out.WriteByte(l.char)
+		if _, skip := l.skippedOffsets[l.pos]; !skip {
+			out.WriteByte(l.char)
+		}
 		l.readChar()
 	}
 

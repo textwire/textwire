@@ -63,45 +63,8 @@ func (b *Block) ExtractPassDirs() []*PassDir {
 	return passDirs
 }
 
-func (b *Block) Trim() {
-	b.trimFirst()
-	b.trimLast()
-}
-
-func (b *Block) trimChunk(idx int, trim func(string) string) {
-	if len(b.Chunks) == 0 {
-		return
-	}
-
-	chunk, ok := b.Chunks[idx].(*Text)
-	if !ok {
-		return
-	}
-
-	chunk.Token.Lit = trim(chunk.Token.Lit)
-	if chunk.Token.Lit == "" {
-		if idx == 0 {
-			b.Chunks = b.Chunks[1:]
-		} else {
-			b.Chunks = b.Chunks[:idx]
-		}
-	}
-}
-
-func (b *Block) trimFirst() {
-	b.trimChunk(0, func(s string) string {
-		return strings.TrimLeft(s, " \n\t\r")
-	})
-}
-
-func (b *Block) trimLast() {
-	b.trimChunk(len(b.Chunks)-1, func(s string) string {
-		return strings.TrimRight(s, " \n\t\r")
-	})
-}
-
-// ToDefaultPassDir removes all *PassDir chunks and empty *Text nodes with
-// whitespace from the block and returns a *PassDir with this block.
+// ToDefaultPassDir removes all *PassDir chunks from the block and returns a
+// *PassDir with the remaining chunks.
 func (b *Block) ToDefaultPassDir(compName string) *PassDir {
 	passDir := NewPassDir(*b.Tok(), NewStrExpr(*b.Tok(), ""))
 	passDir.Block = NewBlock(*b.Tok())
@@ -109,28 +72,35 @@ func (b *Block) ToDefaultPassDir(compName string) *PassDir {
 
 	newChunks := []Chunk{}
 
-	for _, chunk := range b.Chunks {
-		switch t := chunk.(type) {
-		case *PassDir:
-			continue
-		case *Text:
-			content := strings.TrimSpace(t.Token.Lit)
-			if content == "" {
-				continue
-			}
+	hasContent := false
 
-			t.Token.Lit = content
-			newChunks = append(newChunks, t)
-		default:
-			newChunks = append(newChunks, t)
+	for _, chunk := range b.Chunks {
+		if _, ok := chunk.(*PassDir); ok {
+			continue
+		}
+
+		newChunks = append(newChunks, chunk)
+		if !isBlankText(chunk) {
+			hasContent = true
 		}
 	}
 
-	if len(newChunks) == 0 {
+	// Blank text and @pass alone don't make a default slot, so the component
+	// keeps its default pass nil.
+	if !hasContent {
 		return nil
 	}
 
 	passDir.Block.Chunks = newChunks
 
 	return passDir
+}
+
+// isBlankText reports whether chunk is a text node with only whitespace.
+func isBlankText(chunk Chunk) bool {
+	text, ok := chunk.(*Text)
+	if !ok {
+		return false
+	}
+	return strings.TrimSpace(text.Token.Lit) == ""
 }
