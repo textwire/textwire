@@ -143,7 +143,7 @@ func (p *Parser) ParseProgram() *ast.Program {
 
 	for !p.curTokenIs(token.EOF) {
 		chunk := p.chunk()
-		if chunk != nil {
+		if chunk != nil && !isEmptyText(chunk) {
 			p.prog.Chunks = append(p.prog.Chunks, chunk)
 		}
 		p.nextToken()
@@ -522,6 +522,13 @@ func (p *Parser) isShorthandKey() bool {
 
 func (p *Parser) text() ast.Chunk {
 	return ast.NewText(p.curToken)
+}
+
+// isEmptyText reports whether chunk is a text node left with no characters
+// after whitespace was removed by the lexer.
+func isEmptyText(chunk ast.Chunk) bool {
+	text, ok := chunk.(*ast.Text)
+	return ok && text.Token.Lit == ""
 }
 
 func (p *Parser) assignStmt(left ast.Expression) ast.Statement {
@@ -1418,7 +1425,7 @@ func (p *Parser) block() *ast.Block {
 		chunk := p.chunk()
 		block.SetEndPosition(p.curToken.Pos)
 
-		if chunk != nil {
+		if chunk != nil && !isEmptyText(chunk) {
 			block.Chunks = append(block.Chunks, chunk)
 		}
 

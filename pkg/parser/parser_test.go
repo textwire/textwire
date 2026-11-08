@@ -1611,7 +1611,7 @@ func TestParseIfDir(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		if err := testToken(ifDir.IfBlock, token.IF); err != nil {
+		if err := testToken(ifDir.IfBlock, token.TEXT); err != nil {
 			t.Fatal(err)
 		}
 

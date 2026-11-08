@@ -19,3 +19,11 @@
         @end
     @end
 </ul>
+
+{{ names = ["Anna", "Serhii", "Vladimir"] }}
+
+<ul>
+    @each(name in names)
+        <li>{{ loop.iter }}. {{ name }}</li>
+    @end
+</ul> 

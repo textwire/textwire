@@ -24,16 +24,16 @@ func TestStandaloneControlDirectiveWhitespace(t *testing.T) {
 			expect: "- apple, pear, .\n",
 		},
 		{
-			name:   "interpolation alone on a line keeps whitespace",
+			name:   "interpolation alone on a line is removed with its line",
 			inp:    "    {{ item }}   \n",
 			data:   map[string]any{"item": "apple"},
-			expect: "    apple   \n",
+			expect: "apple",
 		},
 		{
 			name:   "closer with text after it keeps whitespace",
 			inp:    "@each(item in items)\n    {{ item }}\n    @end hello\n",
 			data:   map[string]any{"items": []string{"apple", "pear"}},
-			expect: "    apple\n        pear\n     hello\n",
+			expect: "apple    pear     hello\n",
 		},
 		{
 			name:   "YAML list keeps item indentation",
@@ -66,10 +66,22 @@ func TestStandaloneControlDirectiveWhitespace(t *testing.T) {
 			expect: "\nz",
 		},
 		{
-			name:   "empty interpolation alone on a line keeps its line",
+			name:   "statement and multiline embedded code alone on lines leave only text",
+			inp:    "{{ names = [\"Anna\", \"Serhii\", \"Vladimir\"] }}\n{{ test\n      }}\nHere",
+			data:   map[string]any{"test": ""},
+			expect: "Here",
+		},
+		{
+			name:   "raw embedded code alone on a line is removed with its line",
+			inp:    "{!! test !!}\nHere",
+			data:   map[string]any{"test": "<b>"},
+			expect: "<b>Here",
+		},
+		{
+			name:   "empty interpolation alone on a line is removed with its line",
 			inp:    "a\n{{ empty }}\nb",
 			data:   map[string]any{"empty": ""},
-			expect: "a\n\nb",
+			expect: "a\nb",
 		},
 		{
 			name:   "loop with zero items",
@@ -90,10 +102,10 @@ func TestStandaloneControlDirectiveWhitespace(t *testing.T) {
 			expect: "- a\n- b\n",
 		},
 		{
-			name:   "multiline directive arguments are not standalone",
+			name:   "multiline @each standalone lines are removed",
 			inp:    "@each(x in\n    items)\n{{ x }}\n@end\n",
 			data:   map[string]any{"items": []string{"a", "b"}},
-			expect: "a\nb\n",
+			expect: "ab",
 		},
 		{
 			name:   "multiline @if standalone lines are removed",
