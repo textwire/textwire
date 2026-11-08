@@ -38,6 +38,19 @@ In template files you can use globals like this `{{ global.env }}`.
 - **LSP Support**: Full Language Server Protocol implementation for editor integration
 - **Precedence**: All the precedence defined in `./pkg/parser/parser.go:20-70`
 
+## Terminology
+
+Textwire source is a sequence of **chunks**. A chunk is a directive, text, a block, or embedded code.
+
+- **Directive**: code that starts with `@`, such as `@if`, `@each`, `@end`, `@component` or `@use`. A directive may have parenthesized arguments, as in `@each(item in items)` or not have them, as in `@continue`.
+- **Embedded code**: the `{{ ... }}` and `{!! !!}` forms. Embedded code prints values, defines variables, performs arithmetic, calls functions, and more. It is not a directive.
+- **Text**: everything that is not a directive or embedded code, including HTML and whitespace.
+- **Block**: the body a directive owns, for example the content between `@if(true)` and `@end`.
+
+Use **embedded code** (or **embedded expression** for a single `{{ ... }}`). Do not call it an "interpolation" or a "tag". Directives are not embedded code either, even though both are code.
+
+A **standalone directive line** is a line whose only non-whitespace content is one directive. Only those lines lose their surrounding whitespace and line ending when a template renders. A line containing embedded code, more than one directive, or any other visible content keeps its whitespace exactly as written. You can read more about [Whitespace Handling](https://textwire.serhiicho.com/language-elements/whitespace).
+
 ## Development Environment & Commands
 
 ### Available Commands
