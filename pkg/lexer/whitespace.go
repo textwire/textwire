@@ -1,7 +1,6 @@
 package lexer
 
 import (
-	"fmt"
 	"strings"
 
 	"codeberg.org/textwire/textwire/v5/pkg/token"
@@ -13,16 +12,86 @@ type textwireCodeSpan struct {
 }
 
 // skippedOffsets returns the byte offsets of whitespace that belongs to lines
-// holding only a directive or embedded code. Those offsets are left out of
-// text token literals.
+// holding only textwire code. Those offsets are left out of text token
+// literals.
 func skippedOffsets(input string) map[int]struct{} {
 	skipped := map[int]struct{}{}
+	covered := codeCoverage(input, textwireCodeSpans(input))
 
-	for _, span := range textwireCodeSpans(input) {
-		markTextwireCodeLine(input, span, skipped)
+	for start := 0; start < len(input); {
+		end, next := lineBounds(input, start)
+
+		if lineIsCodeOnly(input, covered, start, end) {
+			markCodeOnlyLine(input, skipped, start, end, next)
+		}
+
+		start = next
 	}
 
 	return skipped
+}
+
+// codeCoverage marks every offset that belongs to a textwire code span.
+func codeCoverage(input string, spans []textwireCodeSpan) []bool {
+	covered := make([]bool, len(input))
+
+	for _, span := range spans {
+		for i := span.start; i < span.end && i < len(input); i++ {
+			covered[i] = true
+		}
+	}
+
+	return covered
+}
+
+// lineBounds returns the offset where the content of the line starting at
+// start ends, not counting the line ending, and the offset where the next
+// line starts.
+func lineBounds(input string, start int) (contentEnd, next int) {
+	i := strings.IndexByte(input[start:], '\n')
+	if i < 0 {
+		return len(input), len(input)
+	}
+
+	newline := start + i
+	contentEnd = newline
+
+	if newline > start && input[newline-1] == '\r' {
+		contentEnd--
+	}
+
+	return contentEnd, newline + 1
+}
+
+// lineIsCodeOnly reports whether the line holds textwire code and nothing but
+// spaces and tabs besides it.
+func lineIsCodeOnly(input string, covered []bool, start, end int) bool {
+	hasCode := false
+
+	for i := start; i < end; i++ {
+		if isInlineSpace(input[i]) {
+			continue
+		}
+
+		if !covered[i] {
+			return false
+		}
+
+		hasCode = true
+	}
+
+	return hasCode
+}
+
+// markCodeOnlyLine marks the indentation before the code and the spaces and
+// line ending after it.
+func markCodeOnlyLine(input string, skipped map[int]struct{}, start, end, next int) {
+	line := input[start:end]
+	first := start + len(line) - len(strings.TrimLeft(line, " \t"))
+	last := start + len(strings.TrimRight(line, " \t"))
+
+	markRange(skipped, start, first)
+	markRange(skipped, last, next)
 }
 
 // textwireCodeSpans returns the source span of every directive, including its
@@ -87,7 +156,7 @@ func closingFor(open token.TokenType) token.TokenType {
 		return token.RBRACESRAW
 	}
 
-	panic(fmt.Sprintf("unexpected embedded code opening token %s", token.String(open)))
+	panic("unexpected embedded code opening token " + token.String(open))
 }
 
 // skipEmbeddedBody consumes tokens up to the closing brace of embedded code.
@@ -131,61 +200,6 @@ func skipDirectiveArgs(l *Lexer) (int, token.Token) {
 // check keeps string literals such as "@if" from matching.
 func tokenIsDirective(tok token.Token) bool {
 	return tok.Type != token.ILLEGAL && token.LookupDirective(tok.Lit) == tok.Type
-}
-
-// markTextwireCodeLine marks the indentation before the textwire code and the
-// spaces and line ending after it, on each line where the code is the only
-// content. Code spanning several lines starts and ends on different lines, so
-// each side is checked on its own.
-func markTextwireCodeLine(input string, span textwireCodeSpan, skipped map[int]struct{}) {
-	lineStart := skipInlineSpacesBackward(input, span.start)
-	indentOnly := lineStart == 0 || input[lineStart-1] == '\n'
-
-	lineEnd := skipInlineSpacesForward(input, span.end)
-	nextLineStart, trailingOnly := lineBreakEnd(input, lineEnd)
-
-	multiline := strings.Contains(input[span.start:span.end], "\n")
-	if !multiline && (!indentOnly || !trailingOnly) {
-		return
-	}
-
-	if indentOnly {
-		markRange(skipped, lineStart, span.start)
-	}
-
-	if trailingOnly {
-		markRange(skipped, span.end, nextLineStart)
-	}
-}
-
-func skipInlineSpacesBackward(input string, pos int) int {
-	for pos > 0 && isInlineSpace(input[pos-1]) {
-		pos--
-	}
-	return pos
-}
-
-func skipInlineSpacesForward(input string, pos int) int {
-	for pos < len(input) && isInlineSpace(input[pos]) {
-		pos++
-	}
-	return pos
-}
-
-// lineBreakEnd checks what follows pos. If it is a line break or the end of
-// input, it returns the offset just past it and true. Otherwise the line has
-// more content, so it returns false.
-func lineBreakEnd(input string, pos int) (int, bool) {
-	switch {
-	case pos == len(input):
-		return pos, true
-	case strings.HasPrefix(input[pos:], "\r\n"):
-		return pos + len("\r\n"), true
-	case input[pos] == '\n':
-		return pos + len("\n"), true
-	default:
-		return pos, false
-	}
 }
 
 func markRange(skipped map[int]struct{}, from, to int) {
