@@ -220,6 +220,12 @@ func TestStandaloneControlDirectiveWhitespace(t *testing.T) {
 			data:   nil,
 			expect: "hi",
 		},
+		{
+			name:   "mixed directive and embedded keeps output with spaces",
+			inp:    " @if(true) {{ \"hi\" }} @end\n",
+			data:   nil,
+			expect: "hi",
+		},
 	}
 
 	for _, tc := range cases {
