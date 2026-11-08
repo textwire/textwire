@@ -145,7 +145,7 @@ func markTextwireCodeLine(input string, span textwireCodeSpan, skipped map[int]s
 	nextLineStart, trailingOnly := lineBreakEnd(input, lineEnd)
 
 	multiline := strings.Contains(input[span.start:span.end], "\n")
-	if !multiline && !(indentOnly && trailingOnly) {
+	if !multiline && (!indentOnly || !trailingOnly) {
 		return
 	}
 
