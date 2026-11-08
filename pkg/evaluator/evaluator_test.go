@@ -1461,6 +1461,16 @@ func TestEvalEachDir(t *testing.T) {
 			`@each(name in ["anna", "serhii"]) {{ name }} @end`,
 			" anna  serhii ",
 		},
+		{
+			"each over strings with space",
+			`@each(name in ["anna", "serhii"]){{ name + " " }}@end`,
+			"anna serhii ",
+		},
+		{
+			"each over strings inside HTML",
+			`<div>@each(name in ["anna", "serhii"]){{ name }} @end</div>`,
+			"<div>anna serhii </div>",
+		},
 		{"each over ints", `@each(num in [1, 2, 3]){{ num }}@end`, "123"},
 		{"each over empty array", `@each(num in []){{ num }}@end`, ""},
 		{"each over nil elements", `@each(item in [nil, nil]){{ item }}@end`, ""},
