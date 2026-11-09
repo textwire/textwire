@@ -124,6 +124,7 @@ func TestEvalArrFunctions(t *testing.T) {
 		{"negated contains missing object", `{{ ![{}, 21].contains({age: 21}) }}`, "1"},
 		{"negated contains present array", `{{ ![[], [1], [2]].contains([2]) }}`, "0"},
 		{"contains nil element", `{{ [1, nil, 3].contains(nil) }}`, "1"},
+		{"contains nil from missing property", `{{ [{}.name].contains(nil) }}`, "1"},
 		{"contains duplicate int", `{{ [1, 0].contains(1) }}`, "1"},
 		{"contains float", `{{ [1.5, 2.5].contains(1.5) }}`, "1"},
 		{"contains string in mixed array", `{{ [1, 'Venti', 3].contains('Venti') }}`, "1"},

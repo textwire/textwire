@@ -382,6 +382,17 @@ func TestEvalBooleanExp(t *testing.T) {
 		// Nil with nil
 		{"nil equal nil", "{{ nil == nil }}", "1"},
 		{"nil inequality nil", "{{ nil != nil }}", "0"},
+		{"missing property equals nil", "{{ {}.name == nil }}", "1"},
+		{"missing property inequality nil", "{{ {}.name != nil }}", "0"},
+		{"existing nil property equals nil", "{{ {name: nil}.name == nil }}", "1"},
+		{"missing property equals missing index", "{{ {}.name == [][0] }}", "1"},
+		{"missing property inequality missing index", "{{ {}.name != [][0] }}", "0"},
+		{"array with missing property equals array with nil", "{{ [{}.name] == [nil] }}", "1"},
+		{
+			"object with missing property equals object with nil",
+			"{{ {name: {}.name} == {name: nil} }}",
+			"1",
+		},
 		// --------------------------- Arrays ---------------------------
 		// Arrays with arrays
 		{"empty arrays equal", "{{ [] == [] }}", "1"},
@@ -466,6 +477,30 @@ func TestEvalNilExp(t *testing.T) {
 		{"nil literal", `<h1>{{ nil }}</h1>`, "<h1></h1>", nil},
 		{"repeated nil literals", `<h1>{{ nil; nil }}</h1>`, "<h1></h1>", nil},
 		{"nil from data", `<h1>{{ data }}</h1>`, "<h1></h1>", map[string]any{"data": nil}},
+		{
+			"missing property renders empty",
+			`<h1>{{ user.name }}</h1>`,
+			"<h1></h1>",
+			map[string]any{"user": map[string]any{}},
+		},
+		{
+			"missing index renders empty",
+			`<h1>{{ arr[99] }}</h1>`,
+			"<h1></h1>",
+			map[string]any{"arr": []any{}},
+		},
+		{
+			"nil values from data are equal",
+			`{{ nilVal == otherNilVal }}`,
+			"1",
+			map[string]any{"nilVal": nil, "otherNilVal": nil},
+		},
+		{
+			"nil variable is equal with hardcoded nil",
+			`{{ nilVal == nil }}`,
+			"1",
+			map[string]any{"nilVal": nil},
+		},
 	}
 
 	for _, tc := range cases {

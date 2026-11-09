@@ -1,7 +1,6 @@
 package evaluator
 
 import (
-	"reflect"
 	"time"
 
 	"codeberg.org/textwire/textwire/v5/config"
@@ -836,7 +835,7 @@ func (e *Evaluator) arrIndexExp(arrObj, idx value.Literal) value.Literal {
 	max := int64(len(arr.Elements) - 1)
 
 	if index < 0 || index > max {
-		return NIL
+		return value.NewNil(value.NilOriginMissingIndex)
 	}
 
 	return arr.Elements[index]
@@ -853,7 +852,7 @@ func (e *Evaluator) objKeyExp(obj *value.Obj, key string) value.Literal {
 		return pair
 	}
 
-	return NIL
+	return value.NewNil(value.NilOriginMissingProp)
 }
 
 // resolveObjKey returns the existing key that reads resolve to, so writes
@@ -1124,6 +1123,10 @@ func (e *Evaluator) globalFuncDefined(
 		if isError(evaluated) {
 			return evaluated
 		}
+
+		if isMissingNil(evaluated) {
+			return FALSE
+		}
 	}
 
 	return TRUE
@@ -1305,7 +1308,7 @@ func (e *Evaluator) comparrisonInfixExp(
 	case *value.Bool:
 		areEqual = l.Val == right.(*value.Bool).Val
 	case *value.Arr, *value.Obj:
-		areEqual = reflect.DeepEqual(left, right)
+		areEqual = literalsEqual(left, right)
 	case *value.Nil:
 		areEqual = true
 	default:

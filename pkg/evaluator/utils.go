@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"math"
+	"reflect"
 	"slices"
 	"strings"
 	"unicode"
@@ -62,6 +63,69 @@ func exprToText(expr ast.Expression) string {
 	}
 
 	return text
+}
+
+// isMissingNil reports whether value is a nil produced by a missing object
+// property or array index.
+func isMissingNil(obj value.Value) bool {
+	nilVal, ok := obj.(*value.Nil)
+	if !ok {
+		return false
+	}
+
+	switch nilVal.Origin() {
+	case value.NilOriginMissingProp, value.NilOriginMissingIndex:
+		return true
+	}
+
+	return false
+}
+
+// literalsEqual reports whether two literals represent the same value. Nil
+// origins are ignored because they describe where nil came from, not its value.
+func literalsEqual(left, right value.Literal) bool {
+	switch left := left.(type) {
+	case *value.Nil:
+		_, ok := right.(*value.Nil)
+		return ok
+	case *value.Arr:
+		right, ok := right.(*value.Arr)
+		return ok && arrsEqual(left, right)
+	case *value.Obj:
+		right, ok := right.(*value.Obj)
+		return ok && objsEqual(left, right)
+	}
+
+	return reflect.DeepEqual(left, right)
+}
+
+func arrsEqual(left, right *value.Arr) bool {
+	if len(left.Elements) != len(right.Elements) {
+		return false
+	}
+
+	for i := range left.Elements {
+		if !literalsEqual(left.Elements[i], right.Elements[i]) {
+			return false
+		}
+	}
+
+	return true
+}
+
+func objsEqual(left, right *value.Obj) bool {
+	if len(left.Pairs) != len(right.Pairs) {
+		return false
+	}
+
+	for key, leftVal := range left.Pairs {
+		rightVal, ok := right.Pairs[key]
+		if !ok || !literalsEqual(leftVal, rightVal) {
+			return false
+		}
+	}
+
+	return true
 }
 
 func isUndefinedError(obj value.Value) bool {
@@ -362,4 +426,23 @@ func floatToInt(val float64, method string) (value.Literal, error) {
 // floatInInt64Range reports whether val can be converted to int64 without overflowing
 func floatInInt64Range(val float64) bool {
 	return val >= math.MinInt64 && val < -math.MinInt64
+}
+
+// elementsMatch compares two literals, using deep equality for
+// composite types (objects and arrays) and native equality otherwise.
+func elementsMatch(a, b value.Literal) bool {
+	if isComposite(a, b) {
+		return literalsEqual(a, b)
+	}
+
+	return a.Native() == b.Native()
+}
+
+// isComposite reports whether both literals are objects or both are arrays.
+func isComposite(a, b value.Literal) bool {
+	if a.Type() != b.Type() {
+		return false
+	}
+
+	return a.Type() == value.OBJ_VAL || a.Type() == value.ARR_VAL
 }

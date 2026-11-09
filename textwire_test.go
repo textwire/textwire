@@ -284,7 +284,7 @@ func TestDefinedCallExpression(t *testing.T) {
 			"1",
 			map[string]any{"obj": map[string]any{"prop": "value"}},
 		},
-		{290, `{{ defined(obj.prop) }}`, "1", map[string]any{"obj": map[string]any{}}},
+		{290, `{{ defined(obj.prop) }}`, "0", map[string]any{"obj": map[string]any{}}},
 		{
 			300,
 			`{{ defined(obj.prop.test.nice.cool) }}`,
@@ -335,12 +335,12 @@ func TestDefinedCallExpression(t *testing.T) {
 		{450, `{{ defined(a, b, c) }}`, "0", map[string]any{"a": "hello", "c": "world"}},
 		{460, `{{ defined(arr[0]) }}`, "1", map[string]any{"arr": []any{nil, ""}}},
 		{470, `{{ defined(arr[0][0]) }}`, "1", map[string]any{"arr": []any{[]any{"nested"}}}},
-		{480, `{{ defined(arr[99]) }}`, "1", map[string]any{"arr": []any{"first", "second"}}},
+		{480, `{{ defined(arr[99]) }}`, "0", map[string]any{"arr": []any{"first", "second"}}},
 		{490, `{{ defined(999999999) }}`, "1", nil},
 		{500, `{{ defined("hello") }}`, "1", nil},
 		{510, `{{ defined("str", 123, true) }}`, "1", nil},
 		{520, `{{ defined("str", undefinedVar, true) }}`, "0", nil},
-		{530, `{{ defined(arr[-1]) }}`, "1", map[string]any{"arr": []any{"first"}}},
+		{530, `{{ defined(arr[-1]) }}`, "0", map[string]any{"arr": []any{"first"}}},
 		{540, `{{ defined(0.000001) }}`, "1", nil},
 		{550, `{{ defined(-0.000001) }}`, "1", nil},
 		{
@@ -352,7 +352,7 @@ func TestDefinedCallExpression(t *testing.T) {
 		{
 			590,
 			`{{ defined(obj.arr[0].prop) }}`,
-			"1",
+			"0",
 			map[string]any{"obj": map[string]any{"arr": []any{map[string]any{}}}},
 		},
 		{
@@ -373,6 +373,21 @@ func TestDefinedCallExpression(t *testing.T) {
 			"NO",
 			map[string]any{"a": "x", "c": "z"},
 		},
+		{630, `{{ defined(user.name) }}`, "0", map[string]any{"user": map[string]any{}}},
+		{
+			640,
+			`{{ defined(user.name) }}`,
+			"1",
+			map[string]any{"user": map[string]any{"name": nil}},
+		},
+		{650, `{{ defined(user["name"]) }}`, "0", map[string]any{"user": map[string]any{}}},
+		{
+			660,
+			`{{ defined(user["name"]) }}`,
+			"1",
+			map[string]any{"user": map[string]any{"name": nil}},
+		},
+		{670, `{{ defined(user.name.age) }}`, "0", map[string]any{"user": map[string]any{}}},
 	}
 
 	for _, tc := range cases {

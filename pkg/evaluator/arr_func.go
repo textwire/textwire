@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"math/rand"
-	"reflect"
 	"slices"
 	"strings"
 
@@ -144,26 +143,10 @@ func arrContainsFunc(receiver value.Literal, args ...value.Literal) (value.Liter
 		return nil, errors.New(msg)
 	}
 
-	elems := receiver.(*value.Arr).Elements
-	if len(elems) == 0 {
-		return FALSE, nil
-	}
-
 	target := args[0]
 
-	for _, el := range elems {
-		isObj := el.Type() == value.OBJ_VAL && target.Type() == value.OBJ_VAL
-		isArr := el.Type() == value.ARR_VAL && target.Type() == value.ARR_VAL
-
-		if isObj || isArr {
-			if reflect.DeepEqual(el, target) {
-				return TRUE, nil
-			}
-
-			continue
-		}
-
-		if el.Native() == target.Native() {
+	for _, el := range receiver.(*value.Arr).Elements {
+		if elementsMatch(el, target) {
 			return TRUE, nil
 		}
 	}
