@@ -166,6 +166,30 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 			data: map[string]any{"fullName": "Amy Adams"},
 		},
 		{
+			dir: "comp-calls-itself",
+			err: fail.New(
+				&position.Pos{StartCol: 4, EndCol: 26},
+				absPath+"comp-calls-itself/components/tree.tw",
+				fail.OriginEval,
+				fail.ErrMaxComponentDepth,
+				"components/tree",
+				config.DefaultMaxComponentDepth,
+			),
+			data: nil,
+		},
+		{
+			dir: "comp-calls-each-other",
+			err: fail.New(
+				&position.Pos{StartCol: 3, EndCol: 26},
+				absPath+"comp-calls-each-other/components/second.tw",
+				fail.OriginEval,
+				fail.ErrMaxComponentDepth,
+				"components/first",
+				config.DefaultMaxComponentDepth,
+			),
+			data: nil,
+		},
+		{
 			dir: "inserts-without-use",
 			err: fail.New(
 				&position.Pos{StartLine: 3, EndLine: 3, EndCol: 31},

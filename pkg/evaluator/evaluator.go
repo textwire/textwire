@@ -25,6 +25,12 @@ type Evaluator struct {
 	// config can be nil when Textwire is used for simple string and
 	// file evaluation. If config is not nil, it means we use templates.
 	config *config.Config
+
+	// compDepth is the number of components that are rendering inside each
+	// other right now. It goes up when a component starts rendering and down
+	// when it finishes, so sibling components don't add up. A new Evaluator
+	// is created for every render, so renders don't share this counter.
+	compDepth int
 }
 
 func New(customFunc *config.Func, conf *config.Config) *Evaluator {
@@ -465,6 +471,14 @@ func (e *Evaluator) compDir(compDir *ast.CompDir, ctx *Context) value.Value {
 		}
 	}
 
+	maxDepth := e.maxCompDepth()
+	if e.compDepth >= maxDepth {
+		return e.newError(compDir, ctx, fail.ErrMaxComponentDepth, name, maxDepth)
+	}
+
+	e.compDepth++
+	defer func() { e.compDepth-- }()
+
 	content := e.Eval(compDir.CompProg, compCtx)
 	if isError(content) {
 		return content
@@ -474,6 +488,14 @@ func (e *Evaluator) compDir(compDir *ast.CompDir, ctx *Context) value.Value {
 		Name:    name,
 		Content: content,
 	}
+}
+
+// maxCompDepth returns how many components can render inside each other.
+func (e *Evaluator) maxCompDepth() int {
+	if e.config == nil || e.config.MaxComponentDepth < 1 {
+		return config.DefaultMaxComponentDepth
+	}
+	return e.config.MaxComponentDepth
 }
 
 func (e *Evaluator) evalCompDirPasses(compDir *ast.CompDir, ctx, compCtx *Context) value.Value {

@@ -10,6 +10,7 @@
 - ✨ `@for` loops now support the `loop` object with `index`, `iter`, `first` and `parent`. `last` is not available because a `for` loop may not have a known length. Closes [#130](https://codeberg.org/textwire/textwire/issues/130).
 - 🐛 Removed single quotes around directives in error messages, e.g. `@elseif cannot come after @else` instead of `'@elseif' cannot come after '@else'`.
 - 🧑‍💻 BREAKING CHANGE! Whitespace is handled by lines. A line is removed entirely, including its spaces and line ending, only when exactly one directive is its sole non-whitespace content. That includes lines inside a multi-line directive, like the arguments of `@if(\n  true\n)`. A line with `{{ }}` or `{!! !!}` embedded code, several directives, or any other content keeps its whitespace exactly as written, and blank lines are unchanged. Block bodies are no longer trimmed at their edges, and component bodies are no longer trimmed either. Closes [#166](https://codeberg.org/textwire/textwire/issues/166).
+- 🧑‍💻 BREAKING CHANGE! A component that includes itself, directly or through other components, now stops with an error instead of crashing the program with a stack overflow. The limit is how many components can render inside each other at the same time during one render, 500 by default. Components rendered one after another, like inside of a loop, don't count towards it. Change the limit with the new `MaxComponentDepth` config option.
 
 ## [Release Notes V1](docs/CHANGELOG-V1.md)
 ## [Release Notes V2](docs/CHANGELOG-V2.md)

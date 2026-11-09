@@ -68,6 +68,7 @@ const (
 	ErrUseDirIsNotAllowed    = "@use() not allowed in layout files - causes infinite recursion"
 	ErrCircularReference     = "cannot assign %s to %s: assignment would create a circular reference."
 	ErrCircularValue         = "circular reference detected in '%s'"
+	ErrMaxComponentDepth     = "@component('%s') exceeds the maximum component nesting depth of %d - check for a component that includes itself, or increase the limit with the MaxComponentDepth config option"
 
 	// Functions
 	ErrFuncNotDefined      = "%s.%s() is not defined"

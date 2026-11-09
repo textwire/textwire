@@ -158,6 +158,7 @@ func evalTpl[T string | *ast.Program](t *testing.T, input T) string {
 	return evaluated.String()
 }
 
+// writeTemplate creates a file in a given location.
 func writeTemplate(t *testing.T, path, content string) {
 	t.Helper()
 
