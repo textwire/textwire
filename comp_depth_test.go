@@ -275,11 +275,15 @@ func TestComponentDepth_LimitBelowOneUsesDefault(t *testing.T) {
 }
 
 func TestComponentDepth_ConcurrentRendersDoNotShareDepth(t *testing.T) {
-	node := "x@if(n < limit)@component('~node', { n: n + 1, limit })@end@end"
-
 	files := []tplFile{
-		{relPath: "index.tw", content: "@component('~node', { n: 1, limit })@end"},
-		{relPath: "components/node.tw", content: node},
+		{
+			relPath: "index.tw",
+			content: "@component('~node', { n: 1, limit })@end",
+		},
+		{
+			relPath: "components/node.tw",
+			content: "x@if(n < limit)@component('~node', { n: n + 1, limit })@end@end",
+		},
 	}
 
 	tpl := setupTemplate(t, files, &config.Config{MaxComponentDepth: 5})
