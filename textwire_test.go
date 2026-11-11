@@ -239,7 +239,7 @@ func TestEvalStr(t *testing.T) {
 	}
 }
 
-func TestDefinedCallExpression(t *testing.T) {
+func TestDefinedGlobalFunc(t *testing.T) {
 	cases := []struct {
 		id     int
 		inp    string
