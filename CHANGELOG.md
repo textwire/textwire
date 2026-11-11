@@ -1,6 +1,6 @@
 # Release notes V6
 
-## v6.0.0 (2026-11-10)
+## v6.0.0 (2026-11-12)
 
 [Full migration guide from v5 to v6.](https://textwire.serhiicho.com/v6/upgrade)
 
