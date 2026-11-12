@@ -168,6 +168,14 @@ func (e *Evaluator) embedded(embeddedAst *ast.Embedded, ctx *Context) value.Valu
 	return embedded
 }
 
+// escapedEmbedded wraps val like {{ val }} does, so it's printed with HTML
+// escaping unless it's marked with the raw() function.
+func escapedEmbedded(val value.Literal) *value.Embedded {
+	embedded := value.NewEmbedded(1, false)
+	embedded.Segments = append(embedded.Segments, val)
+	return embedded
+}
+
 func (e *Evaluator) ifDir(ifDir *ast.IfDir, ctx *Context) value.Value {
 	cond := e.evalLiteral(ifDir.Cond, ctx)
 	if isError(cond) {
@@ -435,7 +443,11 @@ func (e *Evaluator) reserveDir(reserveDir *ast.ReserveDir, ctx *Context) value.V
 	insert, ok := ctx.inserts[name]
 	if !ok {
 		// Inserts are optional, NIL when not provided or fallback argument
-		return e.evalLiteral(reserveDir.Fallback, ctx)
+		fallback := e.evalLiteral(reserveDir.Fallback, ctx)
+		if isError(fallback) || fallback == NIL {
+			return fallback
+		}
+		return escapedEmbedded(fallback)
 	}
 
 	return &value.Reserve{
@@ -794,7 +806,7 @@ func (e *Evaluator) combineInsertContent(insertDir *ast.InsertDir, ctx *Context)
 	}
 
 	if arg != NIL {
-		return arg
+		return escapedEmbedded(arg)
 	}
 
 	if insertDir.Block == nil {
@@ -1122,6 +1134,8 @@ func (e *Evaluator) globalCallExpr(globalCallExp *ast.GlobalCallExpr, ctx *Conte
 		return e.globalFuncHasValue(globalCallExp, ctx)
 	case "formatDate":
 		return e.globalFuncFormatDate(globalCallExp, ctx)
+	case "raw":
+		return e.globalFuncRaw(globalCallExp, ctx)
 	default:
 		return e.newError(
 			globalCallExp,
@@ -1215,6 +1229,21 @@ func (e *Evaluator) globalFuncFormatDate(
 	}
 
 	return &value.Str{Val: newFormat.Format(layout.Val)}
+}
+
+// globalFuncRaw marks the strings in its argument as raw, so they're
+// printed without HTML escaping. See value.Raw.
+func (e *Evaluator) globalFuncRaw(
+	globalCallExpr *ast.GlobalCallExpr,
+	ctx *Context,
+) value.Literal {
+	// We already know that we have 1 argument since parser ensures that
+	arg := e.evalLiteral(globalCallExpr.Arguments[0], ctx)
+	if isError(arg) {
+		return arg
+	}
+
+	return value.Raw(arg)
 }
 
 func (e *Evaluator) valuesToNativeType(args []value.Literal) []any {

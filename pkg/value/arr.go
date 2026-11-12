@@ -27,13 +27,23 @@ func (a *Arr) String() string {
 // It builds the output from the elements, and for each element it skips
 // the cycle check for child arrays and objects.
 func (a *Arr) stringNoCycleCheck() string {
+	return a.joinElements(stringOf)
+}
+
+// htmlNoCycleCheck is stringNoCycleCheck with HTML escaping, see escapedString.
+func (a *Arr) htmlNoCycleCheck() string {
+	return a.joinElements(htmlOf)
+}
+
+// joinElements converts each element with elemOf and joins them with commas.
+func (a *Arr) joinElements(toString func(Literal) string) string {
 	if len(a.Elements) == 0 {
 		return ""
 	}
 
 	var out bytes.Buffer
 	for _, elem := range a.Elements {
-		out.WriteString(stringOf(elem))
+		out.WriteString(toString(elem))
 		out.WriteString(", ")
 	}
 

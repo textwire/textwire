@@ -229,3 +229,19 @@ func TestCustomFunc(t *testing.T) {
 		assertEvalOutput(t, "{{ ' anna '.trim() }}", nil, "anna")
 	})
 }
+
+func TestCustomStrFunc_RawArgArrivesUnescaped(t *testing.T) {
+	err := RegisterStrFunc("_returnsInput", func(s string, _ ...any) any {
+		return s
+	})
+
+	assertNoFailure(t, err)
+
+	// The function gets "<b>", so its result is escaped once
+	assertEvalOutput(t, `{{ raw(x)._returnsInput() }}`, map[string]any{"x": "<b>"}, "&lt;b&gt;")
+
+	// Test other cases
+	assertEvalOutput(t, `{!! raw(x)._returnsInput() !!}`, map[string]any{"x": "<b>"}, "<b>")
+	assertEvalOutput(t, `{!! x._returnsInput() !!}`, map[string]any{"x": "<b>"}, "<b>")
+	assertEvalOutput(t, `{{ x._returnsInput() }}`, map[string]any{"x": "<b>"}, "&lt;b&gt;")
+}

@@ -1,7 +1,6 @@
 package value
 
 import (
-	"html"
 	"strings"
 )
 
@@ -22,14 +21,16 @@ func (e *Embedded) String() string {
 	var out strings.Builder
 	out.Grow(len(e.Segments))
 
-	for i := range e.Segments {
-		out.WriteString(e.Segments[i].String())
+	toString := escapedString
+	if e.IsRaw {
+		toString = Literal.String
 	}
 
-	if e.IsRaw {
-		return out.String()
+	for i := range e.Segments {
+		out.WriteString(toString(e.Segments[i]))
 	}
-	return html.EscapeString(out.String())
+
+	return out.String()
 }
 
 func (e *Embedded) Is(t ValueType) bool {

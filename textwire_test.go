@@ -611,6 +611,21 @@ func TestErrorHandling(t *testing.T) {
 			data: nil,
 		},
 		{
+			inp:  `{{ raw() }}`,
+			err:  fail.New(nil, "", fail.OriginPars, fail.ErrGlobalFuncFewArgs, "raw", 1, 0),
+			data: nil,
+		},
+		{
+			inp:  `{{ raw("a", "b") }}`,
+			err:  fail.New(nil, "", fail.OriginPars, fail.ErrGlobalFuncLotsOfArgs, "raw", 1, 2),
+			data: nil,
+		},
+		{
+			inp:  `{{ raw(undefinedVar) }}`,
+			err:  fail.New(nil, "", fail.OriginEval, fail.ErrVariableIsUndefined, "undefinedVar"),
+			data: nil,
+		},
+		{
 			inp: `{{ loop }}`,
 			err: fail.New(
 				nil,

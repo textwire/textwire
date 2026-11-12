@@ -1,6 +1,7 @@
 package evaluator
 
 import (
+	"fmt"
 	"strings"
 	"testing"
 
@@ -38,19 +39,24 @@ func evaluationExpected(
 	data map[string]any,
 	name string,
 ) {
+	prefix := fmt.Sprintf("Case: %s. ", name)
+	if name == "" {
+		prefix = ""
+	}
+
 	evaluated, failure := testEval(inp, data)
 	if failure != nil {
-		t.Fatalf("Case: %s. evaluation failed: %s", name, failure)
+		t.Fatalf("%sEvaluation failed: %s", prefix, failure)
 	}
 
 	errObj, ok := evaluated.(*value.Error)
 	if ok {
-		t.Fatalf("Case: %s. evaluation failed: %s", name, errObj)
+		t.Fatalf("%sEvaluation failed: %s", prefix, errObj)
 	}
 
 	res := evaluated.String()
 	if res != expect {
-		t.Fatalf("Case: %s. Result is not '%s', got '%s'", name, expect, res)
+		t.Fatalf("%sResult is not '%s', got '%s'", prefix, expect, res)
 	}
 }
 

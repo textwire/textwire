@@ -83,11 +83,15 @@ func isMissingNil(obj value.Value) bool {
 
 // literalsEqual reports whether two literals represent the same value. Nil
 // origins are ignored because they describe where nil came from, not its value.
+// The raw mark on strings is ignored too, it only changes how they're printed.
 func literalsEqual(left, right value.Literal) bool {
 	switch left := left.(type) {
 	case *value.Nil:
 		_, ok := right.(*value.Nil)
 		return ok
+	case *value.Str:
+		right, ok := right.(*value.Str)
+		return ok && left.Val == right.Val
 	case *value.Arr:
 		right, ok := right.(*value.Arr)
 		return ok && arrsEqual(left, right)

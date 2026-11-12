@@ -36,6 +36,16 @@ func (o *Obj) String() string {
 // It builds the output from the elements, and for each element it skips
 // the cycle check for child arrays and objects.
 func (o *Obj) stringNoCycleCheck() string {
+	return o.joinPairs(writeStringPair)
+}
+
+// htmlNoCycleCheck is stringNoCycleCheck with HTML escaping, see escapedString.
+func (o *Obj) htmlNoCycleCheck() string {
+	return o.joinPairs(writeHTMLPair)
+}
+
+// joinPairs writes each key and value with writePair, sorted by key.
+func (o *Obj) joinPairs(writePair func(out *strings.Builder, key string, val Literal)) string {
 	if o.Pairs == nil {
 		return "{}"
 	}
@@ -46,27 +56,55 @@ func (o *Obj) stringNoCycleCheck() string {
 
 	out.WriteByte('{')
 
-	for i, k := range keys {
-		pair := o.Pairs[k]
+	for i, key := range keys {
 		if i > 0 {
 			out.WriteString(", ")
 		}
-
-		if _, isStr := pair.(*Str); isStr {
-			out.WriteString(k)
-			out.WriteString(`: "`)
-			out.WriteString(pair.String())
-			out.WriteString(`"`)
-		} else {
-			out.WriteString(k)
-			out.WriteString(": ")
-			out.WriteString(stringOf(pair))
-		}
+		writePair(&out, key, o.Pairs[key])
 	}
 
 	out.WriteByte('}')
 
 	return out.String()
+}
+
+// writeStringPair writes `key: "string"` for strings and `key: value` for
+// other values.
+func writeStringPair(out *strings.Builder, key string, val Literal) {
+	out.WriteString(key)
+	out.WriteString(": ")
+
+	if str, isStr := val.(*Str); isStr {
+		out.WriteString(`"`)
+		out.WriteString(str.Val)
+		out.WriteString(`"`)
+		return
+	}
+
+	out.WriteString(stringOf(val))
+}
+
+// writeHTMLPair is writeStringPair with HTML escaping. The key is always
+// escaped. A raw string is written with its quotes as is, other strings get
+// their quotes escaped as &#34;, like html.EscapeString does.
+func writeHTMLPair(out *strings.Builder, key string, val Literal) {
+	out.WriteString(html.EscapeString(key))
+	out.WriteString(": ")
+
+	str, isStr := val.(*Str)
+
+	switch {
+	case isStr && str.raw:
+		out.WriteString(`"`)
+		out.WriteString(str.Val)
+		out.WriteString(`"`)
+	case isStr:
+		out.WriteString("&#34;")
+		out.WriteString(html.EscapeString(str.Val))
+		out.WriteString("&#34;")
+	default:
+		out.WriteString(htmlOf(val))
+	}
 }
 
 func (o *Obj) JSON() (string, error) {

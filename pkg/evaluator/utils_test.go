@@ -455,6 +455,210 @@ func TestFloatInInt64Range(t *testing.T) {
 	}
 }
 
+func TestLiteralsEqual(t *testing.T) {
+	cases := []struct {
+		name   string
+		left   value.Literal
+		right  value.Literal
+		expect bool
+	}{
+		{
+			name:   "nil and nil are equal",
+			left:   new(value.Nil),
+			right:  new(value.Nil),
+			expect: true,
+		},
+		{
+			name:   "nil origins are ignored",
+			left:   value.NewNil(value.NilOriginMissingProp),
+			right:  new(value.Nil),
+			expect: true,
+		},
+		{
+			name:   "nil and integer are not equal",
+			left:   new(value.Nil),
+			right:  &value.Int{Val: 0},
+			expect: false,
+		},
+		{
+			name:   "equal integers",
+			left:   &value.Int{Val: 42},
+			right:  &value.Int{Val: 42},
+			expect: true,
+		},
+		{
+			name:   "different integers",
+			left:   &value.Int{Val: 42},
+			right:  &value.Int{Val: 43},
+			expect: false,
+		},
+		{
+			name:   "integer and float are not equal",
+			left:   &value.Int{Val: 1},
+			right:  &value.Float{Val: 1},
+			expect: false,
+		},
+		{
+			name:   "equal floats",
+			left:   &value.Float{Val: 1.5},
+			right:  &value.Float{Val: 1.5},
+			expect: true,
+		},
+		{
+			name:   "different floats",
+			left:   &value.Float{Val: 1.5},
+			right:  &value.Float{Val: 2.5},
+			expect: false,
+		},
+		{
+			name:   "equal booleans",
+			left:   &value.Bool{Val: true},
+			right:  &value.Bool{Val: true},
+			expect: true,
+		},
+		{
+			name:   "different booleans",
+			left:   &value.Bool{Val: true},
+			right:  &value.Bool{Val: false},
+			expect: false,
+		},
+		{
+			name:   "string and integer are not equal",
+			left:   &value.Str{Val: "1"},
+			right:  &value.Int{Val: 1},
+			expect: false,
+		},
+		{
+			name:   "equal strings",
+			left:   &value.Str{Val: "a"},
+			right:  &value.Str{Val: "a"},
+			expect: true,
+		},
+		{
+			name:   "different strings",
+			left:   &value.Str{Val: "a"},
+			right:  &value.Str{Val: "b"},
+			expect: false,
+		},
+		{
+			name:   "raw and plain strings with same text are equal",
+			left:   value.Raw(&value.Str{Val: "<b>"}),
+			right:  &value.Str{Val: "<b>"},
+			expect: true,
+		},
+		{
+			name:   "raw and plain strings with different text are not equal",
+			left:   value.Raw(&value.Str{Val: "<b>"}),
+			right:  &value.Str{Val: "<i>"},
+			expect: false,
+		},
+		{
+			name:   "raw string and integer are not equal",
+			left:   value.Raw(&value.Str{Val: "1"}),
+			right:  &value.Int{Val: 1},
+			expect: false,
+		},
+		{
+			name:   "empty arrays are equal",
+			left:   &value.Arr{},
+			right:  &value.Arr{},
+			expect: true,
+		},
+		{
+			name:   "arrays with different lengths are not equal",
+			left:   &value.Arr{Elements: []value.Literal{&value.Int{Val: 1}}},
+			right:  &value.Arr{},
+			expect: false,
+		},
+		{
+			name: "arrays with the same elements are equal",
+			left: &value.Arr{
+				Elements: []value.Literal{&value.Int{Val: 1}, &value.Str{Val: "a"}},
+			},
+			right: &value.Arr{
+				Elements: []value.Literal{&value.Int{Val: 1}, &value.Str{Val: "a"}},
+			},
+			expect: true,
+		},
+		{
+			name:   "arrays with different elements are not equal",
+			left:   &value.Arr{Elements: []value.Literal{&value.Int{Val: 1}}},
+			right:  &value.Arr{Elements: []value.Literal{&value.Int{Val: 2}}},
+			expect: false,
+		},
+		{
+			name:   "arrays with raw and plain strings are equal",
+			left:   &value.Arr{Elements: []value.Literal{value.Raw(&value.Str{Val: "<b>"})}},
+			right:  &value.Arr{Elements: []value.Literal{&value.Str{Val: "<b>"}}},
+			expect: true,
+		},
+		{
+			name: "arrays with nested raw and plain strings are equal",
+			left: &value.Arr{Elements: []value.Literal{
+				&value.Arr{Elements: []value.Literal{value.Raw(&value.Str{Val: "<b>"})}},
+			}},
+			right: &value.Arr{Elements: []value.Literal{
+				&value.Arr{Elements: []value.Literal{&value.Str{Val: "<b>"}}},
+			}},
+			expect: true,
+		},
+		{
+			name:   "empty objects are equal",
+			left:   value.NewObj(nil),
+			right:  value.NewObj(nil),
+			expect: true,
+		},
+		{
+			name: "objects with the same pairs are equal regardless of order",
+			left: value.NewObj(map[string]value.Literal{
+				"a": &value.Int{Val: 1},
+				"b": &value.Str{Val: "x"},
+			}),
+			right: value.NewObj(map[string]value.Literal{
+				"b": &value.Str{Val: "x"},
+				"a": &value.Int{Val: 1},
+			}),
+			expect: true,
+		},
+		{
+			name:   "objects with different keys are not equal",
+			left:   value.NewObj(map[string]value.Literal{"a": &value.Int{Val: 1}}),
+			right:  value.NewObj(map[string]value.Literal{"b": &value.Int{Val: 1}}),
+			expect: false,
+		},
+		{
+			name:   "objects with different values are not equal",
+			left:   value.NewObj(map[string]value.Literal{"a": &value.Int{Val: 1}}),
+			right:  value.NewObj(map[string]value.Literal{"a": &value.Int{Val: 2}}),
+			expect: false,
+		},
+		{
+			name:   "objects with raw and plain strings are equal",
+			left:   value.NewObj(map[string]value.Literal{"a": value.Raw(&value.Str{Val: "<b>"})}),
+			right:  value.NewObj(map[string]value.Literal{"a": &value.Str{Val: "<b>"}}),
+			expect: true,
+		},
+		{
+			name: "objects with nested raw and plain strings are equal",
+			left: value.NewObj(map[string]value.Literal{
+				"a": value.NewObj(map[string]value.Literal{"b": value.Raw(&value.Str{Val: "<b>"})}),
+			}),
+			right: value.NewObj(map[string]value.Literal{
+				"a": value.NewObj(map[string]value.Literal{"b": &value.Str{Val: "<b>"}}),
+			}),
+			expect: true,
+		},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			if got := literalsEqual(tc.left, tc.right); got != tc.expect {
+				t.Fatalf("expect %t, got %t", tc.expect, got)
+			}
+		})
+	}
+}
+
 func TestStripControlDir(t *testing.T) {
 	t.Run("returns block without control values as is", func(t *testing.T) {
 		inner := value.NewBlock(1)
