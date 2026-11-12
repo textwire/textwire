@@ -159,7 +159,7 @@ When adding new features, update LSP metadata in `lsp/metadata/en/`:
 
 - [ ] Run `make check` before commit
 - [ ] Update LSP metadata if adding new features
-- [ ] Add tests for new functionality
+- [ ] Add tests for new functionality (TDD approach is better)
 
 ### Versioning
 
