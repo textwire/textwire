@@ -35,7 +35,7 @@ func (l *WatcherLogger) print(color, text string) {
 		out = os.Stdout
 	}
 
-	fmt.Fprintf(
+	_, err := fmt.Fprintf(
 		out,
 		"%s[Watcher]%s %s%s%s\n",
 		colorYellow,
@@ -44,6 +44,10 @@ func (l *WatcherLogger) print(color, text string) {
 		text,
 		colorReset,
 	)
+
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Failed to write log: %v\n", err)
+	}
 }
 
 func (l *WatcherLogger) Fatal(text string) {
