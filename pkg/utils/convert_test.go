@@ -8,30 +8,30 @@ import (
 func TestFloatToStr(t *testing.T) {
 	tc := []struct {
 		name   string
-		input  float64
+		inp    float64
 		expect string
 	}{
-		{name: "Positive float", input: 3.14159, expect: "3.14159"},
-		{name: "Negative float", input: -3.14159, expect: "-3.14159"},
-		{name: "Zero as float", input: 0.0, expect: "0.0"},
-		{name: "Negative zero as float", input: 0.0, expect: "0.0"},
-		{name: "Float with fraction", input: 123.23, expect: "123.23"},
-		{name: "Zero at the end is present", input: 1.0, expect: "1.0"},
-		{name: "Zero at the end is present", input: 1.000, expect: "1.0"},
-		{name: "Medium float", input: 1234567890.1234567, expect: "1234567890.1234567"},
-		{name: "Large float", input: 1.234567890123456e+30, expect: "1.234567890123456e+30"},
-		{name: "Very small float", input: 0.00000123456789, expect: "0.00000123456789"},
-		{name: "Negative medium float", input: -987654321.9876543, expect: "-987654321.9876543"},
-		{name: "Float with many trailing zeros", input: 42.0000000000, expect: "42.0"},
-		{name: "Very large decimal", input: 999999999999999.999, expect: "1000000000000000.0"},
-		{name: "Positive infinity", input: math.Inf(1), expect: "+Inf"},
-		{name: "Negative infinity", input: math.Inf(-1), expect: "-Inf"},
-		{name: "NaN", input: math.NaN(), expect: "NaN"},
+		{name: "Positive float", inp: 3.14159, expect: "3.14159"},
+		{name: "Negative float", inp: -3.14159, expect: "-3.14159"},
+		{name: "Zero as float", inp: 0.0, expect: "0.0"},
+		{name: "Negative zero as float", inp: 0.0, expect: "0.0"},
+		{name: "Float with fraction", inp: 123.23, expect: "123.23"},
+		{name: "Zero at the end is present", inp: 1.0, expect: "1.0"},
+		{name: "Zero at the end is present", inp: 1.000, expect: "1.0"},
+		{name: "Medium float", inp: 1234567890.1234567, expect: "1234567890.1234567"},
+		{name: "Large float", inp: 1.234567890123456e+30, expect: "1.234567890123456e+30"},
+		{name: "Very small float", inp: 0.00000123456789, expect: "0.00000123456789"},
+		{name: "Negative medium float", inp: -987654321.9876543, expect: "-987654321.9876543"},
+		{name: "Float with many trailing zeros", inp: 42.0000000000, expect: "42.0"},
+		{name: "Very large decimal", inp: 999999999999999.999, expect: "1000000000000000.0"},
+		{name: "Positive infinity", inp: math.Inf(1), expect: "+Inf"},
+		{name: "Negative infinity", inp: math.Inf(-1), expect: "-Inf"},
+		{name: "NaN", inp: math.NaN(), expect: "NaN"},
 	}
 
 	for _, tt := range tc {
 		t.Run(tt.name, func(t *testing.T) {
-			if actual := FloatToStr(tt.input); actual != tt.expect {
+			if actual := FloatToStr(tt.inp); actual != tt.expect {
 				t.Errorf("Expected %q but got %q", tt.expect, actual)
 			}
 		})

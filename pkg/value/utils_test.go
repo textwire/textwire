@@ -37,23 +37,23 @@ type testUintModel struct {
 	Big  uint64
 }
 
-func assertValue(t *testing.T, input any, want Literal) {
+func assertValue(t *testing.T, inp any, want Literal) {
 	t.Helper()
 
-	got := NativeToValue(input)
+	got := NativeToValue(inp)
 	if !reflect.DeepEqual(got, want) {
-		t.Fatalf("NativeToValue(%T)\n got: %#v\nwant: %#v", input, got, want)
+		t.Fatalf("NativeToValue(%T)\n got: %#v\nwant: %#v", inp, got, want)
 	}
 }
 
-func assertErrorMessage(t *testing.T, input any, want string) {
+func assertErrorMessage(t *testing.T, inp any, want string) {
 	t.Helper()
 
-	got := NativeToValue(input)
+	got := NativeToValue(inp)
 
 	errObj, ok := got.(*Error)
 	if !ok {
-		t.Fatalf("NativeToValue(%T) returned %T, want *Error", input, got)
+		t.Fatalf("NativeToValue(%T) returned %T, want *Error", inp, got)
 	}
 
 	if msg := errObj.Err.Message(); msg != want {
@@ -74,9 +74,9 @@ func TestNativeToValue_SupportedValues(t *testing.T) {
 	createdAt := time.Date(2026, 10, 26, 12, 30, 0, 0, time.UTC)
 
 	tests := []struct {
-		name  string
-		input any
-		want  Literal
+		name string
+		inp  any
+		want Literal
 	}{
 		// named primitives
 		{"named string", testRole("editor"), &Str{Val: "editor"}},
@@ -102,8 +102,8 @@ func TestNativeToValue_SupportedValues(t *testing.T) {
 			}),
 		},
 		{
-			name:  "struct with named field",
-			input: testUser{Name: "Bob", Role: "editor"},
+			name: "struct with named field",
+			inp:  testUser{Name: "Bob", Role: "editor"},
 			want: NewObj(map[string]Literal{
 				"Name": &Str{Val: "Bob"},
 				"Role": &Str{Val: "editor"},
@@ -113,7 +113,7 @@ func TestNativeToValue_SupportedValues(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			assertValue(t, tt.input, tt.want)
+			assertValue(t, tt.inp, tt.want)
 		})
 	}
 }
@@ -121,7 +121,7 @@ func TestNativeToValue_SupportedValues(t *testing.T) {
 func TestNativeToValue_UnsupportedValues(t *testing.T) {
 	tests := []struct {
 		name    string
-		input   any
+		inp     any
 		wantErr string
 	}{
 		{"func", func() {}, "unsupported value type 'func()'"},
@@ -138,7 +138,7 @@ func TestNativeToValue_UnsupportedValues(t *testing.T) {
 		},
 		{
 			name: "struct with func field",
-			input: testModel{
+			inp: testModel{
 				Name:     "Bob",
 				Callback: func() {},
 				Ch:       make(chan int),
@@ -150,7 +150,7 @@ func TestNativeToValue_UnsupportedValues(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			assertErrorMessage(t, tt.input, tt.wantErr)
+			assertErrorMessage(t, tt.inp, tt.wantErr)
 		})
 	}
 }
@@ -166,24 +166,24 @@ func TestNativeToValue_UintOverflow(t *testing.T) {
 	})
 
 	t.Run("above max int64 in a field names the field", func(t *testing.T) {
-		input := testUintModel{Name: "Bob", Big: uint64(math.MaxUint64)}
-		assertErrorMessage(t, input, fmt.Sprintf(fail.ErrUintOverflowField, input.Big, "Big"))
+		inp := testUintModel{Name: "Bob", Big: uint64(math.MaxUint64)}
+		assertErrorMessage(t, inp, fmt.Sprintf(fail.ErrUintOverflowField, inp.Big, "Big"))
 	})
 }
 
 func TestNativeToValue_CircularValues(t *testing.T) {
 	t.Run("map cycle", func(t *testing.T) {
-		input := map[string]any{}
-		input["self"] = input
+		inp := map[string]any{}
+		inp["self"] = inp
 
-		assertErrorMessage(t, input, fmt.Sprintf(fail.ErrCircularValue, "map[string]interface {}"))
+		assertErrorMessage(t, inp, fmt.Sprintf(fail.ErrCircularValue, "map[string]interface {}"))
 	})
 
 	t.Run("slice cycle", func(t *testing.T) {
-		input := make([]any, 1)
-		input[0] = input
+		inp := make([]any, 1)
+		inp[0] = inp
 
-		assertErrorMessage(t, input, fmt.Sprintf(fail.ErrCircularValue, "[]interface {}"))
+		assertErrorMessage(t, inp, fmt.Sprintf(fail.ErrCircularValue, "[]interface {}"))
 	})
 
 	t.Run("struct pointer cycle", func(t *testing.T) {
@@ -191,13 +191,13 @@ func TestNativeToValue_CircularValues(t *testing.T) {
 			Next *node
 		}
 
-		input := &node{}
-		input.Next = input
+		inp := &node{}
+		inp.Next = inp
 
-		got := NativeToValue(input)
+		got := NativeToValue(inp)
 		errObj, ok := got.(*Error)
 		if !ok {
-			t.Fatalf("NativeToValue(%T) returned %T, want *Error", input, got)
+			t.Fatalf("NativeToValue(%T) returned %T, want *Error", inp, got)
 		}
 
 		if !strings.Contains(errObj.Err.Message(), "circular reference") {
@@ -207,9 +207,9 @@ func TestNativeToValue_CircularValues(t *testing.T) {
 
 	t.Run("shared value without cycle", func(t *testing.T) {
 		shared := map[string]any{"x": 1}
-		input := map[string]any{"a": shared, "b": shared}
+		inp := map[string]any{"a": shared, "b": shared}
 
-		if got := NativeToValue(input); got.Is(ERR_VAL) {
+		if got := NativeToValue(inp); got.Is(ERR_VAL) {
 			t.Fatalf("unexpected error: %s", got)
 		}
 	})
@@ -243,20 +243,20 @@ func TestNativeToValue_CircularValues(t *testing.T) {
 	})
 
 	t.Run("sub-slice cycle", func(t *testing.T) {
-		input := make([]any, 2)
-		input[0] = input[:1]
+		inp := make([]any, 2)
+		inp[0] = inp[:1]
 
-		if got := NativeToValue(input); !got.Is(ERR_VAL) {
+		if got := NativeToValue(inp); !got.Is(ERR_VAL) {
 			t.Fatalf("expected circular reference error, got %s", got)
 		}
 	})
 
 	t.Run("sub-slice of ancestor without cycle", func(t *testing.T) {
-		input := make([]any, 2)
-		input[0] = 1
-		input[1] = input[:1]
+		inp := make([]any, 2)
+		inp[0] = 1
+		inp[1] = inp[:1]
 
-		if got := NativeToValue(input); got.Is(ERR_VAL) {
+		if got := NativeToValue(inp); got.Is(ERR_VAL) {
 			t.Fatalf("unexpected error: %s", got)
 		}
 	})
@@ -264,16 +264,16 @@ func TestNativeToValue_CircularValues(t *testing.T) {
 
 func TestRefKeyFor(t *testing.T) {
 	t.Run("slice key holds type, pointer and length", func(t *testing.T) {
-		input := make([]any, 2)
+		inp := make([]any, 2)
 
-		key, ok := refKeyFor(reflect.ValueOf(input))
+		key, ok := refKeyFor(reflect.ValueOf(inp))
 		if !ok {
 			t.Fatal("expected slice to be trackable")
 		}
 
 		expect := refKey{
 			typ: reflect.TypeFor[[]any](),
-			ptr: reflect.ValueOf(input).Pointer(),
+			ptr: reflect.ValueOf(inp).Pointer(),
 			len: 2,
 		}
 
@@ -283,26 +283,26 @@ func TestRefKeyFor(t *testing.T) {
 	})
 
 	t.Run("sub-slice key differs from its parent slice", func(t *testing.T) {
-		input := make([]any, 2)
+		inp := make([]any, 2)
 
-		whole, _ := refKeyFor(reflect.ValueOf(input))
-		part, _ := refKeyFor(reflect.ValueOf(input[:1]))
+		whole, _ := refKeyFor(reflect.ValueOf(inp))
+		part, _ := refKeyFor(reflect.ValueOf(inp[:1]))
 		if whole == part {
 			t.Fatalf("expected different keys, got %+v", whole)
 		}
 	})
 
 	t.Run("map key holds type and pointer", func(t *testing.T) {
-		input := map[string]any{}
+		inp := map[string]any{}
 
-		key, ok := refKeyFor(reflect.ValueOf(input))
+		key, ok := refKeyFor(reflect.ValueOf(inp))
 		if !ok {
 			t.Fatal("expected map to be trackable")
 		}
 
 		expect := refKey{
 			typ: reflect.TypeFor[map[string]any](),
-			ptr: reflect.ValueOf(input).Pointer(),
+			ptr: reflect.ValueOf(inp).Pointer(),
 		}
 
 		if key != expect {
@@ -311,17 +311,17 @@ func TestRefKeyFor(t *testing.T) {
 	})
 
 	t.Run("non-nil pointer is trackable", func(t *testing.T) {
-		input := &struct{}{}
+		inp := &struct{}{}
 
-		if _, ok := refKeyFor(reflect.ValueOf(input)); !ok {
+		if _, ok := refKeyFor(reflect.ValueOf(inp)); !ok {
 			t.Fatal("expected pointer to be trackable")
 		}
 	})
 
 	t.Run("nil pointer is not trackable", func(t *testing.T) {
-		var input *struct{}
+		var inp *struct{}
 
-		if _, ok := refKeyFor(reflect.ValueOf(input)); ok {
+		if _, ok := refKeyFor(reflect.ValueOf(inp)); ok {
 			t.Fatal("expected nil pointer not to be trackable")
 		}
 	})
@@ -333,16 +333,16 @@ func TestRefKeyFor(t *testing.T) {
 	})
 
 	t.Run("pointer key holds type and address", func(t *testing.T) {
-		input := &struct{ X int }{}
+		inp := &struct{ X int }{}
 
-		key, ok := refKeyFor(reflect.ValueOf(input))
+		key, ok := refKeyFor(reflect.ValueOf(inp))
 		if !ok {
 			t.Fatal("expected pointer to be trackable")
 		}
 
 		expect := refKey{
 			typ: reflect.TypeFor[*struct{ X int }](),
-			ptr: reflect.ValueOf(input).Pointer(),
+			ptr: reflect.ValueOf(inp).Pointer(),
 		}
 
 		if key != expect {

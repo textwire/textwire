@@ -8,8 +8,8 @@ import (
 	"codeberg.org/textwire/textwire/v6/pkg/token"
 )
 
-func TokenizeString(t *testing.T, input string, expectTokens []token.Token) {
-	l := New(input)
+func TokenizeString(t *testing.T, inp string, expectTokens []token.Token) {
+	l := New(inp)
 
 	for _, expectTok := range expectTokens {
 		tok := l.Next()
@@ -713,87 +713,87 @@ func TestTokenPosition(t *testing.T) {
 
 func TestIsDirectiveToken(t *testing.T) {
 	t.Run("Not a directive token", func(t *testing.T) {
-		input := "test@email.com"
-		l := New(input)
+		inp := "test@email.com"
+		l := New(inp)
 
 		if l.isDirectiveToken() {
-			t.Errorf("Expected %q not to be a directive token", input)
+			t.Errorf("Expected %q not to be a directive token", inp)
 		}
 
 		if l.isEscapedDirective() {
-			t.Errorf("Expected %q not to be escaped directive token", input)
+			t.Errorf("Expected %q not to be escaped directive token", inp)
 		}
 	})
 
 	t.Run("Directive token", func(t *testing.T) {
-		input := "@break"
-		l := New(input)
+		inp := "@break"
+		l := New(inp)
 
 		if !l.isDirectiveToken() {
-			t.Errorf("Expected %q to be a directive token", input)
+			t.Errorf("Expected %q to be a directive token", inp)
 		}
 
 		if l.isEscapedDirective() {
-			t.Errorf("Expected %q not to be an escaped directive token", input)
+			t.Errorf("Expected %q not to be an escaped directive token", inp)
 		}
 	})
 
 	t.Run("Escaped directive token", func(t *testing.T) {
-		input := `\@break`
-		l := New(input)
+		inp := `\@break`
+		l := New(inp)
 		l.readChar() // skip the backslash
 
 		if l.isDirectiveToken() {
-			t.Errorf("Expected %q not to be a directive", input)
+			t.Errorf("Expected %q not to be a directive", inp)
 		}
 
 		if !l.isEscapedDirective() {
-			t.Errorf("Expected %q to be escaped directive", input)
+			t.Errorf("Expected %q to be escaped directive", inp)
 		}
 	})
 }
 
 func TestAreBracesToken(t *testing.T) {
 	t.Run("Not braces token", func(t *testing.T) {
-		input := "some {{ text"
-		l := New(input)
+		inp := "some {{ text"
+		l := New(inp)
 
 		areBraces, escaped := l.areBracesToken()
 		if areBraces {
-			t.Errorf("Expected %q not to be braces", input)
+			t.Errorf("Expected %q not to be braces", inp)
 		}
 
 		if escaped {
-			t.Errorf("Expected %q not to be escaped braces", input)
+			t.Errorf("Expected %q not to be escaped braces", inp)
 		}
 	})
 
 	t.Run("Braces token", func(t *testing.T) {
-		input := "{{ 123 }}"
-		l := New(input)
+		inp := "{{ 123 }}"
+		l := New(inp)
 
 		areBraces, escaped := l.areBracesToken()
 		if !areBraces {
-			t.Errorf("Expected %q to be braces token", input)
+			t.Errorf("Expected %q to be braces token", inp)
 		}
 
 		if escaped {
-			t.Errorf("Expected %q not to be escaped braces token", input)
+			t.Errorf("Expected %q not to be escaped braces token", inp)
 		}
 	})
 
 	t.Run("Escaped braces token", func(t *testing.T) {
-		input := `\{{ 234 }}`
-		l := New(input)
+		inp := `\{{ 234 }}`
+		l := New(inp)
 		l.readChar() // skip the backslash
 
 		areBraces, escaped := l.areBracesToken()
 		if areBraces {
-			t.Errorf("Expected %q not to be braces token", input)
+			t.Errorf("Expected %q not to be braces token", inp)
 		}
 
 		if !escaped {
-			t.Errorf("Expected %q to be escaped braces token", input)
+			t.Errorf("Expected %q to be escaped braces token", inp)
 		}
 	})
 }
