@@ -679,9 +679,13 @@ func TestEvalIfDir(t *testing.T) {
 		{"false if with else", `@if(false)@elseX@end`, "X"},
 		{"true if with empty else", `@if(true)@else@end`, ""},
 		{"false if with else body", `@if(false)1@else@end`, ""},
-		// HTML wrapper
 		{"if inside heading true", `<h2>@if(true)Hello@end</h2>`, "<h2>Hello</h2>"},
 		{"if inside heading false", `<h2>@if(false)Hello@end</h2>`, "<h2></h2>"},
+		{
+			"if condition ignores raw mark",
+			`{{ html = '<br>' }}@if(raw(html) == html)yes@elseno@end`,
+			"yes",
+		},
 		// @elseif statements
 		{"elseif first true", `@if(true)Anna@elseif(true)Lili@end`, "Anna"},
 		{
@@ -771,41 +775,41 @@ func TestEvalIfDir(t *testing.T) {
 			`,
 			"Marry",
 		},
-		// Variable modification from outside scope
-		{
-			"increment modifies outer variable",
-			`{{ sum = 0 }}@if(true){{ sum++ }}@end{{ sum }}`,
-			"1",
-		},
-		// Nested @if
 		{
 			"nested if multiplies outer variable",
 			`{{ val = 1 }}@if(true)@if(true){{ val = val * 5 }}@end@end{{ val }}`,
 			"5",
 		},
-		// Modification inside @else
+		// Other cases
+		{
+			"increment modifies outer variable",
+			`{{ sum = 0 }}@if(true){{ sum++ }}@end{{ sum }}`,
+			"1",
+		},
 		{
 			"modification inside else",
 			`{{ status = "pending" }}@if(false)@else{{ status = "done" }}@end{{ status }}`,
 			"done",
 		},
-		// Sequential modifications
 		{
 			"sequential if modifications",
 			`{{ n = 10 }}@if(n > 5){{ n = n - 2 }}@end@if(n == 8){{ n = 0 }}@end{{ n }}`,
 			"0",
 		},
-		// Deep nesting
 		{
 			"deep nested if modification",
 			`{{ deep = 0 }}@if(true)@if(true)@if(true){{ deep = 42 }}@end@end@end{{ deep }}`,
 			"42",
 		},
-		// Modification inside @elseif
 		{
 			"modification inside elseif",
 			`{{ status = "pending" }}@if(false)@elseif(true){{ status = "done" }}@end{{ status }}`,
 			"done",
+		},
+		{
+			"if condition ignores raw mark",
+			`{{ html = '<br>' }}@if(raw(html) == html)yes@elseno@end`,
+			"yes",
 		},
 	}
 

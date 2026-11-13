@@ -564,3 +564,414 @@ func TestTwoTemplates(t *testing.T) {
 		t.Errorf("Wrong result for about.tw. Expect:\n'%s'\ngot:\n'%s'", expectAbout, actualAbout)
 	}
 }
+
+func TestInsertAndReserveEscaping(t *testing.T) {
+	cases := []struct {
+		name   string
+		files  []tplFile
+		expect string
+	}{
+		// Insert argument
+		{
+			name: "argument is escaped",
+			files: []tplFile{
+				{
+					relPath: "index.tw",
+					content: `@use('layout')@insert('title', '<span>Title</span>')`,
+				},
+				{
+					relPath: "layout.tw",
+					content: `<div>@reserve('title')</div>`,
+				},
+			},
+			expect: "<div>&lt;span&gt;Title&lt;/span&gt;</div>",
+		},
+		{
+			name: "raw argument is not escaped",
+			files: []tplFile{
+				{
+					relPath: "index.tw",
+					content: `@use('layout')@insert('title', raw('<span>Title</span>'))`,
+				},
+				{
+					relPath: "layout.tw",
+					content: `<div>@reserve('title')</div>`,
+				},
+			},
+			expect: "<div><span>Title</span></div>",
+		},
+		{
+			name: "string literal argument is escaped",
+			files: []tplFile{
+				{
+					relPath: "index.tw",
+					content: `@use('layout')@insert('title', 'A & B')`,
+				},
+				{
+					relPath: "layout.tw",
+					content: `<div>@reserve('title')</div>`,
+				},
+			},
+			expect: "<div>A &amp; B</div>",
+		},
+		{
+			name: "raw escaped text argument stays as is",
+			files: []tplFile{
+				{
+					relPath: "index.tw",
+					content: `@use('layout')@insert('title', raw('&amp;'))`,
+				},
+				{
+					relPath: "layout.tw",
+					content: `<div>@reserve('title')</div>`,
+				},
+			},
+			expect: "<div>&amp;</div>",
+		},
+		{
+			name: "integer argument is printed as is",
+			files: []tplFile{
+				{
+					relPath: "index.tw",
+					content: `@use('layout')@insert('title', 5)`,
+				},
+				{
+					relPath: "layout.tw",
+					content: `<div>@reserve('title')</div>`,
+				},
+			},
+			expect: "<div>5</div>",
+		},
+		{
+			name: "array argument is escaped",
+			files: []tplFile{
+				{
+					relPath: "index.tw",
+					content: `@use('layout')@insert('title', ['<a>', '<b>'])`,
+				},
+				{
+					relPath: "layout.tw",
+					content: `<div>@reserve('title')</div>`,
+				},
+			},
+			expect: "<div>&lt;a&gt;, &lt;b&gt;</div>",
+		},
+		{
+			name: "raw array argument is not escaped",
+			files: []tplFile{
+				{
+					relPath: "index.tw",
+					content: `@use('layout')@insert('title', raw(['<a>', '<b>']))`,
+				},
+				{
+					relPath: "layout.tw",
+					content: `<div>@reserve('title')</div>`,
+				},
+			},
+			expect: "<div><a>, <b></div>",
+		},
+		{
+			name: "array argument escapes only plain strings",
+			files: []tplFile{
+				{
+					relPath: "index.tw",
+					content: `@use('layout')@insert('title', [raw('<span>Title</span>'), '<span>Title</span>'])`,
+				},
+				{
+					relPath: "layout.tw",
+					content: `<div>@reserve('title')</div>`,
+				},
+			},
+			expect: "<div><span>Title</span>, &lt;span&gt;Title&lt;/span&gt;</div>",
+		},
+		{
+			name: "object argument escapes only plain strings",
+			files: []tplFile{
+				{
+					relPath: "index.tw",
+					content: `@use('layout')@insert('title', {a: raw('<span>Title</span>'), b: '<span>Title</span>'})`,
+				},
+				{
+					relPath: "layout.tw",
+					content: `<div>@reserve('title')</div>`,
+				},
+			},
+			expect: `<div>{a: "<span>Title</span>", b: &#34;&lt;span&gt;Title&lt;/span&gt;&#34;}</div>`,
+		},
+		{
+			name: "argument inside component slot is escaped",
+			files: []tplFile{
+				{
+					relPath: "index.tw",
+					content: `@use('layout')@insert('title', '<span>Title</span>')`,
+				},
+				{
+					relPath: "layout.tw",
+					content: `<div>@component('~box')@reserve('title')@end</div>`,
+				},
+				{
+					relPath: "components/box.tw",
+					content: "<i>@slot</i>",
+				},
+			},
+			expect: "<div><i>&lt;span&gt;Title&lt;/span&gt;</i></div>",
+		},
+		{
+			name: "raw argument inside component slot is not escaped",
+			files: []tplFile{
+				{
+					relPath: "index.tw",
+					content: `@use('layout')@insert('title', raw('<span>Title</span>'))`,
+				},
+				{
+					relPath: "layout.tw",
+					content: `<div>@component('~box')@reserve('title')@end</div>`,
+				},
+				{
+					relPath: "components/box.tw",
+					content: "<i>@slot</i>",
+				},
+			},
+			expect: "<div><i><span>Title</span></i></div>",
+		},
+		// Insert block
+		{
+			name: "block is escaped once",
+			files: []tplFile{
+				{
+					relPath: "index.tw",
+					content: `@use('layout')@insert('title')<b>&amp; {{ '<span>Title</span>' }}</b>@end`,
+				},
+				{
+					relPath: "layout.tw",
+					content: `<div>@reserve('title')</div>`,
+				},
+			},
+			expect: "<div><b>&amp; &lt;span&gt;Title&lt;/span&gt;</b></div>",
+		},
+		{
+			name: "block with raw string is not escaped",
+			files: []tplFile{
+				{
+					relPath: "index.tw",
+					content: `@use('layout')@insert('title'){{ raw('<span>Title</span>') }}@end`,
+				},
+				{
+					relPath: "layout.tw",
+					content: `<div>@reserve('title')</div>`,
+				},
+			},
+			expect: "<div><span>Title</span></div>",
+		},
+		// Reserve fallback
+		{
+			name: "fallback is escaped",
+			files: []tplFile{
+				{
+					relPath: "index.tw",
+					content: `@use('layout')`,
+				},
+				{
+					relPath: "layout.tw",
+					content: `<div>@reserve('title', '<i>')</div>`,
+				},
+			},
+			expect: "<div>&lt;i&gt;</div>",
+		},
+		{
+			name: "raw fallback is not escaped",
+			files: []tplFile{
+				{
+					relPath: "index.tw",
+					content: `@use('layout')`,
+				},
+				{
+					relPath: "layout.tw",
+					content: `<div>@reserve('title', raw('<i>'))</div>`,
+				},
+			},
+			expect: "<div><i></div>",
+		},
+		{
+			name: "string literal fallback is escaped",
+			files: []tplFile{
+				{
+					relPath: "index.tw",
+					content: `@use('layout')`,
+				},
+				{
+					relPath: "layout.tw",
+					content: `<div>@reserve('title', 'A & B')</div>`,
+				},
+			},
+			expect: "<div>A &amp; B</div>",
+		},
+		{
+			name: "nil fallback prints nothing",
+			files: []tplFile{
+				{
+					relPath: "index.tw",
+					content: `@use('layout')`,
+				},
+				{
+					relPath: "layout.tw",
+					content: `<div>[@reserve('title', nil)]</div>`,
+				},
+			},
+			expect: "<div>[]</div>",
+		},
+		{
+			name: "fallback array escapes only plain strings",
+			files: []tplFile{
+				{
+					relPath: "index.tw",
+					content: `@use('layout')`,
+				},
+				{
+					relPath: "layout.tw",
+					content: `<div>@reserve('title', [raw('<i>'), '<i>'])</div>`,
+				},
+			},
+			expect: "<div><i>, &lt;i&gt;</div>",
+		},
+		{
+			name: "raw fallback is not used when page inserts",
+			files: []tplFile{
+				{
+					relPath: "index.tw",
+					content: `@use('layout')@insert('title', '<br>')`,
+				},
+				{
+					relPath: "layout.tw",
+					content: `<div>@reserve('title', raw('<i>'))</div>`,
+				},
+			},
+			expect: "<div>&lt;br&gt;</div>",
+		},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			tpl := setupTemplate(t, tc.files, &config.Config{})
+
+			actual, failure := tpl.String("index", nil)
+			assertOutput(t, actual, failure, tc.expect)
+		})
+	}
+}
+
+func TestGlobalFuncRaw_InComponents(t *testing.T) {
+	cases := []struct {
+		name   string
+		files  []tplFile
+		expect string
+	}{
+		{
+			name: "raw prop is not escaped",
+			files: []tplFile{
+				{
+					relPath: "index.tw",
+					content: `@component('~header', {title: raw('<span>Title</span>')})@end`,
+				},
+				{
+					relPath: "components/header.tw",
+					content: `[{{ title }}]`,
+				},
+			},
+			expect: "[<span>Title</span>]",
+		},
+		{
+			name: "plain prop is escaped",
+			files: []tplFile{
+				{
+					relPath: "index.tw",
+					content: `@component('~header', {title: '<span>Title</span>'})@end`,
+				},
+				{
+					relPath: "components/header.tw",
+					content: `[{{ title }}]`,
+				},
+			},
+			expect: "[&lt;span&gt;Title&lt;/span&gt;]",
+		},
+		{
+			name: "plain prop marked raw in component is not escaped",
+			files: []tplFile{
+				{
+					relPath: "index.tw",
+					content: `@component('~header', {title: '<span>Title</span>'})@end`,
+				},
+				{
+					relPath: "components/header.tw",
+					content: `[{{ raw(title) }}]`,
+				},
+			},
+			expect: "[<span>Title</span>]",
+		},
+		{
+			name: "array prop escapes only plain string",
+			files: []tplFile{
+				{
+					relPath: "index.tw",
+					content: `@component('~header', {list: [raw('<span>Title</span>'), '<span>Title</span>']})@end`,
+				},
+				{
+					relPath: "components/header.tw",
+					content: `@each(item in list)[{{ item }}]@end`,
+				},
+			},
+			expect: "[<span>Title</span>][&lt;span&gt;Title&lt;/span&gt;]",
+		},
+		{
+			name: "raw object prop strings are not escaped",
+			files: []tplFile{
+				{
+					relPath: "index.tw",
+					content: `@component('~header', {user: raw({name: '<n>'})})@end`,
+				},
+				{
+					relPath: "components/header.tw",
+					content: `{{ user.name }}|{{ user }}`,
+				},
+			},
+			expect: `<n>|{name: "<n>"}`,
+		},
+		{
+			name: "default slot escapes only plain string",
+			files: []tplFile{
+				{
+					relPath: "index.tw",
+					content: `@component('~header'){{ raw('<span>Title</span>') }}|{{ '<span>Title</span>' }}@end`,
+				},
+				{
+					relPath: "components/header.tw",
+					content: `<i>@slot</i>`,
+				},
+			},
+			expect: "<i><span>Title</span>|&lt;span&gt;Title&lt;/span&gt;</i>",
+		},
+		{
+			name: "named slot escapes only plain string",
+			files: []tplFile{
+				{
+					relPath: "index.tw",
+					content: `@component('~header')@pass('s'){{ raw('<span>Title</span>') }}|{{ '<span>Title</span>' }}@end@end`,
+				},
+				{
+					relPath: "components/header.tw",
+					content: `<i>@slot('s')</i>`,
+				},
+			},
+			expect: "<i><span>Title</span>|&lt;span&gt;Title&lt;/span&gt;</i>",
+		},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			tpl := setupTemplate(t, tc.files, &config.Config{})
+
+			actual, failure := tpl.String("index", nil)
+			assertOutput(t, actual, failure, tc.expect)
+		})
+	}
+}

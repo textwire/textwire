@@ -67,7 +67,7 @@ make pull
 - `make lint` - Run linter
 - `make repl` - Start the REPL
 - `make check` - Combines commands like: test, fmt, lint
-- `make` - Defaults to `make check`
+- `make` - Defaults to `make test`
 
 Commands use `podman-compose` by default. To use Docker Compose instead, override `OCI`:
 

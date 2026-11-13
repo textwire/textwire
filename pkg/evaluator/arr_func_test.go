@@ -129,6 +129,21 @@ func TestEvalArrFunctions(t *testing.T) {
 		{"contains float", `{{ [1.5, 2.5].contains(1.5) }}`, "1"},
 		{"contains string in mixed array", `{{ [1, 'Venti', 3].contains('Venti') }}`, "1"},
 		{"contains nested array structure", `{{ [[1, [2, 3]]].contains([1, [2, 3]]) }}`, "1"},
+		{
+			"contains matches raw array element to plain array",
+			`{{ html = '<br>'; [[raw(html)]].contains([html]) }}`,
+			"1",
+		},
+		{
+			"contains matches raw object element to plain object",
+			`{{ obj = { html: '<br>' }; [raw(obj)].contains(obj) }}`,
+			"1",
+		},
+		{
+			"contains in raw array finds plain string",
+			`{{ raw(['<a>', '<b>', '<c>']).contains('<b>') }}`,
+			"1",
+		},
 		// append
 		{"append to empty array", `{{ [].append(1) }}`, "1"},
 		{"append int", `{{ [1, 2, 3].append(4) }}`, "1, 2, 3, 4"},
