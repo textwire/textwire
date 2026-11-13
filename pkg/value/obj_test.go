@@ -13,9 +13,9 @@ func TestObjJSON(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		want := `{"a\"b<c>":"<script>"}`
-		if got != want {
-			t.Fatalf("expected %q, got %q", want, got)
+		expect := `{"a\"b<c>":"<script>"}`
+		if got != expect {
+			t.Fatalf("expected %q, got %q", expect, got)
 		}
 	})
 }

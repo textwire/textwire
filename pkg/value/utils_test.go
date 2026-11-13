@@ -37,27 +37,27 @@ type testUintModel struct {
 	Big  uint64
 }
 
-func assertValue(t *testing.T, inp any, want Literal) {
+func assertValue(t *testing.T, inp any, expect Literal) {
 	t.Helper()
 
 	got := NativeToValue(inp)
-	if !reflect.DeepEqual(got, want) {
-		t.Fatalf("NativeToValue(%T)\n got: %#v\nwant: %#v", inp, got, want)
+	if !reflect.DeepEqual(got, expect) {
+		t.Fatalf("NativeToValue(%T)\n got: %#v\nwant: %#v", inp, got, expect)
 	}
 }
 
-func assertErrorMessage(t *testing.T, inp any, want string) {
+func assertErrorMessage(t *testing.T, inp any, expect string) {
 	t.Helper()
 
 	got := NativeToValue(inp)
 
 	errObj, ok := got.(*Error)
 	if !ok {
-		t.Fatalf("NativeToValue(%T) returned %T, want *Error", inp, got)
+		t.Fatalf("NativeToValue(%T) returned %T, expect *Error", inp, got)
 	}
 
-	if msg := errObj.Err.Message(); msg != want {
-		t.Fatalf("error message\n got: %q\nwant: %q", msg, want)
+	if msg := errObj.Err.Message(); msg != expect {
+		t.Fatalf("error message\n got: %q\nwant: %q", msg, expect)
 	}
 }
 
@@ -74,9 +74,9 @@ func TestNativeToValue_SupportedValues(t *testing.T) {
 	createdAt := time.Date(2026, 10, 26, 12, 30, 0, 0, time.UTC)
 
 	tests := []struct {
-		name string
-		inp  any
-		want Literal
+		name   string
+		inp    any
+		expect Literal
 	}{
 		// named primitives
 		{"named string", testRole("editor"), &Str{Val: "editor"}},
@@ -104,7 +104,7 @@ func TestNativeToValue_SupportedValues(t *testing.T) {
 		{
 			name: "struct with named field",
 			inp:  testUser{Name: "Bob", Role: "editor"},
-			want: NewObj(map[string]Literal{
+			expect: NewObj(map[string]Literal{
 				"Name": &Str{Val: "Bob"},
 				"Role": &Str{Val: "editor"},
 			}),
@@ -113,16 +113,16 @@ func TestNativeToValue_SupportedValues(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			assertValue(t, tt.inp, tt.want)
+			assertValue(t, tt.inp, tt.expect)
 		})
 	}
 }
 
 func TestNativeToValue_UnsupportedValues(t *testing.T) {
 	tests := []struct {
-		name    string
-		inp     any
-		wantErr string
+		name      string
+		inp       any
+		expectErr string
 	}{
 		{"func", func() {}, "unsupported value type 'func()'"},
 		{"chan in", make(chan int), "unsupported value type 'chan int'"},
@@ -144,13 +144,13 @@ func TestNativeToValue_UnsupportedValues(t *testing.T) {
 				Ch:       make(chan int),
 				Data:     [3]int{1, 2, 3},
 			},
-			wantErr: "unsupported value type 'func()' for field 'Callback'",
+			expectErr: "unsupported value type 'func()' for field 'Callback'",
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			assertErrorMessage(t, tt.inp, tt.wantErr)
+			assertErrorMessage(t, tt.inp, tt.expectErr)
 		})
 	}
 }
@@ -197,7 +197,7 @@ func TestNativeToValue_CircularValues(t *testing.T) {
 		got := NativeToValue(inp)
 		errObj, ok := got.(*Error)
 		if !ok {
-			t.Fatalf("NativeToValue(%T) returned %T, want *Error", inp, got)
+			t.Fatalf("NativeToValue(%T) returned %T, expect *Error", inp, got)
 		}
 
 		if !strings.Contains(errObj.Err.Message(), "circular reference") {

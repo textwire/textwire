@@ -394,15 +394,15 @@ func TestUnterminatedBraces(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			l := New(tc.inp)
 
-			for i, want := range tc.toks {
+			for i, expect := range tc.toks {
 				got := l.Next()
 
-				if got.Type != want.Type || got.Lit != want.Lit {
+				if got.Type != expect.Type || got.Lit != expect.Lit {
 					t.Fatalf(
 						"token %d: expected %s %q, got %s %q",
 						i,
-						token.String(want.Type),
-						want.Lit,
+						token.String(expect.Type),
+						expect.Lit,
 						token.String(got.Type),
 						got.Lit,
 					)

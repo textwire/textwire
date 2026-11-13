@@ -16,39 +16,39 @@ func TestGlobalData_UnsupportedValue(t *testing.T) {
 	chanType := fmt.Sprintf("%T", unsupportedChan)
 
 	cases := []struct {
-		name string
-		auth any
-		want string
+		name   string
+		auth   any
+		expect string
 	}{
 		{
-			name: "func in map",
-			auth: map[string]any{"bad": unsupportedFn},
-			want: fmt.Sprintf(fail.ErrUnsupportedType, fnType),
+			name:   "func in map",
+			auth:   map[string]any{"bad": unsupportedFn},
+			expect: fmt.Sprintf(fail.ErrUnsupportedType, fnType),
 		},
 		{
-			name: "chan in map",
-			auth: map[string]any{"bad": unsupportedChan},
-			want: fmt.Sprintf(fail.ErrUnsupportedType, chanType),
+			name:   "chan in map",
+			auth:   map[string]any{"bad": unsupportedChan},
+			expect: fmt.Sprintf(fail.ErrUnsupportedType, chanType),
 		},
 		{
-			name: "func in slice",
-			auth: []any{unsupportedFn},
-			want: fmt.Sprintf(fail.ErrUnsupportedType, fnType),
+			name:   "func in slice",
+			auth:   []any{unsupportedFn},
+			expect: fmt.Sprintf(fail.ErrUnsupportedType, fnType),
 		},
 		{
-			name: "chan in slice",
-			auth: []any{unsupportedChan},
-			want: fmt.Sprintf(fail.ErrUnsupportedType, chanType),
+			name:   "chan in slice",
+			auth:   []any{unsupportedChan},
+			expect: fmt.Sprintf(fail.ErrUnsupportedType, chanType),
 		},
 		{
-			name: "func struct field",
-			auth: struct{ Callback func() }{unsupportedFn},
-			want: fmt.Sprintf(fail.ErrUnsupportedFieldType, fnType, "Callback"),
+			name:   "func struct field",
+			auth:   struct{ Callback func() }{unsupportedFn},
+			expect: fmt.Sprintf(fail.ErrUnsupportedFieldType, fnType, "Callback"),
 		},
 		{
-			name: "chan struct field",
-			auth: struct{ Events chan int }{unsupportedChan},
-			want: fmt.Sprintf(fail.ErrUnsupportedFieldType, chanType, "Events"),
+			name:   "chan struct field",
+			auth:   struct{ Events chan int }{unsupportedChan},
+			expect: fmt.Sprintf(fail.ErrUnsupportedFieldType, chanType, "Events"),
 		},
 	}
 
@@ -68,8 +68,8 @@ func TestGlobalData_UnsupportedValue(t *testing.T) {
 				t.Fatal("Expected error for unsupported global data, got none")
 			}
 
-			if failure.Message() != tc.want {
-				t.Fatalf("Wrong error message. Expect %q but got %q", tc.want, failure.Message())
+			if failure.Message() != tc.expect {
+				t.Fatalf("Wrong error message. Expect %q but got %q", tc.expect, failure.Message())
 			}
 		})
 	}

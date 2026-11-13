@@ -24,7 +24,7 @@ func TestNilOrigin(t *testing.T) {
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
 			if got := tc.nilObj.Origin(); got != tc.origin {
-				t.Fatalf("want origin %q, got %q", tc.origin, got)
+				t.Fatalf("expect origin %q, got %q", tc.origin, got)
 			}
 		})
 	}
@@ -34,18 +34,18 @@ func TestNilStaysNil(t *testing.T) {
 	nilObj := NewNil(NilOriginMissingProp)
 
 	if got := nilObj.String(); got != "" {
-		t.Errorf("want empty string, got %q", got)
+		t.Errorf("expect empty string, got %q", got)
 	}
 
 	if got, err := nilObj.JSON(); err != nil || got != "null" {
-		t.Errorf("want JSON null, got %q, %v", got, err)
+		t.Errorf("expect JSON null, got %q, %v", got, err)
 	}
 
 	if got := nilObj.Native(); got != nil {
-		t.Errorf("want native nil, got %v", got)
+		t.Errorf("expect native nil, got %v", got)
 	}
 
 	if !nilObj.Is(NIL_VAL) {
-		t.Errorf("want nil value type")
+		t.Errorf("expect nil value type")
 	}
 }

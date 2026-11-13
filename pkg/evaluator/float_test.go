@@ -16,45 +16,45 @@ func TestFloatInfixExp_MatchesGoArithmetic(t *testing.T) {
 	ctx := NewContext(value.NewScope(), "")
 
 	cases := []struct {
-		name string
-		op   string
-		a, b float64
-		want float64
+		name   string
+		op     string
+		a, b   float64
+		expect float64
 	}{
 		{
-			name: "positive overflow",
-			op:   "+",
-			a:    math.MaxFloat64,
-			b:    math.MaxFloat64,
-			want: math.Inf(1),
+			name:   "positive overflow",
+			op:     "+",
+			a:      math.MaxFloat64,
+			b:      math.MaxFloat64,
+			expect: math.Inf(1),
 		},
 		{
-			name: "negative overflow",
-			op:   "*",
-			a:    -math.MaxFloat64,
-			b:    2,
-			want: math.Inf(-1),
+			name:   "negative overflow",
+			op:     "*",
+			a:      -math.MaxFloat64,
+			b:      2,
+			expect: math.Inf(-1),
 		},
 		{
-			name: "underflow to zero",
-			op:   "/",
-			a:    math.SmallestNonzeroFloat64,
-			b:    2,
-			want: 0,
+			name:   "underflow to zero",
+			op:     "/",
+			a:      math.SmallestNonzeroFloat64,
+			b:      2,
+			expect: 0,
 		},
 		{
-			name: "infinity minus infinity",
-			op:   "-",
-			a:    math.Inf(1),
-			b:    math.Inf(1),
-			want: math.NaN(),
+			name:   "infinity minus infinity",
+			op:     "-",
+			a:      math.Inf(1),
+			b:      math.Inf(1),
+			expect: math.NaN(),
 		},
 		{
-			name: "NaN propagates",
-			op:   "+",
-			a:    math.NaN(),
-			b:    1,
-			want: math.NaN(),
+			name:   "NaN propagates",
+			op:     "+",
+			a:      math.NaN(),
+			b:      1,
+			expect: math.NaN(),
 		},
 	}
 
@@ -73,8 +73,8 @@ func TestFloatInfixExp_MatchesGoArithmetic(t *testing.T) {
 				t.Fatalf("expected *value.Float, got %T", got)
 			}
 
-			if !sameFloat(result.Val, tc.want) {
-				t.Fatalf("expected %v, got %v", tc.want, result.Val)
+			if !sameFloat(result.Val, tc.expect) {
+				t.Fatalf("expected %v, got %v", tc.expect, result.Val)
 			}
 		})
 	}

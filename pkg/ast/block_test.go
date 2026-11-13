@@ -85,14 +85,14 @@ func TestToDefaultPassDir(t *testing.T) {
 				)
 			}
 
-			for i, want := range tc.expectChunks {
+			for i, expect := range tc.expectChunks {
 				text, ok := passDir.Block.Chunks[i].(*Text)
 				if !ok {
 					t.Fatalf("chunk %d is not *Text, got %T", i, passDir.Block.Chunks[i])
 				}
 
-				if text.Token.Lit != want {
-					t.Fatalf("chunk %d: expect %q, got %q", i, want, text.Token.Lit)
+				if text.Token.Lit != expect {
+					t.Fatalf("chunk %d: expect %q, got %q", i, expect, text.Token.Lit)
 				}
 			}
 		})

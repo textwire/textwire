@@ -35,10 +35,10 @@ func TestRelinkAllPrograms(t *testing.T) {
 			t.Fatalf("expected 1 program, got %d", len(programs))
 		}
 
-		want := evalTpl(t, validModifiedTpl)
+		expect := evalTpl(t, validModifiedTpl)
 		got := evalTpl(t, programs[0])
-		if got != want {
-			t.Fatalf("expected rendered %q, got %q", want, got)
+		if got != expect {
+			t.Fatalf("expected rendered %q, got %q", expect, got)
 		}
 	})
 
@@ -72,10 +72,10 @@ func TestRelinkAllPrograms(t *testing.T) {
 			t.Fatal("expected last valid source to be parsed into a fresh program, not reused")
 		}
 
-		want := evalTpl(t, validTpl)
+		expect := evalTpl(t, validTpl)
 		got := evalTpl(t, programs[0])
-		if got != want {
-			t.Fatalf("expected rendered %q, got %q", want, got)
+		if got != expect {
+			t.Fatalf("expected rendered %q, got %q", expect, got)
 		}
 	})
 
@@ -116,10 +116,10 @@ func TestRelinkAllPrograms(t *testing.T) {
 			t.Fatalf("expected 2 programs, got %d", len(programs))
 		}
 
-		want := evalTpl(t, validModifiedTpl)
+		expect := evalTpl(t, validModifiedTpl)
 		got := evalTpl(t, programs[1])
-		if got != want {
-			t.Fatalf("expected program 'about' to render %q, got %q", want, got)
+		if got != expect {
+			t.Fatalf("expected program 'about' to render %q, got %q", expect, got)
 		}
 	})
 }

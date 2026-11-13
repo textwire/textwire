@@ -235,10 +235,10 @@ func TestEnsureMinFloatDecimals(t *testing.T) {
 
 func TestFloatToInt(t *testing.T) {
 	tc := []struct {
-		name    string
-		inp     float64
-		expect  int64
-		wantErr bool
+		name      string
+		inp       float64
+		expect    int64
+		expectErr bool
 	}{
 		{"Zero", 0, 0, false},
 		{"Positive", 13, 13, false},
@@ -259,7 +259,7 @@ func TestFloatToInt(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := floatToInt(tt.inp, "int")
 
-			if tt.wantErr {
+			if tt.expectErr {
 				if err == nil {
 					t.Fatalf("expect error, got %v", got)
 				}

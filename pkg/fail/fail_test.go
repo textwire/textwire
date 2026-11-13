@@ -11,9 +11,9 @@ func TestFromError(t *testing.T) {
 	t.Run("keeps percent in message", func(t *testing.T) {
 		err := FromError(errors.New("open /tmp/100%tw"), &position.Pos{}, "", OriginTpl)
 
-		want := "open /tmp/100%tw"
-		if err.Message() != want {
-			t.Fatalf("want %q, got %q", want, err.Message())
+		expect := "open /tmp/100%tw"
+		if err.Message() != expect {
+			t.Fatalf("expect %q, got %q", expect, err.Message())
 		}
 	})
 
@@ -24,7 +24,7 @@ func TestFromError(t *testing.T) {
 			err := FromError(errors.New(msg), &position.Pos{}, "", OriginTpl)
 
 			if err.Message() != msg {
-				t.Fatalf("want %q, got %q", msg, err.Message())
+				t.Fatalf("expect %q, got %q", msg, err.Message())
 			}
 		}
 	})
@@ -33,10 +33,10 @@ func TestFromError(t *testing.T) {
 		err := FromError(errors.New("boom"), &position.Pos{}, "/tpl/index.tw", OriginEval)
 
 		if err.Filepath() != "/tpl/index.tw" {
-			t.Fatalf("want filepath %q, got %q", "/tpl/index.tw", err.Filepath())
+			t.Fatalf("expect filepath %q, got %q", "/tpl/index.tw", err.Filepath())
 		}
 		if err.Origin() != OriginEval {
-			t.Fatalf("want origin %q, got %q", OriginEval, err.Origin())
+			t.Fatalf("expect origin %q, got %q", OriginEval, err.Origin())
 		}
 	})
 
@@ -44,14 +44,14 @@ func TestFromError(t *testing.T) {
 		err := FromError(errors.New("boom"), nil, "", OriginTpl)
 
 		if err.Pos() == nil {
-			t.Fatal("want non-nil pos, got nil")
+			t.Fatal("expect non-nil pos, got nil")
 		}
 	})
 
 	t.Run("panics on nil error", func(t *testing.T) {
 		defer func() {
 			if recover() == nil {
-				t.Fatal("want panic on nil error, got none")
+				t.Fatal("expect panic on nil error, got none")
 			}
 		}()
 
