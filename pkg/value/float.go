@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"math"
 
-	"codeberg.org/textwire/textwire/v5/pkg/utils"
+	"codeberg.org/textwire/textwire/v6/pkg/utils"
 )
 
 type Float struct {

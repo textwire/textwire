@@ -1,8 +1,8 @@
 package ast
 
 import (
-	"codeberg.org/textwire/textwire/v5/pkg/position"
-	"codeberg.org/textwire/textwire/v5/pkg/token"
+	"codeberg.org/textwire/textwire/v6/pkg/position"
+	"codeberg.org/textwire/textwire/v6/pkg/token"
 )
 
 // BaseNode is the main base for all the AST nodes.

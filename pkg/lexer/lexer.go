@@ -5,8 +5,8 @@ import (
 	"strings"
 	"unicode/utf8"
 
-	"codeberg.org/textwire/textwire/v5/pkg/position"
-	"codeberg.org/textwire/textwire/v5/pkg/token"
+	"codeberg.org/textwire/textwire/v6/pkg/position"
+	"codeberg.org/textwire/textwire/v6/pkg/token"
 )
 
 var simpleTokens = map[byte]token.TokenType{

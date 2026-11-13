@@ -9,7 +9,7 @@ Textwire is a simple yet powerful templating language for Go. It is designed to 
 ## Installation
 
 ```bash
-go get codeberg.org/textwire/textwire/v5
+go get codeberg.org/textwire/textwire/v6
 ```
 
 ## Neovim and VSCode Support
@@ -32,11 +32,11 @@ In template files you can use globals like this `{{ global.env }}`.
 
 ## Project Overview
 
-- **Module**: `codeberg.org/textwire/textwire/v5`
+- **Module**: `codeberg.org/textwire/textwire/v6`
 - **Template Extensions**: `.tw`
 - **Architecture**: Modular design with separate packages for lexer, parser, evaluator, AST, token, and object handling
 - **LSP Support**: Full Language Server Protocol implementation for editor integration
-- **Precedence**: All the precedence defined in `./pkg/parser/parser.go:20-70`
+- **Precedence**: All the precedence defined in `./pkg/parser/parser.go`
 
 ## Terminology
 
@@ -102,7 +102,7 @@ make check OCI='docker compose'
 ### Import Organization
 
 - Group imports: standard library, third-party, local packages
-- Local packages use `codeberg.org/textwire/textwire/v5/` prefix
+- Local packages use `codeberg.org/textwire/textwire/v6/` prefix
 - Keep imports sorted and remove unused imports
 
 ### Formatting Requirements
@@ -163,7 +163,6 @@ When adding new features, update LSP metadata in `lsp/metadata/en/`:
 
 ### Versioning
 
-- Follow semantic versioning (currently v2.x.x)
 - Update CHANGELOG.md for significant changes
 - Use appropriate emoji categories in changelog
 - Maintain compatibility within major version

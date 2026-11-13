@@ -3,8 +3,8 @@ package linker
 import (
 	"sync"
 
-	"codeberg.org/textwire/textwire/v5/pkg/ast"
-	"codeberg.org/textwire/textwire/v5/pkg/fail"
+	"codeberg.org/textwire/textwire/v6/pkg/ast"
+	"codeberg.org/textwire/textwire/v6/pkg/fail"
 )
 
 // NodeLinker handles connecting AST nodes between each other to prepare AST

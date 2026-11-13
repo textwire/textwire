@@ -3,8 +3,8 @@ package completions
 import (
 	"fmt"
 
-	"codeberg.org/textwire/textwire/v5/pkg/lsp"
-	"codeberg.org/textwire/textwire/v5/pkg/lsp/utils"
+	"codeberg.org/textwire/textwire/v6/pkg/lsp"
+	"codeberg.org/textwire/textwire/v6/pkg/lsp/utils"
 )
 
 func GetLoopObjFields(locale lsp.Locale) ([]Completion, error) {

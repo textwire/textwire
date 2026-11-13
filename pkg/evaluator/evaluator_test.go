@@ -5,12 +5,12 @@ import (
 	"strings"
 	"testing"
 
-	"codeberg.org/textwire/textwire/v5/config"
-	"codeberg.org/textwire/textwire/v5/pkg/fail"
-	"codeberg.org/textwire/textwire/v5/pkg/file"
-	"codeberg.org/textwire/textwire/v5/pkg/lexer"
-	"codeberg.org/textwire/textwire/v5/pkg/parser"
-	"codeberg.org/textwire/textwire/v5/pkg/value"
+	"codeberg.org/textwire/textwire/v6/config"
+	"codeberg.org/textwire/textwire/v6/pkg/fail"
+	"codeberg.org/textwire/textwire/v6/pkg/file"
+	"codeberg.org/textwire/textwire/v6/pkg/lexer"
+	"codeberg.org/textwire/textwire/v6/pkg/parser"
+	"codeberg.org/textwire/textwire/v6/pkg/value"
 )
 
 func testEval(inp string, data map[string]any) (value.Value, *fail.Error) {

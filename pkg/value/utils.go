@@ -9,7 +9,7 @@ import (
 	"strings"
 	"time"
 
-	"codeberg.org/textwire/textwire/v5/pkg/fail"
+	"codeberg.org/textwire/textwire/v6/pkg/fail"
 )
 
 // refKey identifies a slice, map or pointer that is currently being

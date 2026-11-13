@@ -1,6 +1,6 @@
 package ast
 
-import "codeberg.org/textwire/textwire/v5/pkg/token"
+import "codeberg.org/textwire/textwire/v6/pkg/token"
 
 type IntExpr struct {
 	BaseNode

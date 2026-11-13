@@ -4,8 +4,8 @@ import (
 	"math"
 	"testing"
 
-	"codeberg.org/textwire/textwire/v5/config"
-	"codeberg.org/textwire/textwire/v5/pkg/value"
+	"codeberg.org/textwire/textwire/v6/config"
+	"codeberg.org/textwire/textwire/v6/pkg/value"
 )
 
 // TestFloatArithmeticMatchesGo pins down that float arithmetic follows IEEE 754

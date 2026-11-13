@@ -7,15 +7,15 @@ import (
 	"unicode"
 	"unicode/utf8"
 
-	"codeberg.org/textwire/textwire/v5/pkg/file"
-	"codeberg.org/textwire/textwire/v5/pkg/position"
-	"codeberg.org/textwire/textwire/v5/pkg/token"
+	"codeberg.org/textwire/textwire/v6/pkg/file"
+	"codeberg.org/textwire/textwire/v6/pkg/position"
+	"codeberg.org/textwire/textwire/v6/pkg/token"
 
 	"slices"
 
-	"codeberg.org/textwire/textwire/v5/pkg/ast"
-	"codeberg.org/textwire/textwire/v5/pkg/fail"
-	"codeberg.org/textwire/textwire/v5/pkg/lexer"
+	"codeberg.org/textwire/textwire/v6/pkg/ast"
+	"codeberg.org/textwire/textwire/v6/pkg/fail"
+	"codeberg.org/textwire/textwire/v6/pkg/lexer"
 )
 
 type (

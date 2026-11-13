@@ -3,7 +3,7 @@ package textwire
 import (
 	"testing"
 
-	"codeberg.org/textwire/textwire/v5/pkg/fail"
+	"codeberg.org/textwire/textwire/v6/pkg/fail"
 )
 
 func TestCustomFunc_UnsupportedStringResult(t *testing.T) {

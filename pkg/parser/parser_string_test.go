@@ -3,8 +3,8 @@ package parser
 import (
 	"testing"
 
-	"codeberg.org/textwire/textwire/v5/pkg/ast"
-	"codeberg.org/textwire/textwire/v5/pkg/lexer"
+	"codeberg.org/textwire/textwire/v6/pkg/ast"
+	"codeberg.org/textwire/textwire/v6/pkg/lexer"
 )
 
 func testEmbeddedString[T ast.Segment](t *testing.T, inp, expect string) {

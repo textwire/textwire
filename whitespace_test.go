@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	"codeberg.org/textwire/textwire/v5/config"
+	"codeberg.org/textwire/textwire/v6/config"
 )
 
 func TestStandaloneControlDirectiveWhitespace(t *testing.T) {

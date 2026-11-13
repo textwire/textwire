@@ -6,8 +6,8 @@ import (
 	"sort"
 	"strings"
 
-	"codeberg.org/textwire/textwire/v5/pkg/fail"
-	"codeberg.org/textwire/textwire/v5/pkg/utils"
+	"codeberg.org/textwire/textwire/v6/pkg/fail"
+	"codeberg.org/textwire/textwire/v6/pkg/utils"
 )
 
 type Obj struct {

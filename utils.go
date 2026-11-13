@@ -6,11 +6,11 @@ import (
 	"path/filepath"
 	"strings"
 
-	"codeberg.org/textwire/textwire/v5/pkg/ast"
-	"codeberg.org/textwire/textwire/v5/pkg/fail"
-	"codeberg.org/textwire/textwire/v5/pkg/file"
-	"codeberg.org/textwire/textwire/v5/pkg/lexer"
-	"codeberg.org/textwire/textwire/v5/pkg/parser"
+	"codeberg.org/textwire/textwire/v6/pkg/ast"
+	"codeberg.org/textwire/textwire/v6/pkg/fail"
+	"codeberg.org/textwire/textwire/v6/pkg/file"
+	"codeberg.org/textwire/textwire/v6/pkg/lexer"
+	"codeberg.org/textwire/textwire/v6/pkg/parser"
 )
 
 //go:embed embed/default-error-page.tw

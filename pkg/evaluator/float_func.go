@@ -3,8 +3,8 @@ package evaluator
 import (
 	"math"
 
-	"codeberg.org/textwire/textwire/v5/pkg/utils"
-	"codeberg.org/textwire/textwire/v5/pkg/value"
+	"codeberg.org/textwire/textwire/v6/pkg/utils"
+	"codeberg.org/textwire/textwire/v6/pkg/value"
 )
 
 // floatIntFunc returns the integer part of the given float

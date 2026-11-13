@@ -8,11 +8,11 @@ import (
 	"strings"
 	"testing"
 
-	"codeberg.org/textwire/textwire/v5/config"
-	"codeberg.org/textwire/textwire/v5/pkg/fail"
-	"codeberg.org/textwire/textwire/v5/pkg/file"
-	"codeberg.org/textwire/textwire/v5/pkg/position"
-	"codeberg.org/textwire/textwire/v5/pkg/value"
+	"codeberg.org/textwire/textwire/v6/config"
+	"codeberg.org/textwire/textwire/v6/pkg/fail"
+	"codeberg.org/textwire/textwire/v6/pkg/file"
+	"codeberg.org/textwire/textwire/v6/pkg/position"
+	"codeberg.org/textwire/textwire/v6/pkg/value"
 )
 
 func TestErrorHandlingEvaluatingTemplate(t *testing.T) {

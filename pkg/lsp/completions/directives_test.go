@@ -3,7 +3,7 @@ package completions
 import (
 	"testing"
 
-	"codeberg.org/textwire/textwire/v5/pkg/token"
+	"codeberg.org/textwire/textwire/v6/pkg/token"
 )
 
 func TestGetDirectives(t *testing.T) {

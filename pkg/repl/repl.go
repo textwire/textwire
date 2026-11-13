@@ -6,11 +6,11 @@ import (
 	"io"
 	"os"
 
-	"codeberg.org/textwire/textwire/v5/pkg/evaluator"
-	"codeberg.org/textwire/textwire/v5/pkg/fail"
-	"codeberg.org/textwire/textwire/v5/pkg/lexer"
-	"codeberg.org/textwire/textwire/v5/pkg/parser"
-	"codeberg.org/textwire/textwire/v5/pkg/value"
+	"codeberg.org/textwire/textwire/v6/pkg/evaluator"
+	"codeberg.org/textwire/textwire/v6/pkg/fail"
+	"codeberg.org/textwire/textwire/v6/pkg/lexer"
+	"codeberg.org/textwire/textwire/v6/pkg/parser"
+	"codeberg.org/textwire/textwire/v6/pkg/value"
 )
 
 const PROMPT = ">>> "

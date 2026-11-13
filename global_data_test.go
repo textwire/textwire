@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"testing"
 
-	"codeberg.org/textwire/textwire/v5/config"
-	"codeberg.org/textwire/textwire/v5/pkg/fail"
+	"codeberg.org/textwire/textwire/v6/config"
+	"codeberg.org/textwire/textwire/v6/pkg/fail"
 )
 
 func TestGlobalData_UnsupportedValue(t *testing.T) {

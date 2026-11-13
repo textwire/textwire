@@ -4,7 +4,7 @@ import (
 	"slices"
 	"testing"
 
-	"codeberg.org/textwire/textwire/v5/pkg/value"
+	"codeberg.org/textwire/textwire/v6/pkg/value"
 )
 
 func TestEvalArrFunctions(t *testing.T) {
