@@ -101,12 +101,20 @@ func readFile(fileName string) (string, error) {
 	return string(bytes), nil
 }
 
+// newTestFileWatcher returns a watcher that doesn't print to stdout, keeping
+// test output clean when tests use intentionally broken templates.
+func newTestFileWatcher(ln *linker.NodeLinker) *fileWatcher {
+	fw := newFileWatcher(ln)
+	fw.logger.out = io.Discard
+	return fw
+}
+
 // newStartedWatcher mirrors Watch setup without starting the ticker, so
 // tests can drive tick() directly.
 func newStartedWatcher(t *testing.T, ln *linker.NodeLinker) *fileWatcher {
 	t.Helper()
 
-	fw := newFileWatcher(ln)
+	fw := newTestFileWatcher(ln)
 
 	files, err := locateFiles()
 	if err != nil {

@@ -129,6 +129,8 @@ func (fw *fileWatcher) parseFileOrLastValid(f *file.SourceFile) *ast.Program {
 		return fw.parseLastValid(f)
 	}
 
+	changed := fw.trackModTime(f)
+
 	prog, failure := parseContent(f, content)
 	if failure != nil {
 		fw.logger.Error(failure.Error().Error())
@@ -136,7 +138,26 @@ func (fw *fileWatcher) parseFileOrLastValid(f *file.SourceFile) *ast.Program {
 	}
 
 	fw.sources[f.Name] = content
+
+	if changed {
+		fw.logger.Info("refreshed " + f.Rel)
+	}
+
 	return prog
+}
+
+// trackModTime updates passed file's modification time and reports whether
+// the file changed since the previous tick.
+func (fw *fileWatcher) trackModTime(f *file.SourceFile) bool {
+	info, err := os.Stat(f.Abs)
+	if err != nil {
+		return false
+	}
+
+	changed := !f.ModTime.IsZero() && !info.ModTime().Equal(f.ModTime)
+	f.ModTime = info.ModTime()
+
+	return changed
 }
 
 // parseLastValid parses the last valid source of f into a fresh program.

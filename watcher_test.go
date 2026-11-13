@@ -1,9 +1,12 @@
 package textwire
 
 import (
+	"bytes"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
+	"time"
 
 	"codeberg.org/textwire/textwire/v6/config"
 	"codeberg.org/textwire/textwire/v6/pkg/ast"
@@ -23,7 +26,7 @@ func TestRelinkAllPrograms(t *testing.T) {
 		path := filepath.Join(t.TempDir(), "home.tw")
 		writeTemplate(t, path, validTpl)
 
-		fw := newFileWatcher(linker.New(nil))
+		fw := newTestFileWatcher(linker.New(nil))
 		fw.files = []*file.SourceFile{file.New("home", path, path, config.New())}
 		fw.relinkAllPrograms()
 
@@ -46,7 +49,7 @@ func TestRelinkAllPrograms(t *testing.T) {
 		path := filepath.Join(t.TempDir(), "home.tw")
 		writeTemplate(t, path, validTpl)
 
-		fw := newFileWatcher(linker.New(nil))
+		fw := newTestFileWatcher(linker.New(nil))
 		fw.files = []*file.SourceFile{file.New("home", path, path, config.New())}
 
 		// First pass: file parses, so "home" is published and its source cached.
@@ -83,7 +86,7 @@ func TestRelinkAllPrograms(t *testing.T) {
 		path := filepath.Join(t.TempDir(), "home.tw")
 		writeTemplate(t, path, brokenTpl)
 
-		fw := newFileWatcher(linker.New(nil))
+		fw := newTestFileWatcher(linker.New(nil))
 		fw.files = []*file.SourceFile{file.New("home", path, path, config.New())}
 		fw.relinkAllPrograms()
 
@@ -99,7 +102,7 @@ func TestRelinkAllPrograms(t *testing.T) {
 		writeTemplate(t, homePath, validTpl)
 		writeTemplate(t, aboutPath, validTpl)
 
-		fw := newFileWatcher(linker.New(nil))
+		fw := newTestFileWatcher(linker.New(nil))
 		fw.files = []*file.SourceFile{
 			file.New("home", homePath, homePath, config.New()),
 			file.New("about", aboutPath, aboutPath, config.New()),
@@ -124,6 +127,38 @@ func TestRelinkAllPrograms(t *testing.T) {
 	})
 }
 
+func TestRelinkAllPrograms_LogsRefreshedFileOnModTimeChange(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "home.tw")
+	writeTemplate(t, path, validTpl)
+
+	var out bytes.Buffer
+	fw := newFileWatcher(linker.New(nil))
+	fw.logger.out = &out
+	fw.files = []*file.SourceFile{file.New("home", path, path, config.New())}
+
+	fw.relinkAllPrograms()
+	if strings.Contains(out.String(), "refreshed") {
+		t.Fatalf("expected no refresh log on first parse, got %q", out.String())
+	}
+
+	fw.relinkAllPrograms()
+	if strings.Contains(out.String(), "refreshed") {
+		t.Fatalf("expected no refresh log when file is unchanged, got %q", out.String())
+	}
+
+	writeTemplate(t, path, validModifiedTpl)
+	modifiedAt := time.Now().Add(time.Second)
+	if err := os.Chtimes(path, modifiedAt, modifiedAt); err != nil {
+		t.Fatalf("failed to set modification time: %v", err)
+	}
+
+	fw.relinkAllPrograms()
+
+	if !strings.Contains(out.String(), "refreshed "+fw.files[0].Rel) {
+		t.Fatalf("expected a refresh log for modified file, got %q", out.String())
+	}
+}
+
 func TestRemoveProgramByName(t *testing.T) {
 	t.Run("removes only matching program", func(t *testing.T) {
 		ln := linker.New([]*ast.Program{
@@ -131,7 +166,7 @@ func TestRemoveProgramByName(t *testing.T) {
 			{Name: "about"},
 		})
 
-		fw := newFileWatcher(ln)
+		fw := newTestFileWatcher(ln)
 		fw.removeProgramByName("home")
 
 		programs := fw.linker.Programs
@@ -150,7 +185,7 @@ func TestRemoveProgramByName(t *testing.T) {
 			{Name: "about"},
 		})
 
-		fw := newFileWatcher(ln)
+		fw := newTestFileWatcher(ln)
 		fw.removeProgramByName("contact")
 
 		programs := fw.linker.Programs
@@ -161,7 +196,7 @@ func TestRemoveProgramByName(t *testing.T) {
 }
 
 func TestFindDeletedFiles_ReturnsFilesMissingFromCurrentList(t *testing.T) {
-	fw := newFileWatcher(linker.New(nil))
+	fw := newTestFileWatcher(linker.New(nil))
 	fw.files = []*file.SourceFile{{Name: "home"}}
 
 	oldFiles := []*file.SourceFile{{Name: "home"}, {Name: "about"}}
@@ -178,7 +213,7 @@ func TestFindDeletedFiles_ReturnsFilesMissingFromCurrentList(t *testing.T) {
 
 func TestTrackLinkingError_SetsAndClearsLinkError(t *testing.T) {
 	ln := linker.New(nil)
-	fw := newFileWatcher(ln)
+	fw := newTestFileWatcher(ln)
 
 	failure := fail.New(nil, "", fail.OriginLink, "undefined component")
 	fw.trackLinkingError(failure)
@@ -205,7 +240,7 @@ func TestCountFiles_CountsOnlyTemplateFiles(t *testing.T) {
 	}
 	writeTemplate(t, filepath.Join(dir, "layouts", "main.tw"), validTpl)
 
-	fw := newFileWatcher(linker.New(nil))
+	fw := newTestFileWatcher(linker.New(nil))
 
 	if count := fw.countFiles(); count != 2 {
 		t.Fatalf("expected 2 template files, got %d", count)
