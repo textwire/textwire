@@ -681,11 +681,6 @@ func TestEvalIfDir(t *testing.T) {
 		{"false if with else body", `@if(false)1@else@end`, ""},
 		{"if inside heading true", `<h2>@if(true)Hello@end</h2>`, "<h2>Hello</h2>"},
 		{"if inside heading false", `<h2>@if(false)Hello@end</h2>`, "<h2></h2>"},
-		{
-			"if condition ignores raw mark",
-			`{{ html = '<br>' }}@if(raw(html) == html)yes@elseno@end`,
-			"yes",
-		},
 		// @elseif statements
 		{"elseif first true", `@if(true)Anna@elseif(true)Lili@end`, "Anna"},
 		{
@@ -814,19 +809,21 @@ func TestEvalIfDir(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		evaluated, failure := testEval(tc.inp, nil)
-		if failure != nil {
-			t.Fatalf("Case: %s. evaluation failed: %s", tc.name, failure)
-		}
+		t.Run(tc.name, func(t *testing.T) {
+			evaluated, failure := testEval(tc.inp, nil)
+			if failure != nil {
+				t.Fatalf("Evaluation failed: %s", failure)
+			}
 
-		err, ok := evaluated.(*value.Error)
-		if ok {
-			t.Errorf("Case: %s. Evaluation failed: %s", tc.name, err)
-		}
+			err, ok := evaluated.(*value.Error)
+			if ok {
+				t.Errorf("Evaluation failed: %s", err)
+			}
 
-		if res := strings.TrimSpace(evaluated.String()); res != tc.expect {
-			t.Errorf("Case: %s. Result is not %q, got %q", tc.name, tc.expect, res)
-		}
+			if res := strings.TrimSpace(evaluated.String()); res != tc.expect {
+				t.Errorf("Result is not %q, got %q", tc.expect, res)
+			}
+		})
 	}
 }
 

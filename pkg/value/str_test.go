@@ -108,7 +108,12 @@ func TestStrDump(t *testing.T) {
 		{
 			name:  "string marked as raw still escapes HTML with marker",
 			input: &Str{Val: "<br>", raw: true},
-			want:  fmt.Sprintf(`<span style="%s">raw </span><span style="%s">%q</span>`, DUMP_META, DUMP_STR, "&lt;br&gt;"),
+			want: fmt.Sprintf(
+				`<span style="%s">raw </span><span style="%s">%q</span>`,
+				DUMP_META,
+				DUMP_STR,
+				"&lt;br&gt;",
+			),
 		},
 	}
 
