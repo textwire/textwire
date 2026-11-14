@@ -135,7 +135,7 @@ func (p *Program) linkBlockToSlot(
 	}
 
 	return fail.New(
-		passDir.Pos(),
+		passDir.Name.Pos(),
 		compFileAbsPath,
 		fail.OriginLink,
 		fail.ErrSlotNotDefined,

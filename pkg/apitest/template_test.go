@@ -38,7 +38,7 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 			},
 			data:    nil,
 			errFile: "index.tw",
-			errPos:  &position.Pos{StartCol: 21, EndCol: 49},
+			errPos:  &position.Pos{StartCol: 35, EndCol: 40},
 			origin:  fail.OriginLink,
 			errMsg:  fail.ErrSlotNotDefined,
 			errArgs: []any{"user", "name"},
