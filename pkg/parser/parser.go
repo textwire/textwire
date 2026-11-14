@@ -674,7 +674,7 @@ func (p *Parser) componentBlock() *ast.Block {
 func (p *Parser) endCompDir(compDir *ast.CompDir) ast.Chunk {
 	dup, times := ast.FindDuplicatePasses(compDir)
 	if dup != nil && times > 0 {
-		p.newError(dup.Pos(), fail.ErrDuplicatePass, dup.Name.Val, times, compDir.Name.Val)
+		p.newError(dup.Name.Pos(), fail.ErrDuplicatePass, dup.Name.Val, times, compDir.Name.Val)
 		return p.illegal()
 	}
 
