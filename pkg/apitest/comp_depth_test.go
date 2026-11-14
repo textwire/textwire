@@ -16,7 +16,7 @@ func TestComponentDepth(t *testing.T) {
 			{relPath: "components/tree.tw", content: content},
 		}
 
-		tpl := setupTemplate(t, files, &config.Config{})
+		tpl := setupTemplate(t, files, nil)
 
 		_, failure := tpl.String("index", nil)
 		assertDepthError(t, failure, "components/tree", config.DefaultMaxComponentDepth)

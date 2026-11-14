@@ -4,8 +4,6 @@ import (
 	"codeberg.org/textwire/textwire/v6"
 	"net/http"
 	"net/http/httptest"
-	"os"
-	"path/filepath"
 	"strings"
 	"testing"
 
@@ -348,21 +346,8 @@ func TestNewTemplate(t *testing.T) {
 }
 
 func TestNewTemplate_WithAbsoluteTemplateDir(t *testing.T) {
-	templateDir := t.TempDir()
-
-	err := os.WriteFile(
-		filepath.Join(templateDir, "index.tw"),
-		[]byte("hello"),
-		0o600,
-	)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	tpl, failure := textwire.NewTemplate(&config.Config{TemplateDir: templateDir})
-	if failure != nil {
-		t.Fatal(failure)
-	}
+	// setupTemplate uses t.TempDir(), which is an absolute path
+	tpl := setupTemplate(t, []tplFile{{relPath: "index.tw", content: "hello"}}, nil)
 
 	actual, failure := tpl.String("index", nil)
 	if failure != nil {
@@ -492,31 +477,14 @@ func TestTemplateResponseStatusCodes(t *testing.T) {
 }
 
 func TestLocateFiles_IgnoresNonTemplateFiles(t *testing.T) {
-	templateDir := t.TempDir()
-
-	files := map[string]string{
-		"index.tw":     "hello",
-		"notes.twig":   "junk @end",
-		"some.tw.twig": "@end",
-		"card.tw.html": "@end",
+	files := []tplFile{
+		{relPath: "index.tw", content: "hello"},
+		{relPath: "notes.twig", content: "junk @end"},
+		{relPath: "some.tw.twig", content: "@end"},
+		{relPath: "card.tw.html", content: "@end"},
 	}
 
-	for name, content := range files {
-		err := os.WriteFile(
-			filepath.Join(templateDir, name),
-			[]byte(content),
-			0o600,
-		)
-
-		if err != nil {
-			t.Fatal(err)
-		}
-	}
-
-	tpl, failure := textwire.NewTemplate(&config.Config{TemplateDir: templateDir})
-	if failure != nil {
-		t.Fatalf("unexpected template error: %s", failure)
-	}
+	tpl := setupTemplate(t, files, nil)
 
 	actual, err := tpl.String("index", nil)
 	if err != nil {
@@ -856,7 +824,7 @@ func TestInsertAndReserveEscaping(t *testing.T) {
 
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
-			tpl := setupTemplate(t, tc.files, &config.Config{})
+			tpl := setupTemplate(t, tc.files, nil)
 
 			actual, failure := tpl.String("index", nil)
 			assertOutput(t, actual, failure, tc.expect)
@@ -972,7 +940,7 @@ func TestGlobalFuncRaw_InComponents(t *testing.T) {
 
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
-			tpl := setupTemplate(t, tc.files, &config.Config{})
+			tpl := setupTemplate(t, tc.files, nil)
 
 			actual, failure := tpl.String("index", nil)
 			assertOutput(t, actual, failure, tc.expect)

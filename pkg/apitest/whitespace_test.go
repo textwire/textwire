@@ -5,8 +5,6 @@ import (
 	"testing"
 
 	"codeberg.org/textwire/textwire/v6"
-
-	"codeberg.org/textwire/textwire/v6/config"
 )
 
 func TestStandaloneControlDirectiveWhitespace(t *testing.T) {
@@ -287,52 +285,67 @@ func TestStandaloneControlDirectiveWhitespace(t *testing.T) {
 func TestStandaloneTemplateWhitespace(t *testing.T) {
 	cases := []struct {
 		name   string
-		files  map[string]string
+		files  []tplFile
 		file   string
 		expect string
 	}{
 		{
 			name: "standalone @use and @insert are removed with their lines",
-			files: map[string]string{
-				"index.tw":  "@use('layout')\n@insert('title', 'T')\nX\n",
-				"layout.tw": "<head>\n    @reserve('title')\n</head>\n",
+			files: []tplFile{
+				{relPath: "index.tw", content: "@use('layout')\n@insert('title', 'T')\nX\n"},
+				{relPath: "layout.tw", content: "<head>\n    @reserve('title')\n</head>\n"},
 			},
 			file:   "index",
 			expect: "<head>\nT</head>\n",
 		},
 		{
 			name: "standalone @reserve and @slot are removed with their lines",
-			files: map[string]string{
-				"index.tw":  "@use('layout')@insert('title', 'T')\n",
-				"layout.tw": "<head>\n    @component('comp')\n        @reserve('title')\n    @end\n</head>\n",
-				"comp.tw":   "<title>@slot</title>",
+			files: []tplFile{
+				{relPath: "index.tw", content: "@use('layout')@insert('title', 'T')\n"},
+				{
+					relPath: "layout.tw",
+					content: "<head>\n    @component('comp')\n        @reserve('title')\n    @end\n</head>\n",
+				},
+				{relPath: "comp.tw", content: "<title>@slot</title>"},
 			},
 			file:   "index",
 			expect: "<head>\n<title>T</title></head>\n",
 		},
 		{
 			name: "standalone @slot is removed with its line",
-			files: map[string]string{
-				"index.tw": "@component('comp')\n\nX\n@end\n",
-				"comp.tw":  "<div>\n    @slot\n</div>\n",
+			files: []tplFile{
+				{relPath: "index.tw", content: "@component('comp')\n\nX\n@end\n"},
+				{relPath: "comp.tw", content: "<div>\n    @slot\n</div>\n"},
 			},
 			file:   "index",
 			expect: "<div>\n\nX\n</div>\n",
 		},
 		{
 			name: "standalone @pass is removed with its line",
-			files: map[string]string{
-				"index.tw": "@component('comp')\n@pass('title')\n    T\n@end\nX\n@end\n",
-				"comp.tw":  "<title>@slot('title')</title>\n<main>@slot</main>\n",
+			files: []tplFile{
+				{
+					relPath: "index.tw",
+					content: "@component('comp')\n@pass('title')\n    T\n@end\nX\n@end\n",
+				},
+				{
+					relPath: "comp.tw",
+					content: "<title>@slot('title')</title>\n<main>@slot</main>\n",
+				},
 			},
 			file:   "index",
 			expect: "<title>    T\n</title>\n<main>X\n</main>\n",
 		},
 		{
 			name: "standalone @passif is removed with its line",
-			files: map[string]string{
-				"index.tw": "@component('comp')\n@passif(true, 'title')\n    T\n@end\nX\n@end\n",
-				"comp.tw":  "<title>@slot('title')</title>\n<main>@slot</main>\n",
+			files: []tplFile{
+				{
+					relPath: "index.tw",
+					content: "@component('comp')\n@passif(true, 'title')\n    T\n@end\nX\n@end\n",
+				},
+				{
+					relPath: "comp.tw",
+					content: "<title>@slot('title')</title>\n<main>@slot</main>\n",
+				},
 			},
 			file:   "index",
 			expect: "<title>    T\n</title>\n<main>X\n</main>\n",
@@ -341,13 +354,7 @@ func TestStandaloneTemplateWhitespace(t *testing.T) {
 
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
-			dir := t.TempDir()
-			writeTemplates(t, dir, tc.files)
-
-			tpl, failure := textwire.NewTemplate(&config.Config{TemplateDir: dir})
-			if failure != nil {
-				t.Fatalf("template creation failed: %s", failure)
-			}
+			tpl := setupTemplate(t, tc.files, nil)
 
 			actual, failure := tpl.String(tc.file, nil)
 			if failure != nil {

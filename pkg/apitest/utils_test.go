@@ -104,24 +104,6 @@ func readFile(fileName string) (string, error) {
 	return string(bytes), nil
 }
 
-func writeTemplates(t *testing.T, dir string, files map[string]string) {
-	t.Helper()
-
-	for name, body := range files {
-		if err := os.WriteFile(filepath.Join(dir, name), []byte(body), 0o600); err != nil {
-			t.Fatalf("cannot write template %s: %s", name, err)
-		}
-	}
-}
-
-func writeTemplate(t *testing.T, path, content string) {
-	t.Helper()
-
-	if err := os.WriteFile(path, []byte(content), 0o644); err != nil {
-		t.Fatalf("failed to write template: %v", err)
-	}
-}
-
 func assertReadOnlyValueError(t *testing.T, failure *fail.Error) {
 	t.Helper()
 
@@ -142,11 +124,16 @@ func resetConfigAfterTest(t *testing.T) {
 }
 
 // setupTemplate writes files into a temporary template directory and
-// creates a template from it. The global config is reset after the test.
+// creates a template from it. A nil conf uses the default config.
+// The global config is reset after the test.
 func setupTemplate(t *testing.T, files []tplFile, conf *config.Config) *textwire.Template {
 	t.Helper()
 
 	resetConfigAfterTest(t)
+
+	if conf == nil {
+		conf = &config.Config{}
+	}
 
 	dir := t.TempDir()
 
@@ -157,7 +144,9 @@ func setupTemplate(t *testing.T, files []tplFile, conf *config.Config) *textwire
 			t.Fatalf("failed to create directory for %s: %v", f.relPath, err)
 		}
 
-		writeTemplate(t, path, f.content)
+		if err := os.WriteFile(path, []byte(f.content), 0o644); err != nil {
+			t.Fatalf("failed to write template %s: %v", f.relPath, err)
+		}
 	}
 
 	conf.TemplateDir = dir
