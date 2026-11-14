@@ -226,7 +226,11 @@ func TestComponentDepth_LimitBelowOneUsesDefault(t *testing.T) {
 		t.Run(
 			fmt.Sprintf("limit below 1 uses default, limit %d", configuredDepth),
 			func(t *testing.T) {
-				tpl, err := setupTemplate(t, files, &config.Config{MaxComponentDepth: configuredDepth})
+				tpl, err := setupTemplate(
+					t,
+					files,
+					&config.Config{MaxComponentDepth: configuredDepth},
+				)
 				if err != nil {
 					t.Fatal(err)
 				}
