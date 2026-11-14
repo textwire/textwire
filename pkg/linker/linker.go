@@ -96,7 +96,7 @@ func (nl *NodeLinker) handleCompLinking(prog *ast.Program) *fail.Error {
 		compFileProg := ast.FindProg(compDir.Name.Val, nl.Programs)
 		if compFileProg == nil {
 			return fail.New(
-				compDir.Pos(),
+				compDir.Name.Pos(),
 				prog.AbsPath,
 				fail.OriginLink,
 				fail.ErrUndefinedComponent,

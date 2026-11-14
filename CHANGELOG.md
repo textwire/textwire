@@ -16,7 +16,7 @@
 - 🧑‍💻 BREAKING CHANGE! Writing to `global`, its properties, or a value aliased from it now returns an evaluation error instead of being silently ignored. Globals are frozen and read-only.
 - 🧑‍💻 BREAKING CHANGE! `GlobalData` is now converted once when `NewTemplate` is called, so later changes to the original map are not picked up. Unsupported values now fail in `NewTemplate` instead of at render time.
 - 🧑‍💻 BREAKING CHANGE! Public `pkg/` API changes: `evaluator.New` takes a third `global *value.Obj` argument, `value.NewScopeFromMap` takes a second `global *value.Obj` argument, and `Scope.AddGlobal` is removed. Pass `nil` to keep the previous behavior.
-- 🐛 Errors for unknown and duplicate `@pass`/`@passif` slots now point at the slot name string instead of the whole directive.
+- 🐛 Errors for missing components and unknown or duplicate `@pass`/`@passif` slots now point at the name string instead of the whole directive.
 
 ## [Release Notes V1](docs/CHANGELOG-V1.md)
 ## [Release Notes V2](docs/CHANGELOG-V2.md)
