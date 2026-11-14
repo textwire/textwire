@@ -1,3 +1,0 @@
-@component("book", { title: "Harry Potter" })
-    <p>Some content is here</p>
-@end

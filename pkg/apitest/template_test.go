@@ -3,6 +3,7 @@ package apitest
 import (
 	"net/http"
 	"net/http/httptest"
+	"path/filepath"
 	"strings"
 	"testing"
 
@@ -16,211 +17,342 @@ import (
 )
 
 func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
-	absPath, err := file.ToFullPath("")
-	absPath += "/testdata/bad/"
-	if err != nil {
-		t.Errorf("unexpected error: %s", err)
-		return
-	}
-
 	cases := []struct {
-		dir  string
-		err  *fail.Error
-		data map[string]any
+		name    string
+		files   []tplFile
+		data    map[string]any
+		errFile string
+		errPos  *position.Pos
+		origin  fail.ErrOrigin
+		errMsg  string
+		errArgs []any
 	}{
 		{
-			dir: "undefined-named-passif",
-			err: fail.New(
-				&position.Pos{StartCol: 21, EndCol: 49},
-				absPath+"undefined-named-passif/index.tw",
-				fail.OriginLink,
-				fail.ErrSlotNotDefined,
-				"user",
-				"name",
-			),
-			data: nil,
+			name: "undefined named @passif",
+			files: []tplFile{
+				{
+					relPath: "index.tw",
+					content: `<p>@component('user')@passif(true, 'name')TEST@end@end</p>`,
+				},
+				{relPath: "user.tw", content: `<section>@slot</section>`},
+			},
+			data:    nil,
+			errFile: "index.tw",
+			errPos:  &position.Pos{StartCol: 21, EndCol: 49},
+			origin:  fail.OriginLink,
+			errMsg:  fail.ErrSlotNotDefined,
+			errArgs: []any{"user", "name"},
 		},
 		{
-			dir: "use-inside-tpl",
-			err: fail.New(
-				&position.Pos{EndCol: 13},
-				absPath+"use-inside-tpl/layout.tw",
-				fail.OriginEval,
-				fail.ErrUseDirIsNotAllowed,
-			),
-			data: nil,
+			name: "@use inside layout",
+			files: []tplFile{
+				{
+					relPath: "index.tw",
+					content: "@use('layout')\n@insert('title', 'test')",
+				},
+				{
+					relPath: "layout.tw",
+					content: "@use('layout')\n@reserve('title')",
+				},
+			},
+			data:    nil,
+			errFile: "layout.tw",
+			errPos:  &position.Pos{EndCol: 13},
+			origin:  fail.OriginEval,
+			errMsg:  fail.ErrUseDirIsNotAllowed,
+			errArgs: nil,
 		},
 		{
-			dir: "unknown-named-pass",
-			err: fail.New(
-				&position.Pos{StartLine: 1, StartCol: 4, EndLine: 3, EndCol: 7},
-				absPath+"unknown-named-pass/index.tw",
-				fail.OriginLink,
-				fail.ErrSlotNotDefined,
-				"user",
-				"unknown",
-			),
-			data: nil,
+			name: "unknown named @pass",
+			files: []tplFile{
+				{
+					relPath: "index.tw",
+					content: `@component('user')@pass('unknown')<p>test</p>@end@end`,
+				},
+				{
+					relPath: "user.tw",
+					content: `@slot("content")`,
+				},
+			},
+			data:    nil,
+			errFile: "index.tw",
+			errPos:  &position.Pos{StartCol: 24, EndCol: 32},
+			origin:  fail.OriginLink,
+			errMsg:  fail.ErrSlotNotDefined,
+			errArgs: []any{"user", "unknown"},
 		},
 		{
-			dir: "unknown-default-pass",
-			err: fail.New(
-				&position.Pos{StartLine: 0, StartCol: 45, EndLine: 1, EndCol: 31},
-				absPath+"unknown-default-pass/index.tw",
-				fail.OriginLink,
-				fail.ErrDefaultSlotNotDefined,
-				"book",
-				"book",
-			),
-			data: nil,
+			name: "unknown-default-pass",
+			files: []tplFile{
+				{
+					relPath: "index.tw",
+					content: `@component("book", { title: "Harry Potter" })
+    <p>Some content is here</p>
+@end`,
+				},
+				{
+					relPath: "book.tw",
+					content: `<div class="book">
+    <h2>{{ title }}</h2>
+    @slot("content")
+</div>
+`,
+				},
+			},
+			data:    nil,
+			errFile: "index.tw",
+			errPos:  &position.Pos{StartLine: 0, StartCol: 45, EndLine: 1, EndCol: 31},
+			origin:  fail.OriginLink,
+			errMsg:  fail.ErrDefaultSlotNotDefined,
+			errArgs: []any{"book", "book"},
 		},
 		{
-			dir: "duplicate-pass",
-			err: fail.New(
-				&position.Pos{StartLine: 2, StartCol: 4, EndLine: 2, EndCol: 39},
-				absPath+"duplicate-pass/index.tw",
-				fail.OriginPars,
-				fail.ErrDuplicatePass,
-				"content",
-				2,
-				"user",
-			),
-			data: nil,
+			name: "duplicate-pass",
+			files: []tplFile{
+				{
+					relPath: "index.tw",
+					content: `@component("user", { name: "Anna" })
+    @pass("content")<p>Content 1</p>@end
+    @pass("content")<p>Content 2</p>@end
+@end
+`,
+				},
+				{
+					relPath: "user.tw",
+					content: `<div class="user">
+    <h2>{{ name }}</h2>
+    @slot("content")
+</div>
+`,
+				},
+			},
+			data:    nil,
+			errFile: "index.tw",
+			errPos:  &position.Pos{StartLine: 2, StartCol: 4, EndLine: 2, EndCol: 39},
+			origin:  fail.OriginPars,
+			errMsg:  fail.ErrDuplicatePass,
+			errArgs: []any{"content", 2, "user"},
 		},
 		{
-			dir: "unknown-comp",
-			err: fail.New(
-				&position.Pos{StartLine: 8, StartCol: 4, EndLine: 8, EndCol: 33},
-				absPath+"unknown-comp/index.tw",
-				fail.OriginLink,
-				fail.ErrUndefinedComponent,
-				"unknown-name",
-			),
-			data: nil,
+			name: "unknown-comp",
+			files: []tplFile{
+				{
+					relPath: "index.tw",
+					content: `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    @component('unknown-name')@end
+</body>
+</html>
+`,
+				},
+			},
+			data:    nil,
+			errFile: "index.tw",
+			errPos:  &position.Pos{StartLine: 8, StartCol: 4, EndLine: 8, EndCol: 33},
+			origin:  fail.OriginLink,
+			errMsg:  fail.ErrUndefinedComponent,
+			errArgs: []any{"unknown-name"},
 		},
 		{
-			dir: "undefined-insert",
-			err: fail.New(
-				&position.Pos{StartLine: 4, EndLine: 6, EndCol: 3},
-				absPath+"undefined-insert/index.tw",
-				fail.OriginLink,
-				fail.ErrUnusedInsertDetected,
-				"some-name",
-				"some-name",
-			),
-			data: nil,
+			name: "undefined-insert",
+			files: []tplFile{
+				{
+					relPath: "index.tw",
+					content: `@use('layout')
+
+@insert('title', 'Some title')
+
+@insert('some-name')
+<h1>Some title is here</h1>
+@end
+`,
+				},
+				{
+					relPath: "layout.tw",
+					content: `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@reserve('title')</title>
+</head>
+<body>
+    @reserve('main')
+</body>
+</html>
+`,
+				},
+			},
+			data:    nil,
+			errFile: "index.tw",
+			errPos:  &position.Pos{StartLine: 4, EndLine: 6, EndCol: 3},
+			origin:  fail.OriginLink,
+			errMsg:  fail.ErrUnusedInsertDetected,
+			errArgs: []any{"some-name", "some-name"},
 		},
 		{
-			dir: "undefined-var-in-comp",
-			err: fail.New(
-				&position.Pos{StartCol: 3, EndCol: 14},
-				absPath+"undefined-var-in-comp/hero.tw",
-				fail.OriginEval,
-				fail.ErrVariableIsUndefined,
-				"undefinedVar",
-			),
-			data: nil,
+			name: "undefined-var-in-comp",
+			files: []tplFile{
+				{
+					relPath: "index.tw",
+					content: `@component("hero")
+    <h1>Title</h1>
+@end
+`,
+				},
+				{relPath: "hero.tw", content: "{{ undefinedVar }}\n@slot"},
+			},
+			data:    nil,
+			errFile: "hero.tw",
+			errPos:  &position.Pos{StartCol: 3, EndCol: 14},
+			origin:  fail.OriginEval,
+			errMsg:  fail.ErrVariableIsUndefined,
+			errArgs: []any{"undefinedVar"},
 		},
 		{
-			dir: "undefined-var-in-use",
-			err: fail.New(
-				&position.Pos{StartLine: 7, StartCol: 9, EndLine: 7, EndCol: 20},
-				absPath+"undefined-var-in-use/base.tw",
-				fail.OriginEval,
-				fail.ErrVariableIsUndefined,
-				"undefinedVar",
-			),
-			data: nil,
+			name: "undefined var inside layout",
+			files: []tplFile{
+				{relPath: "index.tw", content: `@use("base")`},
+				{
+					relPath: "base.tw",
+					content: "<!DOCTYPE html>\n<body>{{ undefinedVar }}</body>",
+				},
+			},
+			data:    nil,
+			errFile: "base.tw",
+			errPos:  &position.Pos{StartLine: 1, StartCol: 9, EndLine: 1, EndCol: 20},
+			origin:  fail.OriginEval,
+			errMsg:  fail.ErrVariableIsUndefined,
+			errArgs: []any{"undefinedVar"},
 		},
 		{
-			dir: "undefined-use",
-			err: fail.New(
-				&position.Pos{StartCol: 5, EndCol: 22},
-				absPath+"undefined-use/index.tw",
-				fail.OriginLink,
-				fail.ErrUseDirMissingLayout,
-				"undefined-layout",
-			),
-			data: nil,
+			name: "undefined-use",
+			files: []tplFile{
+				{
+					relPath: "index.tw",
+					content: `@use('undefined-layout')`,
+				},
+			},
+			data:    nil,
+			errFile: "index.tw",
+			errPos:  &position.Pos{StartCol: 5, EndCol: 22},
+			origin:  fail.OriginLink,
+			errMsg:  fail.ErrUseDirMissingLayout,
+			errArgs: []any{"undefined-layout"},
 		},
 		{
-			dir: "undefined-var-in-nested-comp",
-			err: fail.New(
-				&position.Pos{StartCol: 9, EndCol: 12},
-				absPath+"undefined-var-in-nested-comp/second.tw",
-				fail.OriginEval,
-				fail.ErrVariableIsUndefined,
-				"name",
-			),
-			data: map[string]any{"name": "Amy"},
+			name: "undefined-var-in-nested-comp",
+			files: []tplFile{
+				{relPath: "index.tw", content: `@component('first', { name })@end`},
+				{relPath: "first.tw", content: `@component('second')@end`},
+				{relPath: "second.tw", content: `<span>{{ name }}</span>`},
+			},
+			data:    map[string]any{"name": "Amy"},
+			errFile: "second.tw",
+			errPos:  &position.Pos{StartCol: 9, EndCol: 12},
+			origin:  fail.OriginEval,
+			errMsg:  fail.ErrVariableIsUndefined,
+			errArgs: []any{"name"},
 		},
 		{
-			dir: "var-in-layout",
-			err: fail.New(
-				&position.Pos{StartCol: 9, EndCol: 16},
-				absPath+"var-in-layout/layout.tw",
-				fail.OriginEval,
-				fail.ErrVariableIsUndefined,
-				"fullName",
-			),
-			data: map[string]any{"fullName": "Amy Adams"},
+			name: "var-in-layout",
+			files: []tplFile{
+				{relPath: "index.tw", content: `@use('layout')`},
+				{relPath: "layout.tw", content: `<span>{{ fullName }}</span>`},
+			},
+			data:    map[string]any{"fullName": "Amy Adams"},
+			errFile: "layout.tw",
+			errPos:  &position.Pos{StartCol: 9, EndCol: 16},
+			origin:  fail.OriginEval,
+			errMsg:  fail.ErrVariableIsUndefined,
+			errArgs: []any{"fullName"},
 		},
 		{
-			dir: "comp-calls-itself",
-			err: fail.New(
-				&position.Pos{StartCol: 4, EndCol: 26},
-				absPath+"comp-calls-itself/components/tree.tw",
-				fail.OriginEval,
-				fail.ErrMaxComponentDepth,
-				"components/tree",
-				config.DefaultMaxComponentDepth,
-			),
-			data: nil,
+			name: "comp-calls-itself",
+			files: []tplFile{
+				{relPath: "index.tw", content: "@component('~tree')@end\n"},
+				{
+					relPath: "components/tree.tw",
+					content: "<li>@component('~tree')@end</li>\n",
+				},
+			},
+			data:    nil,
+			errFile: "components/tree.tw",
+			errPos:  &position.Pos{StartCol: 4, EndCol: 26},
+			origin:  fail.OriginEval,
+			errMsg:  fail.ErrMaxComponentDepth,
+			errArgs: []any{"components/tree", config.DefaultMaxComponentDepth},
 		},
 		{
-			dir: "comp-calls-each-other",
-			err: fail.New(
-				&position.Pos{StartCol: 3, EndCol: 26},
-				absPath+"comp-calls-each-other/components/second.tw",
-				fail.OriginEval,
-				fail.ErrMaxComponentDepth,
-				"components/first",
-				config.DefaultMaxComponentDepth,
-			),
-			data: nil,
+			name: "comp-calls-each-other",
+			files: []tplFile{
+				{relPath: "index.tw", content: "@component('~first')@end\n"},
+				{
+					relPath: "components/first.tw",
+					content: "<b>@component('~second')@end</b>\n",
+				},
+				{
+					relPath: "components/second.tw",
+					content: "<i>@component('~first')@end</i>\n",
+				},
+			},
+			data:    nil,
+			errFile: "components/second.tw",
+			errPos:  &position.Pos{StartCol: 3, EndCol: 26},
+			origin:  fail.OriginEval,
+			errMsg:  fail.ErrMaxComponentDepth,
+			errArgs: []any{"components/first", config.DefaultMaxComponentDepth},
 		},
 		{
-			dir: "inserts-without-use",
-			err: fail.New(
-				&position.Pos{StartLine: 3, EndLine: 3, EndCol: 31},
-				absPath+"inserts-without-use/index.tw",
-				fail.OriginEval,
-				fail.ErrInsertRequiresUse,
-				"title",
-			),
-			data: nil,
+			name: "inserts-without-use",
+			files: []tplFile{
+				{
+					relPath: "index.tw",
+					content: `<h1>Amy Lou Adams</h1>@insert("title", "Causes error")`,
+				},
+			},
+			data:    nil,
+			errFile: "index.tw",
+			errPos:  &position.Pos{StartCol: 22, EndCol: 53},
+			origin:  fail.OriginEval,
+			errMsg:  fail.ErrInsertRequiresUse,
+			errArgs: []any{"title"},
 		},
 	}
 
 	for _, tc := range cases {
-		t.Run(tc.dir, func(t *testing.T) {
-			tpl, tplFail := textwire.NewTemplate(
-				&config.Config{TemplateDir: "testdata/bad/" + tc.dir},
+		t.Run(tc.name, func(t *testing.T) {
+			conf := &config.Config{}
+			tpl, tplFail := setupTemplate(t, tc.files, conf)
+
+			// setupTemplate points conf.TemplateDir to the temporary directory
+			expect := fail.New(
+				tc.errPos,
+				filepath.Join(conf.TemplateDir, tc.errFile),
+				tc.origin,
+				tc.errMsg,
+				tc.errArgs...,
 			)
 
 			if tplFail != nil {
-				if err := compareFailures(tplFail, tc.err); err != nil {
+				if err := compareFailures(tplFail, expect); err != nil {
 					t.Fatal(err)
 				}
 				return
 			}
 
-			_, err := tpl.String("index", tc.data)
-			if err == nil {
+			_, failure := tpl.String("index", tc.data)
+			if failure == nil {
 				t.Fatalf("expected error, got none")
 			}
 
-			if err := compareFailures(err, tc.err); err != nil {
+			if err := compareFailures(failure, expect); err != nil {
 				t.Fatal(err)
 			}
 		})
@@ -347,7 +479,10 @@ func TestNewTemplate(t *testing.T) {
 
 func TestNewTemplate_WithAbsoluteTemplateDir(t *testing.T) {
 	// setupTemplate uses t.TempDir(), which is an absolute path
-	tpl := setupTemplate(t, []tplFile{{relPath: "index.tw", content: "hello"}}, nil)
+	tpl, err := setupTemplate(t, []tplFile{{relPath: "index.tw", content: "hello"}}, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	actual, failure := tpl.String("index", nil)
 	if failure != nil {
@@ -484,7 +619,10 @@ func TestLocateFiles_IgnoresNonTemplateFiles(t *testing.T) {
 		{relPath: "card.tw.html", content: "@end"},
 	}
 
-	tpl := setupTemplate(t, files, nil)
+	tpl, err := setupTemplate(t, files, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	actual, err := tpl.String("index", nil)
 	if err != nil {
@@ -824,7 +962,10 @@ func TestInsertAndReserveEscaping(t *testing.T) {
 
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
-			tpl := setupTemplate(t, tc.files, nil)
+			tpl, err := setupTemplate(t, tc.files, nil)
+			if err != nil {
+				t.Fatal(err)
+			}
 
 			actual, failure := tpl.String("index", nil)
 			assertOutput(t, actual, failure, tc.expect)
@@ -940,7 +1081,10 @@ func TestGlobalFuncRaw_InComponents(t *testing.T) {
 
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
-			tpl := setupTemplate(t, tc.files, nil)
+			tpl, err := setupTemplate(t, tc.files, nil)
+			if err != nil {
+				t.Fatal(err)
+			}
 
 			actual, failure := tpl.String("index", nil)
 			assertOutput(t, actual, failure, tc.expect)

@@ -126,7 +126,11 @@ func resetConfigAfterTest(t *testing.T) {
 // setupTemplate writes files into a temporary template directory and
 // creates a template from it. A nil conf uses the default config.
 // The global config is reset after the test.
-func setupTemplate(t *testing.T, files []tplFile, conf *config.Config) *textwire.Template {
+func setupTemplate(
+	t *testing.T,
+	files []tplFile,
+	conf *config.Config,
+) (*textwire.Template, *fail.Error) {
 	t.Helper()
 
 	resetConfigAfterTest(t)
@@ -151,12 +155,7 @@ func setupTemplate(t *testing.T, files []tplFile, conf *config.Config) *textwire
 
 	conf.TemplateDir = dir
 
-	tpl, failure := textwire.NewTemplate(conf)
-	if failure != nil {
-		t.Fatalf("failed to create template: %s", failure)
-	}
-
-	return tpl
+	return textwire.NewTemplate(conf)
 }
 
 func assertOutput(t *testing.T, actual string, failure *fail.Error, expect string) {

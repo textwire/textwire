@@ -16,7 +16,10 @@ func TestComponentDepth(t *testing.T) {
 			{relPath: "components/tree.tw", content: content},
 		}
 
-		tpl := setupTemplate(t, files, nil)
+		tpl, err := setupTemplate(t, files, nil)
+		if err != nil {
+			t.Fatal(err)
+		}
 
 		_, failure := tpl.String("index", nil)
 		assertDepthError(t, failure, "components/tree", config.DefaultMaxComponentDepth)
@@ -29,7 +32,10 @@ func TestComponentDepth(t *testing.T) {
 			{relPath: "components/pong.tw", content: "pong @component('~ping')@end"},
 		}
 
-		tpl := setupTemplate(t, files, &config.Config{MaxComponentDepth: 10})
+		tpl, err := setupTemplate(t, files, &config.Config{MaxComponentDepth: 10})
+		if err != nil {
+			t.Fatal(err)
+		}
 
 		_, failure := tpl.String("index", nil)
 		assertDepthError(t, failure, "components/ping", 10)
@@ -43,7 +49,10 @@ func TestComponentDepth(t *testing.T) {
 			{relPath: "components/icon.tw", content: "<i></i>"},
 		}
 
-		tpl := setupTemplate(t, files, &config.Config{MaxComponentDepth: 3})
+		tpl, err := setupTemplate(t, files, &config.Config{MaxComponentDepth: 3})
+		if err != nil {
+			t.Fatal(err)
+		}
 
 		actual, failure := tpl.String("index", nil)
 		assertOutput(t, actual, failure, "<div><span><i></i></span></div>")
@@ -57,7 +66,10 @@ func TestComponentDepth(t *testing.T) {
 			{relPath: "components/icon.tw", content: "<i></i>"},
 		}
 
-		tpl := setupTemplate(t, files, &config.Config{MaxComponentDepth: 2})
+		tpl, err := setupTemplate(t, files, &config.Config{MaxComponentDepth: 2})
+		if err != nil {
+			t.Fatal(err)
+		}
 
 		_, failure := tpl.String("index", nil)
 		assertDepthError(t, failure, "components/icon", 2)
@@ -70,7 +82,10 @@ func TestComponentDepth(t *testing.T) {
 			{relPath: "components/avatar.tw", content: "<img>"},
 		}
 
-		tpl := setupTemplate(t, files, &config.Config{MaxComponentDepth: 1})
+		tpl, err := setupTemplate(t, files, &config.Config{MaxComponentDepth: 1})
+		if err != nil {
+			t.Fatal(err)
+		}
 
 		_, failure := tpl.String("index", nil)
 		assertDepthError(t, failure, "components/avatar", 1)
@@ -105,7 +120,10 @@ func TestComponentDepth(t *testing.T) {
 			},
 		}
 
-		tpl := setupTemplate(t, files, &config.Config{MaxComponentDepth: 3})
+		tpl, err := setupTemplate(t, files, &config.Config{MaxComponentDepth: 3})
+		if err != nil {
+			t.Fatal(err)
+		}
 
 		actual, failure := tpl.String("index", map[string]any{"items": items})
 		expect := "<ul><li>Docs<ul><li>Guides<ul><li>Components</li></ul></li></ul></li><li>Blog</li></ul>"
@@ -118,7 +136,10 @@ func TestComponentDepth(t *testing.T) {
 			{relPath: "components/badge.tw", content: "x"},
 		}
 
-		tpl := setupTemplate(t, files, &config.Config{MaxComponentDepth: 1})
+		tpl, err := setupTemplate(t, files, &config.Config{MaxComponentDepth: 1})
+		if err != nil {
+			t.Fatal(err)
+		}
 
 		actual, failure := tpl.String("index", nil)
 		assertOutput(t, actual, failure, strings.Repeat("x", 50))
@@ -134,7 +155,10 @@ func TestComponentDepth(t *testing.T) {
 			{relPath: "components/avatar.tw", content: "x"},
 		}
 
-		tpl := setupTemplate(t, files, &config.Config{MaxComponentDepth: 2})
+		tpl, err := setupTemplate(t, files, &config.Config{MaxComponentDepth: 2})
+		if err != nil {
+			t.Fatal(err)
+		}
 
 		actual, failure := tpl.String("index", nil)
 		assertOutput(t, actual, failure, "[x][x][x]")
@@ -148,7 +172,10 @@ func TestComponentDepth(t *testing.T) {
 			{relPath: "components/node.tw", content: node},
 		}
 
-		tpl := setupTemplate(t, files, &config.Config{MaxComponentDepth: 1500})
+		tpl, err := setupTemplate(t, files, &config.Config{MaxComponentDepth: 1500})
+		if err != nil {
+			t.Fatal(err)
+		}
 
 		actual, failure := tpl.String("index", map[string]any{"limit": 1500})
 		assertOutput(t, actual, failure, strings.Repeat("x", 1500))
@@ -165,7 +192,10 @@ func TestComponentDepth(t *testing.T) {
 			{relPath: "components/node.tw", content: node},
 		}
 
-		tpl := setupTemplate(t, files, &config.Config{MaxComponentDepth: 3})
+		tpl, err := setupTemplate(t, files, &config.Config{MaxComponentDepth: 3})
+		if err != nil {
+			t.Fatal(err)
+		}
 
 		_, failure := tpl.String("index", map[string]any{"limit": 4})
 		assertDepthError(t, failure, "components/node", 3)
@@ -196,7 +226,10 @@ func TestComponentDepth_LimitBelowOneUsesDefault(t *testing.T) {
 		t.Run(
 			fmt.Sprintf("limit below 1 uses default, limit %d", configuredDepth),
 			func(t *testing.T) {
-				tpl := setupTemplate(t, files, &config.Config{MaxComponentDepth: configuredDepth})
+				tpl, err := setupTemplate(t, files, &config.Config{MaxComponentDepth: configuredDepth})
+				if err != nil {
+					t.Fatal(err)
+				}
 
 				// Recursing exactly to the default depth succeeds.
 				actual, failure := tpl.String("index", map[string]any{"limit": defaultDepth})
@@ -222,7 +255,10 @@ func TestComponentDepth_ConcurrentRendersDoNotShareDepth(t *testing.T) {
 		},
 	}
 
-	tpl := setupTemplate(t, files, &config.Config{MaxComponentDepth: 5})
+	tpl, err := setupTemplate(t, files, &config.Config{MaxComponentDepth: 5})
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	var wg sync.WaitGroup
 

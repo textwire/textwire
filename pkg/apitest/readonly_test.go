@@ -63,7 +63,10 @@ func TestReadonly_AssignmentFails(t *testing.T) {
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
 			files := []tplFile{{relPath: "index.tw", content: tc.content}}
-			tpl := setupTemplate(t, files, tc.conf)
+			tpl, err := setupTemplate(t, files, tc.conf)
+			if err != nil {
+				t.Fatal(err)
+			}
 
 			_, failure := tpl.String("index", nil)
 			assertReadOnlyValueError(t, failure)

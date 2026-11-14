@@ -354,7 +354,10 @@ func TestStandaloneTemplateWhitespace(t *testing.T) {
 
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
-			tpl := setupTemplate(t, tc.files, nil)
+			tpl, err := setupTemplate(t, tc.files, nil)
+			if err != nil {
+				t.Fatal(err)
+			}
 
 			actual, failure := tpl.String(tc.file, nil)
 			if failure != nil {

@@ -81,7 +81,10 @@ func TestGlobalData(t *testing.T) {
 		}
 
 		conf := &config.Config{GlobalData: map[string]any{"site": "textwire"}}
-		tpl := setupTemplate(t, files, conf)
+		tpl, err := setupTemplate(t, files, conf)
+		if err != nil {
+			t.Fatal(err)
+		}
 
 		actual, failure := tpl.String("index", nil)
 		assertOutput(t, actual, failure, "<h1>Home</h1>textwire")
@@ -94,7 +97,10 @@ func TestGlobalData(t *testing.T) {
 		}
 
 		conf := &config.Config{GlobalData: map[string]any{"site": "textwire"}}
-		tpl := setupTemplate(t, files, conf)
+		tpl, err := setupTemplate(t, files, conf)
+		if err != nil {
+			t.Fatal(err)
+		}
 
 		_, failure := tpl.String("index", nil)
 		assertReadOnlyValueError(t, failure)
@@ -107,7 +113,10 @@ func TestGlobalData(t *testing.T) {
 		}
 
 		conf := &config.Config{GlobalData: map[string]any{"site": "textwire"}}
-		tpl := setupTemplate(t, files, conf)
+		tpl, err := setupTemplate(t, files, conf)
+		if err != nil {
+			t.Fatal(err)
+		}
 
 		actual, failure := tpl.String("index", nil)
 		assertOutput(t, actual, failure, "<b>textwire</b>")
@@ -120,7 +129,10 @@ func TestGlobalData(t *testing.T) {
 		}
 
 		conf := &config.Config{GlobalData: map[string]any{"site": "textwire"}}
-		tpl := setupTemplate(t, files, conf)
+		tpl, err := setupTemplate(t, files, conf)
+		if err != nil {
+			t.Fatal(err)
+		}
 
 		_, failure := tpl.String("index", nil)
 		assertReadOnlyValueError(t, failure)
@@ -135,7 +147,10 @@ func TestGlobalData(t *testing.T) {
 			{relPath: "index.tw", content: `@each(u in global.users){{ u.name = "x" }}@end`},
 		}
 
-		tpl := setupTemplate(t, files, conf)
+		tpl, err := setupTemplate(t, files, conf)
+		if err != nil {
+			t.Fatal(err)
+		}
 
 		_, failure := tpl.String("index", nil)
 		assertReadOnlyValueError(t, failure)
@@ -153,7 +168,10 @@ func TestGlobalData_ConcurrentRenders(t *testing.T) {
 		{relPath: "write.tw", content: `{{ global.site = "x" }}`},
 	}
 
-	tpl := setupTemplate(t, files, conf)
+	tpl, err := setupTemplate(t, files, conf)
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	var wg sync.WaitGroup
 
