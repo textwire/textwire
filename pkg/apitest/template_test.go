@@ -1,11 +1,12 @@
 package apitest
 
 import (
-	"codeberg.org/textwire/textwire/v6"
 	"net/http"
 	"net/http/httptest"
 	"strings"
 	"testing"
+
+	"codeberg.org/textwire/textwire/v6"
 
 	"codeberg.org/textwire/textwire/v6/config"
 	"codeberg.org/textwire/textwire/v6/pkg/fail"
@@ -235,15 +236,14 @@ func TestNewTemplate(t *testing.T) {
 		return num * 2
 	}))
 
-	assertNoFailure(
-		t,
-		textwire.RegisterStrFunc("_secondLetterUpper", func(s string, args ...any) any {
-			if len(s) < 2 {
-				return s
-			}
-			return string(s[0]) + string(s[1]-32) + s[2:]
-		}),
-	)
+	err := textwire.RegisterStrFunc("_secondLetterUpper", func(s string, args ...any) any {
+		if len(s) < 2 {
+			return s
+		}
+		return string(s[0]) + string(s[1]-32) + s[2:]
+	})
+
+	assertNoFailure(t, err)
 
 	cases := []struct {
 		conf *config.Config
