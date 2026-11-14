@@ -82,53 +82,39 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 			errArgs: []any{"user", "unknown"},
 		},
 		{
-			name: "unknown-default-pass",
+			name: "unknown default @pass",
 			files: []tplFile{
 				{
 					relPath: "index.tw",
-					content: `@component("book", { title: "Harry Potter" })
-    <p>Some content is here</p>
-@end`,
+					content: `@component("book")<p>Harry Potter</p>@end`,
 				},
 				{
 					relPath: "book.tw",
-					content: `<div class="book">
-    <h2>{{ title }}</h2>
-    @slot("content")
-</div>
-`,
+					content: `@slot("content")`,
 				},
 			},
 			data:    nil,
 			errFile: "index.tw",
-			errPos:  &position.Pos{StartLine: 0, StartCol: 45, EndLine: 1, EndCol: 31},
+			errPos:  &position.Pos{StartCol: 18, EndCol: 36},
 			origin:  fail.OriginLink,
 			errMsg:  fail.ErrDefaultSlotNotDefined,
 			errArgs: []any{"book", "book"},
 		},
 		{
-			name: "duplicate-pass",
+			name: "duplicate @pass",
 			files: []tplFile{
 				{
 					relPath: "index.tw",
-					content: `@component("user", { name: "Anna" })
-    @pass("content")<p>Content 1</p>@end
-    @pass("content")<p>Content 2</p>@end
-@end
-`,
+					content: "@component('user')\n@pass('content')<p>1</p>@end\n@pass('content')<p>2</p>@end\n@end",
 				},
 				{
 					relPath: "user.tw",
-					content: `<div class="user">
-    <h2>{{ name }}</h2>
-    @slot("content")
-</div>
-`,
+					content: `@slot("content")`,
 				},
 			},
 			data:    nil,
 			errFile: "index.tw",
-			errPos:  &position.Pos{StartLine: 2, StartCol: 4, EndLine: 2, EndCol: 39},
+			errPos:  &position.Pos{StartLine: 2, StartCol: 6, EndLine: 2, EndCol: 14},
 			origin:  fail.OriginPars,
 			errMsg:  fail.ErrDuplicatePass,
 			errArgs: []any{"content", 2, "user"},
