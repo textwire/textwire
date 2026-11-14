@@ -154,14 +154,11 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 			errArgs: []any{"missing", "missing"},
 		},
 		{
-			name: "undefined-var-in-comp",
+			name: "undefined variable inside component file",
 			files: []tplFile{
 				{
 					relPath: "index.tw",
-					content: `@component("hero")
-    <h1>Title</h1>
-@end
-`,
+					content: "@component('hero')<h1>Title</h1>@end",
 				},
 				{relPath: "hero.tw", content: "{{ undefinedVar }}\n@slot"},
 			},
@@ -173,7 +170,7 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 			errArgs: []any{"undefinedVar"},
 		},
 		{
-			name: "undefined var inside layout",
+			name: "undefined variable inside layout",
 			files: []tplFile{
 				{relPath: "index.tw", content: `@use("base")`},
 				{
@@ -189,7 +186,7 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 			errArgs: []any{"undefinedVar"},
 		},
 		{
-			name: "undefined-use",
+			name: "undefined @use",
 			files: []tplFile{
 				{
 					relPath: "index.tw",
@@ -204,7 +201,7 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 			errArgs: []any{"undefined-layout"},
 		},
 		{
-			name: "undefined-var-in-nested-comp",
+			name: "undefined variable inside nested compoment file",
 			files: []tplFile{
 				{relPath: "index.tw", content: `@component('first', { name })@end`},
 				{relPath: "first.tw", content: `@component('second')@end`},
@@ -218,7 +215,7 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 			errArgs: []any{"name"},
 		},
 		{
-			name: "var-in-layout",
+			name: "undefined variable inside layout",
 			files: []tplFile{
 				{relPath: "index.tw", content: `@use('layout')`},
 				{relPath: "layout.tw", content: `<span>{{ fullName }}</span>`},
@@ -231,7 +228,7 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 			errArgs: []any{"fullName"},
 		},
 		{
-			name: "comp-calls-itself",
+			name: "component file calls itself recursively",
 			files: []tplFile{
 				{relPath: "index.tw", content: "@component('~tree')@end\n"},
 				{
@@ -247,7 +244,7 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 			errArgs: []any{"components/tree", config.DefaultMaxComponentDepth},
 		},
 		{
-			name: "comp-calls-each-other",
+			name: "component calls each other recursively",
 			files: []tplFile{
 				{relPath: "index.tw", content: "@component('~first')@end\n"},
 				{
@@ -267,7 +264,7 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 			errArgs: []any{"components/first", config.DefaultMaxComponentDepth},
 		},
 		{
-			name: "inserts-without-use",
+			name: "inserts without @use",
 			files: []tplFile{
 				{
 					relPath: "index.tw",
