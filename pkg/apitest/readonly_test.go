@@ -1,4 +1,4 @@
-package textwire
+package apitest
 
 import (
 	"testing"

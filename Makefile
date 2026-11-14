@@ -22,7 +22,7 @@ repl:
 
 .PHONY: cover
 cover:
-	@$(RUN) go test -coverprofile=coverage.out
+	@$(RUN) go test -coverpkg=./... -coverprofile=coverage.out ./...
 	@$(RUN) go tool cover -html=coverage.out -o coverage.html
 	@rm -f coverage.out
 	@echo "✅ Coverage written to coverage.html"

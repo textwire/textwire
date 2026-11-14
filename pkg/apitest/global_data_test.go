@@ -1,6 +1,7 @@
-package textwire
+package apitest
 
 import (
+	"codeberg.org/textwire/textwire/v6"
 	"fmt"
 	"sync"
 	"testing"
@@ -55,10 +56,9 @@ func TestGlobalData_UnsupportedValue(t *testing.T) {
 
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
-			prevConf := *userConf
-			t.Cleanup(func() { *userConf = prevConf })
+			resetConfigAfterTest(t)
 
-			_, failure := NewTemplate(&config.Config{
+			_, failure := textwire.NewTemplate(&config.Config{
 				GlobalData: map[string]any{"env": "dev", "auth": tc.auth},
 			})
 

@@ -1,6 +1,7 @@
-package textwire
+package apitest
 
 import (
+	"codeberg.org/textwire/textwire/v6"
 	"testing"
 
 	"codeberg.org/textwire/textwire/v6/pkg/fail"
@@ -10,13 +11,13 @@ func TestCustomFunc_UnsupportedStringResult(t *testing.T) {
 	returnsFunc := func(string, ...any) any { return unsupportedFunc }
 	returnsChan := func(string, ...any) any { return unsupportedChan }
 
-	assertNoFailure(t, RegisterStrFunc("_returnsFunc", returnsFunc))
-	assertNoFailure(t, RegisterStrFunc("_returnsChan", returnsChan))
+	assertNoFailure(t, textwire.RegisterStrFunc("_returnsFunc", returnsFunc))
+	assertNoFailure(t, textwire.RegisterStrFunc("_returnsChan", returnsChan))
 
-	_, failure := EvaluateString(`{{ "x"._returnsFunc() }}`, nil)
+	_, failure := textwire.EvaluateString(`{{ "x"._returnsFunc() }}`, nil)
 	assertUnsupportedResult(t, failure, unsupportedFunc)
 
-	_, failure = EvaluateString(`{{ "x"._returnsChan() }}`, nil)
+	_, failure = textwire.EvaluateString(`{{ "x"._returnsChan() }}`, nil)
 	assertUnsupportedResult(t, failure, unsupportedChan)
 }
 
@@ -24,13 +25,13 @@ func TestCustomFunc_UnsupportedArrayResult(t *testing.T) {
 	returnsFunc := func([]any, ...any) any { return unsupportedFunc }
 	returnsChan := func([]any, ...any) any { return unsupportedChan }
 
-	assertNoFailure(t, RegisterArrFunc("_returnsFunc", returnsFunc))
-	assertNoFailure(t, RegisterArrFunc("_returnsChan", returnsChan))
+	assertNoFailure(t, textwire.RegisterArrFunc("_returnsFunc", returnsFunc))
+	assertNoFailure(t, textwire.RegisterArrFunc("_returnsChan", returnsChan))
 
-	_, failure := EvaluateString(`{{ [1]._returnsFunc() }}`, nil)
+	_, failure := textwire.EvaluateString(`{{ [1]._returnsFunc() }}`, nil)
 	assertUnsupportedResult(t, failure, unsupportedFunc)
 
-	_, failure = EvaluateString(`{{ [1]._returnsChan() }}`, nil)
+	_, failure = textwire.EvaluateString(`{{ [1]._returnsChan() }}`, nil)
 	assertUnsupportedResult(t, failure, unsupportedChan)
 }
 
@@ -38,13 +39,13 @@ func TestCustomFunc_UnsupportedIntegerResult(t *testing.T) {
 	returnsFunc := func(int, ...any) any { return unsupportedFunc }
 	returnsChan := func(int, ...any) any { return unsupportedChan }
 
-	assertNoFailure(t, RegisterIntFunc("_returnsFunc", returnsFunc))
-	assertNoFailure(t, RegisterIntFunc("_returnsChan", returnsChan))
+	assertNoFailure(t, textwire.RegisterIntFunc("_returnsFunc", returnsFunc))
+	assertNoFailure(t, textwire.RegisterIntFunc("_returnsChan", returnsChan))
 
-	_, failure := EvaluateString(`{{ 1._returnsFunc() }}`, nil)
+	_, failure := textwire.EvaluateString(`{{ 1._returnsFunc() }}`, nil)
 	assertUnsupportedResult(t, failure, unsupportedFunc)
 
-	_, failure = EvaluateString(`{{ 1._returnsChan() }}`, nil)
+	_, failure = textwire.EvaluateString(`{{ 1._returnsChan() }}`, nil)
 	assertUnsupportedResult(t, failure, unsupportedChan)
 }
 
@@ -52,13 +53,13 @@ func TestCustomFunc_UnsupportedFloatResult(t *testing.T) {
 	returnsFunc := func(float64, ...any) any { return unsupportedFunc }
 	returnsChan := func(float64, ...any) any { return unsupportedChan }
 
-	assertNoFailure(t, RegisterFloatFunc("_returnsFunc", returnsFunc))
-	assertNoFailure(t, RegisterFloatFunc("_returnsChan", returnsChan))
+	assertNoFailure(t, textwire.RegisterFloatFunc("_returnsFunc", returnsFunc))
+	assertNoFailure(t, textwire.RegisterFloatFunc("_returnsChan", returnsChan))
 
-	_, failure := EvaluateString(`{{ 1.5._returnsFunc() }}`, nil)
+	_, failure := textwire.EvaluateString(`{{ 1.5._returnsFunc() }}`, nil)
 	assertUnsupportedResult(t, failure, unsupportedFunc)
 
-	_, failure = EvaluateString(`{{ 1.5._returnsChan() }}`, nil)
+	_, failure = textwire.EvaluateString(`{{ 1.5._returnsChan() }}`, nil)
 	assertUnsupportedResult(t, failure, unsupportedChan)
 }
 
@@ -66,13 +67,13 @@ func TestCustomFunc_UnsupportedBooleanResult(t *testing.T) {
 	returnsFunc := func(bool, ...any) any { return unsupportedFunc }
 	returnsChan := func(bool, ...any) any { return unsupportedChan }
 
-	assertNoFailure(t, RegisterBoolFunc("_returnsFunc", returnsFunc))
-	assertNoFailure(t, RegisterBoolFunc("_returnsChan", returnsChan))
+	assertNoFailure(t, textwire.RegisterBoolFunc("_returnsFunc", returnsFunc))
+	assertNoFailure(t, textwire.RegisterBoolFunc("_returnsChan", returnsChan))
 
-	_, failure := EvaluateString(`{{ true._returnsFunc() }}`, nil)
+	_, failure := textwire.EvaluateString(`{{ true._returnsFunc() }}`, nil)
 	assertUnsupportedResult(t, failure, unsupportedFunc)
 
-	_, failure = EvaluateString(`{{ true._returnsChan() }}`, nil)
+	_, failure = textwire.EvaluateString(`{{ true._returnsChan() }}`, nil)
 	assertUnsupportedResult(t, failure, unsupportedChan)
 }
 
@@ -80,13 +81,13 @@ func TestCustomFunc_UnsupportedObjectResult(t *testing.T) {
 	returnsFunc := func(map[string]any, ...any) any { return unsupportedFunc }
 	returnsChan := func(map[string]any, ...any) any { return unsupportedChan }
 
-	assertNoFailure(t, RegisterObjFunc("_returnsFunc", returnsFunc))
-	assertNoFailure(t, RegisterObjFunc("_returnsChan", returnsChan))
+	assertNoFailure(t, textwire.RegisterObjFunc("_returnsFunc", returnsFunc))
+	assertNoFailure(t, textwire.RegisterObjFunc("_returnsChan", returnsChan))
 
-	_, failure := EvaluateString(`{{ {a: 1}._returnsFunc() }}`, nil)
+	_, failure := textwire.EvaluateString(`{{ {a: 1}._returnsFunc() }}`, nil)
 	assertUnsupportedResult(t, failure, unsupportedFunc)
 
-	_, failure = EvaluateString(`{{ {a: 1}._returnsChan() }}`, nil)
+	_, failure = textwire.EvaluateString(`{{ {a: 1}._returnsChan() }}`, nil)
 	assertUnsupportedResult(t, failure, unsupportedChan)
 }
 
@@ -99,19 +100,19 @@ func TestCustomFunc_UnsupportedNestedResult(t *testing.T) {
 		return map[string]any{"nested": unsupportedChan}
 	}
 
-	assertNoFailure(t, RegisterStrFunc("_returnsNestedFunc", nestedFunc))
-	assertNoFailure(t, RegisterStrFunc("_returnsNestedChan", nestedChan))
+	assertNoFailure(t, textwire.RegisterStrFunc("_returnsNestedFunc", nestedFunc))
+	assertNoFailure(t, textwire.RegisterStrFunc("_returnsNestedChan", nestedChan))
 
-	_, failure := EvaluateString(`{{ "x"._returnsNestedFunc() }}`, nil)
+	_, failure := textwire.EvaluateString(`{{ "x"._returnsNestedFunc() }}`, nil)
 	assertUnsupportedResult(t, failure, unsupportedFunc)
 
-	_, failure = EvaluateString(`{{ "x"._returnsNestedChan() }}`, nil)
+	_, failure = textwire.EvaluateString(`{{ "x"._returnsNestedChan() }}`, nil)
 	assertUnsupportedResult(t, failure, unsupportedChan)
 }
 
 func TestCustomFunc(t *testing.T) {
 	t.Run("register for integer receiver", func(t *testing.T) {
-		err := RegisterIntFunc("_double", func(num int, args ...any) any {
+		err := textwire.RegisterIntFunc("_double", func(num int, args ...any) any {
 			return num * 2
 		})
 
@@ -123,7 +124,7 @@ func TestCustomFunc(t *testing.T) {
 	})
 
 	t.Run("register for float receiver", func(t *testing.T) {
-		err := RegisterFloatFunc("_double", func(num float64, args ...any) any {
+		err := textwire.RegisterFloatFunc("_double", func(num float64, args ...any) any {
 			return num * 2
 		})
 
@@ -135,7 +136,7 @@ func TestCustomFunc(t *testing.T) {
 	})
 
 	t.Run("register for array receiver", func(t *testing.T) {
-		err := RegisterArrFunc("_addNumber", func(arr []any, args ...any) any {
+		err := textwire.RegisterArrFunc("_addNumber", func(arr []any, args ...any) any {
 			firstArg := args[0].(int64)
 			arr = append(arr, firstArg)
 			return arr
@@ -149,7 +150,7 @@ func TestCustomFunc(t *testing.T) {
 	})
 
 	t.Run("register for object receiver", func(t *testing.T) {
-		err := RegisterObjFunc("_addProp", func(obj map[string]any, args ...any) any {
+		err := textwire.RegisterObjFunc("_addProp", func(obj map[string]any, args ...any) any {
 			key := args[0].(string)
 			value := args[1]
 			obj[key] = value
@@ -165,7 +166,7 @@ func TestCustomFunc(t *testing.T) {
 	})
 
 	t.Run("register for boolean receiver", func(t *testing.T) {
-		err := RegisterBoolFunc("_negate", func(b bool, args ...any) any {
+		err := textwire.RegisterBoolFunc("_negate", func(b bool, args ...any) any {
 			return !b
 		})
 		if err != nil {
@@ -176,7 +177,7 @@ func TestCustomFunc(t *testing.T) {
 	})
 
 	t.Run("register for string receiver", func(t *testing.T) {
-		err := RegisterStrFunc("_concat", func(s string, args ...any) any {
+		err := textwire.RegisterStrFunc("_concat", func(s string, args ...any) any {
 			arg1Value := args[0].(string)
 			arg2Value := args[1].(string)
 
@@ -191,7 +192,7 @@ func TestCustomFunc(t *testing.T) {
 	})
 
 	t.Run("registering already registered function", func(t *testing.T) {
-		err := RegisterStrFunc("_len", func(s string, args ...any) any {
+		err := textwire.RegisterStrFunc("_len", func(s string, args ...any) any {
 			return "some output"
 		})
 
@@ -200,7 +201,7 @@ func TestCustomFunc(t *testing.T) {
 		}
 
 		// Registering the same function again should return an error
-		err = RegisterStrFunc("_len", func(s string, args ...any) any {
+		err = textwire.RegisterStrFunc("_len", func(s string, args ...any) any {
 			return "some output"
 		})
 
@@ -216,7 +217,7 @@ func TestCustomFunc(t *testing.T) {
 	})
 
 	t.Run("redefining built-in function not working", func(t *testing.T) {
-		err := RegisterStrFunc("trim", func(s string, args ...any) any {
+		err := textwire.RegisterStrFunc("trim", func(s string, args ...any) any {
 			return "some output"
 		})
 
@@ -231,7 +232,7 @@ func TestCustomFunc(t *testing.T) {
 }
 
 func TestCustomStrFunc_RawArgArrivesUnescaped(t *testing.T) {
-	err := RegisterStrFunc("_returnsInput", func(s string, _ ...any) any {
+	err := textwire.RegisterStrFunc("_returnsInput", func(s string, _ ...any) any {
 		return s
 	})
 

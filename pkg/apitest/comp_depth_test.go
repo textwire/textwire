@@ -1,6 +1,7 @@
-package textwire
+package apitest
 
 import (
+	"codeberg.org/textwire/textwire/v6"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -18,12 +19,11 @@ type tplFile struct {
 }
 
 // setupTemplate writes files into a temporary template directory and
-// creates a template from it. The global config is restored after the test.
-func setupTemplate(t *testing.T, files []tplFile, conf *config.Config) *Template {
+// creates a template from it. The global config is reset after the test.
+func setupTemplate(t *testing.T, files []tplFile, conf *config.Config) *textwire.Template {
 	t.Helper()
 
-	prevConf := *userConf
-	t.Cleanup(func() { *userConf = prevConf })
+	resetConfigAfterTest(t)
 
 	dir := t.TempDir()
 
@@ -39,7 +39,7 @@ func setupTemplate(t *testing.T, files []tplFile, conf *config.Config) *Template
 
 	conf.TemplateDir = dir
 
-	tpl, failure := NewTemplate(conf)
+	tpl, failure := textwire.NewTemplate(conf)
 	if failure != nil {
 		t.Fatalf("failed to create template: %s", failure)
 	}

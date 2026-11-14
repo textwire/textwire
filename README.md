@@ -122,7 +122,7 @@ make check OCI='docker compose'
 ### Test Organization
 
 - Co-locate test files with source files (`parser_test.go` with `parser.go`)
-- Use `textwire/testdata/` for template test data
+- Use `pkg/apitest/testdata/` for template test data
 - Organize test data into `good/` and `bad/` subdirectories
 - Use descriptive test names that explain what is being tested
 
@@ -133,7 +133,7 @@ make check OCI='docker compose'
 
 ### Test Data
 
-- Store template examples in `textwire/testdata/`
+- Store template examples in `pkg/apitest/testdata/`
 - Use `.tw` extension
 - Include both valid and invalid examples for testing
 - Name test files descriptively (e.g., `if-statements.tw`)

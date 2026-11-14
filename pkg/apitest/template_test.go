@@ -1,6 +1,7 @@
-package textwire
+package apitest
 
 import (
+	"codeberg.org/textwire/textwire/v6"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -204,7 +205,7 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 
 	for _, tc := range cases {
 		t.Run(tc.dir, func(t *testing.T) {
-			tpl, tplFail := NewTemplate(
+			tpl, tplFail := textwire.NewTemplate(
 				&config.Config{TemplateDir: "testdata/bad/" + tc.dir},
 			)
 
@@ -228,15 +229,15 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 }
 
 func TestNewTemplate(t *testing.T) {
-	assertNoFailure(t, RegisterStrFunc("_wrapStr", func(s string, args ...any) any {
+	assertNoFailure(t, textwire.RegisterStrFunc("_wrapStr", func(s string, args ...any) any {
 		return "[" + s + "]"
 	}))
 
-	assertNoFailure(t, RegisterIntFunc("_twiceInt", func(num int, args ...any) any {
+	assertNoFailure(t, textwire.RegisterIntFunc("_twiceInt", func(num int, args ...any) any {
 		return num * 2
 	}))
 
-	assertNoFailure(t, RegisterStrFunc("_secondLetterUpper", func(s string, args ...any) any {
+	assertNoFailure(t, textwire.RegisterStrFunc("_secondLetterUpper", func(s string, args ...any) any {
 		if len(s) < 2 {
 			return s
 		}
@@ -321,7 +322,7 @@ func TestNewTemplate(t *testing.T) {
 	for _, tc := range cases {
 		t.Run(tc.dir, func(t *testing.T) {
 			tc.conf.TemplateDir = "testdata/good/before/" + tc.dir
-			tpl, tplFail := NewTemplate(tc.conf)
+			tpl, tplFail := textwire.NewTemplate(tc.conf)
 			if tplFail != nil {
 				t.Fatalf("error creating template: %q", tplFail)
 			}
@@ -355,7 +356,7 @@ func TestNewTemplate_WithAbsoluteTemplateDir(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	tpl, failure := NewTemplate(&config.Config{TemplateDir: templateDir})
+	tpl, failure := textwire.NewTemplate(&config.Config{TemplateDir: templateDir})
 	if failure != nil {
 		t.Fatal(failure)
 	}
@@ -408,7 +409,7 @@ func TestTemplateResponse(t *testing.T) {
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
 			tc.conf.TemplateDir += "testdata/good/before/" + tc.dir
-			tpl, failure := NewTemplate(tc.conf)
+			tpl, failure := textwire.NewTemplate(tc.conf)
 			if failure != nil {
 				t.Errorf("error creating template: %q", failure)
 				return
@@ -463,7 +464,7 @@ func TestTemplateResponse(t *testing.T) {
 }
 
 func TestTemplateResponseStatusCodes(t *testing.T) {
-	tpl, tplErr := NewTemplate(&config.Config{
+	tpl, tplErr := textwire.NewTemplate(&config.Config{
 		TemplateDir: "testdata/bad/undefined-var-in-comp",
 	})
 	if tplErr != nil {
@@ -509,7 +510,7 @@ func TestLocateFiles_IgnoresNonTemplateFiles(t *testing.T) {
 		}
 	}
 
-	tpl, failure := NewTemplate(&config.Config{TemplateDir: templateDir})
+	tpl, failure := textwire.NewTemplate(&config.Config{TemplateDir: templateDir})
 	if failure != nil {
 		t.Fatalf("unexpected template error: %s", failure)
 	}
@@ -525,7 +526,7 @@ func TestLocateFiles_IgnoresNonTemplateFiles(t *testing.T) {
 }
 
 func TestTwoTemplates(t *testing.T) {
-	tpl, tplErr := NewTemplate(&config.Config{
+	tpl, tplErr := textwire.NewTemplate(&config.Config{
 		TemplateDir: "testdata/good/before/two-templates",
 	})
 	if tplErr != nil {

@@ -1,6 +1,7 @@
-package textwire
+package apitest
 
 import (
+	"codeberg.org/textwire/textwire/v6"
 	"math"
 	"strings"
 	"testing"
@@ -227,7 +228,7 @@ func TestEvalStr(t *testing.T) {
 
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
-			actual, err := EvaluateString(tc.inp, tc.data)
+			actual, err := textwire.EvaluateString(tc.inp, tc.data)
 			if err != nil {
 				t.Errorf("error evaluating template: %s", err)
 			}
@@ -391,7 +392,7 @@ func TestDefinedGlobalFunc(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		res, err := EvaluateString(tc.inp, tc.data)
+		res, err := textwire.EvaluateString(tc.inp, tc.data)
 		if err != nil {
 			t.Fatalf("case %d: unexpected error: %s", tc.id, err)
 		}
@@ -532,7 +533,7 @@ func TestHasValueCallExpression(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		res, err := EvaluateString(tc.inp, tc.data)
+		res, err := textwire.EvaluateString(tc.inp, tc.data)
 		if err != nil {
 			t.Fatalf("case %d: unexpected error: %s", tc.id, err)
 		}
@@ -937,7 +938,7 @@ func TestErrorHandling(t *testing.T) {
 	}
 
 	for _, tc := range cases {
-		_, err := EvaluateString(tc.inp, tc.data)
+		_, err := textwire.EvaluateString(tc.inp, tc.data)
 		if err == nil {
 			t.Fatalf("expected error, got none")
 		}
@@ -996,7 +997,7 @@ func TestJSONEscaping(t *testing.T) {
 
 func TestDumpEscapesHTML(t *testing.T) {
 	t.Run("string value", func(t *testing.T) {
-		got, err := EvaluateString(`@dump(x)`, map[string]any{
+		got, err := textwire.EvaluateString(`@dump(x)`, map[string]any{
 			"x": `</span><script>alert(1)</script>`,
 		})
 		if err != nil {
@@ -1013,7 +1014,7 @@ func TestDumpEscapesHTML(t *testing.T) {
 	})
 
 	t.Run("object key and value", func(t *testing.T) {
-		got, err := EvaluateString(`@dump(x)`, map[string]any{
+		got, err := textwire.EvaluateString(`@dump(x)`, map[string]any{
 			"x": map[string]any{"<b>key</b>": "<i>value</i>"},
 		})
 		if err != nil {
@@ -1041,7 +1042,7 @@ func TestEvaluateFile(t *testing.T) {
 		return
 	}
 
-	actual, err := EvaluateFile(absPath, map[string]any{
+	actual, err := textwire.EvaluateFile(absPath, map[string]any{
 		"title":   "Textwire is Awesome",
 		"visible": true,
 	})

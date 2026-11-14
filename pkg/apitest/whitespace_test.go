@@ -1,6 +1,7 @@
-package textwire
+package apitest
 
 import (
+	"codeberg.org/textwire/textwire/v6"
 	"os"
 	"path/filepath"
 	"strings"
@@ -272,7 +273,7 @@ func TestStandaloneControlDirectiveWhitespace(t *testing.T) {
 
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
-			actual, failure := EvaluateString(tc.inp, tc.data)
+			actual, failure := textwire.EvaluateString(tc.inp, tc.data)
 			if failure != nil {
 				t.Fatalf("evaluation failed: %s", failure)
 			}
@@ -344,7 +345,7 @@ func TestStandaloneTemplateWhitespace(t *testing.T) {
 			dir := t.TempDir()
 			writeTemplateFiles(t, dir, tc.files)
 
-			tpl, failure := NewTemplate(&config.Config{TemplateDir: dir})
+			tpl, failure := textwire.NewTemplate(&config.Config{TemplateDir: dir})
 			if failure != nil {
 				t.Fatalf("template creation failed: %s", failure)
 			}
@@ -362,7 +363,7 @@ func TestStandaloneTemplateWhitespace(t *testing.T) {
 }
 
 func TestStandaloneDumpDirectiveWhitespace(t *testing.T) {
-	actual, failure := EvaluateString("    @dump(1)   \nX\n", nil)
+	actual, failure := textwire.EvaluateString("    @dump(1)   \nX\n", nil)
 	if failure != nil {
 		t.Fatalf("evaluation failed: %s", failure)
 	}
