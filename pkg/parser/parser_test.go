@@ -1428,17 +1428,17 @@ func TestErrorHandling(t *testing.T) {
 		p.ParseProgram()
 
 		if !p.HasErrors() {
-			t.Fatalf("Case: %d. No errors found in input %q", tc.id, tc.inp)
+			t.Fatalf("case %d: no errors found in input %q", tc.id, tc.inp)
 		}
 
 		err := p.Errors()[0]
 		if err.String() != tc.err.String() {
-			t.Fatalf("Case: %d. Expect error message:\n%q\ngot:\n%q", tc.id, tc.err, err)
+			t.Fatalf("case %d: expect error message:\n%q\ngot:\n%q", tc.id, tc.err, err)
 		}
 
 		if !reflect.DeepEqual(err.Pos(), tc.err.Pos()) {
 			t.Fatalf(
-				"Case: %d. Wrong position on error message, expect %v, got: %v",
+				"case %d: wrong position on error message, expect %v, got: %v",
 				tc.id,
 				tc.err.Pos(),
 				err.Pos(),
@@ -1602,7 +1602,7 @@ func TestParseIfDir(t *testing.T) {
 
 		if len(ifDir.IfBlock.Chunks) != 1 {
 			t.Fatalf(
-				"ifDir.IfBlock.Chunks does not contain 1 chunk1, got %d",
+				"ifDir.IfBlock.Chunks does not contain 1 chunk, got %d",
 				len(ifDir.IfBlock.Chunks),
 			)
 		}
@@ -1656,7 +1656,7 @@ func TestParseIfElseIfDir(t *testing.T) {
 	_, ok := elseifDir.Block.Chunks[0].(*ast.Text)
 	if !ok {
 		t.Fatalf(
-			"elseifDir.Block.Chunks[0] is not an Text, got %T",
+			"elseifDir.Block.Chunks[0] is not a Text, got %T",
 			elseifDir.Block.Chunks[0],
 		)
 	}
@@ -1700,7 +1700,7 @@ func TestParseElseIfWithElseDir(t *testing.T) {
 	_, ok := elseifDir.Block.Chunks[0].(*ast.Text)
 	if !ok {
 		t.Fatalf(
-			"elseifDir.Block.Chunks[0] is not an Text, got %T",
+			"elseifDir.Block.Chunks[0] is not a Text, got %T",
 			elseifDir.Block.Chunks[0],
 		)
 	}
@@ -1761,7 +1761,7 @@ func TestParseAssignStmt(t *testing.T) {
 	for _, tc := range cases {
 		assignStmt, err := parseEmbedded[*ast.AssignStmt](tc.inp)
 		if err != nil {
-			t.Fatalf("Case: %d. %v", tc.id, err)
+			t.Fatalf("case %d: %v", tc.id, err)
 		}
 
 		err = testTokPosition(assignStmt.Pos(), &position.Pos{
@@ -1770,7 +1770,7 @@ func TestParseAssignStmt(t *testing.T) {
 		})
 
 		if err != nil {
-			t.Fatalf("Case: %d. %v", tc.id, err)
+			t.Fatalf("case %d: %v", tc.id, err)
 		}
 	}
 }
@@ -2075,7 +2075,7 @@ func TestParseGlobalCallExp(t *testing.T) {
 	}
 
 	if globalCallExpr.Name != ast.GlobalFuncName("defined") {
-		t.Fatalf("Global function name must be 'defined', bot '%s'", globalCallExpr.Name)
+		t.Fatalf("global function name must be 'defined', got '%s'", globalCallExpr.Name)
 	}
 
 	if err := testIdentExpr(globalCallExpr.Arguments[0], "var1"); err != nil {
@@ -2348,20 +2348,20 @@ func TestParseEmptyBlock(t *testing.T) {
 	for _, tc := range cases {
 		chunks, err := parseChunks(tc.inp, defaultParseOpts)
 		if err != nil {
-			t.Fatalf("Case: %d. %v", tc.id, err)
+			t.Fatalf("case %d: %v", tc.id, err)
 		}
 
 		node, ok := chunks[0].(ast.NodeWithChunks)
 		if !ok {
-			t.Fatalf("Case: %d. chunks[0] is not a NodeWithChunks, got %T", tc.id, chunks[0])
+			t.Fatalf("case %d: chunks[0] is not a NodeWithChunks, got %T", tc.id, chunks[0])
 		}
 
 		if err := testToken(node, tc.tok); err != nil {
-			t.Fatalf("Case: %d. %v", tc.id, err)
+			t.Fatalf("case %d: %v", tc.id, err)
 		}
 
 		if err = testTokPosition(node.Pos(), &position.Pos{EndCol: tc.endColPos}); err != nil {
-			t.Fatalf("Case: %d. %v", tc.id, err)
+			t.Fatalf("case %d: %v", tc.id, err)
 		}
 
 		if len(node.AllChunks()) != 0 {

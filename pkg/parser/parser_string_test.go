@@ -314,11 +314,11 @@ func TestOperatorPrecedenceString(t *testing.T) {
 		prog := p.ParseProgram()
 
 		if p.HasErrors() {
-			t.Fatalf("Case: %d. Parser error:  %v", tc.id, p.Errors()[0])
+			t.Fatalf("case %d: parser error: %v", tc.id, p.Errors()[0])
 		}
 
 		if err := testString(prog, tc.expect); err != nil {
-			t.Fatalf("Case: %d. %v", tc.id, err)
+			t.Fatalf("case %d: %v", tc.id, err)
 		}
 	}
 }

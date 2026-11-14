@@ -233,7 +233,7 @@ func TestEvalStr(t *testing.T) {
 			}
 
 			if actual != tc.expect {
-				t.Errorf("Wrong evaluation result. Expect:\n'%s'\ngot:\n'%s'", tc.expect, actual)
+				t.Errorf("wrong evaluation result. Expect:\n'%s'\ngot:\n'%s'", tc.expect, actual)
 			}
 		})
 	}
@@ -393,11 +393,11 @@ func TestDefinedGlobalFunc(t *testing.T) {
 	for _, tc := range cases {
 		res, err := EvaluateString(tc.inp, tc.data)
 		if err != nil {
-			t.Fatalf("Case: %d. We don't expect error but got %s", tc.id, err)
+			t.Fatalf("case %d: unexpected error: %s", tc.id, err)
 		}
 
 		if tc.expect != res {
-			t.Errorf("Case: %d. Wrong result. Expect: %q got: %q", tc.id, tc.expect, res)
+			t.Errorf("case %d: wrong result. Expect %q, got %q", tc.id, tc.expect, res)
 		}
 	}
 }
@@ -534,11 +534,11 @@ func TestHasValueCallExpression(t *testing.T) {
 	for _, tc := range cases {
 		res, err := EvaluateString(tc.inp, tc.data)
 		if err != nil {
-			t.Fatalf("Case: %d. We don't expect error but got %s", tc.id, err)
+			t.Fatalf("case %d: unexpected error: %s", tc.id, err)
 		}
 
 		if tc.expect != res {
-			t.Errorf("Case: %d. Wrong result. Expect: %q got: %q", tc.id, tc.expect, res)
+			t.Errorf("case %d: wrong result. Expect %q, got %q", tc.id, tc.expect, res)
 		}
 	}
 }
@@ -939,11 +939,11 @@ func TestErrorHandling(t *testing.T) {
 	for _, tc := range cases {
 		_, err := EvaluateString(tc.inp, tc.data)
 		if err == nil {
-			t.Fatalf("Expected error but got none")
+			t.Fatalf("expected error, got none")
 		}
 
 		if err.String() != tc.err.String() {
-			t.Errorf("Wrong error message. Expected:\n%q\ngot:\n%q", tc.err, err)
+			t.Errorf("wrong error message. Expected:\n%q\ngot:\n%q", tc.err, err)
 		}
 	}
 }
@@ -1037,7 +1037,7 @@ func TestDumpEscapesHTML(t *testing.T) {
 func TestEvaluateFile(t *testing.T) {
 	absPath, fileErr := file.ToFullPath("testdata/good/before/two-vars-no-use/index.tw")
 	if fileErr != nil {
-		t.Errorf("Error getting full path: %s", fileErr)
+		t.Errorf("error getting full path: %s", fileErr)
 		return
 	}
 
@@ -1047,16 +1047,16 @@ func TestEvaluateFile(t *testing.T) {
 	})
 
 	if err != nil {
-		t.Errorf("Error evaluating file: %q", err)
+		t.Errorf("error evaluating file: %q", err)
 	}
 
 	expect, err2 := readFile("testdata/good/expected/two-vars-no-use.html")
 	if err2 != nil {
-		t.Errorf("Error reading file: %q", err2)
+		t.Errorf("error reading file: %q", err2)
 		return
 	}
 
 	if actual != expect {
-		t.Errorf("Wrong output. Expect:\n%s\ngot:\n%s", expect, actual)
+		t.Errorf("wrong output. Expect:\n%s\ngot:\n%s", expect, actual)
 	}
 }

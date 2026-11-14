@@ -42,7 +42,7 @@ func assertValue(t *testing.T, inp any, expect Literal) {
 
 	got := NativeToValue(inp)
 	if !reflect.DeepEqual(got, expect) {
-		t.Fatalf("NativeToValue(%T)\n got: %#v\nwant: %#v", inp, got, expect)
+		t.Fatalf("NativeToValue(%T)\n got: %#v\nexpect: %#v", inp, got, expect)
 	}
 }
 
@@ -57,7 +57,7 @@ func assertErrorMessage(t *testing.T, inp any, expect string) {
 	}
 
 	if msg := errObj.Err.Message(); msg != expect {
-		t.Fatalf("error message\n got: %q\nwant: %q", msg, expect)
+		t.Fatalf("error message\n got: %q\nexpect: %q", msg, expect)
 	}
 }
 

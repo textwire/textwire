@@ -415,7 +415,7 @@ func TestSplitClusters(t *testing.T) {
 			got := splitClusters(tt.inp)
 
 			if !reflect.DeepEqual(got, tt.expect) {
-				t.Errorf("splitClusters(%q)\n got: %q\nwant: %q", tt.inp, got, tt.expect)
+				t.Errorf("splitClusters(%q)\n got: %q\nexpect: %q", tt.inp, got, tt.expect)
 			}
 
 			// Invariant: clusters must reassemble to exactly the input.

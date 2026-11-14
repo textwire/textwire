@@ -25,7 +25,7 @@ func assertNoFailure(t *testing.T, failure *fail.Error) {
 	t.Helper()
 
 	if failure != nil {
-		t.Fatalf("Error registering function: %s", failure)
+		t.Fatalf("error registering function: %s", failure)
 	}
 }
 
@@ -33,12 +33,12 @@ func assertUnsupportedResult(t *testing.T, failure *fail.Error, value any) {
 	t.Helper()
 
 	if failure == nil {
-		t.Fatal("Expected error for unsupported return type, got none")
+		t.Fatal("expected error for unsupported return type, got none")
 	}
 
-	want := fmt.Sprintf(fail.ErrUnsupportedType, fmt.Sprintf("%T", value))
-	if failure.Message() != want {
-		t.Fatalf("Wrong error message. Expect %q but got %q", want, failure.Message())
+	expect := fmt.Sprintf(fail.ErrUnsupportedType, fmt.Sprintf("%T", value))
+	if failure.Message() != expect {
+		t.Fatalf("wrong error message. Expect %q, got %q", expect, failure.Message())
 	}
 }
 
@@ -47,11 +47,11 @@ func assertEvalOutput(t *testing.T, inp string, data map[string]any, expect stri
 
 	actual, err := EvaluateString(inp, data)
 	if err != nil {
-		t.Fatalf("Error evaluating template: %s", err)
+		t.Fatalf("error evaluating template: %s", err)
 	}
 
 	if actual != expect {
-		t.Fatalf("Wrong result. Expect %q but got %q", expect, actual)
+		t.Fatalf("wrong result. Expect %q, got %q", expect, actual)
 	}
 }
 
@@ -184,10 +184,10 @@ func assertReadOnlyValueError(t *testing.T, failure *fail.Error) {
 	t.Helper()
 
 	if failure == nil {
-		t.Fatal("Expected read-only error, got none")
+		t.Fatal("expected read-only error, got none")
 	}
 
 	if failure.Message() != fail.ErrReadOnlyValue {
-		t.Fatalf("Wrong error message. Expect %q, got %q", fail.ErrReadOnlyValue, failure.Message())
+		t.Fatalf("wrong error message. Expect %q, got %q", fail.ErrReadOnlyValue, failure)
 	}
 }

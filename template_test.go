@@ -217,7 +217,7 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 
 			_, err := tpl.String("index", tc.data)
 			if err == nil {
-				t.Fatalf("Expected error but got none")
+				t.Fatalf("expected error, got none")
 			}
 
 			if err := compareFailures(err, tc.err); err != nil {
@@ -323,21 +323,21 @@ func TestNewTemplate(t *testing.T) {
 			tc.conf.TemplateDir = "testdata/good/before/" + tc.dir
 			tpl, tplFail := NewTemplate(tc.conf)
 			if tplFail != nil {
-				t.Fatalf("Error creating template: %q", tplFail)
+				t.Fatalf("error creating template: %q", tplFail)
 			}
 
 			actual, failure := tpl.String(tc.view, tc.data)
 			if failure != nil {
-				t.Fatalf("Error evaluating template: %q", failure)
+				t.Fatalf("error evaluating template: %q", failure)
 			}
 
 			expect, err := readFile("testdata/good/expected/" + tc.dir + ".html")
 			if err != nil {
-				t.Fatalf("Error reading file. Error: %s", err)
+				t.Fatalf("error reading file: %s", err)
 			}
 
 			if actual != expect {
-				t.Fatalf("Wrong result. Expect:\n'%s'\ngot:\n'%s'", expect, actual)
+				t.Fatalf("wrong result. Expect:\n'%s'\ngot:\n'%s'", expect, actual)
 			}
 		})
 	}
@@ -410,13 +410,13 @@ func TestTemplateResponse(t *testing.T) {
 			tc.conf.TemplateDir += "testdata/good/before/" + tc.dir
 			tpl, failure := NewTemplate(tc.conf)
 			if failure != nil {
-				t.Errorf("Error creating template: %q", failure)
+				t.Errorf("error creating template: %q", failure)
 				return
 			}
 
 			expect, err := readFile("testdata/good/expected/" + tc.dir + ".html")
 			if err != nil {
-				t.Fatalf("Error reading file. Error: %s", err)
+				t.Fatalf("error reading file: %s", err)
 			}
 
 			rr := httptest.NewRecorder()
@@ -425,23 +425,23 @@ func TestTemplateResponse(t *testing.T) {
 
 			if tc.err != nil {
 				if respErr == nil {
-					t.Fatalf("We expect error from response, got nil")
+					t.Fatalf("expected error from response, got nil")
 				}
 
 				if tc.err.String() != respErr.String() {
-					t.Fatalf("Wrong error message! Expect:\n%q\ngot:\n%q", tc.err, respErr)
+					t.Fatalf("wrong error message. Expect:\n%q\ngot:\n%q", tc.err, respErr)
 				}
 			}
 
 			if actual != expect {
-				t.Fatalf("Wrong result. Expect:\n'%s'\ngot:\n'%s'", expect, actual)
+				t.Fatalf("wrong result. Expect:\n'%s'\ngot:\n'%s'", expect, actual)
 			}
 
 			// Make sure you don't see error in actual response without debug mode
 			if !tc.conf.DebugMode && respErr != nil {
 				if contains := strings.Contains(actual, respErr.String()); contains {
 					t.Fatalf(
-						"Actual string should not contain error message. Actual:\n'%s'\nError msg:\n'%s'",
+						"actual string should not contain error message. Actual:\n'%s'\nError msg:\n'%s'",
 						actual,
 						respErr,
 					)
@@ -452,7 +452,7 @@ func TestTemplateResponse(t *testing.T) {
 			if tc.conf.DebugMode && respErr != nil {
 				if contains := strings.Contains(actual, respErr.String()); !contains {
 					t.Fatalf(
-						"Actual string should contain error message. Actual:\n'%s'\nError msg:\n'%s'",
+						"actual string should contain error message. Actual:\n'%s'\nError msg:\n'%s'",
 						actual,
 						respErr,
 					)
@@ -467,7 +467,7 @@ func TestTemplateResponseStatusCodes(t *testing.T) {
 		TemplateDir: "testdata/bad/undefined-var-in-comp",
 	})
 	if tplErr != nil {
-		t.Fatalf("Unexpected template error: %s", tplErr)
+		t.Fatalf("unexpected template error: %s", tplErr)
 	}
 
 	t.Run("render error returns 500", func(t *testing.T) {
@@ -529,39 +529,39 @@ func TestTwoTemplates(t *testing.T) {
 		TemplateDir: "testdata/good/before/two-templates",
 	})
 	if tplErr != nil {
-		t.Fatalf("Unexpected template error: %s", tplErr)
+		t.Fatalf("unexpected template error: %s", tplErr)
 	}
 
 	expectHome, homeFileErr := readFile("testdata/good/expected/two-templates-home.html")
 	if homeFileErr != nil {
-		t.Errorf("Error reading file: %s", homeFileErr)
+		t.Errorf("error reading file: %s", homeFileErr)
 		return
 	}
 
 	actualHome, evalHomeErr := tpl.String("home", map[string]any{"titleHome": "home"})
 	if evalHomeErr != nil {
-		t.Fatalf("Error evaluating home.tw template: %s", evalHomeErr)
+		t.Fatalf("error evaluating home.tw template: %s", evalHomeErr)
 	}
 
 	if actualHome != expectHome {
-		t.Errorf("Wrong result for home.tw. Expect\n'%s'\ngot:\n'%s'", expectHome, actualHome)
+		t.Errorf("wrong result for home.tw. Expect:\n'%s'\ngot:\n'%s'", expectHome, actualHome)
 	}
 
 	expectAbout, aboutFileErr := readFile(
 		"testdata/good/expected/two-templates-about.html",
 	)
 	if aboutFileErr != nil {
-		t.Errorf("Error reading file: %s", aboutFileErr)
+		t.Errorf("error reading file: %s", aboutFileErr)
 		return
 	}
 
 	actualAbout, evalAboutErr := tpl.String("about", map[string]any{"titleAbout": "about"})
 	if evalAboutErr != nil {
-		t.Fatalf("Error evaluating home.tw file template: %s", evalAboutErr)
+		t.Fatalf("error evaluating about.tw template: %s", evalAboutErr)
 	}
 
 	if actualAbout != expectAbout {
-		t.Errorf("Wrong result for about.tw. Expect:\n'%s'\ngot:\n'%s'", expectAbout, actualAbout)
+		t.Errorf("wrong result for about.tw. Expect:\n'%s'\ngot:\n'%s'", expectAbout, actualAbout)
 	}
 }
 

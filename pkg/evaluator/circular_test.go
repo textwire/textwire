@@ -68,12 +68,12 @@ func TestEvalCircularReference(t *testing.T) {
 	for _, tc := range cases {
 		evaluated, failure := testEval(tc.inp, nil)
 		if failure != nil {
-			t.Fatalf("Case: %s. evaluation failed: %s", tc.name, failure)
+			t.Fatalf("case %s: evaluation failed: %s", tc.name, failure)
 		}
 
 		err, ok := evaluated.(*value.Error)
 		if !ok {
-			t.Fatalf("Case: %s. expected circular reference error, got %q", tc.name, evaluated)
+			t.Fatalf("case %s: expected circular reference error, got %q", tc.name, evaluated)
 		}
 
 		expect := fail.New(
@@ -87,7 +87,7 @@ func TestEvalCircularReference(t *testing.T) {
 
 		if err.String() != expect.String() {
 			t.Fatalf(
-				"Case: %s. Error message must be:\n%q\ngot:\n%q",
+				"case %s: error message must be:\n%q\ngot:\n%q",
 				tc.name,
 				expect,
 				err,

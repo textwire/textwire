@@ -1150,22 +1150,22 @@ func TestFunctionGivesError(t *testing.T) {
 	for _, tc := range cases {
 		evaluated, failure := testEval(tc.inp, nil)
 		if failure != nil {
-			t.Fatalf("Case: %d. evaluation failed: %s", tc.id, failure)
+			t.Fatalf("case %d: evaluation failed: %s", tc.id, failure)
 		}
 
 		errObj, ok := evaluated.(*value.Error)
 
 		if !ok {
-			t.Fatalf("Case: %d. Evaluation failed: %s", tc.id, errObj.String())
+			t.Fatalf("case %d: evaluation failed: %s", tc.id, errObj.String())
 		}
 
 		if evaluated.Type() != value.ERR_VAL {
-			t.Fatalf("Case: %d. Expect object.ERR_OBJ, got=%T", tc.id, evaluated)
+			t.Fatalf("case %d: expect value.ERR_VAL, got %T", tc.id, evaluated)
 		}
 
 		if errObj.String() != tc.err.String() {
 			t.Fatalf(
-				"Case: %d. Expect error message=%q, got=%q",
+				"case %d: expect error message %q, got %q",
 				tc.id,
 				tc.err.String(),
 				errObj.String(),

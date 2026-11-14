@@ -32,7 +32,7 @@ func TestFloatToStr(t *testing.T) {
 	for _, tt := range tc {
 		t.Run(tt.name, func(t *testing.T) {
 			if actual := FloatToStr(tt.inp); actual != tt.expect {
-				t.Errorf("Expected %q but got %q", tt.expect, actual)
+				t.Errorf("expected %q, got %q", tt.expect, actual)
 			}
 		})
 	}

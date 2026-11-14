@@ -116,7 +116,7 @@ func TestCustomFunc(t *testing.T) {
 		})
 
 		if err != nil {
-			t.Fatalf("Error registering function: %s", err)
+			t.Fatalf("error registering function: %s", err)
 		}
 
 		assertEvalOutput(t, "{{ 3._double() }}", nil, "6")
@@ -128,7 +128,7 @@ func TestCustomFunc(t *testing.T) {
 		})
 
 		if err != nil {
-			t.Fatalf("Error registering function: %s", err)
+			t.Fatalf("error registering function: %s", err)
 		}
 
 		assertEvalOutput(t, "{{ 3.5._double() }}", nil, "7.0")
@@ -142,7 +142,7 @@ func TestCustomFunc(t *testing.T) {
 		})
 
 		if err != nil {
-			t.Fatalf("Error registering function: %s", err)
+			t.Fatalf("error registering function: %s", err)
 		}
 
 		assertEvalOutput(t, "{{ [1, 2]._addNumber(3) }}", nil, "1, 2, 3")
@@ -169,7 +169,7 @@ func TestCustomFunc(t *testing.T) {
 			return !b
 		})
 		if err != nil {
-			t.Fatalf("Error registering function: %s", err)
+			t.Fatalf("error registering function: %s", err)
 		}
 
 		assertEvalOutput(t, "{{ true._negate() }}", nil, "0")
@@ -184,7 +184,7 @@ func TestCustomFunc(t *testing.T) {
 		})
 
 		if err != nil {
-			t.Fatalf("Error registering function: %s", err)
+			t.Fatalf("error registering function: %s", err)
 		}
 
 		assertEvalOutput(t, "{{ 'anna'._concat(' ', 'cho') }}", nil, "anna cho")
@@ -196,7 +196,7 @@ func TestCustomFunc(t *testing.T) {
 		})
 
 		if err != nil {
-			t.Fatalf("Error registering function: %s", err)
+			t.Fatalf("error registering function: %s", err)
 		}
 
 		// Registering the same function again should return an error
@@ -205,7 +205,7 @@ func TestCustomFunc(t *testing.T) {
 		})
 
 		if err == nil {
-			t.Fatalf("Expect error but got none")
+			t.Fatalf("expect error, got none")
 		}
 
 		expect := fail.New(nil, "", fail.OriginTpl, fail.ErrFuncAlreadyDefined, "_len", "strings")
@@ -221,7 +221,7 @@ func TestCustomFunc(t *testing.T) {
 		})
 
 		if err != nil {
-			t.Fatalf("Error registering function: %s", err)
+			t.Fatalf("error registering function: %s", err)
 		}
 
 		// the output should be the same as the built-in function

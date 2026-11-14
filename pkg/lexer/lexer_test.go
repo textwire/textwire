@@ -625,7 +625,7 @@ func TestLineNumber(t *testing.T) {
 		}
 
 		if lastTok.Line() != tc.line {
-			t.Errorf("Expected line number %d, got %d", tc.line, lastTok.Line())
+			t.Errorf("expected line number %d, got %d", tc.line, lastTok.Line())
 		}
 	}
 }
@@ -675,7 +675,7 @@ func TestTokenPosition(t *testing.T) {
 
 		if targetTok.Pos.StartCol != pos.StartCol {
 			t.Errorf(
-				"Expected token %q StartCol: %d, got %d",
+				"expected token %q StartCol: %d, got %d",
 				targetTok.Lit,
 				pos.StartCol,
 				targetTok.Pos.StartCol,
@@ -684,7 +684,7 @@ func TestTokenPosition(t *testing.T) {
 
 		if targetTok.Pos.EndCol != pos.EndCol {
 			t.Errorf(
-				"Expected token %q EndCol: %d, got: %d",
+				"expected token %q EndCol: %d, got %d",
 				targetTok.Lit,
 				pos.EndCol,
 				targetTok.Pos.EndCol,
@@ -693,7 +693,7 @@ func TestTokenPosition(t *testing.T) {
 
 		if targetTok.Pos.EndLine != pos.EndLine {
 			t.Errorf(
-				"Expected token %q EndLine: %d, got: %d",
+				"expected token %q EndLine: %d, got %d",
 				targetTok.Lit,
 				pos.EndLine,
 				targetTok.Pos.EndLine,
@@ -702,7 +702,7 @@ func TestTokenPosition(t *testing.T) {
 
 		if targetTok.Pos.StartLine != pos.StartLine {
 			t.Errorf(
-				"Expected token %q StartLine: %d, got %d",
+				"expected token %q StartLine: %d, got %d",
 				targetTok.Lit,
 				pos.StartLine,
 				targetTok.Pos.StartLine,
@@ -717,11 +717,11 @@ func TestIsDirectiveToken(t *testing.T) {
 		l := New(inp)
 
 		if l.isDirectiveToken() {
-			t.Errorf("Expected %q not to be a directive token", inp)
+			t.Errorf("expected %q not to be a directive token", inp)
 		}
 
 		if l.isEscapedDirective() {
-			t.Errorf("Expected %q not to be escaped directive token", inp)
+			t.Errorf("expected %q not to be escaped directive token", inp)
 		}
 	})
 
@@ -730,11 +730,11 @@ func TestIsDirectiveToken(t *testing.T) {
 		l := New(inp)
 
 		if !l.isDirectiveToken() {
-			t.Errorf("Expected %q to be a directive token", inp)
+			t.Errorf("expected %q to be a directive token", inp)
 		}
 
 		if l.isEscapedDirective() {
-			t.Errorf("Expected %q not to be an escaped directive token", inp)
+			t.Errorf("expected %q not to be an escaped directive token", inp)
 		}
 	})
 
@@ -744,11 +744,11 @@ func TestIsDirectiveToken(t *testing.T) {
 		l.readChar() // skip the backslash
 
 		if l.isDirectiveToken() {
-			t.Errorf("Expected %q not to be a directive", inp)
+			t.Errorf("expected %q not to be a directive", inp)
 		}
 
 		if !l.isEscapedDirective() {
-			t.Errorf("Expected %q to be escaped directive", inp)
+			t.Errorf("expected %q to be escaped directive", inp)
 		}
 	})
 }
@@ -760,11 +760,11 @@ func TestAreBracesToken(t *testing.T) {
 
 		areBraces, escaped := l.areBracesToken()
 		if areBraces {
-			t.Errorf("Expected %q not to be braces", inp)
+			t.Errorf("expected %q not to be braces", inp)
 		}
 
 		if escaped {
-			t.Errorf("Expected %q not to be escaped braces", inp)
+			t.Errorf("expected %q not to be escaped braces", inp)
 		}
 	})
 
@@ -774,11 +774,11 @@ func TestAreBracesToken(t *testing.T) {
 
 		areBraces, escaped := l.areBracesToken()
 		if !areBraces {
-			t.Errorf("Expected %q to be braces token", inp)
+			t.Errorf("expected %q to be braces token", inp)
 		}
 
 		if escaped {
-			t.Errorf("Expected %q not to be escaped braces token", inp)
+			t.Errorf("expected %q not to be escaped braces token", inp)
 		}
 	})
 
@@ -789,11 +789,11 @@ func TestAreBracesToken(t *testing.T) {
 
 		areBraces, escaped := l.areBracesToken()
 		if areBraces {
-			t.Errorf("Expected %q not to be braces token", inp)
+			t.Errorf("expected %q not to be braces token", inp)
 		}
 
 		if !escaped {
-			t.Errorf("Expected %q to be escaped braces token", inp)
+			t.Errorf("expected %q to be escaped braces token", inp)
 		}
 	})
 }

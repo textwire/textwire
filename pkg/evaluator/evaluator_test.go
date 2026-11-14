@@ -39,24 +39,24 @@ func evaluationExpected(
 	data map[string]any,
 	name string,
 ) {
-	prefix := fmt.Sprintf("Case: %s. ", name)
+	prefix := fmt.Sprintf("case %s: ", name)
 	if name == "" {
 		prefix = ""
 	}
 
 	evaluated, failure := testEval(inp, data)
 	if failure != nil {
-		t.Fatalf("%sEvaluation failed: %s", prefix, failure)
+		t.Fatalf("%sevaluation failed: %s", prefix, failure)
 	}
 
 	errObj, ok := evaluated.(*value.Error)
 	if ok {
-		t.Fatalf("%sEvaluation failed: %s", prefix, errObj)
+		t.Fatalf("%sevaluation failed: %s", prefix, errObj)
 	}
 
 	res := evaluated.String()
 	if res != expect {
-		t.Fatalf("%sResult is not '%s', got '%s'", prefix, expect, res)
+		t.Fatalf("%sresult is not '%s', got '%s'", prefix, expect, res)
 	}
 }
 
@@ -458,17 +458,17 @@ func TestEvalBooleanExp(t *testing.T) {
 	for _, tc := range cases {
 		evaluated, failure := testEval(tc.inp, nil)
 		if failure != nil {
-			t.Fatalf("Case: %s. evaluation failed: %s", tc.name, failure)
+			t.Fatalf("case %s: evaluation failed: %s", tc.name, failure)
 		}
 
 		err, ok := evaluated.(*value.Error)
 		if ok {
-			t.Errorf("Case: %s. Evaluation failed: %s", tc.name, err)
+			t.Errorf("case %s: evaluation failed: %s", tc.name, err)
 			return
 		}
 
 		if res := evaluated.String(); res != tc.expect {
-			t.Errorf("Case: %s. Result is not %q, got %q", tc.name, tc.expect, res)
+			t.Errorf("case %s: result is not %q, got %q", tc.name, tc.expect, res)
 		}
 	}
 }
@@ -812,16 +812,16 @@ func TestEvalIfDir(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			evaluated, failure := testEval(tc.inp, nil)
 			if failure != nil {
-				t.Fatalf("Evaluation failed: %s", failure)
+				t.Fatalf("evaluation failed: %s", failure)
 			}
 
 			err, ok := evaluated.(*value.Error)
 			if ok {
-				t.Errorf("Evaluation failed: %s", err)
+				t.Errorf("evaluation failed: %s", err)
 			}
 
 			if res := strings.TrimSpace(evaluated.String()); res != tc.expect {
-				t.Errorf("Result is not %q, got %q", tc.expect, res)
+				t.Errorf("result is not %q, got %q", tc.expect, res)
 			}
 		})
 	}
@@ -2044,12 +2044,12 @@ func TestCannotUseOperatorError(t *testing.T) {
 	for _, tc := range cases {
 		evaluated, failure := testEval(tc.inp, nil)
 		if failure != nil {
-			t.Fatalf("Case: %s. evaluation failed: %s", tc.name, failure)
+			t.Fatalf("case %s: evaluation failed: %s", tc.name, failure)
 		}
 
 		err, ok := evaluated.(*value.Error)
 		if !ok {
-			t.Fatalf("Case: %s. Evaluation failed, got error %q", tc.name, err)
+			t.Fatalf("case %s: evaluation failed, got error %q", tc.name, err)
 		}
 
 		expect := fail.New(
@@ -2064,7 +2064,7 @@ func TestCannotUseOperatorError(t *testing.T) {
 		)
 
 		if err.String() != expect.String() {
-			t.Fatalf("Case: %s. Error message must be:\n%q\ngot:\n%q", tc.name, expect, err)
+			t.Fatalf("case %s: error message must be:\n%q\ngot:\n%q", tc.name, expect, err)
 		}
 	}
 }
