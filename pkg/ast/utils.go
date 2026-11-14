@@ -19,7 +19,7 @@ func CheckUnusedInserts(prog *Program, inserts map[string]*InsertDir) *fail.Erro
 			continue
 		}
 
-		pos := inserts[name].Pos()
+		pos := inserts[name].Name.Pos()
 		path := inserts[name].AbsPath
 		name := inserts[name].Name.Val
 
