@@ -237,12 +237,15 @@ func TestNewTemplate(t *testing.T) {
 		return num * 2
 	}))
 
-	assertNoFailure(t, textwire.RegisterStrFunc("_secondLetterUpper", func(s string, args ...any) any {
-		if len(s) < 2 {
-			return s
-		}
-		return string(s[0]) + string(s[1]-32) + s[2:]
-	}))
+	assertNoFailure(
+		t,
+		textwire.RegisterStrFunc("_secondLetterUpper", func(s string, args ...any) any {
+			if len(s) < 2 {
+				return s
+			}
+			return string(s[0]) + string(s[1]-32) + s[2:]
+		}),
+	)
 
 	cases := []struct {
 		conf *config.Config

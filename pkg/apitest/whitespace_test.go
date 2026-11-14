@@ -1,11 +1,10 @@
 package apitest
 
 import (
-	"codeberg.org/textwire/textwire/v6"
-	"os"
-	"path/filepath"
 	"strings"
 	"testing"
+
+	"codeberg.org/textwire/textwire/v6"
 
 	"codeberg.org/textwire/textwire/v6/config"
 )
@@ -343,7 +342,7 @@ func TestStandaloneTemplateWhitespace(t *testing.T) {
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
 			dir := t.TempDir()
-			writeTemplateFiles(t, dir, tc.files)
+			writeTemplates(t, dir, tc.files)
 
 			tpl, failure := textwire.NewTemplate(&config.Config{TemplateDir: dir})
 			if failure != nil {
@@ -374,15 +373,5 @@ func TestStandaloneDumpDirectiveWhitespace(t *testing.T) {
 
 	if !strings.HasSuffix(actual, "X\n") {
 		t.Fatalf("expect output to end with %q, got %q", "X\n", actual)
-	}
-}
-
-func writeTemplateFiles(t *testing.T, dir string, files map[string]string) {
-	t.Helper()
-
-	for name, body := range files {
-		if err := os.WriteFile(filepath.Join(dir, name), []byte(body), 0o600); err != nil {
-			t.Fatalf("cannot write template %s: %s", name, err)
-		}
 	}
 }

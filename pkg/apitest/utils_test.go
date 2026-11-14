@@ -5,6 +5,7 @@ import (
 	"io"
 	"log"
 	"os"
+	"path/filepath"
 	"reflect"
 	"testing"
 
@@ -17,6 +18,11 @@ var (
 	unsupportedFunc = func() {}
 	unsupportedChan = make(chan int)
 )
+
+type tplFile struct {
+	relPath string
+	content string
+}
 
 func assertNoFailure(t *testing.T, failure *fail.Error) {
 	t.Helper()
@@ -98,7 +104,16 @@ func readFile(fileName string) (string, error) {
 	return string(bytes), nil
 }
 
-// writeTemplate creates a file in a given location.
+func writeTemplates(t *testing.T, dir string, files map[string]string) {
+	t.Helper()
+
+	for name, body := range files {
+		if err := os.WriteFile(filepath.Join(dir, name), []byte(body), 0o600); err != nil {
+			t.Fatalf("cannot write template %s: %s", name, err)
+		}
+	}
+}
+
 func writeTemplate(t *testing.T, path, content string) {
 	t.Helper()
 
@@ -124,4 +139,58 @@ func assertReadOnlyValueError(t *testing.T, failure *fail.Error) {
 func resetConfigAfterTest(t *testing.T) {
 	t.Helper()
 	t.Cleanup(func() { textwire.Configure(config.New()) })
+}
+
+// setupTemplate writes files into a temporary template directory and
+// creates a template from it. The global config is reset after the test.
+func setupTemplate(t *testing.T, files []tplFile, conf *config.Config) *textwire.Template {
+	t.Helper()
+
+	resetConfigAfterTest(t)
+
+	dir := t.TempDir()
+
+	for _, f := range files {
+		path := filepath.Join(dir, filepath.FromSlash(f.relPath))
+
+		if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
+			t.Fatalf("failed to create directory for %s: %v", f.relPath, err)
+		}
+
+		writeTemplate(t, path, f.content)
+	}
+
+	conf.TemplateDir = dir
+
+	tpl, failure := textwire.NewTemplate(conf)
+	if failure != nil {
+		t.Fatalf("failed to create template: %s", failure)
+	}
+
+	return tpl
+}
+
+func assertOutput(t *testing.T, actual string, failure *fail.Error, expect string) {
+	t.Helper()
+
+	if failure != nil {
+		t.Fatalf("unexpected error: %s", failure)
+	}
+
+	if actual != expect {
+		t.Fatalf("wrong result. Expect %q, got %q", expect, actual)
+	}
+}
+
+func assertDepthError(t *testing.T, failure *fail.Error, compName string, maxDepth int) {
+	t.Helper()
+
+	if failure == nil {
+		t.Fatal("expected depth error, got none")
+	}
+
+	expect := fmt.Sprintf(fail.ErrMaxComponentDepth, compName, maxDepth)
+	if failure.Message() != expect {
+		t.Fatalf("wrong error message. Expect %q, got %q", expect, failure.Message())
+	}
 }

@@ -1,11 +1,12 @@
 package apitest
 
 import (
-	"codeberg.org/textwire/textwire/v6"
 	"math"
 	"strings"
 	"testing"
 	"time"
+
+	"codeberg.org/textwire/textwire/v6"
 
 	"codeberg.org/textwire/textwire/v6/pkg/fail"
 	"codeberg.org/textwire/textwire/v6/pkg/file"

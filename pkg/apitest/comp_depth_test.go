@@ -1,82 +1,18 @@
 package apitest
 
 import (
-	"codeberg.org/textwire/textwire/v6"
 	"fmt"
-	"os"
-	"path/filepath"
 	"strings"
 	"sync"
 	"testing"
 
 	"codeberg.org/textwire/textwire/v6/config"
-	"codeberg.org/textwire/textwire/v6/pkg/fail"
 )
-
-type tplFile struct {
-	relPath string
-	content string
-}
-
-// setupTemplate writes files into a temporary template directory and
-// creates a template from it. The global config is reset after the test.
-func setupTemplate(t *testing.T, files []tplFile, conf *config.Config) *textwire.Template {
-	t.Helper()
-
-	resetConfigAfterTest(t)
-
-	dir := t.TempDir()
-
-	for _, f := range files {
-		path := filepath.Join(dir, filepath.FromSlash(f.relPath))
-
-		if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
-			t.Fatalf("failed to create directory for %s: %v", f.relPath, err)
-		}
-
-		writeTemplate(t, path, f.content)
-	}
-
-	conf.TemplateDir = dir
-
-	tpl, failure := textwire.NewTemplate(conf)
-	if failure != nil {
-		t.Fatalf("failed to create template: %s", failure)
-	}
-
-	return tpl
-}
-
-func assertOutput(t *testing.T, actual string, failure *fail.Error, expect string) {
-	t.Helper()
-
-	if failure != nil {
-		t.Fatalf("unexpected error: %s", failure)
-	}
-
-	if actual != expect {
-		t.Fatalf("wrong result. Expect %q, got %q", expect, actual)
-	}
-}
-
-func assertDepthError(t *testing.T, failure *fail.Error, compName string, maxDepth int) {
-	t.Helper()
-
-	if failure == nil {
-		t.Fatal("expected depth error, got none")
-	}
-
-	expect := fmt.Sprintf(fail.ErrMaxComponentDepth, compName, maxDepth)
-	if failure.Message() != expect {
-		t.Fatalf("wrong error message. Expect %q, got %q", expect, failure.Message())
-	}
-}
 
 func TestComponentDepth(t *testing.T) {
 	t.Run("component hits default limit with error", func(t *testing.T) {
 		content := "@component('~tree')@end"
-		files := []tplFile{
-			{relPath: "index.tw", content: content},
+		files := []tplFile{{relPath: "index.tw", content: content},
 			{relPath: "components/tree.tw", content: content},
 		}
 
