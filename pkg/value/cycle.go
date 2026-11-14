@@ -34,7 +34,7 @@ func References(root, target Literal) bool {
 			return true
 		}
 
-		kids, ok := children(current)
+		kids, ok := childValues(current)
 		if !ok || seen[current] {
 			continue
 		}
@@ -56,7 +56,7 @@ func HasCycle(root Literal) bool {
 // elements are walked, so reaching it again means a cycle. Once marked done, it
 // can't be part of a cycle, so it's skipped.
 func cycleFrom(v Literal, state map[Literal]visitState) bool {
-	kids, ok := children(v)
+	kids, ok := childValues(v)
 	if !ok {
 		return false
 	}
@@ -81,23 +81,21 @@ func cycleFrom(v Literal, state map[Literal]visitState) bool {
 	return false
 }
 
-// children returns the elements of an array or the values of an object. Object
+// childValues returns the elements of an array or the values of an object. Object
 // keys are plain strings, so they aren't included. The boolean is false when v
 // isn't a non-nil array or object.
-func children(v Literal) ([]Literal, bool) {
+func childValues(v Literal) ([]Literal, bool) {
 	switch v := v.(type) {
 	case *Arr:
 		if v == nil {
 			return nil, false
 		}
 		return v.Elements, true
-
 	case *Obj:
 		if v == nil {
 			return nil, false
 		}
 		return objectValues(v), true
-
 	default:
 		return nil, false
 	}

@@ -11,7 +11,13 @@ import (
 )
 
 type Obj struct {
-	Pairs map[string]Literal
+	Pairs  map[string]Literal
+	frozen bool
+}
+
+// IsFrozen reports whether the object is read-only.
+func (o *Obj) IsFrozen() bool {
+	return o.frozen
 }
 
 func NewObj(pairs map[string]Literal) *Obj {

@@ -13,6 +13,9 @@
 - 🧑‍💻 BREAKING CHANGE! A component that includes itself, directly or through other components, now stops with an error instead of crashing the program with a stack overflow. The limit is how many components can render inside each other at the same time during one render, 500 by default. Components rendered one after another, like inside of a loop, don't count towards it. Change the limit with the new `MaxComponentDepth` config option.
 - 🧑‍💻 BREAKING CHANGE! The short form `@insert('title', title)` and the `@reserve('name', fallback)` fallback are now escaped the same way as `{{ }}`. Previously they printed the value raw, which allowed XSS when user data was passed this way. Use the block form with `{!! !!}` when raw output is needed. Closes [#156](https://codeberg.org/textwire/textwire/issues/156).
 - ✨ The file watcher now logs `refreshed <path>` when a template's content changes. Unchanged templates stay quiet.
+- 🧑‍💻 Writing to `global`, its properties, or a value aliased from it now returns an evaluation error instead of being silently ignored. Globals are frozen and read-only.
+- 🧑‍💻 BREAKING CHANGE! `GlobalData` is now converted once when `NewTemplate` is called, so later changes to the original map are not picked up. Unsupported values now fail in `NewTemplate` instead of at render time.
+- 🧑‍💻 BREAKING CHANGE! Public `pkg/` API changes: `evaluator.New` takes a third `global *value.Obj` argument, `value.NewScopeFromMap` takes a second `global *value.Obj` argument, and `Scope.AddGlobal` is removed. Pass `nil` to keep the previous behavior.
 
 ## [Release Notes V1](docs/CHANGELOG-V1.md)
 ## [Release Notes V2](docs/CHANGELOG-V2.md)

@@ -2,6 +2,7 @@ package textwire
 
 import (
 	"fmt"
+	"sync"
 	"testing"
 
 	"codeberg.org/textwire/textwire/v6/config"
@@ -54,23 +55,137 @@ func TestGlobalData_UnsupportedValue(t *testing.T) {
 
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
-			tpl, failure := NewTemplate(&config.Config{
-				TemplateDir: "testdata/bad/unsupported-global-data",
-				GlobalData:  map[string]any{"env": "dev", "auth": tc.auth},
+			prevConf := *userConf
+			t.Cleanup(func() { *userConf = prevConf })
+
+			_, failure := NewTemplate(&config.Config{
+				GlobalData: map[string]any{"env": "dev", "auth": tc.auth},
 			})
 
-			if failure != nil {
-				t.Fatalf("Unexpected template error: %s", failure)
-			}
-
-			_, failure = tpl.String("index", nil)
 			if failure == nil {
-				t.Fatal("Expected error for unsupported global data, got none")
+				t.Fatal("expected error for unsupported global data, got none")
 			}
 
 			if failure.Message() != tc.expect {
-				t.Fatalf("Wrong error message. Expect %q but got %q", tc.expect, failure.Message())
+				t.Fatalf("wrong error message. Expect %q but got %q", tc.expect, failure.Message())
 			}
 		})
 	}
+}
+
+func TestGlobalData(t *testing.T) {
+	t.Run("global is accessible inside layout", func(t *testing.T) {
+		files := []tplFile{
+			{relPath: "index.tw", content: `@use('layout')@insert('title', 'Home')`},
+			{relPath: "layout.tw", content: `<h1>@reserve('title')</h1>{{ global.site }}`},
+		}
+
+		conf := &config.Config{GlobalData: map[string]any{"site": "textwire"}}
+		tpl := setupTemplate(t, files, conf)
+
+		actual, failure := tpl.String("index", nil)
+		assertOutput(t, actual, failure, "<h1>Home</h1>textwire")
+	})
+
+	t.Run("writing to global inside layout triggers error", func(t *testing.T) {
+		files := []tplFile{
+			{relPath: "index.tw", content: `@use('layout')@insert('title', 'Home')`},
+			{relPath: "layout.tw", content: `<h1>@reserve('title')</h1>{{ global.site = "x" }}`},
+		}
+
+		conf := &config.Config{GlobalData: map[string]any{"site": "textwire"}}
+		tpl := setupTemplate(t, files, conf)
+
+		_, failure := tpl.String("index", nil)
+		assertReadOnlyValueError(t, failure)
+	})
+
+	t.Run("global is accessible inside component", func(t *testing.T) {
+		files := []tplFile{
+			{relPath: "index.tw", content: `@component('~header')@end`},
+			{relPath: "components/header.tw", content: `<b>{{ global.site }}</b>`},
+		}
+
+		conf := &config.Config{GlobalData: map[string]any{"site": "textwire"}}
+		tpl := setupTemplate(t, files, conf)
+
+		actual, failure := tpl.String("index", nil)
+		assertOutput(t, actual, failure, "<b>textwire</b>")
+	})
+
+	t.Run("writing to global inside component triggers error", func(t *testing.T) {
+		files := []tplFile{
+			{relPath: "index.tw", content: `@component('~header')@end`},
+			{relPath: "components/header.tw", content: `<b>{{ global.site = "x" }}</b>`},
+		}
+
+		conf := &config.Config{GlobalData: map[string]any{"site": "textwire"}}
+		tpl := setupTemplate(t, files, conf)
+
+		_, failure := tpl.String("index", nil)
+		assertReadOnlyValueError(t, failure)
+	})
+
+	t.Run("writing to global inside @each triggers error", func(t *testing.T) {
+		conf := &config.Config{GlobalData: map[string]any{
+			"users": []any{map[string]any{"name": "Alice"}},
+		}}
+
+		files := []tplFile{
+			{relPath: "index.tw", content: `@each(u in global.users){{ u.name = "x" }}@end`},
+		}
+
+		tpl := setupTemplate(t, files, conf)
+
+		_, failure := tpl.String("index", nil)
+		assertReadOnlyValueError(t, failure)
+	})
+}
+
+func TestGlobalData_ConcurrentRenders(t *testing.T) {
+	conf := &config.Config{GlobalData: map[string]any{
+		"site": "textwire",
+		"user": map[string]any{"name": "Alice"},
+	}}
+
+	files := []tplFile{
+		{relPath: "read.tw", content: `{{ global.site; global.user.name }}`},
+		{relPath: "write.tw", content: `{{ global.site = "x" }}`},
+	}
+
+	tpl := setupTemplate(t, files, conf)
+
+	var wg sync.WaitGroup
+
+	for range 20 {
+		wg.Go(func() {
+			actual, failure := tpl.String("read", nil)
+			if failure != nil {
+				t.Errorf("unexpected error: %s", failure)
+				return
+			}
+
+			if actual != "textwireAlice" {
+				t.Errorf("wrong result. Expect %q, got %q", "textwireAlice", actual)
+			}
+		})
+
+		wg.Go(func() {
+			_, failure := tpl.String("write", nil)
+			if failure == nil {
+				t.Error("expected read-only error, got none")
+				return
+			}
+
+			if failure.Message() != fail.ErrReadOnlyValue {
+				t.Errorf(
+					"wrong error message. Expect %q, got %q",
+					fail.ErrReadOnlyValue,
+					failure.Message(),
+				)
+			}
+		})
+	}
+
+	wg.Wait()
 }

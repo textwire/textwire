@@ -10,6 +10,12 @@ import (
 
 type Arr struct {
 	Elements []Literal
+	frozen   bool
+}
+
+// IsFrozen reports whether the array is read-only.
+func (a *Arr) IsFrozen() bool {
+	return a.frozen
 }
 
 func (*Arr) Type() ValueType {

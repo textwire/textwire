@@ -31,13 +31,19 @@ type Evaluator struct {
 	// when it finishes, so sibling components don't add up. A new Evaluator
 	// is created for every render, so renders don't share this counter.
 	compDepth int
+
+	// global is the frozen global value used by scopes the evaluator creates
+	// for layouts and components.
+	global *value.Obj
 }
 
-func New(customFunc *config.Func, conf *config.Config) *Evaluator {
+// New returns an evaluator. A nil global falls back to the shared empty one.
+func New(customFunc *config.Func, conf *config.Config, global *value.Obj) *Evaluator {
 	return &Evaluator{
 		customFunc:     customFunc,
 		config:         conf,
 		usingTemplates: conf != nil,
+		global:         global,
 	}
 }
 
@@ -323,6 +329,10 @@ func (e *Evaluator) assignArrIndexExp(
 	rightVal value.Literal,
 	ctx *Context,
 ) value.Literal {
+	if arr.IsFrozen() {
+		return e.newError(indexExpr, ctx, fail.ErrReadOnlyValue)
+	}
+
 	// Index must be integer
 	if !idx.Is(value.INT_VAL) {
 		return e.newError(indexExpr, ctx, fail.ErrArrIndexInt, idx.Type())
@@ -351,6 +361,10 @@ func (e *Evaluator) assignObjIndexExp(
 	rightVal value.Literal,
 	ctx *Context,
 ) value.Literal {
+	if obj.IsFrozen() {
+		return e.newError(indexExpr, ctx, fail.ErrReadOnlyValue)
+	}
+
 	if !idx.Is(value.STR_VAL) {
 		return e.newError(indexExpr, ctx, fail.ErrObjIndexStr, idx.Type())
 	}
@@ -386,6 +400,10 @@ func (e *Evaluator) assignDotExp(
 		return e.newError(dotExp, ctx, fail.ErrKeyOnNonObj, left.Type(), key)
 	}
 
+	if obj.IsFrozen() {
+		return e.newError(dotExp, ctx, fail.ErrReadOnlyValue)
+	}
+
 	if value.References(rightVal, obj) {
 		return e.circularAssignError(dotExp, rightExpr, ctx)
 	}
@@ -406,7 +424,7 @@ func (e *Evaluator) useDir(useDir *ast.UseDir, ctx *Context) value.Value {
 	e.usingUseDir = true
 
 	// Create new layout context and pass inserts to it
-	layoutCtx := NewContext(value.NewScope(), useDir.LayoutProg.AbsPath)
+	layoutCtx := NewContext(value.NewScope(e.global), useDir.LayoutProg.AbsPath)
 
 	// Make sure that layout is missing @use
 	if useDir.LayoutProg.IsLayout && useDir.LayoutProg.HasUseDir() {
@@ -466,7 +484,7 @@ func (e *Evaluator) compDir(compDir *ast.CompDir, ctx *Context) value.Value {
 		return e.newError(compDir, ctx, fail.ErrUndefinedComponent, name)
 	}
 
-	compCtx := NewContext(value.NewScope(), compDir.CompProg.AbsPath)
+	compCtx := NewContext(value.NewScope(e.global), compDir.CompProg.AbsPath)
 
 	if compCtx.slots[name] == nil {
 		compCtx.slots[name] = map[string]value.Value{}
@@ -828,12 +846,7 @@ func (e *Evaluator) dumpDir(dumpDir *ast.DumpDir, ctx *Context) value.Value {
 }
 
 func (e *Evaluator) identExpr(ident *ast.IdentExpr, ctx *Context) value.Literal {
-	varName := ident.Name
-	if varName == "global" && e.config != nil && e.config.GlobalData != nil {
-		return value.NativeToValue(e.config.GlobalData)
-	}
-
-	if val, ok := ctx.scope.Get(varName); ok {
+	if val, ok := ctx.scope.Get(ident.Name); ok {
 		return val
 	}
 

@@ -18,7 +18,7 @@ func testEval(inp string, data map[string]any) (value.Value, *fail.Error) {
 	p := parser.New(l, file.New("file", "to/file", "/path/to/file", nil))
 	prog := p.ParseProgram()
 
-	scope, failure := value.NewScopeFromMap(data)
+	scope, failure := value.NewScopeFromMap(data, nil)
 	if failure != nil {
 		return nil, failure
 	}
@@ -27,7 +27,7 @@ func testEval(inp string, data map[string]any) (value.Value, *fail.Error) {
 		return nil, p.Errors()[0]
 	}
 
-	e := New(&config.Func{}, nil)
+	e := New(&config.Func{}, nil, nil)
 	ctx := NewContext(scope, prog.AbsPath)
 
 	return e.Eval(prog, ctx), nil

@@ -152,12 +152,17 @@ func evalTpl[T string | *ast.Program](t *testing.T, input T) string {
 		prog = v
 	}
 
-	scope, failure := value.NewScopeFromMap(map[string]any{"name": "Kokomi"})
+	global, failure := value.NewFrozenGlobal(userConf.GlobalData)
+	if failure != nil {
+		t.Fatalf("failed to create global: %v", failure.Error())
+	}
+
+	scope, failure := value.NewScopeFromMap(map[string]any{"name": "Kokomi"}, global)
 	if failure != nil {
 		t.Fatalf("failed to create scope: %v", failure.Error())
 	}
 
-	e := evaluator.New(customFunc, userConf)
+	e := evaluator.New(customFunc, userConf, global)
 	evaluated := e.Eval(prog, evaluator.NewContext(scope, prog.AbsPath))
 	if evaluated.Is(value.ERR_VAL) {
 		t.Fatalf("failed to render program: %v", evaluated.(*value.Error).Err.Error())
@@ -172,5 +177,17 @@ func writeTemplate(t *testing.T, path, content string) {
 
 	if err := os.WriteFile(path, []byte(content), 0o644); err != nil {
 		t.Fatalf("failed to write template: %v", err)
+	}
+}
+
+func assertReadOnlyValueError(t *testing.T, failure *fail.Error) {
+	t.Helper()
+
+	if failure == nil {
+		t.Fatal("Expected read-only error, got none")
+	}
+
+	if failure.Message() != fail.ErrReadOnlyValue {
+		t.Fatalf("Wrong error message. Expect %q, got %q", fail.ErrReadOnlyValue, failure.Message())
 	}
 }

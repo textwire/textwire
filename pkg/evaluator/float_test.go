@@ -12,8 +12,8 @@ import (
 // like Go does: overflow goes to infinity, underflow goes to zero, and NaN
 // propagates, all without an error.
 func TestFloatInfixExp_MatchesGoArithmetic(t *testing.T) {
-	e := New(&config.Func{}, nil)
-	ctx := NewContext(value.NewScope(), "")
+	e := New(&config.Func{}, nil, nil)
+	ctx := NewContext(value.NewScope(nil), "")
 
 	cases := []struct {
 		name   string

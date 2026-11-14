@@ -611,6 +611,11 @@ func TestErrorHandling(t *testing.T) {
 			data: nil,
 		},
 		{
+			inp:  `{{ global.age = 20 }}`,
+			err:  fail.New(nil, "", fail.OriginEval, fail.ErrReadOnlyValue),
+			data: nil,
+		},
+		{
 			inp:  `{{ raw() }}`,
 			err:  fail.New(nil, "", fail.OriginPars, fail.ErrGlobalFuncFewArgs, "raw", 1, 0),
 			data: nil,

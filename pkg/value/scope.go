@@ -12,19 +12,22 @@ type Scope struct {
 	parent *Scope
 }
 
-func NewScope() *Scope {
-	vars := map[string]Literal{}
-	vars["global"] = NewObj(nil)
+// NewScope returns a scope with global value.
+// A nil global falls back to the shared empty one.
+func NewScope(global *Obj) *Scope {
+	if global == nil {
+		global = emptyGlobal
+	}
 
-	return &Scope{vars: vars}
+	return &Scope{vars: map[string]Literal{"global": global}}
 }
 
 func NewChildScope(parent *Scope) *Scope {
 	return &Scope{vars: map[string]Literal{}, parent: parent}
 }
 
-func NewScopeFromMap(data map[string]any) (*Scope, *fail.Error) {
-	scope := NewScope()
+func NewScopeFromMap(data map[string]any, global *Obj) (*Scope, *fail.Error) {
+	scope := NewScope(global)
 
 	for key, val := range data {
 		obj := NativeToValue(val)
@@ -41,11 +44,15 @@ func NewScopeFromMap(data map[string]any) (*Scope, *fail.Error) {
 }
 
 func (e *Scope) Get(name string) (Literal, bool) {
-	obj, ok := e.vars[name]
-	if !ok && e.parent != nil {
-		obj, ok = e.parent.Get(name)
+	if val, ok := e.vars[name]; ok {
+		return val, true
 	}
-	return obj, ok
+
+	if e.parent != nil {
+		return e.parent.Get(name)
+	}
+
+	return nil, false
 }
 
 func (e *Scope) Set(key string, val Literal) error {
@@ -92,34 +99,6 @@ func (e *Scope) SetLoopVariable(key string, val Literal) error {
 
 func (e *Scope) SetLoopVar(pairs map[string]Literal) {
 	e.vars["loop"] = NewObj(pairs)
-}
-
-func (e *Scope) AddGlobal(key string, val any) *fail.Error {
-	lit := NativeToValue(val)
-	if errObj, ok := lit.(*Error); ok {
-		return errObj.Err
-	}
-
-	var globalObj *Obj
-
-	switch v := e.vars["global"].(type) {
-	case *Obj:
-		globalObj = v
-	case nil:
-		globalObj = NewObj(nil)
-		e.vars["global"] = globalObj
-	default:
-		globalObj = NewObj(nil)
-		e.vars["global"] = globalObj
-	}
-
-	// Ensure Pairs map is initialized
-	if globalObj.Pairs == nil {
-		globalObj.Pairs = map[string]Literal{}
-	}
-
-	globalObj.Pairs[key] = lit
-	return nil
 }
 
 func (e *Scope) isTypeMismatch(key string, val Value) (Value, bool) {

@@ -23,6 +23,7 @@ const (
 // template files will be evaluated by String() or Response() methods.
 type Template struct {
 	linker *linker.NodeLinker
+	global *value.Obj
 }
 
 // NewTemplate returns a new Template instance with parsed Textwire files
@@ -30,6 +31,11 @@ type Template struct {
 // for evaluating Textwire in your handlers.
 func NewTemplate(opt *config.Config) (*Template, *fail.Error) {
 	Configure(opt)
+
+	global, failure := value.NewFrozenGlobal(userConf.GlobalData)
+	if failure != nil {
+		return nil, failure
+	}
 
 	files, err := locateFiles()
 	if err != nil {
@@ -46,7 +52,10 @@ func NewTemplate(opt *config.Config) (*Template, *fail.Error) {
 		return nil, failure
 	}
 
-	tpl := &Template{linker: ln}
+	tpl := &Template{
+		linker: ln,
+		global: global,
+	}
 
 	if userConf.FileWatcher {
 		newFileWatcher(ln).Watch()
@@ -65,7 +74,7 @@ func (t *Template) String(name string, data map[string]any) (string, *fail.Error
 		return "", linkErr
 	}
 
-	scope, err := value.NewScopeFromMap(data)
+	scope, err := value.NewScopeFromMap(data, t.global)
 	if err != nil {
 		return "", err
 	}
@@ -77,7 +86,7 @@ func (t *Template) String(name string, data map[string]any) (string, *fail.Error
 		return "", fail.New(nil, relPath, fail.OriginTpl, fail.ErrTemplateNotFound, name)
 	}
 
-	e := evaluator.New(customFunc, userConf)
+	e := evaluator.New(customFunc, userConf, t.global)
 	ctx := evaluator.NewContext(scope, prog.AbsPath)
 	evaluated := e.Eval(prog, ctx)
 	if evaluated.Is(value.ERR_VAL) {
