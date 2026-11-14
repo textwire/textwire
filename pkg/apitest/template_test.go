@@ -120,67 +120,38 @@ func TestErrorHandlingEvaluatingTemplate(t *testing.T) {
 			errArgs: []any{"content", 2, "user"},
 		},
 		{
-			name: "unknown-comp",
+			name: "unknown @component",
 			files: []tplFile{
 				{
 					relPath: "index.tw",
-					content: `<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-<body>
-    @component('unknown-name')@end
-</body>
-</html>
-`,
+					content: "@component('unknown-name')@end",
 				},
 			},
 			data:    nil,
 			errFile: "index.tw",
-			errPos:  &position.Pos{StartLine: 8, StartCol: 4, EndLine: 8, EndCol: 33},
+			errPos:  &position.Pos{StartCol: 11, EndCol: 24},
 			origin:  fail.OriginLink,
 			errMsg:  fail.ErrUndefinedComponent,
 			errArgs: []any{"unknown-name"},
 		},
 		{
-			name: "undefined-insert",
+			name: "undefined @insert",
 			files: []tplFile{
 				{
 					relPath: "index.tw",
-					content: `@use('layout')
-
-@insert('title', 'Some title')
-
-@insert('some-name')
-<h1>Some title is here</h1>
-@end
-`,
+					content: "@use('layout')\n@insert('missing', 'Study')",
 				},
 				{
 					relPath: "layout.tw",
-					content: `<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@reserve('title')</title>
-</head>
-<body>
-    @reserve('main')
-</body>
-</html>
-`,
+					content: "@reserve('title')@reserve('main')",
 				},
 			},
 			data:    nil,
 			errFile: "index.tw",
-			errPos:  &position.Pos{StartLine: 4, EndLine: 6, EndCol: 3},
+			errPos:  &position.Pos{StartLine: 1, EndLine: 1, StartCol: 8, EndCol: 16},
 			origin:  fail.OriginLink,
 			errMsg:  fail.ErrUnusedInsertDetected,
-			errArgs: []any{"some-name", "some-name"},
+			errArgs: []any{"missing", "missing"},
 		},
 		{
 			name: "undefined-var-in-comp",
