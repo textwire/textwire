@@ -243,11 +243,21 @@ func TestTemplateResponse(t *testing.T) {
 }
 
 func TestTemplateResponseStatusCodes(t *testing.T) {
-	tpl, tplErr := textwire.NewTemplate(&config.Config{
-		TemplateDir: "testdata/bad/undefined-var-in-comp",
-	})
-	if tplErr != nil {
-		t.Fatalf("unexpected template error: %s", tplErr)
+	conf := &config.Config{}
+	files := []tplFile{
+		{
+			relPath: "index.tw",
+			content: "@component('hero')<h1>Title</h1>@end",
+		},
+		{
+			relPath: "hero.tw",
+			content: "{{ undefinedVar }}@slot",
+		},
+	}
+
+	tpl, failure := setupTemplate(t, files, conf)
+	if failure != nil {
+		t.Fatalf("unexpected template error: %s", failure)
 	}
 
 	t.Run("render error returns 500", func(t *testing.T) {

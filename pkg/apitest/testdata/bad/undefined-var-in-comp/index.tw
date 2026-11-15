@@ -1,3 +1,0 @@
-@component("hero")
-    <h1>Title</h1>
-@end
