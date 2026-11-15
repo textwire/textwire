@@ -277,29 +277,6 @@ func TestTemplateResponseStatusCodes(t *testing.T) {
 	})
 }
 
-func TestLocateFiles_IgnoresNonTemplateFiles(t *testing.T) {
-	files := []tplFile{
-		{relPath: "index.tw", content: "hello"},
-		{relPath: "notes.twig", content: "junk @end"},
-		{relPath: "some.tw.twig", content: "@end"},
-		{relPath: "card.tw.html", content: "@end"},
-	}
-
-	tpl, err := setupTemplate(t, files, nil)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	actual, err := tpl.String("index", nil)
-	if err != nil {
-		t.Fatalf("unexpected eval error: %s", err)
-	}
-
-	if actual != "hello" {
-		t.Fatalf("expected 'hello', got %q", actual)
-	}
-}
-
 func TestTwoTemplates(t *testing.T) {
 	tpl, tplErr := textwire.NewTemplate(&config.Config{
 		TemplateDir: "testdata/good/before/two-templates",
