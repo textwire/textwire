@@ -58,4 +58,4 @@ todo:
 .PHONY: check
 check: test line fmt lint todo
 
-.DEFAULT_GOAL := test
+.DEFAULT_GOAL := check
