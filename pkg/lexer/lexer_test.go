@@ -1002,54 +1002,65 @@ func TestSlotDirective(t *testing.T) {
 
 // Comments should be ignored by the lexer
 func TestComments(t *testing.T) {
-	t.Run("Simple comment", func(t *testing.T) {
-		inp := `<div>{{-- This is a comment --}}</div>`
-
-		TokenizeString(t, inp, []token.Token{
-			{Type: token.TEXT, Lit: "<div>", Pos: &position.Pos{EndCol: 4}},
-			{Type: token.TEXT, Lit: "</div>", Pos: &position.Pos{StartCol: 32, EndCol: 37}},
-			{Type: token.EOF, Lit: "", Pos: &position.Pos{StartCol: 38, EndCol: 38}},
-		})
-	})
-
-	t.Run("Comment with braces inside", func(t *testing.T) {
-		inp := `{{-- {{ --}}`
-		TokenizeString(t, inp, []token.Token{
-			{Type: token.EOF, Lit: "", Pos: &position.Pos{StartCol: 12, EndCol: 12}},
-		})
-	})
-
-	t.Run("Directive with comment", func(t *testing.T) {
-		inp := `{{-- @each(u in users){{ u }}@end --}}`
-		TokenizeString(t, inp, []token.Token{
-			{Type: token.EOF, Lit: "", Pos: &position.Pos{StartCol: 38, EndCol: 38}},
-		})
-	})
-
-	t.Run("Nested comment", func(t *testing.T) {
-		inp := `{{-- Contains {{-- and --}} inside --}}`
-		TokenizeString(t, inp, []token.Token{
-			{Type: token.EOF, Lit: "", Pos: &position.Pos{StartCol: 39, EndCol: 39}},
-		})
-	})
-
-	t.Run("Standalone comment line is left out of text", func(t *testing.T) {
-		inp := "<div>\n    {{-- comment --}}\n</div>"
-
-		TokenizeString(t, inp, []token.Token{
-			{Type: token.TEXT, Lit: "<div>\n", Pos: &position.Pos{EndLine: 1, EndCol: 3}},
-			{
-				Type: token.TEXT,
-				Lit:  "</div>",
-				Pos:  &position.Pos{StartLine: 1, StartCol: 21, EndLine: 2, EndCol: 5},
+	cases := []struct {
+		name   string
+		inp    string
+		expect []token.Token
+	}{
+		{
+			name: "simple comment",
+			inp:  `<div>{{-- This is a comment --}}</div>`,
+			expect: []token.Token{
+				{Type: token.TEXT, Lit: "<div>", Pos: &position.Pos{EndCol: 4}},
+				{Type: token.TEXT, Lit: "</div>", Pos: &position.Pos{StartCol: 32, EndCol: 37}},
+				{Type: token.EOF, Lit: "", Pos: &position.Pos{StartCol: 38, EndCol: 38}},
 			},
-			{
-				Type: token.EOF,
-				Lit:  "",
-				Pos:  &position.Pos{StartLine: 2, StartCol: 6, EndLine: 2, EndCol: 6},
+		},
+		{
+			name: "comment with braces inside",
+			inp:  `{{-- {{ --}}`,
+			expect: []token.Token{
+				{Type: token.EOF, Lit: "", Pos: &position.Pos{StartCol: 12, EndCol: 12}},
 			},
+		},
+		{
+			name: "directive with comment",
+			inp:  `{{-- @each(u in users){{ u }}@end --}}`,
+			expect: []token.Token{
+				{Type: token.EOF, Lit: "", Pos: &position.Pos{StartCol: 38, EndCol: 38}},
+			},
+		},
+		{
+			name: "nested comment",
+			inp:  `{{-- Contains {{-- and --}} inside --}}`,
+			expect: []token.Token{
+				{Type: token.EOF, Lit: "", Pos: &position.Pos{StartCol: 39, EndCol: 39}},
+			},
+		},
+		{
+			name: "Standalone comment line is left out of text",
+			inp:  "<div>\n    {{-- comment --}}\n</div>",
+			expect: []token.Token{
+				{Type: token.TEXT, Lit: "<div>\n", Pos: &position.Pos{EndLine: 1, EndCol: 3}},
+				{
+					Type: token.TEXT,
+					Lit:  "</div>",
+					Pos:  &position.Pos{StartLine: 1, StartCol: 21, EndLine: 2, EndCol: 5},
+				},
+				{
+					Type: token.EOF,
+					Lit:  "",
+					Pos:  &position.Pos{StartLine: 2, StartCol: 6, EndLine: 2, EndCol: 6},
+				},
+			},
+		},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			TokenizeString(t, tc.inp, tc.expect)
 		})
-	})
+	}
 }
 
 func TestLexerCanReadIllegalDirectives(t *testing.T) {
