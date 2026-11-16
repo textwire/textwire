@@ -1,4 +1,4 @@
-<p align="center"><img src="/textwire/textwire/raw/branch/master/.forgejo/assets/textwire-logo.png" width="200" height="200" /></p>
+<p align="center"><img src="https://codeberg.org/textwire/textwire/raw/branch/master/.forgejo/assets/textwire-logo.png" width="200" height="200" /></p>
 
 # Textwire. A templating language for Go
 
