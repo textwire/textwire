@@ -123,7 +123,6 @@ make check OCI='docker compose'
 
 - Co-locate test files with source files (`parser_test.go` with `parser.go`)
 - Use `pkg/apitest/testdata/` for template test data
-- Organize test data into `good/` and `bad/` subdirectories
 - Use descriptive test names that explain what is being tested
 
 ### Test Patterns

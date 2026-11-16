@@ -110,7 +110,7 @@ func TestNewTemplate(t *testing.T) {
 
 	for _, tc := range cases {
 		t.Run(tc.dir, func(t *testing.T) {
-			tc.conf.TemplateDir = "testdata/good/before/" + tc.dir
+			tc.conf.TemplateDir = "testdata/before/" + tc.dir
 			tpl, tplFail := textwire.NewTemplate(tc.conf)
 			if tplFail != nil {
 				t.Fatalf("error creating template: %q", tplFail)
@@ -121,7 +121,7 @@ func TestNewTemplate(t *testing.T) {
 				t.Fatalf("error evaluating template: %q", failure)
 			}
 
-			expect, err := readFile("testdata/good/expected/" + tc.dir + ".html")
+			expect, err := readFile("testdata/expected/" + tc.dir + ".html")
 			if err != nil {
 				t.Fatalf("error reading file: %s", err)
 			}
@@ -152,7 +152,7 @@ func TestNewTemplate_WithAbsoluteTemplateDir(t *testing.T) {
 
 func TestTemplateResponse(t *testing.T) {
 	absPath, err := file.ToFullPath("")
-	absPath += "/testdata/good/before/"
+	absPath += "/testdata/before/"
 	if err != nil {
 		t.Errorf("unexpected error: %s", err)
 		return
@@ -187,14 +187,14 @@ func TestTemplateResponse(t *testing.T) {
 
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
-			tc.conf.TemplateDir += "testdata/good/before/" + tc.dir
+			tc.conf.TemplateDir += "testdata/before/" + tc.dir
 			tpl, failure := textwire.NewTemplate(tc.conf)
 			if failure != nil {
 				t.Errorf("error creating template: %q", failure)
 				return
 			}
 
-			expect, err := readFile("testdata/good/expected/" + tc.dir + ".html")
+			expect, err := readFile("testdata/expected/" + tc.dir + ".html")
 			if err != nil {
 				t.Fatalf("error reading file: %s", err)
 			}
@@ -279,13 +279,13 @@ func TestTemplateResponseStatusCodes(t *testing.T) {
 
 func TestTwoTemplates(t *testing.T) {
 	tpl, tplErr := textwire.NewTemplate(&config.Config{
-		TemplateDir: "testdata/good/before/two-templates",
+		TemplateDir: "testdata/before/two-templates",
 	})
 	if tplErr != nil {
 		t.Fatalf("unexpected template error: %s", tplErr)
 	}
 
-	expectHome, homeFileErr := readFile("testdata/good/expected/two-templates-home.html")
+	expectHome, homeFileErr := readFile("testdata/expected/two-templates-home.html")
 	if homeFileErr != nil {
 		t.Errorf("error reading file: %s", homeFileErr)
 		return
@@ -301,7 +301,7 @@ func TestTwoTemplates(t *testing.T) {
 	}
 
 	expectAbout, aboutFileErr := readFile(
-		"testdata/good/expected/two-templates-about.html",
+		"testdata/expected/two-templates-about.html",
 	)
 	if aboutFileErr != nil {
 		t.Errorf("error reading file: %s", aboutFileErr)

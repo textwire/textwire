@@ -1037,7 +1037,7 @@ func TestDumpEscapesHTML(t *testing.T) {
 }
 
 func TestEvaluateFile(t *testing.T) {
-	absPath, fileErr := file.ToFullPath("testdata/good/before/two-vars-no-use/index.tw")
+	absPath, fileErr := file.ToFullPath("testdata/before/two-vars-no-use/index.tw")
 	if fileErr != nil {
 		t.Errorf("error getting full path: %s", fileErr)
 		return
@@ -1052,7 +1052,7 @@ func TestEvaluateFile(t *testing.T) {
 		t.Errorf("error evaluating file: %q", err)
 	}
 
-	expect, err2 := readFile("testdata/good/expected/two-vars-no-use.html")
+	expect, err2 := readFile("testdata/expected/two-vars-no-use.html")
 	if err2 != nil {
 		t.Errorf("error reading file: %q", err2)
 		return
