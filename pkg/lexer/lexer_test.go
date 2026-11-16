@@ -1032,6 +1032,24 @@ func TestComments(t *testing.T) {
 			{Type: token.EOF, Lit: "", Pos: &position.Pos{StartCol: 39, EndCol: 39}},
 		})
 	})
+
+	t.Run("Standalone comment line is left out of text", func(t *testing.T) {
+		inp := "<div>\n    {{-- comment --}}\n</div>"
+
+		TokenizeString(t, inp, []token.Token{
+			{Type: token.TEXT, Lit: "<div>\n", Pos: &position.Pos{EndLine: 1, EndCol: 3}},
+			{
+				Type: token.TEXT,
+				Lit:  "</div>",
+				Pos:  &position.Pos{StartLine: 1, StartCol: 21, EndLine: 2, EndCol: 5},
+			},
+			{
+				Type: token.EOF,
+				Lit:  "",
+				Pos:  &position.Pos{StartLine: 2, StartCol: 6, EndLine: 2, EndCol: 6},
+			},
+		})
+	})
 }
 
 func TestLexerCanReadIllegalDirectives(t *testing.T) {

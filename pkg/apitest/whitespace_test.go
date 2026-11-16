@@ -282,6 +282,113 @@ func TestStandaloneControlDirectiveWhitespace(t *testing.T) {
 	}
 }
 
+func TestStandaloneCommentWhitespace(t *testing.T) {
+	cases := []struct {
+		name   string
+		inp    string
+		expect string
+	}{
+		{
+			name:   "standalone comment line is removed",
+			inp:    "a\n{{-- comment --}}\nb\n",
+			expect: "a\nb\n",
+		},
+		{
+			name:   "spaces around standalone comment are removed",
+			inp:    "a\n    {{-- comment --}}   \nb\n",
+			expect: "a\nb\n",
+		},
+		{
+			name:   "tabs and CRLF around standalone comment are removed",
+			inp:    "a\r\n\t{{-- comment --}}\t\r\nb\r\n",
+			expect: "a\r\nb\r\n",
+		},
+		{
+			name:   "standalone comment at the start of a template",
+			inp:    "{{-- comment --}}\nb",
+			expect: "b",
+		},
+		{
+			name:   "final standalone comment line without newline",
+			inp:    "a\n{{-- comment --}}",
+			expect: "a\n",
+		},
+		{
+			name:   "blank lines around a standalone comment are kept",
+			inp:    "a\n\n{{-- comment --}}\n\nb\n",
+			expect: "a\n\n\nb\n",
+		},
+		{
+			name:   "text before a comment keeps whitespace",
+			inp:    "a {{-- comment --}}\nb\n",
+			expect: "a \nb\n",
+		},
+		{
+			name:   "text after a comment keeps whitespace",
+			inp:    "a\n{{-- comment --}} b\n",
+			expect: "a\n b\n",
+		},
+		{
+			name:   "two comments on one line keep whitespace",
+			inp:    "a\n{{-- first --}}{{-- second --}}\nb\n",
+			expect: "a\n\nb\n",
+		},
+		{
+			name:   "directive and comment on one line keep whitespace",
+			inp:    "@if(true){{-- comment --}}\nb\n@end\n",
+			expect: "\nb\n",
+		},
+		{
+			name:   "embedded code and comment on one line keep whitespace",
+			inp:    "{{ \"x\" }}{{-- comment --}}\nb\n",
+			expect: "x\nb\n",
+		},
+		{
+			name:   "standalone multiline comment lines are removed",
+			inp:    "a\n  {{-- first\n  second\n  --}}\nb\n",
+			expect: "a\nb\n",
+		},
+		{
+			name:   "text before a multiline comment keeps its line",
+			inp:    "a {{-- first\nsecond --}}\nb\n",
+			expect: "a b\n",
+		},
+		{
+			name:   "multiline comment with text after the closer keeps whitespace",
+			inp:    "a\n{{-- first\nsecond --}} b\n",
+			expect: "a\n b\n",
+		},
+		{
+			name:   "standalone nested comment line is removed",
+			inp:    "a\n{{-- outer {{-- inner --}} --}}\nb\n",
+			expect: "a\nb\n",
+		},
+		{
+			name:   "escaped comment alone on a line is not a comment",
+			inp:    "a\n\\{{-- comment --}}\nb\n",
+			expect: "a\n{{-- comment --}}\nb\n",
+		},
+		{
+			name:   "standalone comment inside a loop body is removed",
+			inp:    "@each(x in [1, 2])\n    {{-- comment --}}\n- {{ x }}\n@end\n",
+			expect: "- 1\n- 2\n",
+		},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			actual, failure := textwire.EvaluateString(tc.inp, nil)
+			if failure != nil {
+				t.Fatalf("evaluation failed: %s", failure)
+			}
+
+			if actual != tc.expect {
+				t.Fatalf("expect %q, got %q", tc.expect, actual)
+			}
+		})
+	}
+}
+
 func TestStandaloneTemplateWhitespace(t *testing.T) {
 	cases := []struct {
 		name   string

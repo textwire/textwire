@@ -76,6 +76,10 @@ type Lexer struct {
 	// token literals.
 	// `int` is the index of the byte that needs to be skipped.
 	skippedOffsets map[int]struct{}
+
+	// commentSpans holds the source span of every comment skipped so far,
+	// from "{{--" to the end of its closing "--}}".
+	commentSpans []directiveSpan
 }
 
 func New(input string) *Lexer {
@@ -684,6 +688,7 @@ func (l *Lexer) skipWhitespace() {
 // skipComment skips a comment and reports whether its closing "--}}" was found.
 func (l *Lexer) skipComment() bool {
 	depth := 1
+	start := l.pos
 
 	l.readChars(4) // skip "{{--"
 
@@ -704,6 +709,7 @@ func (l *Lexer) skipComment() bool {
 	}
 
 	l.isText = true
+	l.commentSpans = append(l.commentSpans, directiveSpan{start: start, end: l.pos})
 
 	return depth == 0
 }

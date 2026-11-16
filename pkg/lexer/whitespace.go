@@ -12,9 +12,9 @@ type directiveSpan struct {
 }
 
 // skippedOffsets returns the byte offsets of lines whose only non-whitespace
-// content is a single directive, including the line ending. Directive bytes are
-// included, but they never reach text tokens, so only the surrounding
-// whitespace is observable.
+// content is a single directive or comment, including the line ending.
+// Directive and comment bytes are included, but they never reach text tokens,
+// so only the surrounding whitespace is observable.
 func skippedOffsets(input string) map[int]struct{} {
 	skipped := map[int]struct{}{}
 	dirIDs := directiveIDs(input, directiveSpans(input))
@@ -66,8 +66,8 @@ func lineBounds(input string, start int) (contentEnd, next int) {
 }
 
 // lineHasSingleDirective reports whether every non-space character on the
-// line belongs to the same directive. Embedded code, text and a second
-// directive all make the line non-standalone.
+// line belongs to the same directive or comment. Embedded code, text and a
+// second directive or comment all make the line non-standalone.
 func lineHasSingleDirective(input string, dirIDs []int, start, end int) bool {
 	id := 0
 
@@ -90,7 +90,7 @@ func lineHasSingleDirective(input string, dirIDs []int, start, end int) bool {
 }
 
 // directiveSpans returns the source span of every directive, including its
-// parenthesized arguments.
+// parenthesized arguments, and of every comment.
 func directiveSpans(input string) []directiveSpan {
 	var spans []directiveSpan
 
@@ -108,7 +108,7 @@ func directiveSpans(input string) []directiveSpan {
 		tok = next
 	}
 
-	return spans
+	return append(spans, l.commentSpans...)
 }
 
 // scanDirective returns the span of the directive tok, including its
