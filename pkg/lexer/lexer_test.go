@@ -227,7 +227,7 @@ func TestOperators(t *testing.T) {
 }
 
 func TestStrings(test *testing.T) {
-	test.Run("String with quotes", func(t *testing.T) {
+	test.Run("string with quotes", func(t *testing.T) {
 		inp := `{{ "Anna \"and\" Serhii" + '' }}`
 
 		TokenizeString(t, inp, []token.Token{
@@ -244,7 +244,7 @@ func TestStrings(test *testing.T) {
 		})
 	})
 
-	test.Run("String reads correctly with braces", func(t *testing.T) {
+	test.Run("string reads correctly with braces", func(t *testing.T) {
 		inp := `{{ "\{ {" }}`
 
 		TokenizeString(t, inp, []token.Token{
@@ -255,7 +255,7 @@ func TestStrings(test *testing.T) {
 		})
 	})
 
-	test.Run("Empty string", func(t *testing.T) {
+	test.Run("empty string", func(t *testing.T) {
 		inp := `{{ "" }}`
 
 		TokenizeString(t, inp, []token.Token{
@@ -712,7 +712,7 @@ func TestTokenPosition(t *testing.T) {
 }
 
 func TestIsDirectiveToken(t *testing.T) {
-	t.Run("Not a directive token", func(t *testing.T) {
+	t.Run("not a directive token", func(t *testing.T) {
 		inp := "test@email.com"
 		l := New(inp)
 
@@ -725,7 +725,7 @@ func TestIsDirectiveToken(t *testing.T) {
 		}
 	})
 
-	t.Run("Directive token", func(t *testing.T) {
+	t.Run("directive token", func(t *testing.T) {
 		inp := "@break"
 		l := New(inp)
 
@@ -738,7 +738,7 @@ func TestIsDirectiveToken(t *testing.T) {
 		}
 	})
 
-	t.Run("Escaped directive token", func(t *testing.T) {
+	t.Run("escaped directive token", func(t *testing.T) {
 		inp := `\@break`
 		l := New(inp)
 		l.readChar() // skip the backslash
@@ -754,7 +754,7 @@ func TestIsDirectiveToken(t *testing.T) {
 }
 
 func TestAreBracesToken(t *testing.T) {
-	t.Run("Not braces token", func(t *testing.T) {
+	t.Run("not braces token", func(t *testing.T) {
 		inp := "some {{ text"
 		l := New(inp)
 
@@ -768,7 +768,7 @@ func TestAreBracesToken(t *testing.T) {
 		}
 	})
 
-	t.Run("Braces token", func(t *testing.T) {
+	t.Run("braces token", func(t *testing.T) {
 		inp := "{{ 123 }}"
 		l := New(inp)
 
@@ -782,7 +782,7 @@ func TestAreBracesToken(t *testing.T) {
 		}
 	})
 
-	t.Run("Escaped braces token", func(t *testing.T) {
+	t.Run("escaped braces token", func(t *testing.T) {
 		inp := `\{{ 234 }}`
 		l := New(inp)
 		l.readChar() // skip the backslash
@@ -799,7 +799,7 @@ func TestAreBracesToken(t *testing.T) {
 }
 
 func TestCallExp(t *testing.T) {
-	t.Run("On string", func(t *testing.T) {
+	t.Run("on string", func(t *testing.T) {
 		inp := `{{ "test".upper() }}`
 
 		TokenizeString(t, inp, []token.Token{
@@ -814,7 +814,7 @@ func TestCallExp(t *testing.T) {
 		})
 	})
 
-	t.Run("On int", func(t *testing.T) {
+	t.Run("on int", func(t *testing.T) {
 		inp := `{{ 3.int() }}`
 
 		TokenizeString(t, inp, []token.Token{
@@ -1038,7 +1038,7 @@ func TestComments(t *testing.T) {
 			},
 		},
 		{
-			name: "Standalone comment line is left out of text",
+			name: "standalone comment line is left out of text",
 			inp:  "<div>\n    {{-- comment --}}\n</div>",
 			expect: []token.Token{
 				{Type: token.TEXT, Lit: "<div>\n", Pos: &position.Pos{EndLine: 1, EndCol: 3}},
