@@ -30,7 +30,7 @@ cover:
 .PHONY: test
 test:
 	@clear || true
-	@$(RUN) go test -race -count=1 -timeout 30s ./...
+	@$(RUN) go test $(RACE) -count=1 -timeout 30s ./...
 	@echo "✅ All tests passed!"
 
 .PHONY: fmt
@@ -56,6 +56,7 @@ todo:
 	fi
 
 .PHONY: check
+check: RACE=-race
 check: test line fmt lint todo
 
-.DEFAULT_GOAL := check
+.DEFAULT_GOAL := test
