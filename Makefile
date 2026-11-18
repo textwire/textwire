@@ -11,7 +11,7 @@ pull:
 
 .PHONY: push
 push:
-	@podman manifest rm $(IMAGE) 2>/dev/null || true
+	@podman rmi $(IMAGE) 2>/dev/null || true
 	@podman build --platform linux/amd64,linux/arm64 --manifest $(IMAGE) .
 	@podman manifest push --all $(IMAGE) docker://$(IMAGE)
 
