@@ -23,6 +23,8 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y podman-compose
 
+      - uses: webgtx/setup-podman-compose@v1
+
       - name: Pull image
         run: make pull
 
