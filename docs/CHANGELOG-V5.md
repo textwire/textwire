@@ -2,8 +2,8 @@
 
 ## v5.2.3 (2026-11-06)
 
-- 🐛 Fixed a panic on a `@for` post statement that isn't followed by `)`, like `@for(i = 0; i < 1; x@end`. It now reports error. Closes [#162](https://github.com/textwire/textwire/issues/162).
-- 🚀 Improved printing of deeply nested arrays and objects. `String()`, `JSON()`, `Dump()` and `Native()` now check for cycles once per value instead of at every nesting level, so printing scales linearly with depth. Closes [#163](https://github.com/textwire/textwire/issues/163).
+- 🐛 Fixed a panic on a `@for` post statement that isn't followed by `)`, like `@for(i = 0; i < 1; x@end`. It now reports error. Closes [#162](https://codeberg.org/textwire/textwire/issues/162).
+- 🚀 Improved printing of deeply nested arrays and objects. `String()`, `JSON()`, `Dump()` and `Native()` now check for cycles once per value instead of at every nesting level, so printing scales linearly with depth. Closes [#163](https://codeberg.org/textwire/textwire/issues/163).
     | Case | Depth | Before | After | Speedup |
     |---|---|---|---|---|
     | Nested arrays | 1,000 | 127 ms | 1.21 ms | 105x |
@@ -28,24 +28,24 @@
 
 ## v5.2.1 (2026-11-05)
 
-- 🐛 Fixed parser hanging forever on a broken `@for` init or post statement without `@end`, like `@for(x)`. It now stops at EOF again. Closes [#151](https://github.com/textwire/textwire/issues/151).
-- 🐛 Fixed `reverse()` and `truncate()` splitting flags and ZWJ emoji sequences, like `🇨🇳🇵🇱`, `👨‍👩‍👧` and `🏳️‍🌈`, into separate characters. Closes [#152](https://github.com/textwire/textwire/issues/152).
-- 🐛 Fixed `len()`, `at()`, `first()` and `last()` splitting accented letters, emoji and flags into runes. They now use the same character boundaries as `reverse()` and `truncate()`, so `len()` counts characters. Closes [#153](https://github.com/textwire/textwire/issues/153).
+- 🐛 Fixed parser hanging forever on a broken `@for` init or post statement without `@end`, like `@for(x)`. It now stops at EOF again. Closes [#151](https://codeberg.org/textwire/textwire/issues/151).
+- 🐛 Fixed `reverse()` and `truncate()` splitting flags and ZWJ emoji sequences, like `🇨🇳🇵🇱`, `👨‍👩‍👧` and `🏳️‍🌈`, into separate characters. Closes [#152](https://codeberg.org/textwire/textwire/issues/152).
+- 🐛 Fixed `len()`, `at()`, `first()` and `last()` splitting accented letters, emoji and flags into runes. They now use the same character boundaries as `reverse()` and `truncate()`, so `len()` counts characters. Closes [#153](https://codeberg.org/textwire/textwire/issues/153).
 - 🐛 Added missing `@end` to hover message on `@component`.
-- 🐛 Fixed token columns counting UTF-8 bytes instead of characters, which shifted error columns, editor links and loop detection on lines with non-ASCII text. Closes [#154](https://github.com/textwire/textwire/issues/154).
-- 🐛 Fixed `@reserve()`, `@insert()` and default `@pass` printing extra quotes, and `@insert()` with a block not printing its block. Closes [#155](https://github.com/textwire/textwire/issues/155).
+- 🐛 Fixed token columns counting UTF-8 bytes instead of characters, which shifted error columns, editor links and loop detection on lines with non-ASCII text. Closes [#154](https://codeberg.org/textwire/textwire/issues/154).
+- 🐛 Fixed `@reserve()`, `@insert()` and default `@pass` printing extra quotes, and `@insert()` with a block not printing its block. Closes [#155](https://codeberg.org/textwire/textwire/issues/155).
 
 ## v5.2.0 (2026-11-04)
 
-- ✨ Added support for object property assignment through index notation. Participant [@peterlodri-sec](https://codeberg.org/peterlodri-sec). Closes [#147](https://github.com/textwire/textwire/issues/147) and [#132](https://github.com/textwire/textwire/issues/132).
+- ✨ Added support for object property assignment through index notation. Participant [@peterlodri-sec](https://codeberg.org/peterlodri-sec). Closes [#147](https://codeberg.org/textwire/textwire/issues/147) and [#132](https://codeberg.org/textwire/textwire/issues/132).
 
 ## v5.1.20 (2026-11-03)
 
-- 🐛 Fixed `illegal token` errors showing invisible characters as a plain space. Non-breaking space and other invisible characters, like NUL, are now shown by code point, e.g. `U+00A0`. Invalid UTF-8 bytes are shown as `0xFF` instead of `�`. Closes [#145](https://github.com/textwire/textwire/issues/145).
-- 🐛 Fixed the invalid assignment error printing `got 'error'` for non-literal left sides. It now names the expression, e.g. `got 'prefix expression'` for `-x = 2` or `got 'infix expression'` for `x + 1 = 2`. Closes [#143](https://github.com/textwire/textwire/issues/143).
-- 🐛 Fixed `decimal()` crashing on huge decimal counts, like `1.decimal(".", 9223372036854775807)` or `"12".decimal(".", 2000000000)`. It now fails with `result is too large`, the same limit as `repeat()`. Closes [#140](https://github.com/textwire/textwire/issues/140) and [#142](https://github.com/textwire/textwire/issues/142).
-- 🐛 Fixed `abs()`, `int()`, `ceil()`, `floor()` and `round()` returning wrong numbers outside the int64 range. `(-9223372036854775808).abs()` and `9223372036854775807.float().int()` now fail with `result is out of int64 range` instead of silently wrapping. Closes [#144](https://github.com/textwire/textwire/issues/144).
-- 🚀  Improved nested `@if`, `@for` and `@each` evaluation speed. Deeply nested templates no longer take quadratic time. Evaluation of nested `@if` blocks now scales linearly. Closes [#141](https://github.com/textwire/textwire/issues/141).
+- 🐛 Fixed `illegal token` errors showing invisible characters as a plain space. Non-breaking space and other invisible characters, like NUL, are now shown by code point, e.g. `U+00A0`. Invalid UTF-8 bytes are shown as `0xFF` instead of `�`. Closes [#145](https://codeberg.org/textwire/textwire/issues/145).
+- 🐛 Fixed the invalid assignment error printing `got 'error'` for non-literal left sides. It now names the expression, e.g. `got 'prefix expression'` for `-x = 2` or `got 'infix expression'` for `x + 1 = 2`. Closes [#143](https://codeberg.org/textwire/textwire/issues/143).
+- 🐛 Fixed `decimal()` crashing on huge decimal counts, like `1.decimal(".", 9223372036854775807)` or `"12".decimal(".", 2000000000)`. It now fails with `result is too large`, the same limit as `repeat()`. Closes [#140](https://codeberg.org/textwire/textwire/issues/140) and [#142](https://codeberg.org/textwire/textwire/issues/142).
+- 🐛 Fixed `abs()`, `int()`, `ceil()`, `floor()` and `round()` returning wrong numbers outside the int64 range. `(-9223372036854775808).abs()` and `9223372036854775807.float().int()` now fail with `result is out of int64 range` instead of silently wrapping. Closes [#144](https://codeberg.org/textwire/textwire/issues/144).
+- 🚀  Improved nested `@if`, `@for` and `@each` evaluation speed. Deeply nested templates no longer take quadratic time. Evaluation of nested `@if` blocks now scales linearly. Closes [#141](https://codeberg.org/textwire/textwire/issues/141).
     | Nested `@if` levels | Before | After | Speedup |
     |---|---|---|---|
     | 1,000 | 30.9 ms | 5.9 ms | 5.2x |
