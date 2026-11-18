@@ -9,9 +9,9 @@ import (
 	"reflect"
 	"testing"
 
-	"codeberg.org/textwire/textwire/v6"
-	"codeberg.org/textwire/textwire/v6/config"
-	"codeberg.org/textwire/textwire/v6/pkg/fail"
+	"github.com/textwire/textwire/v6"
+	"github.com/textwire/textwire/v6/config"
+	"github.com/textwire/textwire/v6/pkg/fail"
 )
 
 var (

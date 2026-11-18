@@ -7,8 +7,8 @@ import (
 	"slices"
 	"strings"
 
-	"codeberg.org/textwire/textwire/v6/pkg/fail"
-	"codeberg.org/textwire/textwire/v6/pkg/value"
+	"github.com/textwire/textwire/v6/pkg/fail"
+	"github.com/textwire/textwire/v6/pkg/value"
 )
 
 // arrLenFunc returns the length of the given arr

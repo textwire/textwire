@@ -1,10 +1,10 @@
 package apitest
 
 import (
-	"codeberg.org/textwire/textwire/v6"
+	"github.com/textwire/textwire/v6"
 	"testing"
 
-	"codeberg.org/textwire/textwire/v6/pkg/fail"
+	"github.com/textwire/textwire/v6/pkg/fail"
 )
 
 func TestCustomFunc_UnsupportedStringResult(t *testing.T) {

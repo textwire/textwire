@@ -1,6 +1,6 @@
 package ast
 
-import "codeberg.org/textwire/textwire/v6/pkg/token"
+import "github.com/textwire/textwire/v6/pkg/token"
 
 type NilExpr struct {
 	BaseNode

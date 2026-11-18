@@ -6,8 +6,8 @@ import (
 	"math"
 	"strconv"
 
-	"codeberg.org/textwire/textwire/v6/pkg/fail"
-	"codeberg.org/textwire/textwire/v6/pkg/value"
+	"github.com/textwire/textwire/v6/pkg/fail"
+	"github.com/textwire/textwire/v6/pkg/value"
 )
 
 // intFloatFunc converts an integer to a float and returns it

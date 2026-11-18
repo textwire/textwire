@@ -8,8 +8,8 @@ import (
 	"unicode"
 	"unicode/utf8"
 
-	"codeberg.org/textwire/textwire/v6/pkg/fail"
-	"codeberg.org/textwire/textwire/v6/pkg/value"
+	"github.com/textwire/textwire/v6/pkg/fail"
+	"github.com/textwire/textwire/v6/pkg/value"
 )
 
 const defaultCharTrim = "\t \n\r"

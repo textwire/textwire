@@ -1,6 +1,6 @@
 package value
 
-import "codeberg.org/textwire/textwire/v6/pkg/fail"
+import "github.com/textwire/textwire/v6/pkg/fail"
 
 // emptyGlobal is shared by every scope without global data. It's frozen, so
 // sharing it is safe.

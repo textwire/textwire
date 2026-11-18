@@ -3,7 +3,7 @@ package ast
 import (
 	"bytes"
 
-	"codeberg.org/textwire/textwire/v6/pkg/token"
+	"github.com/textwire/textwire/v6/pkg/token"
 )
 
 type ArrExpr struct {

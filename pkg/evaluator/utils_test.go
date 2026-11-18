@@ -6,9 +6,9 @@ import (
 	"strings"
 	"testing"
 
-	"codeberg.org/textwire/textwire/v6/pkg/ast"
-	"codeberg.org/textwire/textwire/v6/pkg/token"
-	"codeberg.org/textwire/textwire/v6/pkg/value"
+	"github.com/textwire/textwire/v6/pkg/ast"
+	"github.com/textwire/textwire/v6/pkg/token"
+	"github.com/textwire/textwire/v6/pkg/value"
 )
 
 func TestIsTruthy(t *testing.T) {

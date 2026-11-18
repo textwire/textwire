@@ -3,7 +3,7 @@ package apitest
 import (
 	"testing"
 
-	"codeberg.org/textwire/textwire/v6/config"
+	"github.com/textwire/textwire/v6/config"
 )
 
 func TestReadonly_AssignmentFails(t *testing.T) {

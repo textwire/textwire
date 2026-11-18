@@ -3,7 +3,7 @@ package ast
 import (
 	"testing"
 
-	"codeberg.org/textwire/textwire/v6/pkg/token"
+	"github.com/textwire/textwire/v6/pkg/token"
 )
 
 func TestToDefaultPassDir(t *testing.T) {

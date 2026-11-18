@@ -4,9 +4,9 @@ import (
 	"path/filepath"
 	"testing"
 
-	"codeberg.org/textwire/textwire/v6/config"
-	"codeberg.org/textwire/textwire/v6/pkg/fail"
-	"codeberg.org/textwire/textwire/v6/pkg/position"
+	"github.com/textwire/textwire/v6/config"
+	"github.com/textwire/textwire/v6/pkg/fail"
+	"github.com/textwire/textwire/v6/pkg/position"
 )
 
 func TestTemplateErrorHandling(t *testing.T) {

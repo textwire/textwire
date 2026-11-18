@@ -1,13 +1,13 @@
 package apitest
 
 import (
-	"codeberg.org/textwire/textwire/v6"
+	"github.com/textwire/textwire/v6"
 	"fmt"
 	"sync"
 	"testing"
 
-	"codeberg.org/textwire/textwire/v6/config"
-	"codeberg.org/textwire/textwire/v6/pkg/fail"
+	"github.com/textwire/textwire/v6/config"
+	"github.com/textwire/textwire/v6/pkg/fail"
 )
 
 func TestGlobalData_UnsupportedValue(t *testing.T) {

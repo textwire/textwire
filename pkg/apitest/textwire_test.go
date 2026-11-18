@@ -6,11 +6,11 @@ import (
 	"testing"
 	"time"
 
-	"codeberg.org/textwire/textwire/v6"
+	"github.com/textwire/textwire/v6"
 
-	"codeberg.org/textwire/textwire/v6/pkg/fail"
-	"codeberg.org/textwire/textwire/v6/pkg/file"
-	"codeberg.org/textwire/textwire/v6/pkg/value"
+	"github.com/textwire/textwire/v6/pkg/fail"
+	"github.com/textwire/textwire/v6/pkg/file"
+	"github.com/textwire/textwire/v6/pkg/value"
 )
 
 type namedRole string

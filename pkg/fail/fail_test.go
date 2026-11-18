@@ -4,7 +4,7 @@ import (
 	"errors"
 	"testing"
 
-	"codeberg.org/textwire/textwire/v6/pkg/position"
+	"github.com/textwire/textwire/v6/pkg/position"
 )
 
 func TestFromError(t *testing.T) {

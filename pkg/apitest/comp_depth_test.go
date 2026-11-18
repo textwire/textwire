@@ -6,7 +6,7 @@ import (
 	"sync"
 	"testing"
 
-	"codeberg.org/textwire/textwire/v6/config"
+	"github.com/textwire/textwire/v6/config"
 )
 
 func TestComponentDepth(t *testing.T) {

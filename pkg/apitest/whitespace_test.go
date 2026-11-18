@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	"codeberg.org/textwire/textwire/v6"
+	"github.com/textwire/textwire/v6"
 )
 
 func TestStandaloneControlDirectiveWhitespace(t *testing.T) {

@@ -3,7 +3,7 @@ package lexer
 import (
 	"strings"
 
-	"codeberg.org/textwire/textwire/v6/pkg/token"
+	"github.com/textwire/textwire/v6/pkg/token"
 )
 
 type directiveSpan struct {

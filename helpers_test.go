@@ -4,10 +4,10 @@ import (
 	"os"
 	"testing"
 
-	"codeberg.org/textwire/textwire/v6/config"
-	"codeberg.org/textwire/textwire/v6/pkg/ast"
-	"codeberg.org/textwire/textwire/v6/pkg/evaluator"
-	"codeberg.org/textwire/textwire/v6/pkg/value"
+	"github.com/textwire/textwire/v6/config"
+	"github.com/textwire/textwire/v6/pkg/ast"
+	"github.com/textwire/textwire/v6/pkg/evaluator"
+	"github.com/textwire/textwire/v6/pkg/value"
 )
 
 func useTemplateDir(t *testing.T, dir string) {
