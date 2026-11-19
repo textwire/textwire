@@ -1,18 +1,21 @@
 package parser
 
 import (
+	"fmt"
 	"math"
 	"strconv"
+	"unicode"
+	"unicode/utf8"
 
-	"github.com/textwire/textwire/v5/pkg/file"
-	"github.com/textwire/textwire/v5/pkg/position"
-	"github.com/textwire/textwire/v5/pkg/token"
+	"github.com/textwire/textwire/v6/pkg/file"
+	"github.com/textwire/textwire/v6/pkg/position"
+	"github.com/textwire/textwire/v6/pkg/token"
 
 	"slices"
 
-	"github.com/textwire/textwire/v5/pkg/ast"
-	"github.com/textwire/textwire/v5/pkg/fail"
-	"github.com/textwire/textwire/v5/pkg/lexer"
+	"github.com/textwire/textwire/v6/pkg/ast"
+	"github.com/textwire/textwire/v6/pkg/fail"
+	"github.com/textwire/textwire/v6/pkg/lexer"
 )
 
 type (
@@ -139,8 +142,7 @@ func (p *Parser) ParseProgram() *ast.Program {
 	p.prog.Chunks = []ast.Chunk{}
 
 	for !p.curTokenIs(token.EOF) {
-		chunk := p.chunk()
-		if chunk != nil {
+		if chunk := p.chunk(); chunk != nil {
 			p.prog.Chunks = append(p.prog.Chunks, chunk)
 		}
 		p.nextToken()
@@ -161,6 +163,8 @@ func (p *Parser) chunk() ast.Chunk {
 	switch p.curToken.Type {
 	case token.TEXT:
 		return p.text()
+	case token.EMPTY:
+		return nil
 	case token.LBRACES:
 		return p.embedded(token.RBRACES)
 	case token.LBRACESRAW:
@@ -257,7 +261,7 @@ func (p *Parser) reportUnexpectedTokenAfterSegment() {
 	if p.prefixParseFns[p.curToken.Type] == nil {
 		// Tokens that cannot start an expression, like an unknown operator,
 		// get a dedicated error.
-		p.illegalWith(fail.ErrIllegalToken, p.curToken.Lit)
+		p.illegalWith(fail.ErrIllegalToken, illegalLitText(p.curToken.Lit))
 		return
 	}
 
@@ -635,23 +639,48 @@ func (p *Parser) compDir() ast.Chunk {
 		return p.endCompDir(compDir)
 	}
 
-	if block := p.block(); block != nil {
+	if block := p.componentBlock(); block != nil {
 		compDir.Passes = block.ExtractPassDirs()
 		compDir.DefaultPass = block.ToDefaultPassDir(compDir.Name.Val)
+	}
+
+	if illegal := p.expectEnd("@component", compDir.Token.Pos.StartLine+1); illegal != nil {
+		return illegal
 	}
 
 	return p.endCompDir(compDir)
 }
 
+// componentBlock parses a component body as a block with its own loop context.
+//
+// A component body is rendered inside the component's slot, not where it is
+// written, so a loop surrounding the component does not surround the body at
+// runtime. Resetting loopDepth makes loop control directives (@break, @breakif,
+// @continue, @continueif) invalid here unless the body has its own loop.
+//
+//	@each(name in names)
+//	    @component('~user', { user })
+//	        @breakif(name == 'Sam') // error: not inside a loop
+//	    @end
+//	@end
+func (p *Parser) componentBlock() *ast.Block {
+	outerLoopDepth := p.loopDepth
+	p.loopDepth = 0
+	defer func() { p.loopDepth = outerLoopDepth }()
+
+	return p.block()
+}
+
 func (p *Parser) endCompDir(compDir *ast.CompDir) ast.Chunk {
 	dup, times := ast.FindDuplicatePasses(compDir)
 	if dup != nil && times > 0 {
-		p.newError(dup.Pos(), fail.ErrDuplicatePass, dup.Name.Val, times, compDir.Name.Val)
+		p.newError(dup.Name.Pos(), fail.ErrDuplicatePass, dup.Name.Val, times, compDir.Name.Val)
 		return p.illegal()
 	}
 
 	p.prog.Components = append(p.prog.Components, compDir)
 	compDir.SetEndPosition(p.curToken.Pos)
+
 	return compDir
 }
 
@@ -831,10 +860,10 @@ func (p *Parser) reserveDir() ast.Chunk {
 }
 
 // reserveDirFallback parses the second argument (fallback value) after comma
-// for @reserve statement. If there are no expression, set Fallback to Empty.
+// for @reserve statement. If there is no expression, set Fallback to Absent.
 func (p *Parser) reserveDirFallback() ast.Expression {
 	if !p.peekTokenIs(token.COMMA) {
-		return ast.NewEmpty(p.curToken.Pos)
+		return ast.NewAbsent(p.curToken.Pos)
 	}
 
 	p.nextToken() // move to "," from string
@@ -918,7 +947,7 @@ func (p *Parser) insertDirHeader(insertDir *ast.InsertDir) (*ast.Illegal, bool) 
 
 func (p *Parser) insertDirArgument(insertDir *ast.InsertDir) (*ast.Illegal, bool) {
 	if !p.peekTokenIs(token.COMMA) {
-		insertDir.Argument = ast.NewEmpty(p.curToken.Pos)
+		insertDir.Argument = ast.NewAbsent(p.curToken.Pos)
 		return nil, false
 	}
 
@@ -1038,9 +1067,7 @@ func (p *Parser) infixExpr(left ast.Expression) ast.Expression {
 	precedence := precedences[opTok.Type]
 
 	if p.peekTokenIs(p.tokenEnd) {
-		pos := left.Pos()
-		pos.EndCol = opTok.Pos.EndCol
-		p.newError(pos, fail.ErrExpectExprAfter, opTok.Lit)
+		p.newError(opTok.Pos, fail.ErrExpectExprAfter, opTok.Lit)
 		return ast.NewIllegalNode(opTok)
 	}
 
@@ -1057,7 +1084,7 @@ func (p *Parser) ternaryExpr(left ast.Expression) ast.Expression {
 
 	p.nextToken() // skip "?"
 
-	expr.IfExpr = p.expression(TERNARY)
+	expr.IfExpr = p.expression(LOWEST)
 
 	if !p.expectPeek(token.COLON) { // move to ":"
 		return p.illegal()
@@ -1079,11 +1106,22 @@ func (p *Parser) ifDir() ast.Chunk {
 	}
 
 	dir.IfBlock = p.block()
-	if p.curTokenIs(token.END) {
-		dir.SetEndPosition(p.curToken.Pos)
-		return dir
+
+	// Only look for @elseif/@else when the block wasn't closed by @end.
+	if !p.curTokenIs(token.END) {
+		if illegal := p.ifDirBranches(dir); illegal != nil {
+			return illegal
+		}
 	}
 
+	dir.SetEndPosition(p.curToken.Pos)
+
+	return dir
+}
+
+// ifDirBranches parses the @elseif/@else part and verifies the closing @end.
+// It returns a non-nil node only when parsing failed.
+func (p *Parser) ifDirBranches(dir *ast.IfDir) ast.Chunk {
 	for p.curTokenIs(token.ELSEIF) {
 		elseifDir, illegal := p.elseifDir()
 		if illegal != nil {
@@ -1095,13 +1133,23 @@ func (p *Parser) ifDir() ast.Chunk {
 
 	dir.ElseBlock = p.elseBlock()
 
-	if !p.curTokenIs(token.END) { // move to "@end"
-		return p.illegal()
+	return p.expectEnd("@if", dir.Token.Pos.StartLine+1)
+}
+
+// expectEnd checks that the current token is @end. It returns nil when the
+// directive is properly closed and an illegal node otherwise. When the file
+// ends before @end, it reports the missing @end for the directive.
+func (p *Parser) expectEnd(dirName string, startLine uint) ast.Chunk {
+	if p.curTokenIs(token.END) {
+		return nil
 	}
 
-	dir.SetEndPosition(p.curToken.Pos)
+	if p.curTokenIs(token.EOF) {
+		p.newError(p.curToken.Pos, fail.ErrMissingEnd, dirName, startLine)
+		return ast.NewIllegalNode(p.curToken)
+	}
 
-	return dir
+	return p.illegal()
 }
 
 func (p *Parser) ifDirHeader(ifDir *ast.IfDir) *ast.Illegal {
@@ -1143,18 +1191,38 @@ func (p *Parser) elseifDir() (*ast.ElseIfDir, *ast.Illegal) {
 }
 
 func (p *Parser) elseBlock() *ast.Block {
-	if p.curTokenIs(token.ELSE) {
+	hasElse := p.curTokenIs(token.ELSE)
+	if hasElse {
 		p.nextToken() // skip "@else"
 	}
 
+	// "@else" immediately followed by "@end" is an empty else block.
+	if hasElse && p.curTokenIs(token.END) {
+		block := ast.NewBlock(p.curToken)
+		block.SetEndPosition(p.curToken.Pos)
+		return block
+	}
+
+	// No else block here: either there was no "@else", or it is followed
+	// by another "@else".
 	if p.curTokenIs(token.ELSE, token.END) {
 		return nil
 	}
 
 	block := p.block()
 
-	if p.peekTokenIs(token.ELSEIF) {
+	// "@elseif" is not allowed after "@else". The peek token takes
+	// precedence when choosing the error position.
+	switch {
+	case p.peekTokenIs(token.ELSEIF):
 		p.newError(p.peekToken.Pos, fail.ErrElseifCannotFollowElse)
+		return nil
+	case p.curTokenIs(token.ELSEIF):
+		p.newError(p.curToken.Pos, fail.ErrElseifCannotFollowElse)
+		return nil
+	}
+
+	if block == nil {
 		return nil
 	}
 
@@ -1182,8 +1250,8 @@ func (p *Parser) forDir() ast.Chunk {
 
 	dir.ElseBlock = p.elseBlock()
 
-	if !p.curTokenIs(token.END) {
-		return p.illegalUntil(token.END)
+	if illegal := p.expectEnd("@for", dir.Token.Pos.StartLine+1); illegal != nil {
+		return illegal
 	}
 
 	dir.SetEndPosition(p.curToken.Pos)
@@ -1197,6 +1265,10 @@ func (p *Parser) forDirHeader(forDir *ast.ForDir) *ast.Illegal {
 	}
 
 	forDir.Init = p.parserForDirInit()
+	if forDir.Init == nil {
+		p.skipUntil(token.END, token.EOF)
+		return nil
+	}
 
 	if !p.expectPeek(token.SEMI) { // move to ";"
 		return p.illegalUntil(token.END)
@@ -1226,7 +1298,7 @@ func (p *Parser) forDirHeader(forDir *ast.ForDir) *ast.Illegal {
 
 func (p *Parser) parserForDirInit() ast.Statement {
 	if p.peekTokenIs(token.SEMI) {
-		return ast.NewEmpty(p.curToken.Pos)
+		return ast.NewAbsent(p.curToken.Pos)
 	}
 
 	p.nextToken() // move to first token of init statement
@@ -1238,13 +1310,13 @@ func (p *Parser) parserForDirInit() ast.Statement {
 		return stmt
 	}
 
-	p.newError(left.Pos(), fail.ErrForLoopExpectStmt, left.String())
+	p.newError(left.Pos(), fail.ErrForLoopExpectInitStmt, left.String())
 	return nil
 }
 
 func (p *Parser) parserForDirCond() ast.Expression {
 	if p.peekTokenIs(token.SEMI) {
-		return ast.NewEmpty(p.curToken.Pos)
+		return ast.NewAbsent(p.curToken.Pos)
 	}
 
 	p.nextToken() // skip ";"
@@ -1254,7 +1326,7 @@ func (p *Parser) parserForDirCond() ast.Expression {
 
 func (p *Parser) parseForDirPost() ast.Statement {
 	if p.peekTokenIs(token.RPAREN) {
-		return ast.NewEmpty(p.curToken.Pos)
+		return ast.NewAbsent(p.curToken.Pos)
 	}
 
 	p.nextToken() // skip ";"
@@ -1263,10 +1335,18 @@ func (p *Parser) parseForDirPost() ast.Statement {
 
 	if p.curTokenIs(token.RPAREN) {
 		p.newError(left.Pos(), fail.ErrForLoopExpectStmt, left.String())
+		p.skipUntil(token.END, token.EOF)
 		return nil
 	}
 
-	return p.statement(left)
+	stmt := p.statement(left)
+	if stmt == nil {
+		p.newError(p.curToken.Pos, fail.ErrForLoopExpectRParen)
+		p.skipUntil(token.END, token.EOF)
+		return nil
+	}
+
+	return stmt
 }
 
 func (p *Parser) eachDir() ast.Chunk {
@@ -1288,8 +1368,8 @@ func (p *Parser) eachDir() ast.Chunk {
 
 	dir.ElseBlock = p.elseBlock()
 
-	if !p.curTokenIs(token.END) {
-		return p.illegalUntil(token.END)
+	if illegal := p.expectEnd("@each", dir.Token.Pos.StartLine+1); illegal != nil {
+		return illegal
 	}
 
 	dir.SetEndPosition(p.curToken.Pos)
@@ -1350,8 +1430,6 @@ func (p *Parser) block() *ast.Block {
 
 		p.nextToken() // skip chunk
 	}
-
-	block.Trim()
 
 	return block
 }
@@ -1500,7 +1578,27 @@ func (p *Parser) illegal() *ast.Illegal {
 	if p.curTokenIs(token.UNCLOSED_COMMENT) {
 		return p.illegalWith(fail.ErrMissingClosingBraces, "--}}")
 	}
-	return p.illegalWith(fail.ErrIllegalToken, p.curToken.Lit)
+	return p.illegalWith(fail.ErrIllegalToken, illegalLitText(p.curToken.Lit))
+}
+
+// illegalLitText returns a single illegal character as it is. Invisible
+// characters and invalid bytes are shown by their code point instead, so
+// they don't look like a regular space or a replacement character.
+func illegalLitText(lit string) string {
+	r, size := utf8.DecodeRuneInString(lit)
+	if size != len(lit) {
+		return lit
+	}
+
+	if r == utf8.RuneError && size == 1 {
+		return fmt.Sprintf("0x%02X", lit[0])
+	}
+
+	if unicode.IsPrint(r) {
+		return lit
+	}
+
+	return fmt.Sprintf("U+%04X", r)
 }
 
 // illegalWith records an error at the current token and returns an illegal

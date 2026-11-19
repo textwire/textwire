@@ -1,0 +1,2 @@
+<li>My name is {!! name !!} and I'm {{ age }} years old</li>
+{{-- This line should be deleted --}}

@@ -25,7 +25,7 @@ func GetLoopProperties() []Completion {
 			Documentation: fmt.Sprintf(
 				"%s\n%s",
 				"(property) last: bool",
-				"Returns `true` if this is the last iteration of the loop.",
+				"Returns `true` if this is the last iteration. Only available in `@each` loops.",
 			),
 		},
 		{
@@ -34,6 +34,14 @@ func GetLoopProperties() []Completion {
 				"%s\n%s",
 				"(property) iter: int",
 				"The current iteration of the loop. Starts with 1.",
+			),
+		},
+		{
+			Label: "parent",
+			Documentation: fmt.Sprintf(
+				"%s\n%s",
+				"(property) parent: object",
+				"The enclosing loop object. Returns `nil` for the outermost loop.",
 			),
 		},
 	}

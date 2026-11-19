@@ -1,11 +1,11 @@
 package textwire
 
 import (
-	"github.com/textwire/textwire/v5/config"
-	"github.com/textwire/textwire/v5/pkg/evaluator"
-	"github.com/textwire/textwire/v5/pkg/fail"
-	"github.com/textwire/textwire/v5/pkg/file"
-	"github.com/textwire/textwire/v5/pkg/value"
+	"github.com/textwire/textwire/v6/config"
+	"github.com/textwire/textwire/v6/pkg/evaluator"
+	"github.com/textwire/textwire/v6/pkg/fail"
+	"github.com/textwire/textwire/v6/pkg/file"
+	"github.com/textwire/textwire/v6/pkg/value"
 )
 
 var (
@@ -22,12 +22,12 @@ func EvaluateString(inp string, data map[string]any) (string, *fail.Error) {
 		return "", errs[0]
 	}
 
-	scope, err := value.NewScopeFromMap(data)
+	scope, err := value.NewScopeFromMap(data, nil)
 	if err != nil {
 		return "", err
 	}
 
-	e := evaluator.New(customFunc, nil)
+	e := evaluator.New(customFunc, nil, nil)
 	ctx := evaluator.NewContext(scope, prog.AbsPath)
 	evaluated := e.Eval(prog, ctx)
 	if evaluated.Is(value.ERR_VAL) {

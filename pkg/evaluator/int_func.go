@@ -1,9 +1,13 @@
 package evaluator
 
 import (
+	"errors"
+	"fmt"
+	"math"
 	"strconv"
 
-	"github.com/textwire/textwire/v5/pkg/value"
+	"github.com/textwire/textwire/v6/pkg/fail"
+	"github.com/textwire/textwire/v6/pkg/value"
 )
 
 // intFloatFunc converts an integer to a float and returns it
@@ -15,6 +19,11 @@ func intFloatFunc(receiver value.Literal, _ ...value.Literal) (value.Literal, er
 // intAbsFunc returns the absolute value of an integer
 func intAbsFunc(receiver value.Literal, _ ...value.Literal) (value.Literal, error) {
 	val := receiver.(*value.Int).Val
+	if val == math.MinInt64 {
+		msg := fmt.Sprintf(fail.ErrFuncOutOfInt64Range, value.INT_VAL, "abs")
+		return nil, errors.New(msg)
+	}
+
 	if val < 0 {
 		return &value.Int{Val: -val}, nil
 	}
@@ -45,6 +54,10 @@ func intDecimalFunc(receiver value.Literal, args ...value.Literal) (value.Litera
 	val := receiver.(*value.Int).String()
 	separator, decimals, err := getDecimalConfig(value.INT_VAL, args...)
 	if err != nil {
+		return nil, err
+	}
+
+	if err := checkDecimalResultSize(value.INT_VAL, val, separator, decimals); err != nil {
 		return nil, err
 	}
 

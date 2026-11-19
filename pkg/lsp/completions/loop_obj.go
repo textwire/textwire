@@ -3,8 +3,8 @@ package completions
 import (
 	"fmt"
 
-	"github.com/textwire/textwire/v5/pkg/lsp"
-	"github.com/textwire/textwire/v5/pkg/lsp/utils"
+	"github.com/textwire/textwire/v6/pkg/lsp"
+	"github.com/textwire/textwire/v6/pkg/lsp/utils"
 )
 
 func GetLoopObjFields(locale lsp.Locale) ([]Completion, error) {
@@ -27,9 +27,11 @@ func GetLoopObjFields(locale lsp.Locale) ([]Completion, error) {
 			{
 				Label:      "last",
 				InsertText: "last",
-				Documentation: fmt.Sprintf("%s\n%s",
+				Documentation: fmt.Sprintf(
+					"%s\n%s",
 					"(property) last: bool",
-					"Returns `true` if this is the last iteration of the loop."),
+					"Returns `true` if this is the last iteration. Only available in `@each` loops.",
+				),
 			},
 			{
 				Label:      "iter",
@@ -37,6 +39,13 @@ func GetLoopObjFields(locale lsp.Locale) ([]Completion, error) {
 				Documentation: fmt.Sprintf("%s\n%s",
 					"(property) iter: int",
 					"The current iteration of the loop. Starts with 1"),
+			},
+			{
+				Label:      "parent",
+				InsertText: "parent",
+				Documentation: fmt.Sprintf("%s\n%s",
+					"(property) parent: object",
+					"The enclosing loop object. Returns `nil` for the outermost loop."),
 			},
 		},
 	}

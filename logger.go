@@ -2,6 +2,7 @@ package textwire
 
 import (
 	"fmt"
+	"io"
 	"os"
 )
 
@@ -12,32 +13,41 @@ const (
 	colorCyan   = "\033[36m"
 )
 
-type WatcherLogger struct{}
+type WatcherLogger struct {
+	out io.Writer
+}
 
 func NewWatcherLogger() *WatcherLogger {
 	return &WatcherLogger{}
 }
 
 func (l *WatcherLogger) Info(text string) {
-	fmt.Printf(
-		"%s[Watcher]%s %s%s%s\n",
-		colorYellow,
-		colorReset,
-		colorCyan,
-		text,
-		colorReset,
-	)
+	l.print(colorCyan, text)
 }
 
 func (l *WatcherLogger) Error(text string) {
-	fmt.Printf(
+	l.print(colorRed, text)
+}
+
+func (l *WatcherLogger) print(color, text string) {
+	out := l.out
+	if out == nil {
+		out = os.Stdout
+	}
+
+	_, err := fmt.Fprintf(
+		out,
 		"%s[Watcher]%s %s%s%s\n",
 		colorYellow,
 		colorReset,
-		colorRed,
+		color,
 		text,
 		colorReset,
 	)
+
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Failed to write log: %v\n", err)
+	}
 }
 
 func (l *WatcherLogger) Fatal(text string) {

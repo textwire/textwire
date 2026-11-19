@@ -6,11 +6,18 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/textwire/textwire/v5/pkg/utils"
+	"github.com/textwire/textwire/v6/pkg/fail"
+	"github.com/textwire/textwire/v6/pkg/utils"
 )
 
 type Obj struct {
-	Pairs map[string]Literal
+	Pairs  map[string]Literal
+	frozen bool
+}
+
+// IsFrozen reports whether the object is read-only.
+func (o *Obj) IsFrozen() bool {
+	return o.frozen
 }
 
 func NewObj(pairs map[string]Literal) *Obj {
@@ -25,6 +32,26 @@ func (*Obj) Type() ValueType {
 }
 
 func (o *Obj) String() string {
+	if HasCycle(o) {
+		return circularReference
+	}
+	return o.stringNoCycleCheck()
+}
+
+// stringNoCycleCheck is the String() without the HasCycle check.
+// It builds the output from the elements, and for each element it skips
+// the cycle check for child arrays and objects.
+func (o *Obj) stringNoCycleCheck() string {
+	return o.joinPairs(writeStringPair)
+}
+
+// htmlNoCycleCheck is stringNoCycleCheck with HTML escaping, see escapedString.
+func (o *Obj) htmlNoCycleCheck() string {
+	return o.joinPairs(writeHTMLPair)
+}
+
+// joinPairs writes each key and value with writePair, sorted by key.
+func (o *Obj) joinPairs(writePair func(out *strings.Builder, key string, val Literal)) string {
 	if o.Pairs == nil {
 		return "{}"
 	}
@@ -35,17 +62,11 @@ func (o *Obj) String() string {
 
 	out.WriteByte('{')
 
-	for i, k := range keys {
-		pair := o.Pairs[k]
+	for i, key := range keys {
 		if i > 0 {
 			out.WriteString(", ")
 		}
-
-		if _, isStr := pair.(*Str); isStr {
-			out.WriteString(k + `: "` + pair.String() + `"`)
-		} else {
-			out.WriteString(k + ": " + pair.String())
-		}
+		writePair(&out, key, o.Pairs[key])
 	}
 
 	out.WriteByte('}')
@@ -53,7 +74,53 @@ func (o *Obj) String() string {
 	return out.String()
 }
 
+// writeStringPair writes `key: "string"` for strings and `key: value` for
+// other values.
+func writeStringPair(out *strings.Builder, key string, val Literal) {
+	out.WriteString(key)
+	out.WriteString(": ")
+
+	if str, isStr := val.(*Str); isStr {
+		out.WriteString(`"`)
+		out.WriteString(str.Val)
+		out.WriteString(`"`)
+		return
+	}
+
+	out.WriteString(stringOf(val))
+}
+
+// writeHTMLPair is writeStringPair with HTML escaping. The key is always
+// escaped. A raw string is written with its quotes as is, other strings get
+// their quotes escaped as &#34;, like html.EscapeString does.
+func writeHTMLPair(out *strings.Builder, key string, val Literal) {
+	out.WriteString(html.EscapeString(key))
+	out.WriteString(": ")
+
+	str, isStr := val.(*Str)
+
+	switch {
+	case isStr && str.raw:
+		out.WriteString(`"`)
+		out.WriteString(str.Val)
+		out.WriteString(`"`)
+	case isStr:
+		out.WriteString("&#34;")
+		out.WriteString(html.EscapeString(str.Val))
+		out.WriteString("&#34;")
+	default:
+		out.WriteString(htmlOf(val))
+	}
+}
+
 func (o *Obj) JSON() (string, error) {
+	if HasCycle(o) {
+		return "", fmt.Errorf(fail.ErrCircularValue, o.Type())
+	}
+	return o.jsonNoCycleCheck()
+}
+
+func (o *Obj) jsonNoCycleCheck() (string, error) {
 	if o.Pairs == nil {
 		return "{}", nil
 	}
@@ -75,7 +142,7 @@ func (o *Obj) JSON() (string, error) {
 			return "", err
 		}
 
-		jsonVal, err := pair.JSON()
+		jsonVal, err := jsonOf(pair)
 		if err != nil {
 			return "", err
 		}
@@ -91,6 +158,13 @@ func (o *Obj) JSON() (string, error) {
 }
 
 func (o *Obj) Dump(ident int) string {
+	if HasCycle(o) {
+		return circularReference
+	}
+	return o.dumpNoCycleCheck(ident)
+}
+
+func (o *Obj) dumpNoCycleCheck(ident int) string {
 	if o.Pairs == nil {
 		return "{}"
 	}
@@ -117,7 +191,7 @@ func (o *Obj) Dump(ident int) string {
 		fmt.Fprintf(&out, `<span style="%s">"`, DUMP_PROP)
 		out.WriteString(html.EscapeString(key))
 		fmt.Fprintf(&out, `"</span>: `)
-		out.WriteString(pair.Dump(ident))
+		out.WriteString(dumpOf(pair, ident))
 		out.WriteString(",\n")
 	}
 
@@ -128,11 +202,17 @@ func (o *Obj) Dump(ident int) string {
 }
 
 func (o *Obj) Native() any {
+	if HasCycle(o) {
+		return nil
+	}
+	return o.nativeNoCycleCheck()
+}
+
+func (o *Obj) nativeNoCycleCheck() any {
 	res := map[string]any{}
 	for k, v := range o.Pairs {
-		res[k] = v.Native()
+		res[k] = nativeOf(v)
 	}
-
 	return res
 }
 

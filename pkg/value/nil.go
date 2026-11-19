@@ -2,7 +2,28 @@ package value
 
 import "fmt"
 
-type Nil struct{}
+// NilOrigin describes where a Nil value came from. It is used to tell a
+// missing object property or array index apart from a value that exists and
+// happens to be nil.
+type NilOrigin string
+
+const (
+	NilOriginUnset        NilOrigin = ""
+	NilOriginMissingProp  NilOrigin = "missing property"
+	NilOriginMissingIndex NilOrigin = "missing index"
+)
+
+type Nil struct {
+	origin NilOrigin
+}
+
+func NewNil(origin NilOrigin) *Nil {
+	return &Nil{origin: origin}
+}
+
+func (n *Nil) Origin() NilOrigin {
+	return n.origin
+}
 
 func (*Nil) Type() ValueType {
 	return NIL_VAL

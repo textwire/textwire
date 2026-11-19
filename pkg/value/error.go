@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"fmt"
 
-	"github.com/textwire/textwire/v5/pkg/fail"
+	"github.com/textwire/textwire/v6/pkg/fail"
 )
 
 type Error struct {

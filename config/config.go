@@ -7,6 +7,9 @@ import (
 	"time"
 )
 
+// DefaultMaxComponentDepth is the default value of Config.MaxComponentDepth.
+const DefaultMaxComponentDepth = 500
+
 // Config holds the configuration settings for Textwire template engine.
 type Config struct {
 	// TemplateDir specifies the directory containing Textwire template files.
@@ -62,18 +65,29 @@ type Config struct {
 	// Default: time.Second (1 second)
 	WatcherInterval time.Duration
 
+	// MaxComponentDepth limits how many @component directives can be
+	// rendering inside each other at the same time during one render. It
+	// stops a component that includes itself, directly or through other
+	// components, with an error instead of crashing the program with a stack
+	// overflow. Only nesting counts: components rendered one after another,
+	// like inside of a loop, don't add up. Values less than 1 are treated as
+	// the default.
+	// Default: 500
+	MaxComponentDepth int
+
 	// usesFS is a flag to determine if user uses TemplateFS or not.
 	usesFS bool
 }
 
 func New() *Config {
 	return &Config{
-		TemplateDir:     "templates",
-		TemplateExt:     ".tw",
-		ErrorPagePath:   "",
-		DebugMode:       false,
-		GlobalData:      map[string]any{},
-		WatcherInterval: time.Second,
+		TemplateDir:       "templates",
+		TemplateExt:       ".tw",
+		ErrorPagePath:     "",
+		DebugMode:         false,
+		GlobalData:        map[string]any{},
+		WatcherInterval:   time.Second,
+		MaxComponentDepth: DefaultMaxComponentDepth,
 	}
 }
 
@@ -112,6 +126,10 @@ func (c *Config) Configure(opt *Config) {
 
 	if opt.GlobalData != nil {
 		c.GlobalData = opt.GlobalData
+	}
+
+	if opt.MaxComponentDepth > 0 {
+		c.MaxComponentDepth = opt.MaxComponentDepth
 	}
 
 	c.FileWatcher = opt.FileWatcher

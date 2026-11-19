@@ -5,8 +5,8 @@ import (
 	"strings"
 	"unicode/utf8"
 
-	"github.com/textwire/textwire/v5/pkg/position"
-	"github.com/textwire/textwire/v5/pkg/token"
+	"github.com/textwire/textwire/v6/pkg/position"
+	"github.com/textwire/textwire/v6/pkg/token"
 )
 
 var simpleTokens = map[byte]token.TokenType{
@@ -71,9 +71,25 @@ type Lexer struct {
 	// We increment it when we find "{" and decrement when we find "}".
 	// It helps to determine if we are in text or Textwire.
 	countCurlyBraces int
+
+	// skippedOffsets holds the byte offsets in input that are left out of text
+	// token literals.
+	// `int` is the index of the byte that needs to be skipped.
+	skippedOffsets map[int]struct{}
+
+	// commentSpans holds the source span of every comment skipped so far,
+	// from "{{--" to the end of its closing "--}}".
+	commentSpans []directiveSpan
 }
 
 func New(input string) *Lexer {
+	l := newLexer(input)
+	l.skippedOffsets = skippedOffsets(input)
+
+	return l
+}
+
+func newLexer(input string) *Lexer {
 	l := &Lexer{
 		input:       input,
 		isText:      true,
@@ -128,7 +144,12 @@ func (l *Lexer) Next() token.Token {
 		return l.embeddedCodeToken()
 	}
 
-	return l.newToken(token.TEXT, l.readText())
+	text := l.readText()
+	if text == "" {
+		return l.newToken(token.EMPTY, "")
+	}
+
+	return l.newToken(token.TEXT, text)
 }
 
 // atEnd reports whether the lexer has consumed all input.
@@ -175,8 +196,8 @@ func (l *Lexer) rawBracesToken(tok token.TokenType, literal string) token.Token 
 func (l *Lexer) illegalToken() token.Token {
 	l.tokenBegins()
 
-	illegalChar, size := utf8.DecodeRuneInString(l.input[l.pos:])
-	tok := l.newToken(token.ILLEGAL, string(illegalChar))
+	_, size := utf8.DecodeRuneInString(l.input[l.pos:])
+	tok := l.newToken(token.ILLEGAL, l.input[l.pos:l.pos+size])
 	l.readChars(size)
 
 	return tok
@@ -235,12 +256,12 @@ func (l *Lexer) embeddedCodeToken() token.Token {
 		if l.peek(0) == '&' {
 			return l.twoCharToken(token.AND, "&&")
 		}
-		fallthrough
+		return l.illegalToken()
 	case '|':
 		if l.peek(0) == '|' {
 			return l.twoCharToken(token.OR, "||")
 		}
-		fallthrough
+		return l.illegalToken()
 	case '+':
 		return l.operatorToken('+', token.INC, token.ADD, "++", "+")
 	case '=':
@@ -420,14 +441,14 @@ func (l *Lexer) isEscapedDirective() bool {
 
 func (l *Lexer) hasIfVariant(tok token.TokenType) bool {
 	// Tokens that can be extended with "if" variants, like @breakif
-	longTokens := map[token.TokenType]struct{}{
+	optionalIfTokens := map[token.TokenType]struct{}{
 		token.ELSE:     {},
 		token.BREAK:    {},
 		token.CONTINUE: {},
 		token.PASS:     {},
 	}
 
-	if _, ok := longTokens[tok]; !ok {
+	if _, ok := optionalIfTokens[tok]; !ok {
 		return false
 	}
 
@@ -571,7 +592,9 @@ func (l *Lexer) readText() string {
 			out.Truncate(out.Len() - 1)
 		}
 
-		out.WriteByte(l.char)
+		if _, skip := l.skippedOffsets[l.pos]; !skip {
+			out.WriteByte(l.char)
+		}
 		l.readChar()
 	}
 
@@ -601,7 +624,12 @@ func (l *Lexer) readChar() {
 	// initialization because it should be 0 when it starts
 	if l.pos > 0 {
 		l.prevCol = l.col
-		l.col += 1
+
+		// UTF-8 continuation bytes are part of the previous character, so
+		// they must not advance the column.
+		if !l.isContinuationByte() {
+			l.col += 1
+		}
 	}
 
 	if l.shouldResetCol {
@@ -611,6 +639,12 @@ func (l *Lexer) readChar() {
 	}
 
 	l.shouldResetCol = l.char == '\n'
+}
+
+// isContinuationByte reports whether the current byte continues
+// a UTF-8 encoded character.
+func (l *Lexer) isContinuationByte() bool {
+	return l.char&0xC0 == 0x80
 }
 
 func (l *Lexer) readChars(chars int) {
@@ -654,6 +688,7 @@ func (l *Lexer) skipWhitespace() {
 // skipComment skips a comment and reports whether its closing "--}}" was found.
 func (l *Lexer) skipComment() bool {
 	depth := 1
+	start := l.pos
 
 	l.readChars(4) // skip "{{--"
 
@@ -674,6 +709,7 @@ func (l *Lexer) skipComment() bool {
 	}
 
 	l.isText = true
+	l.commentSpans = append(l.commentSpans, directiveSpan{start: start, end: l.pos})
 
 	return depth == 0
 }

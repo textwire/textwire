@@ -3,7 +3,7 @@ package token
 import (
 	"testing"
 
-	"github.com/textwire/textwire/v5/pkg/position"
+	"github.com/textwire/textwire/v6/pkg/position"
 )
 
 func TestTokenContainsPosition(t *testing.T) {
@@ -134,7 +134,7 @@ func TestTokenContainsPosition(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.desc, func(t *testing.T) {
 			if actual := tc.token.Pos.Contains(tc.line, tc.col); actual != tc.expect {
-				t.Errorf("Expected position %v but got %v", tc, actual)
+				t.Errorf("expected position %v, got %v", tc, actual)
 			}
 		})
 	}

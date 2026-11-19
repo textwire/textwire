@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/textwire/textwire/v5/pkg/token"
+	"github.com/textwire/textwire/v6/pkg/token"
 )
 
 type EachDir struct {
@@ -34,14 +34,18 @@ func (ed *EachDir) String() string {
 	var out strings.Builder
 	out.Grow(26)
 
-	fmt.Fprintf(&out, "@each(%s in %s)\n%s\n", ed.Var, ed.Arr, ed.Block)
+	fmt.Fprintf(&out, "@each(%s in %s)", ed.Var, ed.Arr)
 
-	if ed.ElseBlock != nil {
-		out.WriteString("@else\n")
-		out.WriteString(ed.ElseBlock.String() + "\n")
+	if ed.Block != nil {
+		out.WriteString(ed.Block.String())
 	}
 
-	out.WriteString("@end\n")
+	if ed.ElseBlock != nil {
+		out.WriteString("@else")
+		out.WriteString(ed.ElseBlock.String())
+	}
+
+	out.WriteString("@end")
 
 	return out.String()
 }

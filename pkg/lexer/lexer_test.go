@@ -4,12 +4,12 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/textwire/textwire/v5/pkg/position"
-	"github.com/textwire/textwire/v5/pkg/token"
+	"github.com/textwire/textwire/v6/pkg/position"
+	"github.com/textwire/textwire/v6/pkg/token"
 )
 
-func TokenizeString(t *testing.T, input string, expectTokens []token.Token) {
-	l := New(input)
+func TokenizeString(t *testing.T, inp string, expectTokens []token.Token) {
+	l := New(inp)
 
 	for _, expectTok := range expectTokens {
 		tok := l.Next()
@@ -227,7 +227,7 @@ func TestOperators(t *testing.T) {
 }
 
 func TestStrings(test *testing.T) {
-	test.Run("String with quotes", func(t *testing.T) {
+	test.Run("string with quotes", func(t *testing.T) {
 		inp := `{{ "Anna \"and\" Serhii" + '' }}`
 
 		TokenizeString(t, inp, []token.Token{
@@ -244,7 +244,7 @@ func TestStrings(test *testing.T) {
 		})
 	})
 
-	test.Run("String reads correctly with braces", func(t *testing.T) {
+	test.Run("string reads correctly with braces", func(t *testing.T) {
 		inp := `{{ "\{ {" }}`
 
 		TokenizeString(t, inp, []token.Token{
@@ -255,7 +255,7 @@ func TestStrings(test *testing.T) {
 		})
 	})
 
-	test.Run("Empty string", func(t *testing.T) {
+	test.Run("empty string", func(t *testing.T) {
 		inp := `{{ "" }}`
 
 		TokenizeString(t, inp, []token.Token{
@@ -323,6 +323,32 @@ func TestLogicalOrOp(t *testing.T) {
 	})
 }
 
+func TestSingleAmpersandIsIllegal(t *testing.T) {
+	inp := `{{ 1 & 2 }}`
+
+	TokenizeString(t, inp, []token.Token{
+		{Type: token.LBRACES, Lit: "{{", Pos: &position.Pos{EndCol: 1}},
+		{Type: token.INT, Lit: "1", Pos: &position.Pos{StartCol: 3, EndCol: 3}},
+		{Type: token.ILLEGAL, Lit: "&", Pos: &position.Pos{StartCol: 5, EndCol: 5}},
+		{Type: token.INT, Lit: "2", Pos: &position.Pos{StartCol: 7, EndCol: 7}},
+		{Type: token.RBRACES, Lit: "}}", Pos: &position.Pos{StartCol: 9, EndCol: 10}},
+		{Type: token.EOF, Lit: "", Pos: &position.Pos{StartCol: 11, EndCol: 11}},
+	})
+}
+
+func TestSinglePipeIsIllegal(t *testing.T) {
+	inp := `{{ 1 | 2 }}`
+
+	TokenizeString(t, inp, []token.Token{
+		{Type: token.LBRACES, Lit: "{{", Pos: &position.Pos{EndCol: 1}},
+		{Type: token.INT, Lit: "1", Pos: &position.Pos{StartCol: 3, EndCol: 3}},
+		{Type: token.ILLEGAL, Lit: "|", Pos: &position.Pos{StartCol: 5, EndCol: 5}},
+		{Type: token.INT, Lit: "2", Pos: &position.Pos{StartCol: 7, EndCol: 7}},
+		{Type: token.RBRACES, Lit: "}}", Pos: &position.Pos{StartCol: 9, EndCol: 10}},
+		{Type: token.EOF, Lit: "", Pos: &position.Pos{StartCol: 11, EndCol: 11}},
+	})
+}
+
 func TestUnterminatedBraces(t *testing.T) {
 	cases := []struct {
 		name string
@@ -368,15 +394,15 @@ func TestUnterminatedBraces(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			l := New(tc.inp)
 
-			for i, want := range tc.toks {
+			for i, expect := range tc.toks {
 				got := l.Next()
 
-				if got.Type != want.Type || got.Lit != want.Lit {
+				if got.Type != expect.Type || got.Lit != expect.Lit {
 					t.Fatalf(
 						"token %d: expected %s %q, got %s %q",
 						i,
-						token.String(want.Type),
-						want.Lit,
+						token.String(expect.Type),
+						expect.Lit,
 						token.String(got.Type),
 						got.Lit,
 					)
@@ -503,8 +529,25 @@ func TestIllegalTokenWithMultibyteRune(t *testing.T) {
 		{Type: token.LBRACES, Lit: "{{", Pos: &position.Pos{EndCol: 1}},
 		{Type: token.IDENT, Lit: "caf", Pos: &position.Pos{StartCol: 3, EndCol: 5}},
 		{Type: token.ILLEGAL, Lit: "é", Pos: &position.Pos{StartCol: 6, EndCol: 6}},
-		{Type: token.RBRACES, Lit: "}}", Pos: &position.Pos{StartCol: 9, EndCol: 10}},
-		{Type: token.EOF, Lit: "", Pos: &position.Pos{StartCol: 11, EndCol: 11}},
+		{Type: token.RBRACES, Lit: "}}", Pos: &position.Pos{StartCol: 8, EndCol: 9}},
+		{Type: token.EOF, Lit: "", Pos: &position.Pos{StartCol: 10, EndCol: 10}},
+	})
+}
+
+func TestMultibyteCharactersCountAsOneColumn(t *testing.T) {
+	inp := `<p>你好，世界！</p> {{ 1 + }}`
+
+	TokenizeString(t, inp, []token.Token{
+		{
+			Type: token.TEXT,
+			Lit:  `<p>你好，世界！</p> `,
+			Pos:  &position.Pos{EndCol: 13},
+		},
+		{Type: token.LBRACES, Lit: "{{", Pos: &position.Pos{StartCol: 14, EndCol: 15}},
+		{Type: token.INT, Lit: "1", Pos: &position.Pos{StartCol: 17, EndCol: 17}},
+		{Type: token.ADD, Lit: "+", Pos: &position.Pos{StartCol: 19, EndCol: 19}},
+		{Type: token.RBRACES, Lit: "}}", Pos: &position.Pos{StartCol: 21, EndCol: 22}},
+		{Type: token.EOF, Lit: "", Pos: &position.Pos{StartCol: 23, EndCol: 23}},
 	})
 }
 
@@ -582,7 +625,7 @@ func TestLineNumber(t *testing.T) {
 		}
 
 		if lastTok.Line() != tc.line {
-			t.Errorf("Expected line number %d, got %d", tc.line, lastTok.Line())
+			t.Errorf("expected line number %d, got %d", tc.line, lastTok.Line())
 		}
 	}
 }
@@ -632,7 +675,7 @@ func TestTokenPosition(t *testing.T) {
 
 		if targetTok.Pos.StartCol != pos.StartCol {
 			t.Errorf(
-				"Expected token %q StartCol: %d, got %d",
+				"expected token %q StartCol: %d, got %d",
 				targetTok.Lit,
 				pos.StartCol,
 				targetTok.Pos.StartCol,
@@ -641,7 +684,7 @@ func TestTokenPosition(t *testing.T) {
 
 		if targetTok.Pos.EndCol != pos.EndCol {
 			t.Errorf(
-				"Expected token %q EndCol: %d, got: %d",
+				"expected token %q EndCol: %d, got %d",
 				targetTok.Lit,
 				pos.EndCol,
 				targetTok.Pos.EndCol,
@@ -650,7 +693,7 @@ func TestTokenPosition(t *testing.T) {
 
 		if targetTok.Pos.EndLine != pos.EndLine {
 			t.Errorf(
-				"Expected token %q EndLine: %d, got: %d",
+				"expected token %q EndLine: %d, got %d",
 				targetTok.Lit,
 				pos.EndLine,
 				targetTok.Pos.EndLine,
@@ -659,7 +702,7 @@ func TestTokenPosition(t *testing.T) {
 
 		if targetTok.Pos.StartLine != pos.StartLine {
 			t.Errorf(
-				"Expected token %q StartLine: %d, got %d",
+				"expected token %q StartLine: %d, got %d",
 				targetTok.Lit,
 				pos.StartLine,
 				targetTok.Pos.StartLine,
@@ -669,94 +712,94 @@ func TestTokenPosition(t *testing.T) {
 }
 
 func TestIsDirectiveToken(t *testing.T) {
-	t.Run("Not a directive token", func(t *testing.T) {
-		input := "test@email.com"
-		l := New(input)
+	t.Run("not a directive token", func(t *testing.T) {
+		inp := "test@email.com"
+		l := New(inp)
 
 		if l.isDirectiveToken() {
-			t.Errorf("Expected %q not to be a directive token", input)
+			t.Errorf("expected %q not to be a directive token", inp)
 		}
 
 		if l.isEscapedDirective() {
-			t.Errorf("Expected %q not to be escaped directive token", input)
+			t.Errorf("expected %q not to be escaped directive token", inp)
 		}
 	})
 
-	t.Run("Directive token", func(t *testing.T) {
-		input := "@break"
-		l := New(input)
+	t.Run("directive token", func(t *testing.T) {
+		inp := "@break"
+		l := New(inp)
 
 		if !l.isDirectiveToken() {
-			t.Errorf("Expected %q to be a directive token", input)
+			t.Errorf("expected %q to be a directive token", inp)
 		}
 
 		if l.isEscapedDirective() {
-			t.Errorf("Expected %q not to be an escaped directive token", input)
+			t.Errorf("expected %q not to be an escaped directive token", inp)
 		}
 	})
 
-	t.Run("Escaped directive token", func(t *testing.T) {
-		input := `\@break`
-		l := New(input)
+	t.Run("escaped directive token", func(t *testing.T) {
+		inp := `\@break`
+		l := New(inp)
 		l.readChar() // skip the backslash
 
 		if l.isDirectiveToken() {
-			t.Errorf("Expected %q not to be a directive", input)
+			t.Errorf("expected %q not to be a directive", inp)
 		}
 
 		if !l.isEscapedDirective() {
-			t.Errorf("Expected %q to be escaped directive", input)
+			t.Errorf("expected %q to be escaped directive", inp)
 		}
 	})
 }
 
 func TestAreBracesToken(t *testing.T) {
-	t.Run("Not braces token", func(t *testing.T) {
-		input := "some {{ text"
-		l := New(input)
+	t.Run("not braces token", func(t *testing.T) {
+		inp := "some {{ text"
+		l := New(inp)
 
 		areBraces, escaped := l.areBracesToken()
 		if areBraces {
-			t.Errorf("Expected %q not to be braces", input)
+			t.Errorf("expected %q not to be braces", inp)
 		}
 
 		if escaped {
-			t.Errorf("Expected %q not to be escaped braces", input)
+			t.Errorf("expected %q not to be escaped braces", inp)
 		}
 	})
 
-	t.Run("Braces token", func(t *testing.T) {
-		input := "{{ 123 }}"
-		l := New(input)
+	t.Run("braces token", func(t *testing.T) {
+		inp := "{{ 123 }}"
+		l := New(inp)
 
 		areBraces, escaped := l.areBracesToken()
 		if !areBraces {
-			t.Errorf("Expected %q to be braces token", input)
+			t.Errorf("expected %q to be braces token", inp)
 		}
 
 		if escaped {
-			t.Errorf("Expected %q not to be escaped braces token", input)
+			t.Errorf("expected %q not to be escaped braces token", inp)
 		}
 	})
 
-	t.Run("Escaped braces token", func(t *testing.T) {
-		input := `\{{ 234 }}`
-		l := New(input)
+	t.Run("escaped braces token", func(t *testing.T) {
+		inp := `\{{ 234 }}`
+		l := New(inp)
 		l.readChar() // skip the backslash
 
 		areBraces, escaped := l.areBracesToken()
 		if areBraces {
-			t.Errorf("Expected %q not to be braces token", input)
+			t.Errorf("expected %q not to be braces token", inp)
 		}
 
 		if !escaped {
-			t.Errorf("Expected %q to be escaped braces token", input)
+			t.Errorf("expected %q to be escaped braces token", inp)
 		}
 	})
 }
 
 func TestCallExp(t *testing.T) {
-	t.Run("On string", func(t *testing.T) {
+	t.Run("on string", func(t *testing.T) {
 		inp := `{{ "test".upper() }}`
 
 		TokenizeString(t, inp, []token.Token{
@@ -771,7 +814,7 @@ func TestCallExp(t *testing.T) {
 		})
 	})
 
-	t.Run("On int", func(t *testing.T) {
+	t.Run("on int", func(t *testing.T) {
 		inp := `{{ 3.int() }}`
 
 		TokenizeString(t, inp, []token.Token{
@@ -959,36 +1002,65 @@ func TestSlotDirective(t *testing.T) {
 
 // Comments should be ignored by the lexer
 func TestComments(t *testing.T) {
-	t.Run("Simple comment", func(t *testing.T) {
-		inp := `<div>{{-- This is a comment --}}</div>`
+	cases := []struct {
+		name   string
+		inp    string
+		expect []token.Token
+	}{
+		{
+			name: "simple comment",
+			inp:  `<div>{{-- This is a comment --}}</div>`,
+			expect: []token.Token{
+				{Type: token.TEXT, Lit: "<div>", Pos: &position.Pos{EndCol: 4}},
+				{Type: token.TEXT, Lit: "</div>", Pos: &position.Pos{StartCol: 32, EndCol: 37}},
+				{Type: token.EOF, Lit: "", Pos: &position.Pos{StartCol: 38, EndCol: 38}},
+			},
+		},
+		{
+			name: "comment with braces inside",
+			inp:  `{{-- {{ --}}`,
+			expect: []token.Token{
+				{Type: token.EOF, Lit: "", Pos: &position.Pos{StartCol: 12, EndCol: 12}},
+			},
+		},
+		{
+			name: "directive with comment",
+			inp:  `{{-- @each(u in users){{ u }}@end --}}`,
+			expect: []token.Token{
+				{Type: token.EOF, Lit: "", Pos: &position.Pos{StartCol: 38, EndCol: 38}},
+			},
+		},
+		{
+			name: "nested comment",
+			inp:  `{{-- Contains {{-- and --}} inside --}}`,
+			expect: []token.Token{
+				{Type: token.EOF, Lit: "", Pos: &position.Pos{StartCol: 39, EndCol: 39}},
+			},
+		},
+		{
+			name: "standalone comment line is left out of text",
+			inp:  "<div>\n    {{-- comment --}}\n</div>",
+			expect: []token.Token{
+				{Type: token.TEXT, Lit: "<div>\n", Pos: &position.Pos{EndLine: 1, EndCol: 3}},
+				{
+					Type: token.TEXT,
+					Lit:  "</div>",
+					Pos:  &position.Pos{StartLine: 1, StartCol: 21, EndLine: 2, EndCol: 5},
+				},
+				{
+					Type: token.EOF,
+					Lit:  "",
+					Pos:  &position.Pos{StartLine: 2, StartCol: 6, EndLine: 2, EndCol: 6},
+				},
+			},
+		},
+	}
 
-		TokenizeString(t, inp, []token.Token{
-			{Type: token.TEXT, Lit: "<div>", Pos: &position.Pos{EndCol: 4}},
-			{Type: token.TEXT, Lit: "</div>", Pos: &position.Pos{StartCol: 32, EndCol: 37}},
-			{Type: token.EOF, Lit: "", Pos: &position.Pos{StartCol: 38, EndCol: 38}},
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			TokenizeString(t, tc.inp, tc.expect)
 		})
-	})
-
-	t.Run("Comment with braces inside", func(t *testing.T) {
-		inp := `{{-- {{ --}}`
-		TokenizeString(t, inp, []token.Token{
-			{Type: token.EOF, Lit: "", Pos: &position.Pos{StartCol: 12, EndCol: 12}},
-		})
-	})
-
-	t.Run("Directive with comment", func(t *testing.T) {
-		inp := `{{-- @each(u in users){{ u }}@end --}}`
-		TokenizeString(t, inp, []token.Token{
-			{Type: token.EOF, Lit: "", Pos: &position.Pos{StartCol: 38, EndCol: 38}},
-		})
-	})
-
-	t.Run("Nested comment", func(t *testing.T) {
-		inp := `{{-- Contains {{-- and --}} inside --}}`
-		TokenizeString(t, inp, []token.Token{
-			{Type: token.EOF, Lit: "", Pos: &position.Pos{StartCol: 39, EndCol: 39}},
-		})
-	})
+	}
 }
 
 func TestLexerCanReadIllegalDirectives(t *testing.T) {

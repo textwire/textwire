@@ -1,6 +1,6 @@
 package evaluator
 
-import "github.com/textwire/textwire/v5/pkg/value"
+import "github.com/textwire/textwire/v6/pkg/value"
 
 // SlotsStore stores slots. Example below:
 //
@@ -40,11 +40,17 @@ func NewContext(scope *value.Scope, absPath string) *Context {
 	}
 }
 
-func (ctx *Context) child() *Context {
+func (ctx *Context) childContext() *Context {
 	return &Context{
 		scope:   ctx.scope,
 		absPath: ctx.absPath,
 		inserts: ctx.inserts,
 		slots:   ctx.slots,
 	}
+}
+
+func (ctx *Context) childContextWithNewScope() *Context {
+	childCtx := ctx.childContext()
+	childCtx.scope = value.NewChildScope(ctx.scope)
+	return childCtx
 }

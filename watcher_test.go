@@ -1,126 +1,188 @@
 package textwire
 
 import (
+	"bytes"
+	"io"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 	"time"
 
-	"github.com/textwire/textwire/v5/config"
-	"github.com/textwire/textwire/v5/pkg/ast"
-	"github.com/textwire/textwire/v5/pkg/fail"
-	"github.com/textwire/textwire/v5/pkg/file"
-	"github.com/textwire/textwire/v5/pkg/linker"
+	"github.com/textwire/textwire/v6/config"
+	"github.com/textwire/textwire/v6/pkg/ast"
+	"github.com/textwire/textwire/v6/pkg/fail"
+	"github.com/textwire/textwire/v6/pkg/file"
+	"github.com/textwire/textwire/v6/pkg/linker"
 )
 
 const (
-	validTemplate  = "Hello, {{ name }}"
-	brokenTemplate = "@if(true) no end" // the @if is never closed
+	validTpl         = "Hello {{ name }}"
+	validModifiedTpl = validTpl + "!"
+	brokenTpl        = "@if(true) no end" // the @if is never closed
 )
 
-func TestReparseIfModified(t *testing.T) {
-	t.Run("replaces program on valid change", func(t *testing.T) {
+// newTestFileWatcher returns a watcher that doesn't print to stdout, keeping
+// test output clean when tests use intentionally broken templates.
+func newTestFileWatcher(ln *linker.NodeLinker) *fileWatcher {
+	fw := newFileWatcher(ln)
+	fw.logger.out = io.Discard
+	return fw
+}
+
+// newStartedWatcher mirrors Watch setup without starting the ticker, so
+// tests can drive tick() directly.
+func newStartedWatcher(t *testing.T, ln *linker.NodeLinker) *fileWatcher {
+	t.Helper()
+
+	fw := newTestFileWatcher(ln)
+
+	files, err := locateFiles()
+	if err != nil {
+		t.Fatalf("failed to locate files: %v", err)
+	}
+
+	fw.files = files
+
+	return fw
+}
+
+func TestRelinkAllPrograms(t *testing.T) {
+	t.Run("replaces program with changed file", func(t *testing.T) {
 		path := filepath.Join(t.TempDir(), "home.tw")
-		writeTemplate(t, path, validTemplate)
+		writeTemplate(t, path, validTpl)
 
-		f := file.New("home", path, path, config.New())
-		old := mustParseFile(t, f)
+		fw := newTestFileWatcher(linker.New(nil))
+		fw.files = []*file.SourceFile{file.New("home", path, path, config.New())}
+		fw.relinkAllPrograms()
 
-		fw := newFileWatcher(linker.New([]*ast.Program{old}))
-		fw.files = []*file.SourceFile{f}
+		writeTemplate(t, path, validModifiedTpl)
+		fw.relinkAllPrograms()
 
-		writeTemplate(t, path, validTemplate+"!")
-		setModTimeAfter(t, path, f.ModTime)
-
-		fw.reparseIfModified(f)
-
-		programs := fw.linker.Programs
-		if len(programs) != 1 || programs[0] == old {
-			t.Fatal("expected program 'home' to be replaced")
-		}
-	})
-
-	t.Run("skips unchanged file", func(t *testing.T) {
-		path := filepath.Join(t.TempDir(), "home.tw")
-		writeTemplate(t, path, validTemplate)
-
-		f := file.New("home", path, path, config.New())
-		old := mustParseFile(t, f)
-		f.ModTime = statModTime(t, path)
-
-		ln := linker.New([]*ast.Program{old})
-
-		fw := newFileWatcher(ln)
-		fw.files = []*file.SourceFile{f}
-
-		fw.reparseIfModified(f)
-
-		programs := fw.linker.Programs
-		if len(programs) != 1 || programs[0] != old {
-			t.Fatalf("expected unchanged program to be kept")
-		}
-	})
-
-	t.Run("keeps old program on syntax error", func(t *testing.T) {
-		path := filepath.Join(t.TempDir(), "home.tw")
-		writeTemplate(t, path, validTemplate)
-
-		f := file.New("home", path, path, config.New())
-		prog := mustParseFile(t, f)
-
-		fw := newFileWatcher(linker.New([]*ast.Program{prog}))
-		fw.files = []*file.SourceFile{f}
-
-		// The file changes on disk into something that no longer parses
-		writeTemplate(t, path, brokenTemplate)
-		setModTimeAfter(t, path, f.ModTime)
-
-		fw.reparseIfModified(f)
-
-		// The watcher survives and keeps serving the last valid program
 		programs := fw.linker.Programs
 		if len(programs) != 1 {
-			t.Fatalf("expected to keep the old program, got %d programs", len(programs))
+			t.Fatalf("expected 1 program, got %d", len(programs))
 		}
 
-		if programs[0].Name != "home" {
-			t.Fatalf("expected to keep program %q, got %q", "home", programs[0].Name)
+		expect := evalTpl(t, validModifiedTpl)
+		got := evalTpl(t, programs[0])
+		if got != expect {
+			t.Fatalf("expected rendered %q, got %q", expect, got)
+		}
+	})
+
+	t.Run("re-parses last valid source into a fresh program on syntax error", func(t *testing.T) {
+		path := filepath.Join(t.TempDir(), "home.tw")
+		writeTemplate(t, path, validTpl)
+
+		fw := newTestFileWatcher(linker.New(nil))
+		fw.files = []*file.SourceFile{file.New("home", path, path, config.New())}
+
+		// First pass: file parses, so "home" is published and its source cached.
+		fw.relinkAllPrograms()
+		firstProg := fw.linker.Programs[0]
+
+		// File becomes syntactically broken.
+		writeTemplate(t, path, brokenTpl)
+		fw.relinkAllPrograms()
+
+		programs := fw.linker.Programs
+
+		// The broken file is not dropped: the cached last-valid source is
+		// re-parsed, so "home" keeps rendering its last good content.
+		if len(programs) != 1 || programs[0].Name != "home" {
+			t.Fatalf("expected to keep program %q, got %v", "home", programs)
+		}
+
+		// The re-parsed program must be a NEW object: the old published
+		// program is never mutated/re-linked, so renders already running
+		// that still hold it.
+		if programs[0] == firstProg {
+			t.Fatal("expected last valid source to be parsed into a fresh program, not reused")
+		}
+
+		expect := evalTpl(t, validTpl)
+		got := evalTpl(t, programs[0])
+		if got != expect {
+			t.Fatalf("expected rendered %q, got %q", expect, got)
+		}
+	})
+
+	t.Run("omits file with no valid source yet", func(t *testing.T) {
+		path := filepath.Join(t.TempDir(), "home.tw")
+		writeTemplate(t, path, brokenTpl)
+
+		fw := newTestFileWatcher(linker.New(nil))
+		fw.files = []*file.SourceFile{file.New("home", path, path, config.New())}
+		fw.relinkAllPrograms()
+
+		if programs := fw.linker.Programs; len(programs) != 0 {
+			t.Fatalf("broken program should not be in linker, got %v", programs)
+		}
+	})
+
+	t.Run("valid template still updates when another has a syntax error", func(t *testing.T) {
+		dir := t.TempDir()
+		homePath := filepath.Join(dir, "home.tw")
+		aboutPath := filepath.Join(dir, "about.tw")
+		writeTemplate(t, homePath, validTpl)
+		writeTemplate(t, aboutPath, validTpl)
+
+		fw := newTestFileWatcher(linker.New(nil))
+		fw.files = []*file.SourceFile{
+			file.New("home", homePath, homePath, config.New()),
+			file.New("about", aboutPath, aboutPath, config.New()),
+		}
+
+		fw.relinkAllPrograms()
+
+		writeTemplate(t, homePath, brokenTpl)
+		writeTemplate(t, aboutPath, validModifiedTpl)
+		fw.relinkAllPrograms()
+
+		programs := fw.linker.Programs
+		if len(programs) != 2 {
+			t.Fatalf("expected 2 programs, got %d", len(programs))
+		}
+
+		expect := evalTpl(t, validModifiedTpl)
+		got := evalTpl(t, programs[1])
+		if got != expect {
+			t.Fatalf("expected program 'about' to render %q, got %q", expect, got)
 		}
 	})
 }
 
-func TestUpsertProgram(t *testing.T) {
-	t.Run("appends new program", func(t *testing.T) {
-		fw := newFileWatcher(linker.New(nil))
-		fw.upsertProgram(&ast.Program{Name: "home"})
+func TestRelinkAllPrograms_LogsRefreshedFileOnModTimeChange(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "home.tw")
+	writeTemplate(t, path, validTpl)
 
-		programs := fw.linker.Programs
-		if len(programs) != 1 {
-			t.Fatalf("expected 1 program, got %d", len(programs))
-		}
+	var out bytes.Buffer
+	fw := newFileWatcher(linker.New(nil))
+	fw.logger.out = &out
+	fw.files = []*file.SourceFile{file.New("home", path, path, config.New())}
 
-		if programs[0].Name != "home" {
-			t.Fatalf("expected program %q to be added, got %v", "home", programs)
-		}
-	})
+	fw.relinkAllPrograms()
+	if strings.Contains(out.String(), "refreshed") {
+		t.Fatalf("expected no refresh log on first parse, got %q", out.String())
+	}
 
-	t.Run("replaces program with same name", func(t *testing.T) {
-		old := &ast.Program{Name: "home"}
-		ln := linker.New([]*ast.Program{old})
-		fw := newFileWatcher(ln)
+	fw.relinkAllPrograms()
+	if strings.Contains(out.String(), "refreshed") {
+		t.Fatalf("expected no refresh log when file is unchanged, got %q", out.String())
+	}
 
-		updated := &ast.Program{Name: "home"}
-		fw.upsertProgram(updated)
+	writeTemplate(t, path, validModifiedTpl)
+	modifiedAt := time.Now().Add(time.Second)
+	if err := os.Chtimes(path, modifiedAt, modifiedAt); err != nil {
+		t.Fatalf("failed to set modification time: %v", err)
+	}
 
-		programs := fw.linker.Programs
-		if len(programs) != 1 {
-			t.Fatalf("expected 1 program, got %d", len(programs))
-		}
+	fw.relinkAllPrograms()
 
-		if programs[0] != updated {
-			t.Fatal("expected program 'home' to be replaced")
-		}
-	})
+	if !strings.Contains(out.String(), "refreshed "+fw.files[0].Rel) {
+		t.Fatalf("expected a refresh log for modified file, got %q", out.String())
+	}
 }
 
 func TestRemoveProgramByName(t *testing.T) {
@@ -130,7 +192,7 @@ func TestRemoveProgramByName(t *testing.T) {
 			{Name: "about"},
 		})
 
-		fw := newFileWatcher(ln)
+		fw := newTestFileWatcher(ln)
 		fw.removeProgramByName("home")
 
 		programs := fw.linker.Programs
@@ -149,7 +211,7 @@ func TestRemoveProgramByName(t *testing.T) {
 			{Name: "about"},
 		})
 
-		fw := newFileWatcher(ln)
+		fw := newTestFileWatcher(ln)
 		fw.removeProgramByName("contact")
 
 		programs := fw.linker.Programs
@@ -160,7 +222,7 @@ func TestRemoveProgramByName(t *testing.T) {
 }
 
 func TestFindDeletedFiles_ReturnsFilesMissingFromCurrentList(t *testing.T) {
-	fw := newFileWatcher(linker.New(nil))
+	fw := newTestFileWatcher(linker.New(nil))
 	fw.files = []*file.SourceFile{{Name: "home"}}
 
 	oldFiles := []*file.SourceFile{{Name: "home"}, {Name: "about"}}
@@ -175,52 +237,9 @@ func TestFindDeletedFiles_ReturnsFilesMissingFromCurrentList(t *testing.T) {
 	}
 }
 
-func TestMarkNewFilesForParsing_ZeroesModTimeOnlyForNewFiles(t *testing.T) {
-	lastCheck := time.Now()
-	oldFile := &file.SourceFile{Name: "home", ModTime: lastCheck}
-	newFile := &file.SourceFile{Name: "about", ModTime: lastCheck}
-
-	fw := newFileWatcher(linker.New(nil))
-	fw.files = []*file.SourceFile{oldFile, newFile}
-
-	fw.markNewFilesForParsing([]*file.SourceFile{oldFile})
-
-	if !oldFile.ModTime.Equal(lastCheck) {
-		t.Fatalf("expected existing file ModTime to be kept")
-	}
-
-	if !newFile.ModTime.IsZero() {
-		t.Fatalf("expected new file ModTime to be zeroed, got %v", newFile.ModTime)
-	}
-}
-
-func TestGetFileModTime(t *testing.T) {
-	t.Run("returns zero for missing file", func(t *testing.T) {
-		fw := newFileWatcher(linker.New(nil))
-		f := &file.SourceFile{Abs: filepath.Join(t.TempDir(), "missing.tw")}
-
-		if modTime := fw.getFileModTime(f); !modTime.IsZero() {
-			t.Fatalf("expected zero time for missing file, got %v", modTime)
-		}
-	})
-
-	t.Run("returns file mod time", func(t *testing.T) {
-		path := filepath.Join(t.TempDir(), "home.tw")
-		writeTemplate(t, path, validTemplate)
-
-		fw := newFileWatcher(linker.New(nil))
-		f := &file.SourceFile{Abs: path}
-
-		want := statModTime(t, path)
-		if modTime := fw.getFileModTime(f); !modTime.Equal(want) {
-			t.Fatalf("expected mod time %v, got %v", want, modTime)
-		}
-	})
-}
-
 func TestTrackLinkingError_SetsAndClearsLinkError(t *testing.T) {
 	ln := linker.New(nil)
-	fw := newFileWatcher(ln)
+	fw := newTestFileWatcher(ln)
 
 	failure := fail.New(nil, "", fail.OriginLink, "undefined component")
 	fw.trackLinkingError(failure)
@@ -240,48 +259,29 @@ func TestCountFiles_CountsOnlyTemplateFiles(t *testing.T) {
 	dir := t.TempDir()
 	useTemplateDir(t, dir)
 
-	writeTemplate(t, filepath.Join(dir, "home.tw"), validTemplate)
+	writeTemplate(t, filepath.Join(dir, "home.tw"), validTpl)
 	writeTemplate(t, filepath.Join(dir, "notes.txt"), "not a template")
 	if err := os.Mkdir(filepath.Join(dir, "layouts"), 0o755); err != nil {
 		t.Fatalf("failed to create layouts dir: %v", err)
 	}
-	writeTemplate(t, filepath.Join(dir, "layouts", "main.tw"), validTemplate)
+	writeTemplate(t, filepath.Join(dir, "layouts", "main.tw"), validTpl)
 
-	fw := newFileWatcher(linker.New(nil))
+	fw := newTestFileWatcher(linker.New(nil))
 
 	if count := fw.countFiles(); count != 2 {
 		t.Fatalf("expected 2 template files, got %d", count)
 	}
 }
 
-func TestRelinkAllPrograms_KeepsOldProgramsOnParseFailure(t *testing.T) {
-	dir := t.TempDir()
-	useTemplateDir(t, dir)
-
-	path := filepath.Join(dir, "home.tw")
-	writeTemplate(t, path, brokenTemplate)
-
-	old := &ast.Program{Name: "home"}
-	fw := newFileWatcher(linker.New([]*ast.Program{old}))
-	fw.files = []*file.SourceFile{file.New("home", path, path, userConf)}
-
-	fw.relinkAllPrograms()
-
-	programs := fw.linker.Programs
-	if len(programs) != 1 || programs[0] != old {
-		t.Fatalf("expected old program to be kept on parse failure")
-	}
-}
-
-func TestCheckForChanges(t *testing.T) {
+func TestTick(t *testing.T) {
 	t.Run("adds program for new file", func(t *testing.T) {
 		dir := t.TempDir()
 		useTemplateDir(t, dir)
 
 		fw := newStartedWatcher(t, linker.New(nil))
 
-		writeTemplate(t, filepath.Join(dir, "home.tw"), validTemplate)
-		fw.checkForChanges()
+		writeTemplate(t, filepath.Join(dir, "home.tw"), validTpl)
+		fw.tick()
 
 		programs := fw.linker.Programs
 		if len(programs) != 1 || programs[0].Name != "home" {
@@ -294,87 +294,44 @@ func TestCheckForChanges(t *testing.T) {
 		useTemplateDir(t, dir)
 
 		path := filepath.Join(dir, "home.tw")
-		writeTemplate(t, path, validTemplate)
+		writeTemplate(t, path, validTpl)
 
 		fw := newStartedWatcher(t, linker.New(nil))
-		fw.checkForChanges()
+		fw.tick()
 
 		if err := os.Remove(path); err != nil {
 			t.Fatalf("failed to remove template: %v", err)
 		}
-		fw.checkForChanges()
+		fw.tick()
 
 		if programs := fw.linker.Programs; len(programs) != 0 {
 			t.Fatalf("expected program to be removed, got %v", programs)
 		}
 	})
-}
 
-// newStartedWatcher mirrors Watch setup without starting the ticker, so
-// tests can drive checkForChanges directly.
-func newStartedWatcher(t *testing.T, ln *linker.NodeLinker) *fileWatcher {
-	t.Helper()
+	t.Run("drops last valid source of deleted file", func(t *testing.T) {
+		dir := t.TempDir()
+		useTemplateDir(t, dir)
 
-	fw := newFileWatcher(ln)
+		path := filepath.Join(dir, "home.tw")
+		writeTemplate(t, path, validTpl)
 
-	files, err := locateFiles()
-	if err != nil {
-		t.Fatalf("failed to locate files: %v", err)
-	}
+		fw := newStartedWatcher(t, linker.New(nil))
+		fw.tick()
 
-	fw.files = files
+		if err := os.Remove(path); err != nil {
+			t.Fatalf("failed to remove template: %v", err)
+		}
 
-	return fw
-}
+		fw.tick()
 
-func useTemplateDir(t *testing.T, dir string) {
-	t.Helper()
+		// A new file with the same name that doesn't parse must not fall back
+		// to the source of the deleted file
+		writeTemplate(t, path, brokenTpl)
+		fw.tick()
 
-	prev := *userConf
-	t.Cleanup(func() { *userConf = prev })
-
-	userConf.Configure(&config.Config{TemplateDir: dir})
-}
-
-func mustParseFile(t *testing.T, f *file.SourceFile) *ast.Program {
-	t.Helper()
-
-	prog, failure, err := parseFile(f)
-	if err != nil {
-		t.Fatalf("failed to parse valid template: %v", err)
-	}
-
-	if failure != nil {
-		t.Fatalf("failed to parse valid template: %v", failure.Error())
-	}
-
-	return prog
-}
-
-func writeTemplate(t *testing.T, path, content string) {
-	t.Helper()
-
-	if err := os.WriteFile(path, []byte(content), 0o644); err != nil {
-		t.Fatalf("failed to write template: %v", err)
-	}
-}
-
-func statModTime(t *testing.T, path string) time.Time {
-	t.Helper()
-
-	info, err := os.Stat(path)
-	if err != nil {
-		t.Fatalf("failed to stat template: %v", err)
-	}
-
-	return info.ModTime()
-}
-
-func setModTimeAfter(t *testing.T, path string, lastCheck time.Time) {
-	t.Helper()
-
-	modTime := lastCheck.Add(time.Second)
-	if err := os.Chtimes(path, modTime, modTime); err != nil {
-		t.Fatalf("failed to change template mod time: %v", err)
-	}
+		if programs := fw.linker.Programs; len(programs) != 0 {
+			t.Fatalf("broken program should not be in linker, got %v", programs)
+		}
+	})
 }

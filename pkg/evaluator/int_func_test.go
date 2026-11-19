@@ -4,48 +4,52 @@ import "testing"
 
 func TestEvalIntFunctions(t *testing.T) {
 	cases := []struct {
-		id     uint
+		name   string
 		inp    string
 		expect string
 	}{
 		// float
-		{10, `{{ 1.float() }}`, "1.0"},
-		{20, `{{ 321.float().int() }}`, "321"},
+		{"int to float", `{{ 1.float() }}`, "1.0"},
+		{"int to float and back to int", `{{ 321.float().int() }}`, "321"},
 		// abs
-		{30, `{{ 1.abs() }}`, "1"},
-		{40, `{{ -1.abs() }}`, "-1"},
-		{50, `{{ (-1).abs() }}`, "1"},
-		{60, `{{ 0.abs() }}`, "0"},
-		{70, `{{ -999999.abs() }}`, "-999999"},
-		{80, `{{ 999999.abs() }}`, "999999"},
+		{"abs of positive int", `{{ 1.abs() }}`, "1"},
+		{"abs on literal before negation", `{{ -1.abs() }}`, "-1"},
+		{"abs of parenthesized negative int", `{{ (-1).abs() }}`, "1"},
+		{"abs of zero", `{{ 0.abs() }}`, "0"},
+		{"abs of negative literal negated after abs", `{{ -999999.abs() }}`, "-999999"},
+		{"abs of large positive int", `{{ 999999.abs() }}`, "999999"},
 		// str
-		{90, `{{ 1.str() }}`, "1"},
-		{100, `{{ 321.str() }}`, "321"},
-		{110, `{{ (-1).str() }}`, "-1"},
-		{120, `{{ (-9999999999).str() }}`, "-9999999999"},
-		{130, `{{ 9999999999.str() }}`, "9999999999"},
+		{"int to string", `{{ 1.str() }}`, "1"},
+		{"large int to string", `{{ 321.str() }}`, "321"},
+		{"negative parenthesized int to string", `{{ (-1).str() }}`, "-1"},
+		{"large negative int to string", `{{ (-9999999999).str() }}`, "-9999999999"},
+		{"large positive int to string", `{{ 9999999999.str() }}`, "9999999999"},
 		// len
-		{140, `{{ 1.len() }}`, "1"},
-		{150, `{{ 321.len() }}`, "3"},
-		{160, `{{ -1.len() }}`, "-1"},
-		{170, `{{ 0.len() }}`, "1"},
-		{180, `{{ -9999999999.len() }}`, "-10"},
-		{190, `{{ (-9999999999).len() }}`, "10"},
-		{200, `{{ 9999999999.len() }}`, "10"},
+		{"len of single digit", `{{ 1.len() }}`, "1"},
+		{"len of three digits", `{{ 321.len() }}`, "3"},
+		{"len of negative literal applies negation after len", `{{ -1.len() }}`, "-1"},
+		{"len of zero", `{{ 0.len() }}`, "1"},
+		{"len of negative literal with trailing negation", `{{ -9999999999.len() }}`, "-10"},
+		{"len of parenthesized negative int", `{{ (-9999999999).len() }}`, "10"},
+		{"len of ten digit int", `{{ 9999999999.len() }}`, "10"},
 		// decimal
-		{210, `{{ 0.decimal() }}`, "0.00"},
-		{220, `{{ 100.decimal() }}`, "100.00"},
-		{230, `{{ 2352.decimal() }}`, "2352.00"},
-		{240, `{{ 1000.decimal('_') }}`, "1000_00"},
-		{250, `{{ 9000.decimal('_', 10) }}`, "9000_0000000000"},
-		{260, `{{ 100.decimal('|', 0) }}`, "100"},
-		{270, `{{ 100.decimal('|', 1) }}`, "100|0"},
-		{280, `{{ (-100).decimal('|', 0) }}`, "-100"},
-		{290, `{{ 1.decimal(',') }}`, "1,00"},
-		{300, `{{ 1.decimal('.', -1) }}`, "1"},
+		{"decimal of zero", `{{ 0.decimal() }}`, "0.00"},
+		{"decimal of hundred", `{{ 100.decimal() }}`, "100.00"},
+		{"decimal of 2352", `{{ 2352.decimal() }}`, "2352.00"},
+		{"decimal with custom separator", `{{ 1000.decimal('_') }}`, "1000_00"},
+		{"decimal with separator and precision", `{{ 9000.decimal('_', 10) }}`, "9000_0000000000"},
+		{"decimal with zero precision", `{{ 100.decimal('|', 0) }}`, "100"},
+		{"decimal with one precision", `{{ 100.decimal('|', 1) }}`, "100|0"},
+		{
+			"decimal of parenthesized negative with zero precision",
+			`{{ (-100).decimal('|', 0) }}`,
+			"-100",
+		},
+		{"decimal with comma separator", `{{ 1.decimal(',') }}`, "1,00"},
+		{"decimal with negative precision", `{{ 1.decimal('.', -1) }}`, "1"},
 	}
 
 	for _, tc := range cases {
-		evaluationExpected(t, tc.inp, tc.expect, tc.id)
+		evaluationExpected(t, tc.inp, tc.expect, nil, tc.name)
 	}
 }

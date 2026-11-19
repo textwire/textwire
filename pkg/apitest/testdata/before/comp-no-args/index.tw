@@ -1,0 +1,5 @@
+<ul>@component("components/user")@end</ul>
+<ol>@component("~user")@end</ol>
+Before
+    @component('~indent')@end
+After

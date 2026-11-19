@@ -3,8 +3,8 @@ package ast
 import (
 	"strings"
 
-	"github.com/textwire/textwire/v5/pkg/fail"
-	"github.com/textwire/textwire/v5/pkg/token"
+	"github.com/textwire/textwire/v6/pkg/fail"
+	"github.com/textwire/textwire/v6/pkg/token"
 )
 
 type Program struct {
@@ -135,7 +135,7 @@ func (p *Program) linkBlockToSlot(
 	}
 
 	return fail.New(
-		passDir.Pos(),
+		passDir.Name.Pos(),
 		compFileAbsPath,
 		fail.OriginLink,
 		fail.ErrSlotNotDefined,

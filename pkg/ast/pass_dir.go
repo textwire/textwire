@@ -3,7 +3,7 @@ package ast
 import (
 	"strings"
 
-	"github.com/textwire/textwire/v5/pkg/token"
+	"github.com/textwire/textwire/v6/pkg/token"
 )
 
 type PassDir struct {
@@ -45,7 +45,9 @@ func (pd *PassDir) String() string {
 		}
 	}
 
-	out.WriteString(pd.Name.String())
+	if pd.Name.Val != "" {
+		out.WriteString(pd.Name.String())
+	}
 
 	if hasParens {
 		out.WriteString(")")

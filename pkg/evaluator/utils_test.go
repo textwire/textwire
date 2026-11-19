@@ -1,9 +1,14 @@
 package evaluator
 
 import (
+	"math"
+	"reflect"
+	"strings"
 	"testing"
 
-	"github.com/textwire/textwire/v5/pkg/value"
+	"github.com/textwire/textwire/v6/pkg/ast"
+	"github.com/textwire/textwire/v6/pkg/token"
+	"github.com/textwire/textwire/v6/pkg/value"
 )
 
 func TestIsTruthy(t *testing.T) {
@@ -73,15 +78,611 @@ func TestStrIsInt(t *testing.T) {
 		{"Negative one", "-1", true},
 		{"Decimal number with fraction", "123.23", false},
 		{"Decimal number ending with zero", "123.0", false},
+		{"Very large integer", "12345678901234567890", true},
+		{"Positive sign", "+123", true},
+		{"Empty string", "", false},
+		{"Only sign", "-", false},
+		{"Leading space", " 1", false},
+		{"Exponent notation", "1e5", false},
+		{"Special float word", "nan", false},
+		{"Two signs", "+-33", false},
+		{"Tree signs", "+-+21", false},
 	}
 
 	for _, tt := range tc {
 		t.Run(tt.name, func(t *testing.T) {
 			got := strIsInt(tt.inp)
+			if got != tt.expect {
+				t.Errorf("expect %v, got %v", tt.expect, got)
+			}
+		})
+	}
+}
+
+func TestIsValidFloat(t *testing.T) {
+	tc := []struct {
+		name   string
+		inp    string
+		expect bool
+	}{
+		{"Simple decimal", "1.5", true},
+		{"Negative decimal", "-0.5", true},
+		{"Positive sign decimal", "+1.5", true},
+		{"Trailing dot", "1.", true},
+		{"Large decimal", "123456789012345678901.5", true},
+		{"Integer without dot", "123", false},
+		{"Empty string", "", false},
+		{"Only sign", "-", false},
+		{"Only dot", ".", false},
+		{"Two dots", "1.2.3", false},
+		{"Letters", "1.a", false},
+		{"Nan", "nan", false},
+		{"Inf", "inf", false},
+		{"Infinity", "infinity", false},
+		{"Exponent notation", "1.5e3", false},
+		{"Leading space", " 1.5", false},
+	}
+
+	for _, tt := range tc {
+		t.Run(tt.name, func(t *testing.T) {
+			got := isValidFloat(tt.inp)
 
 			if got != tt.expect {
 				t.Errorf("expect %v, got %v", tt.expect, got)
 			}
 		})
 	}
+}
+
+func TestExprToText(t *testing.T) {
+	t.Run("nil expression", func(t *testing.T) {
+		if got := exprToText(nil); got != "" {
+			t.Errorf("expect %q, got %q", "", got)
+		}
+	})
+
+	t.Run("identifier", func(t *testing.T) {
+		expr := ast.NewIdentExpr(token.Token{Lit: "user"}, "user")
+		if got := exprToText(expr); got != "user" {
+			t.Errorf("expect %q, got %q", "user", got)
+		}
+	})
+
+	t.Run("integer", func(t *testing.T) {
+		expr := ast.NewIntExpr(token.Token{Lit: "1"}, 1)
+		if got := exprToText(expr); got != "1" {
+			t.Errorf("expect %q, got %q", "1", got)
+		}
+	})
+
+	t.Run("infix", func(t *testing.T) {
+		expr := ast.NewInfixExpr(
+			token.Token{Lit: "+"},
+			ast.NewIdentExpr(token.Token{Lit: "a"}, "a"),
+			"+",
+		)
+
+		expr.Right = ast.NewIdentExpr(token.Token{Lit: "b"}, "b")
+		if got := exprToText(expr); got != "a + b" {
+			t.Errorf("expect %q, got %q", "a + b", got)
+		}
+	})
+
+	t.Run("index", func(t *testing.T) {
+		expr := ast.NewIndexExpr(
+			token.Token{Lit: "["},
+			ast.NewIdentExpr(token.Token{Lit: "arr"}, "arr"),
+		)
+
+		expr.Index = ast.NewIntExpr(token.Token{Lit: "0"}, 0)
+		if got := exprToText(expr); got != "arr[0]" {
+			t.Errorf("expect %q, got %q", "arr[0]", got)
+		}
+	})
+
+	t.Run("dot", func(t *testing.T) {
+		expr := ast.NewDotExpr(
+			token.Token{Lit: "."},
+			ast.NewIdentExpr(token.Token{Lit: "user"}, "user"),
+		)
+
+		expr.Key = ast.NewIdentExpr(token.Token{Lit: "name"}, "name")
+		if got := exprToText(expr); got != "user.name" {
+			t.Errorf("expect %q, got %q", "user.name", got)
+		}
+	})
+}
+
+func TestEnsureMinFloatDecimals(t *testing.T) {
+	tc := []struct {
+		name      string
+		inp       string
+		separator string
+		decimals  int
+		expect    string
+	}{
+		{"Pads missing decimals", "1.5", ".", 2, "1.50"},
+		{"Pads with custom separator", "1.5", ",", 2, "1,50"},
+		{"Pads with 3 decimals", "1.5", ".", 3, "1.500"},
+		{"Enough decimals keeps value", "1.555", ".", 2, "1.555"},
+		{"Enough decimals swaps separator", "1.555", ",", 2, "1,555"},
+		{"Exact decimals swaps separator", "1.55", ",", 2, "1,55"},
+		{"Zero decimals keeps value", "1.5", ",", 0, "1,5"},
+		{"Negative value", "-0.5", ",", 2, "-0,50"},
+		{"Positive sign", "+1.5", ".", 2, "+1.50"},
+		{"Trailing dot gets padded", "1.", ".", 2, "1.00"},
+		{"Large value stays exact", "123456789012345678901.5", ".", 2, "123456789012345678901.50"},
+		{"No dot returns value as-is", "5", ".", 2, "5"},
+		{"Zero fraction padded", "0.0", ".", 3, "0.000"},
+		{"Pads to larger decimals", "1.5", ".", 5, "1.50000"},
+		{"Multi-character separator", "1.5", "||", 2, "1||50"},
+		{"Empty separator", "1.5", "", 2, "150"},
+		{"Plus sign kept", "+1.5", ",", 2, "+1,50"},
+		{"Trailing dot padded with separator", "1.", ",", 2, "1,00"},
+		{"Trailing dot with zero decimals", "1.", ".", 0, "1."},
+	}
+
+	for _, tt := range tc {
+		t.Run(tt.name, func(t *testing.T) {
+			got := ensureMinFloatDecimals(tt.inp, tt.separator, tt.decimals)
+
+			if got != tt.expect {
+				t.Errorf("expect %q, got %q", tt.expect, got)
+			}
+		})
+	}
+}
+
+func TestFloatToInt(t *testing.T) {
+	tc := []struct {
+		name      string
+		inp       float64
+		expect    int64
+		expectErr bool
+	}{
+		{"Zero", 0, 0, false},
+		{"Positive", 13, 13, false},
+		{"Negative", -13, -13, false},
+		{"Min int64", math.MinInt64, math.MinInt64, false},
+		{"Regular float", 22.22, 22, false},
+		{"Float 11.", 11., 11, false},
+		{"Float .10", .10, 0, false},
+		{"Float .40", .40, 0, false},
+		{"Above max int64", math.Exp2(63), 0, true},
+		{"Below min int64", -math.Exp2(63) - 4096, 0, true},
+		{"Positive infinity", math.Inf(1), 0, true},
+		{"Negative infinity", math.Inf(-1), 0, true},
+		{"NaN", math.NaN(), 0, true},
+	}
+
+	for _, tt := range tc {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := floatToInt(tt.inp, "int")
+
+			if tt.expectErr {
+				if err == nil {
+					t.Fatalf("expect error, got %v", got)
+				}
+				return
+			}
+
+			if err != nil {
+				t.Fatalf("expect no error, got %s", err)
+			}
+
+			if got.(*value.Int).Val != tt.expect {
+				t.Errorf("expect %d, got %d", tt.expect, got.(*value.Int).Val)
+			}
+		})
+	}
+}
+
+func TestSplitClusters(t *testing.T) {
+	tests := []struct {
+		name   string
+		inp    string
+		expect []string
+	}{
+		{
+			name:   "empty string",
+			inp:    "",
+			expect: nil,
+		},
+		{
+			name:   "single ASCII char",
+			inp:    "a",
+			expect: []string{"a"},
+		},
+		{
+			name:   "plain ASCII",
+			inp:    "abc",
+			expect: []string{"a", "b", "c"},
+		},
+		{
+			name:   "multibyte runes without marks",
+			inp:    "日本語",
+			expect: []string{"日", "本", "語"},
+		},
+		{
+			name:   "precomposed character is a single rune",
+			inp:    "\u00e9", // é
+			expect: []string{"\u00e9"},
+		},
+		{
+			name:   "base plus combining acute (Mn)",
+			inp:    "e\u0301",
+			expect: []string{"e\u0301"},
+		},
+		{
+			name:   "mark in the middle attaches to the preceding char",
+			inp:    "ae\u0301b",
+			expect: []string{"a", "e\u0301", "b"},
+		},
+		{
+			name:   "multiple stacked marks on one base",
+			inp:    "a\u0301\u0302\u0303",
+			expect: []string{"a\u0301\u0302\u0303"},
+		},
+		{
+			name:   "enclosing mark (Me)",
+			inp:    "a\u20dd", // combining enclosing circle
+			expect: []string{"a\u20dd"},
+		},
+		{
+			name:   "spacing combining mark (Mc)",
+			inp:    "\u0915\u093e", // Devanagari ka + aa vowel sign
+			expect: []string{"\u0915\u093e"},
+		},
+		{
+			name:   "mixed Mn, Me, Mc in sequence",
+			inp:    "a\u0301\u20dd\u093e",
+			expect: []string{"a\u0301\u20dd\u093e"},
+		},
+		{
+			name:   "several marked characters in a row",
+			inp:    "e\u0301a\u0300o\u0308",
+			expect: []string{"e\u0301", "a\u0300", "o\u0308"},
+		},
+		{
+			name:   "variation selector (Mn) attaches to its base",
+			inp:    "\u2764\ufe0f", // red heart with VS16
+			expect: []string{"\u2764\ufe0f"},
+		},
+		{
+			name:   "skin tone modifier attaches to its base",
+			inp:    "\U0001F44D\U0001F3FD", // thumbs up, medium skin tone
+			expect: []string{"\U0001F44D\U0001F3FD"},
+		},
+		{
+			name:   "flags pair regional indicators",
+			inp:    "\U0001F1E8\U0001F1F3\U0001F1F5\U0001F1F1", // 🇨🇳🇵🇱
+			expect: []string{"\U0001F1E8\U0001F1F3", "\U0001F1F5\U0001F1F1"},
+		},
+		{
+			name:   "unpaired regional indicator stays alone",
+			inp:    "\U0001F1E8\U0001F1F3\U0001F1F5", // Chinese flag plus an unpaired regional indicator
+			expect: []string{"\U0001F1E8\U0001F1F3", "\U0001F1F5"},
+		},
+		{
+			name:   "ZWJ family is one cluster",
+			inp:    "\U0001F468\u200D\U0001F469\u200D\U0001F467", // 👨‍👩‍👧
+			expect: []string{"\U0001F468\u200D\U0001F469\u200D\U0001F467"},
+		},
+		{
+			name:   "ZWJ sequence after variation selector",
+			inp:    "\U0001F3F3\uFE0F\u200D\U0001F308", // 🏳️‍🌈
+			expect: []string{"\U0001F3F3\uFE0F\u200D\U0001F308"},
+		},
+		{
+			name:   "ZWJ sequence followed by text",
+			inp:    "\U0001F468\u200D\U0001F469\u200D\U0001F467 hi",
+			expect: []string{"\U0001F468\u200D\U0001F469\u200D\U0001F467", " ", "h", "i"},
+		},
+		{
+			name:   "leading combining mark stands alone",
+			inp:    "\u0301",
+			expect: []string{"\u0301"},
+		},
+		{
+			name:   "leading mark followed by base char",
+			inp:    "\u0301a",
+			expect: []string{"\u0301", "a"},
+		},
+		{
+			name:   "multiple leading marks form one cluster",
+			inp:    "\u0301\u0302a",
+			expect: []string{"\u0301\u0302", "a"},
+		},
+		{
+			name:   "space and punctuation are not marks",
+			inp:    "a b.",
+			expect: []string{"a", " ", "b", "."},
+		},
+		{
+			name:   "invalid UTF-8 byte is its own cluster and preserved",
+			inp:    "a\xffb",
+			expect: []string{"a", "\xff", "b"},
+		},
+		{
+			name:   "mark after invalid byte attaches to it",
+			inp:    "\xff\u0301",
+			expect: []string{"\xff\u0301"},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := splitClusters(tt.inp)
+
+			if !reflect.DeepEqual(got, tt.expect) {
+				t.Errorf("splitClusters(%q)\n got: %q\nexpect: %q", tt.inp, got, tt.expect)
+			}
+
+			// Invariant: clusters must reassemble to exactly the input.
+			if joined := strings.Join(got, ""); joined != tt.inp {
+				t.Errorf("clusters do not reassemble: joined %q, input %q", joined, tt.inp)
+			}
+		})
+	}
+}
+
+func TestFloatInInt64Range(t *testing.T) {
+	tc := []struct {
+		name   string
+		inp    float64
+		expect bool
+	}{
+		{"Zero", 0, true},
+		{"Negative", -13.5, true},
+		{"Positive", 13.2, true},
+		{"Min int64", math.MinInt64, true},
+		{"Largest float below max int64", math.Nextafter(math.Exp2(63), 0), true},
+		{"Max int64 rounds to 2^63", math.Exp2(63), false},
+		{"Below min int64", -math.Exp2(63) - 4096, false},
+		{"Positive infinity", math.Inf(1), false},
+		{"Negative infinity", math.Inf(-1), false},
+		{"NaN", math.NaN(), false},
+	}
+
+	for _, tt := range tc {
+		t.Run(tt.name, func(t *testing.T) {
+			got := floatInInt64Range(tt.inp)
+
+			if got != tt.expect {
+				t.Errorf("expect %t, got %t", tt.expect, got)
+			}
+		})
+	}
+}
+
+func TestLiteralsEqual(t *testing.T) {
+	cases := []struct {
+		name   string
+		left   value.Literal
+		right  value.Literal
+		expect bool
+	}{
+		{
+			name:   "nil and nil are equal",
+			left:   new(value.Nil),
+			right:  new(value.Nil),
+			expect: true,
+		},
+		{
+			name:   "nil origins are ignored",
+			left:   value.NewNil(value.NilOriginMissingProp),
+			right:  new(value.Nil),
+			expect: true,
+		},
+		{
+			name:   "nil and integer are not equal",
+			left:   new(value.Nil),
+			right:  &value.Int{Val: 0},
+			expect: false,
+		},
+		{
+			name:   "equal integers",
+			left:   &value.Int{Val: 42},
+			right:  &value.Int{Val: 42},
+			expect: true,
+		},
+		{
+			name:   "different integers",
+			left:   &value.Int{Val: 42},
+			right:  &value.Int{Val: 43},
+			expect: false,
+		},
+		{
+			name:   "integer and float are not equal",
+			left:   &value.Int{Val: 1},
+			right:  &value.Float{Val: 1},
+			expect: false,
+		},
+		{
+			name:   "equal floats",
+			left:   &value.Float{Val: 1.5},
+			right:  &value.Float{Val: 1.5},
+			expect: true,
+		},
+		{
+			name:   "different floats",
+			left:   &value.Float{Val: 1.5},
+			right:  &value.Float{Val: 2.5},
+			expect: false,
+		},
+		{
+			name:   "equal booleans",
+			left:   &value.Bool{Val: true},
+			right:  &value.Bool{Val: true},
+			expect: true,
+		},
+		{
+			name:   "different booleans",
+			left:   &value.Bool{Val: true},
+			right:  &value.Bool{Val: false},
+			expect: false,
+		},
+		{
+			name:   "string and integer are not equal",
+			left:   &value.Str{Val: "1"},
+			right:  &value.Int{Val: 1},
+			expect: false,
+		},
+		{
+			name:   "equal strings",
+			left:   &value.Str{Val: "a"},
+			right:  &value.Str{Val: "a"},
+			expect: true,
+		},
+		{
+			name:   "different strings",
+			left:   &value.Str{Val: "a"},
+			right:  &value.Str{Val: "b"},
+			expect: false,
+		},
+		{
+			name:   "raw and plain strings with same text are equal",
+			left:   value.Raw(&value.Str{Val: "<b>"}),
+			right:  &value.Str{Val: "<b>"},
+			expect: true,
+		},
+		{
+			name:   "raw and plain strings with different text are not equal",
+			left:   value.Raw(&value.Str{Val: "<b>"}),
+			right:  &value.Str{Val: "<i>"},
+			expect: false,
+		},
+		{
+			name:   "raw string and integer are not equal",
+			left:   value.Raw(&value.Str{Val: "1"}),
+			right:  &value.Int{Val: 1},
+			expect: false,
+		},
+		{
+			name:   "empty arrays are equal",
+			left:   &value.Arr{},
+			right:  &value.Arr{},
+			expect: true,
+		},
+		{
+			name:   "arrays with different lengths are not equal",
+			left:   &value.Arr{Elements: []value.Literal{&value.Int{Val: 1}}},
+			right:  &value.Arr{},
+			expect: false,
+		},
+		{
+			name: "arrays with the same elements are equal",
+			left: &value.Arr{
+				Elements: []value.Literal{&value.Int{Val: 1}, &value.Str{Val: "a"}},
+			},
+			right: &value.Arr{
+				Elements: []value.Literal{&value.Int{Val: 1}, &value.Str{Val: "a"}},
+			},
+			expect: true,
+		},
+		{
+			name:   "arrays with different elements are not equal",
+			left:   &value.Arr{Elements: []value.Literal{&value.Int{Val: 1}}},
+			right:  &value.Arr{Elements: []value.Literal{&value.Int{Val: 2}}},
+			expect: false,
+		},
+		{
+			name:   "arrays with raw and plain strings are equal",
+			left:   &value.Arr{Elements: []value.Literal{value.Raw(&value.Str{Val: "<b>"})}},
+			right:  &value.Arr{Elements: []value.Literal{&value.Str{Val: "<b>"}}},
+			expect: true,
+		},
+		{
+			name: "arrays with nested raw and plain strings are equal",
+			left: &value.Arr{Elements: []value.Literal{
+				&value.Arr{Elements: []value.Literal{value.Raw(&value.Str{Val: "<b>"})}},
+			}},
+			right: &value.Arr{Elements: []value.Literal{
+				&value.Arr{Elements: []value.Literal{&value.Str{Val: "<b>"}}},
+			}},
+			expect: true,
+		},
+		{
+			name:   "empty objects are equal",
+			left:   value.NewObj(nil),
+			right:  value.NewObj(nil),
+			expect: true,
+		},
+		{
+			name: "objects with the same pairs are equal regardless of order",
+			left: value.NewObj(map[string]value.Literal{
+				"a": &value.Int{Val: 1},
+				"b": &value.Str{Val: "x"},
+			}),
+			right: value.NewObj(map[string]value.Literal{
+				"b": &value.Str{Val: "x"},
+				"a": &value.Int{Val: 1},
+			}),
+			expect: true,
+		},
+		{
+			name:   "objects with different keys are not equal",
+			left:   value.NewObj(map[string]value.Literal{"a": &value.Int{Val: 1}}),
+			right:  value.NewObj(map[string]value.Literal{"b": &value.Int{Val: 1}}),
+			expect: false,
+		},
+		{
+			name:   "objects with different values are not equal",
+			left:   value.NewObj(map[string]value.Literal{"a": &value.Int{Val: 1}}),
+			right:  value.NewObj(map[string]value.Literal{"a": &value.Int{Val: 2}}),
+			expect: false,
+		},
+		{
+			name:   "objects with raw and plain strings are equal",
+			left:   value.NewObj(map[string]value.Literal{"a": value.Raw(&value.Str{Val: "<b>"})}),
+			right:  value.NewObj(map[string]value.Literal{"a": &value.Str{Val: "<b>"}}),
+			expect: true,
+		},
+		{
+			name: "objects with nested raw and plain strings are equal",
+			left: value.NewObj(map[string]value.Literal{
+				"a": value.NewObj(map[string]value.Literal{"b": value.Raw(&value.Str{Val: "<b>"})}),
+			}),
+			right: value.NewObj(map[string]value.Literal{
+				"a": value.NewObj(map[string]value.Literal{"b": &value.Str{Val: "<b>"}}),
+			}),
+			expect: true,
+		},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			if got := literalsEqual(tc.left, tc.right); got != tc.expect {
+				t.Fatalf("expect %t, got %t", tc.expect, got)
+			}
+		})
+	}
+}
+
+func TestStripControlDir(t *testing.T) {
+	t.Run("returns block without control values as is", func(t *testing.T) {
+		inner := value.NewBlock(1)
+		inner.Append(&value.Text{Val: "a"})
+
+		block := value.NewBlock(1)
+		block.Append(inner)
+
+		if stripControlDirs(block) != block {
+			t.Fatal("expected same block when there is nothing to strip")
+		}
+	})
+
+	t.Run("removes nested break", func(t *testing.T) {
+		inner := value.NewBlock(1)
+		inner.Append(&value.Break{})
+
+		block := value.NewBlock(2)
+		block.Append(&value.Text{Val: "a"})
+		block.Append(inner)
+
+		stripped := stripControlDirs(block).(*value.Block)
+		if stripped.HasBreak() {
+			t.Fatal("expected break to be removed")
+		}
+	})
 }

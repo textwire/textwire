@@ -3,7 +3,7 @@ package utils
 import (
 	"fmt"
 
-	"github.com/textwire/textwire/v5/pkg/token"
+	"github.com/textwire/textwire/v6/pkg/token"
 )
 
 func ErrInvalidLocale(locale string) error {

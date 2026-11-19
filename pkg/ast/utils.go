@@ -1,7 +1,7 @@
 package ast
 
 import (
-	"github.com/textwire/textwire/v5/pkg/fail"
+	"github.com/textwire/textwire/v6/pkg/fail"
 )
 
 func FindProg(name string, programs []*Program) *Program {
@@ -19,7 +19,7 @@ func CheckUnusedInserts(prog *Program, inserts map[string]*InsertDir) *fail.Erro
 			continue
 		}
 
-		pos := inserts[name].Pos()
+		pos := inserts[name].Name.Pos()
 		path := inserts[name].AbsPath
 		name := inserts[name].Name.Val
 

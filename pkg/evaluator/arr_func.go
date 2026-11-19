@@ -4,12 +4,11 @@ import (
 	"errors"
 	"fmt"
 	"math/rand"
-	"reflect"
 	"slices"
 	"strings"
 
-	"github.com/textwire/textwire/v5/pkg/fail"
-	"github.com/textwire/textwire/v5/pkg/value"
+	"github.com/textwire/textwire/v6/pkg/fail"
+	"github.com/textwire/textwire/v6/pkg/value"
 )
 
 // arrLenFunc returns the length of the given arr
@@ -68,12 +67,14 @@ func arrReverseFunc(receiver value.Literal, _ ...value.Literal) (value.Literal, 
 		return receiver, nil
 	}
 
-	slices.Reverse(elems)
+	reversed := slices.Clone(elems)
+	slices.Reverse(reversed)
 
-	return &value.Arr{Elements: elems}, nil
+	return &value.Arr{Elements: reversed}, nil
 }
 
-// arrSliceFunc returns a slice of the given arr
+// arrSliceFunc returns a slice of the given arr. The elements are copied, so
+// the result never shares a backing array with the original arr.
 func arrSliceFunc(receiver value.Literal, args ...value.Literal) (value.Literal, error) {
 	elems := receiver.(*value.Arr).Elements
 
@@ -92,7 +93,7 @@ func arrSliceFunc(receiver value.Literal, args ...value.Literal) (value.Literal,
 	start = min(start, len(elems))
 
 	if len(args) == 1 {
-		return &value.Arr{Elements: elems[start:]}, nil
+		return &value.Arr{Elements: slices.Clone(elems[start:])}, nil
 	}
 
 	endAt, ok := args[1].(*value.Int)
@@ -110,7 +111,7 @@ func arrSliceFunc(receiver value.Literal, args ...value.Literal) (value.Literal,
 		end = start
 	}
 
-	return &value.Arr{Elements: elems[start:end]}, nil
+	return &value.Arr{Elements: slices.Clone(elems[start:end])}, nil
 }
 
 // arrShuffleFunc shuffles the elements of the given arr
@@ -142,26 +143,10 @@ func arrContainsFunc(receiver value.Literal, args ...value.Literal) (value.Liter
 		return nil, errors.New(msg)
 	}
 
-	elems := receiver.(*value.Arr).Elements
-	if len(elems) == 0 {
-		return FALSE, nil
-	}
-
 	target := args[0]
 
-	for _, el := range elems {
-		isObj := el.Type() == value.OBJ_VAL && target.Type() == value.OBJ_VAL
-		isArr := el.Type() == value.ARR_VAL && target.Type() == value.ARR_VAL
-
-		if isObj || isArr {
-			if reflect.DeepEqual(el, target) {
-				return TRUE, nil
-			}
-
-			continue
-		}
-
-		if el.Native() == target.Native() {
+	for _, el := range receiver.(*value.Arr).Elements {
+		if elementsMatch(el, target) {
 			return TRUE, nil
 		}
 	}

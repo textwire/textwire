@@ -3,12 +3,13 @@ package evaluator
 import (
 	"errors"
 	"fmt"
+	"slices"
 	"strings"
 	"unicode"
 	"unicode/utf8"
 
-	"github.com/textwire/textwire/v5/pkg/fail"
-	"github.com/textwire/textwire/v5/pkg/value"
+	"github.com/textwire/textwire/v6/pkg/fail"
+	"github.com/textwire/textwire/v6/pkg/value"
 )
 
 const defaultCharTrim = "\t \n\r"
@@ -17,7 +18,7 @@ const maxRepeatLen = 1 << 20 // 1 MiB
 // strLenFunc returns the length of the given string
 func strLenFunc(receiver value.Literal, _ ...value.Literal) (value.Literal, error) {
 	val := receiver.(*value.Str).Val
-	chars := []rune(val)
+	chars := splitClusters(val)
 	return &value.Int{Val: int64(len(chars))}, nil
 }
 
@@ -86,7 +87,11 @@ func strCapitalizeFunc(receiver value.Literal, _ ...value.Literal) (value.Litera
 	}
 
 	first, size := utf8.DecodeRuneInString(val)
-	newVal := string(unicode.ToUpper(first)) + val[size:]
+	if first == utf8.RuneError && size == 1 {
+		return &value.Str{Val: val}, nil
+	}
+
+	newVal := string(unicode.ToTitle(first)) + val[size:]
 
 	return &value.Str{Val: newVal}, nil
 }
@@ -95,15 +100,10 @@ func strCapitalizeFunc(receiver value.Literal, _ ...value.Literal) (value.Litera
 func strReverseFunc(receiver value.Literal, _ ...value.Literal) (value.Literal, error) {
 	val := receiver.(*value.Str).Val
 
-	runes := []rune(val)
-	n := len(runes)
+	clusters := splitClusters(val)
+	slices.Reverse(clusters)
 
-	// Reverse the slice of runes
-	for i := 0; i < n/2; i++ {
-		runes[i], runes[n-1-i] = runes[n-1-i], runes[i]
-	}
-
-	return &value.Str{Val: string(runes)}, nil
+	return &value.Str{Val: strings.Join(clusters, "")}, nil
 }
 
 // strContainsFunc returns true if the string contains the given substring, false otherwise
@@ -148,7 +148,8 @@ func strTruncateFunc(receiver value.Literal, args ...value.Literal) (value.Liter
 
 	// If the string is already shorter than or equal to the limit, return it unchanged
 	// This ensures we don't truncate strings that don't need truncation
-	if limit >= utf8.RuneCountInString(val) {
+	clusters := splitClusters(val)
+	if limit >= len(clusters) {
 		return &value.Str{Val: val}, nil
 	}
 
@@ -166,28 +167,36 @@ func strTruncateFunc(receiver value.Literal, args ...value.Literal) (value.Liter
 	}
 
 	// Truncate the string at the limit and append the suffix
-	return &value.Str{Val: string([]rune(val)[:limit]) + ellipsis}, nil
+	return &value.Str{Val: strings.Join(clusters[:limit], "") + ellipsis}, nil
 }
 
-// strDecimalFunc returns a string formatted as a decimal number.
-// For integers: appends decimal places (e.g., "100" → "100.00")
-// For floats: ensures minimum decimal places (e.g., "-0.5" → "-0.50")
-// Non-numeric strings are returned unchanged.
+// strDecimalFunc returns the receiver formatted as a decimal number.
+// - Integers get decimal places appended ("100" → "100.00").
+// - Floats are padded to the minimum decimal places ("-0.5" → "-0.50").
+// - Non-numeric strings are returned unchanged.
 func strDecimalFunc(receiver value.Literal, args ...value.Literal) (value.Literal, error) {
 	val := receiver.(*value.Str).Val
+
 	separator, decimals, err := getDecimalConfig(value.STR_VAL, args...)
 	if err != nil {
 		return nil, err
 	}
 
+	var format func(val, separator string, decimals int) string
 	switch {
 	case strIsInt(val):
-		return &value.Str{Val: formatIntDecimals(val, separator, decimals)}, nil
+		format = formatIntDecimals
 	case isValidFloat(val):
-		return &value.Str{Val: formatFloatDecimals(val, separator, decimals)}, nil
+		format = ensureMinFloatDecimals
 	default:
 		return &value.Str{Val: val}, nil
 	}
+
+	if err := checkDecimalResultSize(value.STR_VAL, val, separator, decimals); err != nil {
+		return nil, err
+	}
+
+	return &value.Str{Val: format(val, separator, decimals)}, nil
 }
 
 // strAtFunc returns the character at the given index in the string
@@ -206,20 +215,20 @@ func strAtFunc(receiver value.Literal, args ...value.Literal) (value.Literal, er
 
 	val := receiver.(*value.Str).Val
 
-	chars := []rune(val)
-	if len(chars) == 0 {
+	clusters := splitClusters(val)
+	if len(clusters) == 0 {
 		return &value.Nil{}, nil
 	}
 
 	if index < 0 {
-		index = len(chars) + index
+		index = len(clusters) + index
 	}
 
-	if index < 0 || index >= len(chars) {
+	if index < 0 || index >= len(clusters) {
 		return &value.Nil{}, nil
 	}
 
-	return &value.Str{Val: string(chars[index])}, nil
+	return &value.Str{Val: clusters[index]}, nil
 }
 
 // strFirstFunc returns the first character in the string

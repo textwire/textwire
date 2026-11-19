@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/textwire/textwire/v5/pkg/token"
+	"github.com/textwire/textwire/v6/pkg/token"
 )
 
 type ElseIfDir struct {
@@ -24,8 +24,11 @@ func (*ElseIfDir) chunkNode() {}
 func (ed *ElseIfDir) String() string {
 	var out strings.Builder
 
-	fmt.Fprintf(&out, "@elseif(%s)\n", ed.Cond)
-	out.WriteString(ed.Block.String())
+	fmt.Fprintf(&out, "@elseif(%s)", ed.Cond)
+
+	if ed.Block != nil {
+		out.WriteString(ed.Block.String())
+	}
 
 	return out.String()
 }

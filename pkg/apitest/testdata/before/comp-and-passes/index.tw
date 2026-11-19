@@ -1,0 +1,14 @@
+⚠️😎♥️<body>
+@component('user')
+    <b>Skirk is good</b>
+    @pass('name')<b>Её имя {{ name }}</b>@end
+    @pass('age')<b>我的名字是 {{ age }}</b>@end
+    @pass('empty')@end
+    <b>She needs Escoffier tho</b>
+@end
+
+@component('书', { age })
+    You are beautiful
+    @pass('1')1 inside@end
+@end
+</body>

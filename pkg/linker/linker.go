@@ -3,8 +3,8 @@ package linker
 import (
 	"sync"
 
-	"github.com/textwire/textwire/v5/pkg/ast"
-	"github.com/textwire/textwire/v5/pkg/fail"
+	"github.com/textwire/textwire/v6/pkg/ast"
+	"github.com/textwire/textwire/v6/pkg/fail"
 )
 
 // NodeLinker handles connecting AST nodes between each other to prepare AST
@@ -96,7 +96,7 @@ func (nl *NodeLinker) handleCompLinking(prog *ast.Program) *fail.Error {
 		compFileProg := ast.FindProg(compDir.Name.Val, nl.Programs)
 		if compFileProg == nil {
 			return fail.New(
-				compDir.Pos(),
+				compDir.Name.Pos(),
 				prog.AbsPath,
 				fail.OriginLink,
 				fail.ErrUndefinedComponent,

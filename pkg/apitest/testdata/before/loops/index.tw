@@ -1,0 +1,29 @@
+<ul>
+    @each(name in names)
+        <li>{{ name }} @for(i = 0; i < 3; i++){{ i }}@end</li>
+    @end
+</ul>
+
+<ul>
+    @each(name in names)
+        <li>{{ loop.iter }}: {{ name }}</li>
+    @end
+</ul>
+
+<ul>
+    @each(name in names)
+        @for(i = 0; i < 2; i++)
+            @each(letter in ["a", "b"])
+                <li>{{ loop.parent.iter }}.{{ loop.iter }} {{ loop.parent.parent.index }}: {{ name }}-{{ letter }}{{ i }}</li>
+            @end
+        @end
+    @end
+</ul>
+
+{{ names = ["Escoffier", "Kokomi", "Skirk"] }}
+
+<ul>
+    @each(name in names)
+        <li>{{ loop.iter }}. {{ name }}</li>
+    @end
+</ul> 

@@ -1,0 +1,6 @@
+@use('layout')
+
+@insert('content')
+<p>{{ "amy"._wrapStr() }}</p>
+@component('comp')@end
+@end

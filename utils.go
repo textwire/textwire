@@ -6,11 +6,11 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/textwire/textwire/v5/pkg/ast"
-	"github.com/textwire/textwire/v5/pkg/fail"
-	"github.com/textwire/textwire/v5/pkg/file"
-	"github.com/textwire/textwire/v5/pkg/lexer"
-	"github.com/textwire/textwire/v5/pkg/parser"
+	"github.com/textwire/textwire/v6/pkg/ast"
+	"github.com/textwire/textwire/v6/pkg/fail"
+	"github.com/textwire/textwire/v6/pkg/file"
+	"github.com/textwire/textwire/v6/pkg/lexer"
+	"github.com/textwire/textwire/v6/pkg/parser"
 )
 
 //go:embed embed/default-error-page.tw
@@ -73,10 +73,16 @@ func parseFile(f *file.SourceFile) (*ast.Program, *fail.Error, error) {
 		return nil, nil, err
 	}
 
+	prog, failure := parseContent(f, content)
+	return prog, failure, nil
+}
+
+// parseContent parses given content of the file into a ast.Program and returns it.
+func parseContent(f *file.SourceFile, content string) (*ast.Program, *fail.Error) {
 	l := lexer.New(content)
 	p := parser.New(l, f)
 	if p.HasErrors() {
-		return nil, p.Errors()[0], nil
+		return nil, p.Errors()[0]
 	}
 
 	prog := p.ParseProgram()
@@ -84,10 +90,10 @@ func parseFile(f *file.SourceFile) (*ast.Program, *fail.Error, error) {
 	prog.Name = f.Name
 
 	if p.HasErrors() {
-		return nil, p.Errors()[0], nil
+		return nil, p.Errors()[0]
 	}
 
-	return prog, nil, nil
+	return prog, nil
 }
 
 // makeFileNameSet returns a set of file names for quick lookup.

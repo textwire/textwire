@@ -1,13 +1,12 @@
 package evaluator
 
 import (
-	"reflect"
 	"time"
 
-	"github.com/textwire/textwire/v5/config"
-	"github.com/textwire/textwire/v5/pkg/ast"
-	"github.com/textwire/textwire/v5/pkg/fail"
-	"github.com/textwire/textwire/v5/pkg/value"
+	"github.com/textwire/textwire/v6/config"
+	"github.com/textwire/textwire/v6/pkg/ast"
+	"github.com/textwire/textwire/v6/pkg/fail"
+	"github.com/textwire/textwire/v6/pkg/value"
 )
 
 var (
@@ -26,13 +25,25 @@ type Evaluator struct {
 	// config can be nil when Textwire is used for simple string and
 	// file evaluation. If config is not nil, it means we use templates.
 	config *config.Config
+
+	// compDepth is the number of components that are rendering inside each
+	// other right now. It goes up when a component starts rendering and down
+	// when it finishes, so sibling components don't add up. A new Evaluator
+	// is created for every render, so renders don't share this counter.
+	compDepth int
+
+	// global is the frozen global value used by scopes the evaluator creates
+	// for layouts and components.
+	global *value.Obj
 }
 
-func New(customFunc *config.Func, conf *config.Config) *Evaluator {
+// New returns an evaluator. A nil global falls back to the shared empty one.
+func New(customFunc *config.Func, conf *config.Config, global *value.Obj) *Evaluator {
 	return &Evaluator{
 		customFunc:     customFunc,
 		config:         conf,
 		usingTemplates: conf != nil,
+		global:         global,
 	}
 }
 
@@ -129,7 +140,7 @@ func (e *Evaluator) evalLiteral(node ast.Node, ctx *Context) value.Literal {
 	case *ast.FloatExpr:
 		return &value.Float{Val: node.Val}
 
-	case *ast.NilExpr, *ast.Empty, *ast.Illegal:
+	case *ast.NilExpr, *ast.Absent, *ast.Illegal:
 		return NIL
 	}
 	return nil
@@ -143,7 +154,7 @@ func (e *Evaluator) program(prog *ast.Program, ctx *Context) value.Value {
 		if isError(val) {
 			return val
 		}
-		block.Chunks = append(block.Chunks, val)
+		block.Append(val)
 	}
 
 	return block
@@ -163,13 +174,21 @@ func (e *Evaluator) embedded(embeddedAst *ast.Embedded, ctx *Context) value.Valu
 	return embedded
 }
 
+// escapedEmbedded wraps val like {{ val }} does, so it's printed with HTML
+// escaping unless it's marked with the raw() function.
+func escapedEmbedded(val value.Literal) *value.Embedded {
+	embedded := value.NewEmbedded(1, false)
+	embedded.Segments = append(embedded.Segments, val)
+	return embedded
+}
+
 func (e *Evaluator) ifDir(ifDir *ast.IfDir, ctx *Context) value.Value {
 	cond := e.evalLiteral(ifDir.Cond, ctx)
 	if isError(cond) {
 		return cond
 	}
 
-	ifCtx := ctx.child()
+	ifCtx := ctx.childContext()
 	if isTruthy(cond) {
 		return e.Eval(ifDir.IfBlock, ifCtx)
 	}
@@ -207,9 +226,9 @@ func (e *Evaluator) block(astBlock *ast.Block, ctx *Context) value.Value {
 			return chunk
 		}
 
-		block.Chunks = append(block.Chunks, chunk)
+		block.Append(chunk)
 
-		if hasBreak(chunk) || hasContinue(chunk) {
+		if value.HasBreak(chunk) || value.HasContinue(chunk) {
 			break
 		}
 	}
@@ -223,81 +242,147 @@ func (e *Evaluator) assignStmt(assignStmt *ast.AssignStmt, ctx *Context) value.L
 		return right
 	}
 
-	return e.assignTo(assignStmt.Left, right, ctx)
+	return e.assignTo(assignStmt.Left, assignStmt.Right, right, ctx)
 }
 
 func (e *Evaluator) assignTo(
 	left ast.Expression,
-	right value.Literal,
+	rightExpr ast.Expression,
+	rightVal value.Literal,
 	ctx *Context,
 ) value.Literal {
 	switch l := left.(type) {
 	case *ast.IdentExpr:
-		return e.assignIdent(l, right, ctx)
+		return e.assignIdent(l, rightVal, ctx)
 	case *ast.IndexExpr:
-		return e.assignIndexExp(l, right, ctx)
+		return e.assignIndexExp(l, rightExpr, rightVal, ctx)
 	case *ast.DotExpr:
-		return e.assignDotExp(l, right, ctx)
+		return e.assignDotExp(l, rightExpr, rightVal, ctx)
 	}
 
 	return e.newError(
 		left,
 		ctx,
 		fail.ErrNotSupportedAssign,
-		value.FromTokenToValueType(left.Tok().Type),
+		assignTargetName(left),
 	)
+}
+
+// assignTargetName names the type of an expression that cannot be assigned to.
+func assignTargetName(expr ast.Expression) string {
+	switch expr.(type) {
+	case *ast.PrefixExpr:
+		return "prefix expression"
+	case *ast.InfixExpr:
+		return "infix expression"
+	}
+
+	if valType := value.FromTokenToValueType(expr.Tok().Type); valType != value.ERR_VAL {
+		return string(valType)
+	}
+
+	return "expression"
 }
 
 func (e *Evaluator) assignIdent(
 	ident *ast.IdentExpr,
-	val value.Literal,
+	rightVal value.Literal,
 	ctx *Context,
 ) value.Literal {
-	if err := ctx.scope.Set(ident.Name, val); err != nil {
+	if err := ctx.scope.Set(ident.Name, rightVal); err != nil {
 		return e.newError(ident, ctx, "%s", err.Error())
 	}
 	return NIL
 }
 
 func (e *Evaluator) assignIndexExp(
-	indexExp *ast.IndexExpr,
-	val value.Literal,
+	indexExpr *ast.IndexExpr,
+	rightExpr ast.Expression,
+	rightVal value.Literal,
 	ctx *Context,
 ) value.Literal {
-	left := e.evalLiteral(indexExp.Left, ctx)
+	left := e.evalLiteral(indexExpr.Left, ctx)
 	if isError(left) {
 		return left
 	}
 
-	idx := e.evalLiteral(indexExp.Index, ctx)
+	idx := e.evalLiteral(indexExpr.Index, ctx)
 	if isError(idx) {
 		return idx
 	}
 
-	if !left.Is(value.ARR_VAL) {
-		return e.newError(indexExp, ctx, fail.ErrIndexNotSupported, left.Type())
+	switch l := left.(type) {
+	case *value.Arr:
+		return e.assignArrIndexExp(l, idx, indexExpr, rightExpr, rightVal, ctx)
+	case *value.Obj:
+		return e.assignObjIndexExp(l, idx, indexExpr, rightExpr, rightVal, ctx)
+	}
+
+	return e.newError(indexExpr, ctx, fail.ErrIndexNotSupported, left.Type())
+}
+
+func (e *Evaluator) assignArrIndexExp(
+	arr *value.Arr,
+	idx value.Literal,
+	indexExpr *ast.IndexExpr,
+	rightExpr ast.Expression,
+	rightVal value.Literal,
+	ctx *Context,
+) value.Literal {
+	if arr.IsFrozen() {
+		return e.newError(indexExpr, ctx, fail.ErrReadOnlyValue)
 	}
 
 	// Index must be integer
 	if !idx.Is(value.INT_VAL) {
-		return e.newError(indexExp, ctx, fail.ErrArrIndexInt, idx.Type())
+		return e.newError(indexExpr, ctx, fail.ErrArrIndexInt, idx.Type())
 	}
 
-	arr := left.(*value.Arr)
 	index := idx.(*value.Int).Val
 
 	if index < 0 || index >= int64(len(arr.Elements)) {
-		return e.newError(indexExp, ctx, fail.ErrArrIndexOutOfBound, index, len(arr.Elements))
+		return e.newError(indexExpr, ctx, fail.ErrArrIndexOutOfBound, index, len(arr.Elements))
 	}
 
-	arr.Elements[index] = val
+	if value.References(rightVal, arr) {
+		return e.circularAssignError(indexExpr, rightExpr, ctx)
+	}
+
+	arr.Elements[index] = rightVal
+
+	return NIL
+}
+
+func (e *Evaluator) assignObjIndexExp(
+	obj *value.Obj,
+	idx value.Literal,
+	indexExpr *ast.IndexExpr,
+	rightExpr ast.Expression,
+	rightVal value.Literal,
+	ctx *Context,
+) value.Literal {
+	if obj.IsFrozen() {
+		return e.newError(indexExpr, ctx, fail.ErrReadOnlyValue)
+	}
+
+	if !idx.Is(value.STR_VAL) {
+		return e.newError(indexExpr, ctx, fail.ErrObjIndexStr, idx.Type())
+	}
+
+	if value.References(rightVal, obj) {
+		return e.circularAssignError(indexExpr, rightExpr, ctx)
+	}
+
+	key := resolveObjKey(obj, idx.(*value.Str).Val)
+	obj.Pairs[key] = rightVal
 
 	return NIL
 }
 
 func (e *Evaluator) assignDotExp(
 	dotExp *ast.DotExpr,
-	val value.Literal,
+	rightExpr ast.Expression,
+	rightVal value.Literal,
 	ctx *Context,
 ) value.Literal {
 	// Evaluate the left side to get the value
@@ -315,7 +400,15 @@ func (e *Evaluator) assignDotExp(
 		return e.newError(dotExp, ctx, fail.ErrKeyOnNonObj, left.Type(), key)
 	}
 
-	obj.Pairs[key] = val
+	if obj.IsFrozen() {
+		return e.newError(dotExp, ctx, fail.ErrReadOnlyValue)
+	}
+
+	if value.References(rightVal, obj) {
+		return e.circularAssignError(dotExp, rightExpr, ctx)
+	}
+
+	obj.Pairs[resolveObjKey(obj, key)] = rightVal
 
 	return NIL
 }
@@ -331,7 +424,7 @@ func (e *Evaluator) useDir(useDir *ast.UseDir, ctx *Context) value.Value {
 	e.usingUseDir = true
 
 	// Create new layout context and pass inserts to it
-	layoutCtx := NewContext(value.NewScope(), useDir.LayoutProg.AbsPath)
+	layoutCtx := NewContext(value.NewScope(e.global), useDir.LayoutProg.AbsPath)
 
 	// Make sure that layout is missing @use
 	if useDir.LayoutProg.IsLayout && useDir.LayoutProg.HasUseDir() {
@@ -368,7 +461,11 @@ func (e *Evaluator) reserveDir(reserveDir *ast.ReserveDir, ctx *Context) value.V
 	insert, ok := ctx.inserts[name]
 	if !ok {
 		// Inserts are optional, NIL when not provided or fallback argument
-		return e.evalLiteral(reserveDir.Fallback, ctx)
+		fallback := e.evalLiteral(reserveDir.Fallback, ctx)
+		if isError(fallback) || fallback == NIL {
+			return fallback
+		}
+		return escapedEmbedded(fallback)
 	}
 
 	return &value.Reserve{
@@ -387,7 +484,7 @@ func (e *Evaluator) compDir(compDir *ast.CompDir, ctx *Context) value.Value {
 		return e.newError(compDir, ctx, fail.ErrUndefinedComponent, name)
 	}
 
-	compCtx := NewContext(value.NewScope(), compDir.CompProg.AbsPath)
+	compCtx := NewContext(value.NewScope(e.global), compDir.CompProg.AbsPath)
 
 	if compCtx.slots[name] == nil {
 		compCtx.slots[name] = map[string]value.Value{}
@@ -404,6 +501,14 @@ func (e *Evaluator) compDir(compDir *ast.CompDir, ctx *Context) value.Value {
 		}
 	}
 
+	maxDepth := e.maxCompDepth()
+	if e.compDepth >= maxDepth {
+		return e.newError(compDir, ctx, fail.ErrMaxComponentDepth, name, maxDepth)
+	}
+
+	e.compDepth++
+	defer func() { e.compDepth-- }()
+
 	content := e.Eval(compDir.CompProg, compCtx)
 	if isError(content) {
 		return content
@@ -413,6 +518,14 @@ func (e *Evaluator) compDir(compDir *ast.CompDir, ctx *Context) value.Value {
 		Name:    name,
 		Content: content,
 	}
+}
+
+// maxCompDepth returns how many components can render inside each other.
+func (e *Evaluator) maxCompDepth() int {
+	if e.config == nil || e.config.MaxComponentDepth < 1 {
+		return config.DefaultMaxComponentDepth
+	}
+	return e.config.MaxComponentDepth
 }
 
 func (e *Evaluator) evalCompDirPasses(compDir *ast.CompDir, ctx, compCtx *Context) value.Value {
@@ -463,9 +576,9 @@ func (e *Evaluator) passCompArgsToCtx(compDir *ast.CompDir, ctx, compCtx *Contex
 }
 
 func (e *Evaluator) forDir(forDir *ast.ForDir, ctx *Context) value.Value {
-	forCtx := ctx.child()
+	forCtx := ctx.childContextWithNewScope()
 
-	init := e.evalLiteral(forDir.Init, forCtx)
+	init := e.forDirInit(forDir.Init, forCtx)
 	if isError(init) {
 		return init
 	}
@@ -487,10 +600,9 @@ func (e *Evaluator) forDir(forDir *ast.ForDir, ctx *Context) value.Value {
 
 	block := value.NewBlock(blockLen)
 
-	hasCond := forDir.Cond != nil
-	if _, isEmpty := forDir.Cond.(*ast.Empty); isEmpty {
-		hasCond = false
-	}
+	hasCond := hasForCond(forDir.Cond)
+	parentLoop := nearestLoop(forCtx)
+	index := 0
 
 	// Loop through the block until the user's condition is false
 	for {
@@ -503,14 +615,17 @@ func (e *Evaluator) forDir(forDir *ast.ForDir, ctx *Context) value.Value {
 			break
 		}
 
+		forCtx.scope.SetLoopVar(loopObj(index, -1, parentLoop))
+		index++
+
 		val := e.Eval(forDir.Block, forCtx)
 		if isError(val) {
 			return val
 		}
 
-		broken := hasBreak(val)
+		broken := value.HasBreak(val)
 
-		block.Chunks = append(block.Chunks, stripControlStmts(val))
+		block.Append(stripControlDirs(val))
 
 		if broken {
 			break
@@ -525,8 +640,43 @@ func (e *Evaluator) forDir(forDir *ast.ForDir, ctx *Context) value.Value {
 	return block
 }
 
+// hasForCond reports whether a @for directive has a real condition.
+// A missing or empty condition means the loop runs until it breaks.
+func hasForCond(cond ast.Expression) bool {
+	if cond == nil {
+		return false
+	}
+
+	_, isEmpty := cond.(*ast.Absent)
+
+	return !isEmpty
+}
+
+func (e *Evaluator) forDirInit(init ast.Statement, ctx *Context) value.Literal {
+	assign, ok := init.(*ast.AssignStmt)
+	if !ok {
+		return e.evalLiteral(init, ctx)
+	}
+
+	ident, ok := assign.Left.(*ast.IdentExpr)
+	if !ok {
+		return e.evalLiteral(init, ctx)
+	}
+
+	right := e.evalLiteral(assign.Right, ctx)
+	if isError(right) {
+		return right
+	}
+
+	if err := ctx.scope.SetLoopVariable(ident.Name, right); err != nil {
+		return e.newError(init, ctx, "%s", err.Error())
+	}
+
+	return NIL
+}
+
 func (e *Evaluator) eachDir(eachDir *ast.EachDir, ctx *Context) value.Value {
-	eachCtx := ctx.child()
+	eachCtx := ctx.childContextWithNewScope()
 	varName := eachDir.Var.Name
 
 	arrObj := e.evalLiteral(eachDir.Arr, eachCtx)
@@ -547,33 +697,61 @@ func (e *Evaluator) eachDir(eachDir *ast.EachDir, ctx *Context) value.Value {
 	}
 
 	block := value.NewBlock(len(arrElems))
+	parentLoop := nearestLoop(eachCtx)
 
 	for i := range arrElems {
 		if err := eachCtx.scope.SetLoopVariable(varName, arrElems[i]); err != nil {
 			return e.newError(eachDir, eachCtx, "%s", err.Error())
 		}
 
-		eachCtx.scope.SetLoopVar(map[string]value.Literal{
-			"index": &value.Int{Val: int64(i)},
-			"first": nativeBoolToBoolObj(i == 0),
-			"last":  nativeBoolToBoolObj(i == len(arrElems)-1),
-			"iter":  &value.Int{Val: int64(i + 1)},
-		})
+		eachCtx.scope.SetLoopVar(loopObj(i, len(arrElems), parentLoop))
 
 		val := e.Eval(eachDir.Block, eachCtx)
 		if isError(val) {
 			return val
 		}
 
-		broken := hasBreak(val)
+		broken := value.HasBreak(val)
 
-		block.Chunks = append(block.Chunks, stripControlStmts(val))
+		block.Append(stripControlDirs(val))
 		if broken {
 			break
 		}
 	}
 
 	return block
+}
+
+// nearestLoop returns the loop object from the closest active loop.
+// It returns nil when the current context is not inside a loop.
+func nearestLoop(ctx *Context) value.Literal {
+	loop, ok := ctx.scope.Get("loop")
+	if !ok {
+		return nil
+	}
+	return loop
+}
+
+// loopObj builds the loop metadata for a loop iteration. A negative total
+// means the total iteration count is unknown, so the "last" property is
+// omitted. The parent field is only added for nested loops, so missing parent
+// access follows the normal object-property behavior.
+func loopObj(index, total int, parent value.Literal) map[string]value.Literal {
+	pairs := map[string]value.Literal{
+		"index": &value.Int{Val: int64(index)},
+		"first": nativeBoolToBoolObj(index == 0),
+		"iter":  &value.Int{Val: int64(index + 1)},
+	}
+
+	if total >= 0 {
+		pairs["last"] = nativeBoolToBoolObj(index == total-1)
+	}
+
+	if parent != nil {
+		pairs["parent"] = parent
+	}
+
+	return pairs
 }
 
 func (e *Evaluator) breakifDir(breakifDir *ast.BreakifDir, ctx *Context) value.Value {
@@ -646,7 +824,7 @@ func (e *Evaluator) combineInsertContent(insertDir *ast.InsertDir, ctx *Context)
 	}
 
 	if arg != NIL {
-		return arg
+		return escapedEmbedded(arg)
 	}
 
 	if insertDir.Block == nil {
@@ -668,12 +846,7 @@ func (e *Evaluator) dumpDir(dumpDir *ast.DumpDir, ctx *Context) value.Value {
 }
 
 func (e *Evaluator) identExpr(ident *ast.IdentExpr, ctx *Context) value.Literal {
-	varName := ident.Name
-	if varName == "global" && e.config != nil && e.config.GlobalData != nil {
-		return value.NativeToValue(e.config.GlobalData)
-	}
-
-	if val, ok := ctx.scope.Get(varName); ok {
+	if val, ok := ctx.scope.Get(ident.Name); ok {
 		return val
 	}
 
@@ -696,6 +869,8 @@ func (e *Evaluator) indexExpr(indexExp *ast.IndexExpr, ctx *Context) value.Liter
 		return e.arrIndexExp(left, idx)
 	case left.Is(value.OBJ_VAL) && idx.Is(value.STR_VAL):
 		return e.objKeyExp(left.(*value.Obj), idx.(*value.Str).Val)
+	case left.Is(value.OBJ_VAL):
+		return e.newError(indexExp, ctx, fail.ErrObjIndexStr, idx.Type())
 	}
 
 	return e.newError(indexExp, ctx, fail.ErrIndexNotSupported, left.Type())
@@ -707,7 +882,7 @@ func (e *Evaluator) arrIndexExp(arrObj, idx value.Literal) value.Literal {
 	max := int64(len(arr.Elements) - 1)
 
 	if index < 0 || index > max {
-		return NIL
+		return value.NewNil(value.NilOriginMissingIndex)
 	}
 
 	return arr.Elements[index]
@@ -724,7 +899,22 @@ func (e *Evaluator) objKeyExp(obj *value.Obj, key string) value.Literal {
 		return pair
 	}
 
-	return NIL
+	return value.NewNil(value.NilOriginMissingProp)
+}
+
+// resolveObjKey returns the existing key that reads resolve to, so writes
+// update struct fields like Count instead of adding a new count key.
+func resolveObjKey(obj *value.Obj, key string) string {
+	if _, ok := obj.Pairs[key]; ok {
+		return key
+	}
+
+	capitalized := capitalizeFirst(key)
+	if _, ok := obj.Pairs[capitalized]; ok {
+		return capitalized
+	}
+
+	return key
 }
 
 func (e *Evaluator) dotExpr(dotExp *ast.DotExpr, ctx *Context) value.Literal {
@@ -862,9 +1052,9 @@ func (e *Evaluator) incStmt(incStmt *ast.IncStmt, ctx *Context) value.Literal {
 
 	switch l := left.(type) {
 	case *value.Int:
-		return e.assignTo(incStmt.Left, &value.Int{Val: l.Val + 1}, ctx)
+		return e.assignTo(incStmt.Left, nil, &value.Int{Val: l.Val + 1}, ctx)
 	case *value.Float:
-		return e.assignTo(incStmt.Left, &value.Float{Val: l.Val + 1}, ctx)
+		return e.assignTo(incStmt.Left, nil, &value.Float{Val: l.Val + 1}, ctx)
 	}
 
 	return e.newError(incStmt, ctx, fail.ErrIllegalTypeForInc, left.Type())
@@ -878,9 +1068,9 @@ func (e *Evaluator) decStmt(decInc *ast.DecStmt, ctx *Context) value.Literal {
 
 	switch l := left.(type) {
 	case *value.Int:
-		return e.assignTo(decInc.Left, &value.Int{Val: l.Val - 1}, ctx)
+		return e.assignTo(decInc.Left, nil, &value.Int{Val: l.Val - 1}, ctx)
 	case *value.Float:
-		return e.assignTo(decInc.Left, &value.Float{Val: l.Val - 1}, ctx)
+		return e.assignTo(decInc.Left, nil, &value.Float{Val: l.Val - 1}, ctx)
 	}
 
 	return e.newError(decInc, ctx, fail.ErrIllegalTypeForDec, left.Type())
@@ -957,6 +1147,8 @@ func (e *Evaluator) globalCallExpr(globalCallExp *ast.GlobalCallExpr, ctx *Conte
 		return e.globalFuncHasValue(globalCallExp, ctx)
 	case "formatDate":
 		return e.globalFuncFormatDate(globalCallExp, ctx)
+	case "raw":
+		return e.globalFuncRaw(globalCallExp, ctx)
 	default:
 		return e.newError(
 			globalCallExp,
@@ -979,6 +1171,10 @@ func (e *Evaluator) globalFuncDefined(
 
 		if isError(evaluated) {
 			return evaluated
+		}
+
+		if isMissingNil(evaluated) {
+			return FALSE
 		}
 	}
 
@@ -1046,6 +1242,21 @@ func (e *Evaluator) globalFuncFormatDate(
 	}
 
 	return &value.Str{Val: newFormat.Format(layout.Val)}
+}
+
+// globalFuncRaw marks the strings in its argument as raw, so they're
+// printed without HTML escaping. See value.Raw.
+func (e *Evaluator) globalFuncRaw(
+	globalCallExpr *ast.GlobalCallExpr,
+	ctx *Context,
+) value.Literal {
+	// We already know that we have 1 argument since parser ensures that
+	arg := e.evalLiteral(globalCallExpr.Arguments[0], ctx)
+	if isError(arg) {
+		return arg
+	}
+
+	return value.Raw(arg)
 }
 
 func (e *Evaluator) valuesToNativeType(args []value.Literal) []any {
@@ -1161,7 +1372,7 @@ func (e *Evaluator) comparrisonInfixExp(
 	case *value.Bool:
 		areEqual = l.Val == right.(*value.Bool).Val
 	case *value.Arr, *value.Obj:
-		areEqual = reflect.DeepEqual(left, right)
+		areEqual = literalsEqual(left, right)
 	case *value.Nil:
 		areEqual = true
 	default:
@@ -1288,4 +1499,18 @@ func (e *Evaluator) newError(node ast.Node, ctx *Context, format string, a ...an
 		Err:     fail.New(node.Pos(), ctx.absPath, fail.OriginEval, format, a...),
 		ErrorID: format,
 	}
+}
+
+func (e *Evaluator) circularAssignError(
+	left ast.Expression,
+	rightExpr ast.Expression,
+	ctx *Context,
+) value.Literal {
+	return e.newError(
+		left,
+		ctx,
+		fail.ErrCircularReference,
+		exprToText(rightExpr),
+		exprToText(left),
+	)
 }

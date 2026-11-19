@@ -1,4 +1,4 @@
-<p align="center"><img src=".github/assets/textwire-logo.png" width="200" height="200" /></p>
+<p align="center"><img src="https://textwire.serhiicho.com/images/logo.png" width="200" height="200" /></p>
 
 # Textwire. A templating language for Go
 
@@ -9,7 +9,7 @@ Textwire is a simple yet powerful templating language for Go. It is designed to 
 ## Installation
 
 ```bash
-go get github.com/textwire/textwire/v5
+go get github.com/textwire/textwire/v6
 ```
 
 ## Neovim and VSCode Support
@@ -32,11 +32,24 @@ In template files you can use globals like this `{{ global.env }}`.
 
 ## Project Overview
 
-- **Module**: `github.com/textwire/textwire/v5`
+- **Module**: `github.com/textwire/textwire/v6`
 - **Template Extensions**: `.tw`
 - **Architecture**: Modular design with separate packages for lexer, parser, evaluator, AST, token, and object handling
 - **LSP Support**: Full Language Server Protocol implementation for editor integration
-- **Precedence**: All the precedence defined in `./pkg/parser/parser.go:20-70`
+- **Precedence**: All the precedence defined in `./pkg/parser/parser.go`
+
+## Terminology
+
+Textwire source is a sequence of **chunks**. A chunk is a directive, text, a block, or embedded code.
+
+- **Directive**: code that starts with `@`, such as `@if`, `@each`, `@end`, `@component` or `@use`. A directive may have parenthesized arguments, as in `@each(item in items)` or not have them, as in `@continue`.
+- **Embedded code**: the `{{ ... }}` and `{!! !!}` forms. Embedded code prints values, defines variables, performs arithmetic, calls functions, and more. It is not a directive.
+- **Text**: everything that is not a directive or embedded code, including HTML and whitespace.
+- **Block**: the body a directive owns, for example the content between `@if(true)` and `@end`.
+
+Use **embedded code** (or **embedded expression** for a single `{{ ... }}`). Do not call it an "interpolation" or a "tag". Directives are not embedded code either, even though both are code.
+
+A **standalone directive line** is a line whose only non-whitespace content is one directive. Only those lines lose their surrounding whitespace and line ending when a template renders. A line containing embedded code, more than one directive, or any other visible content keeps its whitespace exactly as written. You can read more about [Whitespace Handling](https://textwire.serhiicho.com/language-elements/whitespace).
 
 ## Development Environment & Commands
 
@@ -89,7 +102,7 @@ make check OCI='docker compose'
 ### Import Organization
 
 - Group imports: standard library, third-party, local packages
-- Local packages use `github.com/textwire/textwire/v5/` prefix
+- Local packages use `github.com/textwire/textwire/v6/` prefix
 - Keep imports sorted and remove unused imports
 
 ### Formatting Requirements
@@ -109,8 +122,7 @@ make check OCI='docker compose'
 ### Test Organization
 
 - Co-locate test files with source files (`parser_test.go` with `parser.go`)
-- Use `textwire/testdata/` for template test data
-- Organize test data into `good/` and `bad/` subdirectories
+- Use `pkg/apitest/testdata/` for template test data
 - Use descriptive test names that explain what is being tested
 
 ### Test Patterns
@@ -120,7 +132,7 @@ make check OCI='docker compose'
 
 ### Test Data
 
-- Store template examples in `textwire/testdata/`
+- Store template examples in `pkg/apitest/testdata/`
 - Use `.tw` extension
 - Include both valid and invalid examples for testing
 - Name test files descriptively (e.g., `if-statements.tw`)
@@ -146,11 +158,10 @@ When adding new features, update LSP metadata in `lsp/metadata/en/`:
 
 - [ ] Run `make check` before commit
 - [ ] Update LSP metadata if adding new features
-- [ ] Add tests for new functionality
+- [ ] Add tests for new functionality (TDD approach is better)
 
 ### Versioning
 
-- Follow semantic versioning (currently v2.x.x)
 - Update CHANGELOG.md for significant changes
 - Use appropriate emoji categories in changelog
 - Maintain compatibility within major version
@@ -167,4 +178,4 @@ Write clear, descriptive error messages:
 
 ## License
 
-The Textwire project is licensed under the [MIT License](https://github.com/textwire/textwire/blob/master/LICENSE)
+The Textwire project is licensed under the [MIT License](https://github.com/textwire/textwire/src/branch/master/LICENSE)

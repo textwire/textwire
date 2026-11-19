@@ -6,11 +6,11 @@ import (
 	"io"
 	"os"
 
-	"github.com/textwire/textwire/v5/pkg/evaluator"
-	"github.com/textwire/textwire/v5/pkg/fail"
-	"github.com/textwire/textwire/v5/pkg/lexer"
-	"github.com/textwire/textwire/v5/pkg/parser"
-	"github.com/textwire/textwire/v5/pkg/value"
+	"github.com/textwire/textwire/v6/pkg/evaluator"
+	"github.com/textwire/textwire/v6/pkg/fail"
+	"github.com/textwire/textwire/v6/pkg/lexer"
+	"github.com/textwire/textwire/v6/pkg/parser"
+	"github.com/textwire/textwire/v6/pkg/value"
 )
 
 const PROMPT = ">>> "
@@ -25,7 +25,7 @@ func main() {
 
 func Start(in io.Reader, out io.Writer) error {
 	scanner := bufio.NewScanner(in)
-	scope := value.NewScope()
+	scope := value.NewScope(nil)
 
 	for {
 		fmt.Print(PROMPT)
@@ -46,7 +46,7 @@ func Start(in io.Reader, out io.Writer) error {
 			continue
 		}
 
-		e := evaluator.New(nil, nil)
+		e := evaluator.New(nil, nil, nil)
 		ctx := evaluator.NewContext(scope, prog.AbsPath)
 		evaluated := e.Eval(prog, ctx)
 

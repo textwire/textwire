@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/textwire/textwire/v5/pkg/token"
+	"github.com/textwire/textwire/v6/pkg/token"
 )
 
 type ForDir struct {
@@ -35,16 +35,18 @@ func (fd *ForDir) String() string {
 	var out strings.Builder
 	out.Grow(20)
 
-	fmt.Fprintf(&out, "@for(%s; %s; %s)\n", fd.Init, fd.Cond, fd.Post)
+	fmt.Fprintf(&out, "@for(%s; %s; %s)", fd.Init, fd.Cond, fd.Post)
 
-	out.WriteString(fd.Block.String() + "\n")
-
-	if fd.ElseBlock != nil {
-		out.WriteString("@else\n")
-		out.WriteString(fd.ElseBlock.String() + "\n")
+	if fd.Block != nil {
+		out.WriteString(fd.Block.String())
 	}
 
-	out.WriteString("@end\n")
+	if fd.ElseBlock != nil {
+		out.WriteString("@else")
+		out.WriteString(fd.ElseBlock.String())
+	}
+
+	out.WriteString("@end")
 
 	return out.String()
 }

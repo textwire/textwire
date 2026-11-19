@@ -11,7 +11,7 @@ pull:
 
 .PHONY: push
 push:
-	@podman manifest rm $(IMAGE) 2>/dev/null || true
+	@podman rmi $(IMAGE) 2>/dev/null || true
 	@podman build --platform linux/amd64,linux/arm64 --manifest $(IMAGE) .
 	@podman manifest push --all $(IMAGE) docker://$(IMAGE)
 
@@ -22,7 +22,7 @@ repl:
 
 .PHONY: cover
 cover:
-	@$(RUN) go test -coverprofile=coverage.out
+	@$(RUN) go test -coverpkg=./... -coverprofile=coverage.out ./...
 	@$(RUN) go tool cover -html=coverage.out -o coverage.html
 	@rm -f coverage.out
 	@echo "✅ Coverage written to coverage.html"
@@ -30,7 +30,7 @@ cover:
 .PHONY: test
 test:
 	@clear || true
-	@$(RUN) go test -count=1 ./...
+	@$(RUN) go test $(RACE) -count=1 -timeout 30s ./...
 	@echo "✅ All tests passed!"
 
 .PHONY: fmt
@@ -56,6 +56,7 @@ todo:
 	fi
 
 .PHONY: check
+check: RACE=-race
 check: test line fmt lint todo
 
-.DEFAULT_GOAL := check
+.DEFAULT_GOAL := test

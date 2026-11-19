@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/textwire/textwire/v5/pkg/token"
+	"github.com/textwire/textwire/v6/pkg/token"
 )
 
 type GlobalFuncName string
@@ -18,12 +18,14 @@ const (
 	defined    GlobalFuncName = "defined"
 	hasValue   GlobalFuncName = "hasValue"
 	formatDate GlobalFuncName = "formatDate"
+	raw        GlobalFuncName = "raw"
 )
 
 var GlobalFunctions = map[GlobalFuncName]argRules{
 	defined:    {Min: 1, Max: 999},
 	hasValue:   {Min: 1, Max: 999},
 	formatDate: {Min: 2, Max: 2},
+	raw:        {Min: 1, Max: 1},
 }
 
 type GlobalCallExpr struct {

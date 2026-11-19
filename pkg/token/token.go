@@ -1,6 +1,6 @@
 package token
 
-import "github.com/textwire/textwire/v5/pkg/position"
+import "github.com/textwire/textwire/v6/pkg/position"
 
 type TokenType int
 
@@ -9,7 +9,8 @@ const (
 	ILLEGAL          TokenType = iota // An illegal token
 	EOF                               // The end of the file
 	UNCLOSED_COMMENT                  // A comment missing its closing "--}}"
-	EMPTY                             // The absense of a token, used for empty statements/expressions
+	ABSENT                            // The absence of a token, used for empty statements/expressions
+	EMPTY                             // Placeholder for whitespace the lexer removed from text. The parser drops it but keeps its position
 	IDENT                             // foo, bar
 
 	// Literals

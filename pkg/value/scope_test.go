@@ -85,7 +85,7 @@ func TestNewScopeFromMap(t *testing.T) {
 		},
 	}
 
-	scope, err := NewScopeFromMap(data)
+	scope, err := NewScopeFromMap(data, nil)
 	if err != nil {
 		t.Fatalf("returned an error: %s", err)
 	}
@@ -106,245 +106,70 @@ func TestNewScopeFromMap(t *testing.T) {
 	}
 }
 
-func TestAddGlobalData(t *testing.T) {
+func TestNewChildScope(t *testing.T) {
+	parent := NewScope(nil)
+	parent.vars["title"] = &Str{Val: "Hello"}
+
+	child := NewChildScope(parent)
+
+	obj, ok := child.Get("title")
+	if !ok {
+		t.Fatalf("child.Get(title) returned !ok, expected parent's variable")
+	}
+
+	if obj.String() != "Hello" {
+		t.Fatalf("child.Get(title) returned %q, expected %q", obj, "Hello")
+	}
+}
+
+func TestScopeOf(t *testing.T) {
+	grandparent := NewScope(nil)
+	grandparent.vars["title"] = &Str{Val: "grandparent"}
+	grandparent.vars["name"] = &Str{Val: "grandparent"}
+
+	parent := NewChildScope(grandparent)
+	parent.vars["name"] = &Str{Val: "parent"}
+
+	child := NewChildScope(parent)
+	child.vars["age"] = &Int{Val: 1}
+
 	cases := []struct {
-		name      string
-		key       string
-		val       any
-		expectKey string
-		expectVal Literal
+		name   string
+		scope  *Scope
+		key    string
+		expect *Scope
 	}{
 		{
-			name:      "add string global identifier",
-			key:       "name",
-			val:       "Amy Adams",
-			expectKey: "name",
-			expectVal: &Str{Val: "Amy Adams"},
+			name:   "key defined in current scope",
+			scope:  child,
+			key:    "age",
+			expect: child,
 		},
 		{
-			name:      "add integer global identifier",
-			key:       "age",
-			val:       25,
-			expectKey: "age",
-			expectVal: &Int{Val: 25},
+			name:   "key defined only in grandparent scope",
+			scope:  child,
+			key:    "title",
+			expect: grandparent,
 		},
 		{
-			name:      "add negative integer global identifier",
-			key:       "score",
-			val:       -10,
-			expectKey: "score",
-			expectVal: &Int{Val: -10},
+			name:   "closest scope wins when key is shadowed",
+			scope:  child,
+			key:    "name",
+			expect: parent,
 		},
 		{
-			name:      "add float global identifier",
-			key:       "height",
-			val:       5.7,
-			expectKey: "height",
-			expectVal: &Float{Val: 5.7},
-		},
-		{
-			name:      "add negative float global identifier",
-			key:       "temperature",
-			val:       -2.5,
-			expectKey: "temperature",
-			expectVal: &Float{Val: -2.5},
-		},
-		{
-			name:      "add boolean true global identifier",
-			key:       "isActive",
-			val:       true,
-			expectKey: "isActive",
-			expectVal: &Bool{Val: true},
-		},
-		{
-			name:      "add boolean false global identifier",
-			key:       "isComplete",
-			val:       false,
-			expectKey: "isComplete",
-			expectVal: &Bool{Val: false},
-		},
-		{
-			name:      "add empty string global identifier",
-			key:       "empty",
-			val:       "",
-			expectKey: "empty",
-			expectVal: &Str{Val: ""},
-		},
-		{
-			name:      "add zero integer global identifier",
-			key:       "zero",
-			val:       0,
-			expectKey: "zero",
-			expectVal: &Int{Val: 0},
-		},
-		{
-			name:      "add zero float global identifier",
-			key:       "zeroFloat",
-			val:       0.0,
-			expectKey: "zeroFloat",
-			expectVal: &Float{Val: 0.0},
-		},
-		{
-			name:      "add string with special characters",
-			key:       "message",
-			val:       "Hello, World! @#$%",
-			expectKey: "message",
-			expectVal: &Str{Val: "Hello, World! @#$%"},
-		},
-		{
-			name:      "add large integer global identifier",
-			key:       "bigNumber",
-			val:       999999999,
-			expectKey: "bigNumber",
-			expectVal: &Int{Val: 999999999},
-		},
-		{
-			name:      "add integer slice global identifier",
-			key:       "numbers",
-			val:       []int{1, 2, 3},
-			expectKey: "numbers",
-			expectVal: &Arr{Elements: []Literal{
-				&Int{Val: 1},
-				&Int{Val: 2},
-				&Int{Val: 3},
-			}},
-		},
-		{
-			name:      "add string slice global identifier",
-			key:       "names",
-			val:       []string{"Alice", "Bob", "Charlie"},
-			expectKey: "names",
-			expectVal: &Arr{Elements: []Literal{
-				&Str{Val: "Alice"},
-				&Str{Val: "Bob"},
-				&Str{Val: "Charlie"},
-			}},
-		},
-		{
-			name:      "add mixed type slice global identifier",
-			key:       "mixed",
-			val:       []any{"hello", 42, true},
-			expectKey: "mixed",
-			expectVal: &Arr{Elements: []Literal{
-				&Str{Val: "hello"},
-				&Int{Val: 42},
-				&Bool{Val: true},
-			}},
-		},
-		{
-			name:      "add empty slice global identifier",
-			key:       "emptySlice",
-			val:       []int{},
-			expectKey: "emptySlice",
-			expectVal: &Arr{Elements: []Literal{}},
-		},
-		{
-			name:      "add object/map global identifier",
-			key:       "user",
-			val:       map[string]any{"name": "John", "age": 30},
-			expectKey: "user",
-			expectVal: NewObj(map[string]Literal{
-				"name": &Str{Val: "John"},
-				"age":  &Int{Val: 30},
-			}),
-		},
-		{
-			name: "add nested object global identifier",
-			key:  "config",
-			val: map[string]any{
-				"database": map[string]any{
-					"host": "localhost",
-					"port": 5432,
-				},
-			},
-			expectKey: "config",
-			expectVal: NewObj(map[string]Literal{
-				"database": NewObj(map[string]Literal{
-					"host": &Str{Val: "localhost"},
-					"port": &Int{Val: 5432},
-				}),
-			}),
-		},
-		{
-			name:      "add object with slice global identifier",
-			key:       "data",
-			val:       map[string]any{"tags": []string{"go", "test", "unit"}, "count": 3},
-			expectKey: "data",
-			expectVal: NewObj(map[string]Literal{
-				"tags": &Arr{Elements: []Literal{
-					&Str{Val: "go"},
-					&Str{Val: "test"},
-					&Str{Val: "unit"},
-				}},
-				"count": &Int{Val: 3},
-			}),
-		},
-		{
-			name: "add slice of objects global identifier",
-			key:  "users",
-			val: []map[string]any{
-				{"name": "Alice", "age": 25},
-				{"name": "Bob", "age": 30},
-			},
-			expectKey: "users",
-			expectVal: &Arr{Elements: []Literal{
-				NewObj(map[string]Literal{
-					"name": &Str{Val: "Alice"},
-					"age":  &Int{Val: 25},
-				}),
-				NewObj(map[string]Literal{
-					"name": &Str{Val: "Bob"},
-					"age":  &Int{Val: 30},
-				}),
-			}},
-		},
-		{
-			name:      "add nil slice global identifier",
-			key:       "nilSlice",
-			val:       []any(nil),
-			expectKey: "nilSlice",
-			expectVal: &Arr{Elements: []Literal{}},
-		},
-		{
-			name:      "add empty object global identifier",
-			key:       "emptyObj",
-			val:       map[string]any{},
-			expectKey: "emptyObj",
-			expectVal: NewObj(nil),
+			name:   "key not defined in any scope",
+			scope:  child,
+			key:    "missing",
+			expect: nil,
 		},
 	}
 
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
-			scope := NewScope()
-			scope.AddGlobal(tc.key, tc.val)
-
-			global, ok := scope.vars["global"]
-			if !ok {
-				t.Fatalf("The 'global' object not found in the scope")
-			}
-
-			obj, ok := global.(*Obj)
-			if !ok {
-				t.Fatalf("The 'global' object is not of type Obj")
-			}
-
-			val, ok := obj.Pairs[tc.key]
-			if !ok {
-				t.Fatalf("The 'global' object does not have key %s", tc.key)
-			}
-
-			if val.Type() != tc.expectVal.Type() {
-				t.Fatalf(
-					"Expected 'global[%s]' type to be %q, got %q",
-					tc.key,
-					tc.expectVal.Type(),
-					val.Type(),
-				)
-			}
-
-			if val.String() != tc.expectVal.String() {
-				t.Fatalf("Expected 'global[%s]' to be %q, got %q", tc.key, tc.expectVal, val)
+			got := tc.scope.scopeOf(tc.key)
+			if got != tc.expect {
+				t.Fatalf("scopeOf(%q) returned %p, expected %p", tc.key, got, tc.expect)
 			}
 		})
 	}

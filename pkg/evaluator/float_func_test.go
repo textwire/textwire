@@ -4,63 +4,68 @@ import "testing"
 
 func TestEvalFloatFunctions(t *testing.T) {
 	cases := []struct {
-		id     uint
+		name   string
 		inp    string
 		expect string
 	}{
 		// int
-		{10, `{{ 13.999.int() }}`, "13"},
-		{20, `{{ 133.999124.int() }}`, "133"},
-		{30, `{{ 1234567.999124.int() }}`, "1234567"},
-		{40, `{{ -133.999124.int() }}`, "-133"},
+		{"float to int", `{{ 13.999.int() }}`, "13"},
+		{"float to int truncates fraction", `{{ 133.999124.int() }}`, "133"},
+		{"large float to int truncates fraction", `{{ 1234567.999124.int() }}`, "1234567"},
+		{"negative float to int truncates fraction", `{{ -133.999124.int() }}`, "-133"},
+		{
+			"float at int64 boundary to int",
+			`{{ (-9223372036854775808.0).int() }}`,
+			"-9223372036854775808",
+		},
 		// str
-		{50, `{{ 13.999.str() }}`, "13.999"},
-		{60, `{{ 133.999124.str() }}`, "133.999124"},
-		{70, `{{ 1234567890.1234567.str() }}`, "1234567890.1234567"},
+		{"float to string", `{{ 13.999.str() }}`, "13.999"},
+		{"float to string keeps fraction", `{{ 133.999124.str() }}`, "133.999124"},
+		{"large float to string", `{{ 1234567890.1234567.str() }}`, "1234567890.1234567"},
 		// abs
-		{80, `{{ 1.0.abs() }}`, "1.0"},
-		{90, `{{ -1.0.abs() }}`, "-1.0"},
-		{100, `{{ 0.0.abs() }}`, "0.0"},
-		{110, `{{ -999999.55.abs() }}`, "-999999.55"},
-		{120, `{{ 999999.55.abs() }}`, "999999.55"},
+		{"abs of positive float", `{{ 1.0.abs() }}`, "1.0"},
+		{"abs on literal before negation", `{{ -1.0.abs() }}`, "-1.0"},
+		{"abs of zero", `{{ 0.0.abs() }}`, "0.0"},
+		{"abs of negative literal negated after abs", `{{ -999999.55.abs() }}`, "-999999.55"},
+		{"abs of positive large float", `{{ 999999.55.abs() }}`, "999999.55"},
 		// ceil
-		{130, `{{ 1.0.ceil() }}`, "1"},
-		{140, `{{ 1.1.ceil() }}`, "2"},
-		{150, `{{ 1.1.ceil() }}`, "2"},
-		{160, `{{ 5.125.ceil() }}`, "6"},
-		{170, `{{ 1.9.ceil() }}`, "2"},
-		{180, `{{ 0.0.ceil() }}`, "0"},
-		{190, `{{ -1.0.ceil() }}`, "-1"},
-		{200, `{{ -1.1.ceil() }}`, "-2"},
-		{210, `{{ -1.543.ceil() }}`, "-2"},
-		{220, `{{ -1.9.ceil() }}`, "-2"},
+		{"ceil of whole number", `{{ 1.0.ceil() }}`, "1"},
+		{"ceil of small fraction", `{{ 1.1.ceil() }}`, "2"},
+		{"ceil of 1.1", `{{ 1.1.ceil() }}`, "2"},
+		{"ceil of 5.125", `{{ 5.125.ceil() }}`, "6"},
+		{"ceil of 1.9", `{{ 1.9.ceil() }}`, "2"},
+		{"ceil of zero", `{{ 0.0.ceil() }}`, "0"},
+		{"ceil of negative whole number", `{{ -1.0.ceil() }}`, "-1"},
+		{"ceil of negative fraction", `{{ -1.1.ceil() }}`, "-2"},
+		{"ceil of negative 1.543", `{{ -1.543.ceil() }}`, "-2"},
+		{"ceil of negative 1.9", `{{ -1.9.ceil() }}`, "-2"},
 		// floor
-		{230, `{{ 1.0.floor() }}`, "1"},
-		{240, `{{ 1.1.floor() }}`, "1"},
-		{250, `{{ 1.9.floor() }}`, "1"},
-		{260, `{{ 5.125.floor() }}`, "5"},
-		{270, `{{ 0.0.floor() }}`, "0"},
-		{280, `{{ -1.0.floor() }}`, "-1"},
-		{290, `{{ -1.1.floor() }}`, "-1"},
-		{300, `{{ -1.9.floor() }}`, "-1"},
-		{310, `{{ -5.125.floor() }}`, "-5"},
+		{"floor of whole number", `{{ 1.0.floor() }}`, "1"},
+		{"floor of 1.1", `{{ 1.1.floor() }}`, "1"},
+		{"floor of 1.9", `{{ 1.9.floor() }}`, "1"},
+		{"floor of 5.125", `{{ 5.125.floor() }}`, "5"},
+		{"floor of zero", `{{ 0.0.floor() }}`, "0"},
+		{"floor of negative whole number", `{{ -1.0.floor() }}`, "-1"},
+		{"floor of negative 1.1", `{{ -1.1.floor() }}`, "-1"},
+		{"floor of negative 1.9", `{{ -1.9.floor() }}`, "-1"},
+		{"floor of negative 5.125", `{{ -5.125.floor() }}`, "-5"},
 		// round
-		{320, `{{ 1.0.round() }}`, "1"},
-		{330, `{{ 1.1.round() }}`, "1"},
-		{340, `{{ 1.4.round() }}`, "1"},
-		{350, `{{ 1.4999.round() }}`, "1"},
-		{360, `{{ 1.5.round() }}`, "2"},
-		{370, `{{ 1.6.round() }}`, "2"},
-		{380, `{{ 1.9.round() }}`, "2"},
-		{390, `{{ 5.125.round() }}`, "5"},
-		{400, `{{ 0.0.round() }}`, "0"},
-		{410, `{{ -1.0.round() }}`, "-1"},
-		{420, `{{ -1.1.round() }}`, "-1"},
-		{430, `{{ -1.9.round() }}`, "-2"},
-		{440, `{{ -5.125.round() }}`, "-5"},
+		{"round of whole number", `{{ 1.0.round() }}`, "1"},
+		{"round of 1.1", `{{ 1.1.round() }}`, "1"},
+		{"round 1.4 down", `{{ 1.4.round() }}`, "1"},
+		{"round 1.4999 down", `{{ 1.4999.round() }}`, "1"},
+		{"round 1.5 up", `{{ 1.5.round() }}`, "2"},
+		{"round 1.6 up", `{{ 1.6.round() }}`, "2"},
+		{"round 1.9 up", `{{ 1.9.round() }}`, "2"},
+		{"round 5.125 down", `{{ 5.125.round() }}`, "5"},
+		{"round zero", `{{ 0.0.round() }}`, "0"},
+		{"round negative whole number", `{{ -1.0.round() }}`, "-1"},
+		{"round negative 1.1 toward zero", `{{ -1.1.round() }}`, "-1"},
+		{"round negative 1.9 away from zero", `{{ -1.9.round() }}`, "-2"},
+		{"round negative 5.125 toward zero", `{{ -5.125.round() }}`, "-5"},
 	}
 
 	for _, tc := range cases {
-		evaluationExpected(t, tc.inp, tc.expect, tc.id)
+		evaluationExpected(t, tc.inp, tc.expect, nil, tc.name)
 	}
 }

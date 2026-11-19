@@ -1,6 +1,6 @@
 package ast
 
-import "github.com/textwire/textwire/v5/pkg/token"
+import "github.com/textwire/textwire/v6/pkg/token"
 
 type IdentExpr struct {
 	BaseNode

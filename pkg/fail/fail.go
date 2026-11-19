@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/textwire/textwire/v5/pkg/position"
+	"github.com/textwire/textwire/v6/pkg/position"
 )
 
 // Each string constant here is also an ErrorID on Error object.
@@ -14,14 +14,15 @@ const (
 	// Parser errors
 	ErrEmptyBraces            = "empty expression {{}} - must contain valid code like {{ variable }} or {{ 1 + 2 }}"
 	ErrMissingClosingBraces   = "missing closing '%s'"
+	ErrMissingEnd             = "missing @end for %s started on line %d"
 	ErrWrongPeekToken         = "syntax error: expected '%s' but found '%s'"
 	ErrExpectExprAfter        = "expected expression after '%s'"
 	ErrCouldNotParseAs        = "cannot parse '%s' as '%s'"
 	ErrIllegalToken           = "illegal token '%s'"
-	ErrElseifCannotFollowElse = "'@elseif' cannot come after '@else'"
+	ErrElseifCannotFollowElse = "@elseif cannot come after @else"
 	ErrExpectedObjLit         = "expected object literal, got '%s'"
 	ErrInvalidObjKey          = "object key must be an identifier or a string, got '%s'"
-	ErrLoopControlOutsideLoop = "'%s' can only be used inside a loop"
+	ErrLoopControlOutsideLoop = "%s can only be used inside a loop"
 	ErrSlotNotDefined         = "@component('%s') references @slot('%s') which doesn't exist in the component file"
 	ErrDuplicateReserves      = "found duplicate @reserve('%s') inside of a layout file '%s'"
 	ErrDuplicateSlots         = "found duplicate @slot('%s') inside of a component file '%s'"
@@ -30,8 +31,10 @@ const (
 	ErrUnusedInsertDetected   = "@insert('%s') needs to have a matching @reserve('%s') in layout file"
 	ErrOnlyOneUseDir          = "@use() directive can only be used once per template"
 	ErrForLoopExpectStmt      = "@for() expects statement as post conditional, got expression '%s', like 'i++', 'i = i + 2', etc"
+	ErrForLoopExpectInitStmt  = "@for() expects statement as init conditional, got expression '%s', like 'i++', 'i = i + 2', etc"
+	ErrForLoopExpectRParen    = "@for() expects ')' after post statement"
 	ErrWrongTokenType         = "expected type '%s' but '%s' received"
-	ErrNameCannotBeEmpty      = "'%s' name cannot be empty"
+	ErrNameCannotBeEmpty      = "%s name cannot be empty"
 	ErrGlobalFuncFewArgs      = "global function %s() must have at least '%d' arguments, got '%d'"
 	ErrGlobalFuncLotsOfArgs   = "global function %s() can have maximum '%d' arguments, got '%d'"
 
@@ -46,11 +49,13 @@ const (
 	ErrVariableIsUndefined   = "variable '%s' is not defined"
 	ErrReservedIdentifiers   = "'loop' and 'global' are reserved variable names"
 	ErrIdentTypeMismatch     = "cannot assign identifier '%s' of type '%s' to type '%s'"
+	ErrReadOnlyValue         = "cannot modify read-only value"
 	ErrNotSupportedAssign    = "left side of an assign statement must be an identifier, index expression, or object key access, got '%s'"
 	ErrDivisionByZero        = "division by zero - divisor cannot be zero"
 	ErrEachDirWithNonArrArg  = "cannot use @each(item in array) with non-array type '%s' after 'in' keyword"
 	ErrArrIndexInt           = "array index must be an integer, got '%s'"
 	ErrArrIndexOutOfBound    = "index %d out of bounds for array of length %d"
+	ErrObjIndexStr           = "object index must be a string, got '%s'"
 	ErrTemplateDirectives    = "@use, @insert, @reserve, @component only allowed in templates"
 	ErrInsertRequiresUse     = "@insert('%s') cannot be used without @use()"
 	ErrUseDirMissingLayout   = "@use('%s') missing layout file"
@@ -62,16 +67,20 @@ const (
 	ErrIllegalTypeForInc     = "cannot increment '%s', only integer and float are allowed"
 	ErrIllegalTypeForDec     = "cannot decrement '%s', only integer and float are allowed"
 	ErrUseDirIsNotAllowed    = "@use() not allowed in layout files - causes infinite recursion"
+	ErrCircularReference     = "cannot assign %s to %s: assignment would create a circular reference."
+	ErrCircularValue         = "circular reference detected in '%s'"
+	ErrMaxComponentDepth     = "@component('%s') exceeds the maximum component nesting depth of %d - check for a component that includes itself, or increase the limit with the MaxComponentDepth config option"
 
 	// Functions
-	ErrFuncNotDefined     = "%s.%s() is not defined"
-	ErrFuncMissingArg     = "%s.%s(arg) missing required argument"
-	ErrFuncFirstArgInt    = "argument 1 on %s.%s() must be 'integer'"
-	ErrFuncFirstArgStr    = "argument 1 on %s.%s() must be 'string'"
-	ErrFuncSecondArgInt   = "argument 2 on %s.%s() must be 'integer'"
-	ErrFuncSecondArgStr   = "argument 2 on %s.%s() must be 'string'"
-	ErrFuncMaxArgs        = "%s.%s() takes at most %d arguments"
-	ErrFuncResultTooLarge = "%s.%s() result is too large, maximum is %d bytes"
+	ErrFuncNotDefined      = "%s.%s() is not defined"
+	ErrFuncMissingArg      = "%s.%s(arg) missing required argument"
+	ErrFuncFirstArgInt     = "argument 1 on %s.%s() must be 'integer'"
+	ErrFuncFirstArgStr     = "argument 1 on %s.%s() must be 'string'"
+	ErrFuncSecondArgInt    = "argument 2 on %s.%s() must be 'integer'"
+	ErrFuncSecondArgStr    = "argument 2 on %s.%s() must be 'string'"
+	ErrFuncMaxArgs         = "%s.%s() takes at most %d arguments"
+	ErrFuncResultTooLarge  = "%s.%s() result is too large, maximum is %d bytes"
+	ErrFuncOutOfInt64Range = "%s.%s() result is out of int64 range"
 
 	// Template errors
 	ErrUnsupportedType      = "unsupported value type '%s'"
@@ -189,5 +198,5 @@ func FromError(err error, pos *position.Pos, absPath string, origin ErrOrigin, a
 		pos = &position.Pos{}
 	}
 
-	return New(pos, absPath, origin, err.Error(), args...)
+	return New(pos, absPath, origin, "%s", err.Error())
 }

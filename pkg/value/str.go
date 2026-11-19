@@ -7,6 +7,10 @@ import (
 
 type Str struct {
 	Val string
+
+	// raw is true when the string is marked with the raw() function.
+	// A raw string is printed without HTML escaping.
+	raw bool
 }
 
 func (*Str) Type() ValueType {
@@ -18,7 +22,12 @@ func (s *Str) String() string {
 }
 
 func (s *Str) Dump(ident int) string {
-	return fmt.Sprintf(`<span style="%s">%q</span>`, DUMP_STR, html.EscapeString(s.Val))
+	// Dump output is HTML, so a raw string is escaped here too
+	str := fmt.Sprintf(`<span style="%s">%q</span>`, DUMP_STR, html.EscapeString(s.Val))
+	if s.raw {
+		return fmt.Sprintf(`<span style="%s">raw </span>`, DUMP_META) + str
+	}
+	return str
 }
 
 func (s *Str) JSON() (string, error) {

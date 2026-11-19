@@ -5,13 +5,17 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/textwire/textwire/v5/pkg/fail"
-	"github.com/textwire/textwire/v5/pkg/value"
+	"github.com/textwire/textwire/v6/pkg/fail"
+	"github.com/textwire/textwire/v6/pkg/value"
 )
 
 // objCamelFunc converts object keys to camel case recursively
 func objCamelFunc(receiver value.Literal, _ ...value.Literal) (value.Literal, error) {
 	obj := receiver.(*value.Obj)
+	if value.HasCycle(obj) {
+		return nil, fmt.Errorf(fail.ErrCircularValue, value.OBJ_VAL)
+	}
+
 	return &value.Obj{Pairs: obj.ToCamel()}, nil
 }
 
@@ -36,7 +40,7 @@ func objGetFunc(receiver value.Literal, args ...value.Literal) (value.Literal, e
 
 	patternStr := pattern.String()
 
-	if result, ok := obj.Pairs[patternStr]; ok {
+	if result, ok := lookupObjPair(obj.Pairs, patternStr); ok {
 		return result, nil
 	}
 
@@ -44,11 +48,26 @@ func objGetFunc(receiver value.Literal, args ...value.Literal) (value.Literal, e
 	return findObjKey(props, obj.Pairs), nil
 }
 
+// lookupObjPair returns the value stored under key, falling back to the
+// capitalized key so struct fields (e.g. "name" -> "Name") resolve like
+// dot access does.
+func lookupObjPair(pairs map[string]value.Literal, key string) (value.Literal, bool) {
+	if val, ok := pairs[key]; ok {
+		return val, true
+	}
+
+	if val, ok := pairs[capitalizeFirst(key)]; ok {
+		return val, true
+	}
+
+	return nil, false
+}
+
 func findObjKey(props []string, pairs map[string]value.Literal) value.Literal {
 	current := pairs
 
 	for i := range props {
-		result, ok := current[props[i]]
+		result, ok := lookupObjPair(current, props[i])
 		if !ok {
 			return NIL
 		}

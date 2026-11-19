@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/textwire/textwire/v5/pkg/token"
+	"github.com/textwire/textwire/v6/pkg/token"
 )
 
 type IfDir struct {
@@ -27,18 +27,22 @@ func (id *IfDir) String() string {
 	var out strings.Builder
 	out.Grow(20 + len(id.ElseifDirs)*2)
 
-	fmt.Fprintf(&out, "@if(%s)\n%s", id.Cond, id.IfBlock)
+	fmt.Fprintf(&out, "@if(%s)", id.Cond)
+
+	if id.IfBlock != nil {
+		out.WriteString(id.IfBlock.String())
+	}
 
 	for _, e := range id.ElseifDirs {
 		out.WriteString(e.String())
 	}
 
 	if id.ElseBlock != nil {
-		out.WriteString("@else\n")
-		out.WriteString(id.ElseBlock.String() + "\n")
+		out.WriteString("@else")
+		out.WriteString(id.ElseBlock.String())
 	}
 
-	out.WriteString("@end\n")
+	out.WriteString("@end")
 
 	return out.String()
 }
