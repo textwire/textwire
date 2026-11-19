@@ -16,20 +16,22 @@ import (
 // fileWatcher monitors template files for changes and refreshes parsed AST nodes.
 // It is designed for development use only due to performance implications.
 type fileWatcher struct {
-	linker    *linker.NodeLinker
-	logger    *WatcherLogger
-	ticker    *time.Ticker
-	files     []*file.SourceFile
-	sources   map[string]string // last valid source of each template, by name
-	lastError string
+	linker        *linker.NodeLinker
+	logger        *WatcherLogger
+	ticker        *time.Ticker
+	files         []*file.SourceFile
+	sources       map[string]string // last valid source of each template, by name
+	parseFailures map[string]string // source that last failed to parse, by template name
+	lastError     string
 }
 
 // newFileWatcher creates a new file watcher instance.
 func newFileWatcher(oldLinker *linker.NodeLinker) *fileWatcher {
 	return &fileWatcher{
-		linker:  oldLinker,
-		logger:  NewWatcherLogger(),
-		sources: make(map[string]string),
+		linker:        oldLinker,
+		logger:        NewWatcherLogger(),
+		sources:       make(map[string]string),
+		parseFailures: make(map[string]string),
 	}
 }
 
@@ -133,9 +135,11 @@ func (fw *fileWatcher) parseFileOrLastValid(f *file.SourceFile) *ast.Program {
 
 	prog, failure := parseContent(f, content)
 	if failure != nil {
-		fw.logger.Error(failure.Error().Error())
+		fw.logParseFailure(f, failure.Error().Error(), content)
 		return fw.parseLastValid(f)
 	}
+
+	fw.clearParseFailure(f)
 
 	fw.sources[f.Name] = content
 
@@ -158,6 +162,20 @@ func (fw *fileWatcher) trackModTime(f *file.SourceFile) bool {
 	f.ModTime = info.ModTime()
 
 	return changed
+}
+
+func (fw *fileWatcher) logParseFailure(f *file.SourceFile, errMsg, content string) {
+	if fw.parseFailures[f.Name] == content {
+		return
+	}
+
+	fw.parseFailures[f.Name] = content
+	fw.logger.Error(errMsg)
+}
+
+// clearParseFailure forgets the parse failure of a file that parses again.
+func (fw *fileWatcher) clearParseFailure(f *file.SourceFile) {
+	delete(fw.parseFailures, f.Name)
 }
 
 // parseLastValid parses the last valid source of f into a fresh program.
@@ -199,6 +217,7 @@ func (fw *fileWatcher) removeDeletedPrograms(oldFiles []*file.SourceFile) {
 	for _, f := range fw.findDeletedFiles(oldFiles) {
 		fw.logger.Info("removed " + f.Rel)
 		delete(fw.sources, f.Name)
+		delete(fw.parseFailures, f.Name)
 		fw.removeProgramByName(f.Name)
 	}
 }

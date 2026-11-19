@@ -185,6 +185,72 @@ func TestRelinkAllPrograms_LogsRefreshedFileOnModTimeChange(t *testing.T) {
 	}
 }
 
+func TestRelinkAllPrograms_LogsParseErrorOncePerUnchangedFile(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "home.tw")
+	writeTemplate(t, path, "Hello {{ name")
+
+	var out bytes.Buffer
+	fw := newFileWatcher(linker.New(nil))
+	fw.logger.out = &out
+	fw.files = []*file.SourceFile{file.New("home", path, path, config.New())}
+
+	fw.relinkAllPrograms()
+	fw.relinkAllPrograms()
+	fw.relinkAllPrograms()
+
+	if got := strings.Count(out.String(), "missing closing"); got != 1 {
+		t.Fatalf("expected the parse error once, got %d in %q", got, out.String())
+	}
+}
+
+func TestRelinkAllPrograms_LogsParseErrorAgainAfterEdit(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "home.tw")
+	writeTemplate(t, path, "Hello {{ name")
+
+	var out bytes.Buffer
+	fw := newFileWatcher(linker.New(nil))
+	fw.logger.out = &out
+	fw.files = []*file.SourceFile{file.New("home", path, path, config.New())}
+
+	fw.relinkAllPrograms()
+
+	writeTemplate(t, path, "Hello {{ other")
+	fw.relinkAllPrograms()
+
+	if got := strings.Count(out.String(), "missing closing"); got != 2 {
+		t.Fatalf("expected the parse error again after an edit, got %d in %q", got, out.String())
+	}
+}
+
+func TestRelinkAllPrograms_LogsParseErrorAgainAfterRepair(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "home.tw")
+	writeTemplate(t, path, "Hello {{ name")
+
+	var out bytes.Buffer
+	fw := newFileWatcher(linker.New(nil))
+	fw.logger.out = &out
+	fw.files = []*file.SourceFile{file.New("home", path, path, config.New())}
+
+	fw.relinkAllPrograms()
+
+	writeTemplate(t, path, "Hello {{ name }}")
+	fw.relinkAllPrograms()
+
+	if got := strings.Count(out.String(), "missing closing"); got != 1 {
+		t.Fatalf("expected no parse error after repair, got %q", out.String())
+	}
+
+	writeTemplate(t, path, "Hello {{ name")
+	fw.relinkAllPrograms()
+
+	if got := strings.Count(out.String(), "missing closing"); got != 2 {
+		t.Fatalf(
+			"expected the parse error again after breaking the repaired file, got %q",
+			out.String(),
+		)
+	}
+}
+
 func TestRemoveProgramByName(t *testing.T) {
 	t.Run("removes only matching program", func(t *testing.T) {
 		ln := linker.New([]*ast.Program{

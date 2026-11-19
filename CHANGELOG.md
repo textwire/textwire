@@ -1,6 +1,10 @@
 # Release notes V6
 
-## v6.0.0 (2026-11-20)
+## v6.0.1 (2026-11-19)
+
+- 🐛 The file watcher no longer logs the same template parse error on every tick while the file stays unchanged. It logs the error once and logs it again only after the file is edited. Closes [#126](https://github.com/textwire/textwire/issues/126).
+
+## v6.0.0 (2026-11-19)
 
 [Full migration guide from v5 to v6.](https://textwire.serhiicho.com/v6/upgrade)
 
