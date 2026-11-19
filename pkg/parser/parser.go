@@ -379,6 +379,43 @@ func (p *Parser) expectPeek(tok token.TokenType) bool {
 	return false
 }
 
+// expectDirRParen checks that the directive's argument list ends with ")". A
+// trailing comma is allowed, like in arrays and objects. Any other comma means
+// the directive got more arguments than it accepts, so report that instead of
+// the confusing "expected ')'" message.
+func (p *Parser) expectDirRParen(dirName string, maxArgs int) bool {
+	if !p.peekTokenIs(token.COMMA) {
+		return p.expectPeek(token.RPAREN)
+	}
+
+	p.nextToken() // move to ","
+
+	if p.peekTokenIs(token.RPAREN) { // trailing comma
+		p.nextToken() // move to ")"
+		return true
+	}
+
+	p.reportDirTooManyArgs(dirName, maxArgs)
+
+	return false
+}
+
+// reportDirTooManyArgs reports extra directive arguments at the first extra
+// argument so the error points at what should be removed. It expects the
+// current token to be the comma before that argument.
+func (p *Parser) reportDirTooManyArgs(dirName string, maxArgs int) {
+	commaPos := p.curToken.Pos
+
+	p.nextToken() // move to the first extra argument
+
+	pos := commaPos
+	if expr := p.expression(LOWEST); expr != nil {
+		pos = expr.Pos()
+	}
+
+	p.newError(pos, fail.ErrDirTooManyArgs, dirName, maxArgs)
+}
+
 func (p *Parser) newError(pos *position.Pos, msg string, args ...any) {
 	newErr := fail.New(pos, p.file.Abs, fail.OriginPars, msg, args...)
 	p.errors = append(p.errors, newErr)
@@ -567,7 +604,7 @@ func (p *Parser) useDir() ast.Chunk {
 		p.newError(useDir.Pos(), fail.ErrOnlyOneUseDir)
 	}
 
-	if !p.expectPeek(token.RPAREN) { // move to ")"
+	if !p.expectDirRParen("@use", 1) { // move to ")"
 		return p.illegal()
 	}
 
@@ -593,7 +630,7 @@ func (p *Parser) breakifDir() ast.Chunk {
 
 	dir.Cond = p.expression(LOWEST)
 
-	if !p.expectPeek(token.RPAREN) { // move to ")"
+	if !p.expectDirRParen("@breakif", 1) { // move to ")"
 		return p.illegal()
 	}
 
@@ -617,7 +654,7 @@ func (p *Parser) continueifDir() ast.Chunk {
 
 	dir.Cond = p.expression(LOWEST)
 
-	if !p.expectPeek(token.RPAREN) { // move to ")"
+	if !p.expectDirRParen("@continueif", 1) { // move to ")"
 		return p.illegal()
 	}
 
@@ -688,9 +725,29 @@ func (p *Parser) compDirHeader(compDir *ast.CompDir) *ast.Illegal {
 	if !p.expectPeek(token.LPAREN) { // move to "("
 		return p.illegalUntil(token.RPAREN)
 	}
-
 	p.nextToken() // skip "("
 
+	if illegal := p.compDirName(compDir); illegal != nil {
+		return illegal
+	}
+
+	if p.peekTokenIs(token.COMMA) {
+		p.nextToken() // move to ","
+
+		if !p.compDirArgument(compDir) {
+			return nil
+		}
+	}
+
+	if !p.expectDirRParen("@component", 2) { // move to ")"
+		return p.illegalUntil(token.TEXT)
+	}
+
+	return nil
+}
+
+// compDirName parses the component's name string literal.
+func (p *Parser) compDirName(compDir *ast.CompDir) *ast.Illegal {
 	if !p.expectType(token.STR) {
 		return p.illegal()
 	}
@@ -704,24 +761,27 @@ func (p *Parser) compDirHeader(compDir *ast.CompDir) *ast.Illegal {
 		file.ReplacePathAlias(p.curToken.Lit, file.PathAliasComp),
 	)
 
-	if p.peekTokenIs(token.COMMA) {
-		p.nextToken() // move to ","
-		p.nextToken() // skip ","
-
-		obj, ok := p.expression(LOWEST).(*ast.ObjExpr)
-		if !ok {
-			p.newError(p.curToken.Pos, fail.ErrExpectedObjLit, p.curToken.Lit)
-			return nil
-		}
-
-		compDir.Argument = obj
-	}
-
-	if !p.expectPeek(token.RPAREN) { // move to ")"
-		return p.illegalUntil(token.TEXT)
-	}
-
 	return nil
+}
+
+// compDirArgument parses the optional object literal after the comma.
+// A trailing comma is allowed and means there is no argument. It reports
+// false if the argument is not an object literal.
+func (p *Parser) compDirArgument(compDir *ast.CompDir) bool {
+	if p.peekTokenIs(token.RPAREN) {
+		return true
+	}
+
+	p.nextToken() // skip ","
+
+	obj, ok := p.expression(LOWEST).(*ast.ObjExpr)
+	if !ok {
+		p.newError(p.curToken.Pos, fail.ErrExpectedObjLit, p.curToken.Lit)
+		return false
+	}
+
+	compDir.Argument = obj
+	return true
 }
 
 // slotDir parses an @slot inside a component file.
@@ -740,7 +800,7 @@ func (p *Parser) slotDir() ast.Chunk {
 	// Handle named @slot with name
 	slotDir.Name = ast.NewStrExpr(p.curToken, p.curToken.Lit)
 
-	if !p.expectPeek(token.RPAREN) { // move to ")"
+	if !p.expectDirRParen("@slot", 1) { // move to ")"
 		return p.illegalUntil(token.END)
 	}
 
@@ -784,16 +844,18 @@ func (p *Parser) passDir() ast.Chunk {
 	p.nextToken() // move to "("
 	p.nextToken() // skip "("
 
+	dirName := "@pass"
+	maxArgs := 1
+
 	if hasCondition {
+		dirName = "@passif"
+		maxArgs = 2
 		passDir.Cond = p.expression(LOWEST)
-	}
 
-	if p.peekTokenIs(token.COMMA) {
-		p.nextToken() // move to ","
-	}
-
-	if p.peekTokenIs(token.STR) {
-		p.nextToken() // move to string
+		if p.peekTokenIs(token.COMMA) {
+			p.nextToken() // move to ","
+			p.nextToken() // move to the slot name
+		}
 	}
 
 	if !p.expectNonEmptyNameOn(passDir) {
@@ -802,7 +864,7 @@ func (p *Parser) passDir() ast.Chunk {
 
 	passDir.Name = ast.NewStrExpr(p.curToken, p.curToken.Lit)
 
-	if !p.expectPeek(token.RPAREN) { // move to ")"
+	if !p.expectDirRParen(dirName, maxArgs) { // move to ")"
 		return p.illegal()
 	}
 
@@ -837,7 +899,7 @@ func (p *Parser) reserveDir() ast.Chunk {
 	reserveDir.Name = ast.NewStrExpr(p.curToken, p.curToken.Lit)
 	reserveDir.Fallback = p.reserveDirFallback()
 
-	if !p.expectPeek(token.RPAREN) { // move to ")"
+	if !p.expectDirRParen("@reserve", 2) { // move to ")"
 		return p.illegal()
 	}
 
@@ -866,7 +928,14 @@ func (p *Parser) reserveDirFallback() ast.Expression {
 		return ast.NewAbsent(p.curToken.Pos)
 	}
 
+	namePos := p.curToken.Pos
+
 	p.nextToken() // move to "," from string
+
+	if p.peekTokenIs(token.RPAREN) { // trailing comma
+		return ast.NewAbsent(namePos)
+	}
+
 	p.nextToken() // move to expression from ","
 
 	return p.expression(LOWEST)
@@ -938,7 +1007,7 @@ func (p *Parser) insertDirHeader(insertDir *ast.InsertDir) (*ast.Illegal, bool) 
 		return nil, true
 	}
 
-	if !p.expectPeek(token.RPAREN) { // move to ")"
+	if !p.expectDirRParen("@insert", 2) { // move to ")"
 		return p.illegal(), false
 	}
 
@@ -951,11 +1020,19 @@ func (p *Parser) insertDirArgument(insertDir *ast.InsertDir) (*ast.Illegal, bool
 		return nil, false
 	}
 
+	namePos := p.curToken.Pos
+
 	p.nextToken() // skip insert name
+
+	if p.peekTokenIs(token.RPAREN) { // trailing comma
+		insertDir.Argument = ast.NewAbsent(namePos)
+		return nil, false
+	}
+
 	p.nextToken() // skip ","
 	insertDir.Argument = p.expression(LOWEST)
 
-	if !p.expectPeek(token.RPAREN) { // move to ")"
+	if !p.expectDirRParen("@insert", 2) { // move to ")"
 		return p.illegal(), false
 	}
 
@@ -1161,7 +1238,7 @@ func (p *Parser) ifDirHeader(ifDir *ast.IfDir) *ast.Illegal {
 
 	ifDir.Cond = p.expression(LOWEST)
 
-	if !p.expectPeek(token.RPAREN) { // move to ")"
+	if !p.expectDirRParen("@if", 1) { // move to ")"
 		return p.illegal()
 	}
 
@@ -1178,7 +1255,7 @@ func (p *Parser) elseifDir() (*ast.ElseIfDir, *ast.Illegal) {
 
 	dir.Cond = p.expression(LOWEST)
 
-	if !p.expectPeek(token.RPAREN) { // move to ")"
+	if !p.expectDirRParen("@elseif", 1) { // move to ")"
 		return nil, p.illegal()
 	}
 
@@ -1398,7 +1475,7 @@ func (p *Parser) eachDirHeader(dir *ast.EachDir) *ast.Illegal {
 
 	dir.Arr = p.expression(LOWEST)
 
-	if !p.expectPeek(token.RPAREN) { // move to ")"
+	if !p.expectDirRParen("@each", 1) { // move to ")"
 		return p.illegal()
 	}
 
