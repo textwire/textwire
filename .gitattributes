@@ -1,2 +1,2 @@
 Makefile linguist-vendored
-html linguist-vendored
+*.html linguist-documentation
