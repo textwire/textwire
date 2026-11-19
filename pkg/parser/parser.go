@@ -837,25 +837,25 @@ func (p *Parser) dumpDir() ast.Chunk {
 	return dir
 }
 
+// passDir parses a @pass or @passif directive inside a component block.
+// It can have an optional condition and a slot name.
+// The slot name is required for @passif, but optional for @pass.
 func (p *Parser) passDir() ast.Chunk {
 	passDir := ast.NewPassDir(p.curToken, nil)
-	hasCondition := p.curToken.Type == token.PASSIF
+
+	// Must be read before advancing, since curToken changes below.
+	dirName, maxArgs := "@pass", 1
+
+	hasCond := p.curTokenIs(token.PASSIF)
+	if hasCond {
+		dirName, maxArgs = "@passif", 2
+	}
 
 	p.nextToken() // move to "("
 	p.nextToken() // skip "("
 
-	dirName := "@pass"
-	maxArgs := 1
-
-	if hasCondition {
-		dirName = "@passif"
-		maxArgs = 2
-		passDir.Cond = p.expression(LOWEST)
-
-		if p.peekTokenIs(token.COMMA) {
-			p.nextToken() // move to ","
-			p.nextToken() // move to the slot name
-		}
+	if hasCond {
+		p.passDirCondition(passDir)
 	}
 
 	if !p.expectNonEmptyNameOn(passDir) {
@@ -877,6 +877,17 @@ func (p *Parser) passDir() ast.Chunk {
 	passDir.SetEndPosition(p.curToken.Pos)
 
 	return passDir
+}
+
+// passDirCondition parses the @passif condition and, if present, the comma
+// after it, leaving the parser on the slot name.
+func (p *Parser) passDirCondition(passDir *ast.PassDir) {
+	passDir.Cond = p.expression(LOWEST)
+
+	if p.peekTokenIs(token.COMMA) {
+		p.nextToken() // move to ","
+		p.nextToken() // move to the slot name
+	}
 }
 
 func (p *Parser) reserveDir() ast.Chunk {
