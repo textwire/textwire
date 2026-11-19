@@ -20,8 +20,8 @@ jobs:
 
       - uses: webgtx/setup-podman-compose@v1
 
-      - name: Pull image
-        run: make pull
+      - name: Build image
+        run: make build
 
       - name: Run checks
         run: make

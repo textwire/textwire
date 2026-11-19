@@ -37,6 +37,7 @@ const (
 	ErrNameCannotBeEmpty      = "%s name cannot be empty"
 	ErrGlobalFuncFewArgs      = "global function %s() must have at least '%d' arguments, got '%d'"
 	ErrGlobalFuncLotsOfArgs   = "global function %s() can have maximum '%d' arguments, got '%d'"
+	ErrDirTooManyArgs         = "%s() accepts at most %d arguments"
 
 	// Evaluator (interpreter) errors
 	ErrUnknownType           = "unsupported type '%T'"

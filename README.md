@@ -2,6 +2,11 @@
 
 # Textwire. A templating language for Go
 
+[![Build and test](https://github.com/textwire/textwire/actions/workflows/go.yml/badge.svg)](https://github.com/textwire/textwire/actions/workflows/go.yml)
+![Commit activity](https://img.shields.io/github/commit-activity/y/textwire/textwire)
+![GitHub go.mod Go version](https://img.shields.io/github/go-mod/go-version/textwire/textwire)
+![GitHub License](https://img.shields.io/github/license/textwire/textwire)
+
 Textwire is a simple yet powerful templating language for Go. It is designed to easily inject variables from Go code into a template file or just a regular string.
 
 ### [Read Official Documentation](https://textwire.serhiicho.com)
@@ -55,13 +60,13 @@ A **standalone directive line** is a line whose only non-whitespace content is o
 
 ### Available Commands
 
-All commands run inside a container. Pull the image once before using them:
+All commands run inside a container. The image is built automatically the first time you run any command:
 
 ```bash
-make pull
+make test
 ```
 
-- `make pull` - Pull the checks container image
+- `make build` - Build the checks container image
 - `make test` - Run all tests
 - `make fmt` - Format Go code
 - `make lint` - Run linter

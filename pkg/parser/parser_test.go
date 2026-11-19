@@ -1447,6 +1447,196 @@ func TestErrorHandling(t *testing.T) {
 	}
 }
 
+func TestDirectiveTooManyArguments(t *testing.T) {
+	cases := []struct {
+		name  string
+		inp   string
+		dir   string
+		max   int
+		start uint
+		end   uint
+	}{
+		{
+			name:  "@use with 2 arguments",
+			inp:   "@use('layout', 'extra')",
+			dir:   "@use",
+			max:   1,
+			start: 15,
+			end:   21,
+		},
+		{
+			name:  "@use with 3 arguments",
+			inp:   "@use('layout', 'extra', 'more')",
+			dir:   "@use",
+			max:   1,
+			start: 15,
+			end:   21,
+		},
+		{
+			name:  "@reserve with 3 arguments",
+			inp:   "@reserve('title', 'fallback', 'extra')",
+			dir:   "@reserve",
+			max:   2,
+			start: 30,
+			end:   36,
+		},
+		{
+			name:  "@insert with 3 arguments",
+			inp:   `@insert("title", "Serhii Cho", 'nice')`,
+			dir:   "@insert",
+			max:   2,
+			start: 31,
+			end:   36,
+		},
+		{
+			name:  "@component with 3 arguments",
+			inp:   "@component('name', { a: 1 }, 'extra')",
+			dir:   "@component",
+			max:   2,
+			start: 29,
+			end:   35,
+		},
+		{
+			name:  "@slot with 3 arguments",
+			inp:   "@slot('name', 'extra', 'more')",
+			dir:   "@slot",
+			max:   1,
+			start: 14,
+			end:   20,
+		},
+		{
+			name:  "@pass with 3 arguments",
+			inp:   "@pass('name', 'extra', 'more')",
+			dir:   "@pass",
+			max:   1,
+			start: 14,
+			end:   20,
+		},
+		{
+			name:  "@passif with 3 arguments",
+			inp:   "@passif(true, 'name', 'extra')",
+			dir:   "@passif",
+			max:   2,
+			start: 22,
+			end:   28,
+		},
+		{
+			name:  "@if with 3 arguments",
+			inp:   "@if(true, 'extra', 'more')",
+			dir:   "@if",
+			max:   1,
+			start: 10,
+			end:   16,
+		},
+		{
+			name:  "@elseif with 3 arguments",
+			inp:   "@if(false)@elseif(true, 'extra', 'more')@end",
+			dir:   "@elseif",
+			max:   1,
+			start: 24,
+			end:   30,
+		},
+		{
+			name:  "@each with 3 arguments",
+			inp:   "@each(x in arr, 'extra', 'more')",
+			dir:   "@each",
+			max:   1,
+			start: 16,
+			end:   22,
+		},
+		{
+			name:  "@breakif with 3 arguments",
+			inp:   "@for(i=0;i<1;i++)@breakif(true, 'extra', 'more')@end",
+			dir:   "@breakif",
+			max:   1,
+			start: 32,
+			end:   38,
+		},
+		{
+			name:  "@continueif with 3 arguments",
+			inp:   "@for(i=0;i<1;i++)@continueif(true, 'extra', 'more')@end",
+			dir:   "@continueif",
+			max:   1,
+			start: 35,
+			end:   41,
+		},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			l := lexer.New(tc.inp)
+			p := New(l, nil)
+			p.ParseProgram()
+
+			if !p.HasErrors() {
+				t.Fatalf("no errors found in input %q", tc.inp)
+			}
+
+			expected := fail.New(
+				&position.Pos{StartCol: tc.start, EndCol: tc.end},
+				"",
+				fail.OriginPars,
+				fail.ErrDirTooManyArgs,
+				tc.dir,
+				tc.max,
+			)
+
+			err := p.Errors()[0]
+			if err.String() != expected.String() {
+				t.Fatalf("expect error message:\n%q\ngot:\n%q", expected, err)
+			}
+
+			if !reflect.DeepEqual(err.Pos(), expected.Pos()) {
+				t.Fatalf(
+					"wrong position on error message, expect %v, got: %v",
+					expected.Pos(),
+					err.Pos(),
+				)
+			}
+		})
+	}
+}
+
+func TestDirectiveTrailingComma(t *testing.T) {
+	cases := []struct {
+		name string
+		inp  string
+	}{
+		{name: "@use", inp: "@use('layout',)"},
+		{name: "@reserve with one argument", inp: "@reserve('title',)"},
+		{name: "@reserve with fallback", inp: "@reserve('title', 'fallback',)"},
+		{name: "@insert with name only", inp: "@insert('title',)@end"},
+		{name: "@insert with content", inp: "@insert('title', 'value',)"},
+		{
+			name: "@insert multiline",
+			inp:  "@insert(\n    \"title\",\n    \"Home page\",\n)",
+		},
+		{name: "@component with name only", inp: "@component('name',)@end"},
+		{name: "@component with argument", inp: "@component('name', { a: 1 },)@end"},
+		{name: "@slot", inp: "@slot('name',)"},
+		{name: "@pass", inp: "@component('c')@pass('name',)@end@end"},
+		{name: "@passif", inp: "@component('c')@passif(true, 'name',)@end@end"},
+		{name: "@if", inp: "@if(true,)@end"},
+		{name: "@elseif", inp: "@if(false)@elseif(true,)@end"},
+		{name: "@each", inp: "@each(x in arr,)@end"},
+		{name: "@dump", inp: "@dump('a',)"},
+		{name: "@breakif", inp: "@for(i=0;i<1;i++)@breakif(true,)@end"},
+		{name: "@continueif", inp: "@for(i=0;i<1;i++)@continueif(true,)@end"},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			l := lexer.New(tc.inp)
+			p := New(l, nil)
+			p.ParseProgram()
+
+			if p.HasErrors() {
+				t.Fatalf("unexpected error for input %q: %v", tc.inp, p.Errors()[0])
+			}
+		})
+	}
+}
+
 func TestParseExpressionErrorWithOperator(t *testing.T) {
 	cases := []struct {
 		name string
