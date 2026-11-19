@@ -1,8 +1,8 @@
 package apitest
 
 import (
-	"github.com/textwire/textwire/v6"
 	"fmt"
+	"github.com/textwire/textwire/v6"
 	"sync"
 	"testing"
 
