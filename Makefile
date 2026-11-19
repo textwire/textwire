@@ -3,53 +3,51 @@ MAX_LINE_LENGTH := 100
 OCI ?= podman-compose
 RUN = $(OCI) run --rm -T checks
 RUN_IT= $(OCI) run --rm checks
-IMAGE ?= registry.serhiicho.com/textwire:checks
+STAMP := .github/.checks-image
 
-.PHONY: pull
-pull:
-	@$(OCI) pull
+# Builds the checks image only when the Dockerfile or compose file changes
+$(STAMP): Dockerfile compose.yml
+	@$(OCI) build checks
+	@touch $(STAMP)
 
-.PHONY: push
-push:
-	@podman rmi $(IMAGE) 2>/dev/null || true
-	@podman build --platform linux/amd64,linux/arm64 --manifest $(IMAGE) .
-	@podman manifest push --all $(IMAGE) docker://$(IMAGE)
+.PHONY: build
+build: $(STAMP)
 
 .PHONY: repl
-repl:
+repl: build
 	@clear || true
 	@$(RUN_IT) go run pkg/repl/repl.go
 
 .PHONY: cover
-cover:
+cover: build
 	@$(RUN) go test -coverpkg=./... -coverprofile=coverage.out ./...
 	@$(RUN) go tool cover -html=coverage.out -o coverage.html
 	@rm -f coverage.out
 	@echo "✅ Coverage written to coverage.html"
 
 .PHONY: test
-test:
+test: build
 	@clear || true
 	@$(RUN) go test $(RACE) -count=1 -timeout 30s ./...
 	@echo "✅ All tests passed!"
 
 .PHONY: fmt
-fmt:
+fmt: build
 	@$(RUN) go fmt ./...
 	@echo "✅ Code formatted!"
 
 .PHONY: line
-line:
+line: build
 	@$(RUN) golines -w -m $(MAX_LINE_LENGTH) .
 	@echo "✅ Lines limited!"
 
 .PHONY: lint
-lint:
+lint: build
 	@$(RUN) golangci-lint run
 	@echo "✅ Linting passed!"
 
 .PHONY: todo
-todo:
+todo: build
 	@if $(RUN) grep -I --exclude="Makefile" --exclude-dir=".git" -r TODO .; then \
 		echo "❌ Found TODOs" >&2; \
 		exit 1; \

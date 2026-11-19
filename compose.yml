@@ -1,6 +1,7 @@
 services:
   checks:
-    image: registry.serhiicho.com/textwire:checks
+    build: .
+    image: localhost/textwire:checks
     working_dir: /app
     volumes:
       - .:/app:z
