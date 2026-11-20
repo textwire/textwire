@@ -927,6 +927,80 @@ func TestBreakDirectives(t *testing.T) {
 	})
 }
 
+func TestArgumentlessDirectivesLeaveParensAsText(t *testing.T) {
+	cases := []struct {
+		name string
+		inp  string
+		dir  token.TokenType
+		text string
+	}{
+		{
+			name: "end with space",
+			inp:  "@end (note)",
+			dir:  token.END,
+			text: " (note)",
+		},
+		{
+			name: "end without space",
+			inp:  "@end(note)",
+			dir:  token.END,
+			text: "(note)",
+		},
+		{
+			name: "end before next line",
+			inp:  "@end\n(note)",
+			dir:  token.END,
+			text: "(note)",
+		},
+		{
+			name: "else with space",
+			inp:  "@else (b)",
+			dir:  token.ELSE,
+			text: " (b)",
+		},
+		{
+			name: "break with space",
+			inp:  "@break (stop)",
+			dir:  token.BREAK,
+			text: " (stop)",
+		},
+		{
+			name: "continue with space",
+			inp:  "@continue (skip)",
+			dir:  token.CONTINUE,
+			text: " (skip)",
+		},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			l := New(tc.inp)
+
+			dir := l.Next()
+			if dir.Type != tc.dir {
+				t.Fatalf(
+					"expect directive %s, got %s",
+					token.String(tc.dir),
+					token.String(dir.Type),
+				)
+			}
+
+			text := l.Next()
+			if text.Type != token.TEXT {
+				t.Fatalf("expect text %q, got %s", tc.text, token.String(text.Type))
+			}
+
+			if text.Lit != tc.text {
+				t.Fatalf("expect text %q, got %q", tc.text, text.Lit)
+			}
+
+			if eof := l.Next(); eof.Type != token.EOF {
+				t.Fatalf("expect EOF, got %s", token.String(eof.Type))
+			}
+		})
+	}
+}
+
 func TestComponentDirective(t *testing.T) {
 	inp := `@component("components/book-card", { c: card })`
 

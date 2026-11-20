@@ -241,6 +241,58 @@ func TestEvalStr(t *testing.T) {
 	}
 }
 
+func TestArgumentlessDirectivesLeaveParensAsText(t *testing.T) {
+	cases := []struct {
+		name   string
+		inp    string
+		expect string
+	}{
+		{
+			name:   "end before parenthesized text on the next line",
+			inp:    "@if(true)a@end\n(note)",
+			expect: "a\n(note)",
+		},
+		{
+			name:   "end before parenthesized text on the same line",
+			inp:    "@if(true)a@end (see above)",
+			expect: "a (see above)",
+		},
+		{
+			name:   "end directly before parentheses",
+			inp:    "@if(true)a@end(note)",
+			expect: "a(note)",
+		},
+		{
+			name:   "else before parenthesized text",
+			inp:    "@if(false)a@else (b)@end",
+			expect: " (b)",
+		},
+		{
+			name:   "break before parenthesized text",
+			inp:    "@each(x in [1,2])@break (stop)@end",
+			expect: "",
+		},
+		{
+			name:   "continue before parenthesized text",
+			inp:    "@each(x in [1,2])@if(x == 1)@continue (skip)@end{{ x }}@end",
+			expect: "2",
+		},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			actual, failure := textwire.EvaluateString(tc.inp, nil)
+			if failure != nil {
+				t.Fatalf("evaluation failed: %s", failure)
+			}
+
+			if actual != tc.expect {
+				t.Fatalf("expect %q, got %q", tc.expect, actual)
+			}
+		})
+	}
+}
+
 func TestDefinedGlobalFunc(t *testing.T) {
 	cases := []struct {
 		id     int

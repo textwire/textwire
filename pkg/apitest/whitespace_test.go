@@ -39,6 +39,18 @@ func TestStandaloneControlDirectiveWhitespace(t *testing.T) {
 			expect: "    apple\n        pear\n     hello\n",
 		},
 		{
+			name:   "closer with parenthesized text after it keeps whitespace",
+			inp:    "@if(true)\na\n@end (note)\n",
+			data:   nil,
+			expect: "a\n (note)\n",
+		},
+		{
+			name:   "closer alone on its line is removed before parenthesized text",
+			inp:    "@if(true)\na\n@end\n(note)\n",
+			data:   nil,
+			expect: "a\n(note)\n",
+		},
+		{
 			name:   "YAML list keeps item indentation",
 			inp:    "items:\n    @each(item in items)\n  - {{ item }}\n    @end\n",
 			data:   map[string]any{"items": []string{"apple", "pear"}},

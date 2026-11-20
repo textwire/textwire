@@ -1,5 +1,9 @@
 # Release notes V6
 
+## v6.0.2 (2026-11-20)
+
+- 🐛 Directives that take no arguments, like `@end`, `@else`, `@break` and `@continue`, no longer treat a following `(` as an argument list. Parentheses after them are now rendered as text, even when they start on the next line. Closes [#122](https://github.com/textwire/textwire/issues/122).
+
 ## v6.0.1 (2026-11-19)
 
 - 🐛 The file watcher no longer logs the same template parse error on every tick while the file stays unchanged. It logs the error once and logs it again only after the file is edited. Closes [#126](https://github.com/textwire/textwire/issues/126).
