@@ -1,6 +1,9 @@
 package evaluator
 
-import "github.com/textwire/textwire/v6/pkg/value"
+import (
+	"github.com/textwire/textwire/v6/pkg/ast"
+	"github.com/textwire/textwire/v6/pkg/value"
+)
 
 // SlotsStore stores slots. Example below:
 //
@@ -11,6 +14,13 @@ import "github.com/textwire/textwire/v6/pkg/value"
 //	    },
 //	}
 type SlotsStore = map[string]map[string]value.Value
+
+// useState is shared by a template's child contexts, so @use directive that
+// runs inside a block is visible when the template finishes evaluating.
+type useState struct {
+	dir *ast.UseDir
+	ran bool
+}
 
 // Context is evaluator context that is being passed through all
 // the evaluator values to carry scope and path to the current file.
@@ -23,6 +33,8 @@ type Context struct {
 	// - value is evaluated ASTs into value.
 	inserts map[string]value.Value
 
+	useState *useState
+
 	// slots should be used inside component files.
 	slots SlotsStore
 }
@@ -33,19 +45,21 @@ func NewContext(scope *value.Scope, absPath string) *Context {
 	}
 
 	return &Context{
-		scope:   scope,
-		absPath: absPath,
-		inserts: map[string]value.Value{},
-		slots:   SlotsStore{},
+		scope:    scope,
+		absPath:  absPath,
+		inserts:  map[string]value.Value{},
+		useState: &useState{},
+		slots:    SlotsStore{},
 	}
 }
 
 func (ctx *Context) childContext() *Context {
 	return &Context{
-		scope:   ctx.scope,
-		absPath: ctx.absPath,
-		inserts: ctx.inserts,
-		slots:   ctx.slots,
+		scope:    ctx.scope,
+		absPath:  ctx.absPath,
+		inserts:  ctx.inserts,
+		useState: ctx.useState,
+		slots:    ctx.slots,
 	}
 }
 

@@ -67,13 +67,11 @@ func (p *Program) AllChunks() []Chunk {
 	return chunks
 }
 
-// LinkLayoutToUse adds Layout AST program to UseStmt for the current template
-// and resets chunks to UseDir chunk only. Because we don't need anything else
-// inside a template. Make sure inserts are added before this is called
-// because they will be removed by this function.
+// LinkLayoutToUse adds the layout AST program to the template's UseDir. The
+// template chunks stay in place, so directives inside conditions and loops are
+// evaluated at render time instead of taking effect as soon as they are parsed.
 func (p *Program) LinkLayoutToUse(layoutProg *Program) {
 	p.UseDir.LayoutProg = layoutProg
-	p.Chunks = []Chunk{p.UseDir}
 }
 
 func (p *Program) HasUseDir() bool {

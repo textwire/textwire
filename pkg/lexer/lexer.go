@@ -214,10 +214,21 @@ func (l *Lexer) directiveToken() token.Token {
 		return l.illegalToken()
 	}
 
-	l.isDirective = l.char == '(' || l.nextNonSpaceIs('(')
+	l.isDirective = directiveTakesArgs(tok) && (l.char == '(' || l.nextNonSpaceIs('('))
 	l.isText = !l.isDirective
 
 	return l.newToken(tok, keyword)
+}
+
+// directiveTakesArgs reports whether the directive accepts a parenthesized
+// argument list. Argumentless directives leave a following "(" as text.
+func directiveTakesArgs(tok token.TokenType) bool {
+	switch tok {
+	case token.END, token.ELSE, token.BREAK, token.CONTINUE:
+		return false
+	}
+
+	return true
 }
 
 func (l *Lexer) embeddedCodeToken() token.Token {
