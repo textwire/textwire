@@ -82,6 +82,7 @@ const (
 	ErrFuncMaxArgs         = "%s.%s() takes at most %d arguments"
 	ErrFuncResultTooLarge  = "%s.%s() result is too large, maximum is %d bytes"
 	ErrFuncOutOfInt64Range = "%s.%s() result is out of int64 range"
+	ErrFuncTruncateArg     = "truncate() only excepts a non-negative integer as its first argument"
 
 	// Template errors
 	ErrUnsupportedType      = "unsupported value type '%s'"
