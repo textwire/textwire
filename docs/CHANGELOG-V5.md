@@ -201,8 +201,10 @@
 
 - 🐛 Change string escaping. It used to be that strings would be escaped using `raw` function, but now, strings are escaped when they are the result of `{{ <result> }}`. The final result between curly braces is scaped. Function [raw](https://textwire.serhiicho.com/v4/functions/str.html#raw) is removed. Now, you need to use `{!!` and `!!}` to print raw unescaped string. Example: `{!! myData !!}`. Read [upgrade guide](https://textwire.serhiicho.com/v5/upgrade.html).
 
-## [Release Notes V1](CHANGELOG-V1.md)
-## [Release Notes V2](CHANGELOG-V2.md)
-## [Release Notes V3](CHANGELOG-V3.md)
-## [Release Notes V4](CHANGELOG-V4.md)
-## [Emojis Meaning](EMOJIS.md)
+## Previous Versions
+
+- [Release Notes V1](CHANGELOG-V1.md)
+- [Release Notes V2](CHANGELOG-V2.md)
+- [Release Notes V3](CHANGELOG-V3.md)
+- [Release Notes V4](CHANGELOG-V4.md)
+- [Emojis Meaning](EMOJIS.md)
