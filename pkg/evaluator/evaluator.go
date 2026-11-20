@@ -20,7 +20,6 @@ var (
 type Evaluator struct {
 	customFunc     *config.Func
 	usingTemplates bool
-	usingUseDir    bool
 
 	// config can be nil when Textwire is used for simple string and
 	// file evaluation. If config is not nil, it means we use templates.
@@ -147,6 +146,9 @@ func (e *Evaluator) evalLiteral(node ast.Node, ctx *Context) value.Literal {
 }
 
 func (e *Evaluator) program(prog *ast.Program, ctx *Context) value.Value {
+	ctx.useState.dir = prog.UseDir
+	ctx.useState.ran = false
+
 	block := value.NewBlock(len(prog.Chunks))
 
 	for i := range prog.Chunks {
@@ -157,7 +159,16 @@ func (e *Evaluator) program(prog *ast.Program, ctx *Context) value.Value {
 		block.Append(val)
 	}
 
-	return block
+	// A template with @use renders only the layout. The directive has to run
+	// for that to happen, so a false condition around @use keeps the regular
+	// template output instead.
+	// For a template without @use, the condition is false, so program()
+	// returns block.
+	if !ctx.useState.ran {
+		return block
+	}
+
+	return e.renderLayout(ctx.useState.dir, ctx)
 }
 
 func (e *Evaluator) embedded(embeddedAst *ast.Embedded, ctx *Context) value.Value {
@@ -421,26 +432,26 @@ func (e *Evaluator) useDir(useDir *ast.UseDir, ctx *Context) value.Value {
 		return e.newError(useDir, ctx, fail.ErrTemplateDirectives)
 	}
 
-	e.usingUseDir = true
+	// The layout is rendered after all template chunks run, so @insert
+	// directives that are evaluated later still reach it.
+	ctx.useState.dir = useDir
+	ctx.useState.ran = true
 
-	// Create new layout context and pass inserts to it
+	return NIL
+}
+
+// renderLayout renders the layout after the template body has run and its
+// inserts are collected. Only a layout whose @use directive actually ran is
+// rendered, so a false condition around @use keeps the regular output.
+func (e *Evaluator) renderLayout(useDir *ast.UseDir, ctx *Context) value.Value {
 	layoutCtx := NewContext(value.NewScope(e.global), useDir.LayoutProg.AbsPath)
+	layoutCtx.inserts = ctx.inserts
 
 	// Make sure that layout is missing @use
 	if useDir.LayoutProg.IsLayout && useDir.LayoutProg.HasUseDir() {
 		return e.newError(useDir.LayoutProg.UseDir, layoutCtx, fail.ErrUseDirIsNotAllowed)
 	}
 
-	// Evaluate @inserts and map them into new context for layout
-	for name, insertDir := range useDir.Inserts {
-		insert := e.insertDir(insertDir, ctx)
-		if isError(insert) {
-			return insert
-		}
-		layoutCtx.inserts[name] = insert
-	}
-
-	// Evaluate layout program with new context
 	layout := e.Eval(useDir.LayoutProg, layoutCtx)
 	if isError(layout) {
 		return layout
@@ -800,7 +811,7 @@ func (e *Evaluator) insertDir(insertDir *ast.InsertDir, ctx *Context) value.Valu
 	}
 
 	name := insertDir.Name.Val
-	if !e.usingUseDir {
+	if ctx.useState.dir == nil {
 		return e.newError(insertDir, ctx, fail.ErrInsertRequiresUse, name)
 	}
 
@@ -809,10 +820,9 @@ func (e *Evaluator) insertDir(insertDir *ast.InsertDir, ctx *Context) value.Valu
 		return block
 	}
 
-	return &value.Insert{
-		Name:  name,
-		Block: block,
-	}
+	ctx.inserts[name] = block
+
+	return NIL
 }
 
 // combineInsertContent combines insert Argument and Block (depending what user has)

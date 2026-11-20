@@ -8,9 +8,8 @@ import (
 
 type UseDir struct {
 	BaseNode
-	Name       *StrExpr              // Relative path to the layout like 'layouts/main'
-	LayoutProg *Program              // AST node of the layout file Name
-	Inserts    map[string]*InsertDir // @use connection to @insert directives
+	Name       *StrExpr // Relative path to the layout like 'layouts/main'
+	LayoutProg *Program // AST node of the layout file Name
 }
 
 func NewUseDir(tok token.Token) *UseDir {

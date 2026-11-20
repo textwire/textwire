@@ -52,10 +52,9 @@ func (nl *NodeLinker) unlinkAll() {
 			comp.CompProg = nil
 		}
 
-		// Unlink layouts and inserts
+		// Unlink layouts
 		if prog.UseDir != nil {
 			prog.UseDir.LayoutProg = nil
-			prog.UseDir.Inserts = nil
 		}
 	}
 }
@@ -65,8 +64,6 @@ func (nl *NodeLinker) handleLayoutLinking(prog *ast.Program) *fail.Error {
 	if !prog.HasUseDir() {
 		return nil
 	}
-
-	prog.UseDir.Inserts = prog.Inserts
 
 	layoutName := prog.UseDir.Name.Val
 	layoutProg := ast.FindProg(layoutName, nl.Programs)
