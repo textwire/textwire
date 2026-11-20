@@ -28,9 +28,11 @@
 - 🧑‍💻 BREAKING CHANGE! Public `pkg/` API changes: `evaluator.New` takes a third `global *value.Obj` argument, `value.NewScopeFromMap` takes a second `global *value.Obj` argument, and `Scope.AddGlobal` is removed. Pass `nil` to keep the previous behavior.
 - 🐛 Errors for missing components, unused inserts, and unknown or duplicate `@pass`/`@passif` slots now point at the name string instead of the whole directive.
 
-## [Release Notes V1](docs/CHANGELOG-V1.md)
-## [Release Notes V2](docs/CHANGELOG-V2.md)
-## [Release Notes V3](docs/CHANGELOG-V3.md)
-## [Release Notes V4](docs/CHANGELOG-V4.md)
-## [Release Notes V5](docs/CHANGELOG-V5.md)
-## [Emojis Meaning](docs/EMOJIS.md)
+## Previous Versions
+
+- [Release Notes V1](docs/CHANGELOG-V1.md)
+- [Release Notes V2](docs/CHANGELOG-V2.md)
+- [Release Notes V3](docs/CHANGELOG-V3.md)
+- [Release Notes V4](docs/CHANGELOG-V4.md)
+- [Release Notes V5](docs/CHANGELOG-V5.md)
+- [Emojis Meaning](docs/EMOJIS.md)
