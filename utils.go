@@ -3,6 +3,7 @@ package textwire
 import (
 	_ "embed"
 	"io/fs"
+	"path"
 	"path/filepath"
 	"strings"
 
@@ -110,6 +111,7 @@ func makeFileNameSet(files []*file.SourceFile) map[string]bool {
 // discovered files.
 func locateFiles() ([]*file.SourceFile, error) {
 	var files []*file.SourceFile
+	root := locateRoot()
 
 	walk := func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
@@ -120,7 +122,7 @@ func locateFiles() ([]*file.SourceFile, error) {
 			return nil
 		}
 
-		sf, err := newSourceFile(path, d)
+		sf, err := newSourceFile(root, path, d)
 		if err != nil {
 			return err
 		}
@@ -129,11 +131,25 @@ func locateFiles() ([]*file.SourceFile, error) {
 		return nil
 	}
 
-	if err := fs.WalkDir(userConf.TemplateFS, ".", walk); err != nil {
+	if err := fs.WalkDir(userConf.TemplateFS, root, walk); err != nil {
 		return nil, err
 	}
 
 	return files, nil
+}
+
+// locateRoot returns the io/fs path to start walking from. When a custom
+// TemplateFS is used, walking starts inside config.TemplateDir so files
+// outside of it are ignored. Without a custom file system, config.TemplateDir
+// is the file system root, so "." is used instead.
+func locateRoot() string {
+	if !userConf.UsesFS() {
+		return "."
+	}
+
+	dir := strings.TrimPrefix(filepath.ToSlash(userConf.TemplateDir), "/")
+
+	return path.Clean(dir)
 }
 
 // isTemplateFile reports whether the entry is a regular file with the
@@ -143,11 +159,12 @@ func isTemplateFile(path string, d fs.DirEntry) bool {
 }
 
 // newSourceFile builds a SourceFile for the template at the given walk path.
-func newSourceFile(path string, d fs.DirEntry) (*file.SourceFile, error) {
+func newSourceFile(root, path string, d fs.DirEntry) (*file.SourceFile, error) {
 	// When templates are embedded via config.TemplateFS, the walked path
-	// already contains config.TemplateDir, so strip it to avoid duplication.
-	if userConf.UsesFS() {
-		path = strings.Replace(path, userConf.TemplateDir, "", 1)
+	// starts with config.TemplateDir. Strip only that leading path segment
+	// to avoid duplication in the relative path.
+	if userConf.UsesFS() && root != "." {
+		path = strings.TrimPrefix(path, root+"/")
 	}
 
 	relPath := file.JoinPaths(userConf.TemplateDir, path)

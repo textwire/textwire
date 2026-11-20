@@ -1,5 +1,10 @@
 # Release notes V6
 
+## v6.0.3 (2026-11-20)
+
+- 🐛 `truncate()` now returns an error for negative lengths instead of silently treating them as zero. Closes [#125](https://github.com/textwire/textwire/issues/125).
+- 🐛 `TemplateFS` now loads templates relative to `TemplateDir` instead of walking the whole file system. `TemplateDir: "."` loads templates from the root, and files outside the configured directory are ignored. Closes [#124](https://github.com/textwire/textwire/issues/124).
+
 ## v6.0.2 (2026-11-20)
 
 - 🐛 Directives that take no arguments, like `@end`, `@else`, `@break` and `@continue`, no longer treat a following `(` as an argument list. Parentheses after them are now rendered as text, even when they start on the next line. Closes [#122](https://github.com/textwire/textwire/issues/122).

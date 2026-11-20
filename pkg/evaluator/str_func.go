@@ -140,11 +140,13 @@ func strTruncateFunc(receiver value.Literal, args ...value.Literal) (value.Liter
 		return nil, errors.New(msg)
 	}
 
-	val := receiver.(*value.Str).Val
+	// Reject negative limits, since a negative length is a caller error
+	if firstArg.Val < 0 {
+		return nil, errors.New(fail.ErrFuncTruncateArg)
+	}
 
-	// Handle negative limits by treating them as 0
-	// This prevents slice bounds errors when limit < 0
-	limit := max(int(firstArg.Val), 0)
+	val := receiver.(*value.Str).Val
+	limit := int(firstArg.Val)
 
 	// If the string is already shorter than or equal to the limit, return it unchanged
 	// This ensures we don't truncate strings that don't need truncation

@@ -152,7 +152,6 @@ func TestEvalStringFunctions(t *testing.T) {
 		{"truncate digits with tilde suffix", `{{ "1234567890".truncate(4, "~") }}`, "1234~"},
 		{"truncate zero length", `{{ "Hello World".truncate(0) }}`, "..."},
 		{"truncate zero length with suffix", `{{ "Hello World".truncate(0, "---") }}`, "---"},
-		{"truncate negative length", `{{ "test".truncate(-1) }}`, "..."},
 		{"truncate longer than string", `{{ "test".truncate(100) }}`, "test"},
 		{"truncate empty string", `{{ "".truncate(5) }}`, ""},
 		{"truncate cyrillic", `{{ "привіт".truncate(2) }}`, "пр..."},

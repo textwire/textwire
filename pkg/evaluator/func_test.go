@@ -637,6 +637,16 @@ func TestFunctionGivesError(t *testing.T) {
 			),
 		},
 		{
+			505,
+			`{{ "anna".truncate(-1) }}`,
+			fail.New(
+				nil,
+				"/path/to/file",
+				fail.OriginEval,
+				fail.ErrFuncTruncateArg,
+			),
+		},
+		{
 			510,
 			`{{ "anna".truncate(1, true) }}`,
 			fail.New(
