@@ -3,6 +3,7 @@
 ## v6.0.3 (2026-11-20)
 
 - 🐛 `truncate()` now returns an error for negative lengths instead of silently treating them as zero. Closes [#125](https://github.com/textwire/textwire/issues/125).
+- 🐛 `TemplateFS` now loads templates relative to `TemplateDir` instead of walking the whole file system. `TemplateDir: "."` loads templates from the root, and files outside the configured directory are ignored. Closes [#124](https://github.com/textwire/textwire/issues/124).
 
 ## v6.0.2 (2026-11-20)
 

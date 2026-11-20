@@ -3,6 +3,9 @@ package textwire
 import (
 	"path/filepath"
 	"testing"
+	"testing/fstest"
+
+	"github.com/textwire/textwire/v6/config"
 )
 
 func TestLocateFiles_IgnoresNonTemplateFiles(t *testing.T) {
@@ -25,5 +28,53 @@ func TestLocateFiles_IgnoresNonTemplateFiles(t *testing.T) {
 
 	if files[0].Name != "index" {
 		t.Fatalf("expected template %q, got %q", "index", files[0].Name)
+	}
+}
+
+func TestNewTemplate_WithRootTemplateDirAndFS(t *testing.T) {
+	tpl, failure := NewTemplate(&config.Config{
+		TemplateDir: ".",
+		TemplateFS: fstest.MapFS{
+			"index.tw": &fstest.MapFile{Data: []byte("hello")},
+		},
+	})
+
+	if failure != nil {
+		t.Fatalf("failed to create template: %v", failure)
+	}
+
+	actual, failure := tpl.String("index", nil)
+	if failure != nil {
+		t.Fatalf("failed to render template: %v", failure)
+	}
+
+	if actual != "hello" {
+		t.Fatalf("expected %q, got %q", "hello", actual)
+	}
+}
+
+func TestNewTemplate_WithFSIgnoresFilesOutsideTemplateDir(t *testing.T) {
+	tpl, failure := NewTemplate(&config.Config{
+		TemplateDir: "templates",
+		TemplateFS: fstest.MapFS{
+			"templates/index.tw": &fstest.MapFile{Data: []byte("hello")},
+			"docs/readme.tw":     &fstest.MapFile{Data: []byte("hello")},
+		},
+	})
+	if failure != nil {
+		t.Fatalf("failed to create template: %v", failure)
+	}
+
+	actual, failure := tpl.String("index", nil)
+	if failure != nil {
+		t.Fatalf("failed to render template: %v", failure)
+	}
+
+	if actual != "hello" {
+		t.Fatalf("expected %q, got %q", "hello", actual)
+	}
+
+	if _, failure := tpl.String("docs/readme", nil); failure == nil {
+		t.Fatal("expected file outside of template dir to be ignored")
 	}
 }
