@@ -5,6 +5,7 @@ var tokens = [...]string{
 	EOF:     "eof",
 
 	UNCLOSED_COMMENT: "unclosed comment",
+	UNCLOSED_STRING:  "unclosed string",
 
 	IDENT: "identifier",
 	TEXT:  "text",

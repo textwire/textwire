@@ -414,19 +414,15 @@ func TestUnterminatedBraces(t *testing.T) {
 
 func TestUnterminatedString(t *testing.T) {
 	cases := []struct {
-		name string
-		inp  string
-		lit  string
+		name  string
+		inp   string
+		quote string
 	}{
-		{name: "unterminated double quote", inp: `{{ "unterminated }}`, lit: "unterminated }}"},
-		{name: "unterminated single quote", inp: `{{ 'abc`, lit: "abc"},
-		{name: "escaped quote eats closing", inp: `{{ "unterminated\"`, lit: `unterminated\"`},
-		{
-			name: "escaped single quote eats closing",
-			inp:  `{{ 'unterminated\'`,
-			lit:  `unterminated\'`,
-		},
-		{name: "trailing backslash", inp: `{{ "abc\`, lit: `abc\`},
+		{name: "unterminated double quote", inp: `{{ "unterminated }}`, quote: `"`},
+		{name: "unterminated single quote", inp: `{{ 'abc`, quote: `'`},
+		{name: "escaped double quote eats closing", inp: `{{ "unterminated\"`, quote: `"`},
+		{name: "escaped single quote eats closing", inp: `{{ 'unterminated\'`, quote: `'`},
+		{name: "trailing backslash", inp: `{{ "abc\`, quote: `"`},
 	}
 
 	for _, tc := range cases {
@@ -436,15 +432,15 @@ func TestUnterminatedString(t *testing.T) {
 			for {
 				tok := l.Next()
 
-				if tok.Type == token.ILLEGAL {
-					if tok.Lit != tc.lit {
-						t.Fatalf("expected ILLEGAL literal %q, got %q", tc.lit, tok.Lit)
+				if tok.Type == token.UNCLOSED_STRING {
+					if tok.Lit != tc.quote {
+						t.Fatalf("expected UNCLOSED_STRING literal %q, got %q", tc.quote, tok.Lit)
 					}
 					return
 				}
 
 				if tok.Type == token.EOF {
-					t.Fatal("expected an ILLEGAL token, got EOF")
+					t.Fatal("expected an UNCLOSED_STRING token, got EOF")
 				}
 			}
 		})

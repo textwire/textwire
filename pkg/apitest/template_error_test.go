@@ -56,6 +56,46 @@ func TestTemplateErrorHandling(t *testing.T) {
 			errArgs: nil,
 		},
 		{
+			name: "@use inside component",
+			files: []tplFile{
+				{
+					relPath: "index.tw",
+					content: "A@component('card')@end B",
+				},
+				{
+					relPath: "card.tw",
+					content: "C@use('layout')",
+				},
+				{relPath: "layout.tw", content: "L"},
+			},
+			data:    nil,
+			errFile: "card.tw",
+			errPos:  &position.Pos{StartCol: 1, EndCol: 14},
+			origin:  fail.OriginLink,
+			errMsg:  fail.ErrUseDirIsNotAllowedInComp,
+			errArgs: nil,
+		},
+		{
+			name: "@reserve inside component",
+			files: []tplFile{
+				{
+					relPath: "index.tw",
+					content: "@use('layout')\n@insert('t', 'X')\n@component('card')@end",
+				},
+				{
+					relPath: "layout.tw",
+					content: "@reserve('t')",
+				},
+				{relPath: "card.tw", content: "C@reserve('t', 'fallback')D"},
+			},
+			data:    nil,
+			errFile: "card.tw",
+			errPos:  &position.Pos{StartCol: 1, EndCol: 25},
+			origin:  fail.OriginLink,
+			errMsg:  fail.ErrReserveIsNotAllowedInComp,
+			errArgs: nil,
+		},
+		{
 			name: "unknown named @pass",
 			files: []tplFile{
 				{

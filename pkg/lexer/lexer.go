@@ -252,7 +252,7 @@ func (l *Lexer) embeddedCodeToken() token.Token {
 	case '"', '\'':
 		literal, terminated := l.readString()
 		if !terminated {
-			return l.newToken(token.ILLEGAL, literal)
+			return l.newToken(token.UNCLOSED_STRING, literal)
 		}
 		return l.newToken(token.STR, literal)
 	case '<':
@@ -374,8 +374,7 @@ func (l *Lexer) newToken(tokType token.TokenType, literal string) token.Token {
 	// We need to set the end column and line to the values of the previous
 	// character because we already read the last character and incremented
 	// the column index.
-	// For EOF, ILLEGAL and UNCLOSED_COMMENT we don't need to decrement the column index.
-	if tokType != token.EOF && tokType != token.ILLEGAL && tokType != token.UNCLOSED_COMMENT {
+	if !endsAtCurrentChar(tokType) {
 		endCol = l.prevCol
 		endLine = l.prevLine
 	}
@@ -392,6 +391,18 @@ func (l *Lexer) newToken(tokType token.TokenType, literal string) token.Token {
 		Lit:  literal,
 		Pos:  pos,
 	}
+}
+
+// endsAtCurrentChar reports whether a token ends where the lexer currently
+// is, instead of at the previous character. Such tokens don't decrement the
+// column index.
+func endsAtCurrentChar(tokType token.TokenType) bool {
+	switch tokType {
+	case token.EOF, token.ILLEGAL, token.UNCLOSED_COMMENT, token.UNCLOSED_STRING:
+		return true
+	}
+
+	return false
 }
 
 func (l *Lexer) readIdentifier() string {
@@ -468,7 +479,8 @@ func (l *Lexer) hasIfVariant(tok token.TokenType) bool {
 
 // readString reads a quoted string literal starting at the opening quote.
 // It returns the string with escape sequences processed, and whether the
-// closing quote was found before end of input.
+// closing quote was found before end of input. When it was not found, it
+// returns the opening quote instead.
 func (l *Lexer) readString() (string, bool) {
 	quote := l.char
 
@@ -480,7 +492,7 @@ func (l *Lexer) readString() (string, bool) {
 	raw := l.input[start:l.pos]
 
 	if !terminated {
-		return raw, false // keep the raw text for the ILLEGAL token
+		return string(quote), false
 	}
 
 	l.readChar() // skip the closing quote
