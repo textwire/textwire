@@ -1,5 +1,7 @@
 # Release notes V6
 
+## v6.0.4 (2026-11-21)
+
 ## v6.0.3 (2026-11-20)
 
 - 🐛 `truncate()` now returns an error for negative lengths instead of silently treating them as zero. Closes [#125](https://github.com/textwire/textwire/issues/125).
