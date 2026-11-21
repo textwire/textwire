@@ -78,6 +78,30 @@ func (p *Program) HasUseDir() bool {
 	return p.UseDir != nil
 }
 
+// CheckComponentFile returns an error if a component file uses directives
+// that only templates and layouts can use.
+func (p *Program) CheckComponentFile() *fail.Error {
+	if p.HasUseDir() {
+		return fail.New(
+			p.UseDir.Pos(),
+			p.AbsPath,
+			fail.OriginLink,
+			fail.ErrUseDirIsNotAllowedInComp,
+		)
+	}
+
+	for _, reserveDir := range p.Reserves {
+		return fail.New(
+			reserveDir.Pos(),
+			p.AbsPath,
+			fail.OriginLink,
+			fail.ErrReserveIsNotAllowedInComp,
+		)
+	}
+
+	return nil
+}
+
 func (p *Program) LinkPassBlocksToSlots(compDir *CompDir, compFileProg *Program) *fail.Error {
 	if err := compFileProg.linkPassBlocksToSlots(compDir, p.AbsPath); err != nil {
 		return err

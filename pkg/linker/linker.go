@@ -101,6 +101,10 @@ func (nl *NodeLinker) handleCompLinking(prog *ast.Program) *fail.Error {
 			)
 		}
 
+		if err := compFileProg.CheckComponentFile(); err != nil {
+			return err
+		}
+
 		if err := prog.LinkPassBlocksToSlots(compDir, compFileProg); err != nil {
 			return err
 		}

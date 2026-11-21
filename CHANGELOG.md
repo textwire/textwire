@@ -2,6 +2,8 @@
 
 ## v6.0.4 (2026-11-21)
 
+- 🐛 `@use` and `@reserve` inside a component file now report an error instead of changing the output. Could be a breaking change if you were using `@use` or `@reserve` inside a component file to set up global data for the component. Closes [#141](https://github.com/textwire/textwire/issues/141).
+
 ## v6.0.3 (2026-11-20)
 
 - 🐛 `truncate()` now returns an error for negative lengths instead of silently treating them as zero. Closes [#125](https://github.com/textwire/textwire/issues/125).
