@@ -19,6 +19,7 @@ const (
 	ErrExpectExprAfter        = "expected expression after '%s'"
 	ErrCouldNotParseAs        = "cannot parse '%s' as '%s'"
 	ErrIllegalToken           = "illegal token '%s'"
+	ErrUnclosedString         = "unterminated string literal, missing closing '%s' for string opened on line %d"
 	ErrElseifCannotFollowElse = "@elseif cannot come after @else"
 	ErrExpectedObjLit         = "expected object literal, got '%s'"
 	ErrInvalidObjKey          = "object key must be an identifier or a string, got '%s'"

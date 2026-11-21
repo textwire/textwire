@@ -1420,6 +1420,18 @@ func TestErrorHandling(t *testing.T) {
 				1,
 			),
 		},
+		{
+			id:  1040,
+			inp: "{{ \"abc }}\nmore {{ 1 }}",
+			err: fail.New(
+				&position.Pos{StartLine: 0, StartCol: 3, EndLine: 1, EndCol: 12},
+				"",
+				fail.OriginPars,
+				fail.ErrUnclosedString,
+				"\"",
+				1,
+			),
+		},
 	}
 
 	for _, tc := range cases {

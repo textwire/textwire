@@ -1666,6 +1666,11 @@ func (p *Parser) illegal() *ast.Illegal {
 	if p.curTokenIs(token.UNCLOSED_COMMENT) {
 		return p.illegalWith(fail.ErrMissingClosingBraces, "--}}")
 	}
+
+	if p.curTokenIs(token.UNCLOSED_STRING) {
+		return p.illegalWith(fail.ErrUnclosedString, p.curToken.Lit, p.curToken.Pos.StartLine+1)
+	}
+
 	return p.illegalWith(fail.ErrIllegalToken, illegalLitText(p.curToken.Lit))
 }
 

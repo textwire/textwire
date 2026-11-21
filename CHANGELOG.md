@@ -3,6 +3,7 @@
 ## v6.0.4 (2026-11-21)
 
 - 🐛 `@use` and `@reserve` inside a component file now report an error instead of changing the output. Could be a breaking change if you were using `@use` or `@reserve` inside a component file to set up global data for the component. Closes [#141](https://github.com/textwire/textwire/issues/141).
+- 🐛 An unclosed string literal, like `{{ "abc }}`, now reports `unterminated string literal, missing closing '"' for string opened on line 1` instead of echoing the rest of the file as an illegal token. Closes [#142](https://github.com/textwire/textwire/issues/142).
 
 ## v6.0.3 (2026-11-20)
 
