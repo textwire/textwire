@@ -9,7 +9,6 @@ import (
 	"strings"
 	"unicode"
 
-	"github.com/textwire/textwire/v6/config"
 	"github.com/textwire/textwire/v6/pkg/ast"
 	"github.com/textwire/textwire/v6/pkg/fail"
 	"github.com/textwire/textwire/v6/pkg/value"
@@ -171,30 +170,6 @@ func stripControlDirs(obj value.Value) value.Value {
 	}
 
 	return stripped
-}
-
-// hasCustomFunc checks if the object has a custom function
-func hasCustomFunc(customFunc *config.Func, t value.ValueType, funcName string) bool {
-	if customFunc == nil {
-		return false
-	}
-
-	switch t {
-	case value.STR_VAL:
-		return customFunc.Str[funcName] != nil
-	case value.ARR_VAL:
-		return customFunc.Arr[funcName] != nil
-	case value.INT_VAL:
-		return customFunc.Int[funcName] != nil
-	case value.FLOAT_VAL:
-		return customFunc.Float[funcName] != nil
-	case value.BOOL_VAL:
-		return customFunc.Bool[funcName] != nil
-	case value.OBJ_VAL:
-		return customFunc.Obj[funcName] != nil
-	default:
-		return false
-	}
 }
 
 // getDecimalConfig extracts the separator and decimal count from args.

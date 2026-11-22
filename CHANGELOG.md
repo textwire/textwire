@@ -3,6 +3,7 @@
 ## v6.0.5 (2026-11-22)
 
 - 🐛 `camel()` on an object now gives the same result on every render when several keys convert to the same camel case key. The key that is already in camel case wins. Otherwise, the key that comes first in byte order wins. For example, `{a_b: 1, aB: 2}.camel()` always returns `{aB: 2}`. Closes [#139](https://github.com/textwire/textwire/issues/139).
+- 🐛 A panic inside a custom function now stops rendering with an error like `custom function _name() panicked: boom` instead of crashing. Closes [#134](https://github.com/textwire/textwire/issues/134).
 
 ## v6.0.4 (2026-11-21)
 

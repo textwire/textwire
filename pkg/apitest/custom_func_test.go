@@ -110,6 +110,22 @@ func TestCustomFunc_UnsupportedNestedResult(t *testing.T) {
 	assertUnsupportedResult(t, failure, unsupportedChan)
 }
 
+func TestCustomFunc_PanicBecomesError(t *testing.T) {
+	panics := func(string, ...any) any { panic("boom") }
+
+	assertNoFailure(t, textwire.RegisterStrFunc("_panics", panics))
+
+	_, failure := textwire.EvaluateString(`{{ "x"._panics() }}`, nil)
+	if failure == nil {
+		t.Fatal("expected error for panicking custom function, got none")
+	}
+
+	expect := "custom function _panics() panicked: boom"
+	if failure.Message() != expect {
+		t.Fatalf("wrong error message. Expect %q, got %q", expect, failure.Message())
+	}
+}
+
 func TestCustomFunc(t *testing.T) {
 	t.Run("register for integer receiver", func(t *testing.T) {
 		err := textwire.RegisterIntFunc("_double", func(num int, args ...any) any {

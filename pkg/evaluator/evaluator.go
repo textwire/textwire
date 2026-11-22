@@ -1088,12 +1088,13 @@ func (e *Evaluator) decStmt(decInc *ast.DecStmt, ctx *Context) value.Literal {
 
 func (e *Evaluator) callExpr(callExp *ast.CallExpr, ctx *Context) value.Literal {
 	receiver := e.evalLiteral(callExp.Receiver, ctx)
-	funcName := callExp.Function.Name
 	if isError(receiver) {
 		return receiver
 	}
 
+	funcName := callExp.Function.Name
 	receiverType := receiver.Type()
+
 	typeFuncs, ok := functions[receiverType]
 	if !ok {
 		return e.newError(callExp, ctx, fail.ErrFuncNotDefined, receiverType, funcName)
@@ -1104,49 +1105,81 @@ func (e *Evaluator) callExpr(callExp *ast.CallExpr, ctx *Context) value.Literal 
 		return args[0]
 	}
 
-	buitin, ok := typeFuncs[callExp.Function.Name]
-	if ok {
-		result, err := buitin.Fn(receiver, args...)
-		if err != nil {
-			return e.newError(callExp, ctx, "%s", err.Error())
-		}
-		return result
+	if builtin, ok := typeFuncs[funcName]; ok {
+		return e.callBuiltin(callExp, ctx, builtin, receiver, args)
 	}
 
-	if hasCustomFunc(e.customFunc, receiverType, funcName) {
-		nativeArgs := e.valuesToNativeType(args)
+	if call, ok := e.customCall(receiver, funcName, e.valuesToNativeType(args)); ok {
+		return e.invokeCustomFunc(callExp, ctx, call)
+	}
 
-		switch r := receiver.(type) {
-		case *value.Str:
-			fun := e.customFunc.Str[funcName]
-			res := fun(r.String(), nativeArgs...)
-			return value.NativeToValue(res)
-		case *value.Arr:
-			fun := e.customFunc.Arr[funcName]
-			nativeElems := e.valuesToNativeType(r.Elements)
-			res := fun(nativeElems, nativeArgs...)
-			return value.NativeToValue(res)
-		case *value.Int:
-			fun := e.customFunc.Int[funcName]
-			res := fun(int(r.Val), nativeArgs...)
-			return value.NativeToValue(res)
-		case *value.Float:
-			fun := e.customFunc.Float[funcName]
-			res := fun(r.Val, nativeArgs...)
-			return value.NativeToValue(res)
-		case *value.Bool:
-			fun := e.customFunc.Bool[funcName]
-			res := fun(r.Val, nativeArgs...)
-			return value.NativeToValue(res)
-		case *value.Obj:
-			fun := e.customFunc.Obj[funcName]
-			firstArg := r.Native()
-			res := fun(firstArg.(map[string]any), nativeArgs...)
-			return value.NativeToValue(res)
+	return e.newError(callExp, ctx, fail.ErrFuncNotDefined, receiverType, funcName)
+}
+
+func (e *Evaluator) callBuiltin(
+	callExp *ast.CallExpr,
+	ctx *Context,
+	builtin *value.Builtin, // use whatever your actual type is
+	receiver value.Literal,
+	args []value.Literal,
+) value.Literal {
+	result, err := builtin.Fn(receiver, args...)
+	if err != nil {
+		return e.newError(callExp, ctx, "%s", err.Error())
+	}
+
+	return result
+}
+
+// customCall looks up a user-registered function for the receiver's type and
+// returns a thunk that invokes it. The bool is false if none is registered.
+func (e *Evaluator) customCall(
+	receiver value.Literal,
+	funcName string,
+	args []any,
+) (func() any, bool) {
+	switch r := receiver.(type) {
+	case *value.Str:
+		if fn, ok := e.customFunc.Str[funcName]; ok {
+			return func() any { return fn(r.String(), args...) }, true
+		}
+	case *value.Arr:
+		if fn, ok := e.customFunc.Arr[funcName]; ok {
+			return func() any { return fn(e.valuesToNativeType(r.Elements), args...) }, true
+		}
+	case *value.Int:
+		if fn, ok := e.customFunc.Int[funcName]; ok {
+			return func() any { return fn(int(r.Val), args...) }, true
+		}
+	case *value.Float:
+		if fn, ok := e.customFunc.Float[funcName]; ok {
+			return func() any { return fn(r.Val, args...) }, true
+		}
+	case *value.Bool:
+		if fn, ok := e.customFunc.Bool[funcName]; ok {
+			return func() any { return fn(r.Val, args...) }, true
+		}
+	case *value.Obj:
+		if fn, ok := e.customFunc.Obj[funcName]; ok {
+			return func() any { return fn(r.Native().(map[string]any), args...) }, true
 		}
 	}
 
-	return e.newError(callExp, ctx, fail.ErrFuncNotDefined, receiver.Type(), callExp.Function.Name)
+	return nil, false
+}
+
+func (e *Evaluator) invokeCustomFunc(
+	callExp *ast.CallExpr,
+	ctx *Context,
+	call func() any,
+) (res value.Literal) {
+	defer func() {
+		if r := recover(); r != nil {
+			res = e.newError(callExp, ctx, fail.ErrCustomFuncPanic, callExp.Function.Name, r)
+		}
+	}()
+
+	return value.NativeToValue(call())
 }
 
 func (e *Evaluator) globalCallExpr(globalCallExp *ast.GlobalCallExpr, ctx *Context) value.Literal {
