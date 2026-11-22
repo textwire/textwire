@@ -160,6 +160,51 @@ func TestObjCamel(t *testing.T) {
 	}
 }
 
+func TestObjCamelKeyCollisions(t *testing.T) {
+	cases := []struct {
+		name   string
+		inp    string
+		expect string
+	}{
+		{
+			name:   "key already in camel case wins over converted key",
+			inp:    `{{ {a_b: 1, aB: 2}.camel() }}`,
+			expect: `{aB: 2}`,
+		},
+		{
+			name:   "key already in camel case wins over key first in byte order",
+			inp:    `{{ {"a b": 1, a_b: 2, aB: 3}.camel() }}`,
+			expect: `{aB: 3}`,
+		},
+		{
+			name:   "key first in byte order wins when none is in camel case",
+			inp:    `{{ {user_name: 1, "user-name": 2, "user name": 3}.camel() }}`,
+			expect: `{userName: 3}`,
+		},
+		{
+			name:   "hyphen comes before underscore in byte order",
+			inp:    `{{ {_name: 1, "-name": 2}.camel() }}`,
+			expect: `{Name: 2}`,
+		},
+		{
+			name:   "keys in nested object collide by the same rule",
+			inp:    `{{ {data: {a_b: 1, aB: 2, "c d": 3, c_d: 4}}.camel() }}`,
+			expect: `{data: {aB: 2, cD: 3}}`,
+		},
+		{
+			name:   "winning nested object is converted and losing one is dropped",
+			inp:    `{{ {user_data: {first_name: 1}, userData: {last_name: 2}}.camel() }}`,
+			expect: `{userData: {lastName: 2}}`,
+		},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			evaluationExpected(t, tc.inp, tc.expect, nil, "")
+		})
+	}
+}
+
 type testAddress struct {
 	Street string
 	City   string

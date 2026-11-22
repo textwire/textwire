@@ -1,5 +1,9 @@
 # Release notes V6
 
+## v6.0.5 (2026-11-22)
+
+- 🐛 `camel()` on an object now gives the same result on every render when several keys convert to the same camel case key. The key that is already in camel case wins. Otherwise, the key that comes first in byte order wins. For example, `{a_b: 1, aB: 2}.camel()` always returns `{aB: 2}`. Closes [#139](https://github.com/textwire/textwire/issues/139).
+
 ## v6.0.4 (2026-11-21)
 
 - 🐛 `@use` and `@reserve` inside a component file now report an error instead of changing the output. Could be a breaking change if you were using `@use` or `@reserve` inside a component file to set up global data for the component. Closes [#141](https://github.com/textwire/textwire/issues/141).
