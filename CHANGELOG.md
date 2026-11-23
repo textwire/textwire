@@ -3,6 +3,7 @@
 ## v6.0.6 (2026-11-23)
 
 - 🐛 Native `float32` values now use their shortest round-trip decimal representation in template output and JSON. For example, `float32(0.1)` renders as `0.1`, not `0.10000000149011612`.
+- 🐛 String length, indexing, truncation and reversal now follow Unicode 17 extended grapheme cluster boundaries using `github.com/clipperhouse/uax29/v2` v2.5.0. For example, `{{ "a\r\nb".len() }}` returns `3`. Reversal keeps leading combining marks and ZWJ characters at the start instead of making them attach to different text.
 
 ## v6.0.5 (2026-11-23)
 

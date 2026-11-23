@@ -100,10 +100,13 @@ func strCapitalizeFunc(receiver value.Literal, _ ...value.Literal) (value.Litera
 func strReverseFunc(receiver value.Literal, _ ...value.Literal) (value.Literal, error) {
 	val := receiver.(*value.Str).Val
 
-	clusters := splitClusters(val)
+	prefixLen := leadingClusterExtenderPrefixLen(val)
+	prefix := val[:prefixLen]
+	clusters := splitClusters(val[prefixLen:])
 	slices.Reverse(clusters)
 
-	return &value.Str{Val: strings.Join(clusters, "")}, nil
+	res := prefix + strings.Join(clusters, "")
+	return &value.Str{Val: res}, nil
 }
 
 // strContainsFunc returns true if the string contains the given substring, false otherwise
