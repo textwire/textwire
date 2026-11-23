@@ -1,6 +1,6 @@
 <p align="center"><img src="https://textwire.serhiicho.com/images/logo.png" width="200" height="200" /></p>
 
-# Textwire. A templating language for Go
+# Textwire. A templating engine for Go
 
 [![Build and test](https://github.com/textwire/textwire/actions/workflows/go.yml/badge.svg)](https://github.com/textwire/textwire/actions/workflows/go.yml)
 ![Commit activity](https://img.shields.io/github/commit-activity/y/textwire/textwire)
