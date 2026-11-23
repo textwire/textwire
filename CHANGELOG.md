@@ -1,5 +1,12 @@
 # Release notes V6
 
+## v6.0.5 (2026-11-23)
+
+- 🐛 Each `Template` now keeps the config it was created with. Creating a template no longer changes the component depth limit, global data, error paths or other settings of templates that already exist, and rendering no longer races with `NewTemplate` or `Configure`. A template's config is resolved from built-in defaults, then `Configure` settings, then the options of that `NewTemplate` call. This corrects unintended shared behavior, so callers that relied on `NewTemplate` changing app-wide configuration will see different results. Closes [#143](https://github.com/textwire/textwire/issues/143).
+- 🐛 `Configure(nil)` now keeps an explicitly set `TemplateFS` instead of replacing it with a source derived from `TemplateDir`. A source is derived from `TemplateDir` only when no `TemplateFS` is set. Closes [#143](https://github.com/textwire/textwire/issues/143).
+- 🐛 `camel()` on an object now gives the same result on every render when several keys convert to the same camel case key. The key that is already in camel case wins. Otherwise, the key that comes first in byte order wins. For example, `{a_b: 1, aB: 2}.camel()` always returns `{aB: 2}`. Closes [#139](https://github.com/textwire/textwire/issues/139).
+- 🐛 A panic inside a custom function now stops rendering with an error like `custom function _name() panicked: boom` instead of crashing. Closes [#134](https://github.com/textwire/textwire/issues/134).
+
 ## v6.0.4 (2026-11-21)
 
 - 🐛 `@use` and `@reserve` inside a component file now report an error instead of changing the output. Could be a breaking change if you were using `@use` or `@reserve` inside a component file to set up global data for the component. Closes [#141](https://github.com/textwire/textwire/issues/141).

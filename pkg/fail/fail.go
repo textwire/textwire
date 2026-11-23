@@ -77,6 +77,7 @@ const (
 
 	// Functions
 	ErrFuncNotDefined      = "%s.%s() is not defined"
+	ErrCustomFuncPanic     = "custom function %s() panicked: %v"
 	ErrFuncMissingArg      = "%s.%s(arg) missing required argument"
 	ErrFuncFirstArgInt     = "argument 1 on %s.%s() must be 'integer'"
 	ErrFuncFirstArgStr     = "argument 1 on %s.%s() must be 'string'"

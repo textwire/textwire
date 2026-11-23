@@ -220,19 +220,54 @@ func (o *Obj) Is(t ValueType) bool {
 	return t == o.Type()
 }
 
-// ToCamel converts each key in a pair to camel case and returns it
-// without mutating it.
+// ToCamel returns a copy of the pairs with every key converted to camel
+// case. Nested objects are converted too, and the original is unchanged.
+//
+// Different keys can convert to the same camel case key, like "a_b" and
+// "aB". Only one of them is kept, see isPreferredKey for which one.
 func (o Obj) ToCamel() map[string]Literal {
-	res := make(map[string]Literal, len(o.Pairs))
-	for k, v := range o.Pairs {
-		key := utils.ToCamel(k)
-		if v.Is(OBJ_VAL) {
-			v = &Obj{Pairs: v.(*Obj).ToCamel()}
+	// For each camel key, decide which original key wins.
+	keptKeyByCamelKey := make(map[string]string, len(o.Pairs))
+	for key := range o.Pairs {
+		camelKey := utils.ToCamel(key)
+
+		kept, isTaken := keptKeyByCamelKey[camelKey]
+		if !isTaken || isPreferredKey(key, kept, camelKey) {
+			keptKeyByCamelKey[camelKey] = key
 		}
-		res[key] = v
 	}
 
-	return res
+	// Build the result, converting nested objects only for winners.
+	camelPairs := make(map[string]Literal, len(keptKeyByCamelKey))
+	for camelKey, key := range keptKeyByCamelKey {
+		camelPairs[camelKey] = toCamelLiteral(o.Pairs[key])
+	}
+
+	return camelPairs
+}
+
+// toCamelLiteral converts nested objects and returns other values as is.
+func toCamelLiteral(val Literal) Literal {
+	if nested, ok := val.(*Obj); ok {
+		return &Obj{Pairs: nested.ToCamel()}
+	}
+
+	return val
+}
+
+// isPreferredKey reports whether key should be kept instead of otherKey
+// when both convert to camelKey. The key that is already camelKey is
+// preferred. Otherwise, the key that comes first in byte order is.
+func isPreferredKey(key, otherKey, camelKey string) bool {
+	if otherKey == camelKey {
+		return false
+	}
+
+	if key == camelKey {
+		return true
+	}
+
+	return key < otherKey
 }
 
 func (o *Obj) sortedKeys() []string {

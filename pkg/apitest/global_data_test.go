@@ -56,8 +56,6 @@ func TestGlobalData_UnsupportedValue(t *testing.T) {
 
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {
-			resetConfigAfterTest(t)
-
 			_, failure := textwire.NewTemplate(&config.Config{
 				GlobalData: map[string]any{"env": "dev", "auth": tc.auth},
 			})

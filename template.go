@@ -24,20 +24,22 @@ const (
 type Template struct {
 	linker *linker.NodeLinker
 	global *value.Obj
+	conf   *config.Config
 }
 
 // NewTemplate returns a new Template instance with parsed Textwire files
 // provided by configuration options. The Template instance should be used
 // for evaluating Textwire in your handlers.
 func NewTemplate(opt *config.Config) (*Template, *fail.Error) {
-	Configure(opt)
+	conf := defaultConfig()
+	conf.Configure(opt)
 
-	global, failure := value.NewFrozenGlobal(userConf.GlobalData)
+	global, failure := value.NewFrozenGlobal(conf.GlobalData)
 	if failure != nil {
 		return nil, failure
 	}
 
-	files, err := locateFiles()
+	files, err := locateFiles(conf)
 	if err != nil {
 		return nil, fail.FromError(err, nil, "", fail.OriginTpl)
 	}
@@ -55,10 +57,11 @@ func NewTemplate(opt *config.Config) (*Template, *fail.Error) {
 	tpl := &Template{
 		linker: ln,
 		global: global,
+		conf:   conf,
 	}
 
-	if userConf.FileWatcher {
-		newFileWatcher(ln).Watch()
+	if conf.FileWatcher {
+		newFileWatcher(conf, ln).Watch()
 	}
 
 	return tpl, nil
@@ -82,11 +85,11 @@ func (t *Template) String(name string, data map[string]any) (string, *fail.Error
 	name = file.ReplacePathAlias(name, file.PathAliasViews)
 	prog := ast.FindProg(name, progs)
 	if prog == nil {
-		relPath := file.NameToRelPath(name, userConf.TemplateDir, userConf.TemplateExt)
+		relPath := file.NameToRelPath(name, t.conf.TemplateDir, t.conf.TemplateExt)
 		return "", fail.New(nil, relPath, fail.OriginTpl, fail.ErrTemplateNotFound, name)
 	}
 
-	e := evaluator.New(customFunc, userConf, t.global)
+	e := evaluator.New(customFunc, t.conf, t.global)
 	ctx := evaluator.NewContext(scope, prog.AbsPath)
 	evaluated := e.Eval(prog, ctx)
 	if evaluated.Is(value.ERR_VAL) {
@@ -151,12 +154,12 @@ func (t *Template) writeFailure(
 ) *fail.Error {
 	status := httpStatusFor(failure)
 
-	if userConf.ErrorPagePath != "" && !userConf.DebugMode {
+	if t.conf.ErrorPagePath != "" && !t.conf.DebugMode {
 		w.WriteHeader(status)
 		return t.responseCustomErrorPage(w)
 	}
 
-	page, err := errorPage(failure)
+	page, err := errorPage(failure, t.conf.DebugMode)
 	if err != nil {
 		return err
 	}
@@ -166,14 +169,14 @@ func (t *Template) writeFailure(
 }
 
 func (t *Template) responseCustomErrorPage(w http.ResponseWriter) *fail.Error {
-	evaluated, failure := t.String(userConf.ErrorPagePath, nil)
+	evaluated, failure := t.String(t.conf.ErrorPagePath, nil)
 	if failure != nil {
 		return failure
 	}
 
 	_, err := fmt.Fprint(w, evaluated)
 	if err != nil {
-		return fail.FromError(err, nil, userConf.ErrorPagePath, fail.OriginTpl)
+		return fail.FromError(err, nil, t.conf.ErrorPagePath, fail.OriginTpl)
 	}
 
 	return nil

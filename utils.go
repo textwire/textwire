@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/textwire/textwire/v6/config"
 	"github.com/textwire/textwire/v6/pkg/ast"
 	"github.com/textwire/textwire/v6/pkg/fail"
 	"github.com/textwire/textwire/v6/pkg/file"
@@ -19,13 +20,13 @@ var defaultErrPage string
 
 // errorPage returns HTML that's displayed when an error occurs while
 // rendering template.
-func errorPage(failure *fail.Error) (string, *fail.Error) {
+func errorPage(failure *fail.Error, debugMode bool) (string, *fail.Error) {
 	data := map[string]any{
 		"path":      failure.Filepath(),
 		"line":      failure.Pos().Line(),
 		"col":       failure.Pos().Col(),
 		"message":   failure.Message(),
-		"debugMode": userConf.DebugMode,
+		"debugMode": debugMode,
 	}
 
 	out, err := EvaluateString(defaultErrPage, data)
@@ -109,20 +110,20 @@ func makeFileNameSet(files []*file.SourceFile) map[string]bool {
 // locateFiles recursively finds all Textwire files in the templates directory,
 // creates a *file.SourceFile wrapper for each of them, and returns the
 // discovered files.
-func locateFiles() ([]*file.SourceFile, error) {
+func locateFiles(conf *config.Config) ([]*file.SourceFile, error) {
 	var files []*file.SourceFile
-	root := locateRoot()
+	root := locateRoot(conf)
 
 	walk := func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
 
-		if !isTemplateFile(path, d) {
+		if !isTemplateFile(conf, path, d) {
 			return nil
 		}
 
-		sf, err := newSourceFile(root, path, d)
+		sf, err := newSourceFile(conf, root, path, d)
 		if err != nil {
 			return err
 		}
@@ -131,7 +132,7 @@ func locateFiles() ([]*file.SourceFile, error) {
 		return nil
 	}
 
-	if err := fs.WalkDir(userConf.TemplateFS, root, walk); err != nil {
+	if err := fs.WalkDir(conf.TemplateFS, root, walk); err != nil {
 		return nil, err
 	}
 
@@ -142,32 +143,37 @@ func locateFiles() ([]*file.SourceFile, error) {
 // TemplateFS is used, walking starts inside config.TemplateDir so files
 // outside of it are ignored. Without a custom file system, config.TemplateDir
 // is the file system root, so "." is used instead.
-func locateRoot() string {
-	if !userConf.UsesFS() {
+func locateRoot(conf *config.Config) string {
+	if !conf.UsesFS() {
 		return "."
 	}
 
-	dir := strings.TrimPrefix(filepath.ToSlash(userConf.TemplateDir), "/")
+	dir := strings.TrimPrefix(filepath.ToSlash(conf.TemplateDir), "/")
 
 	return path.Clean(dir)
 }
 
 // isTemplateFile reports whether the entry is a regular file with the
 // configured template extension.
-func isTemplateFile(path string, d fs.DirEntry) bool {
-	return !d.IsDir() && strings.HasSuffix(path, userConf.TemplateExt)
+func isTemplateFile(conf *config.Config, path string, d fs.DirEntry) bool {
+	return !d.IsDir() && strings.HasSuffix(path, conf.TemplateExt)
 }
 
 // newSourceFile builds a SourceFile for the template at the given walk path.
-func newSourceFile(root, path string, d fs.DirEntry) (*file.SourceFile, error) {
+func newSourceFile(
+	conf *config.Config,
+	root,
+	path string,
+	d fs.DirEntry,
+) (*file.SourceFile, error) {
 	// When templates are embedded via config.TemplateFS, the walked path
 	// starts with config.TemplateDir. Strip only that leading path segment
 	// to avoid duplication in the relative path.
-	if userConf.UsesFS() && root != "." {
+	if conf.UsesFS() && root != "." {
 		path = strings.TrimPrefix(path, root+"/")
 	}
 
-	relPath := file.JoinPaths(userConf.TemplateDir, path)
+	relPath := file.JoinPaths(conf.TemplateDir, path)
 	absPath, err := filepath.Abs(relPath)
 	if err != nil {
 		return nil, err
@@ -178,8 +184,8 @@ func newSourceFile(root, path string, d fs.DirEntry) (*file.SourceFile, error) {
 		return nil, err
 	}
 
-	name := strings.TrimSuffix(path, userConf.TemplateExt)
-	sf := file.New(name, relPath, absPath, userConf)
+	name := strings.TrimSuffix(path, conf.TemplateExt)
+	sf := file.New(name, relPath, absPath, conf)
 	sf.ModTime = info.ModTime()
 
 	return sf, nil

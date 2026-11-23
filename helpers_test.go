@@ -10,13 +10,28 @@ import (
 	"github.com/textwire/textwire/v6/pkg/value"
 )
 
-func useTemplateDir(t *testing.T, dir string) {
+// resetConfig restores the app-wide configuration when the test finishes.
+func resetConfig(t *testing.T) {
 	t.Helper()
 
-	prev := *userConf
-	t.Cleanup(func() { *userConf = prev })
+	confMu.Lock()
+	prev := userConf.Clone()
+	confMu.Unlock()
 
-	userConf.Configure(&config.Config{TemplateDir: dir})
+	t.Cleanup(func() {
+		confMu.Lock()
+		defer confMu.Unlock()
+		userConf = prev
+	})
+}
+
+func useTemplateDir(t *testing.T, dir string) *config.Config {
+	t.Helper()
+
+	resetConfig(t)
+	Configure(&config.Config{TemplateDir: dir})
+
+	return defaultConfig()
 }
 
 // evalTpl evaluates a template given as source text or as a parsed program,
@@ -36,7 +51,9 @@ func evalTpl[T string | *ast.Program](t *testing.T, input T) string {
 		prog = v
 	}
 
-	global, failure := value.NewFrozenGlobal(userConf.GlobalData)
+	conf := defaultConfig()
+
+	global, failure := value.NewFrozenGlobal(conf.GlobalData)
 	if failure != nil {
 		t.Fatalf("failed to create global: %v", failure.Error())
 	}
@@ -46,7 +63,7 @@ func evalTpl[T string | *ast.Program](t *testing.T, input T) string {
 		t.Fatalf("failed to create scope: %v", failure.Error())
 	}
 
-	e := evaluator.New(customFunc, userConf, global)
+	e := evaluator.New(customFunc, conf, global)
 	evaluated := e.Eval(prog, evaluator.NewContext(scope, prog.AbsPath))
 	if evaluated.Is(value.ERR_VAL) {
 		t.Fatalf("failed to render program: %v", evaluated.(*value.Error).Err.Error())
