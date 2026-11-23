@@ -5,8 +5,6 @@ import (
 )
 
 func TestNewScopeFromMap(t *testing.T) {
-	var float32val float32 = 5.731
-
 	data := map[string]any{
 		"title":    "Hello, World!",
 		"n":        -1,
@@ -22,7 +20,7 @@ func TestNewScopeFromMap(t *testing.T) {
 		"bool1":    true,
 		"bool2":    false,
 		"height":   5.7,
-		"weight":   float32val,
+		"weight":   5.731,
 		"nothing":  nil,
 		"ages":     []int{1, 2, 3},
 		"ages64":   []int64{1, 2, 3},
@@ -38,7 +36,7 @@ func TestNewScopeFromMap(t *testing.T) {
 		"statuses": []bool{false, true},
 		"rates64":  []float64{23.4, 56.7, 89.0},
 		"values":   []any{23.4, 56.7, 89.0},
-		"rates32":  []float32{float32val, float32val, float32val},
+		"rates32":  []float32{5.731, 5.731, 5.731},
 	}
 
 	expect := map[string]Value{
@@ -56,7 +54,7 @@ func TestNewScopeFromMap(t *testing.T) {
 		"bool1":    &Bool{Val: true},
 		"bool2":    &Bool{Val: false},
 		"height":   &Float{Val: 5.7},
-		"weight":   &Float{Val: float64(float32val)},
+		"weight":   &Float{Val: 5.731},
 		"nothing":  new(Nil),
 		"ages":     &Arr{Elements: []Literal{&Int{Val: 1}, &Int{Val: 2}, &Int{Val: 3}}},
 		"ages64":   &Arr{Elements: []Literal{&Int{Val: 1}, &Int{Val: 2}, &Int{Val: 3}}},
@@ -78,9 +76,9 @@ func TestNewScopeFromMap(t *testing.T) {
 		},
 		"rates32": &Arr{
 			Elements: []Literal{
-				&Float{Val: float64(float32val)},
-				&Float{Val: float64(float32val)},
-				&Float{Val: float64(float32val)},
+				&Float{Val: 5.731},
+				&Float{Val: 5.731},
+				&Float{Val: 5.731},
 			},
 		},
 	}

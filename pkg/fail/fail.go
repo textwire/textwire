@@ -93,6 +93,7 @@ const (
 	ErrUnsupportedFieldType = "unsupported value type '%s' for field '%s'"
 	ErrUintOverflow         = "unsigned integer '%d' is out of int64 range"
 	ErrUintOverflowField    = "unsigned integer '%d' for field '%s' is out of int64 range"
+	ErrFloat32Conversion    = "cannot convert float32 value: %s"
 	ErrTemplateNotFound     = "template file '%s' not found"
 	ErrFuncAlreadyDefined   = "custom function '%s' already defined for type '%s'"
 

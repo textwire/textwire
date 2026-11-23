@@ -7,7 +7,7 @@
 ![GitHub go.mod Go version](https://img.shields.io/github/go-mod/go-version/textwire/textwire)
 ![GitHub License](https://img.shields.io/github/license/textwire/textwire)
 
-Textwire is a simple yet powerful templating language for Go. It is designed to easily inject variables from Go code into a template file or just a regular string.
+Textwire is a **zero-dependency** templating engine for Go. It is designed to easily inject variables from Go code into your template files.
 
 ### [Read Official Documentation](https://textwire.serhiicho.com)
 

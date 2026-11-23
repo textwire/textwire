@@ -94,6 +94,64 @@ func TestNativeToValue_SupportedValues(t *testing.T) {
 	}
 }
 
+func TestNativeToValue_Float32Formatting(t *testing.T) {
+	tests := []struct {
+		name       string
+		inp        any
+		expect     string
+		expectJSON string
+	}{
+		{
+			name:       "float32 scalar output and JSON use shortest round-trip decimal",
+			inp:        float32(0.1),
+			expect:     "0.1",
+			expectJSON: "0.1",
+		},
+		{
+			name:       "float32 slice output and JSON use shortest round-trip decimals",
+			inp:        []float32{1.1, 2.5},
+			expect:     "1.1, 2.5",
+			expectJSON: "[1.1,2.5]",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			actualVal := NativeToValue(tt.inp)
+			if actualVal.Is(ERR_VAL) {
+				t.Fatalf("NativeToValue returned error: %s", actualVal)
+			}
+
+			actualStr := actualVal.String()
+			if actualStr != tt.expect {
+				t.Errorf("String() = %q, expect %q", actualStr, tt.expect)
+			}
+
+			actualJSON, err := actualVal.JSON()
+			if err != nil {
+				t.Fatalf("JSON() returned error: %s", err)
+			}
+
+			if actualJSON != tt.expectJSON {
+				t.Errorf("JSON() = %q, expect %q", actualJSON, tt.expectJSON)
+			}
+		})
+	}
+
+	t.Run("float32 object field JSON uses shortest round-trip decimal", func(t *testing.T) {
+		lit := NativeToValue(map[string]any{"F32": float32(0.1)})
+		actualJSON, err := lit.JSON()
+		if err != nil {
+			t.Fatalf("object JSON() returned error: %s", err)
+		}
+
+		expectJSON := `{"F32":0.1}`
+		if actualJSON != expectJSON {
+			t.Errorf("object JSON() = %q, expect %q", actualJSON, expectJSON)
+		}
+	})
+}
+
 func TestNativeToValue_UnsupportedValues(t *testing.T) {
 	tests := []struct {
 		name      string

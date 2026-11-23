@@ -1,5 +1,10 @@
 # Release notes V6
 
+## v6.0.6 (2026-11-23)
+
+- 🐛 Native `float32` values now use their shortest round-trip decimal representation in template output and JSON. For example, `float32(0.1)` renders as `0.1`, not `0.10000000149011612`.
+- 🐛 String length, indexing, truncation and reversal now follow Unicode 17 extended grapheme cluster boundaries using `github.com/clipperhouse/uax29/v2` v2.5.0. For example, `{{ "a\r\nb".len() }}` returns `3`. Reversal keeps leading combining marks and ZWJ characters at the start instead of making them attach to different text.
+
 ## v6.0.5 (2026-11-23)
 
 - 🐛 Each `Template` now keeps the config it was created with. Creating a template no longer changes the component depth limit, global data, error paths or other settings of templates that already exist, and rendering no longer races with `NewTemplate` or `Configure`. A template's config is resolved from built-in defaults, then `Configure` settings, then the options of that `NewTemplate` call. This corrects unintended shared behavior, so callers that relied on `NewTemplate` changing app-wide configuration will see different results. Closes [#143](https://github.com/textwire/textwire/issues/143).

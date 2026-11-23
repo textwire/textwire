@@ -3,6 +3,8 @@ package evaluator
 import "testing"
 
 func TestEvalStringFunctions(t *testing.T) {
+	subdivisionFlag := "\U0001F3F4\U000E0067\U000E0062\U000E0065\U000E006E\U000E0067\U000E007F"
+
 	cases := []struct {
 		name   string
 		inp    string
@@ -19,6 +21,11 @@ func TestEvalStringFunctions(t *testing.T) {
 		}, // 👋🏽 skin tone modifier is one character
 		{"len of flag emoji", `{{ "🇨🇭".len() }}`, "1"},
 		{"len of family emoji", `{{ "👨‍👩‍👧".len() }}`, "1"},
+		{"len of CRLF", `{{ "a\r\nb".len() }}`, "3"},
+		{"len of subdivision flag", "{{ \"" + subdivisionFlag + "\".len() }}", "1"},
+		{"len of non-emoji ZWJ sequence", "{{ \"a\u200Db\".len() }}", "2"},
+		{"len of Thai spacing mark", "{{ \"\u0E01\u0E33\".len() }}", "1"},
+		{"len of decomposed Hangul", "{{ \"\u1112\u1161\u11AB\".len() }}", "1"},
 		// split
 		{"split on whitespace", `{{ "one two three".split() }}`, "one, two, three"},
 		{"split empty string default", `{{ "".split() }}`, ""},
@@ -118,7 +125,31 @@ func TestEvalStringFunctions(t *testing.T) {
 		{"reverse combining accent", `{{ "éx".reverse() }}`, "xé"},
 		{"reverse invalid utf8", "{{ \"a\xffb\".reverse() }}", "b\xffa"},
 		{"reverse skin tone emoji", `{{ "👍🏽".reverse() }}`, "👍🏽"},
-		{"reverse leading combining accent", "{{ \"\u0301a\".reverse() }}", "a\u0301"},
+		{
+			"reverse keeps a leading combining accent with its text",
+			"{{ \"\u0301a\".reverse() }}",
+			"\u0301a",
+		},
+		{
+			"reverse keeps a leading Arabic mark attached to following text",
+			"{{ \"\u06DC01\".reverse() }}",
+			"\u06DC10",
+		},
+		{
+			"reverse keeps a leading ZWJ from joining reversed digits",
+			"{{ \"\u200D01\".reverse() }}",
+			"\u200D10",
+		},
+		{
+			"reverse twice preserves leading extenders",
+			"{{ \"\u200D01\".reverse().reverse() }}",
+			"\u200D01",
+		},
+		{
+			"reverse subdivision flag",
+			"{{ \"x" + subdivisionFlag + "\".reverse() }}",
+			subdivisionFlag + "x",
+		},
 		{
 			"reverse emoji followed by ascii",
 			"{{ \"\U0001F44D\U0001F3FDx\".reverse() }}",
@@ -170,6 +201,11 @@ func TestEvalStringFunctions(t *testing.T) {
 		},
 		{"truncate flag", `{{ "🇨🇳🇵🇱".truncate(1) }}`, "🇨🇳..."},
 		{"truncate family emoji", `{{ "👨‍👩‍👧 hi".truncate(1) }}`, "👨‍👩‍👧..."},
+		{
+			"truncate subdivision flag",
+			"{{ \"" + subdivisionFlag + "x\".truncate(1) }}",
+			subdivisionFlag + "...",
+		},
 		// decimal
 		{"decimal of empty string", `{{ "".decimal() }}`, ""},
 		{"decimal of zero", `{{ "0".decimal() }}`, "0.00"},
@@ -239,6 +275,8 @@ func TestEvalStringFunctions(t *testing.T) {
 		{"first skin tone emoji", `{{ "👍🏽".first() }}`, "👍🏽"},
 		{"first flag emoji", `{{ "🇨🇭".first() }}`, "🇨🇭"},
 		{"first family emoji", `{{ "👨‍👩‍👧".first() }}`, "👨‍👩‍👧"},
+		{"first subdivision flag", "{{ \"" + subdivisionFlag + "\".first() }}", subdivisionFlag},
+		{"first non-emoji ZWJ cluster", "{{ \"a\u200Db\".first() }}", "a\u200D"},
 		// last
 		{"last ascii char", `{{ "Textwire is awesome".last() }}`, "e"},
 		{"last chinese char", `{{ "我爱你".last() }}`, "你"},
@@ -247,6 +285,7 @@ func TestEvalStringFunctions(t *testing.T) {
 		{"last skin tone emoji", `{{ "👍🏽".last() }}`, "👍🏽"},
 		{"last flag emoji", `{{ "🇨🇭".last() }}`, "🇨🇭"},
 		{"last family emoji", `{{ "👨‍👩‍👧".last() }}`, "👨‍👩‍👧"},
+		{"last non-emoji ZWJ cluster", "{{ \"a\u200Db\".last() }}", "b"},
 		// format
 		{"format single int placeholder", `{{ "He has %s apples".format(2) }}`, "He has 2 apples"},
 		{
