@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"math"
 	"reflect"
+	"strconv"
 	"strings"
 	"time"
 
@@ -90,7 +91,9 @@ func reflectToLiteral(
 		return &Int{Val: v.Int()}, nil
 	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
 		return uintToInt(v, field)
-	case reflect.Float32, reflect.Float64:
+	case reflect.Float32:
+		return float32ToLiteral(v)
+	case reflect.Float64:
 		return &Float{Val: v.Float()}, nil
 	case reflect.Struct:
 		if t, ok := v.Interface().(time.Time); ok {
@@ -117,6 +120,15 @@ func reflectToLiteral(
 	}
 
 	return nil, unsupportedTypeError(v, field)
+}
+
+func float32ToLiteral(v reflect.Value) (Literal, *fail.Error) {
+	formatted := strconv.FormatFloat(v.Float(), 'g', -1, 32)
+	val, err := strconv.ParseFloat(formatted, 64)
+	if err != nil {
+		return nil, fail.New(nil, "", fail.OriginTpl, fail.ErrFloat32Conversion, err)
+	}
+	return &Float{Val: val}, nil
 }
 
 // refKeyFor returns the refKey for slices, maps and non-nil pointers. Nil
