@@ -116,24 +116,14 @@ func assertReadOnlyValueError(t *testing.T, failure *fail.Error) {
 	}
 }
 
-// resetConfigAfterTest restores the default Textwire configuration when
-// the test finishes, because NewTemplate changes the package-level config.
-func resetConfigAfterTest(t *testing.T) {
-	t.Helper()
-	t.Cleanup(func() { textwire.Configure(config.New()) })
-}
-
 // setupTemplate writes files into a temporary template directory and
 // creates a template from it. A nil conf uses the default config.
-// The global config is reset after the test.
 func setupTemplate(
 	t *testing.T,
 	files []tplFile,
 	conf *config.Config,
 ) (*textwire.Template, *fail.Error) {
 	t.Helper()
-
-	resetConfigAfterTest(t)
 
 	if conf == nil {
 		conf = &config.Config{}

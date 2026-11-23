@@ -25,7 +25,7 @@ const (
 // newTestFileWatcher returns a watcher that doesn't print to stdout, keeping
 // test output clean when tests use intentionally broken templates.
 func newTestFileWatcher(ln *linker.NodeLinker) *fileWatcher {
-	fw := newFileWatcher(ln)
+	fw := newFileWatcher(defaultConfig(), ln)
 	fw.logger.out = io.Discard
 	return fw
 }
@@ -37,7 +37,7 @@ func newStartedWatcher(t *testing.T, ln *linker.NodeLinker) *fileWatcher {
 
 	fw := newTestFileWatcher(ln)
 
-	files, err := locateFiles()
+	files, err := locateFiles(fw.conf)
 	if err != nil {
 		t.Fatalf("failed to locate files: %v", err)
 	}
@@ -158,7 +158,7 @@ func TestRelinkAllPrograms_LogsRefreshedFileOnModTimeChange(t *testing.T) {
 	writeTemplate(t, path, validTpl)
 
 	var out bytes.Buffer
-	fw := newFileWatcher(linker.New(nil))
+	fw := newFileWatcher(defaultConfig(), linker.New(nil))
 	fw.logger.out = &out
 	fw.files = []*file.SourceFile{file.New("home", path, path, config.New())}
 
@@ -190,7 +190,7 @@ func TestRelinkAllPrograms_LogsParseErrorOncePerUnchangedFile(t *testing.T) {
 	writeTemplate(t, path, "Hello {{ name")
 
 	var out bytes.Buffer
-	fw := newFileWatcher(linker.New(nil))
+	fw := newFileWatcher(defaultConfig(), linker.New(nil))
 	fw.logger.out = &out
 	fw.files = []*file.SourceFile{file.New("home", path, path, config.New())}
 
@@ -208,7 +208,7 @@ func TestRelinkAllPrograms_LogsParseErrorAgainAfterEdit(t *testing.T) {
 	writeTemplate(t, path, "Hello {{ name")
 
 	var out bytes.Buffer
-	fw := newFileWatcher(linker.New(nil))
+	fw := newFileWatcher(defaultConfig(), linker.New(nil))
 	fw.logger.out = &out
 	fw.files = []*file.SourceFile{file.New("home", path, path, config.New())}
 
@@ -227,7 +227,7 @@ func TestRelinkAllPrograms_LogsParseErrorAgainAfterRepair(t *testing.T) {
 	writeTemplate(t, path, "Hello {{ name")
 
 	var out bytes.Buffer
-	fw := newFileWatcher(linker.New(nil))
+	fw := newFileWatcher(defaultConfig(), linker.New(nil))
 	fw.logger.out = &out
 	fw.files = []*file.SourceFile{file.New("home", path, path, config.New())}
 

@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/textwire/textwire/v6/config"
 	"github.com/textwire/textwire/v6/pkg/ast"
 	"github.com/textwire/textwire/v6/pkg/fail"
 	"github.com/textwire/textwire/v6/pkg/file"
@@ -18,6 +19,7 @@ import (
 type fileWatcher struct {
 	linker        *linker.NodeLinker
 	logger        *WatcherLogger
+	conf          *config.Config
 	ticker        *time.Ticker
 	files         []*file.SourceFile
 	sources       map[string]string // last valid source of each template, by name
@@ -26,10 +28,11 @@ type fileWatcher struct {
 }
 
 // newFileWatcher creates a new file watcher instance.
-func newFileWatcher(oldLinker *linker.NodeLinker) *fileWatcher {
+func newFileWatcher(conf *config.Config, oldLinker *linker.NodeLinker) *fileWatcher {
 	return &fileWatcher{
 		linker:        oldLinker,
 		logger:        NewWatcherLogger(),
+		conf:          conf,
 		sources:       make(map[string]string),
 		parseFailures: make(map[string]string),
 	}
@@ -39,19 +42,19 @@ func newFileWatcher(oldLinker *linker.NodeLinker) *fileWatcher {
 // It detects file creation, deletion, and modifications, then reparses and
 // relinks accordingly.
 func (fw *fileWatcher) Watch() {
-	if userConf.UsesFS() {
+	if fw.conf.UsesFS() {
 		fw.logger.Fatal("cannot use config.FileWatcher when using config.TemplateFS")
 	}
 
 	fw.logger.Info("watching files for changes...")
 
 	var err error
-	fw.files, err = locateFiles()
+	fw.files, err = locateFiles(fw.conf)
 	if err != nil {
 		fw.logger.Fatal("error locating files " + err.Error())
 	}
 
-	fw.ticker = time.NewTicker(userConf.WatcherInterval)
+	fw.ticker = time.NewTicker(fw.conf.WatcherInterval)
 
 	go func() {
 		for range fw.ticker.C {
@@ -82,7 +85,7 @@ func (fw *fileWatcher) rescanTemplateDir() {
 	fw.logger.Info("file count changed, updating...")
 	oldFiles := fw.files
 
-	files, err := locateFiles()
+	files, err := locateFiles(fw.conf)
 	if err != nil {
 		fw.logger.Error("error locating files " + err.Error())
 		return
@@ -268,9 +271,9 @@ func (fw *fileWatcher) withLock(fn func()) {
 func (fw *fileWatcher) countFiles() int {
 	count := 0
 	err := filepath.WalkDir(
-		userConf.TemplateDir,
+		fw.conf.TemplateDir,
 		func(path string, d os.DirEntry, err error) error {
-			if err == nil && !d.IsDir() && strings.HasSuffix(path, userConf.TemplateExt) {
+			if err == nil && !d.IsDir() && strings.HasSuffix(path, fw.conf.TemplateExt) {
 				count++
 			}
 			return nil

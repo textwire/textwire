@@ -2,6 +2,7 @@ package config
 
 import (
 	"io/fs"
+	"maps"
 	"os"
 	"path/filepath"
 	"time"
@@ -96,9 +97,19 @@ func (c *Config) UsesFS() bool {
 	return c.usesFS
 }
 
+// Clone returns a copy of the config that can be changed without affecting c.
+// Mutable containers are copied, so the clone doesn't share them with c.
+// When you add a mutable field to Config, copy it here.
+// TestClone_CopiesMutableContainers fails until you do.
+func (c *Config) Clone() *Config {
+	clone := *c
+	clone.GlobalData = maps.Clone(c.GlobalData)
+	return &clone
+}
+
 func (c *Config) Configure(opt *Config) {
 	if opt == nil {
-		c.TemplateFS = os.DirFS(c.TemplateDir)
+		c.ensureTemplateFS()
 		return
 	}
 
@@ -125,7 +136,7 @@ func (c *Config) Configure(opt *Config) {
 	}
 
 	if opt.GlobalData != nil {
-		c.GlobalData = opt.GlobalData
+		c.GlobalData = maps.Clone(opt.GlobalData)
 	}
 
 	if opt.MaxComponentDepth > 0 {
@@ -135,4 +146,13 @@ func (c *Config) Configure(opt *Config) {
 	c.FileWatcher = opt.FileWatcher
 	c.DebugMode = opt.DebugMode
 	c.usesFS = opt.TemplateFS != nil
+}
+
+// ensureTemplateFS derives a TemplateFS from TemplateDir only when
+// there is no TemplateFS to preserve.
+func (c *Config) ensureTemplateFS() {
+	if c.TemplateFS == nil {
+		c.TemplateFS = os.DirFS(c.TemplateDir)
+		c.usesFS = false
+	}
 }

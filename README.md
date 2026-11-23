@@ -35,6 +35,8 @@ tpl, err = textwire.NewTemplate(&config.Config{
 
 In template files you can use globals like this `{{ global.env }}`.
 
+`Configure` sets the app-wide defaults for templates created afterward. Options passed to `NewTemplate` apply only to that template, and every template keeps the config it was created with.
+
 ## Project Overview
 
 - **Module**: `github.com/textwire/textwire/v6`

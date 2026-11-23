@@ -1,6 +1,8 @@
 package textwire
 
 import (
+	"sync"
+
 	"github.com/textwire/textwire/v6/config"
 	"github.com/textwire/textwire/v6/pkg/evaluator"
 	"github.com/textwire/textwire/v6/pkg/fail"
@@ -9,6 +11,7 @@ import (
 )
 
 var (
+	confMu     sync.RWMutex
 	userConf   = config.New()
 	customFunc = config.NewFunc()
 )
@@ -42,7 +45,7 @@ func EvaluateString(inp string, data map[string]any) (string, *fail.Error) {
 // The absPath an absolute path to the Textwire file.
 // The data is a map of variables you want to inject into the Textwire.
 func EvaluateFile(absPath string, data map[string]any) (string, *fail.Error) {
-	f := file.New("", "", absPath, userConf)
+	f := file.New("", "", absPath, defaultConfig())
 	content, err := f.Content()
 	if err != nil {
 		return "", fail.FromError(err, nil, absPath, fail.OriginTpl)
@@ -134,7 +137,20 @@ func RegisterBoolFunc(name string, fn config.BoolCustomFunc) *fail.Error {
 	return nil
 }
 
-// Configure passes given options to the user configurations.
+// Configure sets the app-wide defaults used by templates created afterward
+// and by EvaluateFile. Every Template keeps the config it was created with,
+// so calling Configure doesn't change templates that already exist.
 func Configure(opt *config.Config) {
+	confMu.Lock()
+	defer confMu.Unlock()
+
 	userConf.Configure(opt)
+}
+
+// defaultConfig returns a snapshot of the app-wide configuration.
+func defaultConfig() *config.Config {
+	confMu.RLock()
+	defer confMu.RUnlock()
+
+	return userConf.Clone()
 }
